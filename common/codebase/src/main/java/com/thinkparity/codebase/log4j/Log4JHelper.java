@@ -18,7 +18,9 @@ public class Log4JHelper {
     /** A singleton instance. */
     private static final Log4JHelper SINGLETON;
 
-    static { SINGLETON = new Log4JHelper(); }
+    static {
+        SINGLETON = new Log4JHelper();
+    }
 
     /**
      * Render an object for a logger.
@@ -62,8 +64,17 @@ public class Log4JHelper {
         return SINGLETON.doRenderAndFormat(logger, pattern, arguments);
     }
 
-    /** Create Log4JHelper. */
-    private Log4JHelper() { super(); }
+    /** A null text <code>String</code>. */
+    private final String nullText;
+
+    /**
+     * Create Log4JHelper.
+     *
+     */
+    private Log4JHelper() {
+        super();
+        this.nullText = "null";
+    }
 
     /**
      * Render an object for a logger.
@@ -76,12 +87,12 @@ public class Log4JHelper {
      */
     private Object doRender(final Logger logger, final Object o) {
         final LoggerRepository loggerRepository = logger.getLoggerRepository();
-        if(loggerRepository instanceof RendererSupport) {
+        if (loggerRepository instanceof RendererSupport) {
             return ((RendererSupport) loggerRepository).getRendererMap().findAndRender(o);
+        } else {
+            return null == o ? nullText : o.toString();
         }
-        else { return o.toString(); }
     }
-
 
     /**
      * Render an object for a logger.

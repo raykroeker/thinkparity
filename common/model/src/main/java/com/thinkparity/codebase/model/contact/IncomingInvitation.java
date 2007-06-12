@@ -21,7 +21,7 @@ public abstract class IncomingInvitation extends ContactInvitation {
      * Create IncomingInvitation.
      *
      */
-    protected IncomingInvitation() {
+    public IncomingInvitation() {
         super();
     }
 

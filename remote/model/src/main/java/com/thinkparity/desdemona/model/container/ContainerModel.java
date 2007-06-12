@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.thinkparity.codebase.email.EMail;
-import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -52,19 +51,16 @@ public interface ContainerModel {
      *            A <code>List</code> of <code>User</code>s to publish to.
      */
     @ThinkParityAuthenticate(AuthenticationType.USER)
-    public void publish(final JabberId userId, final ContainerVersion version,
-            final Map<DocumentVersion, String> documentVersions,
-            final List<TeamMember> teamMembers, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishedToEMails,
-            final List<User> publishedToUsers);
+    public void publish(final ContainerVersion version,
+            final Map<DocumentVersion, String> documentVersionStreamIds,
+            final List<TeamMember> team, final Calendar publishedOn,
+            final List<EMail> publishToEMails, final List<User> publishToUsers);
 
     @ThinkParityAuthenticate(AuthenticationType.USER)
-    public void publishVersion(final JabberId userId,
-            final ContainerVersion version,
-            final Map<DocumentVersion, String> documentVersions,
-            final List<TeamMember> teamMembers,
-            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishToEMails,
-            final List<User> publishToUsers);
+    public void publishVersion(final ContainerVersion version,
+            final Map<DocumentVersion, String> documentVersionStreamIds,
+            final List<TeamMember> team,
+            final List<ArtifactReceipt> receivedBy, final Calendar publishedOn,
+            final List<EMail> publishToEMails, final List<User> publishToUsers);
 }
 

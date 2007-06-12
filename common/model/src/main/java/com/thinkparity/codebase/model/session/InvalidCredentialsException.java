@@ -3,6 +3,8 @@
  */
 package com.thinkparity.codebase.model.session;
 
+import javax.xml.ws.WebFault;
+
 /**
  * <b>Title:</b>thinkParity Invalid Credentials Exception<br>
  * <b>Description:</b><br>
@@ -10,6 +12,7 @@ package com.thinkparity.codebase.model.session;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
+@WebFault
 public class InvalidCredentialsException extends Exception {
 
     /** Exception message format pattern <code>String</code>. */

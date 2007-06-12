@@ -20,6 +20,8 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
+import com.thinkparity.desdemona.util.DesdemonaProperties;
+
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
@@ -62,15 +64,27 @@ final class StreamServer {
      */
     StreamServer(final File workingDirectory, final Environment environment) {
         super();
+        final DesdemonaProperties properties = DesdemonaProperties.getInstance();
         this.fileServer = new StreamFileServer(this, workingDirectory);
         this.logger = new Log4JWrapper();
-        // TODO figure out how to do this generically
-        final String host = "0.0.0.0";
-        final int port = environment.getStreamPort();
-        if (environment.isStreamTLSEnabled()) {
-            this.socketServer = new SecureStreamSocketServer(this, host, port);
-        } else {
-            this.socketServer = new StreamSocketServer(this, host, port);
+        final String host = properties.getProperty("thinkparity.stream-host");
+        final int port = Integer.valueOf(properties.getProperty("thinkparity.stream-port"));
+        this.socketServer = new SecureStreamSocketServer(this, host, port);
+    }
+
+    /**
+     * Authenticate a session.
+     * 
+     * @param sessionId
+     *            A session id.
+     * @param sessionAddress
+     *            A session <code>InetAddress</code>.
+     * @return A <code>StreamSession</code>.
+     */
+    ServerSession authenticate(final String sessionId) {
+        synchronized (SESSIONS) {
+            // HACK - StreamSession#authenticate() - insecure
+            return SESSIONS.get(sessionId);
         }
     }
 
@@ -83,24 +97,9 @@ final class StreamServer {
      *            A session <code>InetAddress</code>.
      * @return A <code>StreamSession</code>.
      */
-    StreamSession authenticate(final String sessionId,
+    ServerSession authenticate(final String sessionId,
             final InetAddress sessionAddress) {
-        synchronized (SESSIONS) {
-            final ServerSession session = SESSIONS.get(sessionId);
-            final InetAddress inetAddress = session.getInetAddress();
-            if (null == inetAddress) {
-                return session;
-            } else {
-                // HACK insecure
-                if (inetAddress.equals(sessionAddress)) {
-                    return session;
-                } else {
-                    logger.logWarning("Session address {0} does not match original.",
-                            sessionAddress);
-                    return session;
-                }
-            }
-        }
+        return authenticate(sessionId);
     }
 
     /**
@@ -135,6 +134,18 @@ final class StreamServer {
     }
 
     /**
+     * Finalize the persistence of the stream.
+     * 
+     * @param streamSession
+     *            A <code>StreamSession</code>.
+     * @param streamId
+     *            A stream id <code>String</code>.
+     */
+    void finalizeStream(final StreamSession session, final String streamId) {
+        fileServer.finalizeStream(session, streamId);
+    }
+
+    /**
      * Obtain the stream server character set.
      * 
      * @return A <code>Charset</code>.
@@ -153,7 +164,10 @@ final class StreamServer {
      * @return The size of the stream in bytes.
      */
     Long getDownstreamSize(final StreamSession session, final String streamId) {
-        return fileServer.findForDownstream(authenticate(session), streamId).length();
+        final ServerSession serverSession = authenticate(session);
+        if (null == serverSession)
+            throw new StreamException("Illegal access to stream {0}.", streamId);
+        return fileServer.findForDownstream(session, streamId).length();
     }
 
     /**
@@ -166,12 +180,13 @@ final class StreamServer {
         Assert.assertNotNull("Session is null.", session);
         Assert.assertNotNull("Session buffer size is null.", session.getBufferSize());
         Assert.assertNotNull("Session charset is null.", session.getCharset());
-        Assert.assertNotNull("Session environment is null.", session.getEnvironment());
         Assert.assertNotNull("Session id is null.", session.getId());
+        Assert.assertNotNull("Session server host is null.", session.getServerHost());
+        Assert.assertNotNull("Session server port is null.", session.getServerPort());
         synchronized (SESSIONS) {
             SESSIONS.put(session.getId(), session);
-            fileServer.initialize(session);
-            socketServer.initialize(session);
+            fileServer.initialize(session.getClientSession());
+            socketServer.initialize(session.getClientSession());
         }
     }
 
@@ -203,7 +218,10 @@ final class StreamServer {
      */
     InputStream openForDownstream(final StreamSession session,
             final String streamId, final Long streamOffset) throws IOException {
-        final File downstreamFile = fileServer.findForDownstream(authenticate(session), streamId);
+        final ServerSession serverSession = authenticate(session);
+        if (null == serverSession)
+            throw new StreamException("Illegal access to stream {0}.", streamId);
+        final File downstreamFile = fileServer.findForDownstream(session, streamId);
         Assert.assertTrue(streamOffset.longValue() < downstreamFile.length(),
             "Downstream offset {0} cannot be set for {1} of size {2}.",
             streamOffset, streamId, downstreamFile.length());
@@ -226,22 +244,13 @@ final class StreamServer {
      */
     OutputStream openForUpstream(final StreamSession session,
             final String streamId, final Long streamOffset) throws IOException {
-        final File upstreamFile = fileServer.findForUpstream(authenticate(session), streamId);
+        final ServerSession serverSession = authenticate(session);
+        if (null == serverSession)
+            throw new StreamException("Illegal access to stream {0}.", streamId);
+        final File upstreamFile = fileServer.findForUpstream(session, streamId);
         Assert.assertTrue(streamOffset.longValue() == upstreamFile.length(),
                 "Upstream offset cannot be set for {0}.", streamId);
         return new FileOutputStream(upstreamFile, true);
-    }
-
-    /**
-     * Finalize the persistence of the stream.
-     * 
-     * @param streamSession
-     *            A <code>StreamSession</code>.
-     * @param streamId
-     *            A stream id <code>String</code>.
-     */
-    void finalizeStream(final StreamSession session, final String streamId) {
-        fileServer.finalizeStream(session, streamId);
     }
 
     /**
@@ -277,7 +286,7 @@ final class StreamServer {
      *            A <code>StreamSession</code>.
      * @return A <code>StreamSession</code>.
      */
-    private StreamSession authenticate(final StreamSession session) {
+    private ServerSession authenticate(final StreamSession session) {
         synchronized (SESSIONS) {
             return SESSIONS.get(session.getId());
         }

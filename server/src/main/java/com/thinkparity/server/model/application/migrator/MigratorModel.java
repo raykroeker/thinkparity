@@ -6,7 +6,6 @@ package com.thinkparity.desdemona.model.migrator;
 import java.util.List;
 
 import com.thinkparity.codebase.OS;
-import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Feature;
@@ -28,10 +27,8 @@ import com.thinkparity.desdemona.util.AuthenticationType;
 public interface MigratorModel {
 
     /**
-     * Create a stream of the resources.
+     * Create a stream of the resources for a model user.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param streamId
      *            A stream id <code>String</code>.
      * @param release
@@ -39,12 +36,11 @@ public interface MigratorModel {
      * @param resources
      *            A <code>List</code> of <code>Resource</code>s.
      */
-    public void createStream(final JabberId userId, final String streamId,
-            final Product product, final Release release,
-            final List<Resource> resources);
+    public void createStream(final String streamId, final Product product,
+            final Release release, final List<Resource> resources);
 
     /**
-     * Deploy a release.
+     * Deploy a release for a model user.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
@@ -58,15 +54,14 @@ public interface MigratorModel {
      *            A stream id <code>String</code>.
      */
     @ThinkParityAuthenticate(AuthenticationType.SYSTEM)
-    public void deploy(final JabberId userId, final Product product,
-            final Release release, final List<Resource> resources,
-            final String streamId);
+    public void deploy(final Product product, final Release release,
+            final List<Resource> resources, final String streamId);
 
     /**
-     * Log an error.
+     * Log an error for a model user.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
+     * @param logAs
+     *            A <code>User</code> to log the error on behalf of.
      * @param product
      *            A <code>Product</code>.
      * @param release
@@ -74,11 +69,11 @@ public interface MigratorModel {
      * @param occuredOn
      *            The <code>Calendar</code> the error occured.
      */
-    public void logError(final JabberId userId, final Product product,
-            final Release release, final Error error);
+    public void logError(final Product product, final Release release,
+            final Error error);
 
     /**
-     * Read the latest release.
+     * Read the latest release for a model user.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
@@ -86,58 +81,48 @@ public interface MigratorModel {
      *            A product name <code>String</code>.
      * @return A <code>Release</code>.
      */
-    public Release readLatestRelease(final JabberId userId,
-            final String productName, final OS os);
+    public Release readLatestRelease(final String productName, final OS os);
 
     /**
-     * Read a product.
+     * Read a product for a model user.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param name
      *            A product name <code>String</code>.
      * @return A <code>Product</code>.
      */
-    public Product readProduct(final JabberId userId, final String name);
+    public Product readProduct(final String name);
 
     /**
-     * Read a list of the product features.
+     * Read a list of the product features for a model user.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param name
      *            A product name <code>String</code>.
      * @return A <code>List</code> of <code>Feature</code>s.
      */
     @ThinkParityAuthenticate(AuthenticationType.SYSTEM)
-    public List<Feature> readProductFeatures(final JabberId userId,
-            final String name);
+    public List<Feature> readProductFeatures(final String name);
 
     /**
-     * Read a release.
+     * Read a release for a model user.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param productName
      *            A product name <code>String</code>.
      * @param name
      *            A release name.
      * @return A <code>Release</code>.
      */
-    public Release readRelease(final JabberId userId,
-            final String productName, final String name, final OS os);
+    public Release readRelease(final String productName, final String name,
+            final OS os);
 
     /**
-     * Read a release.
+     * Read resources for a model user.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param productName
      *            A product name <code>String</code>.
      * @param releaseName
      *            A release name.
      * @return A <code>Release</code>.
      */
-    public List<Resource> readResources(final JabberId userId,
-            final String productName, final String releaseName, final OS os);
+    public List<Resource> readResources(final String productName,
+            final String releaseName, final OS os);
 }

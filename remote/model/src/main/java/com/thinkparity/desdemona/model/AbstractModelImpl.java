@@ -10,28 +10,23 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
-import java.util.UUID;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import com.thinkparity.codebase.Constants;
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.FileSystem;
+import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.StreamUtil;
-import com.thinkparity.codebase.Constants.Xml;
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.assertion.NotTrueAssertion;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.nio.ChannelUtil;
 
 import com.thinkparity.codebase.model.Context;
@@ -49,8 +44,6 @@ import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.ophelia.model.user.UserUtils;
 
-import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
-import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
 import com.thinkparity.desdemona.model.backup.BackupService;
 import com.thinkparity.desdemona.model.backup.InternalBackupModel;
@@ -60,24 +53,10 @@ import com.thinkparity.desdemona.model.io.sql.ConfigurationSql;
 import com.thinkparity.desdemona.model.migrator.InternalMigratorModel;
 import com.thinkparity.desdemona.model.profile.InternalProfileModel;
 import com.thinkparity.desdemona.model.queue.InternalQueueModel;
-import com.thinkparity.desdemona.model.queue.QueueModel;
-import com.thinkparity.desdemona.model.rules.InternalRulesModel;
-import com.thinkparity.desdemona.model.rules.RulesModel;
-import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.model.rules.InternalRuleModel;
 import com.thinkparity.desdemona.model.stream.InternalStreamModel;
-import com.thinkparity.desdemona.model.stream.StreamModel;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
-import com.thinkparity.desdemona.model.user.UserModel;
-import com.thinkparity.desdemona.util.xmpp.IQWriter;
-import com.thinkparity.desdemona.wildfire.JIDBuilder;
-
-import org.jivesoftware.util.JiveProperties;
-import org.jivesoftware.wildfire.ClientSession;
-import org.jivesoftware.wildfire.SessionManager;
-import org.jivesoftware.wildfire.SessionResultFilter;
-import org.jivesoftware.wildfire.XMPPServer;
-import org.xmpp.packet.IQ;
-import org.xmpp.packet.JID;
+import com.thinkparity.desdemona.util.DesdemonaProperties;
 
 /**
  * @author raykroeker@gmail.com
@@ -92,50 +71,32 @@ public abstract class AbstractModelImpl
     /** A <code>XStreamUtil</code> xml serialization utility. */
     protected static final XStreamUtil XSTREAM_UTIL;
 
-    /** No session log statement. */
-    private static final JabberId NO_SESSION;
-
-    /** An apache xmpp iq logger wrapper. */
-    private static final Log4JWrapper XMPP_IQ_LOGGER;
-
     static {
-        NO_SESSION = User.THINKPARITY.getId();
-        XMPP_IQ_LOGGER = new Log4JWrapper("DESDEMONA_XMPP_DEBUGGER");
         XSTREAM_UTIL = XStreamUtil.getInstance();
         USER_UTIL = UserUtils.getInstance();
     }
 
-    /**
-	 * Handle to the user's session.
-	 */
-	protected Session session;
+    /** The current execution user. */
+	protected User user;
 
-    
     /** A thinkParity configuration sql interface. */
-    private final ConfigurationSql configurationSql;
-
-    /** An instance of the jive properties. */
-    private JiveProperties jiveProperties;
-
+    private ConfigurationSql configurationSql;
+    
     /** A <code>ModelConfiguration</code>. */
     private ModelConfiguration modelConfiguration;
 
-    /**
-     * Create AbstractModelImpl.
-     *
-     */
-     protected AbstractModelImpl() {
-        this(null);
-     }
+    /** An instance of the desdmona properties. */
+    private DesdemonaProperties properties;
+
+    /** The model user's temporary file system. */
+    private FileSystem tempFileSystem;
 
     /**
      * Create AbstractModelImpl.
-     *
+     * 
      */
-     protected AbstractModelImpl(final Session session) {
+    protected AbstractModelImpl() {
         super();
-        this.configurationSql = new ConfigurationSql();
-        this.session = session;
     }
 
     /**
@@ -182,89 +143,6 @@ public abstract class AbstractModelImpl
             final JabberId expected, final JabberId actual) {
         Assert.assertTrue(assertion, expected.equals(actual));
     }
-
-    /**
-     * Assert that the actual and expected jive id's are equal.
-     * 
-     * @param message
-     *            The message.
-     * @param actualJID
-     *            The actual jive id.
-     * @param expectedJID
-     *            The expected jive id.
-     */
-    protected void assertEquals(final String message, final JID actualJID,
-            final JID expectedJID) {
-        Assert.assertTrue(message, actualJID.equals(expectedJID));
-    }
-
-    /**
-     * Assert that the user id matched that of the authenticated user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @see #isAuthenticatedUser(JabberId)
-     */
-    protected void assertIsAuthenticatedUser(final JabberId userId) {
-        Assert.assertTrue(isAuthenticatedUser(userId),
-                "User {0} does not match authenticated user {1}.",
-                userId, session.getJabberId());
-    }
-
-    /**
-	 * Assert that the session user is the artifact key holder.
-	 * 
-	 * @param artifact
-	 *            The artifact.
-	 * @throws NotTrueAssertion
-	 *             If the user is not the key holder.
-	 */
-	protected void assertIsKeyHolder(final UUID uniqueId) {
-        logApiId();
-        logVariable("uniqueId", uniqueId);
-        final JabberId keyHolder = readKeyHolder(uniqueId);
-        logVariable("keyHolder", keyHolder);
-		Assert.assertTrue(keyHolder.equals(session.getJabberId()),
-                "Session user {0} is not the key holder {1}.",
-                session.getJabberId(), keyHolder);
-	}
-
-    /**
-     * Assert that the session user id matches that of a system user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @see #isSystemUser(JabberId)
-     */
-    protected void assertIsSystemUser() {
-        Assert.assertTrue(isSystemUser(session.getJabberId()),
-                "User {0} is not a system user.", session.getJabberId());
-    }
-
-    /**
-     * Assert that the thinkParity system is the current key holder.
-     * 
-     * @param assertion
-     *            The assertion.
-     * @param uniqueId
-     *            The artifact unique id.
-     */
-    protected void assertSystemIsKeyHolder(final UUID uniqueId) {
-        Assert.assertTrue(isSystemKeyHolder(uniqueId),
-                "The thinkParity system is not the key holder for artifact {0}.",
-                uniqueId);
-    }
-
-    /**
-	 * Create a jabber id for the username.
-	 * 
-	 * @param username
-	 *            The user node (username).
-	 * @return The jabber id.
-	 */
-	protected JID buildJID(final String username) {
-		return JIDBuilder.build(username);
-	}
 
     /**
      * Build a unique id for a user in time. Use the user id plus the current
@@ -349,6 +227,58 @@ public abstract class AbstractModelImpl
     }
 
     /**
+     * Create a temporary directory for the model user.
+     * 
+     * @return A <code>File</code>.
+     */
+    protected final File createTempDirectory() throws IOException {
+        final String suffix = new StringBuffer(".")
+                .append(System.currentTimeMillis())
+                .toString();
+        return createTempDirectory(suffix);
+    }
+
+    /**
+     * Create a temporary directory for the model user.
+     * 
+     * @param suffix
+     *            A temp file name suffix <code>String</code>.
+     * @return A <code>File</code>.
+     */
+    protected final File createTempDirectory(final String suffix)
+            throws IOException {
+        return File.createTempFile(Constants.Directory.TEMP_DIR_PREFIX, suffix,
+                getTempFileSystem().getRoot());
+    }
+
+    /**
+     * Create a temporary file for the model user.
+     * 
+     * @return A <code>File</code>.
+     */
+    protected final File createTempFile() throws IOException {
+        final String suffix = new StringBuffer(".")
+                .append(System.currentTimeMillis())
+                .toString();
+        return File.createTempFile(Constants.File.TEMP_FILE_PREFIX, suffix,
+                getTempFileSystem().getRoot());
+
+    }
+
+    /**
+     * Create a temporary file for the model user.
+     * 
+     * @param suffix
+     *            A temp file name suffix <code>String</code>.
+     * @return A <code>File</code>.
+     */
+    protected final File createTempFile(final String suffix) throws IOException {
+        return File.createTempFile(Constants.File.TEMP_FILE_PREFIX, suffix,
+                getTempFileSystem().getRoot());
+
+    }
+
+    /**
      * Obtain the date and time.
      * 
      * @return A <code>Calendar</code>.
@@ -369,7 +299,7 @@ public abstract class AbstractModelImpl
     }
 
     /**
-     * Start a download from the stream server.
+     * Start a download from the stream server for the model user.
      * 
      * @param downloadMonitor
      *            A download monitor.
@@ -379,9 +309,9 @@ public abstract class AbstractModelImpl
      * @throws IOException
      */
     protected final File downloadStream(final DownloadMonitor downloadMonitor,
-            final JabberId userId, final String streamId) throws IOException {
+            final String streamId) throws IOException {
         final File streamFile = buildStreamFile(streamId);
-        final StreamSession streamSession = getStreamModel().createSession(userId);
+        final StreamSession streamSession = getStreamModel().createSession();
         final StreamMonitor streamMonitor = new StreamMonitor() {
             long recoverChunkOffset = 0;
             long totalChunks = 0;
@@ -424,89 +354,99 @@ public abstract class AbstractModelImpl
      * Enqueue an event for a user.
      * 
      * @param userId
-     *            The event creator user id <code>JabberId</code>.
-     * @param eventUserId
-     *            The event target user id <code>JabberId</code>.
+     *            A user id <code>JabberId</code>.
      * @param event
-     *            The <code>XMPPEvent</code>.
+     *            An <code>XMPPEvent</code>.
      */
-    protected void enqueueEvent(final JabberId userId,
-            final JabberId eventUserId, final XMPPEvent event) {
-        final List<JabberId> eventUserIds = new ArrayList<JabberId>(1);
-        eventUserIds.add(eventUserId);
-        enqueueEvent(userId, eventUserIds, event);
+    protected final void enqueueEvent(final JabberId userId,
+            final XMPPEvent event) {
+        // fire backup event
+        if (event.getClass().isAnnotationPresent(ThinkParityBackupEvent.class)) {
+            BackupService.getInstance().getEventHandler().handleEvent(user, event);
+        } else {
+            logger.logInfo("Event {0} cannot be backed up.", event.getClass());
+        }
+
+        final InternalUserModel userModel = getUserModel();
+        final InternalQueueModel queueModel = getQueueModel(userModel.read(userId));
+        queueModel.enqueueEvent(event);
+        queueModel.flush();
     }
 
     /**
      * Enqueue an event for a user.
      * 
      * @param userId
-     *            The event creator user id <code>JabberId</code>.
-     * @param eventUserIds
-     *            The event target user ids <code>JabberId</code>.
+     *            A user id <code>JabberId</code>.
      * @param event
-     *            The <code>XMPPEvent</code>.
+     *            An <code>XMPPEvent</code>.
      */
-    protected void enqueueEvent(final JabberId userId,
-            final List<JabberId> eventUserIds, final XMPPEvent event) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("eventUserIds", eventUserIds);
-        logVariable("event", event);
-        for (final JabberId eventUserId : eventUserIds) {
-            createEvent(userId, eventUserId, event);
-            if (isOnline(eventUserId)) {
-                sendQueueUpdated(eventUserId);
-            }
+    protected final void enqueueEvent(final User user, final XMPPEvent event) {
+        // fire backup event
+        if (event.getClass().isAnnotationPresent(ThinkParityBackupEvent.class)) {
+            BackupService.getInstance().getEventHandler().handleEvent(user, event);
+        } else {
+            logger.logInfo("Event {0} cannot be backed up.", event.getClass());
         }
-        // backup
-        backupEvent(userId, userId, event);
-    }
 
-	/**
-     * Enqueue a priority event for a user.
-     * 
-     * @param userId
-     *            The event creator user id <code>JabberId</code>.
-     * @param eventUserId
-     *            The event target user id <code>JabberId</code>.
-     * @param event
-     *            The <code>XMPPEvent</code>.
-     */
-    protected void enqueuePriorityEvent(final JabberId userId,
-            final JabberId eventUserId, final XMPPEvent event) {
-        final List<JabberId> eventUserIds = new ArrayList<JabberId>(1);
-        eventUserIds.add(eventUserId);
-        enqueuePriorityEvent(userId, eventUserIds, event);
+        final InternalQueueModel queueModel = getQueueModel(user);
+        queueModel.enqueueEvent(event);
+        queueModel.flush();
     }
 
     /**
-     * Enqueue a priority event for a user.
+     * Enqueue an event for a list of user ids.
      * 
-     * @param userId
-     *            The event creator user id <code>JabberId</code>.
-     * @param eventUserIds
-     *            The event target user ids <code>JabberId</code>.
+     * @param userIds
+     *            A <code>List<JabberId></code>.
      * @param event
-     *            The <code>XMPPEvent</code>.
+     *            An <code>XMPPEvent</code>.
      */
-    protected void enqueuePriorityEvent(final JabberId userId,
-            final List<JabberId> eventUserIds, final XMPPEvent event) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("eventUserIds", eventUserIds);
-        logVariable("event", event);
-        for (final JabberId eventUserId : eventUserIds) {
-            createPriorityEvent(userId, eventUserId, event);
-            if (isOnline(eventUserId)) {
-                sendQueueUpdated(eventUserId);
-            }
+    protected final void enqueueEvents(final List<JabberId> userIds,
+            final XMPPEvent event) {
+        // fire backup event
+        if (event.getClass().isAnnotationPresent(ThinkParityBackupEvent.class)) {
+            BackupService.getInstance().getEventHandler().handleEvent(user, event);
+        } else {
+            logger.logInfo("Event {0} cannot be backed up.", event.getClass());
         }
-        // backup
-        backupEvent(userId, userId, event);
+
+        InternalQueueModel queueModel;
+        final InternalUserModel userModel = getUserModel();
+        for (final JabberId userId : userIds) {
+            queueModel = getQueueModel(userModel.read(userId));
+            queueModel.enqueueEvent(event);
+            queueModel.flush();
+        }
     }
 
-	/**
+    /**
+     * Enqueue an event for a list of user ids.
+     * 
+     * @param userIds
+     *            A <code>List<JabberId></code>.
+     * @param event
+     *            An <code>XMPPEvent</code>.
+     */
+    protected final void enqueuePriorityEvents(final List<JabberId> userIds,
+            final XMPPEvent event) {
+        // fire backup event
+        if (event.getClass().isAnnotationPresent(ThinkParityBackupEvent.class)) {
+            BackupService.getInstance().getEventHandler().handleEvent(user, event);
+        } else {
+            logger.logInfo("Event {0} cannot be backed up.", event.getClass());
+        }
+
+        InternalQueueModel queueModel;
+        final InternalUserModel userModel = getUserModel();
+        for (final JabberId userId : userIds) {
+            queueModel = getQueueModel(userModel.read(userId));
+            queueModel.enqueueEvent(event, XMPPEvent.Priority.HIGH);
+            queueModel.flush();
+        }
+    }
+
+    /**
      * Copy the content of a file to another file. Create a channel to read the
      * file.
      * 
@@ -552,16 +492,15 @@ public abstract class AbstractModelImpl
      * @return The parity artifact interface.
      */
 	protected final InternalArtifactModel getArtifactModel() {
-		return ArtifactModel.getInternalModel(getContext(), session);
+		return InternalModelFactory.getInstance(getContext(), user).getArtifactModel();
 	}
-
     /**
      * Obtain an internal backup model.
      * 
      * @return An instance of <code>InternalBackupModel</code>.
      */
     protected final InternalBackupModel getBackupModel() {
-        return InternalModelFactory.getInstance(getContext(), session).getBackupModel();
+        return InternalModelFactory.getInstance(getContext(), user).getBackupModel();
     }
 
     /**
@@ -601,6 +540,7 @@ public abstract class AbstractModelImpl
     protected final Integer getBufferSize() {
         return 1024 * 1024 * 2; // BUFFER 2MB  - AbstractModelImpl#getBufferSize()
     }
+
     /**
      * Obtain the default buffer size.
      * 
@@ -612,21 +552,6 @@ public abstract class AbstractModelImpl
         } else {
             return getBufferSize();
         }
-    }
-
-    /**
-     * Obtain the client session for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A client session.
-     */
-    protected final List<ClientSession> getClientSessions(final JabberId userId) {
-        final Collection<ClientSession> sessions =
-            getSessionManager().getSessions(createClientSessionFilter(userId));
-        final List<ClientSession> sessionList = new ArrayList<ClientSession>(sessions.size());
-        sessionList.addAll(sessions);
-        return sessionList;
     }
 
     /**
@@ -646,7 +571,16 @@ public abstract class AbstractModelImpl
      * @return An instance of <code>InternalContactModel</code>.
      */
     protected final InternalContactModel getContactModel() {
-        return InternalModelFactory.getInstance(getContext(), session).getContactModel();
+        return InternalModelFactory.getInstance(getContext(), user).getContactModel();
+    }
+
+    /**
+     * Obtain an internal contact model.
+     * 
+     * @return An instance of <code>InternalContactModel</code>.
+     */
+    protected final InternalContactModel getContactModel(final User user) {
+        return InternalModelFactory.getInstance(getContext(), user).getContactModel();
     }
 
     /**
@@ -655,7 +589,16 @@ public abstract class AbstractModelImpl
      * @return An instance of <code>InternalContainerModel</code>.
      */
     protected final InternalContainerModel getContainerModel() {
-        return InternalModelFactory.getInstance(getContext(), session).getContainerModel();
+        return InternalModelFactory.getInstance(getContext(), user).getContainerModel();
+    }
+
+    /**
+     * Obtain an internal container model for a user.
+     * 
+     * @return An instance of <code>InternalContainerModel</code>.
+     */
+    protected final InternalContainerModel getContainerModel(final User user) {
+        return InternalModelFactory.getInstance(getContext(), user).getContainerModel();
     }
 
     /**
@@ -664,20 +607,7 @@ public abstract class AbstractModelImpl
      * @return An instance of <code>Environment</code>.
      */
     protected Environment getEnvironment() {
-        return Environment.valueOf(getJiveProperty("thinkparity.environment"));
-    }
-
-    /**
-     * Obtain an error id.
-     * 
-     * @return An error id.
-     */
-    protected final Object getErrorId(final Throwable t) {
-        return MessageFormat.format("[{0}] [{1}] [{2}] - [{3}]",
-                    null == session ? NO_SESSION : session.getJabberId(),
-                    StackUtil.getFrameClassName(2),
-                    StackUtil.getFrameMethodName(2),
-                    t.getMessage());
+        return Environment.valueOf(getProperty("thinkparity.environment"));
     }
 
     /**
@@ -700,29 +630,100 @@ public abstract class AbstractModelImpl
         return userIds;
     }
 
-	protected final InternalMigratorModel getMigratorModel() {
-        return InternalModelFactory.getInstance(getContext(), session).getMigratorModel();
+    protected final InternalMigratorModel getMigratorModel() {
+        return InternalModelFactory.getInstance(getContext(), user).getMigratorModel();
     }
 
     protected final InternalProfileModel getProfileModel() {
-        return InternalModelFactory.getInstance(getContext(), session).getProfileModel();
+        return InternalModelFactory.getInstance(getContext(), user).getProfileModel();
+    }
+
+    /**
+     * Obtain an instance of the desdemona properties.
+     * 
+     * @return An instance of <code>DesdemonaProperties</code>.
+     */
+    protected final DesdemonaProperties getProperties() {
+        if (null == properties) {
+            properties = DesdemonaProperties.getInstance();
+        }
+        return properties;
+    }
+
+    /**
+     * Obtain a jive property.
+     * 
+     * @param name
+     *            A property name.
+     * @return A property value.
+     */
+    protected final String getProperty(final String name) {
+        return getProperties().getProperty(name);
+    }
+
+    /**
+     * Obtain a jive property.
+     * 
+     * @param name
+     *            A property name.
+     * @param defaultValue
+     *            A default value <code>String</code>.
+     * @return A property value.
+     */
+    protected final String getProperty(final String name,
+            final String defaultValue) {
+        return getProperties().getProperty(name, defaultValue);
     }
 
     protected final InternalQueueModel getQueueModel() {
-        return QueueModel.getInternalModel(getContext(), session);
+        return InternalModelFactory.getInstance(getContext(), user).getQueueModel();
     }
 
-    protected final InternalRulesModel getRulesModel() {
-        return RulesModel.getInternalModel(getContext());
+    protected final InternalQueueModel getQueueModel(final User user) {
+        return InternalModelFactory.getInstance(getContext(), user).getQueueModel();
     }
 
-    protected final InternalStreamModel getStreamModel() {
-        return StreamModel.getInternalModel(getContext(), session);
+    protected final InternalRuleModel getRuleModel() {
+        return InternalModelFactory.getInstance(getContext(), user).getRuleModel();
+    }
+
+    protected final InternalRuleModel getRuleModel(final User user) {
+        return InternalModelFactory.getInstance(getContext(), user).getRuleModel();
+    }
+
+	protected final InternalStreamModel getStreamModel() {
+        return InternalModelFactory.getInstance(getContext(), user).getStreamModel();
+    }
+
+    protected final InternalStreamModel getStreamModel(final User user) {
+        return InternalModelFactory.getInstance(getContext(), user).getStreamModel();
+    }
+
+	/**
+     * Obtain the temp file system for the model user.
+     * 
+     * @return A <code>FileSystem</code>.
+     */
+    protected final FileSystem getTempFileSystem() {
+        if (null == tempFileSystem) {
+            final File tempRoot = new File(getProperty("thinkparity.temp.root"));
+            final File userTempRoot = new File(tempRoot, String.valueOf(user.getLocalId()));
+            if (userTempRoot.exists())
+                FileUtil.deleteTree(userTempRoot);
+            Assert.assertTrue(userTempRoot.mkdir(),
+                    "Cannot create temporary directory {0}.", userTempRoot);
+            tempFileSystem = new FileSystem(userTempRoot);
+        }
+        return tempFileSystem;
     }
 
 	protected final InternalUserModel getUserModel() {
-		return UserModel.getInternalModel(getContext(), session);
-	}
+        return InternalModelFactory.getInstance(getContext(), user).getUserModel();
+    }
+
+    protected final InternalUserModel getUserModel(final User user) {
+        return InternalModelFactory.getInstance(getContext(), user).getUserModel();
+    }
 
 	/**
      * Obtain the index of a user in the list.
@@ -763,24 +764,10 @@ public abstract class AbstractModelImpl
     }
 
     /**
-     * Initialize the model.
-     * 
-     * @param session
-     *            A user <code>Session</code>.
-     */
-    protected final void initialize(final Session session) {
-        setContext(new Context());
-        this.session = session;
-        this.modelConfiguration = ModelConfiguration.getInstance(getClass());
-    }
-
-    /**
      * Intialize the model.
      * 
-     * @param session
-     *            A user <code>Session</code>.
      */
-    protected void initializeModel(final Session session) {}
+    protected void initialize() {}
 
 	/**
      * Inject the fields of a user into a user type object.
@@ -802,36 +789,6 @@ public abstract class AbstractModelImpl
         return logger.logVariable("type", type);
     }
 
-    /**
-     * Determine if the user id is the authenticated user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return True if the user id matches the currently authenticated user.
-     */
-    protected Boolean isAuthenticatedUser(final JabberId userId) {
-        return session.getJabberId().equals(userId);
-    }
-
-    /**
-     * Determine whether or not the user represented by the jabber id is
-     * currently online.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return True; if the user is online; false otherwise.
-     */
-	protected Boolean isOnline(final JabberId jabberId) {
-		if(0 < getSessionManager().getSessionCount(jabberId.getUsername())) {
-			return Boolean.TRUE;
-		}
-		else { return Boolean.FALSE; }
-	}
-
-    protected Boolean isSessionUserKeyHolder(final UUID uniqueId) {
-		return readKeyHolder(uniqueId).equals(session.getJabberId());
-	}
-
 	/**
      * Determine if the user id is a system user.
      * 
@@ -843,7 +800,7 @@ public abstract class AbstractModelImpl
         return userId.equals(User.THINKPARITY.getId());
     }
 
-	/** Log an api id. */
+    /** Log an api id. */
     protected final void logApiId() {
         logger.logApiId();
     }
@@ -871,7 +828,7 @@ public abstract class AbstractModelImpl
         logger.logInfo(infoPattern, infoArguments);
     }
 
-    /** Log a trace id. */
+	/** Log a trace id. */
     protected final void logTraceId() {
         logger.logApiId();
     }
@@ -890,7 +847,7 @@ public abstract class AbstractModelImpl
         return logger.logVariable(name, value);
     }
 
-	/**
+    /**
      * Log a warning.
      * 
      * @param warning
@@ -911,24 +868,6 @@ public abstract class AbstractModelImpl
     }
 
     /**
-     * Process an xmpp internet query for a jive client session. The to portion
-     * of the query will be set according to the session.
-     * 
-     * @param session
-     *            A jive <code>ClientSession</code>.
-     * @param query
-     *            An xmpp <code>IQ</code>.
-     * @see IQ#setTo(JID)
-     * @see ClientSession#getAddress()
-     * @see ClientSession#process(org.xmpp.packet.Packet)
-     */
-    protected void process(final ClientSession session, final IQ query) {
-        query.setTo(session.getAddress());
-        XMPP_IQ_LOGGER.logVariable("query", query);
-        session.process(query);
-    }
-
-	/**
      * Read thinkParity configuration.
      * 
      * @return A configuration <code>Properties</code>.
@@ -942,39 +881,16 @@ public abstract class AbstractModelImpl
         return properties;
     }
 
-	/**
-     * Read the jive property for the environment.
-     * 
-     * @return An environment.
-     */
-    protected Environment readEnvironment() {
-        final String thinkParityEnvironment =
-            (String) JiveProperties.getInstance().get(JivePropertyNames.THINKPARITY_ENVIRONMENT);
-        return Environment.valueOf(thinkParityEnvironment);
-    }
-
     /**
-     * Read the key holder.
+     * Set the model user.
      * 
-     * @param uniqueId
-     *            The artifact unique id.
-     * @return The key holder jabber id.
-     * @throws ParityServerModelException
+     * @param user
+     *            A <code>User</code>.
      */
-    protected JabberId readKeyHolder(final UUID uniqueId) {
-        return getArtifactModel().readKeyHolder(session.getJabberId(), uniqueId);
-    }
-
-    /**
-     * Set the to field in the query.
-     * 
-     * @param query
-     *            The xmpp query <code>IQ</code>.
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     */
-    protected void setTo(final IQ query, final JabberId userId) {
-        query.setTo(getJID(userId));
+    protected final void setUser(final User user) {
+        setContext(new Context());
+        this.user = user;
+        this.modelConfiguration = ModelConfiguration.getInstance(getClass());
     }
 
     /**
@@ -1007,27 +923,7 @@ public abstract class AbstractModelImpl
         return panic(t);
     }
 
-	/**
-     * Send an event to the user's backup.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param eventUserId
-     *            An event user id <code>JabberId</code>.
-     * @param event
-     *            An <code>XMPPEvent</code>.
-     */
-    private void backupEvent(final JabberId userId, final JabberId eventUserId,
-            final XMPPEvent event) {
-        // fire backup event
-        if (event.getClass().isAnnotationPresent(ThinkParityBackupEvent.class)) {
-            BackupService.getInstance().getEventHandler().handleEvent(session, event);
-        } else {
-            logInfo("Event {0} cannot be backed up.", event.getClass());
-        }
-    }
-
-	/**
+    /**
      * Build a local file to back a stream. Note that the file is transient in
      * nature and will be deleted when the user logs out or the next time the
      * session is established.
@@ -1038,7 +934,7 @@ public abstract class AbstractModelImpl
      * @throws IOException
      */
     private File buildStreamFile(final String streamId) throws IOException {
-        return session.createTempFile(streamId);
+        return createTempFile(streamId);
     }
 
     /**
@@ -1093,134 +989,6 @@ public abstract class AbstractModelImpl
         synchronized (getBufferLock()) {
             StreamUtil.copy(channel, stream, getBuffer());
         }
-    }
-
-    /**
-     * Create a client session filter for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A <code>SessionResultFilter</code>.
-     */
-    private SessionResultFilter createClientSessionFilter(final JabberId userId) {
-        final SessionResultFilter filter = new SessionResultFilter();
-        filter.setUsername(userId.getUsername());
-        return filter;
-    }
-
-
-    /**
-     * Create an event for user.
-     * 
-     * @param userId
-     *            The event creator user id <code>JabberId</code>.
-     * @param eventUserId
-     *            The event destination user id <code>JabberId</code>.
-     * @param event
-     *            The <code>XMPPEvent</code>.
-     */
-    private void createEvent(final JabberId userId,
-            final JabberId eventUserId, final XMPPEvent event) {
-        getQueueModel().createEvent(userId, eventUserId, event);
-    }
-
-    /**
-     * Create a priority event for user.
-     * 
-     * @param userId
-     *            The event creator user id <code>JabberId</code>.
-     * @param eventUserId
-     *            The event destination user id <code>JabberId</code>.
-     * @param event
-     *            The <code>XMPPEvent</code>.
-     */
-    private void createPriorityEvent(final JabberId userId,
-            final JabberId eventUserId, final XMPPEvent event) {
-        getQueueModel().createEvent(userId, eventUserId, event,
-                XMPPEvent.Priority.HIGH);
-    }
-
-    /**
-     * Create a JID from a jabber id.
-     * 
-     * @param jabberId
-     *            A <code>JabberId</code>.
-     * @return A <code>JID</code>.
-     */
-    private final JID getJID(final JabberId jabberId) {
-        return JIDBuilder.buildQualified(jabberId.getQualifiedJabberId());
-    }
-
-    /**
-     * Obtain an instance of the jive properties.
-     * 
-     * @return An instance of <code>JiveProperties</code>.
-     */
-    private JiveProperties getJiveProperties() {
-        if (null == jiveProperties) {
-            jiveProperties = JiveProperties.getInstance();
-        }
-        return jiveProperties;
-    }
-
-    /**
-     * Obtain a jive property.
-     * 
-     * @param name
-     *            A property name.
-     * @return A property value.
-     */
-    private String getJiveProperty(final String name) {
-        return (String) getJiveProperties().get(name);
-    }
-
-    /**
-     * Obtain a handle to the xmpp server's session manager.
-     * 
-     * @return The xmpp servers's session manager.
-     */
-	private SessionManager getSessionManager() {
-		return getXMPPServer().getSessionManager();
-	}
-
-    /**
-	 * Obtain a handle to the underlying xmpp server.
-	 * 
-	 * @return The xmpp server.
-	 */
-	private XMPPServer getXMPPServer() {
-        return XMPPServer.getInstance();
-    }
-
-    /**
-     * Determine whether or not the system account is the key holder.
-     * 
-     * @param uniqueId
-     *            An artifact unique id.
-     * @return True if the system account is the key holder; false otherwise.
-     */
-    private Boolean isSystemKeyHolder(final UUID uniqueId) {
-        return readKeyHolder(uniqueId).equals(User.THINKPARITY.getId());
-    }
-
-    /**
-     * Send a queue updated event to a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     */
-    private void sendQueueUpdated(final JabberId userId) {
-        final IQ iq = new IQ();
-        iq.setType(IQ.Type.set);
-        iq.setChildElement(Xml.NAME, new StringBuffer(Xml.NAMESPACE)
-                .append(":system:queueupdated").toString());
-
-        final IQWriter queryWriter = new IQWriter(iq);
-        queryWriter.writeCalendar("updatedOn", currentDateTime());
-        final IQ query = queryWriter.getIQ();
-        for (final ClientSession session : getClientSessions(userId)) {
-            process(session, query);
-        }        
     }
 
     /**

@@ -16,7 +16,6 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
-import com.thinkparity.desdemona.model.session.Session;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel User Model Implementation<br>
@@ -25,32 +24,26 @@ import com.thinkparity.desdemona.model.session.Session;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-class UserModelImpl extends AbstractModelImpl {
+public class UserModelImpl extends AbstractModelImpl implements UserModel,
+        InternalUserModel {
 
-    /** User sql io. */
-    private final UserSql userSql;
+    /** User sql interface. */
+    private UserSql userSql;
 
 	/**
      * Create UserModelImpl.
      *
      */
-    UserModelImpl() {
-        this(null);
+    public UserModelImpl() {
+        super();
     }
 
-    /**
-	 * Create a UserModelImpl.
-	 * 
-	 * @param session
-	 *            The user session.
-	 */
-	UserModelImpl(final Session session) {
-		super(session);
-        this.userSql = new UserSql();
-	}
 
-    List<User> read() {
-        logApiId();
+    /**
+     * @see com.thinkparity.desdemona.model.user.UserModel#read()
+     * 
+     */
+    public List<User> read() {
         try {
             return read(FilterManager.createDefault());
         } catch (final Throwable t) {
@@ -58,7 +51,11 @@ class UserModelImpl extends AbstractModelImpl {
         }
     }
 
-    User read(final EMail email) {
+    /**
+     * @see com.thinkparity.desdemona.model.user.UserModel#read(com.thinkparity.codebase.email.EMail)
+     * 
+     */
+    public User read(final EMail email) {
         try {
             return userSql.read(email);
         } catch(final Throwable t) {
@@ -66,14 +63,18 @@ class UserModelImpl extends AbstractModelImpl {
         }
     }
 
-    List<User> read(final Filter<? super User> filter) {
+    /**
+     * @see com.thinkparity.desdemona.model.user.UserModel#read(com.thinkparity.codebase.filter.Filter)
+     * 
+     */
+    public List<User> read(final Filter<? super User> filter) {
         logApiId();
         logVariable("filter", filter);
         try {
             final List<User> users = userSql.read();
             FilterManager.filter(users, filter);
             for (final User user : users) {
-                inject(user, readVCard(user.getLocalId(), new UserVCard()));
+                inject(user, readVCard(user, new UserVCard()));
             }
             return users;
         } catch (final Throwable t) {
@@ -81,22 +82,28 @@ class UserModelImpl extends AbstractModelImpl {
         }
     }
 
-    User read(final JabberId userId) {
-        logApiId();
-		logVariable("userId", userId);
+    /**
+     * @see com.thinkparity.desdemona.model.user.UserModel#read(com.thinkparity.codebase.jabber.JabberId)
+     * 
+     */
+    public User read(final JabberId userId) {
         try {
             final User user = userSql.read(userId);
             if (null == user) {
                 return null;
             } else {
-                return inject(user, readVCard(user.getLocalId(), new UserVCard()));
+                return inject(user, readVCard(user, new UserVCard()));
             }
         } catch (final Throwable t) {
             throw translateError(t);
         }
 	}
 
-    List<User> read(final List<JabberId> userIds) {
+    /**
+     * @see com.thinkparity.desdemona.model.user.UserModel#read(java.util.List)
+     * 
+     */
+    public List<User> read(final List<JabberId> userIds) {
         logApiId();
         logVariable("userIds", userIds);
 		try {
@@ -110,48 +117,68 @@ class UserModelImpl extends AbstractModelImpl {
 		}
 	}
 
-    JabberId readBackupUserId() {
+    /**
+     * @see com.thinkparity.desdemona.model.user.InternalUserModel#read(java.lang.Long)
+     *
+     */
+    public User read(final Long userId) {
         try {
-            final User backupUser = userSql.read(User.THINKPARITY_BACKUP.getId());
-            return backupUser.getId();
+            final User user = userSql.read(userId);
+            if (null == user) {
+                return null;
+            } else {
+                return inject(user, readVCard(user, new UserVCard()));
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.user.InternalUserModel#readFeatures(java.lang.Long)
+     * 
+     */
+    public List<Feature> readFeatures(final Long productId) {
+        try {
+            return userSql.readFeatures(user.getLocalId(), productId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
     /**
-     * Read all features for a user.
+     * @see com.thinkparity.desdemona.model.user.UserModel#readVCard(com.thinkparity.codebase.model.user.UserVCard)
      * 
-     * @param userId
-     *            A user id <code>Long</code>.
-     * @param productId
-     *            A product id <code>Long</code>.
-     * @return A <code>List</code> of <code>Feature</code>s.
      */
-    List<Feature> readFeatures(final Long userId, final Long productId) {
+    public <T extends com.thinkparity.codebase.model.user.UserVCard> T readVCard(
+            final T vcard) {
         try {
-            return userSql.readFeatures(userId, productId);
+            return readVCard(user, vcard);
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-    <T extends com.thinkparity.codebase.model.user.UserVCard> T readVCard(
-            final Long userId, final T vcard) {
-        try {
-            return userSql.readVCard(userId, vcard);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    void updateVCard(final Long userId,
+    /**
+     * @see com.thinkparity.desdemona.model.user.UserModel#updateVCard(com.thinkparity.codebase.model.user.UserVCard)
+     * 
+     */
+    public void updateVCard(
             final com.thinkparity.codebase.model.user.UserVCard vcard) {
         try {
-            userSql.updateVCard(userId, vcard);
+            userSql.updateVCard(user.getLocalId(), vcard);
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initialize()
+     *
+     */
+    @Override
+    protected void initialize() {
+        userSql = new UserSql();
     }
 
     /**
@@ -167,5 +194,26 @@ class UserModelImpl extends AbstractModelImpl {
         user.setOrganization(vcard.getOrganization());
         user.setTitle(vcard.getTitle());
         return user;
+    }
+
+
+    /**
+     * Read a vcard for a user.
+     * 
+     * @param <T>
+     *            A vcard type.
+     * @param user
+     *            A <code>User</code>.
+     * @param vcard
+     *            A <code>VCard</code>.
+     * @return A <code>UserVCard</code>.
+     */
+    private <T extends com.thinkparity.codebase.model.user.UserVCard> T readVCard(
+            final User user, final T vcard) {
+        try {
+            return userSql.readVCard(user.getLocalId(), vcard);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
     }
 }

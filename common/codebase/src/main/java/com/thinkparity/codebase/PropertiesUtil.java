@@ -14,13 +14,14 @@ import java.util.Vector;
 import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.StringUtil.Separator;
 
-
 /**
- * PropertiesUtil
- * @author raykroeker@gmail.com
- * @version 1.0
+ * <b>Title:</b>thinkParity CommonCodebase Properties Util<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.4
  */
-public class PropertiesUtil {
+public final class PropertiesUtil {
 
     /**
 	 * Simple format for the date.
@@ -38,6 +39,50 @@ public class PropertiesUtil {
 	}
 
 	/**
+     * Copy a property from one map to another. This is the same as calling
+     * {@link #copy(Properties, Properties, String, Boolean.FALSE)}.
+     * 
+     * @param from
+     *            The source <code>Properties</code>.
+     * @param to
+     *            The target <code>Properties</code>.
+     * @param name
+     *            The property name <code>String</code>.
+     * @return The orignal value of the property, within the target, or null if
+     *         no such property existed.
+     */
+    public static Object copy(final Properties from, final Properties to,
+            final String name) {
+        return copy(from, to, name, Boolean.FALSE);
+    }
+
+	/**
+     * Copy a property from one map to another.
+     * 
+     * @param from
+     *            The source <code>Properties</code>.
+     * @param to
+     *            The target <code>Properties</code>.
+     * @param name
+     *            The property name <code>String</code>.
+     * @param verify
+     *            Whether or not to verify the property existence from the
+     *            source.
+     * @return The orignal value of the property, within the target, or null if
+     *         no such property existed.
+     */
+    public static Object copy(final Properties from, final Properties to,
+            final String name, final Boolean verify) {
+        if (verify.booleanValue())
+            verify(from, name);
+        if (from.containsKey(name)) {
+            return to.setProperty(name, from.getProperty(name));
+        } else {
+            return null;
+        }
+    }
+
+	/**
 	 * Print the specified properties to the given buffer; with a default
 	 * comment of the current date\time.
 	 * 
@@ -51,7 +96,7 @@ public class PropertiesUtil {
 		print(buffer, null, properties);
 	}
 
-	/**
+    /**
 	 * Print the specified properties to the given buffer.
 	 * 
 	 * @param buffer
@@ -81,7 +126,7 @@ public class PropertiesUtil {
 		}
 	}
 
-	/**
+    /**
      * Verify that a named property exists.
      * 
      * @param properties

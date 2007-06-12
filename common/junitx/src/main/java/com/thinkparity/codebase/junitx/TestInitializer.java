@@ -215,9 +215,6 @@ class TestInitializer {
         logging.setProperty(
                 "log4j.renderer.com.thinkparity.codebase.model.user.User",
                 "com.thinkparity.codebase.model.util.logging.or.UserRenderer");
-        logging.setProperty(
-                "log4j.renderer.org.jivesoftware.smack.packet.Packet",
-                "com.thinkparity.ophelia.model.util.logging.or.PacketRenderer");
 
         LogManager.resetConfiguration();
         PropertyConfigurator.configure(logging);

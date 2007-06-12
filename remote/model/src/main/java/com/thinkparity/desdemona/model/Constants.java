@@ -22,7 +22,6 @@ public interface Constants {
             public static final String FROM_PERSONAL = "thinkParity Team";
         }
     }
-
     /** Jabber Constants */
     public static final class Jabber {
         public static final String SYSTEM_QUALIFIED_JABBER_ID = "thinkparity@thinkparity.net/parity";
@@ -34,7 +33,6 @@ public interface Constants {
 
     /** Jive Messenger Property Names */
     public static final class JivePropertyNames {
-        public static final String THINKPARITY_BACKUP_MONITOR_PERIOD = "thinkparity.backup.monitor-period";
         public static final String THINKPARITY_BACKUP_ROOT = "thinkparity.backup.root";
         public static final String THINKPARITY_ENVIRONMENT = "thinkparity.environment";
         public static final String THINKPARITY_STREAM_ROOT = "thinkparity.stream.root";
@@ -55,6 +53,15 @@ public interface Constants {
                 /** Ophelia Product Feature Core */
                 public static final String CORE = "CORE";
             }
+        }
+    }
+
+    public static final class Security {
+        public static final class KeyStore {
+            public static final char[] CLIENT_PASS = "password".toCharArray();
+            public static final String CLIENT_PATH = "security/client_keystore";
+            public static final char[] SERVER_PASS = "password".toCharArray();
+            public static final String SERVER_PATH = "security/server_keystore";
         }
     }
 

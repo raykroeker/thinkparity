@@ -14,7 +14,7 @@ import com.thinkparity.codebase.model.util.Token;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class UsernameReservation {
+public final class UsernameReservation {
 
     /** The reservation's creation date. */
     private Calendar createdOn;

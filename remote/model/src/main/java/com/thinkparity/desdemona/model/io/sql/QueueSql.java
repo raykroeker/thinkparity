@@ -45,7 +45,7 @@ public class QueueSql extends AbstractSql {
         .append("where UEQ.USER_ID=?")
         .toString();
 
-	/** Sql to read events. */
+    /** Sql to read events. */
 	private static final String SQL_READ_EVENTS =
         new StringBuilder("select UEQ.EVENT_XML ")
         .append("from TPSD_USER_EVENT_QUEUE UEQ ")
@@ -53,7 +53,14 @@ public class QueueSql extends AbstractSql {
         .append("order by UEQ.EVENT_PRIORITY asc,UEQ.EVENT_DATE asc")
         .toString();
 
-    private final UserSql userSql;
+    /** Sql to read the queue size. */
+    private static final String SQL_READ_SIZE =
+        new StringBuilder("select count(UEQ.EVENT_ID) \"EVENT_COUNT\" ")
+        .append("from TPSD_USER_EVENT_QUEUE UEQ ")
+        .append("where UEQ.USER_ID=?")
+        .toString();
+
+	private final UserSql userSql;
 
     /**
      * Create QueueSql.
@@ -140,6 +147,31 @@ public class QueueSql extends AbstractSql {
                 events.add(session.getEvent("EVENT_XML"));
             }
             return events;
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read the queue size for a user.
+     * 
+     * @param userId
+     *            A user id <code>Long</code>.
+     * @return The queue size.
+     */
+    public Integer readSize(final Long userId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_SIZE);
+            session.setLong(1, userId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getInteger("EVENT_COUNT");
+            } else {
+                return null;
+            }
         } catch (final Throwable t) {
             throw translateError(session, t);
         } finally {

@@ -9,8 +9,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.service.adapter.LocaleXmlAdapter;
 
 /**
  * <b>Title:</b>thinkParity Profile<br>
@@ -100,6 +104,7 @@ public class Profile extends User {
      *
      * @return A <code>Locale</code>.
      */
+    @XmlJavaTypeAdapter(LocaleXmlAdapter.class)
     public Locale getLocale() {
         return new Locale(getCountry(), getLanguage());
     }

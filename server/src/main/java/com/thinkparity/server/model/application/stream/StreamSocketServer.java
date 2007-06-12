@@ -192,7 +192,7 @@ class StreamSocketServer implements Runnable {
      *
      */
     void logStatistics() {
-        logger.logInfo("Streaming socket server socket address:{0}", serverSocketAddress.getAddress());
+        logger.logInfo("Streaming socket server socket address:{0}", serverSocketAddress);
         logger.logInfo("Streaming socket server socket backlog:{0}", serverSocketBacklog);
     }
 

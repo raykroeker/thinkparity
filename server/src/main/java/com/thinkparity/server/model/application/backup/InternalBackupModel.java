@@ -6,8 +6,6 @@ package com.thinkparity.desdemona.model.backup;
 import java.util.List;
 import java.util.UUID;
 
-import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -23,11 +21,11 @@ import com.thinkparity.codebase.model.user.TeamMember;
  */
 public interface InternalBackupModel extends BackupModel {
 
-    public void enqueueBackupEvent(final JabberId userId,
-            final JabberId eventUserId);
-
-    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
-            final Long versionId);
+    /**
+     * Enqueue a backup event for the model user.
+     *
+     */
+    public void enqueueBackupEvent();
 
     public List<TeamMember> readArtifactTeam(final UUID uniqueId);
 
@@ -39,6 +37,9 @@ public interface InternalBackupModel extends BackupModel {
     public ContainerVersion readContainerLatestVersion(final UUID uniqueId);
 
     public ContainerVersion readContainerVersion(final UUID uniqueId,
+            final Long versionId);
+
+    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId);
 
     public void uploadDocumentVersion(final String streamId,

@@ -46,8 +46,8 @@ import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
+import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.stream.InternalStreamModel;
-import com.thinkparity.desdemona.model.stream.StreamModel;
 
 /**
  * <b>Title:</b>thinkParity Model<br>
@@ -271,18 +271,6 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
-     * Assert that the xmpp service is online.
-     * 
-     * @param environment
-     *            A thinkParity <code>Environment</code>.
-     */
-    protected void assertXMPPIsReachable(final Environment environment) {
-        Assert.assertTrue(environment.isXMPPReachable(),
-                "XMPP environment {0}:{1} is not reachable.",
-                environment.getXMPPHost(), environment.getXMPPPort());
-    }
-
-    /**
      * Calculate a checksum for a file's contents. Create a channel to read the
      * file.
      * 
@@ -351,8 +339,8 @@ public abstract class Model<T extends EventListener> extends
     protected final File downloadStream(final DownloadMonitor downloadMonitor,
             final String streamId) throws IOException {
         final File streamFile = buildStreamFile(streamId);
-        final InternalStreamModel streamModel = StreamModel.getInternalModel(new Context());
-        final StreamSession streamSession = streamModel.createArchiveSession(localUserId());
+        final InternalStreamModel streamModel = getServerModelFactory().getStreamModel();
+        final StreamSession streamSession = streamModel.createSession();
         logger.logVariable("streamSession.getBufferSize()", streamSession.getBufferSize());
         logger.logVariable("streamSession.getCharset()", streamSession.getCharset());
         logger.logVariable("streamSession.getId()", streamSession.getId());
@@ -513,6 +501,17 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
+     * Obtain an instance of a server internal model factory for the local user.
+     * 
+     * @return An instance of
+     *         <code>com.thinkparity.desdemona.model.InternalModelFactory</code>.
+     */
+    protected final com.thinkparity.desdemona.model.InternalModelFactory getServerModelFactory() {
+        return com.thinkparity.desdemona.model.InternalModelFactory.getInstance(
+                new Context(), localUser());
+    }
+
+    /**
      * Obtain an internal user model.
      * 
      * @return An instance of <code>InternalUserModel</code>.
@@ -571,7 +570,7 @@ public abstract class Model<T extends EventListener> extends
         if (null == currentUserId) {
             return null;
         } else {
-            return getUserModel().read(currentUserId);
+            return new UserSql().read(currentUserId);
         }
     }
 
@@ -581,9 +580,7 @@ public abstract class Model<T extends EventListener> extends
 	 * @return The jabber id of the local user.
 	 */
 	protected JabberId localUserId() {
-        final com.thinkparity.desdemona.model.user.InternalUserModel serverUserModel =
-            com.thinkparity.desdemona.model.user.UserModel.getInternalModel(new Context());
-	    return serverUserModel.readBackupUserId();
+	    return User.THINKPARITY_BACKUP.getId();
 	}
 
     /**

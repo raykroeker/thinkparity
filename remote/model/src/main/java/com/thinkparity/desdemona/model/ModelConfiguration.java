@@ -6,7 +6,7 @@ package com.thinkparity.desdemona.model;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
-import org.jivesoftware.util.JiveProperties;
+import com.thinkparity.desdemona.util.DesdemonaProperties;
 
 
 /**
@@ -37,7 +37,7 @@ public class ModelConfiguration {
 
     private final String context;
 
-    private final JiveProperties jiveProperties;
+    private final DesdemonaProperties properties;
 
     /**
      * Create ModelConfiguration.
@@ -46,7 +46,7 @@ public class ModelConfiguration {
     public ModelConfiguration(final String context) {
         super();
         this.context = context;
-        this.jiveProperties = JiveProperties.getInstance();
+        this.properties = DesdemonaProperties.getInstance();
     }
 
     public String getConfiguration(final String key) {
@@ -58,7 +58,7 @@ public class ModelConfiguration {
     }
 
     private String getConfiguration(final String key, final String defaultValue) {
-        final String stringValue = (String) jiveProperties.get(
+        final String stringValue = properties.getProperty(
                 LOGGER.logVariable("key", contextualize(key)));
         if (null == stringValue) {
             return LOGGER.logVariable("value", defaultValue);

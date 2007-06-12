@@ -31,7 +31,7 @@ public abstract class ContactInvitation {
      * Create ContactInvitation.
      * 
      */
-    protected ContactInvitation() {
+    public ContactInvitation() {
         super();
     }
 

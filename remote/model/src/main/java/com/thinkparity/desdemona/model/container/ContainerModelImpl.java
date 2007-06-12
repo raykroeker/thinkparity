@@ -29,8 +29,6 @@ import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
-import com.thinkparity.desdemona.model.rules.InternalRulesModel;
-import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
 
 /**
@@ -55,80 +53,74 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.container.ContainerModel#publish(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.model.container.ContainerVersion,
-     *      java.util.Map, java.util.List,
-     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
-     *      java.util.List, java.util.List)
+     * @see com.thinkparity.desdemona.model.container.ContainerModel#publish(com.thinkparity.codebase.model.container.ContainerVersion,
+     *      java.util.Map, java.util.List, java.util.Calendar, java.util.List,
+     *      java.util.List)
      * 
      */
-    public void publish(final JabberId userId, final ContainerVersion version,
+    public void publish(final ContainerVersion version,
             final Map<DocumentVersion, String> documentVersions,
-            final List<TeamMember> teamMembers, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishToEMails,
-            final List<User> publishToUsers) {
+            final List<TeamMember> team, final Calendar publishedOn,
+            final List<EMail> publishToEMails, final List<User> publishToUsers) {
         try {
             // enqueue invitation events
-            createInvitations(userId, version, publishToEMails, publishedOn);
+            createInvitations(user.getId(), version, publishToEMails, publishedOn);
 
             // enqueue container published events
-            enqueueContainerPublished(version, documentVersions, publishedBy,
+            enqueueContainerPublished(version, documentVersions, user.getId(),
                     publishedOn, publishToUsers);
 
             // enqueue container published notification events
-            enqueueContainerPublishedNotification(version, teamMembers,
-                    publishedBy, publishedOn, publishToUsers);
+            enqueueContainerPublishedNotification(version, team, user.getId(),
+                    publishedOn, publishToUsers);
 
-            // add published by to the team
-            addTeamMember(userId, version, publishedBy);
+            // add session user to the team
+            addTeamMember(version);
 
             // update the latest version
-            updateLatestVersion(version, publishedBy, publishedOn);
+            updateLatestVersion(version, user.getId(), publishedOn);
 
             // update draft owner back to the system
-            updateDraftOwner(version, publishedBy, publishedOn);
+            updateDraftOwner(version, user.getId(), publishedOn);
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.container.ContainerModel#publishVersion(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.model.container.ContainerVersion,
-     *      java.util.Map, java.util.List, java.util.List,
-     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
+     * @see com.thinkparity.desdemona.model.container.ContainerModel#publishVersion(com.thinkparity.codebase.model.container.ContainerVersion,
+     *      java.util.Map, java.util.List, java.util.List, java.util.Calendar,
      *      java.util.List, java.util.List)
      * 
      */
-    public void publishVersion(final JabberId userId,
-            final ContainerVersion version,
-            final Map<DocumentVersion, String> documentVersions,
-            final List<TeamMember> teamMembers,
-            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishToEMails,
-            final List<User> publishToUsers) {
+    public void publishVersion(final ContainerVersion version,
+            final Map<DocumentVersion, String> documentVersionStreamIds,
+            final List<TeamMember> team,
+            final List<ArtifactReceipt> receivedBy, final Calendar publishedOn,
+            final List<EMail> publishToEMails, final List<User> publishToUsers) {
         try {
             // create requisite incoming/outgoing e-mail invitations
-            createInvitations(userId, version, publishToEMails, publishedOn);
+            createInvitations(user.getId(), version, publishToEMails, publishedOn);
 
             // enqueue container version published events
-            enqueueContainerVersionPublished(version, documentVersions,
-                    receivedBy, publishedBy, publishedOn, publishToUsers);
+            enqueueContainerVersionPublished(version, documentVersionStreamIds,
+                    receivedBy, user.getId(), publishedOn, publishToUsers);
 
             // enqueue container version published notification events
-            enqueueContainerVersionPublishedNotification(version, teamMembers,
-                    publishedBy, publishedOn, publishToUsers);
+            enqueueContainerVersionPublishedNotification(version, team,
+                    user.getId(), publishedOn, publishToUsers);
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
+
     /**
-     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initializeModel(com.thinkparity.desdemona.model.session.Session)
+     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initialize()
      *
      */
     @Override
-    protected void initializeModel(final Session session) {
+    protected void initialize() {
         artifactSql = new ArtifactSql();
     }
 
@@ -153,15 +145,12 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
      * @param publishedBy
      *            The published by user id <code>JabberId</code>.
      */
-    private void addTeamMember(final JabberId userId,
-            final ContainerVersion version, final JabberId publishedBy) {
+    private void addTeamMember(final ContainerVersion version) {
         final InternalArtifactModel artifactModel = getArtifactModel();
         final Artifact artifact = artifactModel.read(version.getArtifactUniqueId());
-        final List<TeamMember> localTeam = artifactModel.readTeam(userId, artifact.getId());
-        final User publishedByUser = getUserModel().read(publishedBy);
-        if (!contains(localTeam, publishedByUser)) {
-            artifactModel.addTeamMember(userId, artifact.getId(),
-                    publishedByUser.getLocalId());
+        final List<TeamMember> localTeam = artifactModel.readTeam(artifact.getId());
+        if (!contains(localTeam, user)) {
+            artifactModel.addTeamMember(artifact.getId());
         }
     }
 
@@ -186,10 +175,9 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             final Calendar publishedOn) {
         final InternalContactModel contactModel = getContactModel();
         final InternalUserModel userModel = getUserModel();
-        final InternalRulesModel rulesModel = getRulesModel();
         for (final EMail publishToEMail : publishToEMails) {
             final List<OutgoingEMailInvitation> invitations =
-                contactModel.readOutgoingEMailInvitations(userId);
+                contactModel.readProxyOutgoingEMailInvitations(userId);
             OutgoingEMailInvitation existing = null;
             for (final OutgoingEMailInvitation invitation : invitations) {
                 if (invitation.getInvitationEMail().equals(publishToEMail)) {
@@ -202,16 +190,16 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
                 /* if the recipient user does not exist and the user is publish
                  * restricted; do nothing */
                 final User publishToUser = userModel.read(publishToEMail);
-                if (null == publishToUser && rulesModel.isPublishRestricted(
-                        userId)) {
+                if (null == publishToUser &&
+                        getRuleModel().isPublishRestricted()) {
                     logger.logInfo("Publish is restricted from {0} to {1}.",
                             userId, publishToEMail);
                     continue;
                 }
                 /* if the recipient exists and the pair are publish restricted;
                  * do nothing */
-                if (null != publishToUser && rulesModel.isPublishRestricted(
-                        userId, publishToUser.getId())) {
+                if (null != publishToUser &&
+                        getRuleModel(publishToUser).isPublishRestrictedFrom(userId)) {
                     logger.logInfo("Publish is restricted from {0} to {1}.",
                             userId, publishToUser.getId());
                     continue;
@@ -221,7 +209,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
                 invitation.setCreatedBy(readUser(userId));
                 invitation.setCreatedOn(publishedOn);
                 invitation.setInvitationEMail(publishToEMail);
-                contactModel.createInvitation(userId, invitation);
+                contactModel.createInvitation(invitation);
             } else {
                 // reference existing invitation
                 invitation = existing;
@@ -269,7 +257,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         final List<JabberId> enqueueTo = new ArrayList<JabberId>();
         for (final User publishToUser : publishToUsers)
             enqueueTo.add(publishToUser.getId());
-        enqueueEvent(session.getJabberId(), enqueueTo, event);
+        enqueueEvents(enqueueTo, event);
     }
 
     /**
@@ -317,8 +305,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         }
         event.setTeam(newTeam);
         // enqueue to the new team
-        enqueueEvent(session.getJabberId(),
-                getIds(newTeam, new ArrayList<JabberId>()), event);
+        enqueueEvents(getIds(newTeam, new ArrayList<JabberId>()), event);
     }
 
     /**
@@ -361,7 +348,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         final List<JabberId> enqueueTo = new ArrayList<JabberId>();
         for (final User publishToUser : publishToUsers)
             enqueueTo.add(publishToUser.getId());
-        enqueueEvent(session.getJabberId(), enqueueTo, event);
+        enqueueEvents(enqueueTo, event);
     }
 
     /**
@@ -409,8 +396,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         }
         event.setTeam(newTeam);
         // enqueue to the new team
-        enqueueEvent(session.getJabberId(),
-                getIds(newTeam, new ArrayList<JabberId>()), event);
+        enqueueEvents(getIds(newTeam, new ArrayList<JabberId>()), event);
     }
 
     /**

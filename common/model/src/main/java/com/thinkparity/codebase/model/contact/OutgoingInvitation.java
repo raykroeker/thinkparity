@@ -12,12 +12,11 @@ package com.thinkparity.codebase.model.contact;
  */
 public abstract class OutgoingInvitation extends ContactInvitation {
 
-    
     /**
      * Create OutgoingInvitation.
      *
      */
-    protected OutgoingInvitation() {
+    public OutgoingInvitation() {
         super();
     }
 }

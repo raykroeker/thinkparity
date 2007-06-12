@@ -6,7 +6,10 @@ package com.thinkparity.desdemona.model;
 import java.lang.reflect.Proxy;
 
 import com.thinkparity.codebase.model.ThinkParityException;
+import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.desdemona.model.artifact.ArtifactModel;
+import com.thinkparity.desdemona.model.artifact.ArtifactModelImpl;
 import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.backup.BackupModelImpl;
 import com.thinkparity.desdemona.model.contact.ContactModel;
@@ -17,7 +20,18 @@ import com.thinkparity.desdemona.model.migrator.MigratorModel;
 import com.thinkparity.desdemona.model.migrator.MigratorModelImpl;
 import com.thinkparity.desdemona.model.profile.ProfileModel;
 import com.thinkparity.desdemona.model.profile.ProfileModelImpl;
-import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.model.queue.QueueModel;
+import com.thinkparity.desdemona.model.queue.QueueModelImpl;
+import com.thinkparity.desdemona.model.rules.RuleModel;
+import com.thinkparity.desdemona.model.rules.RuleModelImpl;
+import com.thinkparity.desdemona.model.session.SessionModel;
+import com.thinkparity.desdemona.model.session.SessionModelImpl;
+import com.thinkparity.desdemona.model.stream.StreamModel;
+import com.thinkparity.desdemona.model.stream.StreamModelImpl;
+import com.thinkparity.desdemona.model.system.SystemModel;
+import com.thinkparity.desdemona.model.system.SystemModelImpl;
+import com.thinkparity.desdemona.model.user.UserModel;
+import com.thinkparity.desdemona.model.user.UserModelImpl;
 
 /**
  * <b>Title:</b><br>
@@ -37,8 +51,21 @@ public final class ModelFactory {
      *            A thinkParity <code>Workspace</code>.
      * @return A <code>ModelFactory</code>.
      */
-    public static ModelFactory getInstance(final Session session) {
-        return new ModelFactory(session);
+    public static ModelFactory getInstance(final ClassLoader loader) {
+        return new ModelFactory(loader);
+    }
+
+    /**
+     * Obtain an instance of <code>ModelFactory</code>.
+     * 
+     * @param environment
+     *            A thinkParity <code>Environment</code>.
+     * @param workspace
+     *            A thinkParity <code>Workspace</code>.
+     * @return A <code>ModelFactory</code>.
+     */
+    public static ModelFactory getInstance(final User user, final ClassLoader loader) {
+        return new ModelFactory(user, loader);
     }
 
     /**
@@ -56,33 +83,53 @@ public final class ModelFactory {
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    static Object newModelProxy(final Session session, final ClassLoader classLoader,
+    static Object newModelProxy(final User user, final ClassLoader loader,
             final Class<?> modelInterface, final Class<?> modelImplementation) {
         try {
-            final AbstractModelImpl modelInstance = (AbstractModelImpl) modelImplementation.newInstance();
-            modelInstance.initialize(session);
-            modelInstance.initializeModel(session);
-            return Proxy.newProxyInstance(classLoader,
+            final AbstractModelImpl modelInstance =
+                (AbstractModelImpl) modelImplementation.newInstance();
+            modelInstance.setUser(user);
+            modelInstance.initialize();
+            return Proxy.newProxyInstance(loader,
                     new Class<?>[] { modelInterface },
-                    new ModelInvocationHandler(session, modelInstance));
+                    new ModelInvocationHandler(modelImplementation, modelInstance));
         } catch (final Exception x) {
             throw new ThinkParityException("Cannot instantiate model.", x);
         }
     }
-    /** The proxy <code>ClassLoader</code>. */
-    private final ClassLoader classLoader;
 
-    /** A user <code>Session</code>. */
-    private final Session session;
+    /** The proxy <code>ClassLoader</code>. */
+    private final ClassLoader loader;
+
+    /** The model user. */
+    private final User user;
 
     /**
      * Create ModelFactory.
      *
      */
-    private ModelFactory(final Session session) {
+    private ModelFactory(final ClassLoader loader) {
+        this(null, loader);
+    }
+
+    /**
+     * Create ModelFactory.
+     *
+     */
+    private ModelFactory(final User user, final ClassLoader loader) {
         super();
-        this.session = session;
-        this.classLoader = session.getClass().getClassLoader();
+        this.user = user;
+        this.loader = loader;
+    }
+
+    /**
+     * Obtain an artifact model.
+     * 
+     * @return An instance of <code>ArtifactModel</code>.
+     */
+    public final ArtifactModel getArtifactModel() {
+        return (ArtifactModel) newModelProxy(
+                ArtifactModel.class, ArtifactModelImpl.class);
     }
 
     /**
@@ -136,6 +183,64 @@ public final class ModelFactory {
     }
 
     /**
+     * Obtain a queue model.
+     * 
+     * @return An instance of <code>QueueModel</code>.
+     */
+    public final QueueModel getQueueModel() {
+        return (QueueModel) newModelProxy(QueueModel.class, QueueModelImpl.class);
+    }
+
+    /**
+     * Obtain a rule model.
+     * 
+     * @return An instance of <code>RuleModel</code>.
+     */
+    public final RuleModel getRuleModel() {
+        return (RuleModel) newModelProxy(
+                RuleModel.class, RuleModelImpl.class);
+    }
+
+    /**
+     * Obtain a session model.
+     * 
+     * @return An instance of <code>SessionModel</code>.
+     */
+    public final SessionModel getSessionModel() {
+        return (SessionModel) newModelProxy(
+                SessionModel.class, SessionModelImpl.class);
+    }
+
+    /**
+     * Obtain an stream model.
+     * 
+     * @return An instance of <code>StreamModel</code>.
+     */
+    public final StreamModel getStreamModel() {
+        return (StreamModel) newModelProxy(StreamModel.class, StreamModelImpl.class);
+    }
+
+    /**
+     * Obtain a system model.
+     * 
+     * @return An instance of <code>SystemModel</code>.
+     */
+    public final SystemModel getSystemModel() {
+        return (SystemModel) newModelProxy(
+                SystemModel.class, SystemModelImpl.class);
+    }
+
+    /**
+     * Obtain an user model.
+     * 
+     * @return An instance of <code>UserModel</code>.
+     */
+    public final UserModel getUserModel() {
+        return (UserModel) newModelProxy(
+                UserModel.class, UserModelImpl.class);
+    }
+
+    /**
      * Create a proxy for a thinkParity model.
      * 
      * @param modelInterface
@@ -146,7 +251,6 @@ public final class ModelFactory {
      */
     private Object newModelProxy(final Class<?> modelInterface,
             final Class<?> modelImplementation) {
-        return newModelProxy(session, classLoader, modelInterface,
-                modelImplementation);
+        return newModelProxy(user, loader, modelInterface, modelImplementation);
     }
 }

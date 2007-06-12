@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.util.xapool.XADataSourceConfiguration;
 import com.thinkparity.codebase.model.util.xapool.XADataSourcePool;
 import com.thinkparity.codebase.model.util.xapool.XADataSourceConfiguration.Key;
 
+import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSessionManager;
 
@@ -76,7 +77,7 @@ public class PersistenceManager {
      */
     public void start() {
         final XADataSourceConfiguration conf = new XADataSourceConfiguration();
-        conf.setProperty(Key.DRIVER, "org.apache.derby.jdbc.ClientDriver");
+        conf.setProperty(Key.DRIVER, System.getProperty("thinkparity.datasource-driver"));
         conf.setProperty(Key.PASSWORD, System.getProperty("thinkparity.datasource-password")); 
         conf.setProperty(Key.URL, System.getProperty("thinkparity.datasource-url")); 
         conf.setProperty(Key.USER, System.getProperty("thinkparity.datasource-user"));
@@ -85,6 +86,12 @@ public class PersistenceManager {
             sessionManager = new HypersonicSessionManager(dataSource);
         } catch (final SQLException sqlx) {
             throw new ThinkParityException("Could not start persistence manager.", sqlx);
+        }
+        try {
+            final HypersonicSession session = sessionManager.openSession();
+            session.close();
+        } catch (final HypersonicException hx) {
+            throw new ThinkParityException("Database session could not be opened.", hx);
         }
     }
 
@@ -105,8 +112,9 @@ public class PersistenceManager {
         try {
             ((XADataSourcePool) dataSource).getShutdownConnection();
         } catch (final SQLException sqlx) {
+            // the sqlx is thrown deliberately by derby on shutdown
         } catch (final Throwable t) {
-            throw new ThinkParityException("Cannot stop persistence manager.", t);
+            logger.logError(t, "An error occured stopping persistence.");
         }
     }
 }

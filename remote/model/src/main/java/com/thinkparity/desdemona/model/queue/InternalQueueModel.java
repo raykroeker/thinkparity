@@ -5,62 +5,22 @@ package com.thinkparity.desdemona.model.queue;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
-import com.thinkparity.desdemona.model.session.Session;
-
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity Desdemona Internal Queue Model<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class InternalQueueModel extends QueueModel {
+public interface InternalQueueModel extends QueueModel {
 
     /**
-     * Create InternalQueueModel.
-     *
-     */
-    InternalQueueModel(final Context context, final Session session) {
-        super(session);
-    }
-
-    /**
-     * Create an event for a user.
+     * Delete all queue events for the model user.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param eventUserId
-     *            The event target user id <code>JabberId</code>.
-     * @param event
-     *            An <code>XMPPEvent</code>.
      */
-    public void createEvent(final JabberId userId, final JabberId eventUserId,
-            final XMPPEvent event) {
-        synchronized (getImplLock()) {
-            getImpl().createEvent(userId, eventUserId, event);
-        }
-    }
-
-    /**
-     * Create an event for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param eventUserId
-     *            The event target user id <code>JabberId</code>.
-     * @param event
-     *            An <code>XMPPEvent</code>.
-     * @param priority
-     *            The event <code>Priority</code>.
-     */
-    public void createEvent(final JabberId userId, final JabberId eventUserId,
-            final XMPPEvent event, final XMPPEvent.Priority priority) {
-        synchronized (getImplLock()) {
-            getImpl().createEvent(userId, eventUserId, event, priority);
-        }
-    }
+    void deleteEvents();
 
     /**
      * Delete all queue events for a user.
@@ -68,9 +28,29 @@ public final class InternalQueueModel extends QueueModel {
      * @param userId
      *            A user id <code>JabberId</code>.
      */
-    public void deleteEvents(final JabberId userId) {
-        synchronized (getImplLock()) {
-            getImpl().deleteEvents(userId);
-        }
-    }
+    void deleteEvents(JabberId userId);
+
+    /**
+     * Enqueue a default priority event for the model user.
+     * 
+     * @param event
+     *            An <code>XMPPEvent</code>.
+     */
+    void enqueueEvent(XMPPEvent event);
+
+    /**
+     * Enqueue an event for the model user.
+     * 
+     * @param event
+     *            An <code>XMPPEvent</code>.
+     * @param priority
+     *            The event <code>Priority</code>.
+     */
+    void enqueueEvent(XMPPEvent event, XMPPEvent.Priority priority);
+
+    /**
+     * Flush the queue for the model user.
+     *
+     */
+    void flush();
 }

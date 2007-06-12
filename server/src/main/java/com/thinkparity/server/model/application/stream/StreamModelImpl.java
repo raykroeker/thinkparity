@@ -3,12 +3,7 @@
  */
 package com.thinkparity.desdemona.model.stream;
 
-import java.io.File;
-import java.net.InetAddress;
 import java.nio.charset.Charset;
-
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
@@ -16,9 +11,7 @@ import com.thinkparity.codebase.model.util.codec.MD5Util;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
-
-import org.jivesoftware.util.JiveProperties;
+import com.thinkparity.desdemona.util.DesdemonaProperties;
 
 /**
  * <b>Title:</b>thinkParity Stream Model Implementation</br>
@@ -27,55 +20,36 @@ import org.jivesoftware.util.JiveProperties;
  * @author CreateModel.groovy
  * @version 1.1
  */
-final class StreamModelImpl extends AbstractModelImpl {
+public final class StreamModelImpl extends AbstractModelImpl implements
+        StreamModel, InternalStreamModel {
 
     /** The character set used by the stream server. */
     static final Charset CHARSET;
-
-    /** A thinkParity <code>StreamServer</code>. */
-    private static StreamServer streamServer;
 
     static {
         CHARSET = Charset.forName("ISO-8859-1");
     }
 
-    /** A <code>JiveProperties</code> instance. */
-    private final JiveProperties jiveProperties;
-
-    StreamModelImpl() {
-        this(null);
-    }
+    /** The <code>StreamService</code>. */
+    private StreamService service;
 
     /**
      * Create StreamModelImpl.
      *
-     * @param session
-     *		The user's session.
      */
-    StreamModelImpl(final com.thinkparity.desdemona.model.session.Session session) {
-        super(session);
-        this.jiveProperties = JiveProperties.getInstance();
+    public StreamModelImpl() {
+        super();
     }
 
     /**
-     * Create a stream.
+     * @see com.thinkparity.desdemona.model.stream.StreamModel#create(java.lang.String)
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param sessionId
-     *            A session id <code>String</code>.
-     * @return A stream id <code>String</code>.
      */
-    String create(final JabberId userId, final String sessionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("sessionId", sessionId);
+    public String create(final String sessionId) {
         try {
-            assertIsAuthenticatedUser(userId);
-            final StreamSession session = streamServer.authenticate(
-                    sessionId, this.session.getInetAddress());
-            final String streamId = buildStreamId();
-            streamServer.initialize(session, streamId);
+            final StreamSession session = service.authenticate(sessionId);
+            final String streamId = newStreamId();
+            service.initialize(session, streamId);
             return streamId;
         } catch (final Throwable t) {
             throw translateError(t);
@@ -83,145 +57,66 @@ final class StreamModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Create a stream session for an achive user.
+     * @see com.thinkparity.desdemona.model.stream.StreamModel#createSession()
      * 
-     * @param archiveId
-     *            An archive user id <code>JabberId</code>.
-     * @return A stream session.
      */
-    StreamSession createArchiveSession(final JabberId archiveId) {
-        logger.logApiId();
-        logger.logVariable("archiveId", archiveId);
+    public StreamSession createSession() {
         try {
-            final ServerSession streamSession = buildSession(archiveId, null);
-            streamServer.initialize(streamSession);
-            return streamSession;
+            final ServerSession session = newSession(newStreamSessionId());
+            service.initialize(session);
+            return session.getClientSession();
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
     /**
-     * Create a session.
+     * @see com.thinkparity.desdemona.model.stream.StreamModel#delete(java.lang.String,
+     *      java.lang.String)
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A <code>Session</code>.
      */
-    StreamSession createSession(final JabberId userId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
+    public void delete(final String sessionId, final String streamId) {
         try {
-            assertIsAuthenticatedUser(userId);
-            final ServerSession session = buildSession(userId,
-                    this.session.getInetAddress());
-            streamServer.initialize(session);
-            return session;
+            final StreamSession session = service.authenticate(sessionId);
+            service.destroy(session, streamId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
     /**
-     * Delete a stream.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param sessionId
-     *            A stream session id <code>String</code>.
-     * @param streamId
-     *            A stream id <code>String</code>.
-     */
-    void delete(final JabberId userId, final String sessionId,
-            final String streamId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("sessionId", sessionId);
-        logger.logVariable("streamId", streamId);
-        try {
-            assertIsAuthenticatedUser(userId);
-            final StreamSession session = streamServer.authenticate(
-                    sessionId, this.session.getInetAddress());
-            streamServer.destroy(session, streamId);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Delete a session.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param sessionId
-     *            A session id <code>String</code>.
-     */
-    void deleteSession(final JabberId userId, final String sessionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        try {
-            assertIsAuthenticatedUser(userId);
-            final StreamSession session =
-                streamServer.authenticate(sessionId,
-                        this.session.getInetAddress());
-            streamServer.destroy(session);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Read a session.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param sessionId
-     *            A session id <code>String</code>.
-     * @return A <code>StreamSession</code>.
-     */
-    StreamSession readSession(final JabberId userId, final String sessionId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("sessionId", sessionId);
-        try {
-            assertIsAuthenticatedUser(userId);
-            return streamServer.authenticate(
-                    sessionId, this.session.getInetAddress());
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * Start the stream service.
+     * @see com.thinkparity.desdemona.model.stream.StreamModel#deleteSession(java.lang.String)
      *
      */
-    void start() {
-        logApiId();
+    public void deleteSession(final String sessionId) {
         try {
-            Assert.assertIsNull("Stream server has been started.", streamServer);
-            streamServer = new StreamServer(
-                    new File((String) jiveProperties.get(JivePropertyNames.THINKPARITY_STREAM_ROOT)),
-                    readEnvironment());
-            streamServer.start();
+            final StreamSession session = service.authenticate(sessionId);
+            service.destroy(session);
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
     /**
-     * Stop the stream service.
-     *
+     * @see com.thinkparity.desdemona.model.stream.StreamModel#readSession(java.lang.String)
+     * 
      */
-    void stop() {
-        logApiId();
+    public StreamSession readSession(final String sessionId) {
         try {
-            Assert.assertNotNull("Stream server has not been started.", streamServer);
-            streamServer.stop(Boolean.TRUE);
-            streamServer = null;
+            return service.authenticate(sessionId);
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initialize()
+     *
+     */
+    @Override
+    protected void initialize() {
+        properties = DesdemonaProperties.getInstance();
+        service = StreamService.getInstance();
     }
 
     /**
@@ -233,39 +128,40 @@ final class StreamModelImpl extends AbstractModelImpl {
      *            An <code>InetAddress</code>.
      * @return A new server stream session.
      */
-    private ServerSession buildSession(final JabberId userId,
-            final InetAddress inetAddress) {
+    private ServerSession newSession(final String streamSessionId) {
         final ServerSession session = new ServerSession();
         session.setCharset(CHARSET);
         session.setBufferSize(getBufferSize("stream-session"));
-        session.setEnvironment(readEnvironment());
-        session.setId(buildSessionId(userId));
-        session.setInetAddress(inetAddress);
+        session.setId(streamSessionId);
+        session.setInetAddress(null);
+        session.setServerHost(properties.getProperty("thinkparity.stream-host"));
+        session.setServerPort(Integer.valueOf(properties.getProperty("thinkparity.stream-port")));
         return session;
     }
 
-    /**
-     * Create a stream session id.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A stream session id <code>String</code>.
-     */
-    private String buildSessionId(final JabberId userId) {
-        return buildUserTimestampId(userId);
-    }
+    /** The desdemona properties. */
+    private DesdemonaProperties properties;
 
     /**
      * Build a stream id.
      * 
      * @return A stream id <code>String</code>.
      */
-    private String buildStreamId() {
+    private String newStreamId() {
         /*
          * NOTE A stream id is a UUID
          */
         final StringBuffer hashString = new StringBuffer()
             .append(UUIDGenerator.nextUUID());
         return MD5Util.md5Hex(hashString.toString());
+    }
+
+    /**
+     * Create an instance of a stream session id for the model user.
+     * 
+     * @return A stream session id <code>String</code>.
+     */
+    private String newStreamSessionId() {
+        return buildUserTimestampId(user.getId());
     }
 }

@@ -7,8 +7,6 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import com.thinkparity.codebase.Application;
-
 import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.http.Link;
@@ -48,7 +46,7 @@ final class ErrorText {
         this.error = error;
         this.resourceBundle = ResourceBundle.getBundle(
                 "localization.Error_Messages", locale);
-        this.linkFactory = LinkFactory.getInstance(Application.DESDEMONA, environment);
+        this.linkFactory = LinkFactory.getInstance();
     }
 
     /**

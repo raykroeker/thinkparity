@@ -601,6 +601,10 @@ public final class HypersonicSession {
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
 		try {
+		    /* HACK - HypersonicSession#setCalendar - the calendar object does
+		     * not update its internal state until a get call is made */
+            value.getTime();
+
             final Calendar universalCalendar = (Calendar) value.clone();
             universalCalendar.setTimeZone(UNIVERSAL_TIME_ZONE);
 			preparedStatement.setTimestamp(index,

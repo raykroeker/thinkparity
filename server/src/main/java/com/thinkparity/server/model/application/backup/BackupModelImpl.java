@@ -41,7 +41,7 @@ import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.io.sql.BackupSql;
-import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.model.queue.InternalQueueModel;
 import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 
 /**
@@ -72,13 +72,13 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      * @see com.thinkparity.desdemona.model.backup.BackupModel#archive(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
      *
      */
-    public void archive(final JabberId userId, final UUID uniqueId) {
+    public void archive(final UUID uniqueId) {
         try {
-            final User user = getUserModel().read(userId);
             if (isBackupEnabled(user)) {
                 archiveImpl(user, uniqueId);
             } else {
-                logger.logWarning("User {0} has no backup feature.", userId);
+                logger.logWarning("User {0} has no backup feature.",
+                        user.getId());
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -90,14 +90,14 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      *      java.lang.String, java.util.UUID, java.lang.Long)
      * 
      */
-    public void createStream(final JabberId userId, final String streamId,
-            final UUID uniqueId, final Long versionId) {
+    public void createStream(final String streamId, final UUID uniqueId,
+            final Long versionId) {
         try {
-            final User user = getUserModel().read(userId);
             if (isBackupEnabled(user)) {
                 createStreamImpl(user, streamId, uniqueId, versionId);
             } else {
-                logger.logWarning("User {0} has no backup feature.", userId);
+                logger.logWarning("User {0} has no backup feature.",
+                        user.getId());
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -109,13 +109,13 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      *      java.util.UUID)
      * 
      */
-    public void delete(final JabberId userId, final UUID uniqueId) {
+    public void delete(final UUID uniqueId) {
         try {
-            final User user = getUserModel().read(userId);
             if (isBackupEnabled(user)) {
                 deleteImpl(user, uniqueId);
             } else {
-                logger.logWarning("User {0} has no backup feature.", userId);
+                logger.logWarning("User {0} has no backup feature.",
+                        user.getId());
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -126,13 +126,13 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#enqueueBackupEvent(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.jabber.JabberId)
      *
      */
-    public void enqueueBackupEvent(final JabberId userId, final JabberId eventUserId) {
+    public void enqueueBackupEvent() {
         try {
-            final User eventUser = getUserModel().read(eventUserId);
-            if (isBackupEnabled(eventUser)) {
-                enqueueBackupEventImpl(getUserModel().read(userId), eventUser);
+            if (isBackupEnabled(user)) {
+                enqueueBackupEventImpl(user);
             } else {
-                logger.logWarning("User {0} has no backup feature.", userId);
+                logger.logWarning("User {0} has no backup feature.",
+                        user.getId());
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -152,68 +152,12 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainer(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
-     *
-     */
-    public Container readContainer(final JabberId userId, final UUID uniqueId) {
-        try {
-            final User user = getUserModel().read(userId);
-            if (isBackupEnabled(user)) {
-                return readContainerImpl(user, uniqueId);
-            } else {
-                logger.logWarning("User {0} has no backup feature.", userId);
-                return null;
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#readContainer(java.util.UUID)
-     *
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainer(java.util.UUID)
+     * 
      */
     public Container readContainer(final UUID uniqueId) {
         try {
             return readContainerImpl(uniqueId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainerDocuments(com.thinkparity.codebase.jabber.JabberId, java.util.UUID, java.lang.Long)
-     *
-     */
-    public List<Document> readContainerDocuments(final JabberId userId,
-            final UUID uniqueId, final Long versionId) {
-        try {
-            final User user = getUserModel().read(userId);
-            if (isBackupEnabled(user)) {
-                return readContainerDocumentsImpl(user, uniqueId, versionId);
-            } else {
-                logger.logWarning("User {0} has no backup feature.", userId);
-                return Collections.emptyList();
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainerDocumentVersions(com.thinkparity.codebase.jabber.JabberId, java.util.UUID, java.lang.Long)
-     *
-     */
-    public List<DocumentVersion> readContainerDocumentVersions(
-            final JabberId userId, final UUID uniqueId, final Long versionId) {
-        try {
-            final User user = getUserModel().read(userId);
-            if (isBackupEnabled(user)) {
-                return readContainerDocumentVersionsImpl(user, uniqueId, versionId);
-            } else {
-                logger.logWarning("User {0} has no backup feature.", userId);
-                return Collections.emptyList();
-            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -245,56 +189,16 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainerPublishedTo(com.thinkparity.codebase.jabber.JabberId, java.util.UUID, java.lang.Long)
-     *
-     */
-    public List<ArtifactReceipt> readContainerPublishedTo(
-            final JabberId userId, final UUID uniqueId, final Long versionId) {
-        try {
-            final User user = getUserModel().read(userId);
-            if (isBackupEnabled(user)) {
-                return readContainerPublishedToImpl(user, uniqueId, versionId);
-            } else {
-                logger.logWarning("User {0} has no backup feature.", userId);
-                return Collections.emptyList();
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainerPublishedToEMails(com.thinkparity.codebase.jabber.JabberId,
-     *      java.util.UUID, java.lang.Long)
-     * 
-     */
-    public List<PublishedToEMail> readContainerPublishedToEMails(
-            final JabberId userId, final UUID uniqueId, final Long versionId) {
-        try {
-            final User user = getUserModel().read(userId);
-            if (isBackupEnabled(user)) {
-                return readContainerPublishedToEMailsImpl(user, uniqueId,
-                        versionId);
-            } else {
-                logger.logWarning("User {0} has no backup feature.", userId);
-                return Collections.emptyList();
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainers(com.thinkparity.codebase.jabber.JabberId)
      *
      */
-    public List<Container> readContainers(final JabberId userId) {
+    public List<Container> readContainers() {
         try {
-            final User user = getUserModel().read(userId);
             if (isBackupEnabled(user)) {
                 return readContainersImpl(user);
             } else {
-                logger.logWarning("User {0} has no backup feature.", userId);
+                logger.logWarning("User {0} has no backup feature.",
+                        user.getId());
                 return Collections.emptyList();
             }
         } catch (final Throwable t) {
@@ -319,14 +223,13 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainerVersions(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
      *
      */
-    public List<ContainerVersion> readContainerVersions(final JabberId userId,
-            final UUID uniqueId) {
+    public List<ContainerVersion> readContainerVersions(final UUID uniqueId) {
         try {
-            final User user = getUserModel().read(userId);
             if (isBackupEnabled(user)) {
                 return readContainerVersionsImpl(user, uniqueId);
             } else {
-                logger.logWarning("User {0} has no backup feature.", userId);
+                logger.logWarning("User {0} has no backup feature.",
+                        user.getId());
                 return Collections.emptyList();
             }
         } catch (final Throwable t) {
@@ -335,14 +238,81 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#readPublishedTo(java.util.UUID,
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#readDocuments(java.util.UUID,
      *      java.lang.Long)
      * 
      */
-    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
-            final Long versionId) {
+    public List<Document> readDocuments(final UUID containerUniqueId,
+            final Long containerVersionId) {
         try {
-            return readPublishedToImpl(uniqueId, versionId);
+            if (isBackupEnabled(user)) {
+                return readContainerDocumentsImpl(user, containerUniqueId,
+                        containerVersionId);
+            } else {
+                logger.logWarning("User {0} has no backup feature.",
+                        user.getId());
+                return Collections.emptyList();
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainerDocumentVersions(com.thinkparity.codebase.jabber.JabberId, java.util.UUID, java.lang.Long)
+     *
+     */
+    public List<DocumentVersion> readDocumentVersions(
+            final UUID containerUniqueId, final Long containerVersionId) {
+        try {
+            if (isBackupEnabled(user)) {
+                return readContainerDocumentVersionsImpl(user, containerUniqueId, containerVersionId);
+            } else {
+                logger.logWarning("User {0} has no backup feature.",
+                        user.getId());
+                return Collections.emptyList();
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#readContainerPublishedTo(com.thinkparity.codebase.jabber.JabberId, java.util.UUID, java.lang.Long)
+     *
+     */
+    public List<ArtifactReceipt> readPublishedTo(final UUID containerUniqueId,
+            final Long containerVersionId) {
+        try {
+            if (isBackupEnabled(user)) {
+                return readContainerPublishedToImpl(user, containerUniqueId,
+                        containerVersionId);
+            } else {
+                logger.logWarning("User {0} has no backup feature.",
+                        user.getId());
+                return Collections.emptyList();
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.BackupModel#readPublishedToEMails(java.util.UUID,
+     *      java.lang.Long)
+     * 
+     */
+    public List<PublishedToEMail> readPublishedToEMails(
+            final UUID containerUniqueId, final Long containerVersionId) {
+        try {
+            if (isBackupEnabled(user)) {
+                return readContainerPublishedToEMailsImpl(user,
+                        containerUniqueId, containerVersionId);
+            } else {
+                logger.logWarning("User {0} has no backup feature.",
+                        user.getId());
+                return Collections.emptyList();
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -352,13 +322,13 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      * @see com.thinkparity.desdemona.model.backup.BackupModel#readStatistics(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
-    public Statistics readStatistics(final JabberId userId) {
+    public Statistics readStatistics() {
         try {
-            final User user = getUserModel().read(userId);
             if (isBackupEnabled(user)) {
                 return readStatisticsImpl(user);
             } else {
-                logger.logWarning("User {0} has no backup feature.", userId);
+                logger.logWarning("User {0} has no backup feature.",
+                        user.getId());
                 return null;
             }
         } catch (final Throwable t) {
@@ -371,13 +341,13 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      *      java.util.UUID)
      * 
      */
-    public List<JabberId> readTeamIds(final JabberId userId, final UUID uniqueId) {
+    public List<JabberId> readTeamIds(final UUID uniqueId) {
         try {
-            final User user = getUserModel().read(userId);
             if (isBackupEnabled(user)) {
                 return readTeamIdsImpl(user, uniqueId);
             } else {
-                logger.logWarning("User {0} has no backup feature.", userId);
+                logger.logWarning("User {0} has no backup feature.",
+                        user.getId());
                 return Collections.emptyList();
             }
         } catch (final Throwable t) {
@@ -390,13 +360,13 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      *      java.util.UUID)
      * 
      */
-    public void restore(final JabberId userId, final UUID uniqueId) {
+    public void restore(final UUID uniqueId) {
         try {
-            final User user = getUserModel().read(userId);
             if (isBackupEnabled(user)) {
                 restoreImpl(user, uniqueId);
             } else {
-                logger.logWarning("User {0} has no backup feature.", userId);
+                logger.logWarning("User {0} has no backup feature.",
+                        user.getId());
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -417,11 +387,11 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initializeModel(com.thinkparity.desdemona.model.session.Session)
+     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initialize()
      *
      */
     @Override
-    protected void initializeModel(final Session session) {
+    protected void initialize() {
         this.artifactSql = new ArtifactSql();
         this.backupSql = new BackupSql();
     }
@@ -491,8 +461,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             final Long streamSize = documentModel.readVersionSize(documentId, versionId);
 
             final InternalStreamModel streamModel = getStreamModel();
-            final StreamSession streamSession =
-                streamModel.createArchiveSession(readBackupUserId());
+            final StreamSession streamSession = streamModel.createSession();
             documentModel.uploadVersion(documentId, versionId, new StreamUploader() {
                 public void upload(final InputStream stream) throws IOException {
                     final InputStream bufferedStream =
@@ -539,21 +508,21 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             artifactSql.delete(artifact.getId());
         }
         // fire backup event
-        enqueueBackupEventImpl(user, user);
+        enqueueBackupEventImpl(user);
     }
 
     /**
-     * Enqueue a backup event for a user.
+     * Enqueue a backup statistics updated event for a user.
      * 
      * @param user
      *            A user <code>User</code>.
-     * @param eventUser
-     *            The event <code>User</code>.
      */
-    private void enqueueBackupEventImpl(final User user, final User eventUser) {
+    private void enqueueBackupEventImpl(final User user) {
         final BackupStatisticsUpdatedEvent bsue = new BackupStatisticsUpdatedEvent();
-        bsue.setStatistics(readStatisticsImpl(eventUser));
-        enqueueEvent(user.getId(), eventUser.getId(), bsue);
+        bsue.setStatistics(readStatisticsImpl(user));
+        final InternalQueueModel queueModel = getQueueModel(user);
+        queueModel.enqueueEvent(bsue);
+        queueModel.flush();
     }
 
     /**
@@ -619,8 +588,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     private boolean isBackupEnabled(final User user) {
         /* NOTE the product id/name should be read from the interface once the
          * migrator code is complete */
-        final List<Feature> features = getUserModel().readFeatures(
-                user.getLocalId(), Ophelia.PRODUCT_ID);
+        final List<Feature> features = getUserModel(user).readFeatures(Ophelia.PRODUCT_ID);
         for (final Feature feature : features) {
             if (Ophelia.Feature.BACKUP.equals(feature.getName())) {
                 return Boolean.TRUE;
@@ -718,8 +686,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     private boolean isTeamMember(final User user, final UUID uniqueId) {
         final InternalArtifactModel artifactModel = getArtifactModel();
         final Artifact artifact = artifactModel.read(uniqueId);
-        final List<TeamMember> team = artifactModel.readTeam(user.getId(),
-                artifact.getId());
+        final List<TeamMember> team = artifactModel.readTeam(artifact.getId());
         for (final TeamMember teamMember : team) {
             if (teamMember.getLocalId().equals(user.getLocalId()))
                 return true;
@@ -748,15 +715,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         final List<UUID> backedUpContainerIds = backupSql.readArchive(user);
         backedUpContainerIds.addAll(getArtifactModel().readTeamArtifactIds(user));
         return backedUpContainerIds;
-    }
-
-    /**
-     * Read the backup user id.
-     * 
-     * @return A user id <code>JabberId</code>.
-     */
-    private JabberId readBackupUserId() {
-        return getUserModel().readBackupUserId();
     }
 
     /**
@@ -820,30 +778,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         }
     }
 
-    /**
-     * Read a container implementation. If the user is a team member read the
-     * container from the backup.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
-     * @return A <code>Container</code>.
-     */
-    private Container readContainerImpl(final User user, final UUID uniqueId) {
-        if (isContainerBackedUp(user, uniqueId)) {
-            final InternalModelFactory modelFactory = getModelFactory(user);
-            final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
-            final Container container = modelFactory.getContainerModel().read(containerId);
-            applyFlagArchived(user, container);
-            return container;
-        } else {
-            logger.logWarning("Container {0} is not backed up for user {1}.",
-                    uniqueId, user.getId());
-            return null;
-        }
-    }
-
     private Container readContainerImpl(final UUID uniqueId) {
         if (isContainerBackedUp(uniqueId)) {
             final Long containerId = getModelFactory().getArtifactModel().readId(uniqueId);
@@ -892,7 +826,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             final List<PublishedToEMail> publishedTo = new ArrayList<PublishedToEMail>();
             final InternalContactModel contactModel = getContactModel();
             final List<OutgoingEMailInvitation> invitations =
-                getContactModel().readOutgoingEMailInvitations(user.getId());
+                getContactModel().readOutgoingEMailInvitations();
             final List<ContainerVersionAttachment> attachments =
                 new ArrayList<ContainerVersionAttachment>();
             for (final OutgoingEMailInvitation invitation : invitations) {
@@ -1023,17 +957,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         }
     }
 
-    private List<ArtifactReceipt> readPublishedToImpl(final UUID uniqueId,
-            final Long versionId) {
-        if (isContainerBackedUp(uniqueId)) {
-            final Long containerId = getModelFactory().getArtifactModel().readId(uniqueId);
-            return getModelFactory().getContainerModel().readPublishedTo(containerId, versionId);
-        } else {
-            logger.logWarning("Container {0} is not backed up.", uniqueId);
-            return Collections.emptyList();
-        }
-    }
-
     /**
      * Read statistics implementation.
      * 
@@ -1127,8 +1050,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             final Long streamSize = documentModel.readVersionSize(documentId, versionId);
 
             final InternalStreamModel streamModel = getStreamModel();
-            final StreamSession streamSession =
-                streamModel.createArchiveSession(readBackupUserId());
+            final StreamSession streamSession = streamModel.createSession();
             documentModel.uploadVersion(documentId, versionId, new StreamUploader() {
                 public void upload(final InputStream stream) throws IOException {
                     final InputStream bufferedStream =

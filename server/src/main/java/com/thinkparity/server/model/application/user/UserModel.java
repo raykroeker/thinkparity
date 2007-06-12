@@ -9,107 +9,35 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.desdemona.model.AbstractModel;
-import com.thinkparity.desdemona.model.session.Session;
-
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Desdemona User Model<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class UserModel extends AbstractModel<UserModelImpl> {
+public interface UserModel {
 
-    public static InternalUserModel getInternalModel(final Context context) {
-        return new InternalUserModel(context);
-    }
+	public List<User> read();
 
-    public static InternalUserModel getInternalModel(final Context context,
-            final Session session) {
-        return new InternalUserModel(context, session);
-    }
-
-    public static UserModel getModel() {
-        return new UserModel();
-    }
-
-    /**
-	 * Obtain a user model.
-	 * 
-	 * @param session
-	 *            The user's session.
-	 * @return A user model.
-	 */
-	public static UserModel getModel(final Session session) {
-		final UserModel userModel = new UserModel(session);
-		return userModel;
-	}
-
-    /**
-     * Create a UserModel.
-     * 
-     * @param session
-     *            The user session.
-     */
-    protected UserModel() {
-        super(new UserModelImpl());
-    }
-
-    /**
-     * Create a UserModel.
-     * 
-     * @param session
-     *            The user session.
-     */
-    protected UserModel(final Session session) {
-        super(new UserModelImpl(session));
-    }
-
-	public List<User> read() {
-        synchronized (getImplLock()) {
-            return getImpl().read();
-        }
-    }
-
-	public User read(final EMail email) {
-        synchronized (getImplLock()) {
-            return getImpl().read(email);
-        }
-    }
+	public User read(final EMail email);
 
     /**
      * Read a list of users.
      * 
      * @return A list of users.
      */
-    public List<User> read(final Filter<? super User> filter) {
-        synchronized (getImplLock()) {
-            return getImpl().read(filter);
-        }
-    }
+    public List<User> read(final Filter<? super User> filter);
 
-    public User read(final JabberId userId) {
-		synchronized(getImplLock()) { return getImpl().read(userId); }
-	}
+    public User read(final JabberId userId);
 
-    public List<User> read(final List<JabberId> userIds) {
-		synchronized (getImplLock()) {
-            return getImpl().read(userIds);
-		}
-	}
+    public List<User> read(final List<JabberId> userIds);
 
     public <T extends com.thinkparity.codebase.model.user.UserVCard> T readVCard(
-            final Long userId, final T vcard) {
-        synchronized (getImplLock()) {
-            return getImpl().readVCard(userId, vcard);
-        }
-    }
+            final T vcard);
 
-    public void updateVCard(final Long userId,
-            final com.thinkparity.codebase.model.user.UserVCard vcard) {
-        synchronized (getImplLock()) {
-            getImpl().updateVCard(userId, vcard);
-        }
-    }
+    public void updateVCard(
+            final com.thinkparity.codebase.model.user.UserVCard vcard);
 }

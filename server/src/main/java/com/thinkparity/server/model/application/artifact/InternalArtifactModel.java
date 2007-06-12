@@ -9,84 +9,39 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.util.jta.TransactionType;
-
-import com.thinkparity.desdemona.model.session.Session;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Internal Artifact Model<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-@ThinkParityTransaction(TransactionType.REQUIRED)
-public class InternalArtifactModel extends ArtifactModel {
+public interface InternalArtifactModel extends ArtifactModel {
 
     /**
-     * Create InternalArtifactModel.
-     *
-     */
-    InternalArtifactModel(final Context context) {
-        super();
-    }
-
-    /**
-     * Create InternalArtifactModel.
-     *
-     */
-    InternalArtifactModel(final Context context, final Session session) {
-        super(session);
-    }
-
-    // TODO-javadoc InternalArtifactModel#addTeamMember()
-    public void addTeamMember(final JabberId userId, final Long artifactId,
-            final Long teamMemberId) {
-        synchronized (getImplLock()) {
-            getImpl().addTeamMember(userId, artifactId, teamMemberId);
-        }
-    }
-
-    /**
-     * Delete all drafts for a user.
+     * Add the model user to the artifact team.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
      */
-    public void deleteDrafts(final JabberId userId, final Calendar deletedOn) {
-        synchronized (getImplLock()) {
-            getImpl().deleteDrafts(userId, deletedOn);
-        }
-    }
+    public void addTeamMember(final Long artifactId);
 
-    public JabberId readDraftOwner(final UUID uniqueId) {
-        synchronized (getImplLock()) {
-            return getImpl().readDraftOwner(uniqueId);
-        }
-    }
+    /**
+     * Delete all drafts for the model user.
+     * 
+     */
+    public void deleteDrafts(final Calendar deletedOn);
 
-    // TODO-javadoc InternalArtifactModel#readTeam()
-    public List<TeamMember> readTeam(final JabberId userId,
-            final Long artifactId) {
-        synchronized (getImplLock()) {
-            return getImpl().readTeam(userId, artifactId);
-        }
-    }
+    public JabberId readDraftOwner(final UUID uniqueId);
 
-    public List<UUID> readTeamArtifactIds(final User user) {
-        synchronized (getImplLock()) {
-            return getImpl().readTeamArtifactIds(user);
-        }
-    }
+    public List<TeamMember> readTeam(final Long artifactId);
+
+    public List<UUID> readTeamArtifactIds(final User user);
 
     // TODO-javadoc InternalArtifactModel#addTeamMember()
     public void removeTeamMember(final JabberId userId, final Long artifactId,
-            final Long teamMemberId) {
-        synchronized (getImplLock()) {
-            getImpl().removeTeamMember(userId, artifactId, teamMemberId);
-        }
-    }
+            final Long teamMemberId);
 }

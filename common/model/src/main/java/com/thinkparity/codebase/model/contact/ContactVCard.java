@@ -5,8 +5,6 @@ package com.thinkparity.codebase.model.contact;
 
 import com.thinkparity.codebase.model.user.UserVCard;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-
 /**
  * <b>Title:</b>thinkParity Contact VCard<br>
  * <b>Description:</b>A contact's vcard.<br>
@@ -14,8 +12,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-@XStreamAlias("v-card")
-public class ContactVCard extends UserVCard {
+public final class ContactVCard extends UserVCard {
 
     /**
      * Create ContactVCard.

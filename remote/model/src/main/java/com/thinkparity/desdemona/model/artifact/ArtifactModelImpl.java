@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
@@ -24,211 +25,161 @@ import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.Constants.Versioning;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
-import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
 
-import org.jivesoftware.wildfire.auth.UnauthorizedException;
-
 /**
- * @author raykroeker@gmail.com
- * @version 1.1.2.5
+ * <b>Title:</b>thinkParity DesdemonaModel Artifact Model Implementation<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-class ArtifactModelImpl extends AbstractModelImpl {
+public final class ArtifactModelImpl extends AbstractModelImpl implements
+        ArtifactModel, InternalArtifactModel {
 
     /** Artifact sql io. */
-	private final ArtifactSql artifactSql;
+	private ArtifactSql artifactSql;
 
     /**
-     * Create a ArtifactModelImpl.
-     */
-    ArtifactModelImpl() {
+     * Create ArtifactModelImpl.
+     *
+	 */
+    public ArtifactModelImpl() {
         super();
-        this.artifactSql = new ArtifactSql();
     }
 
     /**
-     * Create a ArtifactModelImpl.
-     */
-    ArtifactModelImpl(final Session session) {
-        super(session);
-        this.artifactSql = new ArtifactSql();
-    }
-
-	/**
-     * Add a user to an artifact's team.
+     * @see com.thinkparity.desdemona.model.artifact.ArtifactModel#addTeamMember(java.util.List,
+     *      java.util.UUID, com.thinkparity.codebase.jabber.JabberId)
      * 
-     * @param uniqueId
-     *            An artifact unique id.
-     * @param jabberId
-     *            A user's jabber id.
      */
-    void addTeamMember(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId, final JabberId teamMemberId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("team", team);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("teamMemberId", teamMemberId);
+    public void addTeamMember(final List<JabberId> team, final UUID uniqueId,
+            final JabberId teamMemberId) {
         try {
             final InternalUserModel userModel = getUserModel();
 
             final Artifact artifact = read(uniqueId);
             final User teamMember = userModel.read(teamMemberId);
-            final List<TeamMember> teamMembers = readTeam(userId, artifact.getId());
-            if (!contains(teamMembers, teamMember))
-                addTeamMember(userId, artifact.getId(), teamMember.getLocalId());
+            final List<TeamMember> teamMembers = readTeam(artifact.getId());
+            if (!contains(teamMembers, teamMember)) {
+                addTeamMember(artifact.getId(), teamMember.getLocalId());
+            }
 
             final ArtifactTeamMemberAddedEvent teamMemberAdded = new ArtifactTeamMemberAddedEvent();
             teamMemberAdded.setJabberId(teamMemberId);
             teamMemberAdded.setUniqueId(uniqueId);
-            enqueueEvent(userId, team, teamMemberAdded);
+            enqueueEvents(team, teamMemberAdded);
         } catch(final Throwable t) {
             throw translateError(t);
         }
     }
 
-    // TODO-javadoc InternalArtifactModel#addTeamMember()
-    void addTeamMember(final JabberId userId, final Long artifactId,
-            final Long teamMemberId) {
+    /**
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#addTeamMember(java.lang.Long)
+     *
+     */
+    public void addTeamMember(final Long artifactId) {
         try {
-            assertIsAuthenticatedUser(userId);
-
-            artifactSql.createTeamRel(artifactId, teamMemberId);
+            addTeamMember(artifactId, user.getLocalId());
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
-    void confirmReceipt(final JabberId userId, final UUID uniqueId,
-            final Long versionId, final JabberId publishedBy,
-            final Calendar publishedOn, final List<JabberId> publishedTo,
-            final JabberId receivedBy, final Calendar receivedOn) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("versionId", versionId);
-        logger.logVariable("publishedBy", publishedBy);
-        logger.logVariable("publishedOn", publishedOn);
-        logger.logVariable("publishedTo", publishedTo);
-        logger.logVariable("receivedBy", receivedBy);
-        logger.logVariable("receivedOn", receivedOn);
+    /**
+     * @see com.thinkparity.desdemona.model.artifact.ArtifactModel#confirmReceipt(java.util.UUID,
+     *      java.lang.Long, com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.Calendar, java.util.List, java.util.Calendar)
+     * 
+     */
+    public void confirmReceipt(final UUID uniqueId, final Long versionId,
+            final JabberId publishedBy, final Calendar publishedOn,
+            final List<JabberId> publishedTo, final Calendar receivedOn) {
         try {
-            assertIsAuthenticatedUser(userId);
-
             final ArtifactReceivedEvent received = new ArtifactReceivedEvent();
             received.setUniqueId(uniqueId);
             received.setVersionId(versionId);
             received.setPublishedOn(publishedOn);
-            received.setReceivedBy(receivedBy);
+            received.setReceivedBy(user.getId());
             received.setReceivedOn(receivedOn);
-            final List<JabberId> enqueueFor =
+            final List<JabberId> eventUserIds =
                 new ArrayList<JabberId>(publishedTo.size() + 1);
-            enqueueFor.add(publishedBy);
-            enqueueFor.addAll(publishedTo);
-            enqueueEvent(userId, enqueueFor, received);
+            eventUserIds.add(publishedBy);
+            eventUserIds.addAll(publishedTo);
+            enqueueEvents(eventUserIds, received);
+
             // add user to the team
             final InternalArtifactModel artifactModel = getArtifactModel();
             final Artifact artifact = getArtifactModel().read(uniqueId);
-            final List<TeamMember> localTeam = artifactModel.readTeam(userId, artifact.getId());
-            final User receivedByUser = getUserModel().read(receivedBy);
+            final List<TeamMember> localTeam = artifactModel.readTeam(
+                    artifact.getId());
+            final User receivedByUser = getUserModel().read(user.getId());
             if (!contains(localTeam, receivedByUser))
-                artifactModel.addTeamMember(userId, artifact.getId(), receivedByUser.getLocalId());
+                addTeamMember(artifact.getId(), receivedByUser.getLocalId());
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
     /**
-     * Create an artifact; and add the creator to the team immediately. Note
-     * that we are deliberately not using the model api to add a team member
-     * because we do not want to fire off notifications.
+     * @see com.thinkparity.desdemona.model.artifact.ArtifactModel#create(java.util.UUID,
+     *      java.util.Calendar)
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     * @return The new <code>Artifact</code>.
      */
-    Artifact create(final JabberId userId, final UUID uniqueId,
-            final Calendar createdOn) {
+    public Artifact create(final UUID uniqueId, final Calendar createdOn) {
 		try {
-			artifactSql.create(uniqueId, userId, Versioning.START,
-                    session.getJabberId(), createdOn);
+			artifactSql.create(uniqueId, user.getId(), Versioning.START,
+                    user.getId(), createdOn);
 			return read(uniqueId);
 		} catch (final Throwable t) {
 		    throw translateError(t);
         }
 	}
 
-	/**
-     * Create a draft for an artifact.
+    /**
+     * @see com.thinkparity.desdemona.model.artifact.ArtifactModel#createDraft(com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.List, java.util.UUID, java.util.Calendar)
      * 
-     * @param uniqueId
-     *            The artifact unique id.
      */
-    void createDraft(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId, final Calendar createdOn) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("team", team);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("createdOn", createdOn);
+    public void createDraft(final List<JabberId> team, final UUID uniqueId,
+            final Calendar createdOn) {
         try {
-            assertIsAuthenticatedUser(userId);
-            assertSystemIsKeyHolder(uniqueId);
+            final JabberId keyHolderId = readKeyHolder(uniqueId);
+            Assert.assertTrue(keyHolderId.equals(User.THINKPARITY.getId()),
+                    "Cannot create draft.  Current key holder is {0}.",
+                    keyHolderId);
+
             final Artifact artifact = read(uniqueId);
-            artifactSql.updateDraftOwner(artifact.getId(),
-                    session.getJabberId(), session.getJabberId(), createdOn);
-            notifyDraftCreated(team, artifact, session.getJabberId(), DateUtil
-                    .getInstance());
+            artifactSql.updateDraftOwner(artifact.getId(), user.getId(),
+                    user.getId(), createdOn);
+            notifyDraftCreated(team, artifact, user.getId(),
+                    DateUtil.getInstance());
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
     /**
-     * Delete a draft from an artifact.
+     * @see com.thinkparity.desdemona.model.artifact.ArtifactModel#deleteDraft(java.util.List,
+     *      java.util.UUID, java.util.Calendar)
      * 
-     * @param uniqueId
-     *            An artifact unique id.
      */
-    void deleteDraft(final JabberId userId, final List<JabberId> team,
-            final UUID uniqueId, final Calendar deletedOn) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("team", team);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("deletedOn", deletedOn);
+    public void deleteDraft(final List<JabberId> team, final UUID uniqueId,
+            final Calendar deletedOn) {
         try {
-            assertIsKeyHolder(uniqueId);
-            assertIsAuthenticatedUser(userId);
-            // update key data
-            final Artifact artifact = read(uniqueId);
-            artifactSql.updateDraftOwner(artifact.getId(),
-                    User.THINKPARITY.getId(), userId, deletedOn);
-            // fire notification
-            final ArtifactDraftDeletedEvent draftDeleted = new ArtifactDraftDeletedEvent();
-            draftDeleted.setUniqueId(artifact.getUniqueId());
-            draftDeleted.setDeletedBy(userId);
-            draftDeleted.setDeletedOn(currentDateTime());
-            enqueueEvent(userId, team, draftDeleted);
+            deleteDraft(user.getId(), team, uniqueId, deletedOn);
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
     /**
-     * Delete all drafts for a user.
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#deleteDrafts(java.util.Calendar)
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      */
-    void deleteDrafts(final JabberId userId, final Calendar deletedOn) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
+    public void deleteDrafts(final Calendar deletedOn) {
         try {
-            assertIsAuthenticatedUser(userId);
-            final List<UUID> uniqueIds = artifactSql.readDraftUniqueIds(userId);
+            final List<UUID> uniqueIds = artifactSql.readDraftUniqueIds(user.getId());
             final List<TeamMember> teamMembers = new ArrayList<TeamMember>();
             final List<JabberId> teamIds = new ArrayList<JabberId>();
             Long artifactId;
@@ -239,7 +190,7 @@ class ArtifactModelImpl extends AbstractModelImpl {
                 for (final TeamMember teamMember : teamMembers) {
                     teamIds.add(teamMember.getId());
                 }
-                deleteDraft(userId, teamIds, uniqueId, deletedOn);
+                deleteDraft(user.getId(), teamIds, uniqueId, deletedOn);
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -247,12 +198,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
     }
 
     /**
-	 * Obtain a handle to an artifact for a given artifact unique id.
-	 * 
-	 * @param uniqueId
-	 *            An artifact unique id.
-	 */
-	Artifact read(final UUID uniqueId) {
+     * @see com.thinkparity.desdemona.model.artifact.ArtifactModel#read(java.util.UUID)
+     * 
+     */
+    public Artifact read(final UUID uniqueId) {
         logApiId();
 		logVariable("uniqueId", uniqueId);
 		try {
@@ -263,28 +212,10 @@ class ArtifactModelImpl extends AbstractModelImpl {
 	}
 
     /**
-     * Read the key holder for an artifact.
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#readDraftOwner(java.util.UUID)
      * 
-     * @param userId
-     *            The user id <code>JabberId</code>.
-     * @param uniqueId
-     *            The artifact unique id <code>UUID</code>.
-     * @return The artifact key holder <code>JabberId</code>.
      */
-    JabberId readKeyHolder(final JabberId userId, final UUID uniqueId) {
-        logApiId();
-        logVariable("userId", userId);
-        logVariable("uniqueId", uniqueId);
-        assertIsAuthenticatedUser(userId);
-        try {
-            return artifactSql.readDraftOwner(uniqueId);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    // same as read key holder
-    JabberId readDraftOwner(final UUID uniqueId) {
+    public JabberId readDraftOwner(final UUID uniqueId) {
         logVariable("uniqueId", uniqueId);
         try {
             return artifactSql.readDraftOwner(uniqueId);
@@ -293,18 +224,37 @@ class ArtifactModelImpl extends AbstractModelImpl {
         }
     }
 
-    // TODO-javadoc InternalArtifactModel#readTeam()
-    List<TeamMember> readTeam(final JabberId userId, final Long artifactId) {
+    /**
+     * @see com.thinkparity.desdemona.model.artifact.ArtifactModel#readKeyHolder(com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.UUID)
+     * 
+     */
+    public JabberId readKeyHolder(final UUID uniqueId) {
         try {
-            assertIsAuthenticatedUser(userId);
+            return artifactSql.readDraftOwner(uniqueId);
+        } catch (final Throwable t) {
+            throw translateError(t);
+        }
+    }
 
+    /**
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#readTeam(com.thinkparity.codebase.jabber.JabberId,
+     *      java.lang.Long)
+     * 
+     */
+    public List<TeamMember> readTeam(final Long artifactId) {
+        try {
             return artifactSql.readTeamRel(artifactId);
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
-	List<UUID> readTeamArtifactIds(final User user) {
+    /**
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#readTeamArtifactIds(com.thinkparity.codebase.model.user.User)
+     * 
+     */
+    public List<UUID> readTeamArtifactIds(final User user) {
         try {
             return artifactSql.readTeamArtifactUniqueIds(user.getLocalId());
         } catch (final Throwable t) {
@@ -313,20 +263,26 @@ class ArtifactModelImpl extends AbstractModelImpl {
     }
 
     /**
-     * Remove a user from an artifact's team.
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#removeTeamMember(com.thinkparity.codebase.jabber.JabberId,
+     *      java.lang.Long, java.lang.Long)
      * 
-     * @param uniqueId
-     *            An artifact unique id.
-     * @param jabberId
-     *            A user's jabber id.
      */
-    void removeTeamMember(final JabberId userId, final List<JabberId> team,
+    public void removeTeamMember(final JabberId userId, final Long artifactId,
+            final Long teamMemberId) {
+        try {
+            artifactSql.deleteTeamRel(artifactId, teamMemberId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.artifact.ArtifactModel#removeTeamMember(java.util.List,
+     *      java.util.UUID, com.thinkparity.codebase.jabber.JabberId)
+     * 
+     */
+    public void removeTeamMember(final List<JabberId> team,
             final UUID uniqueId, final JabberId teamMemberId) {
-        logger.logApiId();
-        logger.logVariable("userId", userId);
-        logger.logVariable("team", team);
-        logger.logVariable("uniqueId", uniqueId);
-        logger.logVariable("teamMemberId", teamMemberId);
         try {
             final InternalUserModel userModel = getUserModel();
 
@@ -338,22 +294,63 @@ class ArtifactModelImpl extends AbstractModelImpl {
                 new ArtifactTeamMemberRemovedEvent();
             teamMemberRemoved.setUniqueId(uniqueId);
             teamMemberRemoved.setJabberId(teamMemberId);
-            enqueueEvent(userId, team, teamMemberRemoved);
+            enqueueEvents(team, teamMemberRemoved);
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
-    // TODO-javadoc InternalArtifactModel#removeTeamMember()
-    void removeTeamMember(final JabberId userId, final Long artifactId,
-            final Long teamMemberId) {
-        try {
-            assertIsAuthenticatedUser(userId);
+    /**
+     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initializeModel(com.thinkparity.desdemona.model.session.Session)
+     *
+     */
+    @Override
+    protected void initialize() {
+        artifactSql = new ArtifactSql();
+    }
 
-            artifactSql.deleteTeamRel(artifactId, teamMemberId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
+    /**
+     * Add a user to an artifact team.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @param userId
+     *            A user id <code>Long</code>.
+     */
+    private void addTeamMember(final Long artifactId, final Long userId) {
+        artifactSql.createTeamRel(artifactId, userId);
+    }
+
+    /**
+     * Delete a draft for a draft owner.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code> for the current draft owner.
+     * @param team
+     *            A team <code>List<JabberId></code>.
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @param deletedOn
+     *            A deleted on <code>Calendar</code>.
+     */
+    private void deleteDraft(final JabberId userId, final List<JabberId> team,
+            final UUID uniqueId, final Calendar deletedOn) {
+        final JabberId keyHolderId = readKeyHolder(uniqueId);
+        Assert.assertTrue(keyHolderId.equals(userId),
+                "User {0} is not the active key holder {1}.", userId,
+                keyHolderId);
+
+        // update key data
+        final Artifact artifact = read(uniqueId);
+        artifactSql.updateDraftOwner(artifact.getId(), User.THINKPARITY.getId(),
+                userId, deletedOn);
+
+        // fire notification
+        final ArtifactDraftDeletedEvent draftDeleted = new ArtifactDraftDeletedEvent();
+        draftDeleted.setUniqueId(artifact.getUniqueId());
+        draftDeleted.setDeletedBy(user.getId());
+        draftDeleted.setDeletedOn(currentDateTime());
+        enqueueEvents(team, draftDeleted);
     }
 
     /**
@@ -375,7 +372,6 @@ class ArtifactModelImpl extends AbstractModelImpl {
         draftCreated.setUniqueId(artifact.getUniqueId());
         draftCreated.setCreatedBy(createdBy);
         draftCreated.setCreatedOn(createdOn);
-        enqueueEvent(session.getJabberId(), team, draftCreated);
+        enqueueEvents(team, draftCreated);
     }
-
 }

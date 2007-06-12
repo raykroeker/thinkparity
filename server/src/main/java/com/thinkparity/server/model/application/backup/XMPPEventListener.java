@@ -3,9 +3,8 @@
  */
 package com.thinkparity.desdemona.model.backup;
 
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
-
-import com.thinkparity.desdemona.model.session.Session;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Backup XMPP Event Listener<br>
@@ -17,12 +16,12 @@ import com.thinkparity.desdemona.model.session.Session;
 public interface XMPPEventListener {
 
     /**
-     * Handle the xmpp event.
+     * Handle the xmpp event for the user.
      * 
-     * @param session
-     *            A user <code>Session</code>.
+     * @param user
+     *            A <code>User</code>.
      * @param event
      *            An <code>XMPPEvent</code>.
      */
-    public void handleEvent(final Session session, final XMPPEvent event);
+    public void handleEvent(final User user, final XMPPEvent event);
 }

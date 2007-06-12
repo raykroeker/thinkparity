@@ -20,8 +20,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
-
-import org.jivesoftware.util.JiveProperties;
+import com.thinkparity.desdemona.util.DesdemonaProperties;
 
 /**
  * <b>Title:</b>thinkParity Backup Serivce</br>
@@ -57,8 +56,8 @@ public final class BackupService {
     /** The backup <code>FileSystem</code>. */
     private final FileSystem fileSystem;
 
-    /** An instance of <code>JiveProperties</code>. */
-    private final JiveProperties jiveProperties;
+    /** An instance of <code>DesdemonaProperties</code>. */
+    private final DesdemonaProperties properties;
 
     /** A <code>Log4JWrapper</code>. */
     private final Log4JWrapper logger;
@@ -75,7 +74,7 @@ public final class BackupService {
      */
     private BackupService() {
         super();
-        this.jiveProperties = JiveProperties.getInstance();
+        this.properties = DesdemonaProperties.getInstance();
 
         this.eventHandler = new XMPPEventHandler();
         this.logger = new Log4JWrapper(getClass());
@@ -127,24 +126,13 @@ public final class BackupService {
     }
 
     /**
-     * Obtain a configuration property.
-     * 
-     * @param name
-     *            A property name <code>String</code>.
-     * @return A property value <code>String</code>.
-     */
-    private String getJiveProperty(final String name) {
-        return (String) jiveProperties.get(name);
-    }
-
-    /**
      * Read the backup service user's environment.
      * 
      * @return An <code>Environment</code>.
      */
     private Environment readBackupEnvironment() {
         final String thinkParityEnvironment =
-            (String) JiveProperties.getInstance().get(JivePropertyNames.THINKPARITY_ENVIRONMENT);
+            properties.getProperty(JivePropertyNames.THINKPARITY_ENVIRONMENT);
         return Environment.valueOf(thinkParityEnvironment);
     }
 
@@ -155,7 +143,7 @@ public final class BackupService {
      */
     private FileSystem readBackupFileSystem() {
         final String thinkParityBackupRoot =
-            getJiveProperty(JivePropertyNames.THINKPARITY_BACKUP_ROOT);
+            properties.getProperty(JivePropertyNames.THINKPARITY_BACKUP_ROOT);
         final File thinkParityBackupRootDirectory = new File(thinkParityBackupRoot);
         if (!thinkParityBackupRootDirectory.exists())
             Assert.assertTrue(thinkParityBackupRootDirectory.mkdir(),

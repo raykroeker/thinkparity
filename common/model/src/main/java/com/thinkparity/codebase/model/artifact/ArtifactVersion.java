@@ -61,7 +61,7 @@ public abstract class ArtifactVersion {
 	 * Create ArtifactVersion.
 	 * 
 	 */
-	protected ArtifactVersion() {
+	public ArtifactVersion() {
 		super();
 		this.metaData = new Properties();
 	}

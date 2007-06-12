@@ -10,6 +10,8 @@ import com.thinkparity.codebase.Platform
 import com.thinkparity.codebase.jabber.JabberId
 import com.thinkparity.codebase.jabber.JabberIdBuilder
 
+import com.thinkparity.codebase.model.session.Environment
+
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Build Task Configuration Helper<br>
  * <b>Description:</b>A groovy configuration build task configuration helper
@@ -55,6 +57,7 @@ class ConfigurationHelper {
         configuration["ant.base-dir"] = extractAntBasedir()
 
         configuration["thinkparity.charset-name"] = extractCharsetName()
+        configuration["thinkparity.environment"] = extractEnvironment()
         configuration["thinkparity.now"] = extractNow()
         configuration["thinkparity.os"] = extractOs()
         configuration["thinkparity.os-platform"] = extractOsPlatform()
@@ -63,8 +66,20 @@ class ConfigurationHelper {
         configuration["thinkparity.release-name"] = extractReleaseName()
         configuration["thinkparity.target.classes-dir"] = extractTargetClassesDir()
         configuration["thinkparity.target.package-dir"] = extractTargetPackageDir()
+        configuration["thinkparity.war-name"] = extractWarName()
 
         return configuration
+    }
+
+    /**
+     * Extract the environment.  Look at the
+     * <code>"thinkparity.environment</code> property.
+     *
+     * @return An instance of <code>Environment</code>.
+     */
+    Environment extractEnvironment() {
+        def environment = Environment.valueOf(properties["thinkparity.environment"])
+        return environment
     }
 
     /**
@@ -159,5 +174,15 @@ class ConfigurationHelper {
      */
     String extractReleaseName() {
         return properties["thinkparity.release-name"]
+    }
+
+    /**
+     * Extract the plugin name.  Look at the
+     * <code>"thinkparity.plugin-name"</code> property.
+     *
+     * @return A product name <code>String</code>.
+     */
+    String extractWarName() {
+        return properties["thinkparity.war-name"]
     }
 }

@@ -12,13 +12,13 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.net.SocketFactory;
 import javax.net.ssl.SSLException;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+import com.thinkparity.codebase.net.SocketFactory;
 
-import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.queue.notification.NotificationException;
 
 /**
  * <b>Title:</b>thinkParity Stream Client<br>
@@ -44,6 +44,9 @@ abstract class StreamClient {
 
     /** A list of socket error messages know to be recoverable from. */
     private static final List<String> RECOVERABLE_MESSAGES;
+
+    /** A java socket factory. */
+    private static javax.net.SocketFactory SOCKET_FACTORY;
 
     static {
         LOGGER = new Log4JWrapper();
@@ -79,6 +82,14 @@ abstract class StreamClient {
         RECOVERABLE_MESSAGES.add("Socket closed");
         RECOVERABLE_MESSAGES.add("Software caused connection abort: socket write error");
         RECOVERABLE_MESSAGES.add("Connection reset by peer: socket write error");
+        final String keyStorePath = "security/client_keystore";
+        final char[] keyStorePassword = "password".toCharArray();
+        try {
+            SOCKET_FACTORY = SocketFactory.getSecureInstance(keyStorePath,
+                    keyStorePassword, keyStorePath, keyStorePassword);
+        } catch (final Exception x) {
+            throw new NotificationException(x);
+        }
     }
 
     /** The stream's <code>InputStream</code>. */
@@ -99,9 +110,6 @@ abstract class StreamClient {
     /** The backing socket's <code>InetSocketAddress</code>. */
     private final InetSocketAddress socketAddress;
 
-    /** The <code>SocketFactory</code> used to establish the stream. */
-    private final SocketFactory socketFactory;
-
     /** The stream client <code>Type</code>. */
     private final Type type;
 
@@ -121,28 +129,8 @@ abstract class StreamClient {
         super();
         this.monitor = monitor;
         this.session = session;
-        final Environment environment = session.getEnvironment();
         this.socketAddress = new InetSocketAddress(
-                environment.getStreamHost(), environment.getStreamPort());
-        if (environment.isStreamTLSEnabled()) {
-            new Log4JWrapper().logInfo("Stream Client - {0} - {1}:{2} - Secure",
-                    type, environment.getStreamHost(),
-                    environment.getStreamPort());
-            final String keyStorePath = "security/stream_client_keystore";
-            final char[] keyStorePassword = "password".toCharArray();
-            try {
-                socketFactory =
-                    com.thinkparity.codebase.net.SocketFactory.getSecureInstance(keyStorePath, keyStorePassword, keyStorePath, keyStorePassword);
-            } catch (final Exception x) {
-                throw panic(x);
-            }
-        } else {
-            new Log4JWrapper().logInfo("Stream Client - {0} - {1}:{2}",
-                    type, environment.getStreamHost(),
-                    environment.getStreamPort());
-            socketFactory =
-                com.thinkparity.codebase.net.SocketFactory.getInstance();
-        }
+                session.getServerHost(), session.getServerPort());
         this.type = type;
     }
 
@@ -369,7 +357,7 @@ abstract class StreamClient {
      * @throws IOException
      */
     private void doConnect() throws IOException {
-        socket = socketFactory.createSocket(
+        socket = SOCKET_FACTORY.createSocket(
                 socketAddress.getAddress(), socketAddress.getPort());
         input = socket.getInputStream();
         output = socket.getOutputStream();
@@ -456,7 +444,7 @@ abstract class StreamClient {
     private boolean isResumable() {
         Socket socket = null;
         try {
-            socket = socketFactory.createSocket(
+            socket = SOCKET_FACTORY.createSocket(
                 socketAddress.getAddress(), socketAddress.getPort());
             return true;
         } catch (final Throwable t) {
@@ -489,7 +477,7 @@ abstract class StreamClient {
     private boolean isResumable(final InputStream stream) {
         Socket socket = null;
         try {
-            socket = socketFactory.createSocket(
+            socket = SOCKET_FACTORY.createSocket(
                 socketAddress.getAddress(), socketAddress.getPort());
             return 0 < stream.available();
         } catch (final Throwable t) {

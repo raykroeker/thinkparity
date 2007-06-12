@@ -27,12 +27,7 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.migrator.Feature;
-import com.thinkparity.codebase.model.profile.EMailReservation;
-import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.profile.UsernameReservation;
-import com.thinkparity.codebase.model.profile.VerificationKey;
+import com.thinkparity.codebase.model.profile.*;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.user.User;
@@ -46,11 +41,9 @@ import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.EMailSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
-import com.thinkparity.desdemona.model.session.Session;
-import com.thinkparity.desdemona.util.smtp.MessageFactory;
-import com.thinkparity.desdemona.util.smtp.TransportManager;
-
-import org.jivesoftware.wildfire.auth.UnauthorizedException;
+import com.thinkparity.desdemona.model.user.InternalUserModel;
+import com.thinkparity.desdemona.util.DateTimeProvider;
+import com.thinkparity.desdemona.util.smtp.SMTPService;
 
 /**
  * <b>Title:</b>thinkParity Profile Model Implementation</br>
@@ -68,6 +61,9 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     /** An e-mail address sql interface. */
     private EMailSql emailSql;
 
+    /** An instance of <code>SMTPService</code>. */
+    private final SMTPService smtpService;
+
     /** User db io. */
     private UserSql userSql;
 
@@ -77,45 +73,44 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      */
     public ProfileModelImpl() {
         super();
+        this.smtpService = SMTPService.getInstance();
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.profile.ProfileModel#addEmail(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.email.EMail)
+     * @see com.thinkparity.desdemona.model.profile.ProfileModel#addEmail(com.thinkparity.codebase.email.EMail)
      * 
      */
-    public void addEmail(final JabberId userId, final EMail email) {
+    public void addEMail(final EMail email) {
         try {
-            final User user = read(userId);
             // create remote data
             final VerificationKey key = VerificationKey.generate(email);
             userSql.createEmail(user.getLocalId(), email, key);
             // send verification email
-            final MimeMessage mimeMessage = MessageFactory.createMimeMessage();
+            final MimeMessage mimeMessage = smtpService.createMessage();
             createVerification(mimeMessage, email, key);
             addRecipient(mimeMessage, email);
-            TransportManager.deliver(mimeMessage);
+            smtpService.deliver(mimeMessage);
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.profile.ProfileModel#create(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.model.profile.Reservation,
+     * @see com.thinkparity.desdemona.model.profile.ProfileModel#create(com.thinkparity.codebase.model.profile.UsernameReservation,
+     *      com.thinkparity.codebase.model.profile.EMailReservation,
      *      com.thinkparity.codebase.model.session.Credentials,
      *      com.thinkparity.codebase.model.profile.Profile,
-     *      com.thinkparity.codebase.email.EMail, java.lang.String,
-     *      java.lang.String)
+     *      com.thinkparity.codebase.email.EMail,
+     *      com.thinkparity.codebase.model.profile.SecurityCredentials)
      * 
      */
-    public void create(final JabberId userId,
-            final UsernameReservation usernameReservation,
+    public void create(final UsernameReservation usernameReservation,
             final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
-            final EMail email, final String securityQuestion,
-            final String securityAnswer) {
+            final EMail email, final SecurityCredentials securityCredentials) {
         try {
+            final Calendar now = DateTimeProvider.getCurrentDateTime();
+
             assertIsValid(profile.getVCard());
             assertIsValid(usernameReservation, emailReservation, credentials, email);
 
@@ -132,8 +127,9 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                     "E-mail address reservation {0} expired on {1}.",
                     emailReservation.getToken(), emailReservation.getExpiresOn());
 
-            profile.setLocalId(userSql.create(credentials, securityQuestion,
-                    securityAnswer, profile.getVCard()));
+            profile.setLocalId(userSql.create(credentials,
+                    securityCredentials.getQuestion(),
+                    securityCredentials.getAnswer(), profile.getVCard()));
 
             // add e-mail address
             final VerificationKey key = VerificationKey.generate(email);
@@ -148,14 +144,16 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             userSql.deleteEMailReservation(emailReservation.getToken());
 
             // add support contact
-            getContactModel().create(userId, profile,
-                    getUserModel().read(User.THINKPARITY_SUPPORT.getId()));
+            final InternalUserModel userModel = getUserModel();
+            final User support = userModel.read(User.THINKPARITY_SUPPORT.getId());
+            contactSql.create(profile, support, profile, now);
+            contactSql.create(support, profile, profile, now);
 
             // send verification email
-            final MimeMessage mimeMessage = MessageFactory.createMimeMessage();
+            final MimeMessage mimeMessage = smtpService.createMessage();
             createFirstVerification(mimeMessage, email, key);
             addRecipient(mimeMessage, email);
-            TransportManager.deliver(mimeMessage);
+            smtpService.deliver(mimeMessage);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -175,22 +173,22 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             expiresOn.set(Calendar.HOUR, expiresOn.get(Calendar.HOUR) + 1);
 
             // try to find a profile by either by username or by e-mail address
-            final Profile profile = read(profileKey);
-            if (null == profile) {
+            final User user = read(profileKey);
+            if (null == user) {
                 return null;
             } else {
-                final String localSecurityAnswer = userSql.readProfileSecurityAnswer(profile.getId());
+                final String localSecurityAnswer = userSql.readProfileSecurityAnswer(user.getId());
                 if (localSecurityAnswer.equals(securityAnswer)) {
                     /* temporary credentials are single-use only therefore must
                      * be deleted before new ones are issued */
-                    userSql.deleteTemporaryCredentials(profile);
+                    userSql.deleteTemporaryCredentials(user);
                     
                     final TemporaryCredentials credentials = new TemporaryCredentials();
                     credentials.setCreatedOn(createdOn);
                     credentials.setExpiresOn(expiresOn);
                     credentials.setToken(newToken());
-                    credentials.setUsername(profile.getSimpleUsername());
-                    userSql.createTemporaryCredentials(profile, credentials);
+                    credentials.setUsername(user.getSimpleUsername());
+                    userSql.createTemporaryCredentials(user, credentials);
                     return credentials;
                 } else {
                     return null;
@@ -206,17 +204,17 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      *      com.thinkparity.codebase.email.EMail, java.util.Calendar)
      * 
      */
-    public EMailReservation createEMailReservation(final JabberId userId,
-            final EMail email, final Calendar reservedOn) {
+    public EMailReservation createEMailReservation(final EMail email) {
         try {
-            userSql.deleteReservations(currentDateTime());
+            userSql.deleteReservations(DateTimeProvider.getCurrentDateTime());
 
             // expire in an hour
-            final Calendar expiresOn = (Calendar) reservedOn.clone();
+            final Calendar createdOn = DateTimeProvider.getCurrentDateTime();
+            final Calendar expiresOn = (Calendar) createdOn.clone();
             expiresOn.set(Calendar.HOUR, expiresOn.get(Calendar.HOUR) + 1);
 
             final EMailReservation reservation = new EMailReservation();
-            reservation.setCreatedOn(reservedOn);
+            reservation.setCreatedOn(createdOn);
             reservation.setExpiresOn(expiresOn);
             reservation.setEMail(email);
 
@@ -246,26 +244,24 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#createToken(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
-    public Token createToken(final JabberId userId) {
+    public Token createToken() {
         try {
             final Calendar now = currentDateTime();
-            final Token existingToken = userSql.readProfileToken(userId);
+            final Token existingToken = userSql.readProfileToken(user.getId());
             if (null != existingToken) {
-                getQueueModel().deleteEvents(userId);
+                getQueueModel().deleteEvents();
                 /* HACK - up until a point, the "thinkParity" user was not able
                  * to login - now this user does login such that certain apis
                  * can be exercised with an actual user login - threfore we
                  * need to ignore the user in this scenario */
-                if (userId.equals(User.THINKPARITY.getId())) {
+                if (user.getId().equals(User.THINKPARITY.getId())) {
                     logger.logInfo("Logging in as system user.");
                 } else {
-                    getArtifactModel().deleteDrafts(userId, now);
+                    getArtifactModel().deleteDrafts(now);
                 }
             }
-
-            final Token newToken = newToken();
-            userSql.updateProfileToken(userId, newToken);
-            return userSql.readProfileToken(userId);
+            userSql.updateProfileToken(user.getId(), newToken());
+            return userSql.readProfileToken(user.getId());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -276,19 +272,21 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      *      java.lang.String, java.util.Calendar)
      * 
      */
-    public UsernameReservation createUsernameReservation(final JabberId userId,
-            final String username, final Calendar reservedOn) {
+    public UsernameReservation createUsernameReservation(final String username) {
         try {
-            userSql.deleteReservations(currentDateTime());
+            userSql.deleteReservations(DateTimeProvider.getCurrentDateTime());
 
             // expire in an hour
-            final Calendar expiresOn = (Calendar) reservedOn.clone();
+            final Calendar createdOn = DateTimeProvider.getCurrentDateTime();
+            final Calendar expiresOn = (Calendar) createdOn.clone();
             expiresOn.set(Calendar.HOUR, expiresOn.get(Calendar.HOUR) + 1);
+//System.out.println("created on:" + MessageFormat.format("{0,date,yyyy-MM-dd HH:mm:ss.SSS Z}", createdOn.getTime()));
+//System.out.println("expires on:" + MessageFormat.format("{0,date,yyyy-MM-dd HH:mm:ss.SSS Z}", expiresOn.getTime()));
 
             /* NOTE - ProfileModelImpl#createReservation - usernames are case
              * in-sensitive */
             final UsernameReservation reservation = new UsernameReservation();
-            reservation.setCreatedOn(reservedOn);
+            reservation.setCreatedOn(createdOn);
             reservation.setExpiresOn(expiresOn);
             reservation.setUsername(username.toLowerCase());
 
@@ -315,11 +313,10 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.profile.ProfileModel#isEmailAvailable(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.email.EMail)
+     * @see com.thinkparity.desdemona.model.profile.ProfileModel#isEmailAvailable(com.thinkparity.codebase.email.EMail)
      * 
      */
-    public Boolean isEmailAvailable(final JabberId userId, final EMail email) {
+    public Boolean isEmailAvailable(final EMail email) {
         try {
             return !emailSql.doesExist(email).booleanValue();
         } catch (final Throwable t) {
@@ -328,21 +325,16 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.profile.ProfileModel#read(com.thinkparity.codebase.jabber.JabberId)
+     * @see com.thinkparity.desdemona.model.profile.ProfileModel#read()
      * 
      */
-    public Profile read(final JabberId userId) {
+    public Profile read() {
         try {
-            final User user = getUserModel().read(userId);
-            if (null == user) {
-                return null;
-            } else {
-                final Profile profile = new Profile();
-                profile.setVCard(getUserModel().readVCard(user.getLocalId(), new ProfileVCard()));
-                profile.setFeatures(userSql.readFeatures(user.getLocalId(),
-                        Ophelia.PRODUCT_ID));
-                return inject(profile, user);
-            }
+            final Profile profile = new Profile();
+            profile.setVCard(getUserModel(user).readVCard(new ProfileVCard()));
+            profile.setFeatures(userSql.readFeatures(user.getLocalId(),
+                    Ophelia.PRODUCT_ID));
+            return inject(profile, user);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -352,9 +344,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#readEMails(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
-    public List<ProfileEMail> readEMails(final JabberId userId) {
+    public List<ProfileEMail> readEMails() {
         try {
-            final User user = getUserModel().read(userId);
             return userSql.readEMails(user);
         } catch (final Throwable t) {
             throw panic(t);
@@ -381,13 +372,11 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.profile.ProfileModel#readFeatures(com.thinkparity.codebase.jabber.JabberId)
+     * @see com.thinkparity.desdemona.model.profile.ProfileModel#readFeatures()
      * 
      */
-    public List<Feature> readFeatures(final JabberId userId) {
+    public List<Feature> readFeatures() {
         try {
-            // NOCOMMIT - ProfileModelImpl#readFeatures - The product should be parameterized
-            final User user = read(userId);
             return userSql.readFeatures(user.getLocalId(), Ophelia.PRODUCT_ID);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -400,11 +389,11 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      */
     public String readSecurityQuestion(final String profileKey) {
         try {
-            final Profile profile = read(profileKey);
-            if (null == profile) {
+            final User user = read(profileKey);
+            if (null == user) {
                 return null;
             } else {
-                return userSql.readProfileSecurityQuestion(profile.getId());
+                return userSql.readProfileSecurityQuestion(user.getId());
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -415,25 +404,23 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#readToken(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
-    public Token readToken(final JabberId userId) {
+    public Token readToken() {
         try {
-            return userSql.readProfileToken(userId);
+            return userSql.readProfileToken(user.getId());
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
     
     /**
-     * @see com.thinkparity.desdemona.model.profile.ProfileModel#removeEmail(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.email.EMail)
+     * @see com.thinkparity.desdemona.model.profile.ProfileModel#removeEmail(com.thinkparity.codebase.email.EMail)
      * 
      */
-    public void removeEmail(final JabberId userId, final EMail email) {
+    public void removeEMail(final EMail email) {
         try {
             // delete remote data
-            final Profile profile = read(userId);
-            userSql.deleteEmail(profile.getLocalId(), email);
-            notifyContactUpdated(getUserModel().read(userId));
+            userSql.deleteEmail(user.getLocalId(), email);
+            notifyContactUpdated();
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -444,13 +431,13 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      *      com.thinkparity.codebase.model.profile.ProfileVCard)
      * 
      */
-    public void update(final JabberId userId, final ProfileVCard vcard) {
+    public void update(final ProfileVCard vcard) {
         try {
             assertIsValid(vcard);
 
-            final Profile profile = read(userId);
-            getUserModel().updateVCard(profile.getLocalId(), vcard);
-            notifyContactUpdated(getUserModel().read(userId));
+            final Profile profile = read();
+            getUserModel(profile).updateVCard(vcard);
+            notifyContactUpdated();
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -462,20 +449,18 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      *      java.lang.String)
      * 
      */
-    public void updatePassword(final JabberId userId,
-            final Credentials credentials, final String newPassword) {
+    public void updatePassword(final Credentials credentials,
+            final String newPassword) {
         try {
-            final Profile profile = read(userId);
             final Credentials localCredentials = userSql.readCredentials(
-                    profile.getLocalId());
+                    user.getLocalId());
             Assert.assertTrue(credentials.getPassword().equals(
                     localCredentials.getPassword()),
                     "User password cannot be updated.");
             Assert.assertTrue(credentials.getUsername().equals(
                     localCredentials.getUsername()),
                     "User password cannot be updated.");
-
-            userSql.updatePassword(userId, credentials, newPassword);
+            userSql.updatePassword(user.getId(), credentials, newPassword);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -489,20 +474,20 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             final TemporaryCredentials credentials, final String newPassword) {
         try {
             try {
-                final Profile profile = read(userId);
+                final User user = getUserModel().read(userId);
 
                 // delete expired credentials
                 userSql.deleteTemporaryCredentials(currentDateTime());
     
                 // ensure the credentials exist
-                Assert.assertTrue(userSql.doesExistTemporaryCredentials(profile,
+                Assert.assertTrue(userSql.doesExistTemporaryCredentials(user,
                         credentials.getToken()),
                         "Password temporary credentials {0} expired on {1}.",
                         credentials.getToken(), credentials.getExpiresOn());
     
                 // ensure the credentials match
                 final Credentials localCredentials = userSql.readCredentials(
-                        profile.getLocalId());
+                        user.getLocalId());
                 Assert.assertTrue(credentials.getUsername().equals(
                         localCredentials.getUsername()),
                         "User password cannot be updated.");
@@ -524,20 +509,18 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      *      com.thinkparity.codebase.email.EMail, java.lang.String)
      * 
      */
-    public void verifyEmail(final JabberId userId, final EMail email, final String key) {
+    public void verifyEMail(final EMail email, final String key) {
         try {
-            final Profile profile = read(userId);
-
             final VerificationKey verifiedKey = VerificationKey.create(key);
-            final EMail verifiedEmail = userSql.readEmail(profile.getLocalId(),
+            final EMail verifiedEmail = userSql.readEmail(user.getLocalId(),
                     email, verifiedKey);
             Assert.assertNotNull("VERIFICATION KEY INCORRECT", verifiedEmail);
             Assert.assertTrue("VERIFICATION KEY INCORRECT", email.equals(verifiedEmail));
-            userSql.verifyEmail(profile.getLocalId(), verifiedEmail, verifiedKey);
+            userSql.verifyEmail(user.getLocalId(), verifiedEmail, verifiedKey);
             // create invitations
             final InternalContactModel contactModel = getContactModel();
             final List<OutgoingEMailInvitation> invitations =
-                contactModel.readOutgoingEMailInvitations(userId, email);
+                contactModel.readOutgoingEMailInvitations(user.getId(), email);
             IncomingEMailInvitation incomingInvitation;
             for (final OutgoingEMailInvitation invitation : invitations) {
                 incomingInvitation = new IncomingEMailInvitation();
@@ -545,22 +528,22 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                 incomingInvitation.setCreatedOn(invitation.getCreatedOn());
                 incomingInvitation.setExtendedBy(incomingInvitation.getCreatedBy());
                 incomingInvitation.setInvitationEMail(email);
-                contactModel.createInvitation(userId,
+                contactModel.createInvitation(user.getId(),
                         invitation.getCreatedBy().getId(), incomingInvitation);
             }
             // fire event
-            notifyContactUpdated(getUserModel().read(userId));
+            notifyContactUpdated();
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initializeModel(com.thinkparity.desdemona.model.session.Session)
+     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initialize()
      *
      */
     @Override
-    protected void initializeModel(final Session session) {
+    protected void initialize() {
         this.contactSql = new ContactSql();
         this.emailSql = new EMailSql();
         this.userSql = new UserSql();
@@ -702,14 +685,13 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      * @param userId
      *            A user id.
      * @throws SQLException
-     * @throws UnauthorizedException
      */
-    private void notifyContactUpdated(final User user) {
+    private void notifyContactUpdated() {
         final List<JabberId> contactIds = contactSql.readIds(user.getLocalId());
         final ContactUpdatedEvent contactUpdated = new ContactUpdatedEvent();
         contactUpdated.setContactId(user.getId());
         contactUpdated.setUpdatedOn(currentDateTime());
-        enqueueEvent(user.getId(), contactIds, contactUpdated);
+        enqueueEvents(contactIds, contactUpdated);
     }
 
     /**
@@ -721,18 +703,17 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      *            A profile key <code>String</code>.
      * @return A <code>Profile</code>.
      */
-    private Profile read(final String profileKey) {
+    private User read(final String profileKey) {
         // try to find a profile by e-mail
         try {
             final EMail email = EMailBuilder.parse(profileKey);
-            final User user = userSql.read(email);
-            return read(user.getId());
+            return userSql.read(email);
         } catch (final EMailFormatException efx) {}
 
         // try to find a profile by user id
         try {
             final JabberId userId = JabberIdBuilder.parseUsername(profileKey);
-            return read(userId);
+            return getUserModel().read(userId);
         } catch (final IllegalArgumentException iax) {}
 
         return null;

@@ -3,13 +3,7 @@
  */
 package com.thinkparity.desdemona.model.stream;
 
-import com.thinkparity.codebase.jabber.JabberId;
-
-import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.stream.StreamSession;
-
-import com.thinkparity.desdemona.model.AbstractModel;
-import com.thinkparity.desdemona.model.session.Session;
 
 /**
  * <b>Title:</b>thinkParity Stream Model<br>
@@ -18,157 +12,48 @@ import com.thinkparity.desdemona.model.session.Session;
  * @author CreateModel.groovy
  * @version 1.1
  */
-public class StreamModel extends AbstractModel<StreamModelImpl> {
+public interface StreamModel {
 
-	/**
-     * Obtain a thinkParity stream interface.
+    /**
+     * Create a stream for the model user.
      * 
-     * @return A thinkParity <code>StreamModel</code>.
-     */
-    public static StreamModel getModel() {
-        return new StreamModel();
-    }
-
-    /**
-     * Obtain a thinkParity Stream interface.
-     * 
-     * @return A thinkParity Stream interface.
-     */
-    public static StreamModel getModel(final Session session) {
-        return new StreamModel(session);
-    }
-
-    /**
-     * Obtain a thinkParity Stream interface.
-     * 
-     * @return A thinkParity Stream interface.
-     */
-    public static InternalStreamModel getInternalModel(final Context context,
-            final Session session) {
-        return new InternalStreamModel(context, session);
-    }
-
-    /**
-     * Obtain a thinkParity Stream interface.
-     * 
-     * @return A thinkParity Stream interface.
-     */
-    public static InternalStreamModel getInternalModel(final Context context) {
-        return new InternalStreamModel(context);
-    }
-
-    /**
-     * Create StreamModel.
-     *
-     * @param workspace
-     *      The thinkParity workspace.
-     */
-    protected StreamModel(final Session session) {
-        super(new StreamModelImpl(session));
-    }
-
-    /**
-     * Create StreamModel.
-     *
-     * @param workspace
-     *      The thinkParity workspace.
-     */
-    protected StreamModel() {
-        super(new StreamModelImpl());
-    }
-
-    /**
-     * Create a stream.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param sessionId
      *            A session id <code>String</code>.
      * @return A stream id <code>String</code>.
      */
-    public String create(final JabberId userId, final String sessionId) {
-        synchronized (getImplLock()) {
-            return getImpl().create(userId, sessionId);
-        }
-    }
+    public String create(final String sessionId);
 
     /**
-     * Create a session.
+     * Create a session for the model user.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @return A <code>StreamSession</code>.
      */
-    public StreamSession createSession(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().createSession(userId);
-        }
-    }
+    public StreamSession createSession();
 
     /**
-     * Delete a stream.
+     * Delete a stream for the model user.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param sessionId
      *            A stream session id <code>String</code>.
      * @param streamId
      *            A stream id <code>String</code>.
      */
-    public void delete(final JabberId userId, final String sessionId,
-            final String streamId) {
-        synchronized (getImplLock()) {
-            getImpl().delete(userId, sessionId, streamId);
-        }
-    }
+    public void delete(final String sessionId, final String streamId);
 
     /**
-     * Delete a session.
+     * Delete a session for the model user.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param sessionId
      *            A session id <code>String</code>.
      */
-    public void deleteSession(final JabberId userId, final String sessionId) {
-        synchronized (getImplLock()) {
-            getImpl().deleteSession(userId, sessionId);
-        }
-    }
+    public void deleteSession(final String sessionId);
 
     /**
-     * Read a session.
+     * Read a session for the model user.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param sessionId
      *            A session id <code>String</code>.
      * @return A <code>StreamSession</code>.
      */
-    public StreamSession readSession(final JabberId userId,
-            final String sessionId) {
-        synchronized (getImplLock()) {
-            return getImpl().readSession(userId, sessionId);
-        }
-    }
-
-    /**
-     * Start the stream service.
-     *
-     */
-    public void start() {
-        synchronized (getImplLock()) {
-            getImpl().start();
-        }
-    }
-
-    /**
-     * Stop the stream service.
-     *
-     */
-    public void stop() {
-        synchronized (getImplLock()) {
-            getImpl().stop();
-        }
-    }
+    public StreamSession readSession(final String sessionId);
 }

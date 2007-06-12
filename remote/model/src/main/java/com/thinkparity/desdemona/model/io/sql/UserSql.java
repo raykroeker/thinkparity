@@ -187,6 +187,13 @@ public final class UserSql extends AbstractSql {
         .toString();
 
     /** Sql to read a user. */
+    private static final String SQL_READ_BY_CREDENTIALS =
+        new StringBuilder("select U.USERNAME,U.USER_ID ")
+        .append("from TPSD_USER U ")
+        .append("where U.USERNAME=? and U.PASSWORD=? and U.DISABLED=?")
+        .toString();
+
+    /** Sql to read a user. */
     private static final String SQL_READ_BY_USERNAME =
         new StringBuilder("select U.USERNAME,U.USER_ID ")
         .append("from TPSD_USER U ")
@@ -839,6 +846,25 @@ public final class UserSql extends AbstractSql {
         }
     }
 
+    public User read(final Credentials credentials) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_BY_CREDENTIALS);
+            session.setString(1, credentials.getUsername());
+            session.setString(2, credentials.getPassword());
+            session.setBoolean(3, Boolean.FALSE);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extract(session);
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
     /**
      * Read the user credentials.
      * 

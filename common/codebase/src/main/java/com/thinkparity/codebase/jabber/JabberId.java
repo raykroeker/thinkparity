@@ -23,6 +23,14 @@ public class JabberId {
     private String username;
 
     /**
+     * Create JabberId.
+     *
+     */
+    public JabberId() {
+        super();
+    }
+
+    /**
      * Create a JabberId.
      * 
      * @param username

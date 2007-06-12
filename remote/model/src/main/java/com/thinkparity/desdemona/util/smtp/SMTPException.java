@@ -3,43 +3,23 @@
  */
 package com.thinkparity.desdemona.util.smtp;
 
-import java.io.UnsupportedEncodingException;
-
-import javax.mail.MessagingException;
 
 /**
+ * <b>Title:</b>thinkParity Desdemona Util SMTP Exception<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class SMTPException extends RuntimeException {
-
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
+public final class SMTPException extends RuntimeException {
 
     /**
-     * Translate a messaging exception into an smtp exception.
+     * Create SMTPException.
      * 
-     * @param mx
-     *            A messaging exception.
-     * @return An smtp exception.
+     * @param cause
+     *            The cause <code>Throwable</code> of the error.
      */
-    static SMTPException translate(final MessagingException mx) {
-        return new SMTPException(mx);
-    }
-
-    /**
-     * Translate an unsupported encoding exception into an smtp exception.
-     * 
-     * @param uex
-     *            An unsupported encoding exception.
-     * @return An smtp exception.
-     */
-    static SMTPException translate(final UnsupportedEncodingException uex) {
-        return new SMTPException(uex);
-    }
-
-    /** Create SMTPException. */
-    private SMTPException(final Throwable cause) {
+    SMTPException(final Throwable cause) {
         super(cause);
     }
 }

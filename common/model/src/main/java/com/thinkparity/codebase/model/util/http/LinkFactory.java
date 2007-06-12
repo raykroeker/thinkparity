@@ -4,11 +4,6 @@
 package com.thinkparity.codebase.model.util.http;
 
 import com.thinkparity.codebase.Application;
-import com.thinkparity.codebase.ApplicationNature;
-import com.thinkparity.codebase.Mode;
-import com.thinkparity.codebase.assertion.Assert;
-
-import com.thinkparity.codebase.model.session.Environment;
 
 /**
  * <b>Title:</b>thinkParity Link Factory<br>
@@ -22,22 +17,20 @@ import com.thinkparity.codebase.model.session.Environment;
  */
 public class LinkFactory {
 
+    /** A singleton instance of a link factory. */
+    private static final LinkFactory SINGLETON;
+
+    static {
+        SINGLETON = new LinkFactory();
+    }
+
     /**
      * Obtain an instance of a link factory.
      * 
-     * @param application
-     *            A thinkParity application.
-     * @param mode
-     *            A thinkParity mode of operation.
-     * @return A link factory.
-     * @see Application
-     * @see Mode
+     * @return A <code>LinkFactory</code>.
      */
-    public static LinkFactory getInstance(final Application application,
-            final Environment environment) {
-        Assert.assertTrue(application.isNatured(ApplicationNature.HTTP),
-                "Cannot generate links for {0}.", application);
-        return new LinkFactory(environment);
+    public static LinkFactory getInstance() {
+        return SINGLETON;
     }
 
     /** The link protocol. */
@@ -52,14 +45,12 @@ public class LinkFactory {
     /**
      * Create LinkFactory.
      * 
-     * @param environment
-     *            An <code>Environment</code>.
      */
-    private LinkFactory(final Environment environment) {
+    private LinkFactory() {
         super();
-        this.protocol = environment.isWebTLSEnabled() ? "https://" : "http://";
-        this.webHost = environment.getWebHost();
-        this.webPort = environment.getWebPort();
+        this.protocol = "http://";
+        this.webHost = "thinkparity.com";
+        this.webPort = 80;
     }
 
     /**

@@ -7,12 +7,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
-import com.thinkparity.desdemona.model.annotation.ThinkParityAuthenticate;
-import com.thinkparity.desdemona.model.session.Session;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Invocation Handler<br>
@@ -32,20 +27,20 @@ final class ModelInvocationHandler implements InvocationHandler {
         LOGGER = new Log4JWrapper(ModelInvocationHandler.class);
     }
 
+    /** The model synchronization lock <code>Object</code>. */
+    private final Object lock;
+
     /** The target <code>AbstractModelImpl</code>. */
     private final AbstractModelImpl model;
-
-    /** The user <code>Session</code>. */
-    private final Session session;
 
     /**
      * Create ModelInvocationHandler.
      *
      */
-    ModelInvocationHandler(final Session session, final AbstractModelImpl model) {
+    ModelInvocationHandler(final Object lock, final AbstractModelImpl model) {
         super();
+        this.lock = lock;
         this.model = model;
-        this.session = session;
     }
 
     /**
@@ -61,12 +56,8 @@ final class ModelInvocationHandler implements InvocationHandler {
                 LOGGER.logDebug("args[{0}]:{1}", i, args[i]);
         }
         ModelInvocationMetrics.begin(method);
-        synchronized (session) {
+        synchronized (lock) {
             try {
-                if (isAuthenticateUser(method))
-                    model.assertIsAuthenticatedUser((JabberId) args[0]);
-                else if (isAuthenticateSystem(method))
-                    model.assertIsSystemUser();
                 return LOGGER.logVariable("result", method.invoke(model, args));
             } catch (final InvocationTargetException itx) {
                 throw itx.getTargetException();
@@ -76,80 +67,5 @@ final class ModelInvocationHandler implements InvocationHandler {
                 ModelInvocationMetrics.end(method);
             }
         }
-    }
-
-    /**
-     * Assert that the user id matched that of the session user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @see #isSessionUser(JabberId)
-     */
-    protected void checkSecurity(final JabberId userId) {
-        Assert.assertTrue(isSessionUser(userId),
-                "User {0} does not match authenticated user {1}.",
-                userId.getUsername(), session.getJabberId().getUsername());
-    }
-
-    /**
-     * Determine if the method is annotated with authenticate and if the type is
-     * system.
-     * 
-     * @param method
-     *            A <code>Method</code>.
-     * @return True if it is annotated with authenticate.
-     */
-    private boolean isAuthenticateSystem(final Method method) {
-        ThinkParityAuthenticate authenticate = method.getAnnotation(ThinkParityAuthenticate.class);
-        if (null == authenticate)
-            authenticate = method.getDeclaringClass().getAnnotation(ThinkParityAuthenticate.class);
-        if (null == authenticate) {
-            return false;
-        } else {
-            switch (authenticate.value()) {
-            case USER:
-                return false;
-            case SYSTEM:
-                return true;
-            default:
-                throw Assert.createUnreachable("Unknown authentication type.");
-            }
-        }
-    }
-
-    /**
-     * Determine if the method is annotated with authenticate.
-     * 
-     * @param method
-     *            A <code>Method</code>.
-     * @return True if it is annotated with authenticate.
-     */
-    private boolean isAuthenticateUser(final Method method) {
-        ThinkParityAuthenticate authenticate = method.getAnnotation(ThinkParityAuthenticate.class);
-        if (null == authenticate)
-            authenticate = method.getDeclaringClass().getAnnotation(ThinkParityAuthenticate.class);
-        if (null == authenticate) {
-            return false;
-        } else {
-            switch (authenticate.value()) {
-            case USER:
-                return true;
-            case SYSTEM:
-                return false;
-            default:
-                throw Assert.createUnreachable("Unknown authentication type.");
-            }
-        }
-    }
-
-    /**
-     * Determine if the user id is the authenticated user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return True if the user id matches the currently authenticated user.
-     */
-    private boolean isSessionUser(final JabberId userId) {
-        return session.getJabberId().equals(userId);
     }
 }

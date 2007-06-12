@@ -12,7 +12,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.stream.StreamHeader;
-import com.thinkparity.codebase.model.stream.StreamSession;
 
 
 /**
@@ -66,25 +65,29 @@ final class StreamSocketDelegate implements Runnable {
             final HeaderReader headerReader = new HeaderReader();
             final StreamHeader sessionId = headerReader.readNext();
             if (null != sessionId) {
-                final StreamSession streamSession =
-                    streamServer.authenticate(sessionId.getValue(),
-                            ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress());
+                final ServerSession serverSession = streamServer.authenticate(
+                        sessionId.getValue(),
+                        ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress());
                 final StreamHeader sessionType = headerReader.readNext();
                 final StreamHeader streamId = headerReader.readNext();
                 final StreamHeader streamOffset = headerReader.readNext();
                 if ("UPSTREAM".equals(sessionType.getValue())) {
                     final StreamHeader streamSize = headerReader.readNext();
-                    new UpstreamHandler(streamServer, streamSession,
+                    new UpstreamHandler(streamServer,
+                            serverSession.getClientSession(),
                             streamId.getValue(),
                             Long.valueOf(streamOffset.getValue()),
                             Long.valueOf(streamSize.getValue()),
                             socket.getInputStream(),
                             socket.getOutputStream()).run();
                 } else if ("DOWNSTREAM".equals(sessionType.getValue())) {
-                    new DownstreamHandler(streamServer, streamSession,
+                    new DownstreamHandler(streamServer,
+                            serverSession.getClientSession(),
                             streamId.getValue(),
                             Long.valueOf(streamOffset.getValue()),
-                            streamServer.getDownstreamSize(streamSession, streamId.getValue()),
+                            streamServer.getDownstreamSize(
+                                    serverSession.getClientSession(),
+                                    streamId.getValue()),
                             socket.getOutputStream()).run();
                 } else {
                     Assert.assertUnreachable("Unkown stream transfer.");

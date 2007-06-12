@@ -3,7 +3,12 @@
  */
 package com.thinkparity.desdemona.model.migrator;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -38,9 +43,7 @@ import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.io.sql.MigratorSql;
-import com.thinkparity.desdemona.model.session.Session;
-import com.thinkparity.desdemona.util.smtp.MessageFactory;
-import com.thinkparity.desdemona.util.smtp.TransportManager;
+import com.thinkparity.desdemona.util.smtp.SMTPService;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Migrator Model Implementation<br>
@@ -55,27 +58,29 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
     /** A <code>MigratorSql</code> persistence. */
     private MigratorSql migratorSql;
 
+    /** An instance of <code>SMTPService</code>. */
+    private final SMTPService smtpService;
+   
     /**
      * Create MigratorModelImpl.
      *
      */
     public MigratorModelImpl() {
         super();
+        this.smtpService = SMTPService.getInstance();
     }
-   
+
     /**
      * @see com.thinkparity.desdemona.model.migrator.MigratorModel#createStream(com.thinkparity.codebase.jabber.JabberId,
      *      java.lang.String, java.util.List)
      * 
      */
-    public void createStream(final JabberId userId, final String streamId,
-            final Product product, final Release release,
-            final List<Resource> resources) {
+    public void createStream(final String streamId, final Product product,
+            final Release release, final List<Resource> resources) {
         try {
-            final FileSystem streamFileSystem = new FileSystem(
-                    session.createTempDirectory());
+            final FileSystem streamFileSystem = new FileSystem(createTempDirectory());
             try {
-                final File streamFile = session.createTempFile();
+                final File streamFile = createTempFile();
                 try {
                     // copy the resources into the file system
                     final Release localRelease = migratorSql.readRelease(
@@ -103,7 +108,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                     final InputStream stream = new BufferedInputStream(
                             new FileInputStream(streamFile),
                             getBufferSize());
-                    final StreamSession session = getStreamModel().createSession(userId);
+                    final StreamSession session = getStreamModel(user).createSession();
                     upload(new UploadMonitor() {
                         public void chunkUploaded(int chunkSize) {
                             logger.logTrace("Uploading {0}/{1}", chunkSize, streamSize);
@@ -127,9 +132,8 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
      *      java.lang.String)
      * 
      */
-    public void deploy(final JabberId userId, final Product product,
-            final Release release, final List<Resource> resources,
-            final String streamId) {
+    public void deploy(final Product product, final Release release,
+            final List<Resource> resources, final String streamId) {
         try {
             // find/create the product
             final Product localProduct = readProduct(product.getName());
@@ -147,9 +151,9 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                     logger.logVariable("chunkSize", chunkSize);
                     logger.logVariable("totalDownloadSize", (totalDownloadSize += chunkSize));
                 }
-            }, userId, streamId);
+            }, streamId);
             try {
-                final FileSystem tempFileSystem = new FileSystem(session.createTempDirectory());
+                final FileSystem tempFileSystem = new FileSystem(createTempDirectory());
                 try {
                     // extract the release
                     synchronized (getBufferLock()) {
@@ -173,34 +177,18 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * Read the previous release.
-     * 
-     * @param product
-     *            A <code>Product</code>.
-     * @param release
-     *            A <code>Release</code>.
-     * @return A <code>Release</code>.
-     */
-    private Release readPreviousRelease(final Product product,
-            final Release release) {
-        return migratorSql.readPreviousRelease(product.getName(),
-                release.getDate(), release.getOs());
-    }
-
-    /**
      * @see com.thinkparity.desdemona.model.migrator.MigratorModel#logError(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.migrator.Product,
      *      com.thinkparity.codebase.model.migrator.Error, java.util.Calendar)
      * 
      */
-    public void logError(final JabberId userId, final Product product,
-            final Release release, final Error error) {
+    public void logError(final Product product, final Release release,
+            final Error error) {
         try {
-            final User user = getUserModel().read(userId);
             final Release localRelease = migratorSql.readRelease(
                     product.getName(), release.getName(), release.getOs());
 
-            final File tempErrorFile = session.createTempFile();
+            final File tempErrorFile = createTempFile();
             try {
                 final FileWriter fileWriter = new FileWriter(tempErrorFile);
                 try {
@@ -219,7 +207,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                 final Boolean notify =
                     Boolean.valueOf(getConfiguration("logerror.notify"));
                 if (notify.booleanValue()) {
-                    final MimeMessage mimeMessage = MessageFactory.createMimeMessage();
+                    final MimeMessage mimeMessage = smtpService.createMessage();
                     inject(mimeMessage, error);
                     final EMail toRecipient =
                         EMailBuilder.parse(getConfiguration("logerror.notify.to"));
@@ -230,7 +218,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                     for (final String ccRecipient : ccRecipients)
                         addRecipient(mimeMessage, MimeMessage.RecipientType.CC,
                                 EMailBuilder.parse(ccRecipient));
-                    TransportManager.deliver(mimeMessage);
+                    smtpService.deliver(mimeMessage);
                 }
             } finally {
                 tempErrorFile.delete();
@@ -241,12 +229,10 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.migrator.MigratorModel#readLatestRelease(com.thinkparity.codebase.jabber.JabberId,
-     *      java.lang.String, com.thinkparity.codebase.OS)
-     * 
+     * @see com.thinkparity.desdemona.model.migrator.MigratorModel#readLatestRelease(java.lang.String, com.thinkparity.codebase.OS)
+     *
      */
-    public Release readLatestRelease(final JabberId userId,
-            final String productName, final OS os) {
+    public Release readLatestRelease(final String productName, final OS os) {
         try {
             final String latestReleaseName = migratorSql.readLatestReleaseName(
                     productName, os);
@@ -257,11 +243,10 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.migrator.MigratorModel#readProduct(com.thinkparity.codebase.jabber.JabberId,
-     *      java.lang.String)
+     * @see com.thinkparity.desdemona.model.migrator.MigratorModel#readProduct(java.lang.String)
      * 
      */
-    public Product readProduct(final JabberId userId, final String name) {
+    public Product readProduct(final String name) {
         try {
             return migratorSql.readProduct(name);
         } catch (final Throwable t) {
@@ -270,11 +255,10 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.migrator.MigratorModel#readProductFeatures(com.thinkparity.codebase.jabber.JabberId, java.lang.String)
-     *
+     * @see com.thinkparity.desdemona.model.migrator.MigratorModel#readProductFeatures(java.lang.String)
+     * 
      */
-    public List<Feature> readProductFeatures(final JabberId userId,
-            final String name) {
+    public List<Feature> readProductFeatures(final String name) {
         try {
             return migratorSql.readProductFeatures(name);   
         } catch (final Throwable t) {
@@ -283,12 +267,12 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.migrator.MigratorModel#readRelease(com.thinkparity.codebase.jabber.JabberId,
-     *      java.lang.String, java.lang.String, com.thinkparity.codebase.OS)
+     * @see com.thinkparity.desdemona.model.migrator.MigratorModel#readRelease(java.lang.String,
+     *      java.lang.String, com.thinkparity.codebase.OS)
      * 
      */
-    public Release readRelease(final JabberId userId,
-            final String productName, final String name, final OS os) {
+    public Release readRelease(final String productName, final String name,
+            final OS os) {
         try {
             return migratorSql.readRelease(productName, name, os);
         } catch (final Throwable t) {
@@ -297,12 +281,12 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.migrator.MigratorModel#readResources(com.thinkparity.codebase.jabber.JabberId,
-     *      java.util.UUID, java.lang.String, com.thinkparity.codebase.OS)
+     * @see com.thinkparity.desdemona.model.migrator.MigratorModel#readResources(java.lang.String,
+     *      java.lang.String, com.thinkparity.codebase.OS)
      * 
      */
-    public List<Resource> readResources(final JabberId userId,
-            final String productName, final String releaseName, final OS os) {
+    public List<Resource> readResources(final String productName,
+            final String releaseName, final OS os) {
         try {
             final Release release = migratorSql.readRelease(productName,
                     releaseName, os);
@@ -313,11 +297,11 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initializeModel(com.thinkparity.desdemona.model.session.Session)
+     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initialize()
      *
      */
     @Override
-    protected void initializeModel(final Session session) {
+    protected void initialize() {
         migratorSql = new MigratorSql();
     }
 
@@ -423,19 +407,22 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
 
         final List<User> users = getUserModel().read();
         final List<JabberId> userIds = new ArrayList<JabberId>(users.size());
-        for (final User user : users)
             userIds.add(user.getId());
-        enqueuePriorityEvent(session.getJabberId(), userIds, event);
+        enqueuePriorityEvents(userIds, event);
     }
 
     /**
-     * Read a product.
+     * Read the previous release.
      * 
-     * @param name
-     *            A name <code>String</code>.
-     * @return A <code>Product</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     * @return A <code>Release</code>.
      */
-    private Product readProduct(final String name) {
-        return migratorSql.readProduct(name);
+    private Release readPreviousRelease(final Product product,
+            final Release release) {
+        return migratorSql.readPreviousRelease(product.getName(),
+                release.getDate(), release.getOs());
     }
 }

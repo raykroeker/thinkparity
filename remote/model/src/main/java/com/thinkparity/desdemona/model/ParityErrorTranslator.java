@@ -5,9 +5,6 @@ package com.thinkparity.desdemona.model;
 
 import java.sql.SQLException;
 
-import org.jivesoftware.wildfire.auth.UnauthorizedException;
-import org.jivesoftware.wildfire.user.UserNotFoundException;
-
 import com.thinkparity.desdemona.model.session.Session;
 
 
@@ -59,34 +56,6 @@ public class ParityErrorTranslator {
 		synchronized(singletonLock) { return singleton.translateImpl(sqlx); }
 	}
 
-	/**
-	 * Translate a jive messenger authorization error into a parity server
-	 * error.
-	 * 
-	 * @param ux
-	 *            The jive messenger authorization error.
-	 * @return The parity server error.
-	 */
-	public static ParityServerModelException translate(
-			final UnauthorizedException ux) {
-		synchronized(singletonLock) { return singleton.translateImpl(ux); }
-	}
-
-	/**
-	 * Translate a jive messenger user not found error into a parity server
-	 * error.
-	 * 
-	 * @param unfx
-	 *            The jive messenger user not found error.
-	 * @return The parity server error.
-	 */
-	public static ParityServerModelException translate(
-			final UserNotFoundException unfx) {
-		synchronized(singletonLock) { return singleton.translateImpl(unfx); }
-	}
-
-
-
     /**
      * Translate a messaging error into an unchecked parity error.
      * 
@@ -136,31 +105,5 @@ public class ParityErrorTranslator {
 	 */
 	private ParityServerModelException translateImpl(final SQLException sqlx) {
 		return new ParityServerModelException(sqlx);
-	}
-
-	/**
-	 * Translate a jive messenger authorization error into a parity server
-	 * error.
-	 * 
-	 * @param ux
-	 *            The jive messenger authorization error.
-	 * @return The parity server error.
-	 */
-	private ParityServerModelException translateImpl(
-			final UnauthorizedException ux) {
-		return new ParityServerModelException(ux);
-	}
-
-    /**
-	 * Translate a jive messenger user not found error into a parity server
-	 * error.
-	 * 
-	 * @param unfx
-	 *            The jive messenger user not found error.
-	 * @return The parity server error.
-	 */
-	private ParityServerModelException translateImpl(
-			final UserNotFoundException unfx) {
-		return new ParityServerModelException(unfx);
 	}
 }

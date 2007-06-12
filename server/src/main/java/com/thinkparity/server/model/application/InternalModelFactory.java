@@ -4,7 +4,10 @@
 package com.thinkparity.desdemona.model;
 
 import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.desdemona.model.artifact.ArtifactModelImpl;
+import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
 import com.thinkparity.desdemona.model.backup.BackupModelImpl;
 import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModelImpl;
@@ -15,7 +18,14 @@ import com.thinkparity.desdemona.model.migrator.InternalMigratorModel;
 import com.thinkparity.desdemona.model.migrator.MigratorModelImpl;
 import com.thinkparity.desdemona.model.profile.InternalProfileModel;
 import com.thinkparity.desdemona.model.profile.ProfileModelImpl;
-import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.model.queue.InternalQueueModel;
+import com.thinkparity.desdemona.model.queue.QueueModelImpl;
+import com.thinkparity.desdemona.model.rules.InternalRuleModel;
+import com.thinkparity.desdemona.model.rules.RuleModelImpl;
+import com.thinkparity.desdemona.model.stream.InternalStreamModel;
+import com.thinkparity.desdemona.model.stream.StreamModelImpl;
+import com.thinkparity.desdemona.model.user.InternalUserModel;
+import com.thinkparity.desdemona.model.user.UserModelImpl;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Internal Model Factory<br>
@@ -40,15 +50,15 @@ public final class InternalModelFactory {
      * @return A <code>InternalModelFactory</code>.
      */
     public static InternalModelFactory getInstance(final Context context,
-            final Session session) {
-        return new InternalModelFactory(context, session);
+            final User user) {
+        return new InternalModelFactory(context, user);
     }
 
     /** A <code>ClassLoader</code>. */
     private final ClassLoader classLoader;
 
-    /** A user <code>Session</code>. */
-    private final Session session;
+    /** The model user. */
+    private final User user;
 
     /**
      * Create InternalModelFactory.
@@ -58,10 +68,20 @@ public final class InternalModelFactory {
      * @param session
      *            A user <code>Session</code>.
      */
-    private InternalModelFactory(final Context context, final Session session) {
+    private InternalModelFactory(final Context context, final User user) {
         super();
-        this.session = session;
-        this.classLoader = session.getClass().getClassLoader();
+        this.user = user;
+        this.classLoader = context.getClass().getClassLoader();
+    }
+
+    /**
+     * Obtain an internal artifact model.
+     * 
+     * @return An instance of <code>InternalArtifactModel</code>.
+     */
+    public final InternalArtifactModel getArtifactModel() {
+        return (InternalArtifactModel) newModelProxy(
+                InternalArtifactModel.class, ArtifactModelImpl.class);
     }
 
     /**
@@ -115,6 +135,46 @@ public final class InternalModelFactory {
     }
 
     /**
+    * Obtain a internal queue model.
+    * 
+    * @return An instance of <code>InternalQueueModel</code>.
+    */
+   public final InternalQueueModel getQueueModel() {
+    return (InternalQueueModel) newModelProxy(
+            InternalQueueModel.class, QueueModelImpl.class);
+   }
+
+    /**
+     * Obtain a internal rule model.
+     * 
+     * @return An instance of <code>InternalRuleModel</code>.
+     */
+    public final InternalRuleModel getRuleModel() {
+        return (InternalRuleModel) newModelProxy(
+                InternalRuleModel.class, RuleModelImpl.class);
+    }
+
+    /**
+     * Obtain a internal stream model.
+     * 
+     * @return An instance of <code>InternalStreamModel</code>.
+     */
+    public final InternalStreamModel getStreamModel() {
+        return (InternalStreamModel) newModelProxy(
+                InternalStreamModel.class, StreamModelImpl.class);
+    }
+
+    /**
+     * Obtain an internal user model.
+     * 
+     * @return An instance of <code>InternalUserModel</code>.
+     */
+    public final InternalUserModel getUserModel() {
+        return (InternalUserModel) newModelProxy(
+                InternalUserModel.class, UserModelImpl.class);
+    }
+
+    /**
      * Create a proxy for a thinkParity model.
      * 
      * @param modelInterface
@@ -125,7 +185,7 @@ public final class InternalModelFactory {
      */
     private Object newModelProxy(final Class<?> modelInterface,
             final Class<?> modelImplementation) {
-        return ModelFactory.newModelProxy(session, classLoader, modelInterface,
+        return ModelFactory.newModelProxy(user, classLoader, modelInterface,
                 modelImplementation);
     }
 }

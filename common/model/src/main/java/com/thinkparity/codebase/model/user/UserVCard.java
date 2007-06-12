@@ -3,16 +3,15 @@
  */
 package com.thinkparity.codebase.model.user;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * <b>Title:</b>thinkParity User VCard<br>
  * <b>Description:</b>An abstraction of a user object's interface into their
  * virtual card.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-@XStreamAlias("v-card")
 public abstract class UserVCard {
 
     private String address;
@@ -55,7 +54,7 @@ public abstract class UserVCard {
      * Create UserVCard.
      *
      */
-    protected UserVCard() {
+    public UserVCard() {
         super();
     }
 

@@ -5,84 +5,47 @@ package com.thinkparity.desdemona.model.queue;
 
 import java.util.List;
 
-import com.thinkparity.codebase.jabber.JabberId;
-
-import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.queue.notification.NotificationSession;
+import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
-import com.thinkparity.desdemona.model.AbstractModel;
-import com.thinkparity.desdemona.model.session.Session;
-
-
 /**
- * The queue model is used to persistantly store text for jabber ids. The text
- * is limitless; however large items will degrade the queue performance.
+ * <b>Title:</b>thinkParity Desdemona Queue Model<br>
+ * <b>Description:</b><br>
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class QueueModel extends AbstractModel<QueueModelImpl> {
+@ThinkParityTransaction(TransactionType.SUPPORTED)
+public interface QueueModel {
 
     /**
-     * Obtain an internal thinkParity queue model.
+     * Create a notification session.
      * 
-     * @param context
-     *            A thinkParity <code>Context</code>.
-     * @param session
-     *            A user's <code>Session</code>.
-     * @return An <code>InternalQueueModel</code>.
+     * @return A <code>NotificationSession</code>.
      */
-    public static InternalQueueModel getInternalModel(final Context context,
-            final Session session) {
-        return new InternalQueueModel(context, session);
-    }
+    public NotificationSession createNotificationSession();
 
     /**
-	 * Obtain a handle to a queue model.
-	 * 
-	 * @param session
-	 *            The user session.
-	 * @return The queue model.
-	 */
-	public static QueueModel getModel(final Session session) {
-		final QueueModel queueModel = new QueueModel(session);
-		return queueModel;
-	}
-
-	/**
-     * Create QueueModel.
+     * Delete an event for the model user.
      * 
-     * @param session
-     *            A user's <code>Session</code>.
+     * @param event
+     *            The <code>XMPPEvent</code>.
      */
-	protected QueueModel(final Session session) {
-		super(new QueueModelImpl(session));
-	}
+	public void deleteEvent(final XMPPEvent event);
 
     /**
-     * Delete an event for a user.
+     * Read events for the model user.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param eventId
-     *            The event id <code>String</code>.
-     */
-	public void deleteEvent(final JabberId userId, final String eventId) {
-        synchronized (getImplLock()) {
-            getImpl().deleteEvent(userId, eventId);
-        }
-    }
-
-    /**
-     * Read events for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @return A <code>List</code> of <code>XMPPEvent</code>s.
      */
-	public List<XMPPEvent> readEvents(final JabberId userId) {
-        synchronized (getImplLock()) {
-            return getImpl().readEvents(userId);
-        }
-    }
+	public List<XMPPEvent> readEvents();
+
+    /**
+     * Read the queue size for the model user.
+     * 
+     * @return The size of the queue.
+     */
+    public Integer readSize();
 }

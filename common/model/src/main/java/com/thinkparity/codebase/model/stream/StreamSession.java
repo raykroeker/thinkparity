@@ -4,11 +4,6 @@
 package com.thinkparity.codebase.model.stream;
 
 import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.thinkparity.codebase.model.session.Environment;
 
 /**
  * @author raymond@thinkparity.com
@@ -22,14 +17,14 @@ public class StreamSession {
     /** The character set to use. */
     private Charset charset;
 
-    /** Completion percentages for each stream within a session. */
-    private final Map<String, Float> completion;
-
-    /** The target <code>Environment</code>. */
-    private Environment environment;
-
     /** The session id <code>String</code>. */
     private String id;
+
+    /** The streaming sesssion server host. */
+    private String serverHost;
+
+    /** The streaming sesssion server port. */
+    private Integer serverPort;
 
     /**
      * Create StreamSession.
@@ -37,7 +32,6 @@ public class StreamSession {
      */
     public StreamSession() {
         super();
-        this.completion = new HashMap<String, Float>(50, 1.0F);
     }
 
     /**
@@ -58,20 +52,31 @@ public class StreamSession {
         return charset;
     }
 
-    public final Map<String, Float> getCompletion() {
-        return Collections.unmodifiableMap(completion);
-    }
-
-    public final Float getCompletion(final String streamId) {
-        return completion.get(streamId);
-    }
-
-    public final Environment getEnvironment() {
-        return environment;
-    }
-
+    /**
+     * Obtain the session id.
+     * 
+     * @return A session id <code>String</code>.
+     */
     public final String getId() {
         return id;
+    }
+
+    /**
+     * Obtain serverHost.
+     *
+     * @return A String.
+     */
+    public String getServerHost() {
+        return serverHost;
+    }
+
+    /**
+     * Obtain serverPort.
+     *
+     * @return A Integer.
+     */
+    public Integer getServerPort() {
+        return serverPort;
     }
 
     /**
@@ -94,15 +99,33 @@ public class StreamSession {
         this.charset = charset;
     }
 
-    public final Float setCompletion(final String streamId, final Float completion) {
-        return this.completion.put(streamId, completion);
-    }
-
-    public final void setEnvironment(final Environment environment) {
-        this.environment = environment;
-    }
-
+    /**
+     * Set the session id.
+     * 
+     * @param id
+     *            A session id <code>String</code>.
+     */
     public final void setId(final String id) {
         this.id = id;
+    }
+
+    /**
+     * Set serverHost.
+     *
+     * @param serverHost
+     *		A String.
+     */
+    public void setServerHost(final String serverHost) {
+        this.serverHost = serverHost;
+    }
+
+    /**
+     * Set serverPort.
+     *
+     * @param serverPort
+     *		A Integer.
+     */
+    public void setServerPort(final Integer serverPort) {
+        this.serverPort = serverPort;
     }
 }

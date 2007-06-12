@@ -10,8 +10,6 @@ import java.util.List;
 
 import javax.net.ssl.SSLSocketFactory;
 
-import com.thinkparity.codebase.assertion.Assert;
-
 /**
  * <b>Title:</b>thinkParity CommonCodebase Socket Factory Implementation<br>
  * <b>Description:</b><br>
@@ -76,7 +74,9 @@ final class SSLSocketFactoryImpl extends javax.net.SocketFactory {
     public Socket createSocket(final InetAddress address, final int port,
             final InetAddress localAddress, final int localPort)
             throws IOException {
-        throw Assert.createUnreachable("Cannot create socket.");
+        /* because we are always using a proxy, the local address/port are
+         * always already bound */
+        return createSocket(address, port);
     }
 
     /**

@@ -37,7 +37,7 @@ public interface BackupModel {
      * @param uniqueId
      *            A unique id <code>UUID</code>.
      */
-    public void archive(final JabberId userId, final UUID uniqueId);
+    public void archive(final UUID uniqueId);
 
     /**
      * Upload a document version to the stream server using the provided stream
@@ -52,8 +52,8 @@ public interface BackupModel {
      * @param versionId
      *            A document version id <code>Long</code>.
      */
-    public void createStream(final JabberId userId, final String streamId,
-            final UUID uniqueId, final Long versionId);
+    public void createStream(final String streamId,
+            final UUID documentUniqueId, final Long documentVersionId);
 
     /**
      * Delete an artifact.
@@ -63,7 +63,7 @@ public interface BackupModel {
      * @param uniqueId
      *            A unique id <code>UUID</code>.
      */
-    public void delete(final JabberId userId, final UUID uniqueId);
+    public void delete(final UUID containerUniqueId);
 
     /**
      * Read a container.
@@ -74,7 +74,27 @@ public interface BackupModel {
      *            A container unique id <code>UUID</code>.
      * @return A <code>Container</code>.
      */
-    public Container readContainer(final JabberId userId, final UUID uniqueId);
+    public Container readContainer(final UUID uniqueId);
+
+    /**
+     * Read the containers.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @return A <code>List</code> of <code>Container</code>s.
+     */
+    public List<Container> readContainers();
+
+    /**
+     * Read the container's versions.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @return A <code>List</code> of <code>ContainerVersion</code>s.
+     */
+    public List<ContainerVersion> readContainerVersions(final UUID uniqueId);
 
     /**
      * Read the container version's documents.
@@ -87,8 +107,8 @@ public interface BackupModel {
      *            A container version id <code>Long</code>.
      * @return A <code>List</code> of <code>Document</code>s.
      */
-    public List<Document> readContainerDocuments(final JabberId userId,
-            final UUID uniqueId, final Long versionId);
+    public List<Document> readDocuments(final UUID containerUniqueId,
+            final Long containerVersionId);
 
     /**
      * Read the container version's document versions.
@@ -101,8 +121,8 @@ public interface BackupModel {
      *            A container version id <code>Long</code>.
      * @return A <code>List</code> of <code>ContainerVersion</code>.
      */
-    public List<DocumentVersion> readContainerDocumentVersions(
-            final JabberId userId, final UUID uniqueId, final Long versionId);
+    public List<DocumentVersion> readDocumentVersions(
+            final UUID containerUniqueId, final Long containerVersionId);
 
     /**
      * Read the container's published to list.
@@ -115,8 +135,8 @@ public interface BackupModel {
      *            A container version id <code>Long</code>.
      * @return A <code>List</code> of <code>ArtifactReceipt</code>s.
      */
-    public List<ArtifactReceipt> readContainerPublishedTo(
-            final JabberId userId, final UUID uniqueId, final Long versionId);
+    public List<ArtifactReceipt> readPublishedTo(final UUID containerUniqueId,
+            final Long containerVersionId);
 
     /**
      * Read the container published to e-mails.
@@ -129,28 +149,8 @@ public interface BackupModel {
      *            A container version id <code>Long</code>.
      * @return A <code>List<PublishedToEMail></code>.
      */
-    public List<PublishedToEMail> readContainerPublishedToEMails(
-            final JabberId userId, final UUID uniqueId, final Long versionId);
-
-    /**
-     * Read the containers.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A <code>List</code> of <code>Container</code>s.
-     */
-    public List<Container> readContainers(final JabberId userId);
-
-    /**
-     * Read the container's versions.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
-     * @return A <code>List</code> of <code>ContainerVersion</code>s.
-     */
-    public List<ContainerVersion> readContainerVersions(final JabberId userId, final UUID uniqueId);
+    public List<PublishedToEMail> readPublishedToEMails(
+            final UUID containerUniqueId, final Long containerVersionId);
 
     /**
      * Read the backup statistics.
@@ -159,7 +159,7 @@ public interface BackupModel {
      *            A user id <code>JabberId</code>.
      * @return An instance of <code>Statistics</code>.
      */
-    public Statistics readStatistics(final JabberId userId);
+    public Statistics readStatistics();
 
     /**
      * Read the artifact team from the backup.
@@ -169,7 +169,7 @@ public interface BackupModel {
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
      */
-    public List<JabberId> readTeamIds(final JabberId userId, final UUID uniqueId);
+    public List<JabberId> readTeamIds(final UUID uniqueId);
 
     /**
      * Restore an artifact. This will simply remove the archived flag within the
@@ -180,5 +180,5 @@ public interface BackupModel {
      * @param uniqueId
      *            An artifact unique id <code>Long</code>.
      */
-    public void restore(final JabberId userId, final UUID uniqueId);
+    public void restore(final UUID containerUniqueId);
 }

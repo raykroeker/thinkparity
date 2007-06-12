@@ -5,6 +5,8 @@ package com.thinkparity.desdemona.model.stream;
 
 import javax.net.ServerSocketFactory;
 
+import com.thinkparity.desdemona.model.Constants.Security.KeyStore;
+
 
 /**
  * @author raymond@thinkparity.com
@@ -22,8 +24,8 @@ final class SecureStreamSocketServer extends StreamSocketServer {
     private static final ServerSocketFactory secureSocketFactory;
 
     static {
-        keyStorePassword = "password".toCharArray();
-        keyStorePath = "security/stream_server_keystore";
+        keyStorePassword = KeyStore.SERVER_PASS;
+        keyStorePath = KeyStore.SERVER_PATH;
         try {
             secureSocketFactory = com.thinkparity.codebase.net.ServerSocketFactory.getSecureInstance(
                     keyStorePath, keyStorePassword, keyStorePath, keyStorePassword);

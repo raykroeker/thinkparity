@@ -27,7 +27,7 @@ public abstract class XMPPEvent {
      * Create XMPPEvent.
      * 
      */
-    protected XMPPEvent() {
+    public XMPPEvent() {
         super();
     }
 

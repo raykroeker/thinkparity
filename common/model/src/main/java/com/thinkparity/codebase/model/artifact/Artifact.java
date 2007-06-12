@@ -5,10 +5,14 @@ package com.thinkparity.codebase.model.artifact;
 
 import java.util.*;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.note.Note;
+
+import com.thinkparity.service.adapter.CalendarXmlAdapter;
 
 /**
  * The parity object is the quintessential parity model object. It represents
@@ -64,7 +68,7 @@ public abstract class Artifact {
 	 * Create an Artifact.
 	 * 
 	 */
-	protected Artifact() {
+	public Artifact() {
 		super();
 		this.flags = new ArrayList<ArtifactFlag>(0);
         this.notes = new ArrayList<Note>();
@@ -150,7 +154,10 @@ public abstract class Artifact {
 	 * 
 	 * @return The object creation date.
 	 */
-	public Calendar getCreatedOn() { return createdOn; }
+    @XmlJavaTypeAdapter(CalendarXmlAdapter.class)
+	public Calendar getCreatedOn() {
+        return createdOn;
+	}
 
 	/**
 	 * Obtain the current object state.
@@ -219,7 +226,10 @@ public abstract class Artifact {
 	 * 
 	 * @return The updator.
 	 */
-	public Calendar getUpdatedOn() { return updatedOn;}
+    @XmlJavaTypeAdapter(CalendarXmlAdapter.class)
+	public Calendar getUpdatedOn() {
+        return updatedOn;
+    }
 
     /**
      * @see java.lang.Object#hashCode()
@@ -341,6 +351,7 @@ public abstract class Artifact {
 	public void setCustomName(final String name) {
 		customProperties.setProperty("name", name);
 	}
+
 	/**
 	 * Set a named custom property. The custom property is set on a per-user
 	 * basis.
@@ -372,7 +383,9 @@ public abstract class Artifact {
 	 * @param id
 	 *            The artifact id.
 	 */
-	public void setId(final Long id) { this.id = id; }
+	public void setId(final Long id) {
+        this.id = id;
+	}
 
 	/**
 	 * Set the artifact name.
@@ -380,7 +393,9 @@ public abstract class Artifact {
 	 * @param name
 	 *            The name.
 	 */
-	public void setName(final String name) { this.name = name; }
+	public void setName(final String name) {
+        this.name = name;
+	}
 
 	/**
 	 * Set the artifact state.
@@ -388,7 +403,9 @@ public abstract class Artifact {
 	 * @param state
 	 *            The artifact state.
 	 */
-	public void setState(final ArtifactState state) { this.state = state; }
+	public void setState(final ArtifactState state) {
+        this.state = state;
+	}
 
 	/**
 	 * Set the artifact type.
@@ -404,7 +421,9 @@ public abstract class Artifact {
 	 * @param uniqueId
 	 *            The artifact unique id.
 	 */
-	public void setUniqueId(final UUID uniqueId) { this.uniqueId = uniqueId; }
+	public void setUniqueId(final UUID uniqueId) {
+        this.uniqueId = uniqueId;
+	}
 
 	/**
      * Set the updated by user id.

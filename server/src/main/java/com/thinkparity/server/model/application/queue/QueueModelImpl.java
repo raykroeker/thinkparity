@@ -3,15 +3,19 @@
  */
 package com.thinkparity.desdemona.model.queue;
 
+import java.nio.charset.Charset;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.queue.notification.NotificationSession;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.io.sql.QueueSql;
-import com.thinkparity.desdemona.model.session.Session;
+import com.thinkparity.desdemona.model.queue.notification.NotificationService;
+import com.thinkparity.desdemona.model.queue.notification.ServerNotificationSession;
+import com.thinkparity.desdemona.util.DesdemonaProperties;
 
 /**
  * The queue model is used to persistantly store text for jabber ids. The text
@@ -20,10 +24,17 @@ import com.thinkparity.desdemona.model.session.Session;
  * @author raykroeker@gmail.com
  * @version 1.1.2.1
  */
-class QueueModelImpl extends AbstractModelImpl {
+public class QueueModelImpl extends AbstractModelImpl implements QueueModel,
+        InternalQueueModel {
 
-    /** A <code>QueueSql</code> interface. */
-	private final QueueSql queueSql;
+    /** The notification service. */
+    private NotificationService notificationService;
+
+    /** The desdemona properties. */
+    private DesdemonaProperties properties;
+
+    /** A queue sql interface. */
+	private QueueSql queueSql;
 
     /**
 	 * Create a QueueModelImpl.
@@ -31,65 +42,171 @@ class QueueModelImpl extends AbstractModelImpl {
 	 * @param session
 	 *            The user session.
 	 */
-	QueueModelImpl(final Session session) {
-		super(session);
-		this.queueSql = new QueueSql();
+	public QueueModelImpl() {
+		super();
 	}
 
-    void createEvent(final JabberId userId, final JabberId eventUserId,
-            final XMPPEvent event) {
-        createEvent(userId, eventUserId, event, XMPPEvent.Priority.NORMAL);
-    }
-
-    void createEvent(final JabberId userId, final JabberId eventUserId,
-            final XMPPEvent event, final XMPPEvent.Priority priority) {
+    /**
+     * @see com.thinkparity.desdemona.model.queue.QueueModel#createNotificationSession()
+     *
+     */
+    public NotificationSession createNotificationSession() {
         try {
-            assertIsAuthenticatedUser(userId);
-            event.setDate(currentDateTime());
-            event.setId(buildEventId(eventUserId));
-            event.setPriority(priority);
-            queueSql.createEvent(eventUserId, event);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    void deleteEvent(final JabberId userId, final String eventId) {
-        try {
-            assertIsAuthenticatedUser(userId);
-            queueSql.deleteEvent(userId, eventId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    void deleteEvents(final JabberId userId) {
-        try {
-            assertIsAuthenticatedUser(userId);
-            queueSql.deleteEvents(userId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    List<XMPPEvent> readEvents(final JabberId userId) {
-        try {
-            assertIsAuthenticatedUser(userId);
-            return queueSql.readEvents(userId);
+            final ServerNotificationSession session = newNotificationSession(
+                    newNotificationSessionId());
+            // TODO persist the session
+            notificationService.initialize(user, session);
+            return session.getClientSession();
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
     /**
-     * Build an event id. The event id is a combination of the user id plus the
-     * current date\time.
+     * @see com.thinkparity.desdemona.model.queue.QueueModel#deleteEvent(com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent)
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
+     */
+    public void deleteEvent(final XMPPEvent event) {
+        try {
+            queueSql.deleteEvent(user.getId(), event.getId());
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.queue.InternalQueueModel#deleteEvents()
+     *
+     */
+    public void deleteEvents() {
+        try {
+            queueSql.deleteEvents(user.getId());
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.queue.InternalQueueModel#deleteEvents(com.thinkparity.codebase.jabber.JabberId)
+     * 
+     */
+    public void deleteEvents(final JabberId userId) {
+        try {
+            queueSql.deleteEvents(userId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.queue.InternalQueueModel#createEvent(com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent)
+     *
+     */
+    public void enqueueEvent(final XMPPEvent event) {
+        try {
+            enqueueEvent(event, XMPPEvent.Priority.NORMAL);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.queue.InternalQueueModel#createEvent(com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent,
+     *      com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent.Priority)
+     * 
+     */
+    public void enqueueEvent(final XMPPEvent event,
+            final XMPPEvent.Priority priority) {
+        try {
+            event.setDate(currentDateTime());
+            event.setId(newEventId());
+            event.setPriority(priority);
+            queueSql.createEvent(user.getId(), event);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.queue.InternalQueueModel#flush()
+     * 
+     */
+    public void flush() {
+        notificationService.logStatistics();
+        notificationService.send(user);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.queue.QueueModel#readEvents()
+     * 
+     */
+    public List<XMPPEvent> readEvents() {
+        try {
+            return queueSql.readEvents(user.getId());
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.queue.QueueModel#readSize()
+     *
+     */
+    public Integer readSize() {
+        try {
+            return queueSql.readSize(user.getLocalId());
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+    
+    /**
+     * @see com.thinkparity.desdemona.model.AbstractModelImpl#initialize()
+     *
+     */
+    @Override
+    protected void initialize() {
+        properties = DesdemonaProperties.getInstance();
+        notificationService = NotificationService.getInstance();
+        queueSql = new QueueSql();
+    }
+
+    /**
+     * Create a new event id for the model user. The event id is a combination
+     * of the user id plus the current date\time.
+     * 
      * @return An event id <code>String</code>.
      */
-    private String buildEventId(final JabberId userId) {
-        return buildUserTimestampId(userId);
+    private String newEventId() {
+        return buildUserTimestampId(user.getId());
+    }
+
+    /**
+     * Create a new server notification session. The charset; host; and port are
+     * determined by querying the properties.
+     * 
+     * @param id
+     *            A session id <code>String</code>.
+     * @return A <code>ServerNotificationSession</code>.
+     */
+    private ServerNotificationSession newNotificationSession(final String id) {
+        final ServerNotificationSession session = new ServerNotificationSession();
+        session.setCharset(Charset.forName(properties.getProperty(
+                "thinkparity.queue.notification-charset")));
+        session.setId(id);
+        session.setServerHost(properties.getProperty(
+                "thinkparity.queue.notification-host"));
+        session.setServerPort(Integer.valueOf(properties.getProperty(
+                "thinkparity.queue.notification-port")));
+        return session;
+    }
+
+    /**
+     * Create an instance of a notification session id for the model user.
+     * 
+     * @return A notification session id.
+     */
+    private String newNotificationSessionId() {
+        return buildUserTimestampId(user.getId());
     }
 }

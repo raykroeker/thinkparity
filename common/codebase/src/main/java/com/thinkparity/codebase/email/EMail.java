@@ -17,8 +17,13 @@ public class EMail {
 	/** The username portion of an e-mail address. */
 	private String username;
 
-	/** Create EMail. */
-	protected EMail() { super(); }
+	/**
+     * Create EMail.
+     *
+	 */
+	public EMail() {
+        super();
+	}
 
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
@@ -40,21 +45,27 @@ public class EMail {
      * 
      * @return The domain.
      */
-	public String getDomain() { return domain; }
+	public String getDomain() {
+        return domain;
+	}
 
 	/**
      * Obtain the username portion of the e-mail address.
      * 
      * @return The username.
      */
-	public String getUsername() { return username; }
+	public String getUsername() {
+        return username;
+	}
 
 	/**
 	 * @see java.lang.Object#hashCode()
 	 * 
 	 */
     @Override
-	public int hashCode() { return toString().hashCode(); }
+	public int hashCode() {
+        return toString().hashCode();
+    }
 
 	/**
 	 * @see java.lang.Object#toString()
@@ -62,6 +73,10 @@ public class EMail {
 	 */
     @Override
 	public String toString() {
+        if (null == domain)
+            throw new IllegalArgumentException("Domain not specified.");
+        if (null == username)
+            throw new IllegalArgumentException("Username not specified.");
 		return new StringBuffer(username).append("@").append(domain).toString();
 	}
 
@@ -71,7 +86,7 @@ public class EMail {
      * @param domain
      *            The domain.
      */
-	protected void setDomain(final String domain) {
+	public void setDomain(final String domain) {
         this.domain = domain;
     }
 
@@ -81,7 +96,7 @@ public class EMail {
      * @param username
      *            The username.
      */
-    protected void setUsername(final String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 }

@@ -3,6 +3,8 @@
  */
 package com.thinkparity.codebase;
 
+import java.util.TimeZone;
+
 /**
  * <b>Title:</b>thinkParity Constants <b>Description:</b>thinkParity Global
  * Constants.
@@ -11,6 +13,10 @@ package com.thinkparity.codebase;
  * @version 1.1.2.1
  */
 public class Constants {
+
+    public static final TimeZone UNIVERSAL_TIME_ZONE = TimeZone.getTimeZone("Universal");
+
+    public static final TimeZone DEFAULT_TIME_ZONE = TimeZone.getDefault();
 
     /**
      * <b>Title:</b>Checksum Algorithms<br>
@@ -24,6 +30,14 @@ public class Constants {
      */
     public static final class File {
         public static final String TEMP_FILE_PREFIX = "thinkParity.";
+    }
+
+    /**
+     * <b>Title:</b>thinkParity File Constants<br>
+     * <b>Description:</b>thinkParity file constants.<br>
+     */
+    public static final class Directory {
+        public static final String TEMP_DIR_PREFIX = "thinkParity.";
     }
 
     /**

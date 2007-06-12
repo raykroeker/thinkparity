@@ -36,8 +36,8 @@ public interface ContactModel {
      * @param acceptedOn
      *            An accceptance timestamp <code>Calendar</code>.
      */
-    public void acceptInvitation(final JabberId userId,
-            final IncomingEMailInvitation invitation, final Calendar acceptedOn);
+    public void acceptInvitation(final IncomingEMailInvitation invitation,
+            final Calendar acceptedOn);
 
     /**
      * Accept the incoming invitation.
@@ -49,8 +49,8 @@ public interface ContactModel {
      * @param acceptedOn
      *            An accceptance timestamp <code>Calendar</code>.
      */
-    public void acceptInvitation(final JabberId userId,
-            final IncomingUserInvitation invitation, final Calendar acceptedOn);
+    public void acceptInvitation(final IncomingUserInvitation invitation,
+            final Calendar acceptedOn);
 
 	/**
      * Create an e-mail contact invitation.
@@ -61,8 +61,7 @@ public interface ContactModel {
      *            An <code>OutgoingEMailInvitation</code>.
      */
     @ThinkParityAuthenticate(AuthenticationType.USER)
-    public void createInvitation(final JabberId userId,
-            final OutgoingEMailInvitation invitation);
+    public void createInvitation(final OutgoingEMailInvitation invitation);
 
     /**
      * Create a contact invitation.
@@ -72,8 +71,7 @@ public interface ContactModel {
      * @param invitation
      *            An <code>OutgoingUserInvitation</code>.
      */
-    public void createInvitation(final JabberId userId,
-            final OutgoingUserInvitation invitation);
+    public void createInvitation(final OutgoingUserInvitation invitation);
 
     /**
      * Decline an e-mail invitation. Delete the invitation and send a
@@ -88,8 +86,8 @@ public interface ContactModel {
      * @param declinedOn
      *            When the invitation was declined.
      */
-    public void declineInvitation(final JabberId userId,
-            final IncomingEMailInvitation invitation, final Calendar declinedOn);
+    public void declineInvitation(final IncomingEMailInvitation invitation,
+            final Calendar declinedOn);
 
     /**
      * Decline an e-mail invitation. Delete the invitation and send a
@@ -104,8 +102,8 @@ public interface ContactModel {
      * @param declinedOn
      *            When the invitation was declined.
      */
-    public void declineInvitation(final JabberId userId,
-            final IncomingUserInvitation invitation, final Calendar declinedOn);
+    public void declineInvitation(final IncomingUserInvitation invitation,
+            final Calendar declinedOn);
 
     /**
      * Delete a contact for a user.
@@ -115,7 +113,7 @@ public interface ContactModel {
      * @param contactId
      *            A contact id <code>JabberId</code>.
      */
-    public void delete(final JabberId userId, final JabberId contactId);
+    public void delete(final JabberId id);
 
     /**
      * Delete a user's invitation.
@@ -125,8 +123,8 @@ public interface ContactModel {
      * @param invitedAs
      *            The <code>Email</code> the invitation was created for.
      */
-    public void deleteInvitation(final JabberId userId,
-            final OutgoingEMailInvitation invitation, final Calendar deletedOn);
+    public void deleteInvitation(final OutgoingEMailInvitation invitation,
+            final Calendar deletedOn);
 
     /**
      * Delete a user's invitation.
@@ -136,8 +134,8 @@ public interface ContactModel {
      * @param invitedAs
      *            The <code>Email</code> the invitation was created for.
      */
-    public void deleteOutgoingUserInvitation(final JabberId userId,
-            final OutgoingUserInvitation invitation, final Calendar deletedOn);
+    public void deleteInvitation(final OutgoingUserInvitation invitation,
+            final Calendar deletedOn);
 
     /**
      * Read a user's contacts.
@@ -146,7 +144,7 @@ public interface ContactModel {
      *            A user id <code>JabberId</code>.
      * @return A <code>List&lt;Contact&gt;</code>.
      */
-	public List<Contact> read(final JabberId userId);
+	public List<Contact> read();
 
     /**
      * Read a user's contact.
@@ -157,17 +155,13 @@ public interface ContactModel {
      *            A contact id <code>JabberId</code>.
      * @return The contact info.
      */
-	public Contact read(final JabberId userId, final JabberId contactId);
+	public Contact read(final JabberId contactId);
 
-    public List<IncomingEMailInvitation> readIncomingEMailInvitations(
-            final JabberId userId);
+    public List<IncomingEMailInvitation> readIncomingEMailInvitations();
 
-    public List<IncomingUserInvitation> readIncomingUserInvitations(
-            final JabberId userId);
+    public List<IncomingUserInvitation> readIncomingUserInvitations();
 
-    public List<OutgoingEMailInvitation> readOutgoingEMailInvitations(
-            final JabberId userId);
+    public List<OutgoingEMailInvitation> readOutgoingEMailInvitations();
 
-	public List<OutgoingUserInvitation> readOutgoingUserInvitations(
-            final JabberId userId);
+	public List<OutgoingUserInvitation> readOutgoingUserInvitations();
 }

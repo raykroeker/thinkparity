@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.user.UserFlag;
@@ -116,13 +115,12 @@ public final class UserModelImpl extends Model implements UserModel,
      * @return A <code>User</code>.
      */
     private User create(final JabberId userId) {
-        final com.thinkparity.desdemona.model.user.InternalUserModel serverUserModel =
-            com.thinkparity.desdemona.model.user.UserModel.getInternalModel(new Context());
+        final com.thinkparity.desdemona.model.InternalModelFactory modelFactory = getServerModelFactory();
+        final com.thinkparity.desdemona.model.user.InternalUserModel serverUserModel = modelFactory.getUserModel();
+        final com.thinkparity.desdemona.model.rules.InternalRuleModel serverRuleModel = modelFactory.getRuleModel();
+
         final User user = serverUserModel.read(userId);
-        final com.thinkparity.desdemona.model.rules.InternalRulesModel serverRulesModel =
-            com.thinkparity.desdemona.model.rules.RulesModel.getInternalModel(new Context());
-        final Boolean isRestricted = serverRulesModel.isPublishRestricted(
-                localUserId(), userId);
+        final Boolean isRestricted = serverRuleModel.isPublishRestrictedTo(userId);
         userIO.create(user);
         if (isRestricted.booleanValue())
             applyFlagContainerPublishRestricted(user.getLocalId());

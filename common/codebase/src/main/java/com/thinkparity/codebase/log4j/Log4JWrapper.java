@@ -112,6 +112,15 @@ public class Log4JWrapper {
     }
 
     /**
+     * Determine if info is enabled for the logger.
+     * 
+     * @return True if info is enabled.
+     */
+    public boolean isInfoEnabled() {
+        return logger.isInfoEnabled();
+    }
+
+    /**
      * Log an api id. (A stack-trace format of the caller's caller).
      *
      */
@@ -248,8 +257,13 @@ public class Log4JWrapper {
 
     public final void logTrace(final String tracePattern,
             final Object... traceArguments) {
-        if (logger.isTraceEnabled()) {
-            logger.trace(Log4JHelper.renderAndFormat(logger, tracePattern,
+        // HACK - Log4JWrapper#logTraceId - Commented out for 1.2.8 (JBoss)
+        // if (logger.isTraceEnabled()) {
+        if (logger.isDebugEnabled()) {
+            // HACK - Log4JWrapper#logTraceId - Commented out for 1.2.8 (JBoss)
+            // logger.trace(Log4JHelper.renderAndFormat(logger, tracePattern,
+            //         traceArguments));
+            logger.debug(Log4JHelper.renderAndFormat(logger, tracePattern,
                     traceArguments));
         }
     }
@@ -267,13 +281,20 @@ public class Log4JWrapper {
      * 
      */
     public final void logTraceId(final Integer frameCount) {
-        if (logger.isTraceEnabled()) {
+        // HACK - Log4JWrapper#logTraceId - Commented out for 1.2.8 (JBoss)
+        // if (logger.isTraceEnabled()) {
+        if (logger.isDebugEnabled()) {
             final StackTraceElement[] frames = StackUtil.getFrames(LOG4J_STACK_FILTER);
             for (int i = 0; i < frameCount && i < frames.length; i++) {
-                if (0 == i)
-                    logStackId(Level.TRACE, "{0}.{1}({2}:{3})", frames[i]);
-                else
-                    logStackId(Level.TRACE, "{0} - {1}.{2}({3}:{4})", i, frames[i]);
+                if (0 == i) {
+                    // HACK - Log4JWrapper#logTraceId - Commented out for 1.2.8 (JBoss)
+                    // logStackId(Level.TRACE, "{0}.{1}({2}:{3})", frames[i]);
+                    logStackId(Level.DEBUG, "{0}.{1}({2}:{3})", frames[i]);
+                } else {
+                    // HACK - Log4JWrapper#logTraceId - Commented out for 1.2.8 (JBoss)
+                    // logStackId(Level.TRACE, "{0} - {1}.{2}({3}:{4})", i, frames[i]);
+                    logStackId(Level.DEBUG, "{0} - {1}.{2}({3}:{4})", i, frames[i]);
+                }
             }
         }
     }
@@ -286,11 +307,15 @@ public class Log4JWrapper {
      *            stack.
      */
     public final void logTraceId(final StackUtil.Filter filter) {
-        if (logger.isTraceEnabled()) {
+        // HACK - Log4JWrapper#logTraceId - Commented out for 1.2.8 (JBoss)
+        // if (logger.isTraceEnabled()) {
+        if (logger.isDebugEnabled()) {
             final List<StackUtil.Filter> filters = new ArrayList<StackUtil.Filter>();
             filters.add(LOG4J_STACK_FILTER);
             filters.add(filter);
-            logStackId(Level.TRACE, "{0}.{1}({2}:{3}) (filtered)", StackUtil.getFrame(LOG4J_STACK_FILTER));
+            // HACK - Log4JWrapper#logTraceId - Commented out for 1.2.8 (JBoss)
+            // logStackId(Level.TRACE, "{0}.{1}({2}:{3}) (filtered)", StackUtil.getFrame(LOG4J_STACK_FILTER));
+            logStackId(Level.DEBUG, "{0}.{1}({2}:{3}) (filtered)", StackUtil.getFrame(LOG4J_STACK_FILTER));
         }
     }
 

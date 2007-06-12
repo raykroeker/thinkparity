@@ -133,6 +133,23 @@ create table TPSD_CONTACT_INVITATION_OUTGOING_USER(
     foreign key(USER_ID) references TPSD_USER(USER_ID),
     foreign key(INVITATION_USER_ID) references TPSD_USER(USER_ID)
 );
+create table TPSD_SESSION(
+    USER_ID bigint not null,
+    TOKEN varchar(64) not null,
+    CREATED_ON timestamp not null,
+    EXPIRES_ON timestamp not null,
+    primary key(USER_ID),
+    unique(TOKEN),
+    foreign key(USER_ID) references TPSD_USER(USER_ID)
+);
+create table TPSD_NOTIFICATION_SESSION(
+    USER_ID bigint not null,
+    TOKEN varchar(64) not null,
+    CREATED_ON timestamp not null,
+    primary key(USER_ID),
+    unique(TOKEN),
+    foreign key(USER_ID) references TPSD_USER(USER_ID)
+);
 
 create table TPSD_ARTIFACT(
     ARTIFACT_ID bigint generated always as identity(start with 2000),

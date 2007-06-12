@@ -147,7 +147,7 @@ final class StreamFileServer {
      * Initialize the file server for a session.
      * 
      * @param session
-     *            A <code>StreamSession</code>.
+     *            A <code>ServerSession</code>.
      */
     void initialize(final StreamSession session) {
     }

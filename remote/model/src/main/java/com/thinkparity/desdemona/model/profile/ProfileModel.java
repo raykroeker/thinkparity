@@ -14,6 +14,7 @@ import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
+import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.TemporaryCredentials;
@@ -39,79 +40,61 @@ public interface ProfileModel {
      * @param email
      *            An <code>EMail</code>.
      */
-    @ThinkParityAuthenticate(AuthenticationType.USER)
-    public void addEmail(final JabberId userId, final EMail email);
+    public void addEMail(final EMail email);
 
 	@ThinkParityAuthenticate(AuthenticationType.SYSTEM)
-    public void create(final JabberId userId,
-            final UsernameReservation usernameReservation,
+    public void create(final UsernameReservation usernameReservation,
             final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
-            final EMail email, final String securityQuestion,
-            final String securityAnswer);
+            final EMail email, final SecurityCredentials securityCredentials);
 
     public TemporaryCredentials createCredentials(final String profileKey,
             final String securityAnswer, final Calendar createdOn);
 
     @ThinkParityAuthenticate(AuthenticationType.SYSTEM)
-    public EMailReservation createEMailReservation(final JabberId userId,
-            final EMail email, final Calendar reservedOn);
+    public EMailReservation createEMailReservation(final EMail email);
 
     /**
      * Create a user's token.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @return A user's <code>Token</code>.
      */
-    @ThinkParityAuthenticate(AuthenticationType.USER)
-    public Token createToken(final JabberId userId);
+    public Token createToken();
 
     @ThinkParityAuthenticate(AuthenticationType.SYSTEM)
-    public UsernameReservation createUsernameReservation(final JabberId userId,
-            final String username, final Calendar reservedOn);
+    public UsernameReservation createUsernameReservation(final String username);
 
     /**
      * Determine whether or not an e-mail address is available.
      * 
-     * @param userId
-     *            A user Id <code>JabberId</code>.
      * @param email
      *            An <code>EMail</code> address.
      * @return True if the e-mail address is available.
      */
-    @ThinkParityAuthenticate(AuthenticationType.USER)
-    public Boolean isEmailAvailable(final JabberId userId, final EMail email);
+    public Boolean isEmailAvailable(final EMail email);
 
     /**
      * Read a profile.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @return A <code>Profile</code>.
      */
-    @ThinkParityAuthenticate(AuthenticationType.USER)
-    public Profile read(final JabberId userId);
+    public Profile read();
 
     /**
-     * Read all emails addresses for a user.
+     * Read all emails addresses for a model user.
      * 
      * @param userId
      *            A user id <code>JabberId</code>.
      * @return A <code>List</code> of <code>ProfileEMail</code>s.
      */
-    @ThinkParityAuthenticate(AuthenticationType.USER)
-    public List<ProfileEMail> readEMails(final JabberId userId);
+    public List<ProfileEMail> readEMails();
 
     /**
      * Read all features for a user.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @return A <code>List&lt;Feature&gt</code>.
      */
-    @ThinkParityAuthenticate(AuthenticationType.USER)
-    public List<Feature> readFeatures(final JabberId userId);
+    public List<Feature> readFeatures();
 
     /**
      * Read a user's security question.
@@ -129,24 +112,19 @@ public interface ProfileModel {
      *            A user id <code>JabberId</code>.
      * @return A user's <code>Token</code>.
      */
-    public Token readToken(final JabberId userId);
+    public Token readToken();
 
     /**
      * Remove an email from a user's profile.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param email
      *            An <code>EMail</code>.
      */
-    @ThinkParityAuthenticate(AuthenticationType.USER)
-    public void removeEmail(final JabberId userId, final EMail email);
+    public void removeEMail(final EMail email);
 
     /**
-     * Update a user's profile.
+     * Update a model user's profile.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param name
      *            A user's name <code>String</code>.
      * @param organization
@@ -154,22 +132,18 @@ public interface ProfileModel {
      * @param title
      *            A user's title <code>String</code>.
      */
-    @ThinkParityAuthenticate(AuthenticationType.USER)
-    public void update(final JabberId userId, final ProfileVCard vcard);
+    public void update(final ProfileVCard vcard);
 
     /**
-     * Update a user's password.
+     * Update a model user's password.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
+     * @param credentials
+     *            The existing <code>Credentials</code>.
      * @param password
-     *            The existing password <code>String</code>.
-     * @param newPassword
      *            The new password <code>String</code>.
      */
-    @ThinkParityAuthenticate(AuthenticationType.USER)
-    public void updatePassword(final JabberId userId,
-            final Credentials credentials, final String newPassword);
+    public void updatePassword(final Credentials credentials,
+            final String newPassword);
 
     /**
      * Update a user's password.
@@ -185,18 +159,14 @@ public interface ProfileModel {
             final TemporaryCredentials credentials, final String newPassword);
 
     /**
-     * Verify an email in a user's profile. This includes generation of incoming
-     * e-mail invitations for all outgoing e-mail invitations for the e-mail
-     * address.
+     * Verify an email in a model user's profile. This includes generation of
+     * incoming e-mail invitations for all outgoing e-mail invitations for the
+     * e-mail address.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param email
      *            An <code>EMail</code> address.
      * @param key
      *            A verification code <code>String</code>.
      */
-    @ThinkParityAuthenticate(AuthenticationType.USER)
-    public void verifyEmail(final JabberId userId, final EMail email,
-            final String key);
+    public void verifyEMail(final EMail email, final String key);
 }

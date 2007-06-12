@@ -5,11 +5,15 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.a
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.InvocationTargetException;
+
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
+import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.archive.ArchiveTabDispatcher;
@@ -59,16 +63,18 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
 
     /**
      * Expand the container.
+     * This method waits for completion.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
      */
     public void expandContainer(final Long containerId) {
-        showPanel(containerId);
+        showPanel(containerId, Boolean.TRUE);
     }
 
     /**
      * Expand the container with version selected.
+     * This method waits for completion.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
@@ -76,7 +82,7 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
      *            A version id <code>Long</code>.
      */
     public void expandContainer(final Long containerId, final Long versionId) {
-        showPanel(containerId);
+        showPanel(containerId, Boolean.TRUE);
         setVersionSelection(containerId, versionId);
     }
 
@@ -122,48 +128,6 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
     }
 
     /**
-     * Expand a panel.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    private void expandPanel(final Long containerId) {
-        SwingUtil.ensureDispatchThread(new Runnable() {
-            public void run() {
-                model.expandPanel(containerId, Boolean.FALSE);
-            }
-        });
-    }
-
-    /**
-     * Scroll a panel to make it visible.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    private void scrollPanelToVisible(final Long containerId) {
-        SwingUtil.ensureDispatchThread(new Runnable() {
-            public void run() {
-                model.scrollPanelToVisible(containerId);
-            }
-        });
-    }
-
-    /**
-     * Select a panel.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    private void selectPanel(final Long containerId) {
-        SwingUtil.ensureDispatchThread(new Runnable() {
-            public void run() {
-                model.selectPanel(containerId);
-            }
-        });
-    }
-
-    /**
      * Select a version for a container.
      * 
      * @param containerId
@@ -187,9 +151,40 @@ public class ArchiveTabAvatar extends TabPanelAvatar<ArchiveTabModel> {
      *            A container id <code>Long</code>.
      */
     private void showPanel(final Long containerId) {
-        selectPanel(containerId);
-        expandPanel(containerId);
-        scrollPanelToVisible(containerId);
+        model.selectPanel(containerId);
+        model.expandPanel(containerId, Boolean.FALSE);
+        model.scrollPanelToVisible(containerId);
+    }
+
+    /**
+     * Show the panel (expand the panel and scroll so it
+     * is visible).
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param wait
+     *            A wait <code>Boolean</code>, if true wait for completion.
+     */
+    private void showPanel(final Long containerId, final Boolean wait) {
+        if (wait) {
+            try {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    public void run() {
+                        showPanel(containerId);
+                    }
+                });
+            } catch (final InterruptedException ix) {
+                throw new BrowserException("Unable to show panel.", ix);
+            } catch (final InvocationTargetException itx) {
+                throw new BrowserException("Unable to show panel.", itx);
+            }
+        } else {
+            SwingUtil.ensureDispatchThread(new Runnable() {
+                public void run() {
+                    showPanel(containerId);
+                }
+            });
+        }
     }
 
     /**

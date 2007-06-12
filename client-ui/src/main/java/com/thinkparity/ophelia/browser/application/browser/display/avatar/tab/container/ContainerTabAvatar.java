@@ -5,6 +5,9 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.c
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.InvocationTargetException;
+
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.swing.SwingUtil;
 
@@ -12,6 +15,7 @@ import com.thinkparity.codebase.model.container.Container;
 
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
+import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.event.tab.container.ContainerTabDispatcher;
@@ -61,16 +65,18 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
 
     /**
      * Expand the container.
+     * This method waits for completion.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
      */
     public void expandContainer(final Long containerId) {
-        showPanel(containerId);
+        showPanel(containerId, Boolean.TRUE);
     }
 
     /**
      * Expand the container with version selected.
+     * This method waits for completion.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
@@ -78,7 +84,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A version id <code>Long</code>.
      */
     public void expandContainer(final Long containerId, final Long versionId) {
-        showPanel(containerId);
+        showPanel(containerId, Boolean.TRUE);
         setVersionSelection(containerId, versionId);
     }
 
@@ -104,7 +110,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
             sync(e);
         } else {
             sync(e);
-            showPanel(e.getContainer().getId());           
+            showPanel(e.getContainer().getId(), Boolean.FALSE);           
             setDraftSelection(e);
         }
     }
@@ -273,7 +279,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     public void showContainer(final Container container) {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
-                showPanel(container.getId());
+                showPanel(container.getId(), Boolean.FALSE);
             }
         });
     }
@@ -311,20 +317,6 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     }
 
     /**
-     * Expand a panel.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    private void expandPanel(final Long containerId) {
-        SwingUtil.ensureDispatchThread(new Runnable() {
-            public void run() {
-                model.expandPanel(containerId, Boolean.FALSE);
-            }
-        });
-    }
-
-    /**
      * Remove the seen flag from a container within the event.
      * 
      * @param e
@@ -332,34 +324,6 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      */
     private void removeFlagSeen(final ContainerEvent e) {
         getController().runRemoveContainerFlagSeen(e.getContainer().getId());
-    }
-
-    /**
-     * Scroll a panel to make it visible.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    private void scrollPanelToVisible(final Long containerId) {
-        SwingUtil.ensureDispatchThread(new Runnable() {
-            public void run() {
-                model.scrollPanelToVisible(containerId);
-            }
-        });
-    }
-
-    /**
-     * Select a panel.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    private void selectPanel(final Long containerId) {
-        SwingUtil.ensureDispatchThread(new Runnable() {
-            public void run() {
-                model.selectPanel(containerId);
-            }
-        });
     }
 
     /**
@@ -400,9 +364,40 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A container id <code>Long</code>.
      */
     private void showPanel(final Long containerId) {
-        selectPanel(containerId);
-        expandPanel(containerId);
-        scrollPanelToVisible(containerId);
+        model.selectPanel(containerId);
+        model.expandPanel(containerId, Boolean.FALSE);
+        model.scrollPanelToVisible(containerId);
+    }
+
+    /**
+     * Show the panel (expand the panel and scroll so it
+     * is visible).
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param wait
+     *            A wait <code>Boolean</code>, if true wait for completion.
+     */
+    private void showPanel(final Long containerId, final Boolean wait) {
+        if (wait) {
+            try {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    public void run() {
+                        showPanel(containerId);
+                    }
+                });
+            } catch (final InterruptedException ix) {
+                throw new BrowserException("Unable to show panel.", ix);
+            } catch (final InvocationTargetException itx) {
+                throw new BrowserException("Unable to show panel.", itx);
+            }
+        } else {
+            SwingUtil.ensureDispatchThread(new Runnable() {
+                public void run() {
+                    showPanel(containerId);
+                }
+            });
+        }
     }
 
     /**

@@ -458,28 +458,38 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      * 
      */
     private void initializeRelease() throws IOException {
-        // the previous release
-        final String release = "v1_0-20070430-1500";
-        logger.logVariable("release", release);
-
-        // TODO - iterate all releases
-
-        final File releaseInstall = new File(installDirectory, release);
-        // a release will only not exist in a test/dev environment
-        if (releaseInstall.exists()) {
-            logger.logInfo("Deleting release {0}.", release);
-            FileUtil.deleteTree(releaseInstall);
+        final String[] releases = new String[] {
+                "v1_0-20070430-1500",
+                "v1_0-20070516-1300",
+                "v1_0-20070612-1800"
+        };
+        int beginIndex = -1;
+        for (int i = 0; i < releases.length; i++) {
+            if (Constants.Release.NAME.equals(releases[i])) {
+                beginIndex = i + 1;
+                break;
+            }
         }
-
-        // migrate the schema
-        logger.logInfo("Migrating schema to {0}.", Constants.Release.NAME);
-        final String sql = loadSql(Constants.Release.NAME);
-        logger.logVariable("sql", sql);
-        filterSqlComments(sql);
-        logger.logVariable("sql", sql);
-        final List<String> sqlStatements = tokenizeSqlStatements(sql);
-        logger.logVariable("sqlStatements", sqlStatements);
-        migratorIO.execute(sqlStatements);
+        if (-1 < beginIndex && releases.length > beginIndex) {
+            for (int i = beginIndex; i < releases.length; i++) {
+                final File releaseInstall = new File(installDirectory, releases[i]);
+                // a release will only not exist in a test/dev environment
+                if (releaseInstall.exists()) {
+                    logger.logInfo("Deleting release {0}.", releases[i]);
+                    FileUtil.deleteTree(releaseInstall);
+                }
+        
+                // migrate the schema
+                logger.logInfo("Migrating schema to {0}.", Constants.Release.NAME);
+                final String sql = loadSql(releases[i]);
+                logger.logVariable("sql", sql);
+                filterSqlComments(sql);
+                logger.logVariable("sql", sql);
+                final List<String> sqlStatements = tokenizeSqlStatements(sql);
+                logger.logVariable("sqlStatements", sqlStatements);
+                migratorIO.execute(sqlStatements);
+            }
+        }
 
         // delete the index
         getHelpModel().deleteIndex();

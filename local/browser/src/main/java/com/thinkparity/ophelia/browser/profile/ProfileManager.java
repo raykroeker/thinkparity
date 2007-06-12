@@ -39,20 +39,20 @@ public class ProfileManager {
             case DEMO_LOCALHOST:
                 suffix = "Demo-Localhost";
                 break;
-            case DEVELOPMENT_LOCALHOST:
-                suffix = "Development-Localhost";
-                break;
             case DEVELOPMENT:
                 suffix = "Development";
                 break;
-            case PRODUCTION:
-                suffix = null;
+            case DEVELOPMENT_LOCALHOST:
+                suffix = "Development-Localhost";
                 break;
-            case TESTING:
+            case DEVELOPMENT_TESTING:
                 suffix = "Testing";
                 break;
-            case TESTING_LOCALHOST:
-                suffix = "Testing Localhost";
+            case DEVELOPMENT_TESTING_LOCALHOST:
+                suffix = "Testing-Localhost";
+                break;
+            case PRODUCTION:
+                suffix = null;
                 break;
             default:
                 throw Assert.createUnreachable("Unknown environment {0}.", environment);

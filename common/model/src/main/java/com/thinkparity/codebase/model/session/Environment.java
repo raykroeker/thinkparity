@@ -23,14 +23,14 @@ public enum Environment {
     /** A localhost development environment. */
     DEVELOPMENT_LOCALHOST("localhost", 8445),
 
-    /** Production environment. */
-    PRODUCTION("thinkparity.net", 443),
-
     /** Testing environment. */
-    TESTING("thinkparity.dyndns.org", 444),
+    DEVELOPMENT_TESTING("thinkparity.dyndns.org", 8444),
 
     /** A localhost testing environment. */
-    TESTING_LOCALHOST("localhost", 444);
+    DEVELOPMENT_TESTING_LOCALHOST("localhost", 8444),
+
+    /** Production environment. */
+    PRODUCTION("thinkparity.net", 443);
 
     /** The web-services host. */
     private final transient String serviceHost;

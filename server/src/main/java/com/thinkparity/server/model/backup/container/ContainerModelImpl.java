@@ -484,7 +484,7 @@ public final class ContainerModelImpl extends
                 containerIO.readDocumentVersions(containerId, versionId);
             FilterManager.filter(documentVersions, filter);
             ModelSorter.sortDocumentVersions(documentVersions, comparator);
-            return Collections.unmodifiableList(documentVersions);
+            return documentVersions;
         } catch (final Throwable t) {
             throw panic(t);
         }

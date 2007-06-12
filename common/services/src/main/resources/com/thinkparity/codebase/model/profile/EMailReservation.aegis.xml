@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <mapping>
+        <property name="createdOn" type="com.thinkparity.service.type.CalendarType"/>
+        <property name="expiresOn" type="com.thinkparity.service.type.CalendarType"/>
+    </mapping>
+</mappings>

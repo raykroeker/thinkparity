@@ -35,8 +35,6 @@ import com.thinkparity.ophelia.model.Constants.FileNames;
 import com.thinkparity.ophelia.model.Constants.Release;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
-import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
-import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
 
@@ -79,10 +77,12 @@ public final class WorkspaceImpl implements Workspace {
     /** The workspace file system. */
     private final FileSystem workspace;
 
-    /** The xmpp session. */
-    private XMPPSessionImpl xmppSessionImpl;
-
-    /** Create WorkspaceImpl. */
+    /**
+     * Create WorkspaceImpl.
+     * 
+     * @param workspace
+     *            A workspace directory <code>File</code>.
+     */
 	public WorkspaceImpl(final File workspace) {
         super();
         this.logger = new Log4JWrapper(getClass());
@@ -139,8 +139,6 @@ public final class WorkspaceImpl implements Workspace {
 
         sessionData.clear();
         sessionData = null;
-
-        xmppSessionImpl = null;
 
         FileUtil.deleteTree(initChild(DirectoryNames.Workspace.TEMP));
 
@@ -379,14 +377,8 @@ public final class WorkspaceImpl implements Workspace {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.workspace.Workspace#getXMPPSession()
-     */
-    public XMPPSession getXMPPSession() {
-        return xmppSessionImpl;
-    }
-
-    /**
      * @see java.lang.Object#hashCode()
+     * 
      */
     @Override
     public int hashCode() {
@@ -455,8 +447,6 @@ public final class WorkspaceImpl implements Workspace {
 
         sessionData = new Hashtable<String, Object>();
 
-        xmppSessionImpl = new XMPPSessionImpl(XMPPSessionDebugger.class);
-
         shutdownHooks = new ArrayList<ShutdownHook>();
 
         FileUtil.deleteTree(initChild(DirectoryNames.Workspace.TEMP));
@@ -487,8 +477,8 @@ public final class WorkspaceImpl implements Workspace {
      * @see com.thinkparity.ophelia.model.workspace.Workspace#setAttribute(java.lang.String, java.lang.Object)
      *
      */
-    public void setAttribute(final String name, final Object value) {
-        sessionData.put(name, value);
+    public Object setAttribute(final String name, final Object value) {
+        return sessionData.put(name, value);
     }
 
     /**
@@ -526,7 +516,7 @@ public final class WorkspaceImpl implements Workspace {
      */
     private void bootstrapLog4J() {
         final Properties logging = ConfigFactory.newInstance("log4j.properties");
-        final File loggingRoot = new File(workspace.getRoot(), "logs");
+        final File loggingRoot = getLogDirectory();
         // console appender
         logging.setProperty("log4j.appender.CONSOLE", "org.apache.log4j.ConsoleAppender");
         logging.setProperty("log4j.appender.CONSOLE.layout", "org.apache.log4j.PatternLayout");
@@ -609,9 +599,6 @@ public final class WorkspaceImpl implements Workspace {
         logging.setProperty(
                 "log4j.renderer.com.thinkparity.codebase.model.user.User",
                 "com.thinkparity.codebase.model.util.logging.or.UserRenderer");
-        logging.setProperty(
-                "log4j.renderer.org.jivesoftware.smack.packet.Packet",
-                "com.thinkparity.ophelia.model.util.logging.or.PacketRenderer");
         LogManager.resetConfiguration();
         PropertyConfigurator.configure(logging);
         new Log4JWrapper("DEFAULT").logInfo("{0} - {1}", "thinkParity", Release.NAME);

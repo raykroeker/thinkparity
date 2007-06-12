@@ -12,6 +12,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 
@@ -55,11 +56,12 @@ public class SignupHelper {
         final Credentials credentials = (Credentials) ((Data) input).get(SignupData.DataKey.CREDENTIALS);
         final Profile profile = (Profile) ((Data) input).get(SignupData.DataKey.PROFILE);
         final EMail email = (EMail) ((Data) input).get(SignupData.DataKey.EMAIL);
-        final String securityQuestion = (String) ((Data) input).get(SignupData.DataKey.SECURITY_QUESTION);
-        final String securityAnswer = (String) ((Data) input).get(SignupData.DataKey.SECURITY_ANSWER);
+        final SecurityCredentials securityCredentials = new SecurityCredentials();
+        securityCredentials.setQuestion((String) ((Data) input).get(SignupData.DataKey.SECURITY_QUESTION));
+        securityCredentials.setAnswer((String) ((Data) input).get(SignupData.DataKey.SECURITY_ANSWER));
         profile.setFeatures(extractFeatures());
         createProfile(usernameReservation, emailReservation, credentials,
-                profile, email, securityQuestion, securityAnswer);
+                profile, email, securityCredentials);
     }
 
     /**
@@ -75,20 +77,18 @@ public class SignupHelper {
      *            A <code>Profile</code>.
      * @param email
      *            An <code>EMail</code> address.
-     * @param securityQuestion
-     *            A security question <code>String</code>.
-     * @param securityAnswer
-     *            A security answer <code>String</code>.
+     * @param securityCredentials
+     *            A set of security credentials.
      * @throws ReservationExpiredException
      */
     private void createProfile(final UsernameReservation usernameReservation,
             final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
-            final EMail email, final String securityQuestion,
-            final String securityAnswer) throws ReservationExpiredException {
+            final EMail email, final SecurityCredentials securityCredentials)
+            throws ReservationExpiredException {
         signupProvider.createProfile(usernameReservation,
                 emailReservation, credentials, profile, email,
-                securityQuestion, securityAnswer);
+                securityCredentials);
     }
 
     /**

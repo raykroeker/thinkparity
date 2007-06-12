@@ -4,25 +4,19 @@
  */
 package com.thinkparity.ophelia.browser.platform.online;
 
-import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
-
-import com.thinkparity.codebase.model.session.Environment;
-
 import com.thinkparity.ophelia.model.session.SessionModel;
 
 import com.thinkparity.ophelia.browser.platform.Platform;
 
 /**
+ * <b>Title:</b>thinkParity Ophelia Browser Platform Online Helper<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version $Revision$
+ * @version 1.1.2.1
  */
 public class OnlineHelper {
 
-    /** The <code>Platform</code>. */
-    private final Platform platform;
-    
     /** An instance of <code>SessionModel</code>. */
     private final SessionModel model;
 
@@ -34,7 +28,6 @@ public class OnlineHelper {
      */
     public OnlineHelper(final Platform platform) {
         super();
-        this.platform = platform;
         this.model = platform.getModelFactory().getSessionModel(getClass());
     }
 
@@ -45,25 +38,5 @@ public class OnlineHelper {
      */
     public Boolean isOnline() {
         return model.isOnline();
-    }
-
-    /**
-     * Determine whether or not the platform has online capability.
-     * 
-     * @return True if the platform has online capability.
-     */
-    public Boolean isXMPPHostReachable() {
-        final Environment environment = platform.getEnvironment();
-        Socket socket;
-        try {
-            socket = new Socket(
-                    environment.getXMPPHost(), environment.getXMPPPort());
-            socket.close();
-            return Boolean.TRUE;
-        } catch (final UnknownHostException uhx) {
-            return Boolean.FALSE;
-        } catch (final IOException iox) {
-            return Boolean.FALSE;
-        }
     }
 }

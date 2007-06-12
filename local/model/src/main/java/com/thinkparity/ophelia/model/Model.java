@@ -64,6 +64,7 @@ import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ConfigurationIOHandler;
 import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
+import com.thinkparity.ophelia.model.queue.InternalQueueModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
@@ -418,16 +419,6 @@ public abstract class Model<T extends EventListener> extends
 	}
 
     /**
-     * Ensure the user is not online.
-     * 
-     * @param assertion
-     *            The assertion.
-     */
-    protected void assertNotIsOnline() {
-        Assert.assertNotTrue("USER IS ONLINE", getSessionModel().isOnline());
-    }
-
-    /**
      * Assert that the reference is not null.
      * 
      * @param assertion
@@ -507,18 +498,10 @@ public abstract class Model<T extends EventListener> extends
      * @param environment
      *            A thinkParity <code>Environment</code>.
      */
-    protected void assertXMPPIsReachable(final Environment environment) {
-        Assert.assertTrue(environment.isXMPPReachable(),
+    protected void assertServiceIsReachable(final Environment environment) {
+        Assert.assertTrue(environment.isServiceReachable(),
                 "XMPP environment {0}:{1} is not reachable.",
-                environment.getXMPPHost(), environment.getXMPPPort());
-    }
-
-    /**
-     * Assert the xmpp session is online.
-     *
-     */
-    protected void assertXMPPOnline() {
-        Assert.assertTrue("XMPP is not online.", getSessionModel().isXMPPOnline());
+                environment.getServiceHost(), environment.getServicePort());
     }
 
     /**
@@ -598,7 +581,6 @@ public abstract class Model<T extends EventListener> extends
         final String cipherKey = getCipherKey();
         try {
             configurationIO.create(ConfigurationKeys.Credentials.PASSWORD, encrypt(cipherKey, credentials.getPassword()));
-            configurationIO.create(ConfigurationKeys.Credentials.RESOURCE, encrypt(cipherKey, credentials.getResource()));
             configurationIO.create(ConfigurationKeys.Credentials.USERNAME, encrypt(cipherKey, credentials.getUsername()));
             return readCredentials();
         } catch (final Throwable t) {
@@ -630,7 +612,6 @@ public abstract class Model<T extends EventListener> extends
         assertIsSetCredentials();
         try {
             configurationIO.delete(ConfigurationKeys.Credentials.PASSWORD);
-            configurationIO.delete(ConfigurationKeys.Credentials.RESOURCE);
             configurationIO.delete(ConfigurationKeys.Credentials.USERNAME);
         } catch (final Throwable t) {
             throw panic(t);
@@ -858,6 +839,15 @@ public abstract class Model<T extends EventListener> extends
         return workspace.getBufferSize();
     }
 
+    /**
+     * Obtain an internal queue model.
+     * 
+     * @return An instance of <code>InternalQueueModel</code>.
+     */
+    protected InternalQueueModel getQueueModel() {
+        return modelFactory.getQueueModel();
+    }
+
     protected final String getChecksumAlgorithm() {
         return ChecksumAlgorithm.MD5.name();
     }
@@ -1036,9 +1026,9 @@ public abstract class Model<T extends EventListener> extends
             return (JabberId) workspace.getAttribute("localUserId");
         } else {
             final Credentials credentials = readCredentials();
+            // TODO - Model#localUserId - rework user ids similar to artifact ids
             workspace.setAttribute("localUserId", JabberIdBuilder.build(
-                    credentials.getUsername(), environment.getXMPPService(),
-                    credentials.getResource()));
+                    credentials.getUsername(), "thinkparity.net"));
             return (JabberId) workspace.getAttribute("localUserId");
         }
 	}
@@ -1127,16 +1117,14 @@ public abstract class Model<T extends EventListener> extends
     protected Credentials readCredentials() {
         final String cipherKey = getCipherKey();
         final String password = configurationIO.read(ConfigurationKeys.Credentials.PASSWORD);
-        final String resource = configurationIO.read(ConfigurationKeys.Credentials.RESOURCE);
         final String username = configurationIO.read(ConfigurationKeys.Credentials.USERNAME);
 
-        if (null == username || null == password || null == resource) {
+        if (null == username || null == password) {
             return null;
         } else {
             final Credentials credentials = new Credentials();
             try {
                 credentials.setPassword(decrypt(cipherKey, password));
-                credentials.setResource(decrypt(cipherKey, resource));
                 credentials.setUsername(decrypt(cipherKey, username));
                 return credentials;
             } catch (final Throwable t) {
@@ -1252,7 +1240,6 @@ public abstract class Model<T extends EventListener> extends
         final String cipherKey = "18273-4897-12-53974-816523-49-81623-95-4-91-8723-56974812-63498-612395-498-7125-349871265-47892-1539784-1523954-19-287356-4";
         try {
             configurationIO.update(ConfigurationKeys.Credentials.PASSWORD, encrypt(cipherKey, credentials.getPassword()));
-            configurationIO.update(ConfigurationKeys.Credentials.RESOURCE, encrypt(cipherKey, credentials.getResource()));
             configurationIO.update(ConfigurationKeys.Credentials.USERNAME, encrypt(cipherKey, credentials.getUsername()));
         } catch (final Throwable t) {
             throw panic(t);
@@ -1469,7 +1456,6 @@ public abstract class Model<T extends EventListener> extends
         private static final String TOKEN = "TOKEN";
         private class Credentials {
             private static final String PASSWORD = "Credentials.PASSWORD";
-            private static final String RESOURCE = "Credentials.RESOURCE";
             private static final String USERNAME = "Credentials.USERNAME";
         }
     }

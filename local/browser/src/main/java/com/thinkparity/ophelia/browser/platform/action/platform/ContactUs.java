@@ -4,13 +4,10 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.platform;
 
-import com.thinkparity.codebase.Application;
-
 import com.thinkparity.codebase.model.util.http.Link;
 import com.thinkparity.codebase.model.util.http.LinkFactory;
 
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -41,8 +38,7 @@ public class ContactUs extends AbstractAction {
      */
     @Override
     public void invoke(final Data data) {
-        final Link contactUsLink = LinkFactory.getInstance(Application.OPHELIA,
-                BrowserPlatform.getInstance().getEnvironment()).create(CONTACT_US_LINK);
+        final Link contactUsLink = LinkFactory.getInstance().create(CONTACT_US_LINK);
         try {
             DesktopUtil.browse(contactUsLink.toString());
         } catch (final DesktopException dx) {

@@ -13,10 +13,10 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
-import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.annotation.ThinkParityOnline;
@@ -52,22 +52,8 @@ public interface ProfileModel {
     public void create(final UsernameReservation usernameReservation,
             final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
-            final EMail email, final String securityQuestion,
-            final String securityAnswer) throws ReservationExpiredException;
-
-    /**
-     * Create a temporary set of credentials. A profile key in terms of a
-     * username or an e-mail address must be provided, along with the answer to
-     * the security question.
-     * 
-     * @param profileKey
-     *            A profile key can be either a username or an e-mail address.
-     * @param securityAnswer
-     *            The answer to the security question.
-     * @return A set of <code>TemporaryCredentials</code>.
-     */
-    public TemporaryCredentials createCredentials(final String profileKey,
-            final String securityAnswer);
+            final EMail email, final SecurityCredentials securityCredentials)
+            throws ReservationExpiredException;
 
     public EMailReservation createEMailReservation(final EMail email);
 
@@ -135,15 +121,6 @@ public interface ProfileModel {
     public List<Feature> readFeatures();
 
     /**
-     * Read the security question.
-     * 
-     * @param profileKey
-     *            A profile key can be either a username or an e-mail address.
-     * @return A security question <code>String</code>.
-     */
-    public String readSecurityQuestion(final String profileKey);
-
-    /**
      * Remove an email.
      * 
      * @param emailId
@@ -189,19 +166,6 @@ public interface ProfileModel {
      *             if the existing credentials are not valid
      */
     public void updatePassword(final Credentials credentials,
-            final String newPassword) throws InvalidCredentialsException;
-
-    /**
-     * Update the profile password. The security token is created by correctly
-     * answering the profile's security question.
-     * 
-     * @param credentials
-     *            A set of <code>TemporaryCredentials</code>.
-     * @param newPassword
-     *            The new password <code>String</code>.
-     * @throws InvalidCredentialsException
-     */
-    public void updatePassword(final TemporaryCredentials credentials,
             final String newPassword) throws InvalidCredentialsException;
 
     /**

@@ -510,13 +510,12 @@ public final class ContactModelImpl extends Model<ContactListener>
      */
     public void download(final ProcessMonitor monitor) {
         try {
-            assertXMPPOnline();
             final InternalSessionModel sessionModel = getSessionModel();
-            final List<JabberId> contactIds = sessionModel.readContactIds();
-            notifyDetermine(monitor, contactIds.size());
-            for (final JabberId contactId : contactIds) {
+            final List<Contact> contacts = sessionModel.readContacts();
+            notifyDetermine(monitor, contacts.size());
+            for (final Contact contact : contacts) {
                 notifyStepBegin(monitor, DownloadStep.DOWNLOAD);
-                createLocal(sessionModel.readContact(contactId));
+                createLocal(contact);
                 notifyStepEnd(monitor, DownloadStep.DOWNLOAD);
             }
             final List<IncomingEMailInvitation> incomingEMail = sessionModel.readIncomingEMailInvitations();

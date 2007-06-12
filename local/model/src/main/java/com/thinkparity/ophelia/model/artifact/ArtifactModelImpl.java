@@ -62,7 +62,6 @@ public final class ArtifactModelImpl extends Model implements
      */
 	public TeamMember addTeamMember(final Long artifactId, final JabberId userId) {
         try {
-            assertXMPPOnline();
             assertNotTeamMember("The team member has already been added.",
                     artifactId, userId);
             // create local user data

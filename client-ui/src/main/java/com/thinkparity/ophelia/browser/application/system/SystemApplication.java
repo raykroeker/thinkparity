@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.browser.application.system;
 
 import javax.swing.SwingUtilities;
 
-import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.swing.AbstractJFrame;
 
 import com.thinkparity.codebase.model.profile.Profile;
@@ -17,7 +16,6 @@ import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
-import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
@@ -108,7 +106,7 @@ public final class SystemApplication extends AbstractApplication {
      *
 	 */
     public Connection getConnection() {
-        return getSessionModel().isLoggedIn() ?
+        return getSessionModel().isOnline() ?
                 Connection.ONLINE : Connection.OFFLINE;
     }
 
@@ -160,8 +158,7 @@ public final class SystemApplication extends AbstractApplication {
      * @return The web page <code>Link</code>.
      */
     public Link getWebPage() {
-        return LinkFactory.getInstance(Application.OPHELIA,
-                BrowserPlatform.getInstance().getEnvironment()).create();
+        return LinkFactory.getInstance().create();
     }
 
     /**

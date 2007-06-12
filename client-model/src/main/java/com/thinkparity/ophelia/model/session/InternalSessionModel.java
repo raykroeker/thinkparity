@@ -23,7 +23,6 @@ import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Error;
@@ -34,16 +33,16 @@ import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
-import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
-import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.service.AuthToken;
 
 /**
  * <b>Title:</b>thinkParity Internal Session Model<br>
@@ -67,6 +66,13 @@ public interface InternalSessionModel extends SessionModel {
             final Calendar acceptedOn);
 
     /**
+     * Notify the session was terminated.
+     *
+     */
+    @ThinkParityTransaction(TransactionType.SUPPORTED)
+    public void notifySessionTerminated();
+
+    /**
      * Accept the contact invitation.
      * 
      * @param invitation
@@ -80,12 +86,10 @@ public interface InternalSessionModel extends SessionModel {
     /**
      * Add an email to a user's profile.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param email
      *            A <code>ProfileEMail</code>.
      */
-    public void addProfileEmail(final JabberId userId, final ProfileEMail email);
+    public void addProfileEmail(final ProfileEMail email);
 
     /**
      * Add a team member. This will create the team member relationship in the
@@ -166,11 +170,7 @@ public interface InternalSessionModel extends SessionModel {
     public void createProfile(final UsernameReservation usernameReservation,
             final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
-            final EMail email, final String securityQuestion,
-            final String securityAnswer);
-
-    public TemporaryCredentials createProfileCredentials(
-            final String profileKey, final String securityAnswer);
+            final EMail email, final SecurityCredentials securityCredentials);
 
     public EMailReservation createProfileEMailReservation(final EMail email);
 
@@ -226,12 +226,10 @@ public interface InternalSessionModel extends SessionModel {
     /**
      * Delete an artifact from the backup.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
      */
-    public void deleteArtifact(final JabberId userId, final UUID uniqueId);
+    public void deleteArtifact(final UUID uniqueId);
 
     // TODO-javadoc InternalSessionModel#deleteDraft()
     public void deleteDraft(final UUID uniqueId, final Calendar deletedOn);
@@ -266,7 +264,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void deleteStreamSession(final StreamSession session);
 
-	/**
+    /**
      * Deploy a migrator release.
      * 
      * @param release
@@ -279,27 +277,13 @@ public interface InternalSessionModel extends SessionModel {
     public void deployMigrator(final Product product, final Release release,
             final List<Resource> resources, final String streamId);
 
-    /**
-     * Handle a remote session error.
+	/**
+     * Obtain the authentication token.
      * 
-     * @param cause
-     *            The <code>Throwable</code> cause.
+     * @return An <code>AuthToken</code>.
      */
     @ThinkParityTransaction(TransactionType.SUPPORTED)
-    public void handleSessionError(final Throwable cause);
-    
-    /**
-     * Handle the remote session established event.
-     *
-     */
-    public void handleSessionEstablished();
-
-    /**
-     * Handle the remote session terminated event.
-     *
-     */
-    @ThinkParityTransaction(TransactionType.SUPPORTED)
-    public void handleSessionTerminated();
+    public AuthToken getAuthToken();
 
     /**
      * Initialize the user's session token data.
@@ -335,13 +319,6 @@ public interface InternalSessionModel extends SessionModel {
     public Boolean isPublishRestricted(final JabberId publishTo);
 
     /**
-     * Determine whether or not the xmpp session is online.
-     * 
-     * @return True if the xmpp session is online.
-     */
-    public Boolean isXMPPOnline();
-
-    /**
      * Log an error.
      * 
      * @param product
@@ -373,15 +350,6 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void notifyClientMaintenance();
 
-    /**
-     * Process the remote event queue.
-     * 
-     * @param monitor
-     *            A <code>ProcessMonitor</code>.
-     */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
-    public void processQueue(final ProcessMonitor monitor);
-
     // TODO-javadoc InternalSessionModel#publish
     public void publish(final ContainerVersion version,
             final Map<DocumentVersion, String> documents,
@@ -397,89 +365,7 @@ public interface InternalSessionModel extends SessionModel {
             final Calendar publishedOn, final List<EMail> publishToEMails,
             final List<User> publishToUsers);
 
-    public Container readArchiveContainer(final JabberId userId,
-            final UUID uniqueId);
-
-    /**
-     * Read the archived containers.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A list of conatiners.
-     */
-    public List<Container> readArchiveContainers(final JabberId userId);
-
-    /**
-     * Read the archived containers.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
-     * @return A <code>List&lt;ContainerVersion&gt;</code>.
-     */
-    public List<ContainerVersion> readArchiveContainerVersions(
-            final JabberId userId, final UUID uniqueId);
-
-    /**
-     * Read the archived containers.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
-     * @param versionId
-     *            A container version id <code>Long</code>.
-     * @return A <code>List&lt;Document&gt;</code>.
-     */
-    public List<Document> readArchiveDocuments(final JabberId userId,
-            final UUID uniqueId, final Long versionId);
-
-    public DocumentVersion readArchiveDocumentVersion(final JabberId userId,
-            final UUID uniqueId, final UUID documentUniqueId,
-            final Long documentVersionId);
-
-    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
-            final JabberId userId, final UUID uniqueId,
-            final Long compareVersionId);
-
-    public Map<DocumentVersion, Delta> readArchiveDocumentVersionDeltas(
-            final JabberId userId, final UUID uniqueId,
-            final Long compareVersionId, final Long compareToVersionId);
-
-    /**
-     * Read the archived document versions.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
-     * @param versionId
-     *            A container version id <code>Long</code>.
-     * @param documentUniqueId
-     *            A document unique id <code>UUID</code>.
-     * @return A <code>List&lt;DocumentVersion&gt;</code>.
-     */
-    public List<DocumentVersion> readArchiveDocumentVersions(
-            final JabberId userId, final UUID uniqueId, final Long versionId);
-
-    public List<TeamMember> readArchiveTeam(final JabberId userId,
-            final UUID uniqueId);
-
-    /**
-     * Read the archive team.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     * @return A list of jabber ids.
-     */
-    public List<JabberId> readArchiveTeamIds(final JabberId userId,
-            final UUID uniqueId);
-
-    public Container readBackupContainer(final JabberId userId,
-            final UUID uniqueId);
+    public Container readBackupContainer(final UUID uniqueId);
 
     /**
      * Read the backup containers.
@@ -488,7 +374,7 @@ public interface InternalSessionModel extends SessionModel {
      *            A user id <code>JabberId</code>.
      * @return A <code>List&lt;Container&gt;</code>.
      */
-    public List<Container> readBackupContainers(final JabberId userId);
+    public List<Container> readBackupContainers();
 
     /**
      * Read the backup containers.
@@ -500,7 +386,7 @@ public interface InternalSessionModel extends SessionModel {
      * @return A <code>List&lt;ContainerVersion&gt;</code>.
      */
     public List<ContainerVersion> readBackupContainerVersions(
-            final JabberId userId, final UUID uniqueId);
+            final UUID uniqueId);
 
     /**
      * Read the backup containers.
@@ -513,8 +399,8 @@ public interface InternalSessionModel extends SessionModel {
      *            A container version id <code>Long</code>.
      * @return A <code>List&lt;Document&gt;</code>.
      */
-    public List<Document> readBackupDocuments(final JabberId userId,
-            final UUID uniqueId, final Long versionId);
+    public List<Document> readBackupDocuments(final UUID uniqueId,
+            final Long versionId);
 
     /**
      * Read the backup document versions.
@@ -530,13 +416,13 @@ public interface InternalSessionModel extends SessionModel {
      * @return A <code>List&lt;DocumentVersion&gt;</code>.
      */
     public List<DocumentVersion> readBackupDocumentVersions(
-            final JabberId userId, final UUID uniqueId, final Long versionId);
-
-    public List<ArtifactReceipt> readBackupPublishedTo(final JabberId userId,
             final UUID uniqueId, final Long versionId);
 
+    public List<ArtifactReceipt> readBackupPublishedTo(final UUID uniqueId,
+            final Long versionId);
+
     public List<PublishedToEMail> readBackupPublishedToEMails(
-            final JabberId userId, final UUID uniqueId, final Long versionId);
+            final UUID uniqueId, final Long versionId);
 
     /**
      * Read the backup team.
@@ -547,8 +433,7 @@ public interface InternalSessionModel extends SessionModel {
      *            An artifact unique id <code>UUID</code>.
      * @return A list of jabber ids.
      */
-    public List<JabberId> readBackupTeamIds(final JabberId userId,
-            final UUID uniqueId);
+    public List<JabberId> readBackupTeamIds(final UUID uniqueId);
 
     /**
      * Read a contact.
@@ -560,13 +445,11 @@ public interface InternalSessionModel extends SessionModel {
     public Contact readContact(final JabberId contactId);
 
     /**
-     * Read the contact ids.
+     * Read the contacts.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return A <code>List</code> of contact id <code>JabberId</code>s.
+     * @return A <code>List<Contact></code>.
      */
-    public List<JabberId> readContactIds();
+    public List<Contact> readContacts();
 
     /**
      * Return the remote date and time. The transaction type is defined as
@@ -697,17 +580,6 @@ public interface InternalSessionModel extends SessionModel {
     public List<Feature> readProfileFeatures();
 
     /**
-     * Read the user profile's security question.
-     * 
-     * @param profileKey
-     *            A profile key can be either a username or an e-mail address.
-     * @return A security question <code>String</code>.
-     */
-    public String readProfileSecurityQuestion(final String profileKey);
-
-    public Integer readQueueSize();
-
-    /**
      * Read the backup statistics.
      * 
      * @return The <code>Statistics</code>.
@@ -722,12 +594,6 @@ public interface InternalSessionModel extends SessionModel {
      * @return A <code>User</code>
      */
     public User readUser(final JabberId userId);
-
-    /**
-     * Register the remote event queue listener. 
-     *
-     */
-    public void registerQueueListener();
 	
     /**
      * Remove an email from a user's profile.
@@ -783,26 +649,12 @@ public interface InternalSessionModel extends SessionModel {
             final String newPassword);
 
     /**
-     * Update the profile's credentials.
-     * 
-     * @param credentials
-     *            A user's <code>TemporaryCredentials</code>.
-     * @param newPassword
-     *            The new profile password<code>String</code>.
-     */
-    public void updateProfilePassword(final TemporaryCredentials credentials,
-            final String newPassword);
-
-    /**
      * Verify an email in a user's profile.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param email
      *            A <code>ProfileEMail</code>.
      * @param key
      *            A verification key <code>String</code>.
      */
-    public void verifyProfileEmail(final JabberId userId,
-            final ProfileEMail email, final String key);
+    public void verifyProfileEmail(final ProfileEMail email, final String key);
 }

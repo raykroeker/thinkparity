@@ -13,6 +13,14 @@ import java.io.File;
  * @version 1.1.2.20
  */
 public final class Constants {
+
+    public static final class Security {
+        public static final class KeyStore {
+            public static final char[] CLIENT_PASS = "password".toCharArray();
+            public static final String CLIENT_PATH = "security/client_keystore";
+        }
+    }
+
     public static final class Directories {
         public static final class ThinkParity {
             public static final File DIRECTORY = new File(System.getProperty(PropertyNames.ThinkParity.DIRECTORY));

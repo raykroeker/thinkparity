@@ -25,6 +25,7 @@ import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookNames;
 import com.thinkparity.ophelia.model.Constants.ShutdownHookPriorities;
 import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
+import com.thinkparity.ophelia.model.queue.InternalQueueModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
@@ -284,9 +285,10 @@ public class WorkspaceModel {
             if (latestRelease.getName().equals(Constants.Release.NAME)) {
                 // process events
                 notifyStepBegin(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
-                sessionModel.processQueue(monitor);
-                sessionModel.registerQueueListener();
+                final InternalQueueModel queueModel = modelFactory.getQueueModel();
+                queueModel.process(monitor);
                 notifyStepEnd(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
+                queueModel.startNotificationClient();
             } else {
                 migratorModel.startDownloadRelease();
             }

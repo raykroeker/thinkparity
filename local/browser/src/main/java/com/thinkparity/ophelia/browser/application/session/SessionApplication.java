@@ -65,18 +65,12 @@ public class SessionApplication extends AbstractApplication {
         ed.end();
         ed = null;
 
-        // if we are connected; disconnect; otherwise the timer is running and
-        // needs to be cancelled.
-        debugVariable("isOnline()", isOnline());
-        debugVariable("connectTimer", connectTimer);
-        if (isOnline()) {
-            disconnect();
+        // if we are logged in; logout
+        if (isLoggedIn()) {
+            logout();
         } else {
-            // we can be not connected; and not attempting to connect
-            if (null != connectTimer) {
-                connectTimer.cancel();
-                connectTimer = null;
-            }
+            connectTimer.cancel();
+            connectTimer = null;
         }
 
         notifyEnd();
@@ -87,7 +81,7 @@ public class SessionApplication extends AbstractApplication {
      * 
      */
     public Connection getConnection() {
-        return getSessionModel().isLoggedIn() ? Connection.ONLINE
+        return getSessionModel().isOnline() ? Connection.ONLINE
                 : Connection.OFFLINE;
     }
 
@@ -155,7 +149,7 @@ public class SessionApplication extends AbstractApplication {
         ed = new EventDispatcher(this);
         ed.start();
         // connect
-        if (!isOnline()) {
+        if (!isLoggedIn()) {
             connectLater(0L);
         }
         // fire application started event
@@ -247,24 +241,19 @@ public class SessionApplication extends AbstractApplication {
     }
 
     /**
-     * Disconnect from the thinkParity server.
-     *
+     * Determine if the user is logged in.
+     * 
+     * @return True if the user is logged in.
      */
-    private void disconnect() {
-        getSessionModel().logout();
+    private Boolean isLoggedIn() {
+        return getSessionModel().isLoggedIn();
     }
 
     /**
-     * Determine if the connection is established.
-     * 
-     * @return True if the connected is established.
+     * Logout.
+     *
      */
-    private Boolean isOnline() {
-        final Boolean isOnline = getSessionModel().isOnline();
-        if (!isOnline) {
-            logger.logWarning("User session is offline.  {0}",
-                    getSessionModel().getOfflineCode());
-        }
-        return isOnline;
+    private void logout() {
+        getSessionModel().logout();
     }
 }

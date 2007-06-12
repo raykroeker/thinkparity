@@ -1104,6 +1104,9 @@ public final class ContainerModelImpl extends
                     containerId, compareVersionId, compareToVersionId);
             for (final ContainerVersionArtifactVersionDelta artifactDelta :
                 delta.getDeltas()) {
+                /* HACK - ContainerModelImpl#readDocumentVersionDeltas - if
+                 * this is indeed the case the delta information in the db
+                 * should be updated as opposed to modifying the return info */
                 // if a document was removed and then re-added it is considered modified
                 final Delta existingDelta = deltas.get(documentIO.getVersion(artifactDelta.getArtifactId(),
                         artifactDelta.getArtifactVersionId()));

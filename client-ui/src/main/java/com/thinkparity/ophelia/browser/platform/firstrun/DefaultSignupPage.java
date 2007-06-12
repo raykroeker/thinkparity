@@ -150,7 +150,7 @@ public abstract class DefaultSignupPage extends Avatar
      * @return true if the system is online, false otherwise.
      */
     protected Boolean isOnline() {
-        online = platform.isXMPPHostReachable();
+        online = platform.isOnline();
         return online;
     }
 

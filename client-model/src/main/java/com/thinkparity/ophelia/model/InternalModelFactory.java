@@ -26,6 +26,8 @@ import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.migrator.MigratorModelImpl;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.profile.ProfileModelImpl;
+import com.thinkparity.ophelia.model.queue.InternalQueueModel;
+import com.thinkparity.ophelia.model.queue.QueueModelImpl;
 import com.thinkparity.ophelia.model.script.InternalScriptModel;
 import com.thinkparity.ophelia.model.script.ScriptModelImpl;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
@@ -186,6 +188,16 @@ public final class InternalModelFactory {
     public final InternalProfileModel getProfileModel() {
         return (InternalProfileModel) newModelProxy(
                 InternalProfileModel.class, ProfileModelImpl.class);
+    }
+
+    /**
+     * Obtain an internal queue model.
+     * 
+     * @return An instance of <code>InternalQueueModel</code>.
+     */
+    public final InternalQueueModel getQueueModel() {
+        return (InternalQueueModel) newModelProxy(
+                InternalQueueModel.class, QueueModelImpl.class);
     }
 
     /**

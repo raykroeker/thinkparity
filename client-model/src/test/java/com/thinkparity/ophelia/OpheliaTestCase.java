@@ -38,9 +38,8 @@ public abstract class OpheliaTestCase extends TestCase {
                     System.getProperty(
                             "thinkparity.environment", "TESTING_LOCALHOST"));
         SESSION = TestCase.getTestSession();
-        new Log4JWrapper("TEST_LOGGER").logInfo("Environment:  XMPP {0}:{1}, STREAM {2}:{3}",
-                ENVIRONMENT.getXMPPHost(), ENVIRONMENT.getXMPPPort(),
-                ENVIRONMENT.getStreamHost(), ENVIRONMENT.getStreamPort());
+        new Log4JWrapper("TEST_LOGGER").logInfo("Environment:  {0}:{1}",
+                ENVIRONMENT.getServiceHost(), ENVIRONMENT.getServicePort());
         new Log4JWrapper("TEST_LOGGER").logInfo("Session:  {0}",
                 SESSION.getSessionId());
         final Properties loggingRenderers = new Properties();

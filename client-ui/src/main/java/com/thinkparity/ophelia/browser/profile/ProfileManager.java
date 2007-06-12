@@ -42,8 +42,7 @@ public class ProfileManager {
             case DEVELOPMENT_LOCALHOST:
                 suffix = "Development-Localhost";
                 break;
-            case DEVELOPMENT_RAYMOND:
-            case DEVELOPMENT_ROBERT:
+            case DEVELOPMENT:
                 suffix = "Development";
                 break;
             case PRODUCTION:

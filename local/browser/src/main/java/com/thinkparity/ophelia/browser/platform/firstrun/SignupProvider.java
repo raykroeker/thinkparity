@@ -11,6 +11,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 
@@ -69,10 +70,10 @@ public class SignupProvider extends ContentProvider {
     public void createProfile(final UsernameReservation usernameReservation,
             final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
-            final EMail email, final String securityQuestion,
-            final String securityAnswer) throws ReservationExpiredException {
+            final EMail email, final SecurityCredentials securityCredentials)
+            throws ReservationExpiredException {
     	profileModel.create(usernameReservation, emailReservation, credentials,
-                profile, email, securityQuestion, securityAnswer);
+                profile, email, securityCredentials);
     }
 
     /**
@@ -94,16 +95,5 @@ public class SignupProvider extends ContentProvider {
      */
     public List<Feature> readFeatures() {
         return profileModel.readFeatures();
-    }
-
-    /**
-     * Read the security question.
-     * 
-     * @param profileKey
-     *            A profile key can be either a username or an e-mail address.
-     * @return A security question <code>String</code>.
-     */
-    public String readSecurityQuestion(final String profileKey) {
-        return profileModel.readSecurityQuestion(profileKey);
     }
 }

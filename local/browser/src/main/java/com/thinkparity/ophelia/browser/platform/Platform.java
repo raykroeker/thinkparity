@@ -227,13 +227,6 @@ public interface Platform extends ApplicationListener {
     public Boolean isWorkspaceInitialized(final Workspace workspace);
 
     /**
-     * Determine if the platform has online capability.
-     * 
-     * @return True if the platform has online capability.
-     */
-    public Boolean isXMPPHostReachable();
-
-    /**
      * Add a platform life cycle listener.
      * 
      * @param listener

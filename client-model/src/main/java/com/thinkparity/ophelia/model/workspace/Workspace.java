@@ -12,7 +12,6 @@ import javax.sql.DataSource;
 import com.thinkparity.codebase.model.util.jta.Transaction;
 
 import com.thinkparity.ophelia.model.util.ShutdownHook;
-import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
 
 /**
  * <b>Title:</b>thinkParity Workspace<br>
@@ -177,13 +176,6 @@ public interface Workspace {
     public File getWorkspaceDirectory();
 
     /**
-     * Obtain the xmpp session for the workspace.
-     * 
-     * @return An <code>XMPPSession</code>.
-     */
-    public XMPPSession getXMPPSession();
-
-    /**
      * Determine whether or not an attribute is set.
      * 
      * @param name
@@ -206,6 +198,7 @@ public interface Workspace {
      *            An attribute name <code>String</code>.
      * @param value
      *            An attribute value <code>Object</code>.
+     * @return The previous attribute value.
      */
-    public void setAttribute(final String name, final Object value);
+    public Object setAttribute(final String name, final Object value);
 }

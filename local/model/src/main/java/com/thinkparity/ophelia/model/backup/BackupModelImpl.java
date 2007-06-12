@@ -114,7 +114,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     public void delete(final Long artifactId) {
         if (isBackupEnabled()) {
             final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
-            getSessionModel().deleteArtifact(localUserId(), uniqueId);
+            getSessionModel().deleteArtifact(uniqueId);
         }
     }
 
@@ -162,7 +162,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
 
     public Container readContainer(final UUID uniqueId) {
         try {
-            return getSessionModel().readBackupContainer(localUserId(), uniqueId);
+            return getSessionModel().readBackupContainer(uniqueId);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -208,7 +208,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     public List<Container> readContainers(final Comparator<Artifact> comparator, final Filter<? super Artifact> filter) {
         try {
             final List<Container> containers =
-                getSessionModel().readBackupContainers(localUserId());
+                getSessionModel().readBackupContainers();
             FilterManager.filter(containers, filter);
             ModelSorter.sortContainers(containers, comparator);
             return containers;
@@ -244,8 +244,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
             final Filter<? super ArtifactVersion> filter) {
         try {
             final List<ContainerVersion> versions =
-                getSessionModel().readBackupContainerVersions(
-                        localUserId(), uniqueId);
+                getSessionModel().readBackupContainerVersions(uniqueId);
             FilterManager.filter(versions, filter);
             ModelSorter.sortContainerVersions(versions, comparator);
             return versions;
@@ -276,8 +275,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
             final Filter<? super Artifact> filter) {
         try {
             final List<Document> documents =
-                getSessionModel().readBackupDocuments(localUserId(),
-                        uniqueId, versionId);
+                getSessionModel().readBackupDocuments(uniqueId, versionId);
             FilterManager.filter(documents, filter);
             ModelSorter.sortDocuments(documents, comparator);
             return documents;
@@ -313,8 +311,8 @@ public final class BackupModelImpl extends Model<BackupListener> implements
             final Filter<? super ArtifactVersion> filter) {
         try {
             final List<DocumentVersion> versions =
-                getSessionModel().readBackupDocumentVersions(
-                        localUserId(), uniqueId, versionId);
+                getSessionModel().readBackupDocumentVersions(uniqueId,
+                        versionId);
             FilterManager.filter(versions, filter);
             ModelSorter.sortDocumentVersions(versions, comparator);
             return versions;
@@ -370,8 +368,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
             final Filter<? super ArtifactReceipt> filter) {
         try {
             final List<ArtifactReceipt> publishedTo =
-                getSessionModel().readBackupPublishedTo(localUserId(),
-                        uniqueId, versionId);
+                getSessionModel().readBackupPublishedTo(uniqueId, versionId);
             FilterManager.filter(publishedTo, filter);
             ModelSorter.sortReceipts(publishedTo, comparator);
             return publishedTo;
@@ -407,8 +404,8 @@ public final class BackupModelImpl extends Model<BackupListener> implements
      */
     public List<PublishedToEMail> readPublishedToEMails(UUID uniqueId, Long versionId) {
         try {
-            return getSessionModel().readBackupPublishedToEMails(localUserId(),
-                        uniqueId, versionId);
+            return getSessionModel().readBackupPublishedToEMails(uniqueId,
+                    versionId);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -424,8 +421,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
 
     public List<JabberId> readTeamIds(final UUID uniqueId) {
         try {
-            return getSessionModel().readBackupTeamIds(localUserId(),
-                    uniqueId);
+            return getSessionModel().readBackupTeamIds(uniqueId);
         } catch (final Throwable t) {
             throw panic(t);
         }

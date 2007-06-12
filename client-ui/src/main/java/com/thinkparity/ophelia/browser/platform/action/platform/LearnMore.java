@@ -4,14 +4,12 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.platform;
 
-import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.util.http.Link;
 import com.thinkparity.codebase.model.util.http.LinkFactory;
 
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -70,8 +68,7 @@ public class LearnMore extends AbstractAction {
      * @throws BrowserException
      */
     private void browse(final String topicLink) {
-        final Link learnMoreLink = LinkFactory.getInstance(Application.OPHELIA,
-                BrowserPlatform.getInstance().getEnvironment()).create(topicLink);
+        final Link learnMoreLink = LinkFactory.getInstance().create(topicLink);
         try {
             DesktopUtil.browse(learnMoreLink.toString());
         } catch (final DesktopException dx) {

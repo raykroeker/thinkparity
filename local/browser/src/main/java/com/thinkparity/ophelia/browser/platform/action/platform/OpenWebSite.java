@@ -4,19 +4,17 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.platform;
 
-import org.jdesktop.jdic.desktop.DesktopException;
-
-import com.thinkparity.codebase.Application;
 import com.thinkparity.codebase.model.util.http.Link;
 import com.thinkparity.codebase.model.util.http.LinkFactory;
 
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
+
+import org.jdesktop.jdic.desktop.DesktopException;
 
 /**
  * @author rob_masako@shaw.ca
@@ -34,7 +32,7 @@ public class OpenWebSite extends AbstractAction {
      */
     @Override
     public void invoke(final Data data) {
-        final Link webSiteLink = LinkFactory.getInstance(Application.OPHELIA, BrowserPlatform.getInstance().getEnvironment()).create();    
+        final Link webSiteLink = LinkFactory.getInstance().create();    
         try {
             DesktopUtil.browse(webSiteLink.toString());
         } catch (final DesktopException dx) {

@@ -37,7 +37,8 @@ public final class OpheliaTestUserRenderer implements ObjectRenderer {
         } else {
             final OpheliaTestUser o2 = (OpheliaTestUser) o;
             return StringUtil.toString(o2.getClass(),
-                    "getEnvironment().getXMPPHost()", o2.getEnvironment().getXMPPHost(),
+                    "getEnvironment().getServiceHost()",
+                    o2.getEnvironment().getServiceHost(),
                     "getId().getUsername()", o2.getId().getUsername(),
                     "getLocalId()", o2.getLocalId());
         }

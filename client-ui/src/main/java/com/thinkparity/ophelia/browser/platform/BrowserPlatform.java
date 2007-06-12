@@ -532,13 +532,6 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.Platform#isXMPPHostReachable()
-     */
-    public Boolean isXMPPHostReachable() {
-        return onlineHelper.isXMPPHostReachable();
-    }
-
-    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.ApplicationListener#notifyEnd(com.thinkparity.ophelia.browser.platform.application.Application)
 	 * 
 	 */

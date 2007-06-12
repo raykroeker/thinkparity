@@ -53,6 +53,7 @@ import com.thinkparity.ophelia.model.events.ContainerListener;
 import com.thinkparity.ophelia.model.help.InternalHelpModel;
 import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
+import com.thinkparity.ophelia.model.queue.InternalQueueModel;
 import com.thinkparity.ophelia.model.script.InternalScriptModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.session.OfflineException;
@@ -1144,6 +1145,16 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
+     * Obtain an internal queue model.
+     * 
+     * @return An instance of <code>InternalQueueModel</code>.
+     */
+    protected final InternalQueueModel getQueueModel(
+            final OpheliaTestUser testUser) {
+        return testUser.getModelFactory().getQueueModel();
+    }
+
+    /**
      * Obtain an internal script model.
      * 
      * @return An instance of <code>InternalScriptModel</code>.
@@ -1157,7 +1168,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * 
      * @return An instance of <code>InternalSessionModel</code>.
      */
-	protected final InternalSessionModel getSessionModel(
+    protected final InternalSessionModel getSessionModel(
             final OpheliaTestUser testUser) {
         return testUser.getModelFactory().getSessionModel();
     }
@@ -1187,7 +1198,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @return True if it is.
      */
     protected Boolean isLoggedIn(final OpheliaTestUser testUser) {
-        return getSessionModel(testUser).isLoggedIn();
+        return getSessionModel(testUser).isOnline();
     }
 
     /**
@@ -2133,9 +2144,10 @@ public abstract class ModelTestCase extends OpheliaTestCase {
          *
          */
         private void waitForEvents() {
+            final InternalQueueModel queueModel = getQueueModel(testUser);
             final InternalSessionModel sessionModel = getSessionModel(testUser);
-            if (sessionModel.isLoggedIn()) {
-                while (0 < sessionModel.readQueueSize()) {
+            if (sessionModel.isOnline()) {
+                while (0 < queueModel.readSize()) {
                     logger.logTrace("Waiting for events for user \"{0}.\"", testUser.getSimpleUsername());
                     synchronized (this) {
                         try {
@@ -2146,7 +2158,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                     }
                 }
                 logger.logTrace("Processing queue for user \"{0}.\"", testUser.getSimpleUsername());
-                sessionModel.processQueue(PROCESS_QUEUE_MONITOR);
+                queueModel.process(PROCESS_QUEUE_MONITOR);
             } else {
                 logger.logWarning("User \"{0}\" is not logged in.", testUser.getSimpleUsername());
             }

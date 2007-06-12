@@ -7,14 +7,12 @@
 	<classpathentry kind="src" output="target/test-classes" path="local/model/src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
-	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/smack/2.2.1/smack.jar" sourcepath="/THINKPARITY_HOME/vendor/smack/2.2.1/smack-sources.jar"/>
-	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/smackx/2.2.1/smackx.jar" sourcepath="/THINKPARITY_HOME/vendor/smackx/2.2.1/smackx-sources.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/lucene/1.9.1/lucene.jar" sourcepath="/THINKPARITY_HOME/vendor/lucene/1.9.1/lucene-sources.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/fop/0.20.5/avalon-framework-cvs-20020806.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/fop/0.20.5/batik.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/fop/0.20.5/fop.jar" sourcepath="/THINKPARITY_HOME/vendor/fop/0.20.5/fop-sources.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/groovy/1.0/groovy.jar" sourcepath="/THINKPARITY_HOME/vendor/groovy/1.0/groovy-sources.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/swing-layout/1.0/swing-layout.jar" sourcepath="/THINKPARITY_HOME/vendor/swing-layout/1.0/swing-layout-sources.jar"/>
-	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jdic/0.9.1/win32/jdic.jar" sourcepath="/THINKPARITY_HOME/vendor/jdic/0.9.1/win32/jdic-sources.jar"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jdic/20061102/linux/jdic.jar" sourcepath="/THINKPARITY_HOME/vendor/jdic/20061102/linux/jdic-sources.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -18,16 +18,20 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
-import com.thinkparity.ophelia.model.util.xmpp.XMPPSession;
-import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl;
 import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
+
+import com.thinkparity.service.AuthToken;
+import com.thinkparity.service.QueueService;
+import com.thinkparity.service.SessionService;
+import com.thinkparity.service.client.ServiceFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -53,11 +57,11 @@ public class OpheliaTestUser extends User {
     /** A system user. */
     public static final OpheliaTestUser THINKPARITY;
 
-    /** An initialize <code>ProcessMonitor</code>. */
-    private static final ProcessMonitor INITIALIZE_MONITOR;
-
     /** An <code>InitializeMediator</code>. */
     private static final InitializeMediator INITIALIZE_MEDIATOR;
+
+    /** An initialize <code>ProcessMonitor</code>. */
+    private static final ProcessMonitor INITIALIZE_MONITOR;
 
     /** An apache <code>Log4JWrapper</code>. */
     private static final Log4JWrapper LOGGER;
@@ -231,7 +235,7 @@ public class OpheliaTestUser extends User {
             }
         }
         setId(JabberIdBuilder.build(
-                credentials.getUsername(), environment.getXMPPService()));
+                credentials.getUsername(), "thinkparity.net"));
         final InternalProfileModel profileModel = getModelFactory().getProfileModel();
         email = profileModel.readEmails().get(0).getEmail();
         final Profile profile = profileModel.read();
@@ -248,13 +252,17 @@ public class OpheliaTestUser extends User {
      */
     private void processOfflineQueue() throws InvalidCredentialsException {
         assertIsReachable(environment);
-        final XMPPSession session = new XMPPSessionImpl();
-        session.login(environment, credentials);
-        session.registerQueueListener();
-        Assert.assertNotNull(session,
-                "User {0}'s session is null.", credentials.getUsername());
-        Assert.assertTrue(session.isOnline(),
-                "User {0} not online.", credentials.getUsername());
-        session.logout();
+        final ServiceFactory factory = ServiceFactory.getInstance();
+        final SessionService sessionService = factory.getSessionService();
+        final String sessionId = sessionService.login(credentials);
+        final AuthToken authToken = new AuthToken();
+        authToken.setSessionId(sessionId);
+        authToken.setClientId("");
+        final QueueService queueService = factory.getQueueService();
+        final List<XMPPEvent> events = queueService.readEvents(authToken);
+        for (final XMPPEvent event : events) {
+            queueService.deleteEvent(authToken, event);
+        }
+        sessionService.logout(authToken);
     }
 }

@@ -33,13 +33,18 @@ public interface SessionModel {
     /**
      * Obtain an offline explanation.
      * 
-     * @return An <code>OfflineCode</code>.
+     * @return An <code>OfflineCode</code>, or null if we are currently
+     *         online.
      */
     @ThinkParityTransaction(TransactionType.SUPPORTED)
     public OfflineCode getOfflineCode();
 
-    @ThinkParityTransaction(TransactionType.SUPPORTED)
-	public Boolean isLoggedIn();
+    /**
+     * Determine if the user is logged in.
+     * 
+     * @return True if the user is logged in.
+     */
+    public Boolean isLoggedIn();
 
     /**
      * Determine whether or not the session is online.
@@ -57,6 +62,7 @@ public interface SessionModel {
      * @throws InvalidCredentialsException
      *             if the stored credentials do not match the actual credentials
      */
+    @ThinkParityTransaction(TransactionType.NEVER)
     public void login(final ProcessMonitor monitor)
             throws InvalidCredentialsException, InvalidLocationException;
 

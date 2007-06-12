@@ -154,6 +154,14 @@ Local Configuration:            ${localconfig}
         path="jotm/2.0.10/xapool.jar"/>
     <antx:dependency type="java" scope="compile" provider="objectweb.org" version="2.0.10"
         path="jotm/2.0.10/ow_carol.jar"/>
+    <antx:dependency type="java" scope="compile" provider="codehaus.org" version="1.2.6"
+        path="codehaus.org/xfire/1.2.6/xfire.jar"/>
+    <antx:dependency type="java" scope="compile" provider="codehaus.org" version="1.2.6"
+        path="codehaus.org/xfire/1.2.6/lib/commons-httpclient.jar"/>
+    <antx:dependency type="java" scope="compile" provider="codehaus.org" version="1.2.6"
+        path="codehaus.org/xfire/1.2.6/lib/commons-logging.jar"/>
+    <antx:dependency type="java" scope="compile" provider="indiana.edu"
+        version="2.3" path="xpp3/1.1.3.4.O/xpp3.jar"/>
 
     <!-- runtime dependencies -->
     <antx:dependency type="java" scope="runtime" provider="apache.org" version="10.2.2.0"
@@ -172,7 +180,7 @@ Local Configuration:            ${localconfig}
         path="jotm/2.0.10/howl.jar"/>
     <!-- runtime native dependencies -->
     <antx:dependency type="native" scope="runtime" provider="java.net" version="0.9.1"
-        path="i686/${thinkparity.os-platform}/jdic/0.9.1"/>
+        path="i686/${thinkparity.os-platform}/jdic/20061102"/><!-- Sun JDIC (GLGPL) -->
 
     <!-- test dependencies -->
     <antx:dependency type="java" scope="test" provider="junit.org" version="3.8.1"
@@ -212,6 +220,13 @@ Local Configuration:            ${localconfig}
             <classpath refid="compile.classpath"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
+        <!-- commmon/services -->
+        <javac srcdir="${thinkparity.common.home}/services/src/main/java"
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="compile.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
         <!-- local/thinkparity -->
         <javac srcdir="local/thinkparity/src/main/java"
                 destdir="${target.classes.dir}" debug="${javac.debug}"
@@ -236,7 +251,7 @@ Local Configuration:            ${localconfig}
     </target>
 
     <!-- compile-win32 -->
-    <target name="compile-win32">
+    <target name="compile-win32" depends="init">
         <!-- rebuild solution -->
         <exec executable="${env.ComSpec}" os="Windows XP" failonerror="true">
             <arg line="/C &quot;${env.VS_HOME}\VC\vcvarsall.bat&quot; &amp; MSBuild.exe ophelia.sln /nologo /noautoresponse /t:Build /p:Configuration=Release"/>
@@ -271,8 +286,7 @@ Local Configuration:            ${localconfig}
 
     <!-- debug package -->
     <target name="debug-package">
-        <java jar="${target.package.dir}/thinkParity.jar"
-                dir="${target.package.dir}/${thinkparity.release-name}/lib/win32" fork="true">
+        <java jar="${target.package.dir}/thinkParity.jar" fork="true">
             <jvmarg line="${java.jvmarg-debug} -Dthinkparity-dir=&quot;${target.package.dir}&quot; -Dthinkparity.mode=DEVELOPMENT -Dthinkparity.environment=${thinkparity.environment}"/>
         </java>
     </target>
@@ -318,8 +332,10 @@ Examples:
     <target name="init">
         <mkdir dir="${target.analyze-report.dir}"/>
         <mkdir dir="${target.classes.dir}"/>
+        <mkdir dir="${target.include.dir}"/>
         <mkdir dir="${target.javadoc.dir}"/>
         <mkdir dir="${target.package.dir}"/>
+        <mkdir dir="${target.dir}/i686/${thinkparity.os-platform}"/>   
         <mkdir dir="${target.test-javadoc.dir}"/>
         <mkdir dir="${target.test-classes.dir}"/>
         <mkdir dir="${target.test-report.dir}"/>
@@ -397,6 +413,7 @@ Examples:
         <copy todir="${target.classes.dir}">
             <fileset dir="${thinkparity.common.home}/codebase/src/main/resources"/>
             <fileset dir="${thinkparity.common.home}/model/src/main/resources"/>
+            <fileset dir="${thinkparity.common.home}/services/src/main/resources"/>
             <fileset dir="${basedir}/local/browser/src/main/resources"/>
             <fileset dir="${basedir}/local/model/src/main/resources"/>
         </copy>
@@ -430,9 +447,14 @@ Examples:
             <isset property="test"/>
         </condition>
 
+        <tstamp>
+            <format property="junit.started" pattern="yyyy-MM-dd HH:mm:ss.SSS Z" timezone="PST"/>
+        </tstamp>   
+        <echo message="Start time: ${junit.started}"/>
         <junit fork="on" forkmode="once" reloading="false"
-                        errorproperty="junit.didError" failureproperty="junit.didFail">
-            <jvmarg value="-Dthinkparity-dir=${target.package.dir}"/>
+                errorproperty="junit.didError"
+                failureproperty="junit.didFail">
+            <jvmarg value="-Dthinkparity-directory=${target.package.dir}"/>
             <jvmarg value="-Dthinkparity.mode=${thinkparity.mode}"/>
             <jvmarg value="-Dthinkparity.environment=${thinkparity.environment}"/>
             <jvmarg value="-Dthinkparity.product-name=${thinkparity.product-name}"/>
@@ -449,6 +471,11 @@ Examples:
                 <fileset dir="${target.test-classes.dir}" includes="${inner.test}"/>
             </batchtest>
         </junit>
+        <tstamp>
+            <format property="junit.ended" pattern="yyyy-MM-dd HH:mm:ss.SSS Z" timezone="PST"/>
+        </tstamp>   
+        <echo message="End time: ${junit.ended}"/>
+   
         <delete dir="${target.test-report.dir}"/>
         <mkdir dir="${target.test-report.dir}"/>
         <junitreport todir="${target.test-report.dir}">
@@ -480,6 +507,13 @@ Examples:
         </javac>
         <!-- common/model -->
         <javac srcdir="${thinkparity.common.home}/model/src/test/java"
+                destdir="${target.test-classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="test.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
+        <!-- common/services -->
+        <javac srcdir="${thinkparity.common.home}/services/src/test/java"
                 destdir="${target.test-classes.dir}" debug="${javac.debug}"
                 debuglevel="${javac.debug-level}">
             <classpath refid="test.classpath"/>
@@ -566,13 +600,13 @@ Examples:
     <!-- package-installer -->
     <target name="package-installer"
             description="compile a null-soft installer for the package">
-        <copy todir="${target.package.dir}" file="${target.classes.dir}/InstallThinkParity-${thinkparity.environment}.nsi"/>
+        <copy todir="${target.package.dir}" file="${target.classes.dir}/InstallThinkParity.nsi"/>
         <exec executable="${env.NSIS_HOME}/makensis.exe" dir="${target.package.dir}">
-            <arg value="InstallThinkParity-${thinkparity.environment}.nsi"/>
+            <arg value="${target.package.dir}/InstallThinkParity.nsi"/>
         </exec>
         <checksum file="${target.package.dir}/InstallThinkParity.exe" algorithm="MD5"/>
         <checksum file="${target.package.dir}/InstallThinkParity.exe" algorithm="SHA"/>
-        <delete file="${target.package.dir}/InstallThinkParity-${thinkparity.environment}.nsi"/>
+        <delete file="${target.package.dir}/InstallThinkParity.nsi"/>
     </target>
 
     <!-- pathinfo -->
@@ -612,18 +646,5 @@ ${tmp.tdj}
 Test Dependencies (Native):
 ${tmp.tdn}
         </echo>
-    </target>
-
-    <!-- package-localization -->
-    <target name="package-localization" depends="compile">
-        <property name="zip-file" value="${target.package.dir}/thinkParity Client Messages.zip"/>
-        <delete file="${zip-file}"/>
-        <zip destfile="${zip-file}" comment="${thinkparity.build-id}">
-            <fileset dir="${target.classes.dir}">
-                <!-- note the deliberate inclusion of default messages only -->
-                <include name="localization/*_Messages.properties"/>
-                <include name="localization/LicenseAgreement"/>
-            </fileset>
-        </zip>
     </target>
 </project>

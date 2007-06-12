@@ -14,10 +14,10 @@ import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
+import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
-import com.thinkparity.codebase.model.session.TemporaryCredentials;
 
 import com.thinkparity.ophelia.model.events.ProfileAdapter;
 import com.thinkparity.ophelia.model.events.ProfileEvent;
@@ -96,10 +96,13 @@ public final class ProfileTest extends ProfileTestCase {
         profile.setProvince("Province");
         profile.setTimeZone(TimeZone.getDefault());
         profile.setTitle("Title");
+
+        final SecurityCredentials securityCredentials = new SecurityCredentials();
+        securityCredentials.setQuestion("What is my username?");
+        securityCredentials.setAnswer(profile.getSimpleUsername());
         try {
             getModel(datum.junit).create(usernameReservation, emailReservation,
-                    credentials, profile, email, "What is my username?",
-                    profile.getSimpleUsername());
+                    credentials, profile, email, securityCredentials);
         } catch (final ReservationExpiredException rex) {
             fail(rex, "Profile reservation has expired.");
         }
@@ -186,46 +189,6 @@ public final class ProfileTest extends ProfileTestCase {
         getModel(datum.junit).addListener(datum.update_password_listener);
         try {
             getModel(datum.junit).updatePassword(credentials, newPassword);
-        } catch (final InvalidCredentialsException icx) {
-            fail(icx, "Cannot update password.");
-        }
-        datum.waitForEvents();
-        getModel(datum.junit).removeListener(datum.update_password_listener);
-        // change it back
-        credentials.setPassword(newPassword);
-        try {
-            getModel(datum.junit).updatePassword(credentials, originalPassword);
-        } catch (final InvalidCredentialsException icx) {
-            fail(icx, "Cannot update password.");
-        }
-        assertTrue("Update password event not fired.", datum.update_password_notify);
-
-        // test update password with temporary credentials using username key
-        getModel(datum.junit).addListener(datum.update_password_listener);
-        final TemporaryCredentials temporaryCredentials = getModel(datum.junit).createCredentials(
-                datum.junit.getSimpleUsername(), datum.junit.getSimpleUsername());
-        try {
-            getModel(datum.junit).updatePassword(temporaryCredentials, newPassword);
-        } catch (final InvalidCredentialsException icx) {
-            fail(icx, "Cannot update password.");
-        }
-        datum.waitForEvents();
-        getModel(datum.junit).removeListener(datum.update_password_listener);
-        // change it back
-        credentials.setPassword(newPassword);
-        try {
-            getModel(datum.junit).updatePassword(credentials, originalPassword);
-        } catch (final InvalidCredentialsException icx) {
-            fail(icx, "Cannot update password.");
-        }
-        assertTrue("Update password event not fired.", datum.update_password_notify);
-
-        // test update password with temporary credentials using e-mail key
-        getModel(datum.junit).addListener(datum.update_password_listener);
-        final TemporaryCredentials temporaryCredentialsViaEMail = getModel(datum.junit).createCredentials(
-                datum.junit.getEmail().toString(), datum.junit.getSimpleUsername());
-        try {
-            getModel(datum.junit).updatePassword(temporaryCredentialsViaEMail, newPassword);
         } catch (final InvalidCredentialsException icx) {
             fail(icx, "Cannot update password.");
         }

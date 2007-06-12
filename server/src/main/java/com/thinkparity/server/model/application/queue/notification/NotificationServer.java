@@ -57,9 +57,9 @@ final class NotificationServer {
         final DesdemonaProperties properties = DesdemonaProperties.getInstance();
         this.logger = new Log4JWrapper("NotificationService");
         this.charset = Charset.forName(properties.getProperty("thinkparity.queue.notification-charset"));
-        final String host = properties.getProperty("thinkparity.queue.notification-host");
+        final String bindHost = properties.getProperty("thinkparity.queue.notification.bind-host");
         final Integer port = Integer.valueOf(properties.getProperty("thinkparity.queue.notification-port"));
-        this.socketServer = new SecureNotificationSocketServer(this, host, port);
+        this.socketServer = new SecureNotificationSocketServer(this, bindHost, port);
     }
 
     /**

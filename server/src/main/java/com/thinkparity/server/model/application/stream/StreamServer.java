@@ -67,9 +67,9 @@ final class StreamServer {
         final DesdemonaProperties properties = DesdemonaProperties.getInstance();
         this.fileServer = new StreamFileServer(this, workingDirectory);
         this.logger = new Log4JWrapper();
-        final String host = properties.getProperty("thinkparity.stream-host");
+        final String bindHost = properties.getProperty("thinkparity.stream.bind-host");
         final int port = Integer.valueOf(properties.getProperty("thinkparity.stream-port"));
-        this.socketServer = new SecureStreamSocketServer(this, host, port);
+        this.socketServer = new SecureStreamSocketServer(this, bindHost, port);
     }
 
     /**

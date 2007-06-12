@@ -48,14 +48,14 @@
         <param-name>thinkparity.migrator.logerror.notify.cc</param-name>
         <param-value>raymond+error-cc@thinkparity.com</param-value>
     </context-param>
-	<context-param>
-		<param-name>thinkparity.mode</param-name>
-		<param-value>DEVELOPMENT</param-value>
-	</context-param>
-	<context-param>
-	    <param-name>thinkparity.product-name</param-name>
-	    <param-value>DesdemonaProduct</param-value>
-	</context-param>
+    <context-param>
+        <param-name>thinkparity.mode</param-name>
+        <param-value>DEVELOPMENT</param-value>
+    </context-param>
+    <context-param>
+        <param-name>thinkparity.product-name</param-name>
+        <param-value>DesdemonaProduct</param-value>
+    </context-param>
     <context-param>
         <param-name>thinkparity.release-name</param-name>
         <param-value>DEVELOPMENT</param-value>
@@ -63,6 +63,10 @@
     <context-param>
         <param-name>thinkparity.stream.root</param-name>
         <param-value>${thinkparity.home}/var/stream</param-value>
+    </context-param>
+    <context-param>
+        <param-name>thinkparity.stream.bind-host</param-name>
+        <param-value>localhost</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.stream-host</param-name>
@@ -75,6 +79,10 @@
     <context-param>
         <param-name>thinkparity.temp.root</param-name>
         <param-value>${thinkparity.home}/var/tmp</param-value>
+    </context-param>
+    <context-param>
+        <param-name>thinkparity.queue.notification.bind-host</param-name>
+        <param-value>localhost</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.queue.notification-host</param-name>
@@ -92,18 +100,11 @@
         <param-name>xmpp.domain</param-name>
         <param-value>thinkparity.net</param-value>
     </context-param>
-    <!-- enunciate/xfire -->
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:org/codehaus/xfire/spring/xfire.xml</param-value>
-    </context-param>
-
-    <!-- thinkParity -->
+    <!-- thinkParity Web Listener -->
     <listener>
         <listener-class>com.thinkparity.desdemona.web.WebListener</listener-class>
     </listener>
-
-    <!-- xfire -->
+    <!-- thinkParity Web Service Servlet -->
     <servlet>
         <servlet-name>ThinkParityServlet</servlet-name>
         <display-name>ThinkParityServlet</display-name>

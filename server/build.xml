@@ -35,8 +35,8 @@ http://ant.apache.org
 Local configuration ${localconfig} does not exist.  Please create:
     antx.vendor-dir             Ant eXtensions Vendor Directory   
     scm.credentials             Source control credentials.     username:password
-    jboss.home                  JBoss Install
     thinkparity.environment     Environment                     com.thinkparity.codebase.model.session.Environment
+    thinkparity.install-root    Installation
     thinkparity.mode            Mode                            com.thinkparity.codebase.Mode
     thinkparity.os              Operating System                com.thinkparity.codebase.OS
     thinkparity.os-platform     Operating System Platform       com.thinkparity.codebase.Platform
@@ -48,8 +48,8 @@ Local configuration ${localconfig} does not exist.  Please create:
             <not>
                 <and>
                     <isset property="scm.credentials"/>
-                    <isset property="jboss.home"/>   
                     <isset property="thinkparity.environment"/>
+                    <isset property="thinkparity.install-root"/>   
                     <isset property="thinkparity.os"/>
                     <isset property="thinkparity.os-platform"/>
                     <isset property="thinkparity.product-name"/>
@@ -60,8 +60,8 @@ Local configuration ${localconfig} does not exist.  Please create:
 Local configuration ${localconfig} is incomplete.  Please specify:
     antx.vendor-dir                 ${antx.vendor-dir}
     scm.credentials                 XXXXXXXXXXXXXXXXXXXXXXXXXX
-    jboss.home                      ${jboss.home}
     thinkparity.environment         ${thinkparity.environment}
+    thinkparity.install-root        ${thinkparity.install-root}
     thinkparity.mode                ${thinkparity.mode}
     thinkparity.os                  ${thinkparity.os}
     thinkparity.os-platform         ${thinkparity.os-platform}
@@ -499,19 +499,30 @@ Examples:
 
     <!-- install package -->   
     <target name="install-package">
-        <property name="thinkparity.war-name" value="${thinkparity.product-name}-${thinkparity.release-name}.war"/>
+        <property name="thinkparity.war-name" value="services.war"/>
         <fail>
             <condition>
                 <not>
-                    <available file="${target.package.dir}/${thinkparity.war-name}"/>
+                    <available type="file" file="${target.package.dir}/${thinkparity.war-name}"/>
                 </not>
             </condition>
 Package ${target.package.dir}/${thinkparity.war-name} does not exist.
 Please run "ant package" before install-package.
         </fail>
-        <delete file="${jboss.home}/server/tps/deploy/${thinkparity.war-name}"/>
+        <property name="thinkparity.install-directory"
+            value="${thinkparity.install-root}/${thinkparity.environment}/server/jboss-4.0.5.GA/server/tps/deploy"/>
+        <fail>
+            <condition>
+                <not>
+                    <available type="dir" file="${thinkparity.install-directory}"/>
+                </not>
+            </condition>
+Deploy directory ${thinkparity.install-directory} does not exist.
+Please configure ${thinkparity.environment} before install-package.
+        </fail>
+        <delete file="${thinkparity.install-directory}/${thinkparity.war-name}"/>
         <copy file="${target.package.dir}/${thinkparity.war-name}"
-            todir="${jboss.home}/server/tps/deploy"/>
+            todir="${thinkparity.install-directory}"/>
     </target>
 
     <!-- pathinfo -->

@@ -494,12 +494,22 @@ public abstract class AbstractModelImpl
 	protected final InternalArtifactModel getArtifactModel() {
 		return InternalModelFactory.getInstance(getContext(), user).getArtifactModel();
 	}
+
     /**
      * Obtain an internal backup model.
      * 
      * @return An instance of <code>InternalBackupModel</code>.
      */
     protected final InternalBackupModel getBackupModel() {
+        return InternalModelFactory.getInstance(getContext(), user).getBackupModel();
+    }
+
+    /**
+     * Obtain an internal backup model.
+     * 
+     * @return An instance of <code>InternalBackupModel</code>.
+     */
+    protected final InternalBackupModel getBackupModel(final User user) {
         return InternalModelFactory.getInstance(getContext(), user).getBackupModel();
     }
 

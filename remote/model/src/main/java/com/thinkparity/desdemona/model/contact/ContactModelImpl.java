@@ -807,7 +807,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
      */
     private void send(final User sendAs, final ContactInvitation invitation,
             final ContainerVersionAttachment attachment) {
-        final InternalBackupModel backupModel = getBackupModel();
+        final InternalBackupModel backupModel = getBackupModel(sendAs);
         // grab from backup
         final Container container = backupModel.readContainer(
                 attachment.getUniqueId());

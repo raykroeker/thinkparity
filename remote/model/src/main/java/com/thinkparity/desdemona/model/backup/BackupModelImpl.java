@@ -847,7 +847,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         } else {
             logger.logWarning("Container {0} is not backed up for user {1}.",
                     uniqueId, user.getId());
-            return null;
+            return Collections.emptyList();
         }
     }
 
@@ -872,7 +872,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         } else {
             logger.logWarning("Container {0} is not backed up for user {1}.",
                     uniqueId, user.getId());
-            return null;
+            return Collections.emptyList();
         }
 
     }

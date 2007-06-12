@@ -14,7 +14,7 @@
     </context-param>
     <context-param>
         <param-name>thinkparity.datasource-url</param-name>
-        <param-value>jdbc:derby://localhost:9004/desdemona</param-value>
+        <param-value>jdbc:derby://localhost:9002/desdemona</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.datasource-user</param-name>
@@ -26,7 +26,7 @@
     </context-param>
     <context-param>
         <param-name>thinkparity.environment</param-name>
-        <param-value>TESTING</param-value>
+        <param-value>DEVELOPMENT_TESTING</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.mail.transport-host</param-name>
@@ -65,20 +65,28 @@
         <param-value>${thinkparity.home}/var/stream</param-value>
     </context-param>
     <context-param>
+        <param-name>thinkparity.stream.bind-host</param-name>
+        <param-value>0.0.0.0</param-value>
+    </context-param>
+    <context-param>
         <param-name>thinkparity.stream-host</param-name>
-        <param-value>192.168.1.2</param-value>
+        <param-value>thinkparity.dyndns.org</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.stream-port</param-name>
-        <param-value>20003</param-value>
+        <param-value>20002</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.temp.root</param-name>
         <param-value>${thinkparity.home}/var/tmp</param-value>
     </context-param>
     <context-param>
+        <param-name>thinkparity.queue.notification.bind-host</param-name>
+        <param-value>0.0.0.0</param-value>
+    </context-param>
+    <context-param>
         <param-name>thinkparity.queue.notification-host</param-name>
-        <param-value>192.168.1.2</param-value>
+        <param-value>thinkparity.dyndns.org</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.queue.notification-charset</param-name>
@@ -86,24 +94,17 @@
     </context-param>
     <context-param>
         <param-name>thinkparity.queue.notification-port</param-name>
-        <param-value>30003</param-value>
+        <param-value>30002</param-value>
     </context-param>
     <context-param>
         <param-name>xmpp.domain</param-name>
         <param-value>thinkparity.net</param-value>
     </context-param>
-    <!-- enunciate/xfire -->
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:org/codehaus/xfire/spring/xfire.xml</param-value>
-    </context-param>
-
-    <!-- thinkParity -->
+    <!-- thinkParity Web Listener -->
     <listener>
         <listener-class>com.thinkparity.desdemona.web.WebListener</listener-class>
     </listener>
-
-    <!-- xfire -->
+    <!-- thinkParity Web Services Servlet -->
     <servlet>
         <servlet-name>ThinkParityServlet</servlet-name>
         <display-name>ThinkParityServlet</display-name>

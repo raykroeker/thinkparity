@@ -128,6 +128,8 @@ Local Configuration:            ${localconfig}
         path="commons-codec/1.3/commons-codec.jar"/>
     <antx:dependency type="java" scope="compile" provider="apache.org" version="1.2.13"
         path="log4j/1.2.13/log4j.jar"/>
+    <antx:dependency type="java" scope="compile" provider="apache.org" version="3.0.1"
+        path="apache.org/jakarta/commons/httpclient/3.0.1/httpclient.jar"/>
     <antx:dependency type="java" scope="compile" provider="apache.org" version="0.20.5"
         path="fop/0.20.5/avalon-framework-cvs-20020806.jar"/>
     <antx:dependency type="java" scope="compile" provider="apache.org" version="0.20.5"
@@ -593,13 +595,13 @@ Examples:
     <!-- package-installer -->
     <target name="package-installer"
             description="compile a null-soft installer for the package">
-        <copy todir="${target.package.dir}" file="${target.classes.dir}/InstallThinkParity.nsi"/>
+        <copy todir="${target.package.dir}" file="${target.classes.dir}/InstallThinkParity-${thinkparity.mode}.nsi"/>
         <exec executable="${env.NSIS_HOME}/makensis.exe" dir="${target.package.dir}">
-            <arg value="${target.package.dir}/InstallThinkParity.nsi"/>
+            <arg value="InstallThinkParity-${thinkparity.mode}.nsi"/>
         </exec>
         <checksum file="${target.package.dir}/InstallThinkParity.exe" algorithm="MD5"/>
         <checksum file="${target.package.dir}/InstallThinkParity.exe" algorithm="SHA"/>
-        <delete file="${target.package.dir}/InstallThinkParity.nsi"/>
+        <delete file="${target.package.dir}/InstallThinkParity-${thinkparity.mode}.nsi"/>
     </target>
 
     <!-- pathinfo -->

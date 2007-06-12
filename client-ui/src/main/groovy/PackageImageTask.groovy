@@ -69,9 +69,11 @@ class PackageImageTask {
                     // NOTE demo resources
                     include(name:"demo/")
                     include(name:"fonts/")
+                    include(name:"help/")
                     include(name:"images/")
                     include(name:"localization/")
                     include(name:"localization/Model_Messages*")
+                    include(name:"security/")
                     include(name:"log4j.properties")
                     include(name:"version.properties")
                 }
@@ -80,6 +82,7 @@ class PackageImageTask {
             jar(destfile:new File(imageCoreDir,"codebase.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
                 fileset(dir:classesDir) {
                     include(name:"com/thinkparity/codebase/")
+                    include(name:"net/online/")
                     include(name:"carol.properties")
                 }
             }

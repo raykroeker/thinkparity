@@ -11,14 +11,14 @@
 ;General
 
   ;Name and file
-  Name "thinkParity Testing"
+  Name "thinkParity Development"
   OutFile "InstallThinkParity.exe"
 
   ;Default installation folder
-  InstallDir "$PROGRAMFILES\thinkParity Testing"
+  InstallDir "$PROGRAMFILES\thinkParity Development"
   
   ;Get installation folder from registry if available
-  InstallDirRegKey HKCU "Software\thinkParity Testing" ""
+  InstallDirRegKey HKCU "Software\thinkParity Development" ""
 ;--------------------------------
 ;Variables
 
@@ -37,7 +37,7 @@
 
   ;Start Menu Folder Page Configuration
   !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU" 
-  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\thinkParity Testing" 
+  !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\thinkParity Development" 
   !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
 
   !insertmacro MUI_PAGE_STARTMENU Application $STARTMENU_FOLDER
@@ -54,7 +54,7 @@
 ;--------------------------------
 ;Installer Sections
 
-Section "thinkParity Testing" SecParityBrowser
+Section "thinkParity Development" SecParityBrowser
 
   SetOutPath "$INSTDIR"
 
@@ -67,14 +67,14 @@ Section "thinkParity Testing" SecParityBrowser
   File "thinkParity.properties"
 
   ;Store installation folder
-  WriteRegStr HKCU "Software\thinkParity Testing" "" $INSTDIR
+  WriteRegStr HKCU "Software\thinkParity Development" "" $INSTDIR
 
   ;Create shortcuts
   CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
   CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
-  CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\thinkParity Testing.lnk" "$INSTDIR\thinkParity.exe"
-  CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall thinkParity Testing.lnk" "$INSTDIR\Uninstall thinkParity.exe"
-  CreateShortCut "$DESKTOP\thinkParity Testing.lnk" "$INSTDIR\thinkParity.exe"
+  CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\thinkParity Development.lnk" "$INSTDIR\thinkParity.exe"
+  CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall thinkParity Development.lnk" "$INSTDIR\Uninstall thinkParity.exe"
+  CreateShortCut "$DESKTOP\thinkParity Development.lnk" "$INSTDIR\thinkParity.exe"
 
   ;Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall thinkParity.exe"
@@ -85,7 +85,7 @@ SectionEnd
 ;Descriptions
 
   ;Language strings
-  LangString DESC_SecParityBrowser ${LANG_ENGLISH} "thinkParity Testing"
+  LangString DESC_SecParityBrowser ${LANG_ENGLISH} "thinkParity Development"
 
   ;Assign language strings to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
@@ -102,9 +102,9 @@ Section "Uninstall"
   ; extract the location of the start menu
   !insertmacro MUI_STARTMENU_GETFOLDER Application $MUI_TEMP
 
-  Delete "$SMPROGRAMS\$MUI_TEMP\thinkParity Testing.lnk"
-  Delete "$SMPROGRAMS\$MUI_TEMP\Uninstall thinkParity Testing.lnk"
-  Delete "$DESKTOP\thinkParity Testing.lnk"
+  Delete "$SMPROGRAMS\$MUI_TEMP\thinkParity Development.lnk"
+  Delete "$SMPROGRAMS\$MUI_TEMP\Uninstall thinkParity Development.lnk"
+  Delete "$DESKTOP\thinkParity Development.lnk"
 
   ; Delete empty start menu parent diretories
   StrCpy $MUI_TEMP "$SMPROGRAMS\$MUI_TEMP"
@@ -124,6 +124,6 @@ Section "Uninstall"
   RMDir /r "$INSTDIR"
   RMDIR "$PROGRAMFILES\thinkParity"
 
-  DeleteRegKey /ifempty HKCU "Software\thinkParity Testing"
+  DeleteRegKey /ifempty HKCU "Software\thinkParity Development"
 
 SectionEnd

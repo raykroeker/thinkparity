@@ -332,8 +332,7 @@ class ConfigurationHelper {
     JabberId extractUserId() {
         def credentials = extractCredentials()
         def environment = extractEnvironment()
-        return JabberIdBuilder.build(credentials.getUsername(),
-                environment.getXMPPService(), credentials.getResource())
+        return JabberIdBuilder.build(credentials.getUsername(), "thinkparity.net")
     }
 
     /**

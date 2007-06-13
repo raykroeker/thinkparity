@@ -3,7 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.build
 
-import java.nio.ByteBuffer;
+import java.nio.ByteBuffer
 
 import com.thinkparity.codebase.DateUtil
 import com.thinkparity.codebase.OS
@@ -14,6 +14,11 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder
 
 import com.thinkparity.codebase.model.session.Credentials
 import com.thinkparity.codebase.model.session.Environment
+
+import com.thinkparity.service.MigratorService
+import com.thinkparity.service.SessionService
+import com.thinkparity.service.StreamService
+import com.thinkparity.service.client.ServiceFactory
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Build Task Configuration Helper<br>
@@ -39,6 +44,7 @@ class ConfigurationHelper {
      */
     void init() {
         if (!initialized) {
+            System.setProperty("thinkparity.environment", properties["thinkparity.environment"])
             System.setProperty("thinkparity.mode", properties["thinkparity.mode"])
             System.setProperty("thinkparity.product-name", extractProductName())
             System.setProperty("thinkparity.release-name", extractReleaseName())
@@ -75,6 +81,9 @@ class ConfigurationHelper {
         configuration["thinkparity.os-platform"] = extractOsPlatform()
         configuration["thinkparity.product-name"] = extractProductName()
         configuration["thinkparity.release-name"] = extractReleaseName()
+        configuration["thinkparity.service-migrator"] = extractMigratorService()
+        configuration["thinkparity.service-session"] = extractSessionService()
+        configuration["thinkparity.service-stream"] = extractStreamService()
         configuration["thinkparity.target.classes-dir"] = extractTargetClassesDir()
         configuration["thinkparity.target.native-dir"] = extractTargetNativeDir()
         configuration["thinkparity.target.package-dir"] = extractTargetPackageDir()
@@ -87,6 +96,18 @@ class ConfigurationHelper {
         configuration["thinkparity.target.workspace-dir"] = extractTargetWorkspaceDir()
 
         return configuration
+    }
+
+    MigratorService extractMigratorService() {
+        return ServiceFactory.getInstance().getMigratorService()
+    }
+
+    StreamService extractStreamService() {
+        return ServiceFactory.getInstance().getStreamService()
+    }
+
+    SessionService extractSessionService() {
+        return ServiceFactory.getInstance().getSessionService()
     }
 
     /**

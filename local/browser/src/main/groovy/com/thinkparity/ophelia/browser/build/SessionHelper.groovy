@@ -5,8 +5,9 @@ package com.thinkparity.ophelia.browser.build
 
 import com.thinkparity.codebase.model.session.Credentials
 
-import com.thinkparity.ophelia.model.util.xmpp.XMPPSession
-import com.thinkparity.ophelia.model.util.xmpp.XMPPSessionImpl
+import com.thinkparity.service.AuthToken
+import com.thinkparity.service.SessionService
+import com.thinkparity.service.client.ServiceFactory
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Build Task Session Helper<br>
@@ -20,17 +21,17 @@ class SessionHelper {
     /** A build task configuration <code>Map</code>. */
     Map configuration
 
-    /** An instance of <code>XMPPSession</code>. */
-    XMPPSession xmppSession
+    /** A session web-service. */
+    SessionService sessionService
 
     /**
      * Initialize the session helper.  Obtain an instance of the session model.
      *
      */
     void init() {
-        if (null == xmppSession) {
-            xmppSession = new XMPPSessionImpl()
-            configuration["thinkparity.xmpp-session"] = xmppSession
+        if (null == sessionService) {
+            sessionService = ServiceFactory.getInstance().getSessionService()
+            configuration["thinkparity.service-session"] = sessionService
         }
     }
 
@@ -40,8 +41,11 @@ class SessionHelper {
      */
     void login() {
         init()
-        xmppSession.login(configuration["thinkparity.environment"],
+        final String sessionId = sessionService.login(
             configuration["thinkparity.credentials"])
+        final AuthToken authToken = new AuthToken()
+        authToken.setSessionId(sessionId)
+        configuration["thinkparity.auth-token"] = authToken
     }
 
     /**
@@ -51,7 +55,7 @@ class SessionHelper {
      */
     Boolean isOnline() {
         init()
-        return xmppSession.isOnline()
+        return null != configuration["thinkparity.auth-token"]
     }
 
     /**
@@ -59,6 +63,6 @@ class SessionHelper {
      *
      */
     void logout() {
-        xmppSession.logout()
+        sessionService.logout(configuration["thinkparity.auth-token"])
     }
 }

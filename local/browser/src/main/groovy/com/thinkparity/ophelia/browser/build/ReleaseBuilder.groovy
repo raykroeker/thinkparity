@@ -9,8 +9,10 @@ import com.thinkparity.codebase.model.migrator.Product
 import com.thinkparity.codebase.model.migrator.Release
 import com.thinkparity.codebase.model.util.codec.MD5Util
 
+import com.thinkparity.service.AuthToken
+import com.thinkparity.service.MigratorService
+
 import com.thinkparity.ophelia.model.util.UUIDGenerator
-import com.thinkparity.ophelia.model.util.xmpp.XMPPSession
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Build Task Release Builder<br>
@@ -27,24 +29,24 @@ class ReleaseBuilder {
     /** A build task configuration <code>Map</code>. */
     Map configuration
 
-    /** An <code>XMPPSession</code>. */
-    XMPPSession xmppSession
+    /** A migrator web-service. */
+    MigratorService migratorService
+
+    /** An authentication token. */
+    AuthToken authToken
 
     /** The <code>Product</code>. */
     Product product
-
-    /** The user id <code>JabberId</code>. */
-    JabberId userId
 
     /**
      * Initialize the release builder.
      *
      */
     void init() {
-        if (null == xmppSession)
-            xmppSession = configuration["thinkparity.xmpp-session"]
-        if (null == userId)
-            userId = configuration["thinkparity.userid"] 
+        if (null == migratorService)
+            migratorService = configuration["thinkparity.service-migrator"]
+        if (null == authToken)
+            authToken = configuration["thinkparity.auth-token"] 
     }
 
     /**
@@ -57,7 +59,7 @@ class ReleaseBuilder {
     Release create() {
         init()
 
-        def existing = xmppSession.readMigratorRelease(userId,
+        def existing = migratorService.readRelease(authToken,
             product.getName(), configuration["thinkparity.release-name"],
             configuration["thinkparity.os"])
         if (null == existing) {

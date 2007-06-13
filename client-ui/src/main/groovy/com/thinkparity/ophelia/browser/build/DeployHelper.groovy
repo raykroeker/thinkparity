@@ -15,7 +15,9 @@ import com.thinkparity.codebase.model.stream.StreamWriter
 import com.thinkparity.codebase.model.stream.StreamException
 import com.thinkparity.codebase.model.util.codec.MD5Util
 
-import com.thinkparity.ophelia.model.util.xmpp.XMPPSession
+import com.thinkparity.service.AuthToken
+import com.thinkparity.service.MigratorService
+import com.thinkparity.service.StreamService
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Build Task Deploy Helper<br>
@@ -36,10 +38,14 @@ class DeployHelper {
     /** The image directory <code>File</code>. */
     File imageDir
 
-    /** An <code>XMPPSession</code>. */
-    XMPPSession xmppSession
+    /** A migrator web-service. */
+    MigratorService migratorService
 
-    JabberId userId
+    /** A stream web-service. */
+    StreamService streamService
+
+    /** A web-service authentication token. */
+    AuthToken authToken
 
     /**
      * Initialize the deploy helper.
@@ -48,10 +54,12 @@ class DeployHelper {
     void init() {
         if (null == imageDir)
             imageDir = configuration["thinkparity.target.package.image-dir"]
-        if (null == xmppSession)
-            xmppSession = configuration["thinkparity.xmpp-session"]
-        if (null == userId)
-            userId = configuration["thinkparity.userid"]
+        if (null == migratorService)
+            migratorService = configuration["thinkparity.service-migrator"]
+        if (null == streamService)
+            streamService = configuration["thinkparity.service-stream"]
+        if (null == authToken)
+            authToken = configuration["thinkparity.auth-token"]
     }
 
     /**
@@ -88,8 +96,7 @@ class DeployHelper {
      */
     void deploy(JabberId userId, Product product, Release release,
         List resources, String streamId) {
-        xmppSession.deployMigrator(configuration["thinkparity.userid"],
-            product, release, resources, streamId)
+        migratorService.deploy(authToken, product, release, resources, streamId)
     }
 
     /**
@@ -116,7 +123,7 @@ class DeployHelper {
      * @return A stream id <code>String</code>.
      */
     String upload(File file) {
-        final StreamSession session = xmppSession.createStreamSession(userId);
+        final StreamSession session = streamService.createSession(authToken)
         final InputStream stream = new BufferedInputStream(new FileInputStream(file), 2048);
         final Long streamSize = file.length();
         try {

@@ -247,8 +247,10 @@ public abstract class AbstractModelImpl
      */
     protected final File createTempDirectory(final String suffix)
             throws IOException {
-        return File.createTempFile(Constants.Directory.TEMP_DIR_PREFIX, suffix,
-                getTempFileSystem().getRoot());
+        final File tempDirectory = new File(getTempFileSystem().getRoot(), suffix);
+        Assert.assertTrue(tempDirectory.mkdir(),
+                "Could not create temp directory {0}.", tempDirectory);
+        return tempDirectory;
     }
 
     /**

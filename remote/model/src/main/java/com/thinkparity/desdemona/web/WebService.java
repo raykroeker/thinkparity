@@ -369,9 +369,11 @@ public final class WebService extends HttpServlet {
     protected void doPost(final HttpServletRequest req,
             final HttpServletResponse resp) throws ServletException,
             IOException {
+        WebServiceMetrics.begin(req);
         final String pathInfo = req.getPathInfo();
         if (!isValid(pathInfo)) {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            WebServiceMetrics.end(req);
             return;
         }
         // read the request before committing a response
@@ -380,6 +382,7 @@ public final class WebService extends HttpServlet {
             request = readRequest(req.getInputStream());
         } catch (final Throwable t) {
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            WebServiceMetrics.end(req);
             throw new ServletException(t);
         }
         // service the response; write the result
@@ -393,6 +396,8 @@ public final class WebService extends HttpServlet {
         } catch (final Throwable t) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             throw new ServletException(t);
+        } finally {
+            WebServiceMetrics.end(req);
         }
     }
 

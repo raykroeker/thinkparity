@@ -11,7 +11,6 @@ import java.text.MessageFormat;
 
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -39,9 +38,6 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     /** The attribute name for the error note message. */
     private static final String ERROR_NODE_MESSAGE_ATTRIBUTE_NAME;
 
-    /** A log4j wrapper. */
-    private static final Log4JWrapper LOGGER;
-
     /** The request xml components. */
     private static final char[][] REQUEST_XML;
 
@@ -58,8 +54,6 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
         CHARSET = StringUtil.Charset.UTF_8.getCharset();
 
         ERROR_NODE_MESSAGE_ATTRIBUTE_NAME = "message";
-
-        LOGGER = new Log4JWrapper(HttpServiceProxy.class);
 
         REQUEST_XML = new char[][] {
                 "<?xml version=\"1.0\" encoding=\"".toCharArray(),
@@ -131,9 +125,9 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
      *            A <code>ServiceRequest</code>.
      * @param response
      *            A <code>ServiceResponse</code>.
-     * @return A <code>ServiceException</code>.
+     * @return A <code>Throwable</code>.
      */
-    private static ServiceException newServiceException(
+    private static Throwable newServiceException(
             final ServiceRequest request, final ServiceResponse response) {
         final ServiceException serviceError = new ServiceException(
                 "A remote error has occured.  {0}:{1}:{2}",
@@ -275,48 +269,50 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
      */
     public Object invoke(final Object proxy, final Method method,
             final Object[] args) throws Throwable {
-        final long beginInvoke = System.currentTimeMillis();
-        serviceRequest = newServiceRequest(service, method, args);
-
-        // execute the http post
-        final HttpClient httpClient = new HttpClient();
-        final PostMethod postMethod = new PostMethod(newServiceURL(context, service));
-        postMethod.setRequestEntity(this);
-        httpClient.executeMethod(postMethod);
-
-        /* extract the response; a 200 status code will be used even in the case
-         * of a remote error; the error will be serialized to the stream and
-         * can be determined by the top-level xml node name in the response */
+        HttpServiceProxyMetrics.begin(method);
         try {
-            switch (postMethod.getStatusCode()) {
-            case 200:
-                final ServiceResponse serviceResponse = readResponse(postMethod);
-                if (serviceResponse.isErrorResponse()) {
-                    throw newServiceException(serviceRequest, serviceResponse);
-                } else {
-                    if (serviceResponse.isSetResult()) {
-                        return serviceResponse.getResult().getValue();
+            serviceRequest = newServiceRequest(service, method, args);
+
+            // execute the http post
+            final HttpClient httpClient = new HttpClient();
+            final PostMethod postMethod = new PostMethod(newServiceURL(context, service));
+            try {
+                postMethod.setRequestHeader("serviceId", serviceRequest.getService().getId());
+                postMethod.setRequestHeader("operationId", serviceRequest.getService().getId());
+                postMethod.setRequestEntity(this);
+                httpClient.executeMethod(postMethod);
+    
+                /* extract the response; a 200 status code will be used even in the
+                 * case of a remote error; the error will be serialized to the
+                 * stream and can be determined by the top-level xml node name in
+                 * the response */
+                switch (postMethod.getStatusCode()) {
+                case 200:
+                    final ServiceResponse serviceResponse = readResponse(postMethod);
+                    if (serviceResponse.isErrorResponse()) {
+                        throw newServiceException(serviceRequest, serviceResponse);
                     } else {
-                        return null;
+                        if (serviceResponse.isSetResult()) {
+                            return serviceResponse.getResult().getValue();
+                        } else {
+                            return null;
+                        }
                     }
+                case 404:
+                    throw new ServiceException("Service {0}:{1} does not exist.",
+                            serviceRequest.getService().getId(),
+                            serviceRequest.getOperation().getId());
+                default:
+                    throw new ServiceException("Service {0}:{1} generated an unknown status code {2}.",
+                            serviceRequest.getService().getId(),
+                            serviceRequest.getOperation().getId(),
+                            postMethod.getStatusCode());
                 }
-            case 404:
-                throw new ServiceException("Service {0}:{1} does not exist.",
-                        serviceRequest.getService().getId(),
-                        serviceRequest.getOperation().getId());
-            default:
-                throw new ServiceException("Service {0}:{1} generated an unknown status code {2}.",
-                        serviceRequest.getService().getId(),
-                        serviceRequest.getOperation().getId(),
-                        postMethod.getStatusCode());
+            } finally {
+                postMethod.releaseConnection();
             }
         } finally {
-            postMethod.releaseConnection();
-            final long endInvoke = System.currentTimeMillis();
-            LOGGER.logTrace("Invoke service {0}:{1} duration {2}ms.",
-                    serviceRequest.getService().getId(),
-                    serviceRequest.getOperation().getId(),
-                    (endInvoke - beginInvoke));
+            HttpServiceProxyMetrics.end(method);
         }
     }
 
@@ -333,14 +329,8 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
      *
      */
     public void writeRequest(final OutputStream stream) throws IOException {
-        final long beginWriteRequest = System.currentTimeMillis();
         writeRequest(newStreamWriter(System.out));
         writeRequest(newStreamWriter(stream));
-        final long endWriteRequest = System.currentTimeMillis();
-        LOGGER.logTrace("Service {0}:{1} serialization {2}ms.",
-                serviceRequest.getService().getId(),
-                serviceRequest.getOperation().getId(),
-                (endWriteRequest - beginWriteRequest));
     }
 
     /**

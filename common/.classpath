@@ -23,7 +23,6 @@
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jotm/2.0.10/connector-1_5.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jotm/2.0.10/howl.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/jotm/2.0.10/jotm_jrmp_stubs.jar"/>
-	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/log4j/1.2.8/log4j.jar" sourcepath="/THINKPARITY_HOME/vendor/log4j/1.2.8/log4j-sources.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xdoclet/1.0.3/qdox-1.6.1.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xdoclet/1.0.3/xdoclet-2.0.4.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xdoclet/1.0.3/commons-jelly-20050813.225330.jar"/>
@@ -45,5 +44,6 @@
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xdoclet/1.0.3/velocity-1.4.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xdoclet/1.0.3/xerces-2.4.0.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/apache.org/jakarta/commons/httpclient/3.0.1/httpclient.jar" sourcepath="/THINKPARITY_HOME/vendor/apache.org/jakarta/commons/httpclient/3.0.1/httpclient-sources.zip"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/apache.org/logging/log4j/1.2.8/log4j.jar" sourcepath="/THINKPARITY_HOME/vendor/apache.org/logging/log4j/1.2.8/log4j-sources.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

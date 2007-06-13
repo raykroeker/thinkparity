@@ -8,6 +8,7 @@ import java.util.Observable;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.queue.notification.NotificationMonitor;
 import com.thinkparity.codebase.model.queue.notification.NotificationReader;
 import com.thinkparity.codebase.model.queue.notification.NotificationSession;
 
@@ -34,11 +35,11 @@ public final class NotificationReaderRunnable extends Observable implements
      *            A <code>NotificationSession</code>.
      * @throws IOException
      */
-    public NotificationReaderRunnable(final NotificationSession session)
-            throws IOException {
+    public NotificationReaderRunnable(final NotificationMonitor monitor,
+            final NotificationSession session) throws IOException {
         super();
         this.logger = new Log4JWrapper(getClass());
-        this.reader = new NotificationReader(session);
+        this.reader = new NotificationReader(monitor, session);
         this.reader.open();
     }
 

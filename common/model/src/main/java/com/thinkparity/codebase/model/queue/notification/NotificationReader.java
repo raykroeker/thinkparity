@@ -21,11 +21,14 @@ public final class NotificationReader extends NotificationClient {
     /**
      * Create NotificationReader.
      * 
+     * @param monitor
+     *            A <code>NotificationMonitor</code>.
      * @param session
      *            A <code>NotificationSession</code>.
      */
-    public NotificationReader(final NotificationSession session) {
-        super(session);
+    public NotificationReader(final NotificationMonitor monitor,
+            final NotificationSession session) {
+        super(monitor, session);
     }
 
     /**

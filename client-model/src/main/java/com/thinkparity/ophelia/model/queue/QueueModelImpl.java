@@ -9,11 +9,14 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.Executors;
 
+import com.thinkparity.codebase.model.queue.notification.NotificationException;
+import com.thinkparity.codebase.model.queue.notification.NotificationMonitor;
 import com.thinkparity.codebase.model.queue.notification.NotificationSession;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.ophelia.model.Model;
+import com.thinkparity.ophelia.model.events.SessionAdapter;
 import com.thinkparity.ophelia.model.queue.monitor.ProcessStep;
 import com.thinkparity.ophelia.model.queue.notification.NotificationReaderRunnable;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
@@ -114,10 +117,26 @@ public final class QueueModelImpl extends Model implements QueueModel,
                 }
             }
             // start the client
+            final NotificationMonitor monitor = new NotificationMonitor() {
+                public void chunkReceived(final int chunkSize) {}
+                public void chunkSent(final int chunkSize) {}
+                public void headerReceived(final String header) {}
+                public void headerSent(final String header) {}
+                public void streamError(final NotificationException error) {
+                    logger.logError(error, "Notification client error.");
+                    getSessionModel().notifySessionTerminated();
+                    getSessionModel().addListener(new SessionAdapter() {
+                        public void sessionEstablished() {
+                            getSessionModel().removeListener(this);
+                            getQueueModel().startNotificationClient();
+                        }
+                    });
+                }
+            };
             final NotificationSession session =
                 queueService.createNotificationSession(getAuthToken());
             final NotificationReaderRunnable notificationClient =
-                newNotificationClient(session);
+                newNotificationClient(monitor, session);
             setNotificationClient(notificationClient);
             // THREAD - QueueModelImpl#startNotificationClient
             final Thread thread =
@@ -177,9 +196,10 @@ public final class QueueModelImpl extends Model implements QueueModel,
      *            A <code>NotificationSession</code>.
      * @return A <code>NotificationReaderRunnable</code>.
      */
-    private NotificationReaderRunnable newNotificationClient(
+    private NotificationReaderRunnable newNotificationClient(final NotificationMonitor monitor,
             final NotificationSession session) throws IOException {
-        final NotificationReaderRunnable notificationClient = new NotificationReaderRunnable(session);
+        final NotificationReaderRunnable notificationClient =
+            new NotificationReaderRunnable(monitor, session);
         notificationClient.addObserver(new Observer() {
             public void update(final Observable o, final Object arg) {
                 final boolean didNotify = ((Boolean) arg).booleanValue();

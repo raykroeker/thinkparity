@@ -74,7 +74,7 @@
     </context-param>
     <context-param>
         <param-name>thinkparity.stream-port</param-name>
-        <param-value>20000</param-value>
+        <param-value>20001</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.temp.root</param-name>
@@ -94,7 +94,7 @@
     </context-param>
     <context-param>
         <param-name>thinkparity.queue.notification-port</param-name>
-        <param-value>30000</param-value>
+        <param-value>30001</param-value>
     </context-param>
     <context-param>
         <param-name>xmpp.domain</param-name>

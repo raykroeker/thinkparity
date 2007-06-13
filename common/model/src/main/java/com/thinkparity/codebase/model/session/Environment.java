@@ -18,16 +18,16 @@ public enum Environment {
     DEMO_LOCALHOST("localhost", 446),
 
     /** The development environment. */
-    DEVELOPMENT("thinkparity.dyndns.org", 8445),
+    DEVELOPMENT("thinkparity.dyndns.org", 10001),
 
     /** A localhost development environment. */
-    DEVELOPMENT_LOCALHOST("localhost", 8445),
+    DEVELOPMENT_LOCALHOST("localhost", 10001),
 
     /** Testing environment. */
-    DEVELOPMENT_TESTING("thinkparity.dyndns.org", 8444),
+    DEVELOPMENT_TESTING("thinkparity.dyndns.org", 10002),
 
     /** A localhost testing environment. */
-    DEVELOPMENT_TESTING_LOCALHOST("localhost", 8444),
+    DEVELOPMENT_TESTING_LOCALHOST("localhost", 10002),
 
     /** Production environment. */
     PRODUCTION("thinkparity.net", 443);

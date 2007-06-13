@@ -72,7 +72,12 @@ public final class HelpModelImpl extends Model implements HelpModel,
      */
     public void deleteIndex() {
         try {
-            configurationIO.delete(ConfigurationKeys.IS_INDEXED);
+            final String isIndexed = configurationIO.read(ConfigurationKeys.IS_INDEXED);
+            if (null == isIndexed) {
+                logger.logWarning("Help index does not exist.");
+            } else {
+                configurationIO.delete(ConfigurationKeys.IS_INDEXED);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }

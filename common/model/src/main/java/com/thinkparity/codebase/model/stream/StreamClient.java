@@ -456,6 +456,8 @@ abstract class StreamClient {
                         socket.close();
                     } catch (final IOException iox) {
                         throw panic(iox);
+                    } finally {
+                        socket = null;
                     }
                 }
             }
@@ -489,6 +491,8 @@ abstract class StreamClient {
                         socket.close();
                     } catch (final IOException iox) {
                         throw panic(iox);
+                    } finally {
+                        socket = null;
                     }
                 }
             }

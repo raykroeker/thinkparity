@@ -11,6 +11,7 @@ import java.text.MessageFormat;
 
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -38,6 +39,9 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     /** The attribute name for the error note message. */
     private static final String ERROR_NODE_MESSAGE_ATTRIBUTE_NAME;
 
+    /** A log4j wrapper. */
+    private static final Log4JWrapper LOGGER;
+
     /** The request xml components. */
     private static final char[][] REQUEST_XML;
 
@@ -54,6 +58,8 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
         CHARSET = StringUtil.Charset.UTF_8.getCharset();
 
         ERROR_NODE_MESSAGE_ATTRIBUTE_NAME = "message";
+
+        LOGGER = new Log4JWrapper(HttpServiceProxy.class);
 
         REQUEST_XML = new char[][] {
                 "<?xml version=\"1.0\" encoding=\"".toCharArray(),
@@ -269,6 +275,7 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
      */
     public Object invoke(final Object proxy, final Method method,
             final Object[] args) throws Throwable {
+        final long beginInvoke = System.currentTimeMillis();
         serviceRequest = newServiceRequest(service, method, args);
 
         // execute the http post
@@ -305,6 +312,11 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
             }
         } finally {
             postMethod.releaseConnection();
+            final long endInvoke = System.currentTimeMillis();
+            LOGGER.logTrace("Invoke service {0}:{1} duration {2}ms.",
+                    serviceRequest.getService().getId(),
+                    serviceRequest.getOperation().getId(),
+                    (endInvoke - beginInvoke));
         }
     }
 
@@ -321,8 +333,14 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
      *
      */
     public void writeRequest(final OutputStream stream) throws IOException {
+        final long beginWriteRequest = System.currentTimeMillis();
         writeRequest(newStreamWriter(System.out));
         writeRequest(newStreamWriter(stream));
+        final long endWriteRequest = System.currentTimeMillis();
+        LOGGER.logTrace("Service {0}:{1} serialization {2}ms.",
+                serviceRequest.getService().getId(),
+                serviceRequest.getOperation().getId(),
+                (endWriteRequest - beginWriteRequest));
     }
 
     /**

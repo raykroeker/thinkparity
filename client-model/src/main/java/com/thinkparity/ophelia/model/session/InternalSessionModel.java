@@ -73,6 +73,15 @@ public interface InternalSessionModel extends SessionModel {
     public void notifySessionTerminated();
 
     /**
+     * Set an offline code.
+     * 
+     * @param offlineCode
+     *            An <code>OfflineCode</code>.
+     */
+    @ThinkParityTransaction(TransactionType.NEVER)
+    public void pushOfflineCode(final OfflineCode offlineCode);
+
+    /**
      * Accept the contact invitation.
      * 
      * @param invitation

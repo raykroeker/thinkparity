@@ -18,6 +18,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.queue.monitor.ProcessStep;
 import com.thinkparity.ophelia.model.queue.notification.NotificationReaderRunnable;
+import com.thinkparity.ophelia.model.session.OfflineCode;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -112,6 +113,11 @@ public final class QueueModelImpl extends Model implements QueueModel,
                     removeNotificationClient().closeReader();
                 } catch (final Exception x) {
                     logger.logError(x, "An error occured closing notification client.");
+                } finally {
+                    if (getSessionModel().isOnline()) {
+                        getSessionModel().pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                        getSessionModel().notifySessionTerminated();
+                    }
                 }
             }
             // start the client
@@ -122,10 +128,17 @@ public final class QueueModelImpl extends Model implements QueueModel,
                 public void headerSent(final String header) {}
                 public void streamError(final NotificationException error) {
                     logger.logWarning("Notification client offline.");
-                    try {
-                        removeNotificationClient().closeReader();
-                    } catch (final Exception x) {
-                        logger.logError(x, "An error occured closing notification client.");
+                    if (isSetNotificationClient()) {
+                        try {
+                            removeNotificationClient().closeReader();
+                        } catch (final Exception x) {
+                            logger.logError(x, "An error occured closing notification client.");
+                        } finally {
+                            if (getSessionModel().isOnline()) {
+                                getSessionModel().pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                                getSessionModel().notifySessionTerminated();
+                            }
+                        }
                     }
                 }
             };

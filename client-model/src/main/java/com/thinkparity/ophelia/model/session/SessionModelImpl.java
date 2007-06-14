@@ -1405,17 +1405,19 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Push an offline code.
-     * 
-     * @param offlineCode
-     *            An <code>OfflineCode</code>.
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#pushOfflineCode(com.thinkparity.ophelia.model.session.OfflineCode)
+     *
      */
-    private void pushOfflineCode(final OfflineCode offlineCode) {
-        if (!isSetOfflineCodes()) {
-            setOfflineCodes(new OfflineCodes());
+    public void pushOfflineCode(final OfflineCode offlineCode) {
+        try {
+            if (!isSetOfflineCodes()) {
+                setOfflineCodes(new OfflineCodes());
+            }
+            final OfflineCodes offlineCodes = getOfflineCodes();
+            offlineCodes.push(offlineCode);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
-        final OfflineCodes offlineCodes = getOfflineCodes();
-        offlineCodes.push(offlineCode);
     }
 
     /**

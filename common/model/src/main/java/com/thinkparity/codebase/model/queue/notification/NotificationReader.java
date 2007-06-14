@@ -36,8 +36,12 @@ public final class NotificationReader extends NotificationClient {
      * 
      * @throws IOException
      */
-    public void close() throws IOException {
-        disconnect();
+    public void close(final Boolean force) throws IOException {
+        if (force.booleanValue()) {
+            terminate();
+        } else {
+            disconnect();
+        }
     }
 
     /**

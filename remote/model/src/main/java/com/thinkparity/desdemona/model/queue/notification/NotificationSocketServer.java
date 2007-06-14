@@ -25,6 +25,13 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
  */
 class NotificationSocketServer implements Runnable {
 
+    /** The secure <code>javax.net.ServerSocketFactory</code>. */
+    private static final ServerSocketFactory SERVER_SOCKET_FACTORY;
+
+    static {
+        SERVER_SOCKET_FACTORY = com.thinkparity.codebase.net.ServerSocketFactory.getInstance();
+    }
+
     /** A stack of client sockets used when accepting the connection. */
     private final Stack<Socket> clientSockets;
 
@@ -36,6 +43,9 @@ class NotificationSocketServer implements Runnable {
 
     /** A run indicator. */
     private boolean run;
+
+    /** The notification server. */
+    private final NotificationServer server;
 
     /** The server socket that is established when starting. */
     private ServerSocket serverSocket;
@@ -52,9 +62,6 @@ class NotificationSocketServer implements Runnable {
     /** A started indicator. */
     private boolean started;
 
-    /** The notification server. */
-    private final NotificationServer server;
-
     /**
      * Create NotificationSocketServer.
      *
@@ -70,6 +77,22 @@ class NotificationSocketServer implements Runnable {
         this.serverSocketAddress = new InetSocketAddress(host, port);
         this.serverSocketBacklog = 75;
         this.serverSocketFactory = serverSocketFactory;
+    }
+
+    
+    /**
+     * Create SecureNotificationSocketServer.
+     * 
+     * @param server
+     *            The notification server.
+     * @param host
+     *            The host to listen on.
+     * @param port
+     *            The port to listen on.
+     */
+    NotificationSocketServer(final NotificationServer server,
+            final String host, final Integer port) {
+        this(server, host, port, SERVER_SOCKET_FACTORY);
     }
 
     /**

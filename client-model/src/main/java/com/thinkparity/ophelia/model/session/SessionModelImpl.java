@@ -3,7 +3,12 @@
  */
 package com.thinkparity.ophelia.model.session;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 
 import com.thinkparity.codebase.OS;
@@ -529,16 +534,11 @@ public final class SessionModelImpl extends Model<SessionListener>
      * @see com.thinkparity.ophelia.model.session.SessionModel#getOfflineCode()
      *
      */
-    @SuppressWarnings("unchecked")
     public OfflineCode getOfflineCode() {
-        final Stack<OfflineCode> offlineCodes;
-        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES)) {
-            offlineCodes = (Stack<OfflineCode>) workspace.getAttribute(
-                    WS_ATTRIBUTE_KEY_OFFLINE_CODES);
+        final OfflineCodes offlineCodes = getOfflineCodes();
+        if (null == offlineCodes) {
+            return null;
         } else {
-            offlineCodes = new Stack<OfflineCode>();
-        }
-        synchronized (offlineCodes) {
             if (offlineCodes.isEmpty()) {
                 return null;
             } else {
@@ -589,7 +589,15 @@ public final class SessionModelImpl extends Model<SessionListener>
      *
      */
     public Boolean isLoggedIn() {
-        return isOnline() && isSetAuthToken();
+        try {
+            final Boolean isOnline = isOnline();
+            logger.logVariable("isOnline", isOnline);
+            final Boolean isSetAuthToken = isSetAuthToken();
+            logger.logVariable("isSetAuthToken", isSetAuthToken());
+            return isOnline.booleanValue() && isSetAuthToken.booleanValue();
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
 	}
 
     /**
@@ -598,7 +606,7 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     public Boolean isOnline() {
         try {
-            if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES)) {
+            if (isSetOfflineCode()) {
                 return Boolean.FALSE;
             } else {
                 return Boolean.TRUE;
@@ -649,7 +657,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             // save credentials
             createCredentials(credentials);
             // fire event
-            clearOfflineCodes();
+            removeOfflineCodes();
             notifySessionEstablished();
         } catch (final InvalidCredentialsException icx) {
             throw icx;
@@ -699,7 +707,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                     // start notification client
                     getQueueModel().startNotificationClient();
                     // fire event
-                    clearOfflineCodes();
+                    removeOfflineCodes();
                     notifySessionEstablished();
                 } else {
                     getMigratorModel().startDownloadRelease();
@@ -1252,21 +1260,13 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Clear all offline codes.
+     * Obtain the offline codes workspace attribute.
      * 
+     * @return An <code>OfflineCodes</code>.
      */
-    @SuppressWarnings("unchecked")
-    private void clearOfflineCodes() {
-        final Stack<OfflineCode> offlineCodes;
-        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES)) {
-            offlineCodes = (Stack<OfflineCode>) workspace.getAttribute(
-                    WS_ATTRIBUTE_KEY_OFFLINE_CODES);
-        } else {
-            offlineCodes = new Stack<OfflineCode>();
-        }
-        synchronized (offlineCodes) {
-            offlineCodes.clear();
-        }
+    private OfflineCodes getOfflineCodes() {
+        return (OfflineCodes) workspace.getAttribute(
+                WS_ATTRIBUTE_KEY_OFFLINE_CODES);
     }
 
     /**
@@ -1290,12 +1290,11 @@ public final class SessionModelImpl extends Model<SessionListener>
      * @return True if we are performing client maintenance.
      */
     private boolean isClientMaintenance() {
-        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES)) { 
-            return ((List) workspace
-                    .getAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES))
-                    .contains(OfflineCode.CLIENT_MAINTENANCE);
-        } else {
+        final OfflineCodes offlineCodes = getOfflineCodes();
+        if (null == offlineCodes) {
             return false;
+        } else {
+            return offlineCodes.contains(OfflineCode.CLIENT_MAINTENANCE);
         }
     }
 
@@ -1307,6 +1306,30 @@ public final class SessionModelImpl extends Model<SessionListener>
     private boolean isSetAuthToken() {
         return workspace.isSetAttribute(
                 WS_ATTRIBUTE_KEY_AUTH_TOKEN).booleanValue();
+    }
+
+    /**
+     * Determine whether or not an offline code has been set.
+     * 
+     * @return True if an offline code has been set.
+     */
+    private boolean isSetOfflineCode() {
+        final OfflineCodes offlineCodes = getOfflineCodes();
+        if (null == offlineCodes) {
+            return false;
+        } else {
+            return !offlineCodes.isEmpty();
+        }
+    }
+
+    /**
+     * Determine whether or not the offline codes have been set.
+     * 
+     * @return True if the offline codes have been set.
+     */
+    private boolean isSetOfflineCodes() {
+        return workspace.isSetAttribute(
+                WS_ATTRIBUTE_KEY_OFFLINE_CODES).booleanValue();
     }
 
     /**
@@ -1353,8 +1376,9 @@ public final class SessionModelImpl extends Model<SessionListener>
             public void update(final Observable o, final Object arg) {
                 final boolean online = ((Boolean) arg).booleanValue();
                 if (online) {
-                    popOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                    logger.logInfo("Network available.");
                 } else {
+                    logger.logWarning("Network unavailable.");
                     pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
                     getSessionModel().notifySessionTerminated();
                 }
@@ -1381,47 +1405,24 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Pop a specific offline code from the stack.
+     * Push an offline code.
      * 
      * @param offlineCode
      *            An <code>OfflineCode</code>.
      */
-    @SuppressWarnings("unchecked")
-    private void popOfflineCode(final OfflineCode offlineCode) {
-        final Stack<OfflineCode> offlineCodes;
-        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES)) {
-            offlineCodes = (Stack<OfflineCode>) workspace.getAttribute(
-                    WS_ATTRIBUTE_KEY_OFFLINE_CODES);
-        } else {
-            offlineCodes = new Stack<OfflineCode>();
-            workspace.setAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES, offlineCodes);
+    private void pushOfflineCode(final OfflineCode offlineCode) {
+        if (!isSetOfflineCodes()) {
+            setOfflineCodes(new OfflineCodes());
         }
-        synchronized (offlineCodes) {
-            offlineCodes.remove(offlineCode);
-        }
+        final OfflineCodes offlineCodes = getOfflineCodes();
+        offlineCodes.push(offlineCode);
     }
 
     /**
-     * Push an offline code to the top of the stack.
+     * Remove the authentication token workspace attribute.
      * 
-     * @param offlineCode
-     *            An <code>OfflineCode</code>.
+     * @return The <code>AuthToken</code>.
      */
-    @SuppressWarnings("unchecked")
-    private void pushOfflineCode(final OfflineCode offlineCode) {
-        final Stack<OfflineCode> offlineCodes;
-        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES)) {
-            offlineCodes = (Stack<OfflineCode>) workspace.getAttribute(
-                    WS_ATTRIBUTE_KEY_OFFLINE_CODES);
-        } else {
-            offlineCodes = new Stack<OfflineCode>();
-            workspace.setAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES, offlineCodes);
-        }
-        synchronized (offlineCodes) {
-            offlineCodes.push(offlineCode);
-        }
-    }
-
     private AuthToken removeAuthToken() {
         final AuthToken authToken = getAuthToken();
         if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_AUTH_TOKEN)) {
@@ -1430,8 +1431,33 @@ public final class SessionModelImpl extends Model<SessionListener>
         return authToken;
     }
 
+    /**
+     * Remove the offline code workspace attribute.
+     * 
+     * @return The <code>OfflineCodes</code>.
+     */
+    private OfflineCodes removeOfflineCodes() {
+        final OfflineCodes offlineCodes = getOfflineCodes();
+        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES)) {
+            workspace.removeAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES);
+        }
+        return offlineCodes;
+    }
+
     private void setAuthToken(final String sessionId) {
         workspace.setAttribute(WS_ATTRIBUTE_KEY_AUTH_TOKEN, newAuthToken(sessionId));
+    }
+
+    /**
+     * Set the offline codes workspace attribute.
+     * 
+     * @param offlineCodes
+     *            The <code>OfflineCodes</code>.
+     * @return The previous <code>OfflineCodes</code>.
+     */
+    private OfflineCodes setOfflineCodes(final OfflineCodes offlineCodes) {
+        return (OfflineCodes) workspace.setAttribute(
+                WS_ATTRIBUTE_KEY_OFFLINE_CODES, offlineCodes);
     }
 
     /**

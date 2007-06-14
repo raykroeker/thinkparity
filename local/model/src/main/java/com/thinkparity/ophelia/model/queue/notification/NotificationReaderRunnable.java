@@ -22,11 +22,14 @@ import com.thinkparity.codebase.model.queue.notification.NotificationSession;
 public final class NotificationReaderRunnable extends Observable implements
         Runnable {
 
+    /** A log4j wrapper. */
+    private final Log4JWrapper logger;
+
     /** A notification reader. */
     private final NotificationReader reader;
 
-    /** A log4j wrapper. */
-    private final Log4JWrapper logger;
+    /** A run indicator. */
+    private boolean running;
 
     /**
      * Create NotificationReaderRunnable.
@@ -41,6 +44,26 @@ public final class NotificationReaderRunnable extends Observable implements
         this.logger = new Log4JWrapper(getClass());
         this.reader = new NotificationReader(monitor, session);
         this.reader.open();
+        this.running = true;
+    }
+
+    /**
+     * Close the reader.
+     * 
+     * @throws IOException
+     */
+    public void closeReader() throws IOException {
+        closeReader(Boolean.FALSE);
+    }
+
+    /**
+     * Close the reader.
+     * 
+     * @throws IOException
+     */
+    public void closeReader(final Boolean force) throws IOException {
+        running = false;
+        reader.close(force);
     }
 
     /**
@@ -48,7 +71,7 @@ public final class NotificationReaderRunnable extends Observable implements
      *
      */
     public void run() {
-        while (true) {
+        while (running) {
             reader.waitForNotification();
             if (reader.didNotify()) {
                 setChanged();
@@ -59,14 +82,5 @@ public final class NotificationReaderRunnable extends Observable implements
                 }
             }
         }
-    }
-
-    /**
-     * Close the reader.
-     * 
-     * @throws IOException
-     */
-    public void closeReader() throws IOException {
-        reader.close();
     }
 }

@@ -16,7 +16,6 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.ophelia.model.Model;
-import com.thinkparity.ophelia.model.events.SessionAdapter;
 import com.thinkparity.ophelia.model.queue.monitor.ProcessStep;
 import com.thinkparity.ophelia.model.queue.notification.NotificationReaderRunnable;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
@@ -109,11 +108,10 @@ public final class QueueModelImpl extends Model implements QueueModel,
         try {
             // stop the client if running
             if (isSetNotificationClient()) {
-                final NotificationReaderRunnable notificationClient = getNotificationClient();
                 try {
-                    notificationClient.closeReader();
-                } catch (final IOException iox) {
-                    logger.logWarning(iox, "Notification client could not be closed.");
+                    removeNotificationClient().closeReader();
+                } catch (final Exception x) {
+                    logger.logError(x, "An error occured closing notification client.");
                 }
             }
             // start the client
@@ -123,14 +121,7 @@ public final class QueueModelImpl extends Model implements QueueModel,
                 public void headerReceived(final String header) {}
                 public void headerSent(final String header) {}
                 public void streamError(final NotificationException error) {
-                    logger.logError(error, "Notification client error.");
-                    getSessionModel().notifySessionTerminated();
-                    getSessionModel().addListener(new SessionAdapter() {
-                        public void sessionEstablished() {
-                            getSessionModel().removeListener(this);
-                            getQueueModel().startNotificationClient();
-                        }
-                    });
+                    logger.logWarning("Notification client offline.");
                 }
             };
             final NotificationSession session =
@@ -211,6 +202,19 @@ public final class QueueModelImpl extends Model implements QueueModel,
                 }
             }
         });
+        return notificationClient;
+    }
+
+    /**
+     * Remove the notification client workspace attribute.
+     * 
+     * @return The <code>NotificationReaderRunnable</code>.
+     */
+    private NotificationReaderRunnable removeNotificationClient() {
+        final NotificationReaderRunnable notificationClient = getNotificationClient();
+        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT)) {
+            workspace.removeAttribute(WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT);
+        }
         return notificationClient;
     }
 

@@ -59,7 +59,7 @@ final class NotificationServer {
         this.charset = Charset.forName(properties.getProperty("thinkparity.queue.notification-charset"));
         final String bindHost = properties.getProperty("thinkparity.queue.notification.bind-host");
         final Integer port = Integer.valueOf(properties.getProperty("thinkparity.queue.notification-port"));
-        this.socketServer = new SecureNotificationSocketServer(this, bindHost, port);
+        this.socketServer = new NotificationSocketServer(this, bindHost, port);
     }
 
     /**

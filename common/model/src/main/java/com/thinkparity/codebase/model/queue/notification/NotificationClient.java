@@ -56,14 +56,7 @@ public abstract class NotificationClient {
                 LOGGER.logError(error, "A notification error has occured.");
             }
         };
-        final String keyStorePath = "security/client_keystore";
-        final char[] keyStorePassword = "password".toCharArray();
-        try {
-            SOCKET_FACTORY = SocketFactory.getSecureInstance(keyStorePath,
-                    keyStorePassword, keyStorePath, keyStorePassword);
-        } catch (final Exception x) {
-            throw new NotificationException(x);
-        }
+        SOCKET_FACTORY = SocketFactory.getInstance();
     }
 
     /** The socket input stream. */
@@ -130,15 +123,19 @@ public abstract class NotificationClient {
         try {
             output.flush();
         } finally {
-            output = null;
             try {
-                input.close();
+                output.close();
             } finally {
-                input = null;
+                output = null;
                 try {
-                    socket.close();
+                    input.close();
                 } finally {
-                    socket = null;
+                    input = null;
+                    try {
+                        socket.close();
+                    } finally {
+                        socket = null;
+                    }
                 }
             }
         }
@@ -176,6 +173,17 @@ public abstract class NotificationClient {
         } catch (final IOException iox) {
             fireStreamError(new NotificationException(iox));
         }
+    }
+
+    /**
+     * Disconnect the notification client.
+     * 
+     * @throws IOException
+     */
+    protected final void terminate() throws IOException {
+        input = null;
+        output = null;
+        socket = null;
     }
 
     /**

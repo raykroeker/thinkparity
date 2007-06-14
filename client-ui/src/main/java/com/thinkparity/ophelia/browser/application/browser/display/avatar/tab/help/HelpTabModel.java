@@ -17,6 +17,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.help.HelpProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.help.HelpTabPanel;
 
@@ -49,6 +50,14 @@ public final class HelpTabModel extends TabPanelModel<Long> implements
     public List<TabAvatarFilterBy> getFilterBy() {
         final List<TabAvatarFilterBy> filterBy = Collections.emptyList();
         return filterBy;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#getTabButtonActionDelegate()
+     */
+    @Override
+    public TabButtonActionDelegate getTabButtonActionDelegate() {
+        return actionDelegate;
     }
 
     /**

@@ -22,6 +22,7 @@ import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
@@ -157,6 +158,13 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         }
         return sortedIds;
     }
+
+    /**
+     * Obtain the tab button action delegate.
+     *
+     * @return A <code>TabButtonActionDelegate</code>.
+     */
+    public abstract TabButtonActionDelegate getTabButtonActionDelegate();
 
     /**
      * Determine whether or not thinkParity is running in development mode.

@@ -30,6 +30,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserPopupHelper;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 
 /**
@@ -184,6 +185,15 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
      */
     public TabAvatarFilterDelegate getFilterDelegate() {
         return filterDelegate;
+    }
+
+    /**
+     * Obtain the tab button action delegate.
+     *
+     * @return A <code>TabButtonActionDelegate</code>.
+     */
+    public TabButtonActionDelegate getTabButtonActionDelegate() {
+        return model.getTabButtonActionDelegate();
     }
 
     /**

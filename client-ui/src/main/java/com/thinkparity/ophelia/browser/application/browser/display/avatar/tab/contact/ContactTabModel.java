@@ -28,6 +28,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.contact.ContactProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ContactTabPanel;
 
@@ -75,6 +76,14 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     public List<TabAvatarFilterBy> getFilterBy() {
         final List<TabAvatarFilterBy> filterBy = Collections.emptyList();
         return filterBy;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#getTabButtonActionDelegate()
+     */
+    @Override
+    public TabButtonActionDelegate getTabButtonActionDelegate() {
+        return actionDelegate;
     }
 
     /**

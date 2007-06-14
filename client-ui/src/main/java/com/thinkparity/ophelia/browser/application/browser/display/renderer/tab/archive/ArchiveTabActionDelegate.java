@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.archive;
 
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ActionDelegate;
 
 /**
@@ -12,5 +13,5 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public interface ArchiveTabActionDelegate extends ActionDelegate {
+public interface ArchiveTabActionDelegate extends ActionDelegate, TabButtonActionDelegate {
 }

@@ -37,6 +37,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
@@ -114,6 +115,14 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
             });
         }
         return filterBy;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#getTabButtonActionDelegate()
+     */
+    @Override
+    public TabButtonActionDelegate getTabButtonActionDelegate() {
+        return actionDelegate;
     }
 
     /**
@@ -912,7 +921,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
                 // if the reload is the result of a remote event add the container
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
-                requestFocus = ((Component)lookupPanel(containerId)).hasFocus();
+                requestFocus = ((Component)lookupPanel(containerId)).isFocusOwner();
                 removeContainerPanel(containerId, false);
                 if (remote) {
                     addContainerPanel(0, container);

@@ -29,6 +29,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.Ta
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.archive.ArchiveTabProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.tab.container.ContainerProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.archive.ArchiveTabActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.archive.ArchiveTabPanel;
@@ -97,6 +98,14 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
             });
         }
         return filterBy;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#getTabButtonActionDelegate()
+     */
+    @Override
+    public TabButtonActionDelegate getTabButtonActionDelegate() {
+        return actionDelegate;
     }
 
     /**

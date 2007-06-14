@@ -116,6 +116,12 @@ final class ArchiveTabActionDelegateImpl extends DefaultBrowserActionDelegate
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate#invokeForTabButton()
+     */
+    public void invokeForTabButton() {
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerTabActionDelegate#invokeForUser(com.thinkparity.codebase.model.user.User)
      * 
      */
@@ -142,6 +148,13 @@ final class ArchiveTabActionDelegateImpl extends DefaultBrowserActionDelegate
             data.set(ReadVersion.DataKey.VERSION_ID, version.getVersionId());
             invoke(versionRead, getApplication(), data);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate#isTabButtonActionAvailable()
+     */
+    public Boolean isTabButtonActionAvailable() {
+        return Boolean.FALSE;
     }
 
     /**

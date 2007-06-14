@@ -7,6 +7,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.h
 import com.thinkparity.ophelia.model.help.HelpTopic;
 
 import com.thinkparity.ophelia.browser.application.browser.DefaultBrowserActionDelegate;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.help.ActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
@@ -18,7 +19,7 @@ import com.thinkparity.ophelia.browser.platform.action.help.ShowMovie;
  * @version $Revision$
  */
 public class HelpTabActionDelegate extends DefaultBrowserActionDelegate
-        implements ActionDelegate {
+        implements ActionDelegate, TabButtonActionDelegate {
 
     /** The browse <code>AbstractAction</code>. */
     private final ActionInvocation browse;
@@ -41,5 +42,18 @@ public class HelpTabActionDelegate extends DefaultBrowserActionDelegate
         final Data showMovieData = new Data(1);
         showMovieData.set(ShowMovie.DataKey.URL, helpTopic.getMovie());
         browse.invokeAction(getApplication(), showMovieData);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate#invokeForTabButton()
+     */
+    public void invokeForTabButton() {
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate#isTabButtonActionAvailable()
+     */
+    public Boolean isTabButtonActionAvailable() {
+        return Boolean.FALSE;
     }
 }

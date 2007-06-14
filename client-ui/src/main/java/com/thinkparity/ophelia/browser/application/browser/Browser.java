@@ -55,6 +55,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.ar
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.help.HelpTabAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.*;
@@ -807,6 +808,17 @@ public class Browser extends AbstractApplication {
      */
     public BrowserSession getSession(final AvatarId avatarId, final Boolean create) {
         return getSession(new BrowserContext(avatarId), create);
+    }
+
+    /**
+     * Get the tab button action delegate for the selected tab avatar.
+     * 
+     * @param tabId
+     *            A <code>MainTitleAvatar.TabId</code>.
+     * @return A <code>TabButtonActionDelegate</code>.
+     */
+    public TabButtonActionDelegate getTabButtonActionDelegate(final MainTitleAvatar.TabId tabId) {
+        return getTabAvatar(tabId).getTabButtonActionDelegate();
     }
 
     /**

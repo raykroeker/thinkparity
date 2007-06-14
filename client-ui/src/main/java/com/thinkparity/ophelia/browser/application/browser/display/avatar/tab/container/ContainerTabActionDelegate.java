@@ -13,6 +13,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
 import com.thinkparity.ophelia.browser.application.browser.DefaultBrowserActionDelegate;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -33,10 +34,13 @@ import com.thinkparity.ophelia.browser.platform.action.profile.Update;
  * @version 1.1.2.7
  */
 final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate implements
-        ActionDelegate {
+        ActionDelegate, TabButtonActionDelegate {
 
     /** The container's add bookmark <code>AbstractAction</code>. */
     private final ActionInvocation containerAddBookmark;
+
+    /** The create container <code>AbstractAction</code>. */
+    private final ActionInvocation containerCreate;
 
     /** The container's add bookmark <code>AbstractAction</code>. */
     private final ActionInvocation containerRemoveBookmark;
@@ -67,6 +71,7 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
         super();
         this.model = model;
         this.containerAddBookmark = ActionFactory.create(ActionId.CONTAINER_ADD_BOOKMARK);
+        this.containerCreate = ActionFactory.create(ActionId.CONTAINER_CREATE);
         this.containerRemoveBookmark = ActionFactory.create(ActionId.CONTAINER_REMOVE_BOOKMARK);
         this.documentOpenDraft = getInstance(ActionId.DOCUMENT_OPEN);
         this.documentOpenVersion = getInstance(ActionId.DOCUMENT_OPEN_VERSION);
@@ -115,6 +120,13 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate#invokeForTabButton()
+     */
+    public void invokeForTabButton() {
+        invoke(containerCreate, getApplication(), Data.emptyData());
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerTabActionDelegate#invokeForUser(com.thinkparity.codebase.model.user.User)
      * 
      */
@@ -141,6 +153,13 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
             data.set(ReadVersion.DataKey.VERSION_ID, version.getVersionId());
             invoke(versionRead, getApplication(), data);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate#isTabButtonActionAvailable()
+     */
+    public Boolean isTabButtonActionAvailable() {
+        return Boolean.TRUE;
     }
 
     /**

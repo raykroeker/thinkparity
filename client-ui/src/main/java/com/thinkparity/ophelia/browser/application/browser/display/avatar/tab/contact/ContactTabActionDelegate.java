@@ -12,6 +12,7 @@ import com.thinkparity.codebase.model.contact.OutgoingInvitation;
 import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.browser.application.browser.DefaultBrowserActionDelegate;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ActionDelegate;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
@@ -30,7 +31,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingUs
  * @version 1.1.2.7
  */
 final class ContactTabActionDelegate extends DefaultBrowserActionDelegate implements
-        ActionDelegate {
+        ActionDelegate, TabButtonActionDelegate {
     
     /** The <code>ContactTabModel</code>. */
     private final ContactTabModel model;
@@ -125,7 +126,13 @@ final class ContactTabActionDelegate extends DefaultBrowserActionDelegate implem
      * 
      */
     public void invokeForInvitation(final OutgoingInvitation invitation) {}
-    
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate#invokeForTabButton()
+     */
+    public void invokeForTabButton() {
+    }
+
     /**
      * Determine whether or not we are online.
      * 
@@ -133,5 +140,12 @@ final class ContactTabActionDelegate extends DefaultBrowserActionDelegate implem
      */
     private boolean isOnline() {
         return model.isOnline().booleanValue();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate#isTabButtonActionAvailable()
+     */
+    public Boolean isTabButtonActionAvailable() {
+        return Boolean.FALSE;
     }
 }

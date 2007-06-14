@@ -122,6 +122,11 @@ public final class QueueModelImpl extends Model implements QueueModel,
                 public void headerSent(final String header) {}
                 public void streamError(final NotificationException error) {
                     logger.logWarning("Notification client offline.");
+                    try {
+                        removeNotificationClient().closeReader();
+                    } catch (final Exception x) {
+                        logger.logError(x, "An error occured closing notification client.");
+                    }
                 }
             };
             final NotificationSession session =

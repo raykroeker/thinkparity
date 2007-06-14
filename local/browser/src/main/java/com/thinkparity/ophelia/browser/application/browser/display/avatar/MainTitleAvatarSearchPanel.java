@@ -27,7 +27,6 @@ import com.thinkparity.codebase.swing.border.TopBottomBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Search;
-import com.thinkparity.ophelia.browser.application.browser.BrowserPopupHelper;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar.TabId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
@@ -85,7 +84,6 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         initComponents();
         addMoveListener(this);
         addRequestFocusListener(this);
-        new BrowserPopupHelper().addPopupListener(this);
         new Resizer(getBrowser(), this, Boolean.FALSE, Resizer.ResizeEdges.RIGHT);     
 
         // TODO clean this up

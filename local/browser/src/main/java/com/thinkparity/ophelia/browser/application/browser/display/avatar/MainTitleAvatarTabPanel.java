@@ -17,7 +17,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Icons.BrowserTitle;
-import com.thinkparity.ophelia.browser.application.browser.BrowserPopupHelper;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar.TabId;
@@ -71,7 +70,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         initComponents();
         addMoveListener(this);
         addRequestFocusListener(this);
-        new BrowserPopupHelper().addPopupListener(this);
         new Resizer(getBrowser(), this, Boolean.FALSE, Resizer.ResizeEdges.LEFT);
         new Resizer(getBrowser(), containerJLabel, Boolean.FALSE, Resizer.ResizeEdges.LEFT);
     }

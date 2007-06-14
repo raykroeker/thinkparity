@@ -365,7 +365,6 @@ public class BrowserWindow extends AbstractJFrame {
         final JMenuBar menuBar = new BrowserMenuBar(browser, this, maximized);
         addMoveListener(menuBar);
         addRequestFocusListener(menuBar);
-        new BrowserPopupHelper().addPopupListener(menuBar);
         setJMenuBar(menuBar);
     }
 

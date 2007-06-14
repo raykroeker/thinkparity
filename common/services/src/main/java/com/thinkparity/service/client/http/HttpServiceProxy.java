@@ -5,12 +5,14 @@ package com.thinkparity.service.client.http;
 
 import java.io.*;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
 
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -35,8 +37,11 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     /** The xml charset (encoding). */
     private static final Charset CHARSET;
 
-    /** The attribute name for the error note message. */
-    private static final String ERROR_NODE_MESSAGE_ATTRIBUTE_NAME;
+    /** The node names for the error response. */
+    private static final String[] ERROR_NODE_NAMES;
+
+    /** A log4j wrapper. */
+    private static final Log4JWrapper LOGGER;
 
     /** The request xml components. */
     private static final char[][] REQUEST_XML;
@@ -53,7 +58,9 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     static {
         CHARSET = StringUtil.Charset.UTF_8.getCharset();
 
-        ERROR_NODE_MESSAGE_ATTRIBUTE_NAME = "message";
+        ERROR_NODE_NAMES = new String[] { "message", "type" };
+
+        LOGGER = new Log4JWrapper(HttpServiceProxy.class);
 
         REQUEST_XML = new char[][] {
                 "<?xml version=\"1.0\" encoding=\"".toCharArray(),
@@ -71,6 +78,28 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
         SERVICE_HELPER = new ServiceHelper();
 
         XSTREAM = new XStream();
+    }
+
+    /**
+     * Create an instance of the error type with the appropriate error message.
+     * 
+     * @param errorType
+     *            An error type <code>Class<? extends Throwable></code>.
+     * @param message
+     *            An error message <code>String</code>.
+     * @return An instance of <code>Throwable</code>.
+     * @throws InstantiationException
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     * @throws NoSuchMethodException
+     */
+    private static Object newErrorInstance(final Class<?> errorType,
+            final String message) throws InstantiationException,
+            InvocationTargetException, IllegalAccessException,
+            NoSuchMethodException {
+        return errorType.getConstructor(
+                new Class[] { String.class }).newInstance(
+                        new Object[] { message });
     }
 
     /**
@@ -129,12 +158,26 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
      */
     private static Throwable newServiceException(
             final ServiceRequest request, final ServiceResponse response) {
-        final ServiceException serviceError = new ServiceException(
+        final String exceptionMessage = MessageFormat.format(
                 "A remote error has occured.  {0}:{1}:{2}",
-                request.getService().getId(), request.getOperation().getId(),
-                response.getErrorMessage());
-        serviceError.setStackTrace(response.getErrorStackTrace());
-        return serviceError;
+                request.getService().getId(),
+                request.getOperation().getId(),
+                response.isSetErrorMessage() ? response.getErrorMessage() : "No message");
+        Throwable exception;
+        if (response.isSetErrorType()) {
+            try {
+                exception = (Throwable) newErrorInstance(
+                        response.getErrorType(), exceptionMessage);
+            } catch (final Exception x) {
+                LOGGER.logWarning(x, "Cannot instantiate remote error:  {0}",
+                        exceptionMessage);
+                exception = new ServiceException(exceptionMessage);
+            }
+        } else {
+            exception = new ServiceException(exceptionMessage);
+        }
+        exception.setStackTrace(response.getErrorStackTrace());
+        return exception;
     }
 
     /**
@@ -194,6 +237,40 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     }
 
     /**
+     * Unmarshall the error message.
+     * 
+     * @param xppReader
+     *            An <code>XppReader</code>.
+     * @return A <code>String</code>.
+     */
+    private static String unmarshalErrorMessage(final XppReader xppReader) {
+        return (String) XSTREAM.unmarshal(xppReader);
+    }
+
+    /**
+     * Unmarshall the error stack trace of the response.
+     * 
+     * @param xppReader
+     *            An <code>XppReader</code>.
+     * @return A <code>StackTraceElement[]</code>.
+     */
+    private static StackTraceElement[] unmarshalErrorStackTrace(
+            final XppReader xppReader) {
+        return (StackTraceElement[]) XSTREAM.unmarshal(xppReader);
+    }
+
+    /**
+     * Unmarshall the error of the response.
+     * 
+     * @param xppReader
+     *            An <code>XppReader</code>.
+     * @return A <code>Object</code>.
+     */
+    private static Class unmarshalErrorType(final XppReader xppReader) {
+        return (Class) XSTREAM.unmarshal(xppReader);
+    }
+
+    /**
      * Unmarshall the result of the response.
      * 
      * @param parser
@@ -210,18 +287,6 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
                 return value;
             }
         };
-    }
-
-    /**
-     * Unmarshall the error of the response.
-     * 
-     * @param parser
-     *            An <code>XmlPullParser</code>.
-     * @return A <code>Object</code>.
-     */
-    private static StackTraceElement[] unmarshalStackTrace(
-            final XppReader xppReader) {
-        return (StackTraceElement[]) XSTREAM.unmarshal(xppReader);
     }
 
     /** A service context shared by all service proxy instances. */
@@ -371,10 +436,27 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
             xppReader.moveDown();
             response.setResult(unmarshalResult(xppReader));
         } else if (RESPONSE_NODE_NAMES[1].equals(xppReader.getNodeName())) {
-            final String errorMessage = xppReader.getAttribute(
-                    ERROR_NODE_MESSAGE_ATTRIBUTE_NAME);
             xppReader.moveDown();
-            response.setError(errorMessage, unmarshalStackTrace(xppReader));
+            final String errorMessage;
+            if (ERROR_NODE_NAMES[0].equals(xppReader.getNodeName())) {
+                errorMessage = unmarshalErrorMessage(xppReader);
+                xppReader.moveDown();
+            } else {
+                errorMessage = null;
+            }
+            final Class<?> errorType;
+            if (ERROR_NODE_NAMES[1].equals(xppReader.getNodeName())) {
+                errorType = unmarshalErrorType(xppReader);
+                xppReader.moveDown();
+            } else {
+                errorType = null;
+            }
+            final StackTraceElement[] errorStackTrace = unmarshalErrorStackTrace(xppReader);
+            if (null == errorType) {
+                response.setUndeclaredError(errorMessage, errorStackTrace);
+            } else {
+                response.setDeclaredError(errorType, errorMessage, errorStackTrace);
+            }
         } else {
             Assert.assertUnreachable("Unknown service response node name {0}.",
                     xppReader.getNodeName());

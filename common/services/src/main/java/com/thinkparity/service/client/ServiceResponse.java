@@ -15,8 +15,14 @@ public final class ServiceResponse {
     /** The error message. */
     private String errorMessage;
 
+    /** A boolean indicating an error response. */
+    private Boolean errorResponse;
+
     /** The error stack. */
     private StackTraceElement[] errorStackTrace;
+
+    /** The error type. */
+    private Class<?> errorType;
 
     /** A response result. */
     private Result result;
@@ -29,17 +35,31 @@ public final class ServiceResponse {
         super();
     }
 
+    /**
+     * Obtain the error message.
+     * 
+     * @return An error message <code>String</code>.
+     */
     public String getErrorMessage(){ 
         return errorMessage;
     }
 
     /**
      * Obtain the stack trace.
-     *
+     * 
      * @return A <code>StackTraceElement[]</code>.
      */
     public StackTraceElement[] getErrorStackTrace() {
         return errorStackTrace;
+    }
+
+    /**
+     * Obtain the response error type.
+     * 
+     * @return A <code>Class<? extends Throwable></code>.
+     */
+    public Class<?> getErrorType() {
+        return errorType;
     }
 
     /**
@@ -57,7 +77,25 @@ public final class ServiceResponse {
      * @return True if the response is an error response.
      */
     public Boolean isErrorResponse() {
-        return null != errorMessage || null != errorStackTrace;
+        return errorResponse;
+    }
+
+    /**
+     * Determine if the error message is set.
+     * 
+     * @return True if the error message is set.
+     */
+    public Boolean isSetErrorMessage() {
+        return Boolean.valueOf(null != errorMessage);
+    }
+
+    /**
+     * Determine whether or not the error type is set.
+     * 
+     * @return True if the error type is set.
+     */
+    public Boolean isSetErrorType() {
+        return Boolean.valueOf(null != errorType);
     }
 
     /**
@@ -70,13 +108,19 @@ public final class ServiceResponse {
     }
 
     /**
-     * Set the stack trace.
-     *
-     * @param stackTrace
-     *      A <code>StackTraceElement[]</code>.
+     * Set an declared error.
+     * 
+     * @param errorType
+     *            An error type <code>Class<?></code>.
+     * @param errorMessage
+     *            An error message <code>String</code>.
+     * @param errorStackTrace
+     *            An error <code>StackTraceElement[]</code>.
      */
-    public void setError(final String errorMessage,
-            final StackTraceElement[] errorStackTrace) {
+    public void setDeclaredError(final Class<?> errorType,
+            final String errorMessage, final StackTraceElement[] errorStackTrace) {
+        this.errorResponse = Boolean.TRUE;
+        this.errorType = errorType;
         this.errorMessage = errorMessage;
         this.errorStackTrace = errorStackTrace;
     }
@@ -88,6 +132,23 @@ public final class ServiceResponse {
      *            A <code>Result</code>.
      */
     public void setResult(final Result result) {
+        this.errorResponse = Boolean.FALSE;
         this.result = result;
+    }
+
+    /**
+     * Set an undeclared error.
+     * 
+     * @param errorMessage
+     *            An error message <code>String</code>.
+     * @param errorStackTrace
+     *            An error <code>StackTraceElement[]</code>.
+     */
+    public void setUndeclaredError(final String errorMessage,
+            final StackTraceElement[] errorStackTrace) {
+        this.errorResponse = Boolean.TRUE;
+        this.errorType = null;
+        this.errorMessage = errorMessage;
+        this.errorStackTrace = errorStackTrace;
     }
 }

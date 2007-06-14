@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.web.service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 
@@ -41,10 +42,19 @@ public final class Operation {
      * @see com.thinkparity.desdemona.web.service.Operation#invoke(com.thinkparity.desdemona.web.service.Service, com.thinkparity.desdemona.web.service.Parameter[])
      *
      */
-    public Result invoke(final Service service, final Parameter[] parameters) {
+    public Result invoke(final Service service, final Parameter[] parameters)
+            throws Throwable {
         final ServiceSEI serviceSEI = newInstance(service);
         try {
             return newResult(method.invoke(serviceSEI, newArgs(parameters)));
+        } catch (final InvocationTargetException itx) {
+            final Throwable targetException = itx.getTargetException();
+            if (isDeclared(targetException)) {
+                throw targetException;
+            } else {
+                throw new ServiceException(itx.getTargetException(), "Could not invoke operation {0}:{1}.",
+                    service.getId(), id);
+            }
         } catch (final Exception x) {
             throw new ServiceException(x, "Could not invoke operation {0}:{1}.",
                     service.getId(), id);
@@ -69,6 +79,24 @@ public final class Operation {
      */
     public void setMethod(final Method method) {
         this.method = method;
+    }
+
+    /**
+     * Determine whether or not the throwable has been declared as part of the
+     * method signature.
+     * 
+     * @param throwable
+     *            A <code>Throwable</code>.
+     * @return True if throwable is declared on method.
+     */
+    private boolean isDeclared(final Throwable throwable) {
+        final Class<?>[] exceptionTypes = method.getExceptionTypes();
+        for (final Class<?> exceptionType : exceptionTypes) {
+            if (throwable.getClass().isAssignableFrom(exceptionType)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

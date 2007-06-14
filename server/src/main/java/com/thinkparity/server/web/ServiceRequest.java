@@ -69,7 +69,7 @@ public final class ServiceRequest {
      * @return A <code>ServiceResponse</code>.
      * @throws Exception
      */
-    public ServiceResponse invoke() throws Exception {
+    public ServiceResponse invoke() throws Throwable {
         return newServiceResponse(operation.invoke(service, parameters));
     }
 

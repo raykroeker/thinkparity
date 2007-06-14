@@ -15,12 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.thinkparity.codebase.StringUtil;
 
-import com.thinkparity.desdemona.web.service.Operation;
-import com.thinkparity.desdemona.web.service.OperationRegistry;
-import com.thinkparity.desdemona.web.service.Parameter;
-import com.thinkparity.desdemona.web.service.Result;
-import com.thinkparity.desdemona.web.service.Service;
-import com.thinkparity.desdemona.web.service.ServiceRegistry;
+import com.thinkparity.desdemona.web.service.*;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
@@ -65,7 +60,6 @@ public final class WebService extends HttpServlet {
                 "<?xml version=\"1.0\" encoding=\"".toCharArray(),
                 "\"?><service-error service=\"".toCharArray(),
                 "\" operation=\"".toCharArray(),
-                "\" message=\"".toCharArray(),
                 "\">".toCharArray(),
                 "</service-error>".toCharArray()
         };
@@ -103,6 +97,45 @@ public final class WebService extends HttpServlet {
     }
 
     /**
+     * Marshal the error message.
+     * 
+     * @param errorMessage
+     *            The error message <code>String</code> to write.
+     * @param writer
+     *            A <code>Writer</code>.
+     */
+    private static void marshalErrorMessage(final String errorMessage,
+            final Writer writer) {
+        XSTREAM.marshal(errorMessage, new XmlWriter(writer));
+    }
+
+    /**
+     * Marshal the error stack trace.
+     * 
+     * @param error
+     *            The error <code>StackTraceElement[]</code> to write.
+     * @param writer
+     *            A <code>Writer</code>.
+     */
+    private static void marshalErrorStackTrace(
+            final StackTraceElement[] stackTrace, final Writer writer) {
+        XSTREAM.marshal(stackTrace, new XmlWriter(writer));
+    }
+
+    /**
+     * Marshal the error type.
+     * 
+     * @param errorType
+     *            The error type <code>Class<?></code> to write.
+     * @param writer
+     *            A <code>Writer</code>.
+     */
+    private static void marshalErrorType(final Class<?> errorType,
+            final Writer writer) {
+        XSTREAM.marshal(errorType, new XmlWriter(writer));
+    }
+
+    /**
      * Marshal the result to a writer.
      * 
      * @param result
@@ -115,35 +148,29 @@ public final class WebService extends HttpServlet {
     }
 
     /**
-     * Marshal the error.
+     * Create an error service response for an undeclared error.
      * 
      * @param error
-     *            The error <code>Throwable</code> to write.
-     * @param writer
-     *            A <code>Writer</code>.
+     *            An undeclared error <code>ServiceException</code>.
+     * @return A <code>ServiceResponse</code>.
      */
-    private static void marshalStackTrace(final StackTraceElement[] stackTrace,
-            final Writer writer) {
-        XSTREAM.marshal(stackTrace, new XmlWriter(writer));
+    private static ServiceResponse newErrorResponse(final ServiceException error) {
+        final ServiceResponse errorResponse = new ServiceResponse();
+        errorResponse.setUndeclaredError(error.getMessage(), newStackTrace(error));
+        return errorResponse;
     }
 
     /**
-     * Create a new service response and set the stack trace indicating an error
-     * has occured.
+     * Create an error service response for a declared error
      * 
      * @param error
-     *            An error <code>Throwable</code>.
+     *            A declared error <code>Throwable</code>.
      * @return A <code>ServiceResponse</code>.
      */
     private static ServiceResponse newErrorResponse(final Throwable error) {
         final ServiceResponse errorResponse = new ServiceResponse();
-        Throwable responseError = error;
-        Throwable cause = responseError.getCause();
-        while (null != cause) {
-            responseError = cause;
-            cause = responseError.getCause();
-        }
-        errorResponse.setError(responseError);
+        errorResponse.setDeclaredError(error.getClass(), error.getMessage(),
+                newStackTrace(error));
         return errorResponse;
     }
 
@@ -178,6 +205,27 @@ public final class WebService extends HttpServlet {
     private static Service newService(final XppReader xppReader) {
         return SERVICE_REGISTRY.getService(
                 xppReader.getAttribute(SRV_REQ_RESP_ATTR_NAME_SRV));
+    }
+
+    /**
+     * Build a stack trace from an error including the cause elements.
+     * 
+     * @param error
+     *            An error <code>Throwable</code>.
+     * @return A <code>StackTraceElement[]</code>.
+     */
+    private static StackTraceElement[] newStackTrace(final Throwable error) {
+        final List<StackTraceElement> stackTrace = new ArrayList<StackTraceElement>();
+        for (final StackTraceElement element : error.getStackTrace()) {
+            stackTrace.add(element);
+        }
+        Throwable cause = error.getCause();
+        while (null != cause) {
+            for (final StackTraceElement element : cause.getStackTrace()) {
+                stackTrace.add(element);
+            }
+        }
+        return stackTrace.toArray(new StackTraceElement[] {});
     }
 
     /**
@@ -302,10 +350,12 @@ public final class WebService extends HttpServlet {
         writer.write(ERROR_XML[2]);
         writer.write(serviceRequest.getOperation().getId());
         writer.write(ERROR_XML[3]);
-        writer.write(errorResponse.isSetErrorMessage() ? errorResponse.getErrorMessage() : "null");
+        if (errorResponse.isSetErrorType())
+            marshalErrorType(errorResponse.getErrorType(), writer);
+        if (errorResponse.isSetErrorMessage())
+            marshalErrorMessage(errorResponse.getErrorMessage(), writer);
+        marshalErrorStackTrace(errorResponse.getErrorStackTrace(), writer);
         writer.write(ERROR_XML[4]);
-        marshalStackTrace(errorResponse.getErrorStackTrace(), writer);
-        writer.write(ERROR_XML[5]);
         writer.flush();
     }
 
@@ -356,8 +406,10 @@ public final class WebService extends HttpServlet {
     public ServiceResponse service(final ServiceRequest request) {
         try {
             return request.invoke();
-        } catch (final Exception error) {
-            return newErrorResponse(error);
+        } catch (final ServiceException sx) {
+            return newErrorResponse(sx);
+        } catch (final Throwable throwable) {
+            return newErrorResponse(throwable);
         }
     }
 

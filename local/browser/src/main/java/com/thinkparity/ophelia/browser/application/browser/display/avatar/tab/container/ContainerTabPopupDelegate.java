@@ -115,6 +115,18 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             needSeparator = false;
         }
 
+        // bookmark
+        if (container.isBookmarked()) {
+            final Data removeBookmarkData = new Data(1);
+            removeBookmarkData.set(RemoveBookmark.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_REMOVE_BOOKMARK, removeBookmarkData);
+        } else {
+            final Data addBookmarkData = new Data(1);
+            addBookmarkData.set(AddBookmark.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_ADD_BOOKMARK, addBookmarkData);
+        }
+        needSeparator = true;
+
         // Rename container
         if (!isDistributed(container.getId())) {
             final Data renameData = new Data(1);

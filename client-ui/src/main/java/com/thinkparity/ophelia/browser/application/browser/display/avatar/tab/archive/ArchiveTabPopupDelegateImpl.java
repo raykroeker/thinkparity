@@ -34,9 +34,11 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
+import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
 import com.thinkparity.ophelia.browser.platform.action.container.Delete;
 import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
 import com.thinkparity.ophelia.browser.platform.action.container.Expand;
+import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
 import com.thinkparity.ophelia.browser.platform.action.container.Restore;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
@@ -81,6 +83,18 @@ final class ArchiveTabPopupDelegateImpl extends DefaultBrowserPopupDelegate
     public void showForContainer(final Container container, final ContainerDraft draft) {
         final boolean online = isOnline();
         boolean needSeparator = false;
+
+        // bookmark
+        if (container.isBookmarked()) {
+            final Data removeBookmarkData = new Data(1);
+            removeBookmarkData.set(RemoveBookmark.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_REMOVE_BOOKMARK, removeBookmarkData);
+        } else {
+            final Data addBookmarkData = new Data(1);
+            addBookmarkData.set(AddBookmark.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_ADD_BOOKMARK, addBookmarkData);
+        }
+        needSeparator = true;
 
         // restore
         if (online) {

@@ -67,6 +67,7 @@ public class Swing {
         	final LookAndFeel laf;
         	switch (OSUtil.getOS()) {
         	case WINDOWS_XP:
+            case WINDOWS_VISTA:
         		laf = new com.sun.java.swing.plaf.windows.WindowsLookAndFeel();
                 defaults.put("FileChooserUI", ThinkParityFileChooserUI.class.getName());
         		break;

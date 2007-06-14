@@ -45,6 +45,7 @@ public final class WindowUtilProvider {
 		super();
         switch (OSUtil.getOs()) {
         case WINDOWS_XP:
+        case WINDOWS_VISTA:
             this.windowUtil = new Win32WindowUtil();
             break;
         case LINUX:

@@ -59,6 +59,7 @@ public class ProfileManager {
             }
             switch(OSUtil.getOS()) {
                 case WINDOWS_XP:
+                case WINDOWS_VISTA:
                     final StringBuffer win32Path = new StringBuffer()
                             .append(System.getenv("APPDATA"))
                             .append(File.separatorChar).append("thinkParity");

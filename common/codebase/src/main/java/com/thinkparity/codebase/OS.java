@@ -13,7 +13,8 @@ package com.thinkparity.codebase;
  */
 public enum OS {
 
-	LINUX(Platform.LINUX), MAC_OSX(Platform.UNIX), WINDOWS_XP(Platform.WIN32);
+	LINUX(Platform.LINUX), MAC_OSX(Platform.UNIX), WINDOWS_VISTA(Platform.WIN32),
+    WINDOWS_XP(Platform.WIN32);
 
     /** The <code>Platform</code>. */
     private final Platform platform;

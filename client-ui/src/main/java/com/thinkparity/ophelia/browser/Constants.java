@@ -152,6 +152,7 @@ public final class Constants {
         static {
             switch (OSUtil.getOS()) {
             case WINDOWS_XP:
+            case WINDOWS_VISTA:
                 USER_HOME = new File(System.getenv("USERPROFILE"));
                 USER_DATA = new File(USER_HOME, "My Documents\\thinkParity");
                 break;

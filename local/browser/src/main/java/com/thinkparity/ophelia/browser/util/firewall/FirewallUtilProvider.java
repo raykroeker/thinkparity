@@ -31,6 +31,7 @@ public final class FirewallUtilProvider {
         if (null == INSTANCE) {
             switch (OSUtil.getOS()) {
             case WINDOWS_XP:
+            case WINDOWS_VISTA:
                 INSTANCE = new Win32FirewallUtil();
                 break;
             case LINUX:

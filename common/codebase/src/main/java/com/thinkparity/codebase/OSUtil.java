@@ -41,6 +41,8 @@ public class OSUtil {
         final OS os;
         if ("Windows XP".equals(osName)) {
             os = OS.WINDOWS_XP;
+        } else if ("Windows Vista".equals(osName)) {
+            os = OS.WINDOWS_VISTA;
         } else if ("Linux".equals(osName)) {
             os = OS.LINUX;
         } else if ("Mac OS X".equals(osName)) {
@@ -66,20 +68,14 @@ public class OSUtil {
      * @return True if it is Windows 2000 or Windows XP.
      */
     public static Boolean isWindows() {
-        switch (getOS()) {
-        case WINDOWS_XP:
-            return Boolean.TRUE;
-        case LINUX:
-            return Boolean.FALSE;
-        case MAC_OSX:
-            return Boolean.FALSE;
-        default:
-            throw Assert.createUnreachable("Unknown operating system.");
-        }
+        return Platform.WIN32 == getOS().getPlatform();
     }
 
 	/**
 	 * Create an OSUtil [Singleton]
+     * 
 	 */
-	private OSUtil() { super(); }
+	private OSUtil() {
+        super();
+	}
 }

@@ -96,7 +96,7 @@ class DeployHelper {
      */
     void deploy(JabberId userId, Product product, Release release,
         List resources, String streamId) {
-        migratorService.deploy(authToken, product, release, resources, streamId)
+        migratorService.deploy(authToken, streamId, product, release, resources)
     }
 
     /**
@@ -178,7 +178,7 @@ class DeployHelper {
         final StreamWriter writer = new StreamWriter(monitor, session)
         writer.open()
         try {
-            final String streamId = xmppSession.createStream(userId, session)
+            final String streamId = streamService.create(authToken, session)
             writer.write(streamId, stream, size, actualOffset)
             return streamId
         } finally {

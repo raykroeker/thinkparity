@@ -618,7 +618,7 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
         } else {
             final TabPanel containerPanel = panels.remove(panelIndex);
             if (removeExpandedState) {
-                expandedState.remove(containerPanel);
+                removeExpandedState(containerPanel);
             }
         }
     }

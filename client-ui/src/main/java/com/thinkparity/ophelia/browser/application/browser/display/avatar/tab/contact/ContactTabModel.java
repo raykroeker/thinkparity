@@ -756,7 +756,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         } else {
             final TabPanel panel = panels.remove(panelIndex);
             if (removeExpandedState) {
-                expandedState.remove(panel);
+                removeExpandedState(panel);
             }
         }
     }
@@ -777,7 +777,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         } else {
             final TabPanel panel = panels.remove(panelIndex);
             if (removeExpandedState) {
-                expandedState.remove(panel);
+                removeExpandedState(panel);
             }
         }
     }

@@ -110,7 +110,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
             sync(e);
         } else {
             sync(e);
-            showPanel(e.getContainer().getId(), Boolean.FALSE);           
+            showPanel(e.getContainer().getId(), Boolean.FALSE);
             setDraftSelection(e);
         }
     }
@@ -134,7 +134,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     public void fireDocumentAdded(final ContainerEvent e) {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
-                model.syncDocumentAdded(e.getContainer(), e.getDocument(), e.getDraft());
+                model.syncDocumentAdded(e.getContainer(), e.getDraft(), e.getDocument());
             }
         });
     }
@@ -146,7 +146,11 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.
      */
     public void fireDocumentRemoved(final ContainerEvent e) {
-        sync(e);
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncDocumentModified(e.getContainer(), e.getDraft(), e.getDocument());
+            }
+        });
     }
 
     /**
@@ -156,7 +160,11 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.
      */
     public void fireDocumentReverted(final ContainerEvent e) {
-        sync(e);
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncDocumentModified(e.getContainer(), e.getDraft(), e.getDocument());
+            }
+        });
     }
 
     /**
@@ -166,7 +174,11 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.   
      */
     public void fireDraftCreated(final ContainerEvent e) {
-        sync(e);
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncDraftChanged(e.getContainer(), e.getDraft(), e.isRemote());
+            }
+        });
         if (e.isLocal())
             setDraftSelection(e);
     }
@@ -178,7 +190,11 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.
      */
     public void fireDraftDeleted(final ContainerEvent e) {
-        sync(e);
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncDraftChanged(e.getContainer(), null, e.isRemote());
+            }
+        });
     }
 
     /**
@@ -203,7 +219,11 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.       
      */
     public void fireFlagged(final ContainerEvent e) {
-        sync(e);
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncFlagged(e.getContainer());
+            }
+        });
     }
 
     /**
@@ -223,7 +243,11 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.       
      */
     public void fireRenamed(final ContainerEvent e) {
-        sync(e); 
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncRenamed(e.getContainer());
+            }
+        }); 
     }
 
     /**
@@ -293,11 +317,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A remote event <code>Boolean</code> indicator.
      */
     public void syncContainer(final Long containerId, final Boolean remote) {
-        SwingUtil.ensureDispatchThread(new Runnable() {
-            public void run() {
-                model.syncContainer(containerId, remote);
-            }
-        });
+        model.syncContainer(containerId, remote);
     }
 
     /**
@@ -407,10 +427,6 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A container id <code>Long</code>.
      */
     private void sync(final ContainerEvent e) {
-        SwingUtil.ensureDispatchThread(new Runnable() {
-            public void run() {
-                model.syncContainer(e.getContainer().getId(), e.isRemote());
-            }
-        });
+        model.syncContainer(e.getContainer().getId(), e.isRemote());
     }
 }

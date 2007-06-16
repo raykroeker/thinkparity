@@ -315,6 +315,15 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * Obtain the container draft view.
+     * 
+     * @return A <code>DraftView</code>.
+     */
+    public DraftView getDraftView() {
+        return draft;
+    }
+
+    /**
      * Obtain the id for the tab panel.  In this case it's a container id.
      *
      * @return An id <code>Object</code>.
@@ -448,7 +457,30 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /**
      * Set the panel data.
-     * This version is appropriate when a document is added to the panel.
+     * This version is appropriate when a flag has changed.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    public void setPanelData(final Container container) {
+        this.container = container;
+        if (isSetExpandedData()) {
+            // set the container cell.
+            westCells.set(0, new ContainerCell(
+                    draft, latestVersion, versions, documentViews, team));
+            // re-initialize
+            westListModel.initialize(westCells);
+        }
+        iconJLabel.setIcon(container.isBookmarked() 
+                ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK) 
+                : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
+        reloadText();
+    }
+
+    /**
+     * Set the panel data.
+     * This version is appropriate when a document is added or modified
+     * or removed, or when a draft is added or removed.
      * 
      * @param container
      *            A <code>Container</code>.
@@ -456,18 +488,30 @@ public class ContainerPanel extends DefaultTabPanel {
      *            A <code>ContainerDraft</code>.
      */
     public void setPanelData(final Container container,
-            final ContainerDraft draft) {
+            final DraftView draftView) {
         this.container = container;
-        this.draft.setDraft(draft);
-        // set the container cell.
-        westCells.set(0, new ContainerCell(this.draft, latestVersion, versions,
-                documentViews, team));
-        // set the draft cell
-        westCells.set(1, new DraftCell(this.draft));
-        // re-initialize
-        westListModel.initialize(westCells);
-        iconJLabel.setIcon(container.isBookmarked()
-                ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK)
+        this.draft = draftView;
+        if (isSetExpandedData()) {
+            // set the container cell.
+            westCells.set(0, new ContainerCell(
+                    draft, latestVersion, versions, documentViews, team));
+            final Boolean wasLocalDraft = ((westCells.size() > 0) &&
+                    (westCells.get(1) instanceof DraftCell));
+            if (wasLocalDraft && isLocalDraft()) {
+                // set the draft cell
+                westCells.set(1, new DraftCell(draft));
+            } else if (wasLocalDraft && !isLocalDraft()) {
+                // remove the draft cell
+                westCells.remove(1);
+            } else if (!wasLocalDraft && isLocalDraft()) {
+                // add the draft cell
+                westCells.add(1, new DraftCell(draft));
+            }
+            // re-initialize
+            westListModel.initialize(westCells);
+        }
+        iconJLabel.setIcon(container.isBookmarked() 
+                ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK) 
                 : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
         reloadText();
     }
@@ -528,7 +572,6 @@ public class ContainerPanel extends DefaultTabPanel {
         this.team.addAll(team);
         this.versions.clear();
         this.versions.addAll(versions);
-
         // Build the west list
         westCells.add(new ContainerCell(draft, latestVersion, versions,
                 documentViews, team));
@@ -539,10 +582,7 @@ public class ContainerPanel extends DefaultTabPanel {
             westCells.add(new VersionCell(version, documentViews.get(version),
                     publishedTo.get(version), publishedBy.get(version)));
         }
-
-        // Initialize the list model
         westListModel.initialize(westCells);
-
         iconJLabel.setIcon(container.isBookmarked()
                 ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK)
                 : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));

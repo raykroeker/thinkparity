@@ -14,12 +14,12 @@ import java.util.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -146,13 +146,10 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     public void toggleExpansion(TabPanel tabPanel, Boolean animate) {
         checkThread();
         ContainerPanel containerPanel = (ContainerPanel) tabPanel;
-        if (!containerPanel.getContainer().isSeen()) {
-            final Long containerId = containerPanel.getContainer().getId();  
+        if (!containerPanel.getContainer().isSeen()) { 
             browser.runApplyContainerFlagSeen(containerPanel.getContainer().getId());
-            syncContainer(containerPanel.getContainer().getId(), Boolean.FALSE);
-            containerPanel = (ContainerPanel)lookupPanel(containerId);
         }
-        
+
         super.toggleExpansion(containerPanel, animate);
     }
 
@@ -205,7 +202,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      */
     @Override
     protected void debug() {
-        checkThread();
         logger.logDebug("{0} container panels.", panels.size());
         logger.logDebug("{0} filtered panels.", filteredPanels.size());
         logger.logDebug("{0} visible panels.", visiblePanels.size());
@@ -321,9 +317,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         for (final ContainerVersion version : versions) {
             versionDocumentViews = readDocumentViews(version.getArtifactId(),
                     version.getVersionId());
-            for (final DocumentView versionDocumentView : versionDocumentViews) {
-                containerIdLookup.put(versionDocumentView.getDocumentId(), container.getId());
-            }
             documentViews.put(version, versionDocumentViews);
             publishedTo.put(version, readPublishedTo(version.getArtifactId(),
                     version.getVersionId()));
@@ -333,15 +326,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
                 publishedBy, readTeam(container.getId()));
     }
 
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#synchronize()
-     *
-     */
-    @Override
-    protected void synchronize() {
-        super.synchronize();
-    }
-    
     /**
      * Obtain the popup delegate.
      * 
@@ -462,19 +446,20 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      *            A remote event <code>Boolean</code> indicator.             
      */
     void syncContainer(final Long containerId, final Boolean remote) {
-        if (EventQueue.isDispatchThread()) {
-            syncContainerImpl(containerId, remote);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    syncContainerImpl(containerId, remote);
-                }
-            });
-        }
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                applyBusyIndicator();
+                syncContainerImpl(containerId, remote);
+                removeBusyIndicator();
+            }
+        });
     }
 
     /**
      * Synchronize a document.
+     * Performance is a concern so unnecessary steps are avoided.
+     * This method is called (for example) when a document is renamed
+     * or updated (eg. drag and drop to replace it).
      * 
      * @param documentId
      *            A document id <code>Long</code>.
@@ -482,7 +467,12 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      *            A remote event <code>Boolean</code> indicator.
      */
     void syncDocument(final Long documentId, final Boolean remote) {
-        syncContainer(containerIdLookup.get(documentId), remote);
+        final Long containerId = lookupId(documentId);
+        final ContainerPanel containerPanel = lookupContainerPanel(containerId);
+        final Container container = containerPanel.getContainer();
+        final DraftView draftView = readDraftView(containerId);
+        containerPanel.setPanelData(container, draftView);
+        synchronize();
     }
 
     /**
@@ -491,15 +481,98 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      * 
      * @param container
      *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
      * @param document
      *            A <code>Document</code>.
+     */
+    void syncDocumentAdded(final Container container, final ContainerDraft draft,
+            final Document document) {
+        addContainerIdLookup(document.getId(), container.getId());
+        syncDocumentModified(container, draft, document);
+    }
+
+    /**
+     * Synchronize a document for the case of modified, reverted
+     * or removed document.
+     * Performance is a concern so unnecessary steps are avoided.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param document
+     *            A <code>Document</code>.
+     */
+    void syncDocumentModified(final Container container, final ContainerDraft draft,
+            final Document document) {
+        final ContainerPanel containerPanel = lookupContainerPanel(container.getId());
+        final DraftView draftView = containerPanel.getDraftView();
+        draftView.setDraft(draft);
+        containerPanel.setPanelData(container, draftView);
+        synchronize();
+    }
+
+    /**
+     * Synchronize when a draft has been created or deleted.
+     * Performance is a concern so unnecessary steps are avoided.
+     * 
+     * @param container
+     *            A <code>Container</code>.
      * @param draft
      *      A <code>ContainerDraft</code>.
+     * @param remote
+     *            A remote event <code>Boolean</code> indicator.
      */
-    void syncDocumentAdded(final Container container, final Document document,
-            final ContainerDraft draft) {
-        containerIdLookup.put(document.getId(), container.getId());
-        lookupContainerPanel(container.getId()).setPanelData(container, draft);
+    void syncDraftChanged(final Container container, final ContainerDraft draft,
+            final Boolean remote) {
+        if (!remote && null==draft) {
+            // the local user has removed the draft, so
+            // clean up lookups and draft monitor
+            removeContainerIdLookup(container.getId());
+            if (isSetSessionDraftMonitor(container.getId())) {
+                stopSessionDraftMonitor();
+            }
+        }
+
+        final ContainerPanel containerPanel = lookupContainerPanel(container.getId());
+        final DraftView draftView = containerPanel.getDraftView();
+        draftView.setDraft(draft);
+        containerPanel.setPanelData(container, draftView);
+
+        if (draftView.isSetDraft() && draftView.isLocal()) {
+            // the local user has added the draft, so
+            // add lookups and draft monitor
+            for (final Document document : draftView.getDocuments()) {
+                addContainerIdLookup(document.getId(), container.getId());
+            }
+            initSessionDraftMonitor(containerPanel);
+        }
+        
+        synchronize();
+    }
+
+    /**
+     * Synchronize when a flag has changed.
+     * Performance is a concern so unnecessary steps are avoided.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    void syncFlagged(final Container container) {
+        lookupContainerPanel(container.getId()).setPanelData(container);
+        synchronize();
+    }
+
+    /**
+     * Synchronize when a container has been renamed.
+     * Performance is a concern so unnecessary steps are avoided.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    void syncRenamed(final Container container) {
+        lookupContainerPanel(container.getId()).setPanelData(container);
         synchronize();
     }
 
@@ -519,27 +592,26 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Add a container panel. This will read the container's versions and add
-     * the appropriate version panel as well.
+     * Add a lookup relationship.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void addContainerIdLookup(final Long documentId, final Long containerId) {
+        containerIdLookup.put(documentId, containerId);
+    }
+
+    /**
+     * Create and add a container panel. This will read the container's data
+     * and add the container panel.
      * 
      * @param container
      *            A <code>container</code>.
      */
     private void addContainerPanel(final Container container) {
-        addContainerPanel(panels.size() == 0 ? 0 : panels.size() - 1, container);
-    }
-
-    /**
-     * Add a container panel. This will read the container's data and add the
-     * container panel.
-     * 
-     * @param index
-     *            An <code>Integer</code> index.
-     * @param container
-     *            A <code>container</code>.
-     */
-    private void addContainerPanel(final int index,
-            final Container container) {
+        checkThread();
         final DraftView draftView = readDraftView(container.getId());
         final ContainerVersion latestVersion = readLatestVersion(container.getId());
         final ContainerVersion earliestVersion;
@@ -550,11 +622,11 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         }
         if (draftView.isLocal()) {
             for (final Document document : draftView.getDocuments()) {
-                containerIdLookup.put(document.getId(), container.getId());
+                addContainerIdLookup(document.getId(), container.getId());
             }
         }
         final TabPanel tabPanel = toDisplay(container, draftView, earliestVersion, latestVersion);
-        panels.add(index, tabPanel);
+        panels.add(tabPanel);
         if (isExpanded(tabPanel)) {
             setExpandedPanelData(tabPanel);
         }
@@ -644,6 +716,37 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Initialize the session draft monitor.
+     * The session will maintain the single draft monitor for the tab.
+     * 
+     * @param panel
+     *            A <code>ContainerPanel</code>.
+     */
+    private void initSessionDraftMonitor(final ContainerPanel panel) {
+        if (isExpanded(panel)) {
+            startSessionDraftMonitor(panel.getContainer().getId());
+        }
+        panel.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(final PropertyChangeEvent evt) {
+                if ("expanded".equals(evt.getPropertyName())) {
+                    if (panel.isExpanded()) {
+                        // Check if the DocumentDraft become out of date while
+                        // the draft monitor was off, if it has then syncContainer()
+                        // will result in startSessionDraftMonitor() being called above.
+                        if (readIsDraftDocumentStateChanged(panel.getDraft())) {
+                            syncContainer(panel.getContainer().getId(), Boolean.FALSE);
+                        } else {
+                            startSessionDraftMonitor(panel.getContainer().getId());
+                        }
+                    } else {
+                        stopSessionDraftMonitor();
+                    }
+                }
+            }
+        });
+    }
+
+    /**
      * Determine if the session draft monitor is set for the container.
      * 
      * @param containerId
@@ -654,6 +757,17 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     private boolean isSetSessionDraftMonitor(final Long containerId) {
         final ContainerDraftMonitor monitor = getSessionDraftMonitor();
         return null != monitor && monitor.getContainerId().equals(containerId);
+    }
+
+    /**
+     * Lookup a containerId given a draft documentId.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return A <code>Long</code> containerId
+     */
+    private Long lookupId(final Long documentId) {
+        return containerIdLookup.get(documentId);
     }
 
     /**
@@ -671,7 +785,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
                 return i;
         return -1;
     }
-    
+
     /**
      * Read the container from the provider.
      * 
@@ -682,7 +796,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     private Container read(final Long containerId) {
         return ((ContainerProvider) contentProvider).read(containerId);
     }
-
+    
     /**
      * Read the containers from the provider.
      * 
@@ -716,6 +830,17 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      */
     private DraftView readDraftView(final Long containerId) {
         return ((ContainerProvider) contentProvider).readDraftView(containerId);
+    }
+
+    /**
+     * Read the earliest version for a container.
+     * 
+     * @param containerId
+     *      A container id <code>Long</code>.
+     * @return A <code>ContainerVersion</code>.
+     */
+    private ContainerVersion readEarliestVersion(final Long containerId) {
+        return ((ContainerProvider) contentProvider).readEarliestVersion(containerId);
     }
 
     /**
@@ -753,17 +878,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Read the earliest version for a container.
-     * 
-     * @param containerId
-     *      A container id <code>Long</code>.
-     * @return A <code>ContainerVersion</code>.
-     */
-    private ContainerVersion readEarliestVersion(final Long containerId) {
-        return ((ContainerProvider) contentProvider).readEarliestVersion(containerId);
-    }
-
-    /**
      * Read the latest version for a container.
      * 
      * @param containerId
@@ -781,6 +895,21 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      */
     private Profile readProfile() {
         return ((ContainerProvider) contentProvider).readProfile();
+    }
+
+    /**
+     * Read the published to view.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>PublishedToView</code>.
+     */
+    private PublishedToView readPublishedTo(final Long containerId,
+            final Long versionId) {
+        return ((ContainerProvider) contentProvider).readPublishedTo(
+                containerId, versionId);
     }
 
     /**
@@ -806,21 +935,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Read the published to view.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A container version id <code>Long</code>.
-     * @return A <code>PublishedToView</code>.
-     */
-    private PublishedToView readPublishedTo(final Long containerId,
-            final Long versionId) {
-        return ((ContainerProvider) contentProvider).readPublishedTo(
-                containerId, versionId);
-    }
-
-    /**
      * Read the container versions from the provider.
      * 
      * @param containerId
@@ -829,6 +943,23 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      */
     private List<ContainerVersion> readVersions(final Long containerId) {
         return ((ContainerProvider) contentProvider).readVersions(containerId);
+    }
+
+    /**
+     * Remove a lookup relationship.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void removeContainerIdLookup(final Long containerId) {
+        Long lookupContainerId;
+        for (final Iterator<Long> iLookupValues =
+                containerIdLookup.values().iterator(); iLookupValues.hasNext(); ) {
+            lookupContainerId = iLookupValues.next();
+            if (lookupContainerId.equals(containerId)) {
+                iLookupValues.remove();
+            }
+        }
     }
 
     /**
@@ -841,21 +972,14 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      */
     private void removeContainerPanel(final Long containerId,
             final boolean removeExpandedState) {
-        Long lookupContainerId;
-        for (final Iterator<Long> iLookupValues =
-            containerIdLookup.values().iterator(); iLookupValues.hasNext(); ) {
-            lookupContainerId = iLookupValues.next();
-            if (lookupContainerId.equals(containerId)) {
-                iLookupValues.remove();
-            }
-        }
+        removeContainerIdLookup(containerId);
         final int panelIndex = lookupIndex(containerId);
         if (-1 == panelIndex) {
             logger.logError("Cannot remove container panel, container id {0}.", containerId);
         } else {
             final TabPanel containerPanel = panels.remove(panelIndex);
             if (removeExpandedState) {
-                expandedState.remove(containerPanel);
+                removeExpandedState(containerPanel);
             }
         }
         if (isSetSessionDraftMonitor(containerId)) {
@@ -881,7 +1005,11 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         // create a new monitor and start it
         monitor = getDraftMonitor(containerId, new ContainerDraftListener() {
             public void documentModified(final ContainerEvent e) {
-                syncContainer(containerId, Boolean.FALSE);
+                SwingUtil.ensureDispatchThread(new Runnable() {
+                    public void run() {
+                        syncDocumentModified(e.getContainer(), e.getDraft(), e.getDocument());
+                    }
+                });
             }
         });
         session.setAttribute(SK_DRAFT_MONITOR, monitor);
@@ -912,25 +1040,15 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         debug();
         boolean requestFocus = false;
         final Container container = read(containerId);
-        // remove the container from the panel list
         if (null == container) {
             removeContainerPanel(containerId, true);
         } else {
-            final int panelIndex = lookupIndex(container.getId());
+            final int panelIndex = lookupIndex(containerId);
             if (-1 < panelIndex) {
-                // if the reload is the result of a remote event add the container
-                // at the top of the list; otherwise add it in the same location
-                // it previously existed
                 requestFocus = ((Component)lookupPanel(containerId)).isFocusOwner();
                 removeContainerPanel(containerId, false);
-                if (remote) {
-                    addContainerPanel(0, container);
-                } else {
-                    addContainerPanel(panelIndex, container);
-                }
-            } else {
-                addContainerPanel(0, container);
             }
+            addContainerPanel(container);
         }
         synchronize();
         if (requestFocus) {
@@ -969,27 +1087,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         }
         // the session will maintain the single draft monitor for the tab
         if (draftView.isSetDraft() && draftView.isLocal()) {
-            if (isExpanded(panel)) {
-                startSessionDraftMonitor(panel.getContainer().getId());
-            }
-            panel.addPropertyChangeListener(new PropertyChangeListener() {
-                public void propertyChange(final PropertyChangeEvent evt) {
-                    if ("expanded".equals(evt.getPropertyName())) {
-                        if (panel.isExpanded()) {
-                            // Check if the DocumentDraft become out of date while
-                            // the draft monitor was off, if it has then syncContainer()
-                            // will result in startSessionDraftMonitor() being called above.
-                            if (readIsDraftDocumentStateChanged(draftView.getDraft())) {
-                                syncContainer(container.getId(), Boolean.FALSE);
-                            } else {
-                                startSessionDraftMonitor(panel.getContainer().getId());
-                            }
-                        } else {
-                            stopSessionDraftMonitor();
-                        }
-                    }
-                }
-            });
+            initSessionDraftMonitor(panel);
         }
         return panel;
     }

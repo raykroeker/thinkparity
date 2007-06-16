@@ -40,9 +40,6 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     /** The application. */
     protected final Browser browser;
 
-    /** The model's expanded state map. */
-    protected final Map<TabPanel, Boolean> expandedState;
-
     /** A list of filtered panels. */
     protected final List<TabPanel> filteredPanels;
 
@@ -57,24 +54,27 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
 
     /** A list of all panels. */
     protected final List<TabPanel> panels;
-    
+
     /** A parity persistence. */
     protected final Persistence persistence;
     
     /** A user search expression <code>String</code>. */
     protected String searchExpression;
     
-    /** The selected panel id. */
-    private T selectedPanelId;
-    
     /** A search result list of unique id <code>T</code>s. */
     protected final List<T> searchResults;
-
+    
     /** A <code>BrowserSession</code>. */
     protected BrowserSession session;
-
+    
     /** A list of all visible cells. */
     protected final List<TabPanel> visiblePanels;
+
+    /** The model's expanded state map. */
+    private final Map<TabPanel, Boolean> expandedState;
+
+    /** The selected panel id. */
+    private T selectedPanelId;
 
     /**
      * Create TabPanelModel.
@@ -251,26 +251,6 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     }
 
     /**
-     * Select the previous panel, or the first panel if none are selected.
-     */
-    public void selectPreviousPanel() {
-        checkThread();
-        if (visiblePanels.size() > 0) {
-            final TabPanel oldSelectedPanel = getSelectedPanel();
-            if (null == oldSelectedPanel) {
-                selectPanel(visiblePanels.get(0), Boolean.TRUE);
-            } else {
-                final int visibleIndex = visiblePanels.indexOf(oldSelectedPanel);
-                if (visibleIndex < 0) {
-                    selectPanel(visiblePanels.get(0), Boolean.TRUE);
-                } else if (visibleIndex > 0) {
-                    selectPanel(visiblePanels.get(visibleIndex-1), Boolean.TRUE);
-                }
-            }
-        }
-    }
-
-    /**
      * Select the panel.
      * 
      * @param panelId
@@ -319,6 +299,26 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     }
 
     /**
+     * Select the previous panel, or the first panel if none are selected.
+     */
+    public void selectPreviousPanel() {
+        checkThread();
+        if (visiblePanels.size() > 0) {
+            final TabPanel oldSelectedPanel = getSelectedPanel();
+            if (null == oldSelectedPanel) {
+                selectPanel(visiblePanels.get(0), Boolean.TRUE);
+            } else {
+                final int visibleIndex = visiblePanels.indexOf(oldSelectedPanel);
+                if (visibleIndex < 0) {
+                    selectPanel(visiblePanels.get(0), Boolean.TRUE);
+                } else if (visibleIndex > 0) {
+                    selectPanel(visiblePanels.get(visibleIndex-1), Boolean.TRUE);
+                }
+            }
+        }
+    }
+
+    /**
      * Set localization.
      *
      * @param localization
@@ -357,12 +357,43 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     public void toggleExpansion(final TabPanel tabPanel, final Boolean animate) {
         checkThread();
         if (!tabPanel.isSetExpandedData()) {
-            SwingUtil.setCursor((java.awt.Component)tabPanel, java.awt.Cursor.WAIT_CURSOR);
+            applyBusyIndicator();
             setExpandedPanelData(tabPanel);
-            SwingUtil.setCursor((java.awt.Component)tabPanel, java.awt.Cursor.DEFAULT_CURSOR);
+            removeBusyIndicator();
         }
         doToggleExpansion(tabPanel, animate);
         synchronize();
+    }
+
+    /**
+     * Apply a busy indicator.
+     */
+    protected void applyBusyIndicator() {
+        SwingUtil.setCursor(browser.getMainWindow(), java.awt.Cursor.WAIT_CURSOR);
+    }
+
+    /**
+     * Apply a busy indicator.
+     */
+    protected void removeBusyIndicator() {
+        SwingUtil.setCursor(browser.getMainWindow(), java.awt.Cursor.DEFAULT_CURSOR);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySearch(java.lang.String)
+     *
+     */
+    @Override
+    protected void applySearch(final String searchExpression) {
+        checkThread();
+        debug();
+        if (searchExpression.equals(this.searchExpression)) {
+            return;
+        } else {
+            this.searchExpression = searchExpression;
+            applySearch();
+            synchronize();
+        }
     }
 
     /**
@@ -385,23 +416,6 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         } else {
             // no filter is applied
             filteredPanels.addAll(panels);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySearch(java.lang.String)
-     *
-     */
-    @Override
-    protected void applySearch(final String searchExpression) {
-        checkThread();
-        debug();
-        if (searchExpression.equals(this.searchExpression)) {
-            return;
-        } else {
-            this.searchExpression = searchExpression;
-            applySearch();
-            synchronize();
         }
     }
 
@@ -475,7 +489,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
             }
         }
     }
-   
+
     /**
      * Obtain the swing list model.
      * 
@@ -550,12 +564,34 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     protected abstract List<T> readSearchResults();
 
     /**
-     * Set additional data that a panel needs when expanded.
+     * Remove expanded state.
      * 
      * @param tabPanel
      *            A <code>TabPanel</code>.
      */
-    protected abstract void setExpandedPanelData(final TabPanel tabPanel);
+    protected void removeExpandedState(final TabPanel tabPanel) {
+        expandedState.remove(tabPanel);
+    }
+
+    /**
+     * Remove the search.
+     * 
+     * @see #searchExpression
+     * @see #searchResults
+     * @see #applySearch(String)
+     */
+    @Override
+    protected void removeSearch() {
+        checkThread();
+        debug();
+        if (null == searchExpression) {
+            return;
+        } else {
+            searchExpression = null;
+            searchResults.clear();
+            synchronize();
+        }
+    }
 
     /**
      * Request focus on the selected panel, if there is one.
@@ -578,24 +614,12 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     }
 
     /**
-     * Remove the search.
+     * Set additional data that a panel needs when expanded.
      * 
-     * @see #searchExpression
-     * @see #searchResults
-     * @see #applySearch(String)
+     * @param tabPanel
+     *            A <code>TabPanel</code>.
      */
-    @Override
-    protected void removeSearch() {
-        checkThread();
-        debug();
-        if (null == searchExpression) {
-            return;
-        } else {
-            searchExpression = null;
-            searchResults.clear();
-            synchronize();
-        }
-    }
+    protected abstract void setExpandedPanelData(final TabPanel tabPanel);
     
     /**
      * Create a final list of panels. Apply the

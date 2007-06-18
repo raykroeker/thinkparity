@@ -69,6 +69,10 @@
         <param-value>0.0.0.0</param-value>
     </context-param>
     <context-param>
+        <param-name>thinkparity.stream.bind-port</param-name>
+        <param-value>20002</param-value>
+    </context-param>
+    <context-param>
         <param-name>thinkparity.stream-host</param-name>
         <param-value>thinkparity.dyndns.org</param-value>
     </context-param>
@@ -83,6 +87,10 @@
     <context-param>
         <param-name>thinkparity.queue.notification.bind-host</param-name>
         <param-value>0.0.0.0</param-value>
+    </context-param>
+    <context-param>
+        <param-name>thinkparity.queue.notification.bind-port</param-name>
+        <param-value>30002</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.queue.notification-host</param-name>

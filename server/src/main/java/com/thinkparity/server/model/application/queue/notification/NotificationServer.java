@@ -58,8 +58,8 @@ final class NotificationServer {
         this.logger = new Log4JWrapper("NotificationService");
         this.charset = Charset.forName(properties.getProperty("thinkparity.queue.notification-charset"));
         final String bindHost = properties.getProperty("thinkparity.queue.notification.bind-host");
-        final Integer port = Integer.valueOf(properties.getProperty("thinkparity.queue.notification-port"));
-        this.socketServer = new NotificationSocketServer(this, bindHost, port);
+        final Integer bindPort = Integer.valueOf(properties.getProperty("thinkparity.queue.notification.bind-port"));
+        this.socketServer = new NotificationSocketServer(this, bindHost, bindPort);
     }
 
     /**

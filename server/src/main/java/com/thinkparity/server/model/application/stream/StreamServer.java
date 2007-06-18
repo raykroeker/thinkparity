@@ -68,8 +68,8 @@ final class StreamServer {
         this.fileServer = new StreamFileServer(this, workingDirectory);
         this.logger = new Log4JWrapper();
         final String bindHost = properties.getProperty("thinkparity.stream.bind-host");
-        final int port = Integer.valueOf(properties.getProperty("thinkparity.stream-port"));
-        this.socketServer = new SecureStreamSocketServer(this, bindHost, port);
+        final Integer bindPort = Integer.valueOf(properties.getProperty("thinkparity.stream.bind-port"));
+        this.socketServer = new SecureStreamSocketServer(this, bindHost, bindPort);
     }
 
     /**

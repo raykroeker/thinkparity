@@ -99,11 +99,13 @@ public final class WebListener implements ServletContextListener {
         setProperty(properties, "thinkparity.mode", servletContext);
         setProperty(properties, "thinkparity.product-name", servletContext);
         setProperty(properties, "thinkparity.queue.notification.bind-host", servletContext);
+        setProperty(properties, "thinkparity.queue.notification.bind-port", servletContext);
         setProperty(properties, "thinkparity.queue.notification-charset", servletContext);
         setProperty(properties, "thinkparity.queue.notification-host", servletContext);
         setProperty(properties, "thinkparity.queue.notification-port", servletContext);
         setProperty(properties, "thinkparity.release-name", servletContext);
         setProperty(properties, "thinkparity.stream.bind-host", servletContext);
+        setProperty(properties, "thinkparity.stream.bind-port", servletContext);
         setProperty(properties, "thinkparity.stream.root", servletContext);
         setProperty(properties, "thinkparity.stream-host", servletContext);
         setProperty(properties, "thinkparity.stream-port", servletContext);

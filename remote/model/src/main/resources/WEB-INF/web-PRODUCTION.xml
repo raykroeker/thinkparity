@@ -69,12 +69,16 @@
         <param-value>216.187.96.215</param-value>
     </context-param>
     <context-param>
+        <param-name>thinkparity.stream.bind-port</param-name>
+        <param-value>200001</param-value>
+    </context-param>
+    <context-param>
         <param-name>thinkparity.stream-host</param-name>
         <param-value>yvr.thinkparity.net</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.stream-port</param-name>
-        <param-value>20001</param-value>
+        <param-value>443</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.temp.root</param-name>
@@ -83,6 +87,10 @@
     <context-param>
         <param-name>thinkparity.queue.notification.bind-host</param-name>
         <param-value>216.187.96.215</param-value>
+    </context-param>
+    <context-param>
+        <param-name>thinkparity.queue.notification.bind-port</param-name>
+        <param-value>30001</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.queue.notification-host</param-name>
@@ -94,7 +102,7 @@
     </context-param>
     <context-param>
         <param-name>thinkparity.queue.notification-port</param-name>
-        <param-value>30001</param-value>
+        <param-value>80</param-value>
     </context-param>
     <context-param>
         <param-name>xmpp.domain</param-name>

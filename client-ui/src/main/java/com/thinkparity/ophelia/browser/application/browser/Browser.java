@@ -175,7 +175,8 @@ public class Browser extends AbstractApplication {
      * 
      */
     public void clearStatusLink() {
-        final Data input = new Data(0);
+        final Data input = new Data(1);
+        input.set(MainStatusAvatar.DataKey.CLEAR_LINK, Boolean.TRUE);
         setInput(AvatarId.MAIN_STATUS, input);
     }
 

@@ -78,6 +78,9 @@ public class MainStatusAvatar extends Avatar {
     /** The resize offset size in the y direction. */
     private int resizeOffsetY;
 
+    /** A <code>Boolean</code> indicating if a short term link is displayed. */
+    private Boolean shortTermLinkDisplayed;
+
     /**
      * Create MainStatusAvatar.
      *
@@ -99,7 +102,7 @@ public class MainStatusAvatar extends Avatar {
             }
         });
     }
-    
+
     /**
      * Fire a contact event.
      * 
@@ -168,7 +171,7 @@ public class MainStatusAvatar extends Avatar {
         if ((isTestMode() || isDebugMode()))
             reloadProfile(e.getProfile());
     }
-    
+
     /**
      * Fire a session event.
      *
@@ -188,7 +191,7 @@ public class MainStatusAvatar extends Avatar {
      */
     @Override
     public State getState() { return null; }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isAvatarBackgroundImage()
      */
@@ -263,6 +266,16 @@ public class MainStatusAvatar extends Avatar {
             }
         }
         finally { g2.dispose(); }
+    }
+
+    /**
+     * Clear text and link JLabels
+     */
+    private void clearJLabels() {
+        textJLabel.setText(Separator.EmptyString.toString());
+        linkJLabel.setText(Separator.EmptyString.toString());
+        optionalTextJLabel.setText(Separator.EmptyString.toString());
+        optionalLinkJLabel.setText(Separator.EmptyString.toString());
     }
 
     /**
@@ -414,7 +427,7 @@ public class MainStatusAvatar extends Avatar {
             public void ancestorRemoved(final AncestorEvent event) {}
         });
     }
-    
+
     /**
      * Install a window state listener.
      * If the ancestor window is maximized then the resize control will be disabled.
@@ -430,6 +443,22 @@ public class MainStatusAvatar extends Avatar {
                 }
             }
         });
+    }
+
+    /**
+     * Determine if the input clear link flag is set.
+     * The input is cleared after reading the flag.
+     * 
+     * @return true if the <code>Boolean</code> clear link flag is set.
+     */
+    private Boolean isInputClearLink() {
+        if (null == input || !((Data)input).isSet(DataKey.CLEAR_LINK)) {
+            return Boolean.FALSE;
+        } else {
+            final Boolean clearLink =  (Boolean) ((Data)input).get(DataKey.CLEAR_LINK);
+            ((Data) input).unset(DataKey.CLEAR_LINK);
+            return clearLink;
+        }
     }
 
     /**
@@ -513,7 +542,7 @@ public class MainStatusAvatar extends Avatar {
     private List<EMail> readUnverifiedEMails() {
         return ((MainStatusProvider) contentProvider).readUnverifiedEMails();
     }
-    
+
     /**
      * Reload the connection status message.
      * 
@@ -531,11 +560,13 @@ public class MainStatusAvatar extends Avatar {
      * 
      */
     private void reloadLinks() {
-        textJLabel.setText(Separator.EmptyString.toString());
-        linkJLabel.setText(Separator.EmptyString.toString());
-        optionalTextJLabel.setText(Separator.EmptyString.toString());
-        optionalLinkJLabel.setText(Separator.EmptyString.toString());
+        final Boolean updateLongTermLinks;
+
+        // update the 'short term' link prepared by the input.
         if (isSetInputLink()) {
+            shortTermLinkDisplayed = Boolean.TRUE;
+            updateLongTermLinks = Boolean.FALSE;
+            clearJLabels();
             final MainStatusAvatarLink link = getInputLink();
             textJLabel.setText(link.getText() + Separator.Space);
             linkJLabel.setText(link.getLinkText());
@@ -545,7 +576,17 @@ public class MainStatusAvatar extends Avatar {
                     reloadLinks();
                 }
             };
+        } else if (isInputClearLink()) {
+            updateLongTermLinks = shortTermLinkDisplayed;
         } else {
+            updateLongTermLinks = Boolean.TRUE;
+        }
+
+        // Update the 'long term' links. For performance reasons this
+        // is done only when necessary.
+        if (updateLongTermLinks) {
+            shortTermLinkDisplayed = Boolean.FALSE;
+            clearJLabels();
             linkRunnable = optionalLinkRunnable = null;
             final List<EMail> unVerifiedEMails = readUnverifiedEMails();
             final List<Container> unseenContainers = readUnseenContainers();
@@ -629,6 +670,7 @@ public class MainStatusAvatar extends Avatar {
             }
         }
     }
+
     /**
      * Reload the user name label. The user's name will only display for testing
      * and development purposes.
@@ -639,6 +681,7 @@ public class MainStatusAvatar extends Avatar {
         if ((isTestMode() || isDebugMode()))
             reloadProfile(readProfile());
     }
+
     /**
      * Reload the profile.
      * 
@@ -648,29 +691,34 @@ public class MainStatusAvatar extends Avatar {
     private void reloadProfile(final Profile profile) {
         userJLabel.setText(profile.getName());
     }
+
     private void resizeJLabelMouseDragged(java.awt.event.MouseEvent e) {                                          
         getController().resizeBrowserWindow(
                 new Dimension(e.getPoint().x - resizeOffsetX,
                         e.getPoint().y - resizeOffsetY));
     }// GEN-LAST:event_resizeJLabelMouseDragged
+
     private void resizeJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMouseEntered
         if (!isResizeDragging()) {
             SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.SE_RESIZE_CURSOR);
         }
     }//GEN-LAST:event_resizeJLabelMouseEntered
+
     private void resizeJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMouseExited
         if (!isResizeDragging()) {
             SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
         }
     }//GEN-LAST:event_resizeJLabelMouseExited
+
     private void resizeJLabelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMousePressed
         resizeOffsetX = e.getPoint().x;
         resizeOffsetY = e.getPoint().y;
         setResizeDragging(Boolean.TRUE);
     }//GEN-LAST:event_resizeJLabelMousePressed
+
     private void resizeJLabelMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resizeJLabelMouseReleased
         setResizeDragging(Boolean.FALSE);
     }//GEN-LAST:event_resizeJLabelMouseReleased
 
-    public enum DataKey { LINK }
+    public enum DataKey { CLEAR_LINK, LINK }
 }

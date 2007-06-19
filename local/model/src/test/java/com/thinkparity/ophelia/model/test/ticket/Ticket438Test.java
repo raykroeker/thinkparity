@@ -88,12 +88,12 @@ public class Ticket438Test extends TicketTestCase {
             this.junit_x = junit_x;
             this.listener_x = new ContainerAdapter() {
                 @Override
-                public void containerFlagged(final ContainerEvent e) {
+                public void containerFlagLatestAdded(final ContainerEvent e) {
                     flagged_x = true;
                     assertNotNull("Container flagged event is null.", e);
                     assertNotNull("Container flagged event container is null.", e.getContainer());
                     final Container c_e = e.getContainer();
-                    assertTrue("Conntainer flagged event container latest flag is not set.", c_e.isLatest().booleanValue());
+                    assertTrue("Container flagged event container latest flag is not set.", c_e.isLatest().booleanValue());
                 }
             };
             addQueueHelper(junit);

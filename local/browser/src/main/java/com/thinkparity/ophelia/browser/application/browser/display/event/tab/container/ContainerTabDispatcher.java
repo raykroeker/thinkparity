@@ -49,6 +49,14 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
                 avatar.fireArchived(e);
             }
             @Override
+            public void containerBookmarkAdded(final ContainerEvent e) {
+                avatar.fireFlagged(e);
+            }
+            @Override
+            public void containerBookmarkRemoved(final ContainerEvent e) {
+                avatar.fireFlagged(e);
+            }
+            @Override
             public void containerCreated(final ContainerEvent e) {
                 avatar.fireCreated(e);
             }
@@ -57,7 +65,19 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
                 avatar.fireDeleted(e);
             }
             @Override
-            public void containerFlagged(final ContainerEvent e) {
+            public void containerFlagLatestAdded(final ContainerEvent e) {
+                avatar.fireFlagged(e);
+            }
+            @Override
+            public void containerFlagLatestRemoved(final ContainerEvent e) {
+                avatar.fireFlagged(e);
+            }
+            @Override
+            public void containerFlagSeenAdded(final ContainerEvent e) {
+                avatar.fireFlagged(e);
+            }
+            @Override
+            public void containerFlagSeenRemoved(final ContainerEvent e) {
                 avatar.fireFlagged(e);
             }
             @Override

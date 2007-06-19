@@ -127,6 +127,12 @@ public abstract class ContainerTestCase extends ModelTestCase {
         public void containerArchived(ContainerEvent e) {
             fail(getName() + " - Container archived event was fired.");
         }
+        public void containerBookmarkAdded(ContainerEvent e) {
+            fail(getName() + " - Container bookmark added event was fired.");
+        }
+        public void containerBookmarkRemoved(ContainerEvent e) {
+            fail(getName() + " - Container bookmark removed event was fired.");
+        }
         public void containerClosed(ContainerEvent e) {
             fail(getName() + " - Container closed event was fired.");
         }
@@ -136,8 +142,17 @@ public abstract class ContainerTestCase extends ModelTestCase {
         public void containerDeleted(ContainerEvent e) {
             fail(getName() + " - Container deleted event was fired.");
         }
-        public void containerFlagged(final ContainerEvent e) {
-            fail(getName() + " - Container flagged event was fired.");
+        public void containerFlagLatestAdded(ContainerEvent e) {
+            fail(getName() + " - Container flag lastest added event was fired.");
+        }
+        public void containerFlagLatestRemoved(ContainerEvent e) {
+            fail(getName() + " - Container flag lastest removed event was fired.");
+        }
+        public void containerFlagSeenAdded(ContainerEvent e) {
+            fail(getName() + " - Container flag seen added event was fired.");
+        }
+        public void containerFlagSeenRemoved(ContainerEvent e) {
+            fail(getName() + " - Container flag seen removed event was fired.");
         }
         public void containerPublished(ContainerEvent e) {
             fail(getName() + " - Draft published event was fired.");

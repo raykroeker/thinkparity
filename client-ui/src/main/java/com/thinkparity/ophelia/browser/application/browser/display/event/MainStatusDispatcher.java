@@ -154,7 +154,11 @@ public final class MainStatusDispatcher implements
         contactModel.addListener(contactListener);
         containerListener = new ContainerAdapter() {
             @Override
-            public void containerFlagged(final ContainerEvent e) {
+            public void containerFlagSeenAdded(final ContainerEvent e) {
+                avatar.fireContainerEvent(e);
+            }
+            @Override
+            public void containerFlagSeenRemoved(final ContainerEvent e) {
                 avatar.fireContainerEvent(e);
             }
             @Override

@@ -48,6 +48,14 @@ public class ArchiveTabDispatcher implements EventDispatcher<ArchiveTabAvatar> {
                 avatar.fireArchived(e);
             }
             @Override
+            public void containerBookmarkAdded(final ContainerEvent e) {
+                avatar.fireFlagged(e);
+            }
+            @Override
+            public void containerBookmarkRemoved(final ContainerEvent e) {
+                avatar.fireFlagged(e);
+            }
+            @Override
             public void containerRestored(final ContainerEvent e) {
                 avatar.fireRestored(e);
             }
@@ -56,7 +64,19 @@ public class ArchiveTabDispatcher implements EventDispatcher<ArchiveTabAvatar> {
                 avatar.fireDeleted(e);
             }
             @Override
-            public void containerFlagged(final ContainerEvent e) {
+            public void containerFlagLatestAdded(final ContainerEvent e) {
+                avatar.fireFlagged(e);
+            }
+            @Override
+            public void containerFlagLatestRemoved(final ContainerEvent e) {
+                avatar.fireFlagged(e);
+            }
+            @Override
+            public void containerFlagSeenAdded(final ContainerEvent e) {
+                avatar.fireFlagged(e);
+            }
+            @Override
+            public void containerFlagSeenRemoved(final ContainerEvent e) {
                 avatar.fireFlagged(e);
             }
         };

@@ -560,8 +560,11 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      *            A <code>Container</code>.
      */
     void syncFlagged(final Container container) {
-        lookupContainerPanel(container.getId()).setPanelData(container);
-        synchronize();
+        // check the panel exists, it might be on the archive tab
+        if (isPanel(container.getId())) {
+            lookupContainerPanel(container.getId()).setPanelData(container);
+            synchronize();
+        }
     }
 
     /**
@@ -744,6 +747,17 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
                 }
             }
         });
+    }
+
+    /**
+     * Determine if the panel exists for the container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return true if the panel exists.
+     */
+    private Boolean isPanel(final Long containerId) {
+        return (-1 != lookupIndex(containerId));
     }
 
     /**

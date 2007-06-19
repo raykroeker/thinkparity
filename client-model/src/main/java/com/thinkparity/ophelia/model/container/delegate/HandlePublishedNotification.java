@@ -31,12 +31,24 @@ public final class HandlePublishedNotification extends
     /** A published notification event. */
     private PublishedNotificationEvent event;
 
+    /** Whether or not the latest flag was set. */
+    private Boolean flagLatest;
+
     /**
      * Create HandlePublishedNotificationDelegate.
      *
      */
     public HandlePublishedNotification() {
         super();
+    }
+
+    /**
+     * Determine whether or not the latest flag was set.
+     * 
+     * @return True if the latest flag was set.
+     */
+    public Boolean didFlagLatest() {
+        return flagLatest;
     }
 
     /**
@@ -93,6 +105,7 @@ public final class HandlePublishedNotification extends
      */
     private void applyFlagLatest() {
         getArtifactModel().applyFlagLatest(getContainerId());
+        flagLatest = Boolean.TRUE;
     }
 
     /**
@@ -168,5 +181,6 @@ public final class HandlePublishedNotification extends
      */
     private void removeFlagLatest() {
         getArtifactModel().removeFlagLatest(getContainerId());
+        flagLatest = Boolean.FALSE;
     }
 }

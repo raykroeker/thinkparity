@@ -204,7 +204,7 @@ public final class ContainerModelImpl extends
         logger.logVariable("containerId", containerId);
         try {
             getArtifactModel().applyFlagBookmark(containerId);
-            notifyContainerFlagged(read(containerId), localEventGenerator);
+            notifyContainerBookmarkAdded(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -259,7 +259,7 @@ public final class ContainerModelImpl extends
         logger.logVariable("containerId", containerId);
         try {
             getArtifactModel().applyFlagSeen(containerId);
-            notifyContainerFlagged(read(containerId), localEventGenerator);
+            notifyContainerFlagSeenAdded(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -688,7 +688,11 @@ public final class ContainerModelImpl extends
             final Long containerId = getArtifactModel().readId(
                     event.getVersion().getArtifactUniqueId());
             final Container container = read(containerId);
-            notifyContainerFlagged(container, remoteEventGenerator);
+            if (delegate.didFlagLatest()) {
+                notifyContainerFlagLatestAdded(container, remoteEventGenerator);
+            } else {
+                notifyContainerFlagLatestRemoved(container, remoteEventGenerator);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1628,7 +1632,7 @@ public final class ContainerModelImpl extends
         logger.logVariable("containerId", containerId);
         try {
             getArtifactModel().removeFlagBookmark(containerId);
-            notifyContainerFlagged(read(containerId), localEventGenerator);
+            notifyContainerBookmarkRemoved(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1691,7 +1695,7 @@ public final class ContainerModelImpl extends
         logger.logVariable("containerId", containerId);
         try {
             getArtifactModel().removeFlagSeen(containerId);
-            notifyContainerFlagged(read(containerId), localEventGenerator);
+            notifyContainerFlagSeenRemoved(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -2892,6 +2896,40 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Fire a container bookmark added notification.
+     * 
+     * @param container
+     *            A container.
+     * @param eventGenerator
+     *            A container event generator.
+     */
+    private void notifyContainerBookmarkAdded(final Container container,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerBookmarkAdded(eventGenerator.generate(container));
+            }
+        });
+    }
+
+    /**
+     * Fire a container bookmark removed notification.
+     * 
+     * @param container
+     *            A container.
+     * @param eventGenerator
+     *            A container event generator.
+     */
+    private void notifyContainerBookmarkRemoved(final Container container,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerBookmarkRemoved(eventGenerator.generate(container));
+            }
+        });
+    }
+
+    /**
      * Fire a container created notification.
      * 
      * @param container
@@ -2926,18 +2964,69 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Notify that a container has been flagged.
+     * Fire a container latest flag added notification.
      * 
      * @param container
      *            A container.
      * @param eventGenerator
      *            A container event generator.
      */
-    private void notifyContainerFlagged(final Container container,
+    private void notifyContainerFlagLatestAdded(final Container container,
             final ContainerEventGenerator eventGenerator) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
-                listener.containerFlagged(eventGenerator.generate(container));
+                listener.containerFlagLatestAdded(eventGenerator.generate(container));
+            }
+        });
+    }
+
+    /**
+     * Fire a container latest flag removed notification.
+     * 
+     * @param container
+     *            A container.
+     * @param eventGenerator
+     *            A container event generator.
+     */
+    private void notifyContainerFlagLatestRemoved(final Container container,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerFlagLatestRemoved(eventGenerator.generate(container));
+            }
+        });
+    }
+
+    /**
+     * Fire a container seen flag added notification.
+     * 
+     * @param container
+     *            A container.
+     * @param eventGenerator
+     *            A container event generator.
+     */
+    private void notifyContainerFlagSeenAdded(final Container container,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerFlagSeenAdded(eventGenerator.generate(container));
+            }
+        });
+    }
+
+    /**
+     * Fire a container seen flag removed notification.
+     * 
+     * @param container
+     *            A container.
+     * @param eventGenerator
+     *            A container event generator.
+     */
+    private void notifyContainerFlagSeenRemoved(final Container container,
+            final ContainerEventGenerator eventGenerator) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerFlagSeenRemoved(eventGenerator.generate(container));
             }
         });
     }

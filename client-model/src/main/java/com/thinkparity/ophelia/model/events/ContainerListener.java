@@ -30,6 +30,22 @@ public interface ContainerListener extends EventListener {
     public void containerArchived(final ContainerEvent e);
 
     /**
+     * A container bookmark has been added.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void containerBookmarkAdded(final ContainerEvent e);
+
+    /**
+     * A container bookmark has been removed.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void containerBookmarkRemoved(final ContainerEvent e);
+
+    /**
      * A container was created.
      * 
      * @param e
@@ -46,13 +62,37 @@ public interface ContainerListener extends EventListener {
     public void containerDeleted(final ContainerEvent e);
 
     /**
-     * A container has been flagged.
+     * A container latest flag has been added.
      * 
      * @param e
      *            A <code>ContainerEvent</code>.
      */
-    public void containerFlagged(final ContainerEvent e);
-    
+    public void containerFlagLatestAdded(final ContainerEvent e);
+
+    /**
+     * A container latest flag has been removed.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void containerFlagLatestRemoved(final ContainerEvent e);
+
+    /**
+     * A container seen flag has been added.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void containerFlagSeenAdded(final ContainerEvent e);
+
+    /**
+     * A container seen flag has been removed.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void containerFlagSeenRemoved(final ContainerEvent e);
+
     /**
      * A container was published.
      * 

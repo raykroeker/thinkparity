@@ -10,12 +10,12 @@ import java.util.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -283,6 +283,18 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Lookup the container panel.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A <code>ContainerPanel</code>.
+     */
+    ContainerPanel lookupContainerPanel(final Long containerId) {
+        final int index = lookupIndex(containerId);
+        return -1 == index ? null : (ContainerPanel) panels.get(index);
+    }
+
+    /**
      * Determine if the container has been distributed.
      * 
      * @param containerId
@@ -332,14 +344,27 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      *            A remote event <code>Boolean</code> indicator.             
      */
     void syncContainer(final Long containerId, final Boolean remote) {
-        if (EventQueue.isDispatchThread()) {
-            syncContainerImpl(containerId, remote);
-        } else {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    syncContainerImpl(containerId, remote);
-                }
-            });
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                applyBusyIndicator();
+                syncContainerImpl(containerId, remote);
+                removeBusyIndicator();
+            }
+        });
+    }
+
+    /**
+     * Synchronize when a flag has changed.
+     * Performance is a concern so unnecessary steps are avoided.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    void syncFlagged(final Container container) {
+        // check the panel exists, it might be on the container tab
+        if (isPanel(container.getId())) {
+            lookupContainerPanel(container.getId()).setPanelData(container);
+            synchronize();
         }
     }
 
@@ -453,7 +478,18 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     private String getString(final FilterBy filterBy) {
         return localization.getString(filterBy);
     }
-    
+
+    /**
+     * Determine if the panel exists for the container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return true if the panel exists.
+     */
+    private Boolean isPanel(final Long containerId) {
+        return (-1 != lookupIndex(containerId));
+    }
+
     /**
      * Lookup the index of the container's corresponding panel.
      * 

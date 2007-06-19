@@ -22,78 +22,91 @@ public class ContainerAdapter implements ContainerListener {
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerArchived(com.thinkparity.ophelia.model.events.ContainerEvent)
-     *
      */
     public void containerArchived(final ContainerEvent e) {}
 
     /**
+     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerBookmarkAdded(com.thinkparity.ophelia.model.events.ContainerEvent)
+     */
+    public void containerBookmarkAdded(final ContainerEvent e) {}
+
+    /**
+     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerBookmarkRemoved(com.thinkparity.ophelia.model.events.ContainerEvent)
+     */
+    public void containerBookmarkRemoved(final ContainerEvent e) {}
+
+    /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerCreated(com.thinkparity.ophelia.model.events.ContainerEvent)
-     * 
      */
     public void containerCreated(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerDeleted(com.thinkparity.ophelia.model.events.ContainerEvent)
-     * 
      */
     public void containerDeleted(final ContainerEvent e) {}
 
     /**
-     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerFlagged(com.thinkparity.ophelia.model.events.ContainerEvent)
-     *
+     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerLatestFlagAdded(com.thinkparity.ophelia.model.events.ContainerEvent)
      */
-    public void containerFlagged(final ContainerEvent e) {}
+    public void containerFlagLatestAdded(final ContainerEvent e) {}
+
+    /**
+     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerLatestFlagRemoved(com.thinkparity.ophelia.model.events.ContainerEvent)
+     */
+    public void containerFlagLatestRemoved(final ContainerEvent e) {}
+
+    /**
+     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerSeenFlagAdded(com.thinkparity.ophelia.model.events.ContainerEvent)
+     */
+    public void containerFlagSeenAdded(final ContainerEvent e) {}
+
+    /**
+     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerSeenFlagRemoved(com.thinkparity.ophelia.model.events.ContainerEvent)
+     */
+    public void containerFlagSeenRemoved(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerPublished(com.thinkparity.ophelia.model.events.ContainerEvent)
-     * 
      */
     public void containerPublished(final ContainerEvent e) {}
-    
+
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerReceived(com.thinkparity.ophelia.model.events.ContainerEvent)
      */
-    public void containerReceived(ContainerEvent e) {}
+    public void containerReceived(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerRenamed(com.thinkparity.ophelia.model.events.ContainerEvent)
-     *
      */
     public void containerRenamed(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerRestored(com.thinkparity.ophelia.model.events.ContainerEvent)
-     *
      */
     public void containerRestored(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerUpdated(com.thinkparity.ophelia.model.events.ContainerEvent)
-     *
      */
     public void containerUpdated(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#documentAdded(com.thinkparity.ophelia.model.events.ContainerEvent)
-     * 
      */
     public void documentAdded(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#documentRemoved(com.thinkparity.ophelia.model.events.ContainerEvent)
-     * 
      */
     public void documentRemoved(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#documentReverted(com.thinkparity.ophelia.model.events.ContainerEvent)
-     *
      */
     public void documentReverted(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#draftCreated(com.thinkparity.ophelia.model.events.ContainerEvent)
-     * 
      */
     public void draftCreated(final ContainerEvent e) {}
 
@@ -104,19 +117,16 @@ public class ContainerAdapter implements ContainerListener {
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#draftUpdated(com.thinkparity.ophelia.model.events.ContainerEvent)
-     *
      */
     public void draftUpdated(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#teamMemberAdded(com.thinkparity.ophelia.model.events.ContainerEvent)
-     * 
      */
     public void teamMemberAdded(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#teamMemberRemoved(com.thinkparity.ophelia.model.events.ContainerEvent)
-     *
      */
     public void teamMemberRemoved(final ContainerEvent e) {}
 }

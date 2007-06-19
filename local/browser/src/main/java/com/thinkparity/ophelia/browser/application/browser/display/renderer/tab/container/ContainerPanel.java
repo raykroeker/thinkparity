@@ -457,7 +457,9 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /**
      * Set the panel data.
-     * This version is appropriate when a flag has changed.
+     * 
+     * This version is appropriate (for example) when a flag has changed
+     * or when the container name has changed.
      * 
      * @param container
      *            A <code>Container</code>.
@@ -479,8 +481,9 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /**
      * Set the panel data.
-     * This version is appropriate when a document is added or modified
-     * or removed, or when a draft is added or removed.
+     * 
+     * This version is appropriate (for example) when a document is added
+     * or modified or removed, or when a draft is added or removed.
      * 
      * @param container
      *            A <code>Container</code>.
@@ -518,7 +521,8 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /**
      * Set the panel data.
-     * This version is appropriate for collapsed panels.
+     * 
+     * This version is appropriate for initializing collapsed panels.
      * 
      * @param container
      *            A <code>Container</code>.
@@ -544,7 +548,8 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /**
      * Set the panel data.
-     * This version is appropriate for expanded panels and should
+     * 
+     * This version is appropriate for initializing expanded panels. It should
      * be called after the version for collapsed panels.
      * 
      * @param versions

@@ -17,6 +17,8 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.PopupItemFactory;
 import com.thinkparity.ophelia.browser.platform.application.Application;
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityPopupMenu;
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityPopupMenu.MenuBackgroundType;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Default Popup Delegate<br>
@@ -143,6 +145,18 @@ public class DefaultPopupDelegate implements PopupDelegate {
             invoker = jPopupMenu = null;
             submenus.clear();
             x = y = -1;
+        }
+    }
+
+    /**
+     * Set the menu background type.
+     * 
+     * @param menuBackgroundType
+     *            A <code>MenuBackgroundType</code>.
+     */
+    protected void setMenuBackgroundType(final MenuBackgroundType menuBackgroundType) {
+        if (jPopupMenu instanceof ThinkParityPopupMenu) {
+            ((ThinkParityPopupMenu)jPopupMenu).setMenuBackgroundType(menuBackgroundType);
         }
     }
 }

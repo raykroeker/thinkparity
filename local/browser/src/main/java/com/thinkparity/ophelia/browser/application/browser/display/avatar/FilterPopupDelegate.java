@@ -16,6 +16,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.ophelia.browser.application.browser.DefaultBrowserPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterBy;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityPopupMenu.MenuBackgroundType;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Browser Filter Popup Delegate<br>
@@ -79,6 +80,7 @@ public final class FilterPopupDelegate extends DefaultBrowserPopupDelegate {
     @Override
     public void show() {
         prepareMenu();
+        setMenuBackgroundType(MenuBackgroundType.GRADIENT);
         super.show();
     }
 

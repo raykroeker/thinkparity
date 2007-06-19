@@ -110,7 +110,6 @@ public final class Constants {
         public static final class Swing {
             public static final Color DEFAULT_LIST_SELECTION_BG = new Color(201, 208, 218, 255);
             public static final Color DEFAULT_LIST_SELECTION_FG = Color.BLACK;
-            public static final Color MENU_BETWEEN_ITEMS_BG = Color.white;
             public static final Color MENU_BG = new Color(230, 235, 241, 255);
             public static final Color MENU_FG = Color.BLACK;
             public static final Color MENU_ITEM_BG = new Color(230, 236, 241, 255);

@@ -17,6 +17,7 @@ import com.thinkparity.ophelia.browser.Constants.Icons;
 import com.thinkparity.ophelia.browser.Constants.Menus;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityButtonUI;
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityCheckBoxMenuItemUI;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityFileChooserUI;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItemUI;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityProgressBarUI;
@@ -85,6 +86,7 @@ public class Swing {
         defaults = UIManager.getDefaults();
         defaults.put("ProgressBarUI", ThinkParityProgressBarUI.class.getName());
         defaults.put("MenuItemUI", ThinkParityMenuItemUI.class.getName());
+        defaults.put("CheckBoxMenuItemUI", ThinkParityCheckBoxMenuItemUI.class.getName());
         defaults.put("ScrollBarUI", ThinkParityScrollBarUI.class.getName());
         defaults.put("ButtonUI", ThinkParityButtonUI.class.getName());
     }

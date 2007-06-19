@@ -7,8 +7,6 @@ package com.thinkparity.ophelia.browser.application.browser;
 import java.awt.AWTException;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JMenuItem;
 import javax.swing.event.PopupMenuEvent;
@@ -18,33 +16,33 @@ import com.thinkparity.codebase.swing.border.DropShadowBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Dimensions;
-import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityBasicMenuItem;
+import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityPopupMenu;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityPopupSubMenu;
 
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class BrowserPopupSubMenu extends ThinkParityPopupSubMenu {
-    
-    /** A drop shadow border. */
+public class BrowserPopupSubMenu extends ThinkParityPopupSubMenu implements ThinkParityPopupMenu {
+
+    /** A <code>DropShadowBorder</code>. */
     private final DropShadowBorder dropShadowBorder;
-    
-    /** List of menu items in this JMenu. */
-    private final List<ThinkParityBasicMenuItem> thinkParityMenuItems;
-    
+
+    /** A <code>MenuBackgroundType</code>. */
+    private MenuBackgroundType menuBackgroundType;
+
     /**
+     * Create BrowserPopupSubMenu.
+     * 
      * @param text
      *          Menu text.
      */
     public BrowserPopupSubMenu(final String text) throws AWTException {
-        super(text);       
-        this.thinkParityMenuItems = new ArrayList<ThinkParityBasicMenuItem>();
-        
-        // Set up the shadow border on the popup menu
-        dropShadowBorder = new DropShadowBorder(Colors.Swing.MENU_BG);
+        super(text);
+        this.menuBackgroundType = MenuBackgroundType.NORMAL;
+        this.dropShadowBorder = new DropShadowBorder(Colors.Swing.MENU_BG);
         getPopupMenu().setBorder(dropShadowBorder);
-        
+
         getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
             public void popupMenuCanceled(final PopupMenuEvent e) {                
             }
@@ -63,28 +61,24 @@ public class BrowserPopupSubMenu extends ThinkParityPopupSubMenu {
      */
     @Override
     public JMenuItem add(final JMenuItem menuItem) {
-        for (final ThinkParityBasicMenuItem earlierMenuItem : thinkParityMenuItems) {
-            earlierMenuItem.setLast(Boolean.FALSE);            
-        }
-        if (menuItem instanceof ThinkParityBasicMenuItem) {
-            ((ThinkParityBasicMenuItem)menuItem).setLast(Boolean.TRUE);
-            thinkParityMenuItems.add((ThinkParityBasicMenuItem)menuItem);
-        }
         setPreferredWidth(menuItem);
         return super.add(menuItem);
     }
-    
+
     /**
-     * @see javax.swing.JPopupMenu#addSeparator()
+     * @see com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityPopupMenu#getMenuBackgroundType()
      */
-    @Override
-    public void addSeparator() {
-        if (thinkParityMenuItems.size() > 0) {
-            thinkParityMenuItems.get(thinkParityMenuItems.size()-1).setSeparatorNext(Boolean.TRUE);
-        }
-        super.addSeparator();
+    public MenuBackgroundType getMenuBackgroundType() {
+        return menuBackgroundType;
     }
-    
+
+    /**
+     * @see com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityPopupMenu#setMenuBackgroundType(com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityPopupMenu.MenuBackgroundType)
+     */
+    public void setMenuBackgroundType(final MenuBackgroundType menuBackgroundType) {
+        this.menuBackgroundType = menuBackgroundType;
+    }
+
     /**
      * Set the preferred width on the menu item.
      */

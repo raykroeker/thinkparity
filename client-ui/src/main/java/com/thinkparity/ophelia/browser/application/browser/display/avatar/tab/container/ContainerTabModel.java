@@ -526,30 +526,34 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      */
     void syncDraftChanged(final Container container, final ContainerDraft draft,
             final Boolean remote) {
-        if (!remote && null==draft) {
-            // the local user has removed the draft, so
-            // clean up lookups and draft monitor
-            removeContainerIdLookup(container.getId());
-            if (isSetSessionDraftMonitor(container.getId())) {
-                stopSessionDraftMonitor();
+        // check the panel exists. When a new container is created, it is possible
+        // that this method gets called before the panel has been created.
+        if (isPanel(container.getId())) {
+            if (!remote && null==draft) {
+                // the local user has removed the draft, so
+                // clean up lookups and draft monitor
+                removeContainerIdLookup(container.getId());
+                if (isSetSessionDraftMonitor(container.getId())) {
+                    stopSessionDraftMonitor();
+                }
             }
-        }
-
-        final ContainerPanel containerPanel = lookupContainerPanel(container.getId());
-        final DraftView draftView = containerPanel.getDraftView();
-        draftView.setDraft(draft);
-        containerPanel.setPanelData(container, draftView);
-
-        if (draftView.isSetDraft() && draftView.isLocal()) {
-            // the local user has added the draft, so
-            // add lookups and draft monitor
-            for (final Document document : draftView.getDocuments()) {
-                addContainerIdLookup(document.getId(), container.getId());
+    
+            final ContainerPanel containerPanel = lookupContainerPanel(container.getId());
+            final DraftView draftView = containerPanel.getDraftView();
+            draftView.setDraft(draft);
+            containerPanel.setPanelData(container, draftView);
+    
+            if (draftView.isSetDraft() && draftView.isLocal()) {
+                // the local user has added the draft, so
+                // add lookups and draft monitor
+                for (final Document document : draftView.getDocuments()) {
+                    addContainerIdLookup(document.getId(), container.getId());
+                }
+                initSessionDraftMonitor(containerPanel);
             }
-            initSessionDraftMonitor(containerPanel);
+            
+            synchronize();
         }
-        
-        synchronize();
     }
 
     /**

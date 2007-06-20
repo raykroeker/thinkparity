@@ -229,6 +229,7 @@ public final class AvatarFactory {
         case DIALOG_PROFILE_UPDATE:
             avatar = newAvatar(UpdateProfileAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
+            avatar.setEventDispatcher(EventDispatcherFactory.getDispatcher(id));
             break;
         case DIALOG_PROFILE_UPDATE_PASSWORD:
             avatar = newAvatar(UpdatePasswordAvatar.class);

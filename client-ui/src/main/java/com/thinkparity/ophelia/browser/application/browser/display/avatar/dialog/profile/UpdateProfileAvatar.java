@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialo
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.Locale;
 
@@ -15,16 +17,21 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument;
 
+import com.thinkparity.codebase.BytesFormat;
 import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.codebase.BytesFormat.Unit;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextComponentLengthFilter;
 
+import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileConstraints;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+
+import com.thinkparity.ophelia.model.events.BackupEvent;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
@@ -32,6 +39,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.application.browser.display.event.UpdateProfileDispatcher;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.UpdateProfileProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.dialog.profile.LocaleRenderer;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -46,26 +54,40 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  */
 public class UpdateProfileAvatar extends Avatar {
 
-    /** An instance of <code>ProfileConstraints</code>. */
-    private final ProfileConstraints profileConstraints;
+    /** A size format to use for the backup statistics. */
+    private static final BytesFormat BYTES_FORMAT;
 
-    /** Unavailable email. */
-    private String unavailableEmail = null;
+    static {
+        BYTES_FORMAT = new BytesFormat();
+    }
+
+    /** The unit to use when displaying the backup information. */
+    private final Unit backupUnit;
 
     /** The country <code>DefaultComboBoxModel</code>. */
     private final DefaultComboBoxModel countryModel;
-    
+
     /** The emails. */
     private List<ProfileEMail> emails;
-    
+
     /** The profile. */
     private Profile profile;
+
+    /** An instance of <code>ProfileConstraints</code>. */
+    private final ProfileConstraints profileConstraints;
+
+    /** Backup statistics */
+    private Statistics statistics;
+
+    /** Unavailable email. */
+    private String unavailableEmail = null;
 
     /** Creates new form UpdateProfileAvatar */
     public UpdateProfileAvatar() {
         super("UpdateProfileAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         this.profileConstraints = ProfileConstraints.getInstance();
         this.countryModel = new DefaultComboBoxModel();
+        this.backupUnit = Unit.AUTO;
         initCountryModel();
         initComponents();
         initDocumentHandlers();
@@ -74,6 +96,31 @@ public class UpdateProfileAvatar extends Avatar {
                 cancelJButtonActionPerformed(e);
             }
         });
+        addPropertyChangeListener("eventDispatcher", new PropertyChangeListener() {
+            public void propertyChange(final PropertyChangeEvent evt) {
+                if (null != evt.getOldValue())
+                    ((UpdateProfileDispatcher) evt.getOldValue()).removeListeners(
+                            UpdateProfileAvatar.this);
+                if (null != evt.getNewValue())
+                    ((UpdateProfileDispatcher) evt.getNewValue()).addListeners(
+                            UpdateProfileAvatar.this);
+            }
+        });
+    }
+
+    /**
+     * Fire a backup event.
+     * 
+     * This event keeps the backup statistics up to date
+     * so it is not necessary to read the information when the
+     * dialog is opened by the user (other than the first time).
+     * 
+     * @param e
+     *            A <code>BackupEvent</code>.
+     */
+    public void fireBackupEvent(final BackupEvent e) {
+        this.statistics = e.getStatistics();
+        reloadBackupStatistics(statistics);
     }
 
     public AvatarId getId() {
@@ -118,6 +165,7 @@ public class UpdateProfileAvatar extends Avatar {
         reloadProvinceLabel();
         reloadPostalCodeLabel();
         reloadErrorMessage();
+        reloadBackupStatistics();
         saveJButton.setEnabled(Boolean.FALSE);
     }
 
@@ -225,6 +273,7 @@ public class UpdateProfileAvatar extends Avatar {
         final javax.swing.JLabel mobilePhoneJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel cityJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel addressJLabel = new javax.swing.JLabel();
+        final javax.swing.JSeparator profileJSeparator = new javax.swing.JSeparator();
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
         countryJLabel.setFont(Fonts.DialogFont);
@@ -294,6 +343,12 @@ public class UpdateProfileAvatar extends Avatar {
         addressJTextField.setText("1234 5th Street");
         ((AbstractDocument) addressJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getAddress()));
 
+        backupJLabel.setFont(Fonts.DialogFont);
+        backupJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateProfileAvatar.Backup"));
+
+        backupStatisticsJLabel.setFont(Fonts.DialogFont);
+        backupStatisticsJLabel.setText("1 MB");
+
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
         errorMessageJLabel.setText("!Error Message!");
@@ -340,18 +395,18 @@ public class UpdateProfileAvatar extends Avatar {
                             .addComponent(postalCodeJLabel))
                         .addGap(29, 29, 29)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(postalCodeJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
-                            .addComponent(organizationJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
-                            .addComponent(phoneJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
-                            .addComponent(mobilePhoneJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
-                            .addComponent(addressJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
-                            .addComponent(cityJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
-                            .addComponent(provinceJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
-                            .addComponent(titleJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
+                            .addComponent(postalCodeJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
+                            .addComponent(organizationJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
+                            .addComponent(phoneJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
+                            .addComponent(mobilePhoneJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
+                            .addComponent(addressJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
+                            .addComponent(cityJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
+                            .addComponent(provinceJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
+                            .addComponent(titleJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(nameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
+                                .addComponent(nameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
-                            .addComponent(countryJComboBox, javax.swing.GroupLayout.Alignment.TRAILING, 0, 238, Short.MAX_VALUE))
+                            .addComponent(countryJComboBox, javax.swing.GroupLayout.Alignment.TRAILING, 0, 239, Short.MAX_VALUE))
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(emailJLabel)
@@ -359,6 +414,14 @@ public class UpdateProfileAvatar extends Avatar {
                         .addComponent(emailJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(backupJLabel)
+                        .addGap(13, 13, 13)
+                        .addComponent(backupStatisticsJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(profileJSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
                         .addContainerGap())))
         );
@@ -412,7 +475,13 @@ public class UpdateProfileAvatar extends Avatar {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(emailJLabel)
                     .addComponent(emailJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(16, 16, 16)
+                .addGap(18, 18, 18)
+                .addComponent(profileJSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(backupStatisticsJLabel)
+                    .addComponent(backupJLabel))
+                .addGap(14, 14, 14)
                 .addComponent(errorMessageJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -450,6 +519,15 @@ public class UpdateProfileAvatar extends Avatar {
         provinceJTextField.getDocument().addDocumentListener(changeHandler);
         titleJTextField.getDocument().addDocumentListener(changeHandler);
         countryJComboBox.addItemListener(changeHandler);
+    }
+
+    /**
+     * Determine if the backup feature is enabled.
+     * 
+     * @return True if the backup feature is enabled.
+     */
+    private boolean isBackupEnabled() {
+        return ((UpdateProfileProvider) contentProvider).isBackupEnabled().booleanValue();
     }
 
     /**
@@ -555,6 +633,15 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     /**
+     * Determine if the model is online.
+     * 
+     * @return True if the model is online.
+     */
+    private boolean isOnline() {
+        return ((UpdateProfileProvider) contentProvider).isOnline().booleanValue();
+    }
+
+    /**
      * Determines if the United States is the selected country.
      * 
      * @return true if the United States is selected; false otherwise
@@ -568,22 +655,22 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     /**
-     * Action when the OK button is pressed. Maybe update the profile.
+     * Read the backup statistics.
      * 
-     * @param evt
-     *            An <code>ActionEvent</code>.
+     * @return An instance of <code>Statistics</code>.
      */
-    private void saveJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveJButtonActionPerformed
-        if (isInputValid() && isInputEmailAvailable()) {
-            disposeWindow();
-            updateProfile();
-            updateEmail();
-        } else {
-            // This is done because we may learn the email is unavailable for the first time here.
-            reloadErrorMessage();
-            saveJButton.setEnabled(isInputValid());
-        }
-    }//GEN-LAST:event_saveJButtonActionPerformed
+    private Statistics readBackupStatistics() {
+        return ((UpdateProfileProvider) contentProvider).readBackupStatistics();
+    }
+
+    /**
+     * Read the profile email addresses from the content provider.
+     * 
+     * @return A <code>List&lt;ProfileEMail&gt;</code>.
+     */
+    private List<ProfileEMail> readEMails() {
+        return ((UpdateProfileProvider) contentProvider).readEMails();
+    }
 
     /**
      * Determine whether or not an e-mail address is available.
@@ -606,15 +693,6 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     /**
-     * Read the profile email addresses from the content provider.
-     * 
-     * @return A <code>List&lt;ProfileEMail&gt;</code>.
-     */
-    private List<ProfileEMail> readEMails() {
-        return ((UpdateProfileProvider) contentProvider).readEMails();
-    }
-
-    /**
      * Reload a text field with a value.
      * 
      * @param jTextField
@@ -625,6 +703,39 @@ public class UpdateProfileAvatar extends Avatar {
     private void reload(final javax.swing.JTextField jTextField,
             final String value) {
         jTextField.setText(null == value ? "" : value);
+    }
+
+    /**
+     * Reload the backup statistics.  If the backup is enabled and the
+     * system is online, the backup statistics are displayed.
+     */
+    private void reloadBackupStatistics() {
+        backupJLabel.setText("");
+        backupStatisticsJLabel.setText("");
+        if (null != statistics) {
+            reloadBackupStatistics(statistics);
+        } else if (isOnline() && isBackupEnabled()) {
+            this.statistics = readBackupStatistics();
+            reloadBackupStatistics(statistics);
+        }
+    }
+
+    /**
+     * Reload the backup statistics.  If the backup is enabled and the
+     * system is online, the backup statistics are displayed.
+     * 
+     * @param statistics
+     *            A <code>Statistics</code>.
+     */
+    private void reloadBackupStatistics(final Statistics statistics) {
+        backupJLabel.setText(getString("Backup"));
+        if (null == backupUnit) {
+            backupStatisticsJLabel.setText(BYTES_FORMAT.format(
+                    statistics.getDiskUsage()));
+        } else {
+            backupStatisticsJLabel.setText(BYTES_FORMAT.format(backupUnit,
+                    statistics.getDiskUsage()));
+        }
     }
 
     /**
@@ -692,6 +803,24 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     /**
+     * Action when the OK button is pressed. Maybe update the profile.
+     * 
+     * @param evt
+     *            An <code>ActionEvent</code>.
+     */
+    private void saveJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveJButtonActionPerformed
+        if (isInputValid() && isInputEmailAvailable()) {
+            disposeWindow();
+            updateProfile();
+            updateEmail();
+        } else {
+            // This is done because we may learn the email is unavailable for the first time here.
+            reloadErrorMessage();
+            saveJButton.setEnabled(isInputValid());
+        }
+    }//GEN-LAST:event_saveJButtonActionPerformed
+
+    /**
      * Update the email address.
      */
     private void updateEmail() {
@@ -748,6 +877,8 @@ public class UpdateProfileAvatar extends Avatar {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JTextField addressJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
+    private final javax.swing.JLabel backupJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel backupStatisticsJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField cityJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JComboBox countryJComboBox = new javax.swing.JComboBox();
     private final javax.swing.JLabel countryJLabel = new javax.swing.JLabel();

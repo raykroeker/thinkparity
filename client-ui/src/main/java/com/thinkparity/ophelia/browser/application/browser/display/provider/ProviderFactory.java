@@ -143,7 +143,7 @@ public class ProviderFactory {
             provider = new SignupProvider(profileModel);
             break;
         case DIALOG_PROFILE_UPDATE:
-            provider = new UpdateProfileProvider(profileModel);
+            provider = new UpdateProfileProvider(profileModel, backupModel, sessionModel);
             break;
         case DIALOG_PROFILE_UPDATE_PASSWORD:
             provider = new UpdatePasswordProvider(profileModel);
@@ -152,7 +152,7 @@ public class ProviderFactory {
             provider = new VerifyEMailProvider(profileModel);
             break;
         case MAIN_STATUS:
-            provider = new MainStatusProvider(profileModel, backupModel, contactModel, containerModel, sessionModel);
+            provider = new MainStatusProvider(profileModel, contactModel, containerModel, sessionModel);
             break;
         case TAB_ARCHIVE:
             provider = new ArchiveTabProvider(profileModel, contactModel, containerModel, documentModel, userModel);

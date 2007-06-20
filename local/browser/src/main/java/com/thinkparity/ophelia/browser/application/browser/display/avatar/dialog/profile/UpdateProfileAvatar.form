@@ -36,19 +36,19 @@
                       </Group>
                       <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="postalCodeJTextField" alignment="0" pref="238" max="32767" attributes="0"/>
-                          <Component id="organizationJTextField" alignment="0" pref="238" max="32767" attributes="2"/>
-                          <Component id="phoneJTextField" alignment="0" pref="238" max="32767" attributes="0"/>
-                          <Component id="mobilePhoneJTextField" alignment="0" pref="238" max="32767" attributes="0"/>
-                          <Component id="addressJTextField" alignment="0" pref="238" max="32767" attributes="0"/>
-                          <Component id="cityJTextField" alignment="0" pref="238" max="32767" attributes="0"/>
-                          <Component id="provinceJTextField" alignment="0" pref="238" max="32767" attributes="0"/>
-                          <Component id="titleJTextField" alignment="0" pref="238" max="32767" attributes="2"/>
+                          <Component id="postalCodeJTextField" alignment="0" pref="239" max="32767" attributes="0"/>
+                          <Component id="organizationJTextField" alignment="0" pref="239" max="32767" attributes="2"/>
+                          <Component id="phoneJTextField" alignment="0" pref="239" max="32767" attributes="0"/>
+                          <Component id="mobilePhoneJTextField" alignment="0" pref="239" max="32767" attributes="0"/>
+                          <Component id="addressJTextField" alignment="0" pref="239" max="32767" attributes="0"/>
+                          <Component id="cityJTextField" alignment="0" pref="239" max="32767" attributes="0"/>
+                          <Component id="provinceJTextField" alignment="0" pref="239" max="32767" attributes="0"/>
+                          <Component id="titleJTextField" alignment="0" pref="239" max="32767" attributes="2"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="nameJTextField" pref="238" max="32767" attributes="2"/>
+                              <Component id="nameJTextField" pref="239" max="32767" attributes="2"/>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
-                          <Component id="countryJComboBox" alignment="1" pref="238" max="32767" attributes="0"/>
+                          <Component id="countryJComboBox" alignment="1" pref="239" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -59,6 +59,16 @@
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
+                      <Component id="backupJLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="13" max="-2" attributes="0"/>
+                      <Component id="backupStatisticsJLabel" pref="238" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="1" attributes="0">
+                      <Component id="profileJSeparator" pref="346" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="1" attributes="0">
                       <Component id="errorMessageJLabel" pref="346" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -124,7 +134,14 @@
                   <Component id="emailJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="emailJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+              <Component id="profileJSeparator" min="-2" pref="10" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="backupStatisticsJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="backupJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
               <Component id="errorMessageJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace pref="14" max="32767" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -397,6 +414,36 @@
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) addressJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getAddress()));"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JSeparator" name="profileJSeparator">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JLabel" name="backupJLabel">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogFont" type="code"/>
+        </Property>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="localization/Browser_Messages.properties" key="UpdateProfileAvatar.Backup" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JLabel" name="backupStatisticsJLabel">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogFont" type="code"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="1 MB"/>
+      </Properties>
+      <AuxValues>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>

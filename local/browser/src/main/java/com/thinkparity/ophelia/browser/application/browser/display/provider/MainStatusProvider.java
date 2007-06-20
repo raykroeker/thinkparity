@@ -10,14 +10,12 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.filter.Filter;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
-import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
-import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
@@ -33,9 +31,6 @@ import com.thinkparity.ophelia.model.session.SessionModel;
  */
 public final class MainStatusProvider extends ContentProvider {
 
-    /** An instance of <code>BackupModel</code>. */
-    private final BackupModel backupModel;
-
     /** An instance of <code>ContactModel</code>. */
     private final ContactModel contactModel;
 
@@ -50,8 +45,6 @@ public final class MainStatusProvider extends ContentProvider {
      * 
      * @param profileModel
      *            An instance of <code>ProfileModel</code>.
-     * @param backupModel
-     *            An instance of <code>BackupModel</code>.
      * @param contactModel
      *            An instance of <code>ContactModel</code>.
      * @param containerModel
@@ -60,11 +53,10 @@ public final class MainStatusProvider extends ContentProvider {
      *            An instance of <code>SessionModel</code>.
      */
     public MainStatusProvider(final ProfileModel profileModel,
-            final BackupModel backupModel, final ContactModel contactModel,
+            final ContactModel contactModel,
             final ContainerModel containerModel,
             final SessionModel sessionModel) {
         super(profileModel);
-        this.backupModel = backupModel;
         this.contactModel = contactModel;
         this.containerModel = containerModel;
         this.sessionModel = sessionModel;
@@ -80,30 +72,12 @@ public final class MainStatusProvider extends ContentProvider {
     }
 
     /**
-     * Determine if the user's backup is enabled.
-     * 
-     * @return True if the user's backup is enabled.
-     */
-    public Boolean isBackupEnabled() {
-        return profileModel.isBackupEnabled();
-    }
-
-    /**
      * Determine if the user's backup is online.
      * 
      * @return True if the user's backup is online.
      */
     public Boolean isOnline() {
         return sessionModel.isOnline();
-    }
-
-    /**
-     * Read the backup statistics.
-     * 
-     * @return The backup <code>Statistics</code>.
-     */
-    public Statistics readBackupStatistics() {
-        return backupModel.readStatistics();
     }
 
     /**

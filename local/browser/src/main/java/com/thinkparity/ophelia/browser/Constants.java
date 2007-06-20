@@ -5,7 +5,9 @@ package com.thinkparity.ophelia.browser;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -14,6 +16,7 @@ import javax.swing.Icon;
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityCheckBoxMenuItemIcon;
@@ -102,8 +105,7 @@ public final class Constants {
                 public static final Color BORDER_TOP = new Color(242, 245, 248, 255);
                 public static final Color BORDER_TOP_LEFT = new Color(239, 242, 247, 255);
                 public static final Color BORDER_TOP_RIGHT = new Color(242, 245, 248, 255);
-                public static final Color TITLE_GRADIENT_BOTTOM = new Color(247, 249, 250, 255);
-                public static final Color TITLE_GRADIENT_TOP = new Color(250, 251, 253, 255);
+                public static final Color TITLE_BOTTOM_LINE = new Color(203, 213, 222, 255);
                 public static final Color ALPHA_PANEL_COLOR = new Color(239, 241, 242, 255);
             }
         }
@@ -254,13 +256,24 @@ public final class Constants {
             public static final BufferedImage DIALOG_TOP_LEFT =
                 ImageIOUtil.read("DialogTopLeft.png");
             public static final BufferedImage DIALOG_TOP_RIGHT =
-                ImageIOUtil.read("DialogTopRight.png");   
+                ImageIOUtil.read("DialogTopRight.png");
             public static final BufferedImage HALO =
                 ImageIOUtil.read("BrowserTitle_SearchHalo.png");
             public static final BufferedImage LOGO =
                 ImageIOUtil.read("thinkParityLogo.png");
             public static final BufferedImage SEARCH_BACKGROUND =
                 ImageIOUtil.read("BrowserTitle_SearchBackground.png");
+        }
+        public static final class Browser {
+            public static final class Window {
+                public static final Image WINDOW_TITLE;
+                static {
+                    final Rectangle bounds = SwingUtil.getPrimaryDesktopBounds();
+                    final BufferedImage buffer = ImageIOUtil.read("WindowTitle.png");
+                    WINDOW_TITLE = buffer.getScaledInstance(bounds.width,
+                            buffer.getHeight(), Image.SCALE_SMOOTH);
+                }
+            }
         }
     }
     public static final class InsetFactors {

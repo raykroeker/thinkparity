@@ -6,10 +6,8 @@
 
 package com.thinkparity.ophelia.browser.platform.application.window;
 
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Paint;
 
 import javax.swing.Icon;
 import javax.swing.SwingUtilities;
@@ -26,7 +24,7 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
  * @author  Administrator
  */
 public class WindowTitle extends AbstractJPanel {
-    
+
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
@@ -75,13 +73,13 @@ public class WindowTitle extends AbstractJPanel {
     protected void paintComponent(final Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
         try {
-            // vertical gradient
-            final Paint gPaint =
-                new GradientPaint(0, 0, Colors.Browser.Window.TITLE_GRADIENT_TOP,
-                                  0, getHeight(), Colors.Browser.Window.TITLE_GRADIENT_BOTTOM);
-            g2.setPaint(gPaint);
-            g2.fillRect(0, 0, getWidth(), getHeight());
-            
+            // draw background image
+            g2.drawImage(Images.Browser.Window.WINDOW_TITLE, 0, 0, this);
+
+            // line on the bottom
+            g2.setPaint(Colors.Browser.Window.TITLE_BOTTOM_LINE);
+            g2.drawLine(0, getHeight()-1, getWidth()-1, getHeight()-1);
+
             // These images put borders on rounded corners.
             if (borderType == BorderType.WINDOW_BORDER2) {
                 g.drawImage(Images.BrowserTitle.BROWSER_TOP_LEFT_INNER,
@@ -122,9 +120,9 @@ public class WindowTitle extends AbstractJPanel {
 
         setLayout(new java.awt.GridBagLayout());
 
-        setMaximumSize(new java.awt.Dimension(2147483647, 20));
-        setMinimumSize(new java.awt.Dimension(57, 20));
-        setPreferredSize(new java.awt.Dimension(57, 20));
+        setMaximumSize(new java.awt.Dimension(2147483647, 25));
+        setMinimumSize(new java.awt.Dimension(57, 25));
+        setPreferredSize(new java.awt.Dimension(57, 25));
         titleJLabel.setFont(Fonts.DialogTitle);
         titleJLabel.setText("!Dialog Title!");
         titleJLabel.setMaximumSize(new java.awt.Dimension(60, 16));
@@ -135,7 +133,7 @@ public class WindowTitle extends AbstractJPanel {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(4, 9, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(4, 9, 4, 0);
         add(titleJLabel, gridBagConstraints);
 
         closeJButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Close.png")));
@@ -163,7 +161,7 @@ public class WindowTitle extends AbstractJPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 6);
+        gridBagConstraints.insets = new java.awt.Insets(4, 0, 4, 6);
         add(closeJButton, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents

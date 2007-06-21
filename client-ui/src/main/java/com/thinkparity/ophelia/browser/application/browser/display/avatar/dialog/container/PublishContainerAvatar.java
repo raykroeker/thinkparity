@@ -17,7 +17,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.text.AbstractDocument;
 
-import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.StringUtil.Separator;

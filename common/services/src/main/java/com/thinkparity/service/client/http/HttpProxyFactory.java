@@ -8,8 +8,6 @@ import java.lang.reflect.Proxy;
 import com.thinkparity.codebase.model.session.Environment;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpConnectionManager;
-import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 
 import com.thinkparity.service.client.Service;
@@ -47,13 +45,7 @@ public final class HttpProxyFactory implements ServiceProxyFactory {
      * @return An instance of <code>HttpClient</code>.
      */
     private static HttpClient newHttpClient() {
-        final HttpClient httpClient = new HttpClient();
-        final HttpConnectionManager httpConnectionManager = httpClient.getHttpConnectionManager();
-        final HttpConnectionManagerParams httpConnectionManagerParams = httpConnectionManager.getParams();
-        httpConnectionManagerParams.setStaleCheckingEnabled(false);
-        httpConnectionManager.setParams(httpConnectionManagerParams);
-        httpClient.setHttpConnectionManager(httpConnectionManager);
-        return httpClient;
+        return new HttpClient();
     }
 
     /** An http service context. */

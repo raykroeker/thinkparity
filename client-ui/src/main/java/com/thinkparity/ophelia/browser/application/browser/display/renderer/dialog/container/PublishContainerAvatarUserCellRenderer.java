@@ -24,7 +24,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
  * @author  Administrator
  */
 public class PublishContainerAvatarUserCellRenderer extends AbstractJPanel implements ListCellRenderer {
-    
+
     /** Flag indicating if this is a spacer cell */
     Boolean spacer;
 
@@ -32,7 +32,7 @@ public class PublishContainerAvatarUserCellRenderer extends AbstractJPanel imple
     public PublishContainerAvatarUserCellRenderer() {
         initComponents();
     }
-        
+
     /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
@@ -106,7 +106,6 @@ public class PublishContainerAvatarUserCellRenderer extends AbstractJPanel imple
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 20, 0, 0);
         add(userJCheckBox, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
@@ -114,5 +113,4 @@ public class PublishContainerAvatarUserCellRenderer extends AbstractJPanel imple
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox userJCheckBox;
     // End of variables declaration//GEN-END:variables
-
 }

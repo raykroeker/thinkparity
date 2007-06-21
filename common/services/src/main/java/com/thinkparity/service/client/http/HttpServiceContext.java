@@ -5,8 +5,7 @@ package com.thinkparity.service.client.http;
 
 import com.thinkparity.codebase.model.session.Environment;
 
-import org.apache.commons.httpclient.HttpConnection;
-import org.apache.commons.httpclient.HttpState;
+import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.protocol.Protocol;
 
 import com.thinkparity.service.client.ServiceContext;
@@ -36,11 +35,8 @@ final class HttpServiceContext implements ServiceContext {
     /** The http content type. */
     private String contentType;
 
-    /** The http connection. */
-    private HttpConnection httpConnection;
-
-    /** The http state. */
-    private HttpState httpState;
+    /** The http client. */
+    private HttpClient httpClient;
 
     /**
      * Create HttpServiceContext.
@@ -60,21 +56,12 @@ final class HttpServiceContext implements ServiceContext {
     }
 
     /**
-     * Obtain httpConnection.
+     * Obtain httpClient.
      *
-     * @return A HttpConnection.
+     * @return A HttpClient.
      */
-    public HttpConnection getHttpConnection() {
-        return httpConnection;
-    }
-
-    /**
-     * Obtain httpState.
-     *
-     * @return A HttpState.
-     */
-    public HttpState getHttpState() {
-        return httpState;
+    public HttpClient getHttpClient() {
+        return httpClient;
     }
 
     /**
@@ -97,22 +84,12 @@ final class HttpServiceContext implements ServiceContext {
     }
 
     /**
-     * Set httpConnection.
+     * Set httpClient.
      *
-     * @param httpConnection
-     *		A HttpConnection.
+     * @param httpClient
+     *		A HttpClient.
      */
-    public void setHttpConnection(final HttpConnection httpConnection) {
-        this.httpConnection = httpConnection;
-    }
-
-    /**
-     * Set httpState.
-     *
-     * @param httpState
-     *		A HttpState.
-     */
-    public void setHttpState(final HttpState httpState) {
-        this.httpState = httpState;
+    public void setHttpClient(final HttpClient httpClient) {
+        this.httpClient = httpClient;
     }
 }

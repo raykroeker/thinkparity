@@ -7,6 +7,9 @@ import java.lang.reflect.Proxy;
 
 import com.thinkparity.codebase.model.session.Environment;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpConnectionManager;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 
 import com.thinkparity.service.client.Service;
@@ -37,6 +40,22 @@ public final class HttpProxyFactory implements ServiceProxyFactory {
         return SINGLETON;
     }
 
+    /**
+     * Create a new instance of a http client. Set the connection manager
+     * parameters not to perform a stale connection check.
+     * 
+     * @return An instance of <code>HttpClient</code>.
+     */
+    private static HttpClient newHttpClient() {
+        final HttpClient httpClient = new HttpClient();
+        final HttpConnectionManager httpConnectionManager = httpClient.getHttpConnectionManager();
+        final HttpConnectionManagerParams httpConnectionManagerParams = httpConnectionManager.getParams();
+        httpConnectionManagerParams.setStaleCheckingEnabled(false);
+        httpConnectionManager.setParams(httpConnectionManagerParams);
+        httpClient.setHttpConnectionManager(httpConnectionManager);
+        return httpClient;
+    }
+
     /** An http service context. */
     private final HttpServiceContext context;
 
@@ -51,8 +70,7 @@ public final class HttpProxyFactory implements ServiceProxyFactory {
                 new HttpSocketFactory(), environment.getServicePort()));
         this.context = new HttpServiceContext();
         this.context.setContentType("text/xml");
-        this.context.setHttpConnection(null);
-        this.context.setHttpState(null);
+        this.context.setHttpClient(newHttpClient());
     }
 
     /**

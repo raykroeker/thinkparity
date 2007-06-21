@@ -323,6 +323,17 @@ public abstract class StringUtil {
                 null == delimiter ? null : delimiter.toString(), list);
     }
 
+    /**
+     * Split the string into tokens.
+     * 
+     * @param string
+     *            The <code>String</code>.
+     * @param delimiter
+     *            A <code>String</code> delimiter.
+     * @param list
+     *            The <code>List</code> of <code>String</code> for the result.
+     * @return A <code>List</code> of <code>String</code>s.
+     */
 	public static List<String> tokenize(final String string,
             final String delimiter, final List<String> list) {
 	    if (null == string)
@@ -336,7 +347,9 @@ public abstract class StringUtil {
         }
         else {
             while (-1 != nextIndex) {
-                list.add(string.substring(currentIndex, nextIndex));
+                if (currentIndex != nextIndex) { // check for two tokens in a row
+                    list.add(string.substring(currentIndex, nextIndex));
+                }
                 currentIndex = nextIndex + delimiter.length();
                 nextIndex = string.indexOf(delimiter, currentIndex);
             }
@@ -345,6 +358,76 @@ public abstract class StringUtil {
             }
         }
         return list;
+    }
+
+    /**
+     * Split the string into tokens.
+     * This version supports a list of possible delimiters.
+     * 
+     * @param string
+     *            The <code>String</code>.
+     * @param delimiters
+     *            The <code>List</code> of <code>String</code> delimiters.
+     * @param list
+     *            The <code>List</code> of <code>String</code> for the result.
+     * @return A <code>List</code> of <code>String</code>s.
+     */
+    public static List<String> tokenize(final String string,
+            final List<String> delimiters, final List<String> list) {
+        if (null == string)
+            throw new NullPointerException();
+        if (null == delimiters)
+            throw new NullPointerException();
+        for (final String delimiter : delimiters) {
+            if (null == delimiter)
+                throw new NullPointerException();
+        }
+        int currentIndex = 0;
+        int nextIndex;
+        int delimiterIndex = nextDelimiter(string, delimiters, currentIndex);
+        String delimiter;
+        if (-1 == delimiterIndex) { // none of the delimiters were found
+            list.add(string);
+        }
+        else {
+            while (-1 != delimiterIndex) {
+                delimiter = delimiters.get(delimiterIndex);
+                nextIndex = string.indexOf(delimiter, currentIndex);
+                if (currentIndex != nextIndex) { // check for two tokens in a row
+                    list.add(string.substring(currentIndex, nextIndex));
+                }
+                currentIndex = nextIndex + delimiter.length();
+                delimiterIndex = nextDelimiter(string, delimiters, currentIndex);
+            }
+            if (currentIndex < string.length()) {
+                list.add(string.substring(currentIndex));
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Get the index to the delimiter that is encountered next in the string, or -1 if not found.
+     * 
+     * @param string
+     *            The <code>String</code>.
+     * @param delimiters
+     *            The <code>List</code> of <code>String</code> delimiters.
+     * @param fromIndex
+     *            The <code>int</code> index to start the search from in the string.
+     * @return The index to the delimiter that is encountered next in the string, or -1 if not found.
+     */
+    private static int nextDelimiter(final String string, final List<String> delimiters, final int fromIndex) {
+        int delimiterIndex = -1;
+        int index = -1;
+        for (final String delimiter : delimiters) {
+            final int result = string.indexOf(delimiter, fromIndex);
+            if (result != -1 && (index == -1 || result < index)) {
+                index = result;
+                delimiterIndex = delimiters.indexOf(delimiter);
+            }
+        }
+        return delimiterIndex;
     }
 
 	/**

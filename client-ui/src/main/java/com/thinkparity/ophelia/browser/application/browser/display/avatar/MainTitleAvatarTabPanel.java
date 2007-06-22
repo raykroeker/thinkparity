@@ -16,18 +16,12 @@ import javax.swing.JLabel;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Icons.BrowserTitle;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar.TabId;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate;
-import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.plugin.Plugin;
-import com.thinkparity.ophelia.browser.platform.plugin.PluginExtension;
-import com.thinkparity.ophelia.browser.platform.plugin.PluginId;
-import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 
 
 /**
@@ -53,9 +47,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     /** A list of all core tabs. */
     private final Map<TabId, Tab> allTabs;
 
-    /** A list of all plugin tabs. */
-    private final Map<PluginExtension, Tab> pluginTabs;
-
     /** The selected tab. */
     private Tab selectedTab;
 
@@ -66,7 +57,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     public MainTitleAvatarTabPanel() {
         super();
         this.allTabs = new HashMap<TabId, Tab>();
-        this.pluginTabs = new HashMap<PluginExtension, Tab>();
         initComponents();
         addMoveListener(this);
         addRequestFocusListener(this);
@@ -86,52 +76,9 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             for (final Tab tab : allTabs.values()) {
                 tab.drawText(g2, g2.getFontMetrics());
             }
-            for (final Tab tab : pluginTabs.values()) {
-                tab.drawText(g2, g2.getFontMetrics());
-            }
         } finally {
             g2.dispose();
         }
-    }
-
-    /**
-     * Initialize tabs for the plugins.
-     *
-     */
-    void initPluginTabs(final PluginRegistry pluginRegistry) {
-        final Plugin archivePlugin = pluginRegistry.getPlugin(PluginId.ARCHIVE);
-        if (null != archivePlugin) {
-            final TabPanelExtension archiveTab =
-                pluginRegistry.getTabPanelExtension(PluginId.ARCHIVE, "ArchiveTab");
-            final GridBagConstraints gridBagConstraints = new GridBagConstraints();
-            gridBagConstraints.gridx = 1;
-            gridBagConstraints.gridy = 1;
-            gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
-            gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
-            add(createTab(archivePlugin, archiveTab, Boolean.FALSE).jLabel, gridBagConstraints);
-        }
-    }
-
-    /**
-     * Select a tab.
-     * 
-     * @param tabExtension
-     *            A tab extension.
-     */
-    void selectTab(final TabListExtension tabListExtension) {
-        this.selectedTab = pluginTabs.get(tabListExtension);
-        reloadDisplay();
-    }
-
-    /**
-     * Select a tab.
-     * 
-     * @param tabExtension
-     *            A tab extension.
-     */
-    void selectTab(final TabPanelExtension tabPanelExtension) {
-        this.selectedTab = pluginTabs.get(tabPanelExtension);
-        reloadDisplay();
     }
 
     /**
@@ -144,19 +91,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         this.selectedTab = allTabs.get(tabId);
         reloadDisplay();
         reloadTabButtonActionDelegate(tabId);
-    }
-
-    /**
-     * Create a plugin extension tab (not leftmost).
-     * 
-     * @param tabExtension
-     *            A tab extension.
-     * @return A <code>Tab</code>.
-     */
-    private Tab createTab(final Plugin plugin, final TabPanelExtension tabPanelExtension, Boolean leftmost) {
-        final Tab tab = new Tab(tabPanelExtension, leftmost);
-        pluginTabs.put(tabPanelExtension, tab);
-        return tab;
     }
 
     /**
@@ -261,13 +195,10 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
      * Reload the display.
      */
     private void reloadDisplay() {
-        for (final Tab tab : pluginTabs.values()) {
-            tab.jLabel.setIcon(getTabIcon(selectedTab.isLeftmost(), Boolean.FALSE, Boolean.FALSE, Boolean.FALSE));
-        }
         for (final Tab tab : allTabs.values()) {
-            tab.jLabel.setIcon(getTabIcon(selectedTab.isLeftmost(), Boolean.FALSE, Boolean.FALSE, Boolean.FALSE));
+            tab.jLabel.setIcon(getTabIcon(selectedTab.isLeftmost(), Boolean.FALSE, Boolean.FALSE));
         }
-        selectedTab.jLabel.setIcon(getTabIcon(selectedTab.isLeftmost(), Boolean.TRUE, Boolean.FALSE, Boolean.FALSE));
+        selectedTab.jLabel.setIcon(getTabIcon(selectedTab.isLeftmost(), Boolean.TRUE, Boolean.FALSE));
     }
 
     /**
@@ -279,24 +210,14 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
      *            A <code>Boolean</code>, true for the selected tab.
      * @param rollover
      *            A <code>Boolean</code>, true if the mouse is over the tab.
-     * @param activeRollover
-     *            A <code>Boolean</code>, true if the mouse is over the active area.
      */
     private Icon getTabIcon(final Boolean leftmost, final Boolean selected,
-            final Boolean rollover, final Boolean activeRollover) {
+            final Boolean rollover) {
         final Icon icon;
 
-        // TODO It may be superior to get tab icons a different way
-        // if they are not generic anymore. Will wait to see if we keep this feature.
         if (leftmost && selected) {
-            if (activeRollover) {
-                icon = BrowserTitle.LEFTMOST_TAB_SELECTED_ROLLOVER; 
-            } else {
-                icon = BrowserTitle.LEFTMOST_TAB_SELECTED;
-            }
+            icon = BrowserTitle.LEFTMOST_TAB_SELECTED;
         } else if (selected) {
-            // for now there is no special active rollover icon
-            // except for the leftmost tab.
             icon = BrowserTitle.TAB_SELECTED;
         } else if (rollover) {
             icon = BrowserTitle.TAB_ROLLOVER;
@@ -330,7 +251,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     private final class Tab {
 
         /** The active <code>Rectangle</code>. */
-        private Rectangle activeRectangle;
+        private final Rectangle activeRectangle;
 
         /** The tab label. */
         private final JLabel jLabel;
@@ -344,46 +265,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         /**
          * Create Tab.
          * 
-         * @param tabExtension
-         *            A plugin tab extension
-         * @param leftmost
-         *            Indicate if this tab is the leftmost tab or not.
-         */
-        private Tab(final TabPanelExtension tabPanelExtension, final Boolean leftmost) {
-            super();
-            this.leftmost = leftmost;
-            this.jLabel = LabelFactory.create(getTabIcon(leftmost, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE));
-            this.jLabelText = tabPanelExtension.getText();
-            this.jLabel.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mousePressed(final MouseEvent e) {
-                    final Data data = (Data) ((Data) mainTitleAvatar.getInput()).clone();
-                    data.unset(MainTitleAvatar.DataKey.TAB_ID);
-                    data.set(MainTitleAvatar.DataKey.TAB_PANEL_EXTENSION, tabPanelExtension);
-                    mainTitleAvatar.setInput(data);
-                }
-                @Override
-                public void mouseEntered(final MouseEvent e) {
-                    if (!MainTitleAvatarTabPanel.Tab.this.equals(selectedTab)) {
-                        jLabel.setIcon(getTabIcon(leftmost, Boolean.FALSE, Boolean.TRUE, Boolean.FALSE));
-                    }
-                }
-                @Override
-                public void mouseExited(final MouseEvent e) {
-                    if (!MainTitleAvatarTabPanel.Tab.this.equals(selectedTab)) {
-                        jLabel.setIcon(getTabIcon(leftmost, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE));
-                    }
-                }
-            });
-            final Dimension minimumSize = jLabel.getMinimumSize();
-            minimumSize.height = 25;
-            minimumSize.width = 77;
-            this.jLabel.setMinimumSize(minimumSize);
-        }
-
-        /**
-         * Create Tab.
-         * 
          * @param tabId
          *            A tab id.
          * @param leftmost
@@ -391,58 +272,71 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
          */
         private Tab(final TabId tabId, final Boolean leftmost) {
             super();
+            this.activeRectangle = new Rectangle();
             this.leftmost = leftmost;
-            this.jLabel = LabelFactory.create(getTabIcon(leftmost, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE));
+            this.jLabel = LabelFactory.create(getTabIcon(leftmost, Boolean.FALSE, Boolean.FALSE));
             this.jLabelText = BUNDLE.getString(
                     new StringBuffer("MAIN_TITLE.MainTitleAvatar$TabId.")
                             .append(tabId).toString());
             this.jLabel.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(final MouseEvent e) {
-                    if (MainTitleAvatarTabPanel.Tab.this.equals(selectedTab)) {
-                        if (isInActiveRectangle(e.getPoint())) {
-                            setIcon(Boolean.TRUE, Boolean.FALSE);
-                            invokeTabButtonAction();
-                        }
-                    } else {
+                    if (!isSelectedTab()) {
                         getBrowser().selectTab(tabId);
+                    } else if (isActionAvailable() && isInActiveRectangle(e.getPoint())) {
+                        invokeTabButtonAction();
                     }
                 }
                 @Override
                 public void mouseEntered(final MouseEvent e) {
-                    setIcon(Boolean.TRUE, isInActiveRectangle(e.getPoint()));
+                    if (isActionAvailable()) {
+                        applyHandCursor(isInActiveRectangle(e.getPoint()));
+                    }
+                    jLabel.setIcon(getTabIcon(isLeftmost(), isSelectedTab(), Boolean.TRUE));
                 }
                 @Override
                 public void mouseExited(final MouseEvent e) {
-                    setIcon(Boolean.FALSE, Boolean.FALSE);
+                    if (isActionAvailable()) {
+                        applyHandCursor(Boolean.FALSE);
+                    }
+                    jLabel.setIcon(getTabIcon(isLeftmost(), isSelectedTab(), Boolean.FALSE));
                 }
             });
             this.jLabel.addMouseMotionListener(new MouseAdapter() {
                 @Override
                 public void mouseMoved(final MouseEvent e) {
-                    setIcon(Boolean.TRUE, isInActiveRectangle(e.getPoint()));
+                    if (isActionAvailable()) {
+                        applyHandCursor(isInActiveRectangle(e.getPoint()));
+                    }
                 }
             });
             final Dimension minimumSize = jLabel.getMinimumSize();
             minimumSize.height = 25;
             minimumSize.width = 77;
             this.jLabel.setMinimumSize(minimumSize);
-            calculateActiveRectangle();
         }       
 
         /**
-         * @return the leftmost
+         * Determine if this is the leftmost tab.
+         * 
+         * @return true if this is the leftmost tab.
          */
         public Boolean isLeftmost() {
             return leftmost;
         }
 
         /**
-         * Calculate the active rectangle (top right).
-         * This is the area where a mouse click may invoke an action.
+         * Apply or remove a hand cursor.
+         * 
+         * @param enable
+         *            The enable <code>Boolean</code>.
          */
-        private void calculateActiveRectangle() {
-            activeRectangle = new Rectangle(jLabel.getPreferredSize().width-16, 0, 16, 16);
+        private void applyHandCursor(final Boolean enable) {
+            if (enable) {
+                SwingUtil.setCursor(jLabel, java.awt.Cursor.HAND_CURSOR);
+            } else {
+                SwingUtil.setCursor(jLabel, java.awt.Cursor.DEFAULT_CURSOR);
+            }
         }
 
         /**
@@ -458,9 +352,25 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             final Dimension labelSize = jLabel.getSize();
             final int textWidth = fm.stringWidth(jLabelText);
             final int textHeight = fm.getHeight();
-            g2.drawString(jLabelText,
-                    labelLocation.x + (labelSize.width - textWidth) / 2,
-                    labelLocation.y + (labelSize.height - textHeight) / 2 + 13);
+            final int x = labelLocation.x + (labelSize.width - textWidth) / 2;
+            final int y = labelLocation.y + (labelSize.height - textHeight) / 2 + 13;
+            g2.setColor(isActionAvailable() ? Colors.Browser.Link.LINK_FOREGROUND : Color.BLACK);
+            g2.drawString(jLabelText, x, y);
+            // underline
+            if (isActionAvailable()) {
+                g2.drawLine(x, y + 2, x + fm.stringWidth(jLabelText), y + 2);
+            }
+            // set the active rectangle
+            activeRectangle.setBounds(x, y-fm.getMaxAscent(), textWidth, textHeight);
+        }
+
+        /**
+         * Determine if an action is available.
+         * 
+         * @return true if an action is available.
+         */
+        private Boolean isActionAvailable() {
+            return isSelectedTab() && tabButtonActionDelegate.isTabButtonActionAvailable();
         }
 
         /**
@@ -474,19 +384,12 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         }
 
         /**
-         * Set an icon if it has changed.
+         * Determine if this is the selected tab.
          * 
-         * @param rollover
-         *            A <code>Boolean</code>, true if the mouse is over the tab.
-         * @param activeRollover
-         *            A <code>Boolean</code>, true if the mouse is over the active area.
+         * @return true if this is the selected tab.
          */
-        private void setIcon(final Boolean rollover, final Boolean activeRollover) {
-            final Icon icon = getTabIcon(leftmost, this.equals(selectedTab),
-                    rollover, activeRollover);
-            if (!jLabel.getIcon().equals(icon)) {
-                jLabel.setIcon(icon);
-            }
+        private Boolean isSelectedTab() {
+            return this.equals(selectedTab);
         }
     }
 }

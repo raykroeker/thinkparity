@@ -208,8 +208,6 @@ public final class Constants {
         public static final class BrowserTitle {
             public static final Icon LEFTMOST_TAB_SELECTED =
                 ImageIOUtil.readIcon("BrowserTitle_LeftmostTabSelected.png");
-            public static final Icon LEFTMOST_TAB_SELECTED_ROLLOVER =
-                ImageIOUtil.readIcon("BrowserTitle_LeftmostTabSelectedRollover.png");
             public static final Icon TAB =
                 ImageIOUtil.readIcon("BrowserTitle_Tab.png");
             public static final Icon TAB_ROLLOVER =

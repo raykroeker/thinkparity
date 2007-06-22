@@ -14,9 +14,6 @@ import com.thinkparity.ophelia.browser.Constants.Colors.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
@@ -100,14 +97,6 @@ public final class MainTitleAvatar extends Avatar {
     public void setState(final State state) {}
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getPluginRegistry()
-     */
-    @Override
-    protected PluginRegistry getPluginRegistry() {
-        return super.getPluginRegistry();
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getResizeEdges()
      */
     @Override
@@ -156,32 +145,6 @@ public final class MainTitleAvatar extends Avatar {
             return null;
         } else {
             return (TabId) ((Data) input).get(DataKey.TAB_ID);
-        }
-    }
-
-    /**
-     * Obtain the input tab list extension.
-     * 
-     * @return The input tab list extension.
-     */
-    private TabListExtension getInputTabListExtension() {
-        if (null == input) {
-            return null;
-        } else {
-            return (TabListExtension) ((Data) input).get(DataKey.TAB_LIST_EXTENSION);
-        }
-    }
-
-    /**
-     * Obtain the input tab extension.
-     * 
-     * @return The input tab extension.
-     */
-    private TabPanelExtension getInputTabPanelExtension() {
-        if (null == input) {
-            return null;
-        } else {
-            return (TabPanelExtension) ((Data) input).get(DataKey.TAB_PANEL_EXTENSION);
         }
     }
 
@@ -248,20 +211,9 @@ public final class MainTitleAvatar extends Avatar {
                 Assert.assertUnreachable("UNKNOWN TAB");
             }
             searchPanel.reloadTabFilter(tabId);
-        } else {
-            final TabListExtension tabListExtension = getInputTabListExtension();
-            if (null != tabListExtension) {
-                tabPanel.selectTab(tabListExtension);
-                getController().displayTabExtension(tabListExtension);
-            }
-            final TabPanelExtension tabPanelExtension = getInputTabPanelExtension();
-            if (null != tabPanelExtension) {
-                tabPanel.selectTab(tabPanelExtension);
-                getController().displayTabExtension(tabPanelExtension);
-            }
         }
     }
 
-    public enum DataKey { PROFILE, TAB_ID, TAB_LIST_EXTENSION, TAB_PANEL_EXTENSION }
+    public enum DataKey { PROFILE, TAB_ID }
     public enum TabId { ARCHIVE, CONTACT, CONTAINER, HELP }
 }

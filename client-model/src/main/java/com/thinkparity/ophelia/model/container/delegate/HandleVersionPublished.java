@@ -79,8 +79,8 @@ public final class HandleVersionPublished extends ContainerDelegate {
         final ContainerVersion version = handleVersionResolution(
                 container.getUniqueId(), event.getVersion().getVersionId(),
                 event.getVersion().getName(), event.getVersion().getComment(),
-                event.getVersion().getCreatedOn(),
-                event.getPublishedBy());
+                event.getVersion().getCreatedBy(),
+                event.getVersion().getCreatedOn());
         final InternalSessionModel sessionModel = getSessionModel();
         final Calendar receivedOn = sessionModel.readDateTime();
         // apply the latest flag
@@ -235,16 +235,16 @@ public final class HandleVersionPublished extends ContainerDelegate {
      *            An optional version name <code>String</code>.
      * @param versionComment
      *            An optional version comment <code>String</code>.
+     * @param createdBy
+     *            A container version created by user id <code>JabberId</code>.
      * @param createdOn
      *            A container version created on <code>Calendar</code>.
-     * @param publishedBy
-     *            A container published by user id <code>JabberId</code>.
      * @return A <code>ContainerVersion</code>.
      */
     private ContainerVersion handleVersionResolution(final UUID uniqueId,
             final Long versionId, final String versionName,
-            final String versionComment, final Calendar createdOn,
-            final JabberId publishedBy) {
+            final String versionComment, final JabberId createdBy, 
+            final Calendar createdOn) {
         final InternalArtifactModel artifactModel = getArtifactModel();
         final Long containerId = artifactModel.readId(uniqueId);
         final ContainerVersion version;
@@ -252,7 +252,7 @@ public final class HandleVersionPublished extends ContainerDelegate {
             version = readVersion(containerId, versionId);
         } else {
             version = createVersion(containerId, versionId, versionName,
-                    versionComment, publishedBy, createdOn);
+                    versionComment, createdBy, createdOn);
         }
         return version;
     }

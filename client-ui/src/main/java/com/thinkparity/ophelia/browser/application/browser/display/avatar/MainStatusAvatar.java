@@ -63,7 +63,7 @@ public class MainStatusAvatar extends Avatar {
     private final javax.swing.JLabel optionalTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel resizeJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel userJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel userJLabel = LabelFactory.createLink("",Fonts.DialogFont);
     // End of variables declaration//GEN-END:variables
 
     /** A <code>Runnable</code> used to display the status bar link. */
@@ -366,6 +366,12 @@ public class MainStatusAvatar extends Avatar {
 
         userJLabel.setFont(Fonts.DefaultFont);
         userJLabel.setText("Dr. Who");
+        userJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                userJLabelMousePressed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 0;
@@ -672,18 +678,14 @@ public class MainStatusAvatar extends Avatar {
     }
 
     /**
-     * Reload the user name label. The user's name will only display for testing
-     * and development purposes.
-     * 
+     * Reload the user name label.
      */
     private void reloadProfile() {
-        userJLabel.setText("");
-        if ((isTestMode() || isDebugMode()))
-            reloadProfile(readProfile());
+        reloadProfile(readProfile());
     }
 
     /**
-     * Reload the profile.
+     * Reload the user name label.
      * 
      * @param profile
      *            A <code>Profile</code>.
@@ -719,6 +721,10 @@ public class MainStatusAvatar extends Avatar {
     private void resizeJLabelMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resizeJLabelMouseReleased
         setResizeDragging(Boolean.FALSE);
     }//GEN-LAST:event_resizeJLabelMouseReleased
+
+    private void userJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_userJLabelMousePressed
+        getController().displayUpdateProfileDialog();
+    }//GEN-LAST:event_userJLabelMousePressed
 
     public enum DataKey { CLEAR_LINK, LINK }
 }

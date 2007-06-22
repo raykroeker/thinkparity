@@ -37,6 +37,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
+import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.event.UpdateProfileDispatcher;
@@ -172,9 +173,14 @@ public class UpdateProfileAvatar extends Avatar {
     public void setState(final State state) {
     }
 
-    private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
+    private void cancelJButtonActionPerformed(final java.awt.event.ActionEvent e) {//GEN-FIRST:event_cancelJButtonActionPerformed
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
+
+    private void changePasswordJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_changePasswordJLabelMousePressed
+        disposeWindow();
+        getController().displayUpdatePasswordDialog();
+    }//GEN-LAST:event_changePasswordJLabelMousePressed
 
     private String extract(final javax.swing.JTextField jTextField) {
         return SwingUtil.extract(jTextField, Boolean.TRUE);
@@ -353,6 +359,13 @@ public class UpdateProfileAvatar extends Avatar {
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
         errorMessageJLabel.setText("!Error Message!");
 
+        changePasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateProfileAvatar.Password"));
+        changePasswordJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                changePasswordJLabelMousePressed(evt);
+            }
+        });
+
         saveJButton.setFont(Fonts.DialogButtonFont);
         saveJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateProfileAvatar.OK"));
         saveJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -377,52 +390,48 @@ public class UpdateProfileAvatar extends Avatar {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(changePasswordJLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 136, Short.MAX_VALUE)
                         .addComponent(saveJButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cancelJButton)
                         .addGap(12, 12, 12))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(provinceJLabel)
-                            .addComponent(cityJLabel)
-                            .addComponent(addressJLabel)
-                            .addComponent(mobilePhoneJLabel)
-                            .addComponent(phoneJLabel)
-                            .addComponent(organizationJLabel)
-                            .addComponent(titleJLabel)
-                            .addComponent(nameJLabel)
-                            .addComponent(countryJLabel)
-                            .addComponent(postalCodeJLabel))
-                        .addGap(29, 29, 29)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(postalCodeJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
-                            .addComponent(organizationJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
-                            .addComponent(phoneJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
-                            .addComponent(mobilePhoneJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
-                            .addComponent(addressJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
-                            .addComponent(cityJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
-                            .addComponent(provinceJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
-                            .addComponent(titleJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(nameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 239, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
-                            .addComponent(countryJComboBox, javax.swing.GroupLayout.Alignment.TRAILING, 0, 239, Short.MAX_VALUE))
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(emailJLabel)
-                        .addGap(76, 76, 76)
-                        .addComponent(emailJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(backupJLabel)
-                        .addGap(13, 13, 13)
-                        .addComponent(backupStatisticsJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(profileJSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(provinceJLabel)
+                                    .addComponent(cityJLabel)
+                                    .addComponent(addressJLabel)
+                                    .addComponent(mobilePhoneJLabel)
+                                    .addComponent(phoneJLabel)
+                                    .addComponent(organizationJLabel)
+                                    .addComponent(titleJLabel)
+                                    .addComponent(nameJLabel)
+                                    .addComponent(countryJLabel)
+                                    .addComponent(postalCodeJLabel))
+                                .addGap(29, 29, 29)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(postalCodeJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE)
+                                    .addComponent(organizationJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE)
+                                    .addComponent(phoneJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE)
+                                    .addComponent(mobilePhoneJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE)
+                                    .addComponent(addressJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE)
+                                    .addComponent(cityJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE)
+                                    .addComponent(provinceJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE)
+                                    .addComponent(titleJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE)
+                                    .addComponent(nameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE)
+                                    .addComponent(countryJComboBox, javax.swing.GroupLayout.Alignment.TRAILING, 0, 253, Short.MAX_VALUE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(emailJLabel)
+                                .addGap(76, 76, 76)
+                                .addComponent(emailJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 252, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(backupJLabel)
+                                .addGap(13, 13, 13)
+                                .addComponent(backupStatisticsJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 252, Short.MAX_VALUE))
+                            .addComponent(profileJSeparator, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE))
                         .addContainerGap())))
         );
 
@@ -430,8 +439,8 @@ public class UpdateProfileAvatar extends Avatar {
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(24, 24, 24)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(nameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(nameJLabel))
@@ -483,10 +492,11 @@ public class UpdateProfileAvatar extends Avatar {
                     .addComponent(backupJLabel))
                 .addGap(14, 14, 14)
                 .addComponent(errorMessageJLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+                .addGap(14, 14, 14)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(saveJButton)
                     .addComponent(cancelJButton)
-                    .addComponent(saveJButton))
+                    .addComponent(changePasswordJLabel))
                 .addContainerGap())
         );
 
@@ -867,9 +877,11 @@ public class UpdateProfileAvatar extends Avatar {
         private void checkInput() {
             if (isInputValid() && isInputChanged()) {
                 saveJButton.setEnabled(Boolean.TRUE);
+                changePasswordJLabel.setVisible(false);
             }
             else {
                 saveJButton.setEnabled(Boolean.FALSE);
+                changePasswordJLabel.setVisible(true);
             }
             reloadErrorMessage();
         }
@@ -879,6 +891,7 @@ public class UpdateProfileAvatar extends Avatar {
     private final javax.swing.JTextField addressJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JLabel backupJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel backupStatisticsJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel changePasswordJLabel = LabelFactory.createLink("",Fonts.DialogFont);
     private final javax.swing.JTextField cityJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JComboBox countryJComboBox = new javax.swing.JComboBox();
     private final javax.swing.JLabel countryJLabel = new javax.swing.JLabel();

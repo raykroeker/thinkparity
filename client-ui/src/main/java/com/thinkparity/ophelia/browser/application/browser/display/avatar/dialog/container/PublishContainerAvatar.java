@@ -339,7 +339,7 @@ public final class PublishContainerAvatar extends Avatar implements
      */
     private String extractVersionName() {
         final String versionName = SwingUtil.extract(versionNameJTextField, Boolean.TRUE);
-        if (versionName.equals(defaultVersionName)) {
+        if (null == versionName || versionName.equals(defaultVersionName)) {
             return null;
         } else {
             return versionName;

@@ -203,8 +203,28 @@ public class Resizer {
             setCursor(component, Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR));
             break;
         default:
-            setCursor(component, Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            resetCursor(component);
             break;
+        }
+    }
+
+    /**
+     * Reset the cursor.
+     * 
+     * @param component
+     *            A <code>Component</code>.
+     */
+    private void resetCursor(final Component component) {
+        final int cursorType = component.getCursor().getType();
+        if (cursorType == Cursor.NW_RESIZE_CURSOR
+                || cursorType == Cursor.NE_RESIZE_CURSOR
+                || cursorType == Cursor.SW_RESIZE_CURSOR
+                || cursorType == Cursor.SE_RESIZE_CURSOR
+                || cursorType == Cursor.W_RESIZE_CURSOR
+                || cursorType == Cursor.E_RESIZE_CURSOR
+                || cursorType == Cursor.N_RESIZE_CURSOR
+                || cursorType == Cursor.S_RESIZE_CURSOR) {
+            setCursor(component, Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
@@ -416,7 +436,7 @@ public class Resizer {
     private void formMouseExited(final java.awt.event.MouseEvent evt, final Component component) {
         if ((!resizeDragging) && (!moveDragging)) {
             resizeDirection = ResizeDirection.NONE;
-            setCursor(component, Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            resetCursor(component);
         }
     }
 
@@ -450,7 +470,7 @@ public class Resizer {
         // best to reset the cursor rather than hope for the 
         // mouse exit event.
         resizeDirection = ResizeDirection.NONE;
-        setCursor(component, Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        resetCursor(component);
     }
 
     /**

@@ -1816,16 +1816,6 @@ public class Browser extends AbstractApplication {
         getTabContactAvatar().syncOutgoingUserInvitation(invitationId, remote);
     }
 
-    /**
-     * Synchronize the profile on the contact tab.
-     * 
-     * @param remote
-     *            True if the synchronization is the result of a remote event.
-     */
-    public void syncContactTabProfile(final Boolean remote) {
-        getTabContactAvatar().syncProfile(remote);
-    }
-
     public void toggleStatusImage() {
         ((com.thinkparity.ophelia.browser.application.browser.display.StatusDisplay) mainWindow.getDisplay(DisplayId.STATUS)).toggleImage();
     }

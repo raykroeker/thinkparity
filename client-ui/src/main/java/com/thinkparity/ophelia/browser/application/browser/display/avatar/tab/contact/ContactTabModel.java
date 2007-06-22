@@ -20,8 +20,6 @@ import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
-import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterBy;
@@ -173,8 +171,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         for (final OutgoingUserInvitation userInvitation : userInvitations) {
             addPanel(userInvitation);
         }
-        final Profile profile = readProfile();
-        addPanel(profile);
         final List<Contact> contacts = readContacts();
         for (final Contact contact : contacts) {
             addPanel(contact);
@@ -191,8 +187,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         final ContactTabPanel panel = (ContactTabPanel) tabPanel;
         if (panel.isSetContact()) {
             return new ContactPanelId(panel.getContact().getId());
-        } else if (panel.isSetProfile()) {
-            return new ContactPanelId(panel.getProfile().getId());
         } else if (panel.isSetIncomingEMail()) {
             return new ContactPanelId(panel.getIncomingEMail().getId());
         } else if (panel.isSetIncomingUser()) {
@@ -234,12 +228,10 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         final List<Long> incomingUserInvitationIds = ((ContactProvider) contentProvider).searchIncomingUserInvitations(searchExpression);
         final List<Long> outgoingEMailInvitationIds = ((ContactProvider) contentProvider).searchOutgoingEMailInvitations(searchExpression);
         final List<Long> outgoingUserInvitationIds = ((ContactProvider) contentProvider).searchOutgoingUserInvitations(searchExpression);
-        final List<JabberId> profileIds = ((ContactProvider) contentProvider).searchProfile(searchExpression);
         final int size = contactIds.size() + incomingEMailInvitationIds.size()
                 + incomingUserInvitationIds.size()
                 + outgoingEMailInvitationIds.size()
-                + outgoingUserInvitationIds.size()
-                + profileIds.size();
+                + outgoingUserInvitationIds.size();
         final List<ContactPanelId> panelIds = new ArrayList<ContactPanelId>(size);
         for (final JabberId contactId : contactIds)
             panelIds.add(new ContactPanelId(contactId));
@@ -251,8 +243,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             panelIds.add(new ContactPanelId(invitationId));
         for (final Long invitationId : outgoingUserInvitationIds)
             panelIds.add(new ContactPanelId(invitationId));
-        for (final JabberId profileId : profileIds)
-            panelIds.add(new ContactPanelId(profileId));
         return panelIds;
     }
 
@@ -446,33 +436,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
 
     }
 
-    void syncProfile(final Boolean remote) {
-        checkThread();
-        debug();
-        boolean requestFocus = false;
-        final Profile profile = readProfile();
-        final int panelIndex = lookupIndex(profile.getId());
-        if (-1 < panelIndex) {
-            // if the reload is the result of a remote event add the panel
-            // at the top of the list; otherwise add it in the same location
-            // it previously existed
-            requestFocus = ((Component)lookupPanel(new ContactPanelId(profile.getId()))).hasFocus();
-            removePanel(profile.getId(), false);
-            if (remote) {
-                addPanel(0, profile);
-            } else {
-                addPanel(panelIndex, profile);
-            }
-        } else {
-            addPanel(0, profile);
-        }
-        synchronize();
-        if (requestFocus) {
-            requestFocusInWindow(lookupPanel(new ContactPanelId(profile.getId())));
-        }
-        debug();
-    }
-
     /**
      * Add a contact to the end of the panels list.
      * 
@@ -566,18 +529,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
-     * Add a profile to the panels list.
-     * 
-     * @param index
-     *            The index at which to add the invitation.
-     * @param profile
-     *            A <code>Profile</code>.
-     */
-    private void addPanel(final int index, final Profile profile) {
-        panels.add(index, toDisplay(profile));
-    }
-
-    /**
      * Add an outgoing e-mail invitation to the end of the panels list.
      * 
      * @param index
@@ -602,18 +553,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
-     * Add a profile to the end of the panels list.
-     * 
-     * @param index
-     *            The index at which to add the invitation.
-     * @param profile
-     *            A <code>Profile</code>.
-     */
-    private void addPanel(final Profile profile) {
-        addPanel(panels.size() == 0 ? 0 : panels.size(), profile);
-    }
-
-    /**
      * Check we are on the AWT event dispatching thread.
      */
     private void checkThread() {
@@ -626,11 +565,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             panel = ((ContactTabPanel) panels.get(i));
             if (panel.isSetContact()) {
                 if (panel.getContact().getId().equals(userId)) {
-                    return i;
-                }
-            }
-            if (panel.isSetProfile()) {
-                if (panel.getProfile().getId().equals(userId)) {
                     return i;
                 }
             }
@@ -674,15 +608,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      */
     private List<Contact> readContacts() {
         return ((ContactProvider) contentProvider).readContacts();
-    }
-
-    /**
-     * Read the emails.
-     * 
-     * @return A <code>List</code> of <code>ProfileEMail</code>.
-     */
-    private List<ProfileEMail> readEmails() {
-        return ((ContactProvider) contentProvider).readEmails();
     }
 
     private IncomingEMailInvitation readIncomingEMailInvitation(final Long invitationId) {
@@ -729,15 +654,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
 
     private List<OutgoingUserInvitation> readOutgoingUserInvitations() {
         return ((ContactProvider) contentProvider).readOutgoingUserInvitations();
-    }
-    
-    /**
-     * Read the profile.
-     * 
-     * @return A <code>Profile</code>.
-     */
-    private Profile readProfile() {
-        return ((ContactProvider) contentProvider).readProfile();
     }
 
     /**
@@ -867,23 +783,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         return panel;
     }
 
-    /**
-     * Obtain the contact display cell for a profile.
-     * 
-     * @param profile
-     *            A <code>Profile</code>.
-     * @return A contact display cell.
-     */
-    private TabPanel toDisplay(final Profile profile) {
-        final ContactTabPanel panel = new ContactTabPanel(session);
-        panel.setActionDelegate(actionDelegate);
-        panel.setPanelData(profile, readEmails(), locale, availableLocales);
-        panel.setPopupDelegate(popupDelegate);
-        panel.setTabDelegate(this);
-        panel.setExpanded(isExpanded(panel));
-        return panel;
-    }
-
     private class ContactTabComparator implements Comparator<TabPanel> {
 
         /**
@@ -952,8 +851,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
                 return null;
             } else if (panel.isSetOutgoingUser()) {
                 return panel.getOutgoingUser().getInvitationUser();
-            } else if (panel.isSetProfile()) {
-                return panel.getProfile();
             } else if (panel.isSetContact()) {
                 return panel.getContact();
             } else {

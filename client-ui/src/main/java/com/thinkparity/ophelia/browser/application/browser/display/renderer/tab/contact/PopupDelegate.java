@@ -8,7 +8,6 @@ import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
-import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
 
@@ -61,14 +60,4 @@ public interface PopupDelegate extends TabPanelPopupDelegate {
      *            An <code>OutgoingUserInvitation</code>.
      */
     public void showForInvitation(final OutgoingUserInvitation invitation);
-
-    /**
-     * Show a popup for a profile.
-     * 
-     * @param profile
-     *            A <code>Profile</code>.
-     * @param expanded
-     *            A <code>boolean</code>.     
-     */
-    public void showForProfile(final Profile profile, final boolean expanded);
 }

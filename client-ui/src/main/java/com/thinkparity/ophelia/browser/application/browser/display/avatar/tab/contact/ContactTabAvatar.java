@@ -225,20 +225,6 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
     }
 
     /**
-     * Synchronize the profile in the list, for example if it is changed.
-     * 
-     * @param remote
-     *            Indicates whether the sync is the result of a remote event
-     */
-    public void syncProfile(final Boolean remote) {
-        SwingUtil.ensureDispatchThread(new Runnable() {
-            public void run() {
-                model.syncProfile(remote);
-            }
-        });
-    }
-
-    /**
      * Show the contact panel.
      * 
      * @param panelId

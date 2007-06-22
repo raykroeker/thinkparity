@@ -3,7 +3,11 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
-import com.thinkparity.ophelia.model.events.*;
+import com.thinkparity.ophelia.model.events.ContactAdapter;
+import com.thinkparity.ophelia.model.events.ContactEvent;
+import com.thinkparity.ophelia.model.events.ContactListener;
+import com.thinkparity.ophelia.model.events.SessionAdapter;
+import com.thinkparity.ophelia.model.events.SessionListener;
 
 /**
  * The browser's event dispatcher.
@@ -18,9 +22,6 @@ class EventDispatcher {
     
     /** A thinkParity contact interface listener. */
     private ContactListener contactListener;
-
-    /** A thinkParity profile interface listener. */
-    private ProfileListener profileListener;
 
 	/** A thinkParity session interface listener.*/
 	private SessionListener sessionListener;
@@ -43,9 +44,6 @@ class EventDispatcher {
 	void end() {
         browser.removeListener(contactListener);
         contactListener = null;
-
-        browser.removeListener(profileListener);
-        profileListener = null;
         
 		browser.getSessionModel().removeListener(sessionListener);
 		sessionListener = null;
@@ -59,9 +57,6 @@ class EventDispatcher {
         contactListener = createContactListener();
         browser.addListener(contactListener);
 
-        profileListener = createProfileListener();
-        browser.addListener(profileListener);
-        
 		sessionListener = createSessionListener();
 		browser.getSessionModel().addListener(sessionListener);
 	}
@@ -147,36 +142,6 @@ class EventDispatcher {
             @Override
             public void outgoingUserInvitationDeleted(final ContactEvent e) {
                 browser.syncContactTabOutgoingUserInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
-            }
-        };
-    }
-
-    /**
-     * Create a profile listener for the browser application.
-     * 
-     * @return A <code>ProfileListener</code>.
-     */
-    private ProfileListener createProfileListener() {
-        return new ProfileAdapter() {
-            @Override
-            public void emailAdded(final ProfileEvent e) {
-                browser.syncContactTabProfile(e.isRemote());
-            }
-            @Override
-            public void emailRemoved(final ProfileEvent e) {
-                browser.syncContactTabProfile(e.isRemote());
-            }
-            @Override
-            public void emailVerified(final ProfileEvent e) {
-                browser.syncContactTabProfile(e.isRemote());
-            }
-            @Override
-            public void passwordUpdated(final ProfileEvent e) {
-                browser.syncContactTabProfile(e.isRemote());
-            }
-            @Override
-            public void profileUpdated(final ProfileEvent e) {
-                browser.syncContactTabProfile(e.isRemote());
             }
         };
     }

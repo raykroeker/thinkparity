@@ -24,8 +24,6 @@ import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
-import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
@@ -101,9 +99,6 @@ public class ContactTabPanel extends DefaultTabPanel {
     
     /** A contact tab <code>PopupDelegate</code>. */
     private PopupDelegate popupDelegate;
-
-    /** A contact <code>Profile</code>. */
-    private Profile profile;
 
     /**
      * Create ContactTabPanel.
@@ -184,8 +179,6 @@ public class ContactTabPanel extends DefaultTabPanel {
             id.append(outgoingEMail.getId());
         else if (isSetOutgoingUser())
             id.append(outgoingUser.getId());
-        else if (isSetProfile())
-            id.append(profile.getId());
         else
             Assert.assertUnreachable("Inconsistent contact tab panel state.");
         return id.toString();
@@ -233,15 +226,6 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     public PopupDelegate getPopupDelegate() {
         return popupDelegate;
-    }
-
-    /**
-     * Obtain the profile.
-     * 
-     * @return A <code>Profile</code>.
-     */
-    public Profile getProfile() {
-        return profile;
     }
 
     /**
@@ -295,15 +279,6 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     public Boolean isSetOutgoingUser() {
         return null != outgoingUser;
-    }
-
-    /**
-     * Determine if the profile is set.
-     * 
-     * @return True if the profile is set.
-     */
-    public Boolean isSetProfile() {
-        return null != profile;
     }
 
     /**
@@ -437,47 +412,6 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /**
-     * Set the panel data.
-     * 
-     * @param profile
-     *            A <code>Profile</code>.
-     * @param emails
-     *            A list of <code>ProfileEMail</code>s.
-     * @param locale
-     *            The <code>Locale</code>.
-     * @param availableLocales
-     *            An array of available <code>Locale</code>s.
-     */
-    public void setPanelData(final Profile profile,
-            final List<ProfileEMail> emails,
-            final Locale locale, final Locale[] availableLocales) {
-        this.profile = profile;
-        initCollapsedPanel();
-
-        collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
-        expandIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.EXPAND));
-        reload(collapsedTextJLabel, profile.getName());
-        reload(collapsedAdditionalTextJLabel, getAdditionalText(profile));
-
-        reload(contactTextJLabel, profile.getName());
-        reload(contactAdditionalTextJLabel, getAdditionalText(profile));
-
-        reload(contactAddressValueJLabel, profile.getAddress());
-        reload(contactLocationValueJLabel,
-                getLocationText(profile.getCity(), profile.getProvince(),
-                        profile.getCountry(), profile.getPostalCode(),
-                        locale, availableLocales));
-        final EMail email;
-        if (0 < emails.size())
-            email = emails.get(0).getEmail();
-        else
-            email = null;
-        reload(contactEMailValueJLabel, email);
-        reload(contactMobilePhoneValueJLabel, profile.getMobilePhone());
-        reload(contactPhoneValueJLabel, profile.getPhone());
-    }
-
-    /**
      * Set popupDelegate.
      *
      * @param popupDelegate
@@ -492,7 +426,7 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     @Override
     protected Boolean isExpandable() {
-        return (isSetContact() || isSetProfile());
+        return (isSetContact());
     }
 
     /**
@@ -575,7 +509,7 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     private void doExpand(final boolean animate) {
         expandedJPanel.removeAll();
-        if (isSetContact() || isSetProfile())
+        if (isSetContact())
             expandedJPanel.add(expandedContactJPanel, innerJPanelConstraints.clone());
         else
             Assert.assertUnreachable("Inconsistent contact tab panel state.");
@@ -1128,8 +1062,6 @@ public class ContactTabPanel extends DefaultTabPanel {
                 popupDelegate.showForInvitation(outgoingEMail);
             else if (isSetOutgoingUser())
                 popupDelegate.showForInvitation(outgoingUser);
-            else if (isSetProfile())
-                popupDelegate.showForProfile(profile, isExpanded());
             else
                 Assert.assertUnreachable("Inconsistent contact tab panel state.");
         } else if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
@@ -1166,8 +1098,6 @@ public class ContactTabPanel extends DefaultTabPanel {
                 popupDelegate.showForInvitation(outgoingEMail);
             else if (isSetOutgoingUser())
                 popupDelegate.showForInvitation(outgoingUser);
-            else if (isSetProfile())
-                popupDelegate.showForProfile(profile, isExpanded());
             else
                 Assert.assertUnreachable("Inconsistent contact tab panel state.");
         }

@@ -13,8 +13,6 @@ import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
-import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
@@ -66,10 +64,6 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
         return contactModel.read();
     }
 
-    public List<ProfileEMail> readEmails() {
-        return profileModel.readEmails();
-    }
-
     public IncomingEMailInvitation readIncomingEMailInvitation(final Long invitationId) {
         return contactModel.readIncomingEMailInvitation(invitationId);
     }
@@ -104,10 +98,6 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
         return contactModel.readOutgoingUserInvitations();
     }
 
-    public Profile readProfile() {
-        return profileModel.read();
-    }
-
     public List<JabberId> search(final String expression) {
         return contactModel.search(expression);
     }
@@ -126,9 +116,5 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
 
     public List<Long> searchOutgoingUserInvitations(final String expression) {
         return contactModel.searchOutgoingUserInvitations(expression);
-    }
-
-    public List<JabberId> searchProfile(final String expression) {
-        return profileModel.search(expression);
     }
 }

@@ -136,7 +136,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         }
 
         // archive
-        if (online && isDistributed(container.getId()) && !isLocalDraft(draft)) {
+        if (online && isDistributed(container.getId())) {
             final Data archiveData = new Data(1);
             archiveData.set(Archive.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_ARCHIVE, archiveData, container);

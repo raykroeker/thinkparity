@@ -13,6 +13,7 @@ import java.security.NoSuchAlgorithmException;
 
 import com.thinkparity.codebase.model.ThinkParityException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -49,9 +50,9 @@ public class MD5Util {
         final ReadableByteChannel channel = Channels.newChannel(inputStream);
         return md5Hex(channel, buffer);
     }
-    
+
     /**
-     * Create and MD5 hex encoded checksum of a byte channel.
+     * Create an MD5 hex encoded checksum of a byte channel.
      * 
      * @param byteChannel
      *            A <code>ByteChannel</code>.
@@ -76,6 +77,34 @@ public class MD5Util {
             digest.update(buffer, 0, read);
         }
         return new String(Hex.encodeHex(digest.digest()));
+    }
+
+    /**
+     * Create an MD5 base 64 encoded checksum of a byte channel.
+     * 
+     * @param byteChannel
+     *            A <code>ByteChannel</code>.
+     * @param bufferSize
+     *            A buffer size <code>Integer</code> to use.
+     * @return An MD5 base 64 encoded checksum.
+     * @throws IOException
+     */
+    public static String md5Base64(final ReadableByteChannel channel,
+            final byte[] buffer) throws IOException {
+        final MessageDigest digest = getDigest();
+        final ByteBuffer bb = ByteBuffer.wrap(buffer);
+        int read;
+        while (true) {
+            bb.clear();
+            read = channel.read(bb);
+            if (-1 == read) {
+                break;
+            }
+            bb.flip();
+            bb.limit(read);
+            digest.update(buffer, 0, read);
+        }
+        return new String(Base64.encodeBase64(digest.digest()));
     }
 
 	/**

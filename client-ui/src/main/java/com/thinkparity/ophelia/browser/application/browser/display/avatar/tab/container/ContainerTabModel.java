@@ -261,6 +261,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      */
     @Override
     protected void initialize() {
+        super.initialize();
         debug();
         clearPanels();
         final List<Container> containers = readContainers();
@@ -589,7 +590,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      */
     private void addApplicationListener() {
         browser.addListener(new ApplicationListener() {
-            public void notifyEnd(Application application) {
+            public void notifyEnd(final Application application) {
                 stopSessionDraftMonitor();
             }
             public void notifyHibernate(Application application) {}

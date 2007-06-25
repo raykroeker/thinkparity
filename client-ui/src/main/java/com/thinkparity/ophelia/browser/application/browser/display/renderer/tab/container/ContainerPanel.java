@@ -170,6 +170,12 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The container tab's <code>PopupDelegate</code>. */
     private PopupDelegate popupDelegate;
 
+    /** A <code>Map</code> of <code>ContainerVersion</code> to <code>User</code>. */
+    private final Map<ContainerVersion, User> publishedBy;
+
+    /** A <code>Map</code> of <code>ContainerVersion</code> to <code>PublishedToView</code>. */
+    private final Map<ContainerVersion, PublishedToView> publishedTo;
+
     /** A <code>List</code> of all <code>TeamMember</code>s. */
     private final List<TeamMember> team;
 
@@ -195,6 +201,8 @@ public class ContainerPanel extends DefaultTabPanel {
         this.eastCellPanels = new ArrayList<PanelCellRenderer>();
         this.fileIconReader = new FileIconReader();
         this.localization = new BrowserLocalization("ContainerPanel");
+        this.publishedBy = new HashMap<ContainerVersion, User>();
+        this.publishedTo = new HashMap<ContainerVersion, PublishedToView>();
         this.team = new ArrayList<TeamMember>();
         this.versions = new ArrayList<ContainerVersion>();
         this.westCells = new ArrayList<Cell>();
@@ -434,6 +442,17 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#refresh()
+     */
+    public void refresh() {
+        if (isSetExpandedData()) {
+            // fuzzy dates may be out of date, so refresh cells
+            buildWestList();
+        }
+        repaint();
+    }
+
+    /**
      * Set actionDelegate.
      *
      * @param actionDelegate
@@ -573,21 +592,15 @@ public class ContainerPanel extends DefaultTabPanel {
         Assert.assertNotNull("Draft view is null, setting panel data.", draft);
         this.documentViews.clear();
         this.documentViews.putAll(documentViews);
+        this.publishedTo.clear();
+        this.publishedTo.putAll(publishedTo);
+        this.publishedBy.clear();
+        this.publishedBy.putAll(publishedBy);
         this.team.clear();
         this.team.addAll(team);
         this.versions.clear();
         this.versions.addAll(versions);
-        // Build the west list
-        westCells.add(new ContainerCell(draft, latestVersion, versions,
-                documentViews, team));
-        if (isLocalDraft()) {
-            westCells.add(new DraftCell(draft));
-        }
-        for (final ContainerVersion version : versions) {
-            westCells.add(new VersionCell(version, documentViews.get(version),
-                    publishedTo.get(version), publishedBy.get(version)));
-        }
-        westListModel.initialize(westCells);
+        buildWestList();
         iconJLabel.setIcon(container.isBookmarked()
                 ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK)
                 : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
@@ -783,16 +796,6 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#repaintLists()
-     *
-     */
-    @Override
-    protected void repaintLists() {
-        eastListJPanel.repaint();
-        westListJPanel.repaint();
-    }
-
-    /**
      * Bind a keystroke destined for the east and west lists.
      * 
      * @param keyStroke
@@ -810,6 +813,23 @@ public class ContainerPanel extends DefaultTabPanel {
                 }
             }
         });
+    }
+
+    /**
+     * Build the west list.
+     */
+    private void buildWestList() {
+        westCells.clear();
+        westCells.add(new ContainerCell(draft, latestVersion, versions,
+                documentViews, team));
+        if (isLocalDraft()) {
+            westCells.add(new DraftCell(draft));
+        }
+        for (final ContainerVersion version : versions) {
+            westCells.add(new VersionCell(version, documentViews.get(version),
+                    publishedTo.get(version), publishedBy.get(version)));
+        }
+        westListModel.initialize(westCells);
     }
 
     /**

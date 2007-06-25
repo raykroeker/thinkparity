@@ -141,6 +141,11 @@ public class HelpTabPanel extends DefaultTabPanel {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#refresh()
+     */
+    public void refresh() {}
+
+    /**
      * Set the action delegate.
      *
      * @param actionDelegate
@@ -200,12 +205,6 @@ public class HelpTabPanel extends DefaultTabPanel {
             renderer.paintBackground(g, getWidth(), height, selected);
         }
     }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#repaintLists()
-     */
-    @Override
-    protected void repaintLists() {}
 
     private void collapsedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMousePressed
         jPanelMousePressed((javax.swing.JPanel) e.getSource(), e);

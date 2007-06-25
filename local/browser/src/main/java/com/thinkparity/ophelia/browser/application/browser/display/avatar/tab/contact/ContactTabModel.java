@@ -153,6 +153,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      */
     @Override
     protected void initialize() {
+        super.initialize();
         debug();
         clearPanels();
         final List<IncomingEMailInvitation> incomingEMailInvitations = readIncomingEMailInvitations();

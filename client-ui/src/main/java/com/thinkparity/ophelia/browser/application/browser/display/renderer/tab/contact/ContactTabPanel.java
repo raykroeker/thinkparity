@@ -282,6 +282,11 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#refresh()
+     */
+    public void refresh() {}
+
+    /**
      * Apply the current connection. If the connection is offline; the accept
      * decline links for the invitations will be made invisible.
      * 
@@ -449,13 +454,6 @@ public class ContactTabPanel extends DefaultTabPanel {
         }
     }
 
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#repaintLists()
-     *
-     */
-    @Override
-    protected void repaintLists() {}
-    
     private void collapsedContactJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedContactJPanelMousePressed
         jPanelMousePressed((javax.swing.JPanel) e.getSource(), e);
     }//GEN-LAST:event_collapsedContactJPanelMousePressed

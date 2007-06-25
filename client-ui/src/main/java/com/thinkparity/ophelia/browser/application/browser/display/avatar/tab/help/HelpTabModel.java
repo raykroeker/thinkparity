@@ -115,6 +115,7 @@ public final class HelpTabModel extends TabPanelModel<Long> implements
      */
     @Override
     protected void initialize() {
+        super.initialize();
         debug();
         clearPanels();
         final List<HelpTopic> helpTopics = readHelpTopics();

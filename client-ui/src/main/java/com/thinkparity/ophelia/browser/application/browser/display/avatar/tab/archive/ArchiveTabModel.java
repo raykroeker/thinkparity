@@ -202,6 +202,7 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      */
     @Override
     protected void initialize() {
+        super.initialize();
         debug();
         clearPanels();
         final List<Container> containers = readContainers();

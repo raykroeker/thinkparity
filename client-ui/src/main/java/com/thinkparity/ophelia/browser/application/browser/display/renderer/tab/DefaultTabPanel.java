@@ -469,9 +469,4 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     protected Boolean isExpandable() {
         return Boolean.TRUE;
     }
-
-    /**
-     * Repaint the lists.
-     */
-    protected abstract void repaintLists();
 }

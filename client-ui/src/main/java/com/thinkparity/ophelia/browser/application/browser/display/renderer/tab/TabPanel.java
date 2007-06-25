@@ -61,6 +61,12 @@ public interface TabPanel {
     public Boolean isExpanded();
 
     /**
+     * Refresh content that might become out of date, for example,
+     * fuzzy dates.
+     */
+    public void refresh();
+
+    /**
      * Expand or collapse the panel without animation.
      * 
      * @param expanded

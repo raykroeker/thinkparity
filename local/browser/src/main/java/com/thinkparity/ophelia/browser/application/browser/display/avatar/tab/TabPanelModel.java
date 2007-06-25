@@ -9,9 +9,11 @@ import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimerTask;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
@@ -24,6 +26,8 @@ import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
+import com.thinkparity.ophelia.browser.platform.application.Application;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.localization.Localization;
@@ -39,6 +43,9 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
 
     /** The application. */
     protected final Browser browser;
+
+    /** The model's expanded state map. */
+    private final Map<TabPanel, Boolean> expandedState;
 
     /** A list of filtered panels. */
     protected final List<TabPanel> filteredPanels;
@@ -66,12 +73,12 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     
     /** A <code>BrowserSession</code>. */
     protected BrowserSession session;
-    
+
+    /** A <code>java.util.Timer</code>. */
+    private java.util.Timer timer;
+
     /** A list of all visible cells. */
     protected final List<TabPanel> visiblePanels;
-
-    /** The model's expanded state map. */
-    private final Map<TabPanel, Boolean> expandedState;
 
     /** The selected panel id. */
     private T selectedPanelId;
@@ -91,6 +98,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         this.persistence = PersistenceFactory.getPersistence(getClass()); 
         this.searchResults = new ArrayList<T>();
         this.visiblePanels = new ArrayList<TabPanel>();
+        addApplicationListener();
     }
 
     /**
@@ -165,6 +173,14 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * @return A <code>TabButtonActionDelegate</code>.
      */
     public abstract TabButtonActionDelegate getTabButtonActionDelegate();
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#initialize()
+     */
+    @Override
+    protected void initialize() {
+        initTimer();
+    }
 
     /**
      * Determine whether or not thinkParity is running in development mode.
@@ -672,6 +688,22 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     }
 
     /**
+     * Add an application listener.
+     */
+    private void addApplicationListener() {
+        browser.addListener(new ApplicationListener() {
+            public void notifyEnd(final Application application) {
+                if (null != timer) {
+                    timer.cancel();
+                }
+            }
+            public void notifyHibernate(Application application) {}
+            public void notifyRestore(Application application) {}
+            public void notifyStart(Application application) {}           
+        });
+    }
+
+    /**
      * Apply the search results.
      *
      */
@@ -703,11 +735,58 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     }
 
     /**
+     * Initialize the timer to refresh panels each day just past midnight.
+     */
+    private void initTimer() {
+        final TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                SwingUtil.ensureDispatchThread(new Runnable() {
+                    public void run() {
+                        refreshPanels();
+                        synchronize();
+                    }
+                });
+                initTimer();
+            }
+        };
+        scheduleTaskPastMidnight(timerTask);
+    }
+
+    /**
      * Determine if there is a selected panel.
      * 
      * @return true if there is a selected panel.
      */
     private Boolean isSelectedPanel() {
         return (null != getSelectedPanel());
+    }
+
+    /**
+     * Refresh all panels.
+     */
+    private void refreshPanels() {
+        for (final TabPanel panel : panels) {
+            panel.refresh();
+        }
+    }
+
+    /**
+     * Schedule the provided timer task to run just past midnight.
+     * 
+     * @param timerTask
+     *            The <code>TimerTask</code>.
+     */
+    private void scheduleTaskPastMidnight(final TimerTask timerTask) {
+        final Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 1);
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        if (null != timer) {
+            timer.cancel();
+        }
+        timer = new java.util.Timer();
+        timer.schedule(timerTask, calendar.getTime());
     }
 }

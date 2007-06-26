@@ -756,6 +756,32 @@ public final class PublishContainerAvatar extends Avatar implements
     }
 
     /**
+     * Read the version name.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return The version name <code>String</code>.
+     */
+    private String readVersionName(final Long containerId, final Long versionId) {
+        return ((PublishContainerProvider) contentProvider).readVersionName(containerId, versionId);
+    }
+
+    /**
+     * Read the version publish date.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return The version publish date <code>Calendar</code>.
+     */
+    private Calendar readVersionPublishDate(final Long containerId, final Long versionId) {
+        return ((PublishContainerProvider) contentProvider).readVersionPublishDate(containerId, versionId);
+    }
+
+    /**
      * Reload the e-mail addresses text area.
      *
      */
@@ -796,10 +822,18 @@ public final class PublishContainerAvatar extends Avatar implements
         if (autoSelect) {
             final User updatedBy = readLatestVersionUpdatedBy();
             final List<ArtifactReceipt> publishedTo = readLatestVersionPublishedTo();
+            // add selected team members first, then non-selected team members
             for (final TeamMember teamMember : teamMembers) {
-                teamMembersListModel.addElement(new PublishContainerAvatarUser(
-                        teamMember, isVersionRecipient(teamMember, updatedBy,
-                                publishedTo)));
+                if (isVersionRecipient(teamMember, updatedBy, publishedTo)) {
+                    teamMembersListModel.addElement(new PublishContainerAvatarUser(
+                            teamMember, Boolean.TRUE));
+                }
+            }
+            for (final TeamMember teamMember : teamMembers) {
+                if (!isVersionRecipient(teamMember, updatedBy, publishedTo)) {
+                    teamMembersListModel.addElement(new PublishContainerAvatarUser(
+                            teamMember, Boolean.FALSE));
+                }
             }
         } else {
             for (final TeamMember teamMember : teamMembers) {
@@ -822,7 +856,10 @@ public final class PublishContainerAvatar extends Avatar implements
         case PUBLISH_VERSION:
             final Long containerId = getInputContainerId();
             final Long versionId = getInputVersionId();
-            final String name = ((PublishContainerProvider) contentProvider).readVersionName(containerId, versionId);
+            String name = readVersionName(containerId, versionId);
+            if (null == name) {
+                name = FUZZY_DATE_FORMAT.format(readVersionPublishDate(containerId, versionId));
+            }
             versionNameJTextField.setText(name);
             enableTextEntry(versionNameJTextField, false);
             break;

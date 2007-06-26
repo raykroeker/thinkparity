@@ -32,13 +32,13 @@ public class PublishContainerProvider extends ContentProvider {
 
     /** An instance of <code>UserUtils</code>. */
     private static final UserUtils USER_UTIL = UserUtils.getInstance();
-    
+
     /** A contact model */
     private final ContactModel contactModel;
-    
+
     /** A thinkParity container interface. */
     private final ContainerModel containerModel;
-    
+
     /** A thinkParity user interface. */
     private final UserModel userModel;
 
@@ -132,21 +132,6 @@ public class PublishContainerProvider extends ContentProvider {
     }
 
     /**
-     * Get the publish date.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @return The publish date <code>Calendar</code>.
-     */
-    public Calendar readPublishDate(final Long containerId, final Long versionId) {
-        final ContainerVersion version = containerModel.readVersion(containerId,
-                versionId);
-        return version.getCreatedOn();
-    }
-    
-    /**
      * Read a list of the contacts that the user can publish to.
      * 
      * @param teamMembers
@@ -161,7 +146,7 @@ public class PublishContainerProvider extends ContentProvider {
             USER_UTIL.remove(contacts, teamMember);
         return contacts;
     }
-    
+
     /**
      * Read a list of team members that the user can publish to.
      * 
@@ -172,7 +157,7 @@ public class PublishContainerProvider extends ContentProvider {
     public List<TeamMember> readPublishToTeam(final Long containerId) {
         return containerModel.readPublishToTeam(containerId);
     }
-    
+
     /**
      * Read the version name.
      * 
@@ -186,5 +171,20 @@ public class PublishContainerProvider extends ContentProvider {
         final ContainerVersion version = containerModel.readVersion(containerId,
                 versionId);
         return version.getName();
+    }
+
+    /**
+     * Read the version publish date.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return The version publish date <code>Calendar</code>.
+     */
+    public Calendar readVersionPublishDate(final Long containerId, final Long versionId) {
+        final ContainerVersion version = containerModel.readVersion(containerId,
+                versionId);
+        return version.getCreatedOn();
     }
 }

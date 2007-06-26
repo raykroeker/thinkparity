@@ -5,6 +5,14 @@
 <web-app>
     <!-- thinkParity -->
     <context-param>
+        <param-name>thinkparity.amazon.accesskeyid-file</param-name>
+        <param-value>${thinkparity.home}/etc/security/amz_access_key_id</param-value>
+    </context-param>
+    <context-param>
+        <param-name>thinkparity.amazon.secretaccesskey-file</param-name>
+        <param-value>${thinkparity.home}/etc/security/amz_secret_access_key</param-value>
+    </context-param>
+    <context-param>
         <param-name>thinkparity.backup.root</param-name>
         <param-value>${thinkparity.home}/var/backup</param-value>
     </context-param>

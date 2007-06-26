@@ -22,12 +22,8 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.nio.ChannelUtil;
 
 import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamException;
-import com.thinkparity.codebase.model.stream.StreamMonitor;
-import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
@@ -47,7 +43,6 @@ import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.desdemona.model.io.sql.UserSql;
-import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 
 /**
  * <b>Title:</b>thinkParity Model<br>
@@ -298,7 +293,7 @@ public abstract class Model<T extends EventListener> extends
     protected final String checksum(final ReadableByteChannel channel)
             throws IOException {
         synchronized (workspace.getBufferLock()) {
-            return MD5Util.md5Hex(channel, workspace.getBufferArray());
+            return MD5Util.md5Base64(channel, workspace.getBufferArray());
         }
     }
 
@@ -324,62 +319,6 @@ public abstract class Model<T extends EventListener> extends
      */
     protected Boolean doesExistVersion(final Long artifactId, final Long versionId) {
         return getArtifactModel().doesVersionExist(artifactId, versionId);
-    }
-
-    /**
-     * Start a download from the stream server.
-     * 
-     * @param downloadMonitor
-     *            A download monitor.
-     * @param streamId
-     *            A stream id <code>String</code>.
-     * @return The downloaded <code>File</code>.
-     * @throws IOException
-     */
-    protected final File downloadStream(final DownloadMonitor downloadMonitor,
-            final String streamId) throws IOException {
-        final File streamFile = buildStreamFile(streamId);
-        final InternalStreamModel streamModel = getServerModelFactory().getStreamModel();
-        final StreamSession streamSession = streamModel.createSession();
-        logger.logVariable("streamSession.getBufferSize()", streamSession.getBufferSize());
-        logger.logVariable("streamSession.getCharset()", streamSession.getCharset());
-        logger.logVariable("streamSession.getId()", streamSession.getId());
-        final StreamMonitor streamMonitor = new StreamMonitor() {
-            long recoverChunkOffset = 0;
-            long totalChunks = 0;
-            public void chunkReceived(final int chunkSize) {
-                logger.logApiId();
-                logger.logVariable("chunkSize", chunkSize);
-                totalChunks += chunkSize;
-                downloadMonitor.chunkDownloaded(chunkSize);
-            }
-            public void chunkSent(final int chunkSize) {}
-            public void headerReceived(final String header) {}
-            public void headerSent(final String header) {}
-            public void streamError(final StreamException error) {
-                if (error.isRecoverable()) {
-                    if (recoverChunkOffset <= totalChunks) {
-                        logger.logWarning(error, "Network error.");
-                        recoverChunkOffset = totalChunks;
-                        try {
-                            // attempt to resume the download
-                            downloadStream(downloadMonitor, this,
-                                    streamSession, streamId, streamFile,
-                                    Long.valueOf(recoverChunkOffset));
-                        } catch (final IOException iox) {
-                            throw panic(iox);
-                        }
-                    } else {
-                        throw panic(error);
-                    }
-                } else {
-                    throw panic(error);
-                }
-            }
-        };
-        downloadStream(downloadMonitor, streamMonitor, streamSession,
-                streamId, streamFile, 0L);
-        return streamFile;
     }
 
     /**
@@ -643,20 +582,6 @@ public abstract class Model<T extends EventListener> extends
         } finally {
             channel.close();
         }
-    }
-
-    /**
-     * Build a local file to back a stream. Note that the file is transient in
-     * nature and will be deleted when thinkParity is shutdown or the next time
-     * it is started up.
-     * 
-     * @param streamId
-     *            A stream id <code>String</code>.
-     * @return A <code>File</code>.
-     * @throws IOException
-     */
-    private File buildStreamFile(final String streamId) throws IOException {
-        return workspace.createTempFile(streamId);
     }
 
     /**

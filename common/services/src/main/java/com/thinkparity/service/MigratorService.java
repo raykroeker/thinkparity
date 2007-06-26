@@ -27,12 +27,8 @@ import com.thinkparity.codebase.model.migrator.Resource;
 public interface MigratorService {
 
     @WebMethod
-    void createStream(AuthToken authToken, String streamId, Product product,
-            Release release, List<Resource> resources);
-
-    @WebMethod
-    void deploy(AuthToken authToken, String streamId,
-            Product product, Release release, List<Resource> resources);
+    void deploy(AuthToken authToken, Product product, Release release,
+            List<Resource> resources);
 
     @WebMethod
     void logError(AuthToken authToken, Product product,

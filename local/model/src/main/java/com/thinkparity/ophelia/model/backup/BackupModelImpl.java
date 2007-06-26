@@ -3,9 +3,6 @@
  */
 package com.thinkparity.ophelia.model.backup;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -15,7 +12,6 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
@@ -26,13 +22,11 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent;
 
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.events.BackupEvent;
 import com.thinkparity.ophelia.model.events.BackupListener;
-import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -127,39 +121,9 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     }
 
     /**
-     * Open a document version from the backup.
+     * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#readContainer(java.util.UUID)
      * 
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @return An <code>InputStream</code>.
      */
-    public InputStream openDocumentVersion(final UUID uniqueId,
-            final Long versionId) {
-        try {
-            final InternalSessionModel sessionModel = getSessionModel();
-            final StreamSession session = sessionModel.createStreamSession();
-            final String streamId = sessionModel.createStream(session);
-            sessionModel.createBackupStream(localUserId(), streamId, uniqueId,
-                    versionId);
-            try {
-                final File file = downloadStream(new DownloadMonitor() {
-                    public void chunkDownloaded(final int chunkSize) {
-                        logger.logApiId();
-                        logger.logVariable("chunkSize", chunkSize);
-                    }}, streamId);
-                logger.logVariable("file.getName()", file.getName());
-                logger.logVariable("file.length()", file.length());
-                return new FileInputStream(file);
-            } finally {
-                sessionModel.deleteStreamSession(session);
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
     public Container readContainer(final UUID uniqueId) {
         try {
             return getSessionModel().readBackupContainer(uniqueId);

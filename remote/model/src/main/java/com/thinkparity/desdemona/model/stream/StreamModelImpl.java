@@ -3,15 +3,13 @@
  */
 package com.thinkparity.desdemona.model.stream;
 
-import java.nio.charset.Charset;
-
+import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.util.codec.MD5Util;
-
-import com.thinkparity.ophelia.model.util.UUIDGenerator;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
-import com.thinkparity.desdemona.util.DesdemonaProperties;
+import com.thinkparity.desdemona.model.amazon.s3.InternalAmazonS3Model;
 
 /**
  * <b>Title:</b>thinkParity Stream Model Implementation</br>
@@ -23,16 +21,6 @@ import com.thinkparity.desdemona.util.DesdemonaProperties;
 public final class StreamModelImpl extends AbstractModelImpl implements
         StreamModel, InternalStreamModel {
 
-    /** The character set used by the stream server. */
-    static final Charset CHARSET;
-
-    static {
-        CHARSET = Charset.forName("ISO-8859-1");
-    }
-
-    /** The <code>StreamService</code>. */
-    private StreamService service;
-
     /**
      * Create StreamModelImpl.
      *
@@ -42,70 +30,76 @@ public final class StreamModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.stream.StreamModel#create(java.lang.String)
+     * @see com.thinkparity.desdemona.model.stream.StreamModel#newDownstreamSession(com.thinkparity.codebase.model.document.DocumentVersion)
      * 
      */
-    public String create(final String sessionId) {
+    public StreamSession newDownstreamSession(final DocumentVersion version) {
         try {
-            final StreamSession session = service.authenticate(sessionId);
-            final String streamId = newStreamId();
-            service.initialize(session, streamId);
-            return streamId;
+            final StreamSession session = new StreamSession();
+            session.setBufferSize(getBufferSize("stream-session"));
+            final InternalAmazonS3Model amazonS3Model = getAmazonS3Model();
+            session.setHeaders(amazonS3Model.newDownstreamHeaders(version));
+            session.setURI(amazonS3Model.newDownstreamURI(version));
+            return session;
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.stream.StreamModel#createSession()
-     * 
-     */
-    public StreamSession createSession() {
-        try {
-            final ServerSession session = newSession(newStreamSessionId());
-            service.initialize(session);
-            return session.getClientSession();
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.stream.StreamModel#delete(java.lang.String,
-     *      java.lang.String)
-     * 
-     */
-    public void delete(final String sessionId, final String streamId) {
-        try {
-            final StreamSession session = service.authenticate(sessionId);
-            service.destroy(session, streamId);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.stream.StreamModel#deleteSession(java.lang.String)
+     * @see com.thinkparity.desdemona.model.stream.StreamModel#newDownstreamSession(com.thinkparity.codebase.model.migrator.Release)
      *
      */
-    public void deleteSession(final String sessionId) {
+    public StreamSession newDownstreamSession(final Product product,
+            final Release release) {
         try {
-            final StreamSession session = service.authenticate(sessionId);
-            service.destroy(session);
+            final StreamSession session = new StreamSession();
+            session.setBufferSize(getBufferSize("stream-session"));
+            final InternalAmazonS3Model amazonS3Model = getAmazonS3Model();
+            session.setHeaders(amazonS3Model.newDownstreamHeaders(product, release));
+            session.setURI(amazonS3Model.newDownstreamURI(product, release));
+            return session;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.stream.StreamModel#newUpstreamSession(com.thinkparity.codebase.model.document.DocumentVersion)
+     * 
+     */
+    public StreamSession newUpstreamSession(final DocumentVersion version) {
+        try {
+            final StreamSession session = new StreamSession();
+            session.setBufferSize(getBufferSize("stream-session"));
+            final InternalAmazonS3Model amazonS3Model = getAmazonS3Model();
+            session.setHeaders(amazonS3Model.newUpstreamHeaders(version));
+            session.setURI(amazonS3Model.newUpstreamURI(version));
+            return session;
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.stream.StreamModel#readSession(java.lang.String)
+     * @see com.thinkparity.desdemona.model.stream.StreamModel#newUpstreamSession(com.thinkparity.codebase.model.migrator.Product,
+     *      com.thinkparity.codebase.model.migrator.Release, java.lang.Long,
+     *      java.lang.String, java.lang.String)
      * 
      */
-    public StreamSession readSession(final String sessionId) {
+    public StreamSession newUpstreamSession(final Product product,
+            final Release release, final Long contentLength,
+            final String contentMD5, final String contentType) {
         try {
-            return service.authenticate(sessionId);
+            final StreamSession session = new StreamSession();
+            session.setBufferSize(getBufferSize("stream-session"));
+            final InternalAmazonS3Model amazonS3Model = getAmazonS3Model();
+            session.setHeaders(amazonS3Model.newUpstreamHeaders(product,
+                    release, contentLength, contentMD5, contentType));
+            session.setURI(amazonS3Model.newUpstreamURI(product, release));
+            return session;
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
 
@@ -114,54 +108,5 @@ public final class StreamModelImpl extends AbstractModelImpl implements
      *
      */
     @Override
-    protected void initialize() {
-        properties = DesdemonaProperties.getInstance();
-        service = StreamService.getInstance();
-    }
-
-    /**
-     * Build a server session.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param inetAddress
-     *            An <code>InetAddress</code>.
-     * @return A new server stream session.
-     */
-    private ServerSession newSession(final String streamSessionId) {
-        final ServerSession session = new ServerSession();
-        session.setCharset(CHARSET);
-        session.setBufferSize(getBufferSize("stream-session"));
-        session.setId(streamSessionId);
-        session.setInetAddress(null);
-        session.setServerHost(properties.getProperty("thinkparity.stream-host"));
-        session.setServerPort(Integer.valueOf(properties.getProperty("thinkparity.stream-port")));
-        return session;
-    }
-
-    /** The desdemona properties. */
-    private DesdemonaProperties properties;
-
-    /**
-     * Build a stream id.
-     * 
-     * @return A stream id <code>String</code>.
-     */
-    private String newStreamId() {
-        /*
-         * NOTE A stream id is a UUID
-         */
-        final StringBuffer hashString = new StringBuffer()
-            .append(UUIDGenerator.nextUUID());
-        return MD5Util.md5Hex(hashString.toString());
-    }
-
-    /**
-     * Create an instance of a stream session id for the model user.
-     * 
-     * @return A stream session id <code>String</code>.
-     */
-    private String newStreamSessionId() {
-        return buildUserTimestampId(user.getId());
-    }
+    protected void initialize() {}
 }

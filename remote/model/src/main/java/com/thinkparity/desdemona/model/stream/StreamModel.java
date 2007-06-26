@@ -3,6 +3,9 @@
  */
 package com.thinkparity.desdemona.model.stream;
 
+import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 /**
@@ -15,45 +18,45 @@ import com.thinkparity.codebase.model.stream.StreamSession;
 public interface StreamModel {
 
     /**
-     * Create a stream for the model user.
+     * Create a stream session for downloading the artifact version.
      * 
-     * @param sessionId
-     *            A session id <code>String</code>.
-     * @return A stream id <code>String</code>.
-     */
-    public String create(final String sessionId);
-
-    /**
-     * Create a session for the model user.
-     * 
+     * @param version
+     *            A <code>DocumentVersion</code>.
      * @return A <code>StreamSession</code>.
      */
-    public StreamSession createSession();
+    public StreamSession newDownstreamSession(final DocumentVersion version);
 
     /**
-     * Delete a stream for the model user.
+     * Create a stream session for downloading the release.
      * 
-     * @param sessionId
-     *            A stream session id <code>String</code>.
-     * @param streamId
-     *            A stream id <code>String</code>.
-     */
-    public void delete(final String sessionId, final String streamId);
-
-    /**
-     * Delete a session for the model user.
-     * 
-     * @param sessionId
-     *            A session id <code>String</code>.
-     */
-    public void deleteSession(final String sessionId);
-
-    /**
-     * Read a session for the model user.
-     * 
-     * @param sessionId
-     *            A session id <code>String</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
      * @return A <code>StreamSession</code>.
      */
-    public StreamSession readSession(final String sessionId);
+    public StreamSession newDownstreamSession(final Product product,
+            final Release release);
+
+    /**
+     * Create a stream session for uploading the document version.
+     * 
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @return A <code>StreamSession</code>.
+     */
+    public StreamSession newUpstreamSession(final DocumentVersion version);
+
+    /**
+     * Create a stream session for uploading the release.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     * @return A <code>StreamSession</code>.
+     */
+    public StreamSession newUpstreamSession(final Product product,
+            final Release release, final Long contentLength,
+            final String contentMD5, final String contentType);
 }

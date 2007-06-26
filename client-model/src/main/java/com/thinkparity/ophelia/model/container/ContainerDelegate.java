@@ -153,10 +153,10 @@ public abstract class ContainerDelegate extends
      */
     protected final void handleDocumentVersionsResolution(
             final ContainerVersion containerVersion,
-            final Map<DocumentVersion, String> versions,
+            final List<DocumentVersion> documentVersions,
             final JabberId publishedBy, final Calendar publishedOn) {
         modelImplementation.handleDocumentVersionsResolution(containerVersion,
-                versions, publishedBy, publishedOn);
+                documentVersions, publishedBy, publishedOn);
     }
 
     /**
@@ -328,8 +328,8 @@ public abstract class ContainerDelegate extends
      * @see ContainerModelImpl#uploadDocumentVersions(ProcessMonitor, List)
      * 
      */
-    protected final Map<DocumentVersion, String> uploadDocumentVersions(
-            final ProcessMonitor monitor, final List<DocumentVersion> versions) {
-        return modelImplementation.uploadDocumentVersions(monitor, versions);
+    protected void uploadDocumentVersions(final ProcessMonitor monitor,
+            final List<DocumentVersion> versions) {
+        modelImplementation.uploadDocumentVersions(monitor, versions);
     }
 }

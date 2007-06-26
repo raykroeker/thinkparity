@@ -6,7 +6,6 @@ package com.thinkparity.desdemona.model.container;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -54,12 +53,12 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
 
     /**
      * @see com.thinkparity.desdemona.model.container.ContainerModel#publish(com.thinkparity.codebase.model.container.ContainerVersion,
-     *      java.util.Map, java.util.List, java.util.Calendar, java.util.List,
+     *      java.util.List, java.util.List, java.util.Calendar, java.util.List,
      *      java.util.List)
      * 
      */
     public void publish(final ContainerVersion version,
-            final Map<DocumentVersion, String> documentVersions,
+            final List<DocumentVersion> documentVersions,
             final List<TeamMember> team, final Calendar publishedOn,
             final List<EMail> publishToEMails, final List<User> publishToUsers) {
         try {
@@ -89,12 +88,12 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
 
     /**
      * @see com.thinkparity.desdemona.model.container.ContainerModel#publishVersion(com.thinkparity.codebase.model.container.ContainerVersion,
-     *      java.util.Map, java.util.List, java.util.List, java.util.Calendar,
+     *      java.util.List, java.util.List, java.util.List, java.util.Calendar,
      *      java.util.List, java.util.List)
      * 
      */
     public void publishVersion(final ContainerVersion version,
-            final Map<DocumentVersion, String> documentVersionStreamIds,
+            final List<DocumentVersion> documentVersionStreamIds,
             final List<TeamMember> team,
             final List<ArtifactReceipt> receivedBy, final Calendar publishedOn,
             final List<EMail> publishToEMails, final List<User> publishToUsers) {
@@ -244,7 +243,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
      *            A <code>List</code> of <code>User</code>s to publish to.
      */
     private void enqueueContainerPublished(final ContainerVersion version,
-            final Map<DocumentVersion, String> documentVersions,
+            final List<DocumentVersion> documentVersions,
             final JabberId publishedBy, final Calendar publishedOn,
             final List<User> publishToUsers) {
         final PublishedEvent event = new PublishedEvent();
@@ -329,7 +328,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
      */
     private void enqueueContainerVersionPublished(
             final ContainerVersion version,
-            final Map<DocumentVersion, String> documentVersions,
+            final List<DocumentVersion> documentVersions,
             final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
             final Calendar publishedOn, final List<User> publishToUsers) {
         final InternalArtifactModel artifactModel = getArtifactModel();

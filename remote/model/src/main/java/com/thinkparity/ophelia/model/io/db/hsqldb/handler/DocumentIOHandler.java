@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -14,8 +12,6 @@ import javax.sql.DataSource;
 
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.stream.StreamOpener;
-import com.thinkparity.codebase.model.stream.StreamUploader;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
@@ -39,9 +35,9 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
     /** Sql to create a document version. */
 	private static final String SQL_CREATE_VERSION =
         new StringBuffer("insert into DOCUMENT_VERSION ")
-		.append("(DOCUMENT_ID,DOCUMENT_VERSION_ID,CONTENT,CONTENT_SIZE,")
+		.append("(DOCUMENT_ID,DOCUMENT_VERSION_ID,CONTENT_SIZE,")
         .append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM) ")
-		.append("values (?,?,?,?,?,?)")
+		.append("values (?,?,?,?,?)")
 		.toString();
 
     private static final String SQL_DELETE =
@@ -83,13 +79,6 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 		.append("where DV.DOCUMENT_ID=? ")
 		.append("order by DV.DOCUMENT_VERSION_ID asc")
 		.toString();
-
-	/** Sql to open a stream to the document version's content. */
-    private static final String SQL_OPEN_STREAM =
-            new StringBuffer("select DV.CONTENT ")
-            .append("from DOCUMENT_VERSION DV ")
-            .append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
-            .toString();
 
     /** Sql to read documents. */
 	private static final String SQL_READ =
@@ -145,13 +134,6 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
-	/** Sql to open a stream to upload the document version's content. */
-    private static final String SQL_UPLOAD_VERSION =
-            new StringBuffer("select DV.CONTENT ")
-            .append("from DOCUMENT_VERSION DV ")
-            .append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
-            .toString();
-
 	/** Generic artifact io. */
 	private final ArtifactIOHandler artifactIO;
 
@@ -184,13 +166,11 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
         }
 	}
 
-    /**
-     * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#createVersion(com.thinkparity.codebase.model.document.DocumentVersion,
-     *      java.io.InputStream, java.lang.Integer)
+	/**
+     * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#createVersion(com.thinkparity.codebase.model.document.DocumentVersion)
      * 
      */
-	public void createVersion(final DocumentVersion version,
-            final InputStream content, final Integer bufferSize) {
+	public void createVersion(final DocumentVersion version) {
 		final Session session = openSession();
 		try {
 			artifactIO.createVersion(session, version);
@@ -198,10 +178,9 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 			session.prepareStatement(SQL_CREATE_VERSION);
 			session.setLong(1, version.getArtifactId());
 			session.setLong(2, version.getVersionId());
-            session.setBinaryStream(3, content, version.getSize(), bufferSize);
-            session.setLong(4, version.getSize());
-			session.setString(5, version.getChecksum());
-			session.setString(6, version.getChecksumAlgorithm());
+            session.setLong(3, version.getSize());
+			session.setString(4, version.getChecksum());
+			session.setString(5, version.getChecksumAlgorithm());
 			if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not create document version.");
 
@@ -292,35 +271,8 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 	}
 
 	/**
-     * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#openStream(java.lang.Long,
-     *      java.lang.Long, com.thinkparity.codebase.model.stream.StreamOpener)
-     * 
-     */
-    public void openStream(final Long documentId, final Long versionId,
-            final StreamOpener opener) throws IOException {
-        final Session session = openSession();
-        try {
-            session.prepareStatement(SQL_OPEN_STREAM);
-            session.setLong(1, documentId);
-            session.setLong(2, versionId);
-            session.executeQuery();
-            if (session.nextResult()) {
-                final InputStream stream = session.getBlob("CONTENT");
-                try {
-                    opener.open(stream);
-                } finally {
-                    stream.close();
-                }
-            } else {
-                opener.open(null);
-            }
-        } finally {
-            session.close();
-        }
-    }
-
-	/**
 	 * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#read()
+     * 
 	 */
 	public List<Document> read() {
 		final Session session = openSession();
@@ -433,34 +385,6 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
             session.close();
 		}
 	}
-
-    /**
-     * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#saveVersion(java.lang.Long,
-     *      java.lang.Long, java.io.OutputStream, java.lang.Integer)
-     * 
-     */
-    public void uploadVersion(final Long documentId, final Long versionId,
-            final StreamUploader uploader) throws IOException {
-        final Session session = openSession();
-        try {
-            session.prepareStatement(SQL_UPLOAD_VERSION);
-            session.setLong(1, documentId);
-            session.setLong(2, versionId);
-            session.executeQuery();
-            if (session.nextResult()) {
-                final InputStream stream = session.getBlob("CONTENT"); 
-                try {
-                    uploader.upload(stream);
-                } finally {
-                    stream.close();
-                }
-            } else {
-                uploader.upload(null);
-            }
-        } finally {
-            session.close();
-        }
-    }
 
 	/**
      * Extract the document.

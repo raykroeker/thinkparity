@@ -224,6 +224,7 @@ public final class WebService extends HttpServlet {
             for (final StackTraceElement element : cause.getStackTrace()) {
                 stackTrace.add(element);
             }
+            cause = cause.getCause();
         }
         return stackTrace.toArray(new StackTraceElement[] {});
     }
@@ -422,32 +423,32 @@ public final class WebService extends HttpServlet {
             final HttpServletResponse resp) throws ServletException,
             IOException {
         WebServiceMetrics.begin(req);
-        final String pathInfo = req.getPathInfo();
-        if (!isValid(pathInfo)) {
-            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-            WebServiceMetrics.end(req);
-            return;
-        }
-        // read the request before committing a response
-        final ServiceRequest request;
         try {
-            request = readRequest(req.getInputStream());
-        } catch (final Throwable t) {
-            resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            WebServiceMetrics.end(req);
-            throw new ServletException(t);
-        }
-        // service the response; write the result
-        try {
-            final ServiceResponse response = service(request);
-            if (response.isErrorResponse()) {
-                writeErrorResponse(resp.getOutputStream(), request, response);
-            } else {
-                writeResponse(resp.getOutputStream(), request, response);
+            final String pathInfo = req.getPathInfo();
+            if (!isValid(pathInfo)) {
+                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
             }
-        } catch (final Throwable t) {
-            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            throw new ServletException(t);
+            // read the request before committing a response
+            final ServiceRequest request;
+            try {
+                request = readRequest(req.getInputStream());
+            } catch (final Throwable t) {
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                throw new ServletException(t);
+            }
+            // service the response; write the result
+            try {
+                final ServiceResponse response = service(request);
+                if (response.isErrorResponse()) {
+                    writeErrorResponse(resp.getOutputStream(), request, response);
+                } else {
+                    writeResponse(resp.getOutputStream(), request, response);
+                }
+            } catch (final Throwable t) {
+                resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                throw new ServletException(t);
+            }
         } finally {
             WebServiceMetrics.end(req);
         }

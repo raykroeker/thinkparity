@@ -50,16 +50,6 @@ public class BackupSEI extends ServiceSEI implements BackupService {
     }
 
     /**
-     * @see com.thinkparity.service.BackupService#createStream(com.thinkparity.service.AuthToken, java.lang.String, java.util.UUID, java.lang.Long)
-     *
-     */
-    public void createStream(final AuthToken authToken, final String streamId,
-            final UUID documentUniqueId, final Long documentVersionId) {
-        getModel(authToken).createStream(streamId, documentUniqueId,
-                documentVersionId);
-    }
-
-    /**
      * @see com.thinkparity.service.BackupService#delete(com.thinkparity.service.AuthToken, java.util.UUID)
      *
      */

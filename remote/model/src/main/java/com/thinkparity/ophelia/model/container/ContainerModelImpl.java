@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.model.container;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.Map.Entry;
 
 import com.thinkparity.codebase.Pair;
 import com.thinkparity.codebase.assertion.Assert;
@@ -920,19 +919,19 @@ public final class ContainerModelImpl extends
      */
     void handleDocumentVersionsResolution(
             final ContainerVersion containerVersion,
-            final Map<DocumentVersion, String> versions,
+            final List<DocumentVersion> documentVersions,
             final JabberId publishedBy, final Calendar publishedOn) {
-        for (final Entry<DocumentVersion, String> entry : versions.entrySet()) {
+        for (final DocumentVersion documentVersion : documentVersions) {
             final ArtifactVersion artifactVersion =
                 modelFactory.getDocumentModel().handleDocumentPublished(
-                        containerVersion.getArtifactId(), entry.getKey(),
-                        entry.getValue(), publishedBy, publishedOn);
+                        containerVersion.getArtifactId(), documentVersion,
+                        publishedBy, publishedOn);
             final Long artifactId = modelFactory.getArtifactModel().readId(
-                    entry.getKey().getArtifactUniqueId());
+                    documentVersion.getArtifactUniqueId());
             logger.logVariable("artifactId", artifactId);
             if (!containerIO.doesExistVersion(containerVersion.getArtifactId(),
                     containerVersion.getVersionId(), artifactId,
-                    entry.getKey().getVersionId()).booleanValue()) {
+                    documentVersion.getVersionId()).booleanValue()) {
                 containerIO.addVersion(containerVersion.getArtifactId(),
                         containerVersion.getVersionId(),
                         artifactVersion.getArtifactId(),

@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,6 +12,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -23,6 +25,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.thinkparity.codebase.BytesFormat;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
@@ -35,15 +38,14 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.nio.ChannelUtil;
 
 import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
+import com.thinkparity.codebase.model.stream.StreamReader;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -67,6 +69,7 @@ import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.queue.InternalQueueModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.session.OfflineException;
+import com.thinkparity.ophelia.model.stream.InternalStreamModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.util.Base64;
@@ -103,10 +106,6 @@ public abstract class Model<T extends EventListener> extends
     static {
         ARTIFACT_UTIL = ArtifactUtil.getInstance();
         USER_UTILS = UserUtils.getInstance();
-    }
-
-    protected static ResourceBundle getLocalizationBundle(final String baseName) {
-        return ResourceBundle.getBundle(baseName);
     }
 
     /**
@@ -160,6 +159,10 @@ public abstract class Model<T extends EventListener> extends
     protected static final <U extends User> List<JabberId> getIds(
             final List<U> users, final List<JabberId> userIds) {
         return USER_UTILS.getIds(users, userIds);
+    }
+
+    protected static ResourceBundle getLocalizationBundle(final String baseName) {
+        return ResourceBundle.getBundle(baseName);
     }
 
     /**
@@ -448,6 +451,18 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
+     * Assert that the xmpp service is online.
+     * 
+     * @param environment
+     *            A thinkParity <code>Environment</code>.
+     */
+    protected void assertServiceIsReachable(final Environment environment) {
+        Assert.assertTrue(environment.isServiceReachable(),
+                "XMPP environment {0}:{1} is not reachable.",
+                environment.getServiceHost(), environment.getServicePort());
+    }
+
+    /**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 
@@ -490,18 +505,6 @@ public abstract class Model<T extends EventListener> extends
     protected void assertTeamMember(final Object assertion, final Long artifactId, final JabberId userId) {
         final List<TeamMember> team = getArtifactModel().readTeam2(artifactId);
         Assert.assertTrue(assertion, contains(team, getUserModel().read(userId)));
-    }
-
-    /**
-     * Assert that the xmpp service is online.
-     * 
-     * @param environment
-     *            A thinkParity <code>Environment</code>.
-     */
-    protected void assertServiceIsReachable(final Environment environment) {
-        Assert.assertTrue(environment.isServiceReachable(),
-                "XMPP environment {0}:{1} is not reachable.",
-                environment.getServiceHost(), environment.getServicePort());
     }
 
     /**
@@ -552,7 +555,7 @@ public abstract class Model<T extends EventListener> extends
     protected final String checksum(final ReadableByteChannel channel)
             throws IOException {
         synchronized (workspace.getBufferLock()) {
-            return MD5Util.md5Hex(channel, workspace.getBufferArray());
+            return MD5Util.md5Base64(channel, workspace.getBufferArray());
         }
     }
 
@@ -586,6 +589,15 @@ public abstract class Model<T extends EventListener> extends
         } catch (final Throwable t) {
             throw panic(t);
         }
+    }
+
+    /**
+     * Create a temporary file.
+     * 
+     * @return A <code>File</code>.
+     */
+    protected final File createTempFile() throws IOException {
+        return workspace.createTempFile();
     }
 
     /**
@@ -664,62 +676,7 @@ public abstract class Model<T extends EventListener> extends
         return getArtifactModel().doesVersionExist(artifactId, versionId);
     }
 
-    /**
-     * Start a download from the stream server.
-     * 
-     * @param downloadMonitor
-     *            A download monitor.
-     * @param streamId
-     *            A stream id <code>String</code>.
-     * @return The downloaded <code>File</code>.
-     * @throws IOException
-     */
-    protected final File downloadStream(final DownloadMonitor downloadMonitor,
-            final String streamId) throws IOException {
-        final File streamFile = buildStreamFile(streamId);
-        final StreamSession streamSession = getSessionModel().createStreamSession();
-        logger.logVariable("streamSession.getBufferSize()", streamSession.getBufferSize());
-        logger.logVariable("streamSession.getCharset()", streamSession.getCharset());
-        logger.logVariable("streamSession.getId()", streamSession.getId());
-        final StreamMonitor streamMonitor = new StreamMonitor() {
-            long recoverChunkOffset = 0;
-            long totalChunks = 0;
-            public void chunkReceived(final int chunkSize) {
-                logger.logApiId();
-                logger.logVariable("chunkSize", chunkSize);
-                totalChunks += chunkSize;
-                downloadMonitor.chunkDownloaded(chunkSize);
-            }
-            public void chunkSent(final int chunkSize) {}
-            public void headerReceived(final String header) {}
-            public void headerSent(final String header) {}
-            public void streamError(final StreamException error) {
-                if (error.isRecoverable()) {
-                    if (recoverChunkOffset <= totalChunks) {
-                        logger.logWarning(error, "Network error.");
-                        recoverChunkOffset = totalChunks;
-                        try {
-                            // attempt to resume the download
-                            downloadStream(downloadMonitor, this,
-                                    streamSession, streamId, streamFile,
-                                    Long.valueOf(recoverChunkOffset));
-                        } catch (final IOException iox) {
-                            throw panic(iox);
-                        }
-                    } else {
-                        throw panic(error);
-                    }
-                } else {
-                    throw panic(error);
-                }
-            }
-        };
-        downloadStream(downloadMonitor, streamMonitor, streamSession,
-                streamId, streamFile, 0L);
-        return streamFile;
-    }
-
-    /**
+	/**
      * Assert the session is online. We are throwing a specific error here in
      * order to allow a client of the model an opportunity to display an
      * appropriate message.
@@ -730,7 +687,7 @@ public abstract class Model<T extends EventListener> extends
             throw new OfflineException();
     }
 
-	/**
+    /**
      * Copy the content of a file to a channel. Create a channel to read the
      * file.
      * 
@@ -839,15 +796,6 @@ public abstract class Model<T extends EventListener> extends
         return workspace.getBufferSize();
     }
 
-    /**
-     * Obtain an internal queue model.
-     * 
-     * @return An instance of <code>InternalQueueModel</code>.
-     */
-    protected InternalQueueModel getQueueModel() {
-        return modelFactory.getQueueModel();
-    }
-
     protected final String getChecksumAlgorithm() {
         return ChecksumAlgorithm.MD5.name();
     }
@@ -916,6 +864,15 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
+     * Obtain an internal queue model.
+     * 
+     * @return An instance of <code>InternalQueueModel</code>.
+     */
+    protected InternalQueueModel getQueueModel() {
+        return modelFactory.getQueueModel();
+    }
+
+    /**
      * Obtain an internal session model.
      * 
      * @return An instance of <code>InternalSessionModel</code>.
@@ -923,6 +880,15 @@ public abstract class Model<T extends EventListener> extends
 	protected final InternalSessionModel getSessionModel() {
 		return modelFactory.getSessionModel();
 	}
+
+    /**
+     * Obtain an internal stream model.
+     * 
+     * @return An instance of <code>InternalStreamModel</code>.
+     */
+    protected final InternalStreamModel getStreamModel() {
+        return modelFactory.getStreamModel();
+    }
 
     /**
      * Obtain an internal user model.
@@ -1036,6 +1002,102 @@ public abstract class Model<T extends EventListener> extends
     protected final File locateStreamFile(final String streamId)
             throws IOException {
         return buildStreamFile(streamId);
+    }
+
+    /**
+     * Create a new download helper.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @return A <code>DownloadHelper</code>.
+     */
+    protected final DownloadHelper newDownloadHelper(final StreamSession session) {
+        final BytesFormat bytesFormat = new BytesFormat();
+
+        return new DownloadHelper() {
+
+            /**
+             * @see com.thinkparity.ophelia.model.DownloadHelper#download(java.io.File)
+             * 
+             */
+            public void download(final File target) throws IOException {
+                ensureDownload(target);
+                attemptDownload(target);
+            }
+        
+            /**
+             * Attempt a download of the version. Create a new stream reader using the
+             * session; and download the version to the temp file, then return the temp
+             * file.
+             * 
+             * @param target
+             *            A <code>File</code> to download to.
+             * @throws IOException
+             */
+            private void attemptDownload(final File target) throws IOException {
+                final StreamReader reader = new StreamReader(new StreamMonitor () {
+
+                    /**
+                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkReceived(int)
+                     *
+                     */
+                    public void chunkReceived(final int chunkSize) {
+                        logger.logInfo("Downloaded {0}.",
+                                bytesFormat.format(new Long(chunkSize)));
+                    }
+        
+                    /**
+                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkSent(int)
+                     *
+                     */
+                    public void chunkSent(final int chunkSize) {
+                        // not possbile in download
+                        Assert.assertUnreachable("");
+                    }
+        
+                    /**
+                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#getName()
+                     *
+                     */
+                    public String getName() {
+                        return "Model#newDownloadHelper";
+                    }
+
+                }, session);
+                final OutputStream output = new FileOutputStream(target);
+                try {
+                    reader.read(output);
+                } finally {
+                    output.close();
+                }
+            }
+
+            /**
+             * Ensure a download is possible by checking the target file for validity as
+             * well as the session.
+             * 
+             * @param target
+             *            A <code>File</code>.
+             */
+            private void ensureDownload(final File target) {
+                final String error;
+                if (null == target) {
+                    error = "Target must not be null.";
+                } else if (!target.exists()) {
+                    error = "Target {0} must exist.";
+                } else if (!target.isFile()) {
+                    error = "Target {0} must be a file.";
+                } else if (session == null) {
+                    error = "Stream ession must exist.";
+                } else {
+                    error = null;
+                }
+                if (null != error) {
+                    throw new IllegalArgumentException(MessageFormat.format(error,
+                            target, session));
+                }
+            }
+        };
     }
 
     /**

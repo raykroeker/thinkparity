@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.container.delegate;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -21,12 +23,14 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.DownloadHelper;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.container.ContainerDelegate;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.monitor.RestoreBackupStep;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentFileLock;
+import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
@@ -131,6 +135,7 @@ public final class RestoreBackup extends ContainerDelegate {
      */
     private void restore(final Container container) throws IOException {
         final InternalBackupModel backupModel = getBackupModel();
+        final InternalDocumentModel documentModel = getDocumentModel();
         final InternalUserModel userModel = getUserModel();
         userModel.readLazyCreate(container.getCreatedBy());
         userModel.readLazyCreate(container.getUpdatedBy());
@@ -167,6 +172,8 @@ public final class RestoreBackup extends ContainerDelegate {
         ContainerVersion previous;
         List<ArtifactReceipt> publishedTo;
         List<PublishedToEMail> publishedToEMails;
+        DownloadHelper downloadHelper;
+        File tempFile;
         for (final ContainerVersion version : versions) {
             logger.logTrace("Restoring container \"{0}\" version \"{1}.\"",
                     version.getArtifactName(), version.getVersionId());
@@ -222,15 +229,21 @@ public final class RestoreBackup extends ContainerDelegate {
                             userModel.readLazyCreate(documentVersion.getCreatedBy());
                             userModel.readLazyCreate(documentVersion.getUpdatedBy());
                             documentVersion.setArtifactId(document.getId());
-                            documentVersionStream =
-                                backupModel.openDocumentVersion(
-                                        document.getUniqueId(),
-                                        documentVersion.getVersionId());
+                            downloadHelper = documentModel.newDownloadHelper(documentVersion);
+                            tempFile = createTempFile();
                             try {
-                                documentIO.createVersion(documentVersion,
-                                        documentVersionStream, getBufferSize());
+                                downloadHelper.download(tempFile);
+                                documentVersionStream = new FileInputStream(tempFile);
+                                try {
+                                    documentIO.createVersion(documentVersion,
+                                            documentVersionStream,
+                                            getBufferSize());
+                                } finally {
+                                    documentVersionStream.close();
+                                }
                             } finally {
-                                documentVersionStream.close();
+                                // no assert; temp file
+                                tempFile.delete();
                             }
                             containerIO.addVersion(container.getId(),
                                     version.getVersionId(), document.getId(),

@@ -32,6 +32,8 @@ import com.thinkparity.ophelia.model.script.InternalScriptModel;
 import com.thinkparity.ophelia.model.script.ScriptModelImpl;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.session.SessionModelImpl;
+import com.thinkparity.ophelia.model.stream.InternalStreamModel;
+import com.thinkparity.ophelia.model.stream.StreamModelImpl;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.UserModelImpl;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -218,6 +220,16 @@ public final class InternalModelFactory {
     public final InternalSessionModel getSessionModel() {
         return (InternalSessionModel) newModelProxy(
                 InternalSessionModel.class, SessionModelImpl.class);
+    }
+
+    /**
+     * Obtain an internal stream model.
+     * 
+     * @return An instance of <code>InternalStreamModel</code>.
+     */
+    public final InternalStreamModel getStreamModel() {
+        return (InternalStreamModel) newModelProxy(
+                InternalStreamModel.class, StreamModelImpl.class);
     }
 
     /**

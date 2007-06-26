@@ -5,10 +5,9 @@ package com.thinkparity.service.client.http;
 
 import java.lang.reflect.Proxy;
 
-import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.util.http.HttpUtils;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.protocol.Protocol;
 
 import com.thinkparity.service.client.Service;
 import com.thinkparity.service.client.ServiceProxyFactory;
@@ -39,13 +38,12 @@ public final class HttpProxyFactory implements ServiceProxyFactory {
     }
 
     /**
-     * Create a new instance of a http client. Set the connection manager
-     * parameters not to perform a stale connection check.
+     * Create a new instance of an apache http client.
      * 
-     * @return An instance of <code>HttpClient</code>.
+     * @return An <code>HtttpClient</code>.
      */
     private static HttpClient newHttpClient() {
-        return new HttpClient();
+        return HttpUtils.newClient();
     }
 
     /** An http service context. */
@@ -57,9 +55,6 @@ public final class HttpProxyFactory implements ServiceProxyFactory {
      */
     private HttpProxyFactory() {
         super();
-        final Environment environment = Environment.valueOf(System.getProperty("thinkparity.environment"));
-        Protocol.registerProtocol("https", new Protocol("https",
-                new HttpSocketFactory(), environment.getServicePort()));
         this.context = new HttpServiceContext();
         this.context.setContentType("text/xml");
         this.context.setHttpClient(newHttpClient());

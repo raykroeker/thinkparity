@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.model.container;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
@@ -109,15 +108,15 @@ public abstract class ContainerDelegate extends
 
     /**
      * @see ContainerModelImpl#handleDocumentVersionsResolution(ContainerVersion,
-     *      Map, JabberId, Calendar)
+     *      List, JabberId, Calendar)
      * 
      */
     protected final void handleDocumentVersionsResolution(
             final ContainerVersion containerVersion,
-            final Map<DocumentVersion, String> versions,
+            final List<DocumentVersion> documentVersions,
             final JabberId publishedBy, final Calendar publishedOn) {
         modelImplementation.handleDocumentVersionsResolution(containerVersion,
-                versions, publishedBy, publishedOn);
+                documentVersions, publishedBy, publishedOn);
     }
 
     /**

@@ -99,7 +99,6 @@ public final class BackupTest extends BackupTestCase {
         Document d_backup;
         List<DocumentVersion> dv_list_backup;
         DocumentVersion dv_backup;
-        InputStream dv_stream_backup;
         logger.logInfo("Validating container \"{0}\" versions.", c.getName());
         final List<ContainerVersion> cv_list_backup = getBackupModel(datum.junit_z).readContainerVersions(c.getUniqueId());
         assertEquals("Container versions have not been properly backed up.", cv_list_local.size(), cv_list_backup.size());
@@ -161,19 +160,37 @@ public final class BackupTest extends BackupTestCase {
                 assertEquals("Document version has not been properly backed up.", dv_local, dv_backup);
 
                 logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\" stream.", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getArtifactName(), dv_backup.getVersionId());
-                dv_stream_backup = getBackupModel(datum.junit_z).openDocumentVersion(dv_backup.getArtifactUniqueId(), dv_backup.getVersionId());
-                getDocumentModel(datum.junit_z).openVersion(dv_local.getArtifactId(), dv_local.getVersionId(), new StreamOpener() {
-                    public void open(final InputStream stream) throws IOException {
-                        streamToFile(stream, getOutputFile(dv_local));
-                    }
-                });
+                final File dv_dl_f;
                 try {
-                    assertEquals("Document version's content does not match expectation.", getOutputFile(dv_local), dv_stream_backup);
+                    dv_dl_f = download(dv_local);
+                    getDocumentModel(datum.junit_z).openVersion(dv_local.getArtifactId(), dv_local.getVersionId(), new StreamOpener() {
+                        public void open(final InputStream stream) throws IOException {
+                            try {
+                                assertEquals("Document version's content does not match expectation.", dv_dl_f, stream);
+                            } catch (final IOException iox) {
+                                fail(iox, "Could not compare input stream is with is_x.");
+                            }
+                        }
+                    });
                 } catch (final IOException iox) {
-                    fail(iox, "Could not compare input stream is with is_x.");
+                    fail(iox, "Cannot download document version.");
                 }
             }
         }
+    }
+
+    /**
+     * Download the document version.
+     * 
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @return The <code>File</code>.
+     * @throws IOException
+     */
+    private File download(final DocumentVersion version) throws IOException {
+        final File target = getOutputFile(version);
+        getDocumentModel(datum.junit_z).newDownloadHelper(version).download(target);
+        return target;
     }
 
     /**
@@ -226,7 +243,6 @@ public final class BackupTest extends BackupTestCase {
             Document d_backup;
             List<DocumentVersion> dv_list_backup;
             DocumentVersion dv_backup;
-            InputStream dv_stream_backup;
             logger.logInfo("Validating container \"{0}\" versions.", c_list.get(o).getName());
             final List<ContainerVersion> cv_list_backup = getBackupModel(datum.junit_z).readContainerVersions(c_list.get(o).getUniqueId());
             assertEquals("Container versions have not been properly backed up.", cv_list_local.size(), cv_list_backup.size());
@@ -288,16 +304,20 @@ public final class BackupTest extends BackupTestCase {
                     assertSimilar("Document version has not been properly backed up.", dv_local, dv_backup);
 
                     logger.logInfo("Validating container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}\" stream.", c_backup.getName(), cv_backup.getVersionId(), dv_backup.getArtifactName(), dv_backup.getVersionId());
-                    dv_stream_backup = getBackupModel(datum.junit_z).openDocumentVersion(dv_backup.getArtifactUniqueId(), dv_backup.getVersionId());
-                    getDocumentModel(datum.junit_z).openVersion(dv_local.getArtifactId(), dv_local.getVersionId(), new StreamOpener() {
-                        public void open(final InputStream stream) throws IOException {
-                            streamToFile(stream, getOutputFile(dv_local));
-                        }
-                    });
+                    final File dv_dl_f;
                     try {
-                        assertEquals("Document version's content does not match expectation.", getOutputFile(dv_local), dv_stream_backup);
+                        dv_dl_f = download(dv_local);
+                        getDocumentModel(datum.junit_z).openVersion(dv_local.getArtifactId(), dv_local.getVersionId(), new StreamOpener() {
+                            public void open(final InputStream stream) throws IOException {
+                                try {
+                                    assertEquals("Document version's content does not match expectation.", dv_dl_f, stream);
+                                } catch (final IOException iox) {
+                                    fail(iox, "Could not compare input stream is with is_x.");
+                                }
+                            }
+                        });
                     } catch (final IOException iox) {
-                        fail(iox, "Could not compare input stream is with is_x.");
+                        fail(iox, "Cannot download document version.");
                     }
                 }
             }

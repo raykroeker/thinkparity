@@ -3,9 +3,6 @@
  */
 package com.thinkparity.desdemona.model.backup;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,7 +10,6 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.UploadMonitor;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -25,8 +21,6 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Feature;
-import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent;
@@ -42,7 +36,6 @@ import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVer
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.io.sql.BackupSql;
 import com.thinkparity.desdemona.model.queue.InternalQueueModel;
-import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 
 /**
  * <b>Title:</b>thinkParity Backup Model Implementation<br>
@@ -76,25 +69,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         try {
             if (isBackupEnabled(user)) {
                 archiveImpl(user, uniqueId);
-            } else {
-                logger.logWarning("User {0} has no backup feature.",
-                        user.getId());
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.backup.BackupModel#createStream(com.thinkparity.codebase.jabber.JabberId,
-     *      java.lang.String, java.util.UUID, java.lang.Long)
-     * 
-     */
-    public void createStream(final String streamId, final UUID uniqueId,
-            final Long versionId) {
-        try {
-            if (isBackupEnabled(user)) {
-                createStreamImpl(user, streamId, uniqueId, versionId);
             } else {
                 logger.logWarning("User {0} has no backup feature.",
                         user.getId());
@@ -374,19 +348,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#uploadDocumentVersion(java.lang.String, java.util.UUID, java.lang.Long)
-     *
-     */
-    public void uploadDocumentVersion(final String streamId,
-            final UUID uniqueId, final Long versionId) {
-        try {
-            uploadDocumentVersionImpl(streamId, uniqueId, versionId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.desdemona.model.AbstractModelImpl#initialize()
      *
      */
@@ -435,52 +396,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     private void archiveImpl(final User user, final UUID uniqueId) {
         final Artifact artifact = getArtifactModel().read(uniqueId);
         backupSql.createArchive(user, artifact);
-    }
-
-    /**
-     * Create stream implementation.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param streamId
-     *            A stream id <code>String</code>.
-     * @param uniqueId
-     *            A document unique id <code>UUID</code>.
-     * @param versionId
-     *            A document version id <code>Long</code>.
-     */
-    private void createStreamImpl(final User user, final String streamId,
-            final UUID uniqueId, final Long versionId) {
-        if (isDocumentBackedUp(user, uniqueId)) {
-            final com.thinkparity.ophelia.model.artifact.InternalArtifactModel
-                    artifactModel = getModelFactory(user).getArtifactModel();
-            final com.thinkparity.ophelia.model.document.InternalDocumentModel
-                    documentModel = getModelFactory(user).getDocumentModel();
-
-            final Long documentId = artifactModel.readId(uniqueId);
-            final Long streamSize = documentModel.readVersionSize(documentId, versionId);
-
-            final InternalStreamModel streamModel = getStreamModel();
-            final StreamSession streamSession = streamModel.createSession();
-            documentModel.uploadVersion(documentId, versionId, new StreamUploader() {
-                public void upload(final InputStream stream) throws IOException {
-                    final InputStream bufferedStream =
-                        new BufferedInputStream(stream, getBufferSize());
-                    /* NOTE the underlying stream is closed by the document
-                     * io handler through the document model and is thus not
-                     * closed here */
-                    BackupModelImpl.this.upload(new UploadMonitor() {
-                        public void chunkUploaded(final int chunkSize) {
-                            logger.logApiId();
-                            logger.logVariable("chunkSize", chunkSize);
-                        }
-                    }, streamId, streamSession, bufferedStream, streamSize);
-                }
-            });
-        } else {
-            logger.logWarning("Artifact {0} is not backed up for user {1}.",
-                    uniqueId, user.getId());
-        }
     }
 
     /**
@@ -625,53 +540,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         final Artifact artifact = getArtifactModel().read(uniqueId);
         return 0 < artifactSql.readTeamRelCount(artifact.getId())
                 || isArchived(uniqueId);
-    }
-
-    /**
-     * Determine if the user has backed up the container this document belongs
-     * to.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @param uniqueId
-     *            A document unique id <code>UUID</code>.
-     * @return True if the user is either a team member of the document's
-     *         container; or has archived the document's container.
-     */
-    private boolean isDocumentBackedUp(final User user, final UUID uniqueId) {
-        final com.thinkparity.ophelia.model.artifact.InternalArtifactModel
-                artifactModel = getModelFactory(user).getArtifactModel();
-        final com.thinkparity.ophelia.model.container.InternalContainerModel
-                containerModel = getModelFactory(user).getContainerModel();
-        final Long documentId = artifactModel.readId(uniqueId);
-        final List<Container> containers = containerModel.readForDocument(documentId);
-        for (final Container container : containers) {
-            if (isContainerBackedUp(user, container.getUniqueId()))
-                return true;
-        }
-        return false;
-    }
-
-    /**
-     * Determine if the container this document belongs to is backed up.
-     * 
-     * @param uniqueId
-     *            A document unique id <code>UUID</code>.
-     * @return True if the user is either a team member of the document's
-     *         container; or has archived the document's container.
-     */
-    private boolean isDocumentBackedUp(final UUID uniqueId) {
-        final com.thinkparity.ophelia.model.artifact.InternalArtifactModel
-                artifactModel = getModelFactory().getArtifactModel();
-        final com.thinkparity.ophelia.model.container.InternalContainerModel
-                containerModel = getModelFactory().getContainerModel();
-        final Long documentId = artifactModel.readId(uniqueId);
-        final List<Container> containers = containerModel.readForDocument(documentId);
-        for (final Container container : containers) {
-            if (isContainerBackedUp(container.getUniqueId()))
-                return true;
-        }
-        return false;
     }
 
     /**
@@ -1036,39 +904,5 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     private void restoreImpl(final User user, final UUID uniqueId) {
         final Artifact artifact = getArtifactModel().read(uniqueId);
         backupSql.deleteArchive(user, artifact);
-    }
-
-    private void uploadDocumentVersionImpl(final String streamId,
-            final UUID uniqueId, final Long versionId) {
-        if (isDocumentBackedUp(uniqueId)) {
-            final com.thinkparity.ophelia.model.artifact.InternalArtifactModel
-                    artifactModel = getModelFactory().getArtifactModel();
-            final com.thinkparity.ophelia.model.document.InternalDocumentModel
-                    documentModel = getModelFactory().getDocumentModel();
-
-            final Long documentId = artifactModel.readId(uniqueId);
-            final Long streamSize = documentModel.readVersionSize(documentId, versionId);
-
-            final InternalStreamModel streamModel = getStreamModel();
-            final StreamSession streamSession = streamModel.createSession();
-            documentModel.uploadVersion(documentId, versionId, new StreamUploader() {
-                public void upload(final InputStream stream) throws IOException {
-                    final InputStream bufferedStream =
-                        new BufferedInputStream(stream, getBufferSize());
-                    /* NOTE the underlying stream is closed by the document
-                     * io handler through the document model and is thus not
-                     * closed here */
-                    BackupModelImpl.this.upload(new UploadMonitor() {
-                        public void chunkUploaded(final int chunkSize) {
-                            logger.logApiId();
-                            logger.logVariable("chunkSize", chunkSize);
-                        }
-                    }, streamId, streamSession, bufferedStream, streamSize);
-                }
-            });
-            
-        } else {
-            logger.logWarning("Document {0} is not backed up.", uniqueId);
-        }
     }
 }

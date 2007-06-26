@@ -6,9 +6,7 @@ package com.thinkparity.codebase.model.util.xmpp.event.container;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -29,11 +27,8 @@ import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 @ThinkParityBackupEvent
 public final class PublishedEvent extends XMPPEvent {
 
-    /**
-     * The <code>DocumentVersion</code>s and their stream id
-     * <code>String</code>s.
-     */
-    private final Map<DocumentVersion, String> documentVersions;
+    /**The <code>DocumentVersion</code>s. */
+    private final List<DocumentVersion> documentVersions;
 
     /** Who published the container. */
     private JabberId publishedBy;
@@ -53,7 +48,7 @@ public final class PublishedEvent extends XMPPEvent {
      */
     public PublishedEvent() {
         super();
-        this.documentVersions = new HashMap<DocumentVersion, String>();
+        this.documentVersions = new ArrayList<DocumentVersion>();
         this.publishedTo = new ArrayList<User>();
     }
 
@@ -65,8 +60,8 @@ public final class PublishedEvent extends XMPPEvent {
         this.publishedTo.clear();
     }
 
-    public Map<DocumentVersion, String> getDocumentVersions() {
-        return Collections.unmodifiableMap(documentVersions);
+    public List<DocumentVersion> getDocumentVersions() {
+        return Collections.unmodifiableList(documentVersions);
     }
 
     /**
@@ -105,8 +100,8 @@ public final class PublishedEvent extends XMPPEvent {
         return version;
     }
 
-    public void setDocumentVersions(final Map<DocumentVersion, String> documentVersions) {
-        this.documentVersions.putAll(documentVersions);
+    public void setDocumentVersions(final List<DocumentVersion> documentVersions) {
+        this.documentVersions.addAll(documentVersions);
     }
 
     /**

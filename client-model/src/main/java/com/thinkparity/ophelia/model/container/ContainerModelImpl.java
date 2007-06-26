@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.container;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,7 +10,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.*;
-import java.util.Map.Entry;
 
 import javax.xml.transform.TransformerException;
 
@@ -29,7 +27,6 @@ import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.ThinkParityException;
-import com.thinkparity.codebase.model.UploadMonitor;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
@@ -49,8 +46,10 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamOpener;
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.stream.StreamWriter;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
@@ -2228,8 +2227,7 @@ public final class ContainerModelImpl extends
      * @param containerVersion
      *            A <code>ContainerVersion</code>.
      * @param versions
-     *            A <code>Map</code> of <code>DocumentVersion</code>s to
-     *            their stream id <code>String</code>s.
+     *            A <code>List</code> of <code>DocumentVersion</code>s.
      * @param publishedBy
      *            A published by user id <code>JabberId</code>.
      * @param publishedOn
@@ -2237,19 +2235,19 @@ public final class ContainerModelImpl extends
      */
     void handleDocumentVersionsResolution(
             final ContainerVersion containerVersion,
-            final Map<DocumentVersion, String> versions,
+            final List<DocumentVersion> documentVersions,
             final JabberId publishedBy, final Calendar publishedOn) {
-        for (final Entry<DocumentVersion, String> entry : versions.entrySet()) {
+        for (final DocumentVersion documentVersion : documentVersions) {
             final ArtifactVersion artifactVersion =
                 modelFactory.getDocumentModel().handleDocumentPublished(
-                        containerVersion.getArtifactId(), entry.getKey(),
-                        entry.getValue(), publishedBy, publishedOn);
+                        containerVersion.getArtifactId(), documentVersion,
+                        publishedBy, publishedOn);
             final Long artifactId = modelFactory.getArtifactModel().readId(
-                    entry.getKey().getArtifactUniqueId());
+                    documentVersion.getArtifactUniqueId());
             logger.logVariable("artifactId", artifactId);
             if (!containerIO.doesExistVersion(containerVersion.getArtifactId(),
                     containerVersion.getVersionId(), artifactId,
-                    entry.getKey().getVersionId()).booleanValue()) {
+                    documentVersion.getVersionId()).booleanValue()) {
                 containerIO.addVersion(containerVersion.getArtifactId(),
                         containerVersion.getVersionId(),
                         artifactVersion.getArtifactId(),
@@ -2441,27 +2439,59 @@ public final class ContainerModelImpl extends
      * @return A <code>Map</code> of <code>DocumentVersion</code>s and
      *         their stream id <code>String</code>.s
      */
-    Map<DocumentVersion, String> uploadDocumentVersions(
-            final ProcessMonitor monitor, final List<DocumentVersion> versions) {
-        final Map<DocumentVersion, String> versionStreams =
-                new HashMap<DocumentVersion, String>(versions.size(), 1.0F);
+    void uploadDocumentVersions(final ProcessMonitor monitor,
+            final List<DocumentVersion> versions) {
         // set fixed progress determination
         notifyDetermine(monitor, countSteps(versions));
         // upload versions
-        final InternalSessionModel sessionModel = modelFactory.getSessionModel();
         final InternalDocumentModel documentModel = modelFactory.getDocumentModel();
-        final StreamSession streamSession = sessionModel.createStreamSession();
+        StreamSession session;
         for (final DocumentVersion version : versions) {
+            session = getStreamModel().newUpstreamSession(version);
             notifyStepBegin(monitor, PublishStep.UPLOAD_STREAM, version.getArtifactName());
-            final String streamId = sessionModel.createStream(streamSession);
-            documentModel.uploadVersion(version.getArtifactId(),
-                    version.getVersionId(), new StreamUploader(this, monitor,
-                            streamId, streamSession, version.getSize()));
-            versionStreams.put(version, streamId);
+            final StreamWriter writer = new StreamWriter(new StreamMonitor() {
+
+                /** A running count of the chunks uploaded. */
+                private long totalChunks = 0;
+
+                /**
+                 * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkReceived(int)
+                 * 
+                 */
+                public void chunkReceived(final int chunkSize) {
+                    // not possible for upload
+                    Assert.assertUnreachable("");
+                }
+
+                /**
+                 * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkSent(int)
+                 *
+                 */
+                public void chunkSent(final int chunkSize) {
+                    totalChunks += chunkSize;
+                    while (totalChunks >= STEP_SIZE) {
+                        totalChunks -= STEP_SIZE;
+                        ContainerModelImpl.notifyStepEnd(monitor,
+                                PublishStep.UPLOAD_STREAM);
+                    }
+                }
+
+                /**
+                 * @see com.thinkparity.codebase.model.stream.StreamMonitor#getName()
+                 *
+                 */
+                public String getName() {
+                    return "ContainerModelImpl#uploadDocumentVersions";
+                }
+
+            }, session);
+            documentModel.openVersion(version.getArtifactId(), version.getVersionId(), new StreamOpener() {
+                public void open(final InputStream stream) throws IOException {
+                    writer.write(stream, version.getSize());
+                }
+            });
             notifyStepEnd(monitor, PublishStep.UPLOAD_STREAM);
         }
-        sessionModel.deleteStreamSession(streamSession);
-        return versionStreams;
     }
 
     /**
@@ -3445,71 +3475,5 @@ public final class ContainerModelImpl extends
         }
         // create draft document
         createDraftDocument(containerId, documentId);
-    }
-
-    /**
-     * <b>Title:</b>Publishing Delegate Stream Uploader<br>
-     * <b>Description:</b><br>
-     */
-    private static final class StreamUploader implements
-            com.thinkparity.codebase.model.stream.StreamUploader {
-
-        /** A reference to <code>PublishingDelegate</code>. */
-        private final ContainerModelImpl impl;
-
-        /** A <code>ProcessMonitor</code>. */
-        private final ProcessMonitor monitor;
-
-        /** A stream id <code>String</code>. */
-        private final String streamId;
-
-        /** A <code>StreamSession</code>. */
-        private final StreamSession streamSession;
-
-        /** The stream size <code>Long</code>. */
-        private final Long streamSize;
-
-        /**
-         * Create StreamUploader.
-         * 
-         * @param publishingDelegate
-         *            A reference to <code>PublishingDelegate</code>.
-         * @param streamId
-         *            A stream id <code>String</code>.
-         * @param streamSession
-         *            A <code>StreamSession</code>.
-         * @param streamSize
-         *            The stream size <code>Long</code>.
-         */
-        private StreamUploader(final ContainerModelImpl impl,
-                final ProcessMonitor monitor, final String streamId,
-                final StreamSession streamSession, final Long streamSize) {
-            this.impl = impl;
-            this.monitor = monitor;
-            this.streamId = streamId;
-            this.streamSession = streamSession;
-            this.streamSize = streamSize;
-        }
-
-        /**
-         * @see com.thinkparity.codebase.model.stream.StreamUploader#upload(java.io.InputStream)
-         * 
-         */
-        public void upload(final InputStream stream) throws IOException {
-            final InputStream bufferedStream = new BufferedInputStream(stream,
-                    impl.getBufferSize());
-            /* NOTE the underlying stream is closed by the document io handler
-             * through the document model and is thus not closed here */
-            impl.upload(new UploadMonitor() {
-                private long totalChunks = 0;
-                public void chunkUploaded(final int chunkSize) {
-                    totalChunks += chunkSize;
-                    while (totalChunks >= STEP_SIZE) {
-                        totalChunks -= STEP_SIZE;
-                        notifyStepEnd(monitor, PublishStep.UPLOAD_STREAM);
-                    }
-                }
-            }, streamId, streamSession, bufferedStream, streamSize);
-        }
     }
 }

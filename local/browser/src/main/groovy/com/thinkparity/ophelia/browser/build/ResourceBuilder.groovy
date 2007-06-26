@@ -9,6 +9,7 @@ import com.thinkparity.antx.DependencyTracker
 import com.thinkparity.codebase.Constants
 import com.thinkparity.codebase.FileUtil
 import com.thinkparity.codebase.FileSystem
+import com.thinkparity.codebase.nio.ChannelUtil
 
 import com.thinkparity.codebase.model.migrator.Product
 import com.thinkparity.codebase.model.migrator.Release
@@ -16,6 +17,8 @@ import com.thinkparity.codebase.model.migrator.Resource
 import com.thinkparity.codebase.model.util.codec.MD5Util
 
 import com.thinkparity.ophelia.model.util.UUIDGenerator
+
+import java.nio.channels.ReadableByteChannel
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Build Task Resource Builder<br>
@@ -128,16 +131,14 @@ class ResourceBuilder {
      *
      * @param file
      *      A <code>File</code>.
-     * @param buffer
-     *      A buffer size <code>Integer</code>.
      * @return An MD5 checksum <code>String</code>.
      */
-    String checksum(final File file) {
-        final InputStream stream = new FileInputStream(file)
+    String checksum(File file) {
+        final ReadableByteChannel channel = ChannelUtil.openReadChannel(file);
         try {
-            return MD5Util.md5Hex(stream, configuration["thinkparity.buffer-array"])
+            return MD5Util.md5Base64(channel, configuration["thinkparity.buffer-array"])
         } finally {
-            stream.close()
+            channel.close();
         }
     }
 }

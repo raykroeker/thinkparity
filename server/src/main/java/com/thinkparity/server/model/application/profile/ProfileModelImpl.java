@@ -673,7 +673,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      */
     private Token newToken() {
         final Token token = new Token();
-        token.setValue(MD5Util.md5Hex(String.valueOf(
+        token.setValue(MD5Util.md5Base64(String.valueOf(
                 currentDateTime().getTimeInMillis())));
         return token;
     }

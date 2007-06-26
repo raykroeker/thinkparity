@@ -22,7 +22,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
@@ -31,8 +30,10 @@ import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamOpener;
+import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.StreamUploader;
 
+import com.thinkparity.ophelia.model.DownloadHelper;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -56,8 +57,7 @@ public final class DocumentModelImpl extends
         Model<DocumentListener> implements DocumentModel,
         InternalDocumentModel {
 
-    
-	/** The default document version comparator. */
+    /** The default document version comparator. */
 	private final Comparator<ArtifactVersion> defaultVersionComparator;
 
     /** A document reader/writer. */
@@ -66,10 +66,10 @@ public final class DocumentModelImpl extends
     /** A document event generator for local events. */
     private final DocumentModelEventGenerator localEventGen;
 
-    /** The directory beneath which all files are stored. */
+	/** The directory beneath which all files are stored. */
     private File localFilesDirectory;
 
-	private final DocumentNameGenerator nameGenerator;
+    private final DocumentNameGenerator nameGenerator;
 
     /**
 	 * Create a DocumentModelImpl
@@ -85,7 +85,7 @@ public final class DocumentModelImpl extends
         this.nameGenerator = new DocumentNameGenerator();
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.Model#addListener(com.thinkparity.codebase.event.EventListener)
      *
 	 */
@@ -117,7 +117,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#createDraft(com.thinkparity.codebase.model.document.DocumentLock,
      *      java.lang.Long)
      * 
@@ -150,7 +150,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#createVersion(java.lang.Long,
      *      java.io.InputStream, java.lang.Integer, java.util.Calendar)
      * 
@@ -263,16 +263,12 @@ public final class DocumentModelImpl extends
     /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#handleDocumentPublished(java.lang.Long,
      *      com.thinkparity.codebase.model.document.DocumentVersion,
-     *      java.lang.String, com.thinkparity.codebase.jabber.JabberId,
-     *      java.util.Calendar)
+     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
      * 
      */
     public DocumentVersion handleDocumentPublished(final Long containerId,
-            final DocumentVersion version, final String streamId,
-            final JabberId publishedBy, final Calendar publishedOn) {
-        logger.logApiId();
-        logger.logVariable("version", version);
-        logger.logVariable("streamId", streamId);
+            final DocumentVersion version, final JabberId publishedBy,
+            final Calendar publishedOn) {
         try {
             final InternalArtifactModel artifactModel  = getArtifactModel();
             final Document document;
@@ -288,34 +284,42 @@ public final class DocumentModelImpl extends
                             version.getArtifactUniqueId(), version.getVersionId());
                     localVersion = readVersion(document.getId(), version.getVersionId());
                 } else {
-                    final File streamFile = downloadStream(new DownloadMonitor() {
-                        public void chunkDownloaded(final int chunkSize) {
-                            logger.logInfo("Downloaded {0} bytes", chunkSize);
-                        }
-                    }, streamId);
-                    final InputStream stream = new FileInputStream(streamFile);
+                    final DownloadHelper downloadHelper = newDownloadHelper(version);
+                    final File tempFile = workspace.createTempFile();
                     try {
-                        localVersion = createVersion(document.getId(),
-                                version.getVersionId(), stream, publishedBy,
-                                publishedOn);
+                        downloadHelper.download(tempFile);
+                        final InputStream input = new FileInputStream(tempFile);
+                        try {
+                            localVersion = createVersion(document.getId(),
+                                    version.getVersionId(), input, publishedBy,
+                                    publishedOn);
+                        } finally {
+                            input.close();
+                        }
                     } finally {
-                        stream.close();
+                        // no need to assert; it's temp
+                        tempFile.delete();
                     }
                 }
             }
             else {
                 document = create(version.getArtifactUniqueId(),
                         version.getArtifactName(), publishedBy, publishedOn);
-                final File streamFile = downloadStream(new DownloadMonitor() {
-                    public void chunkDownloaded(final int chunkSize) {}
-                }, streamId);
-                final InputStream stream = new FileInputStream(streamFile);
+                final DownloadHelper downloadHelper = newDownloadHelper(version);
+                final File tempFile = workspace.createTempFile();
                 try {
-                    localVersion = createVersion(document.getId(),
-                            version.getVersionId(), stream,
-                            publishedBy, publishedOn);
+                    downloadHelper.download(tempFile);
+                    final InputStream stream = new FileInputStream(tempFile);
+                    try {
+                        localVersion = createVersion(document.getId(),
+                                version.getVersionId(), stream,
+                                publishedBy, publishedOn);
+                    } finally {
+                        stream.close();
+                    }
                 } finally {
-                    stream.close();
+                    // no need to assert; it's temp
+                    tempFile.delete();
                 }
                 getIndexModel().indexDocument(containerId, document.getId());
             }
@@ -432,8 +436,22 @@ public final class DocumentModelImpl extends
         } catch (final Throwable t) {
             throw panic(t);
         }
-    }        
-        
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#newDownloadHelper(com.thinkparity.codebase.model.document.DocumentVersion)
+     *
+     */
+    public DownloadHelper newDownloadHelper(final DocumentVersion version) {
+        try {
+            final StreamSession session = getStreamModel().newDownstreamSession(
+                    version);
+            return newDownloadHelper(session);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
     /**
 	 * Open a document.
 	 * 
@@ -483,8 +501,8 @@ public final class DocumentModelImpl extends
         } catch (final Throwable t) {
             throw panic(t);
         }
-    }
-
+    }        
+        
     /**
      * @see com.thinkparity.ophelia.model.document.DocumentModel#openVersion(java.lang.Long,
      *      java.lang.Long, com.thinkparity.ophelia.model.util.Opener)
@@ -588,8 +606,6 @@ public final class DocumentModelImpl extends
         }
     }
 
-    
-
     /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#read()
      *
@@ -616,6 +632,8 @@ public final class DocumentModelImpl extends
             throw panic(t);
         }
     }
+
+    
 
     /**
 	 * Obtain a document with the specified unique id.
@@ -677,7 +695,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * Obtain the first available version.
      * 
      * @param documentId
@@ -720,7 +738,7 @@ public final class DocumentModelImpl extends
 		}
 	}
 
-    /**
+	/**
      * Read a document version.
      * 
      * @param documentId
@@ -768,7 +786,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * Read the version size.
      * 
      * @param documentId
@@ -800,7 +818,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#remove(com.thinkparity.codebase.model.document.DocumentLock,
      *      java.lang.Long)
      * 
@@ -815,7 +833,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.Model#removeListener(com.thinkparity.ophelia.model.util.EventListener)
      */
     @Override
@@ -863,7 +881,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#updateDraft(com.thinkparity.ophelia.model.document.DocumentFileLock,
      *      java.lang.Long, java.io.InputStream)
      * 
@@ -882,7 +900,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.document.DocumentModel#updateDraft(java.lang.Long,
      *      java.io.InputStream)
      * 
@@ -899,7 +917,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * Save a version to an output stream.
      * 
      * @param documentId

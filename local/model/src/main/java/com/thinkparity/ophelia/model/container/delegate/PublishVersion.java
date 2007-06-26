@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -104,10 +103,10 @@ public final class PublishVersion extends ContainerDelegate {
             }
         }
         // upload
-        final Map<DocumentVersion, String> documentVersions =
-            uploadDocumentVersions(monitor, readDocumentVersions(
-                        version.getArtifactId(), version.getVersionId(),
-                        new ComparatorBuilder().createVersionById(Boolean.TRUE)));
+        final List<DocumentVersion> documentVersions = readDocumentVersions(
+                version.getArtifactId(), version.getVersionId(),
+                new ComparatorBuilder().createVersionById(Boolean.TRUE));
+        uploadDocumentVersions(monitor, documentVersions);
         notifyStepBegin(monitor, PublishStep.PUBLISH);
         sessionModel.publishVersion(version, documentVersions,
                 readTeam(version.getArtifactId()), receivedBy, localUserId(),

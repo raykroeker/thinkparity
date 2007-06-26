@@ -3,7 +3,6 @@
  */
 package com.thinkparity.desdemona.model.migrator;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -29,8 +28,6 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.DownloadMonitor;
-import com.thinkparity.codebase.model.UploadMonitor;
 import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
@@ -42,6 +39,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEven
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.DownloadHelper;
 import com.thinkparity.desdemona.model.io.sql.MigratorSql;
 import com.thinkparity.desdemona.util.smtp.SMTPService;
 
@@ -71,93 +69,33 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.migrator.MigratorModel#createStream(com.thinkparity.codebase.jabber.JabberId,
-     *      java.lang.String, java.util.List)
-     * 
-     */
-    public void createStream(final String streamId, final Product product,
-            final Release release, final List<Resource> resources) {
-        try {
-            final FileSystem streamFileSystem = new FileSystem(createTempDirectory());
-            try {
-                final File streamFile = createTempFile();
-                try {
-                    // copy the resources into the file system
-                    final Release localRelease = migratorSql.readRelease(
-                            product.getName(), release.getName(), release.getOs());
-                    Resource localResource;
-                    for (final Resource resource : resources) {
-                        localResource = migratorSql.readResource(localRelease,
-                                resource.getPath());
-                        migratorSql.openResource(localResource,
-                                new ResourceOpener() {
-                                    public void open(final InputStream stream) throws IOException {
-                                        streamToFile(stream,
-                                                streamFileSystem.createFile(
-                                                        resource.getPath()));
-                                    }
-                                });
-                    }
-                    // archive the resources
-                    synchronized (getBufferLock()) {
-                        ZipUtil.createZipFile(streamFile,
-                                streamFileSystem.getRoot(), getBufferArray());
-                    }
-                    // upload the stream
-                    final Long streamSize = streamFile.length();
-                    final InputStream stream = new BufferedInputStream(
-                            new FileInputStream(streamFile),
-                            getBufferSize());
-                    final StreamSession session = getStreamModel(user).createSession();
-                    upload(new UploadMonitor() {
-                        public void chunkUploaded(int chunkSize) {
-                            logger.logTrace("Uploading {0}/{1}", chunkSize, streamSize);
-                        }
-                    }, streamId, session, stream, streamSize);                        
-                } finally {
-                    streamFile.delete();
-                }
-            } finally {
-                streamFileSystem.deleteTree();
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.migrator.MigratorModel#deploy(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.model.migrator.Product,
-     *      com.thinkparity.codebase.model.migrator.Release, java.util.List,
-     *      java.lang.String)
+     * @see com.thinkparity.desdemona.model.migrator.MigratorModel#deploy(com.thinkparity.codebase.model.migrator.Product,
+     *      com.thinkparity.codebase.model.migrator.Release, java.util.List)
      * 
      */
     public void deploy(final Product product, final Release release,
-            final List<Resource> resources, final String streamId) {
+            final List<Resource> resources) {
         try {
             // find/create the product
             final Product localProduct = readProduct(product.getName());
 
+            // ensure release is new
             Assert.assertNotTrue(doesExistRelease(localProduct.getId(),
                     release.getName(), release.getOs()),
                     "Release {0} for product {1} on {0} already exists.",
                     release.getName(), product.getName(), release.getOs());
-            // find the release
+
             // download the release
-            final File releaseFile = downloadStream(new DownloadMonitor() {
-                private long totalDownloadSize = 0;
-                public void chunkDownloaded(final int chunkSize) {
-                    logger.logTraceId();
-                    logger.logVariable("chunkSize", chunkSize);
-                    logger.logVariable("totalDownloadSize", (totalDownloadSize += chunkSize));
-                }
-            }, streamId);
+            final StreamSession session = getStreamModel().newDownstreamSession(product, release);
+            final File tempFile = createTempFile();
             try {
+                final DownloadHelper downloadHelper = newDownloadHelper(session);
+                downloadHelper.download(tempFile);
                 final FileSystem tempFileSystem = new FileSystem(createTempDirectory());
                 try {
                     // extract the release
                     synchronized (getBufferLock()) {
-                        ZipUtil.extractZipFile(releaseFile,
+                        ZipUtil.extractZipFile(tempFile,
                                 tempFileSystem.getRoot(), getBufferArray());
                     }
                     // create
@@ -169,7 +107,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                     tempFileSystem.deleteTree();
                 }
             } finally {
-                releaseFile.delete();
+                tempFile.delete();
             }
         } catch (final Throwable t) {
             throw translateError(t);

@@ -5,7 +5,6 @@ package com.thinkparity.desdemona.web.service;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 
 import javax.jws.WebService;
 
@@ -41,16 +40,18 @@ public class ContainerSEI extends ServiceSEI implements ContainerService {
     }
 
     /**
-     * @see com.thinkparity.service.ContainerService#publish(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.container.ContainerVersion, java.util.List, java.util.List, java.util.Calendar, java.util.List, java.util.List)
-     *
+     * @see com.thinkparity.service.ContainerService#publish(com.thinkparity.service.AuthToken,
+     *      com.thinkparity.codebase.model.container.ContainerVersion,
+     *      java.util.List, java.util.List, java.util.Calendar, java.util.List,
+     *      java.util.List)
+     * 
      */
-    public void publish(
-            final AuthToken authToken,
+    public void publish(final AuthToken authToken,
             final ContainerVersion version,
-            final Map<DocumentVersion, String> documentVersionStreamIds,
+            final List<DocumentVersion> documentVersions,
             final List<TeamMember> team, final Calendar publishedOn,
             final List<EMail> publishToEMails, final List<User> publishToUsers) {
-        getModel(authToken).publish(version, documentVersionStreamIds,
+        getModel(authToken).publish(version, documentVersions,
                 team, publishedOn, publishToEMails, publishToUsers);
     }
 
@@ -61,16 +62,14 @@ public class ContainerSEI extends ServiceSEI implements ContainerService {
      *      java.util.List, java.util.List)
      * 
      */
-    public void publishVersion(
-            final AuthToken authToken,
+    public void publishVersion(final AuthToken authToken,
             final ContainerVersion version,
-            final Map<DocumentVersion, String> documentVersionStreamIds,
+            final List<DocumentVersion> documentVersions,
             final List<TeamMember> team,
             final List<ArtifactReceipt> receivedBy, final Calendar publishedOn,
             final List<EMail> publishToEMails, final List<User> publishToUsers) {
-        getModel(authToken).publishVersion(version,
-                documentVersionStreamIds, team, receivedBy, publishedOn,
-                publishToEMails, publishToUsers);
+        getModel(authToken).publishVersion(version, documentVersions, team,
+                receivedBy, publishedOn, publishToEMails, publishToUsers);
     }
 
     /**

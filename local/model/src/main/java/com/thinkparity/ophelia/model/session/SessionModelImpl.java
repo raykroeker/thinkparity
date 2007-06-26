@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.model.session;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.UUID;
@@ -45,7 +44,6 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.session.InvalidLocationException;
-import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.Token;
@@ -111,9 +109,6 @@ public final class SessionModelImpl extends Model<SessionListener>
 
     /** A session web-service interface. */
     private SessionService sessionService;
-
-    /** A stream web-service interace. */
-    private StreamService streamService;
 
     /** A system web-service interface. */
     private SystemService systemService;
@@ -245,20 +240,6 @@ public final class SessionModelImpl extends Model<SessionListener>
 	}
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createBackupStream(com.thinkparity.codebase.jabber.JabberId, java.lang.String, java.util.UUID, java.lang.Long)
-     *
-     */
-    public void createBackupStream(final JabberId userId, final String streamId,
-            final UUID documentUniqueId, final Long documentVersionId) {
-        try {
-            backupService.createStream(getAuthToken(), streamId,
-                    documentUniqueId, documentVersionId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createDraft(java.util.List,
      *      java.util.UUID, java.util.Calendar)
      * 
@@ -293,23 +274,6 @@ public final class SessionModelImpl extends Model<SessionListener>
         try {
             contactService.createInvitation(getAuthToken(), invitation);
         } catch(final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createMigratorStream(java.lang.String,
-     *      com.thinkparity.codebase.model.migrator.Product,
-     *      com.thinkparity.codebase.model.migrator.Release, java.util.List)
-     * 
-     */
-    public void createMigratorStream(final String streamId,
-            final Product product, final Release release,
-            final List<Resource> resources) {
-        try {
-            migratorService.createStream(getAuthToken(), streamId, product,
-                    release, resources);
-        } catch (final Throwable t) {
             throw panic(t);
         }
     }
@@ -360,31 +324,6 @@ public final class SessionModelImpl extends Model<SessionListener>
         try {
             return profileService.createUsernameReservation(
                     newEmptyAuthToken(), username);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createStream(com.thinkparity.codebase.model.stream.StreamSession)
-     *
-     */
-    public String createStream(final StreamSession session) {
-        try {
-            return streamService.create(getAuthToken(), session);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * Create a stream session.
-     * 
-     * @return A <code>StreamSession</code>.
-     */
-    public StreamSession createStreamSession() {
-        try {
-            return streamService.createSession(getAuthToken());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -486,33 +425,6 @@ public final class SessionModelImpl extends Model<SessionListener>
         try {
             contactService.deleteInvitation(getAuthToken(), invitation,
                     deletedOn);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteStreamSession(com.thinkparity.codebase.model.stream.StreamSession)
-     *
-     */
-    public void deleteStreamSession(final StreamSession session) {
-        try {
-            streamService.deleteSession(getAuthToken(), session);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deployMigratorRelease(java.util.UUID)
-     *
-     */
-    public void deployMigrator(final Product product,
-            final Release release, final List<Resource> resources,
-            final String streamId) {
-        try {
-            migratorService.deploy(getAuthToken(), streamId, product, release,
-                    resources);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -772,19 +684,19 @@ public final class SessionModelImpl extends Model<SessionListener>
 
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#publish(com.thinkparity.codebase.model.container.ContainerVersion,
-     *      java.util.Map, java.util.List,
+     *      java.util.List, java.util.List,
      *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
      *      java.util.List, java.util.List)
      * 
      */
     public void publish(final ContainerVersion version,
-            final Map<DocumentVersion, String> documentVersionStreamIds,
+            final List<DocumentVersion> documentVersions,
             final List<TeamMember> team, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishToEMails,
             final List<User> publishToUsers) {
         try {
             containerService.publish(getAuthToken(), version,
-                    documentVersionStreamIds, team, publishedOn,
+                    documentVersions, team, publishedOn,
                     publishToEMails, publishToUsers);
         } catch(final Throwable t) {
             throw panic(t);
@@ -793,20 +705,20 @@ public final class SessionModelImpl extends Model<SessionListener>
 
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#publishVersion(com.thinkparity.codebase.model.container.ContainerVersion,
-     *      java.util.Map, java.util.List, java.util.List,
+     *      java.util.List, java.util.List, java.util.List,
      *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
      *      java.util.List, java.util.List)
      * 
      */
     public void publishVersion(final ContainerVersion version,
-            final Map<DocumentVersion, String> documentVersionStreamIds,
+            final List<DocumentVersion> documentVersions,
             final List<TeamMember> team,
             final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishToEMails,
             final List<User> publishToUsers) {
         try {
             containerService.publishVersion(getAuthToken(), version,
-                    documentVersionStreamIds, team, receivedBy,
+                    documentVersions, team, receivedBy,
                     publishedOn, publishToEMails, publishToUsers);
         } catch(final Throwable t) {
             throw panic(t);
@@ -1253,7 +1165,6 @@ public final class SessionModelImpl extends Model<SessionListener>
         migratorService = serviceFactory.getMigratorService();
         ruleService = serviceFactory.getRuleService();
         sessionService = serviceFactory.getSessionService();
-        streamService = serviceFactory.getStreamService();
         systemService = serviceFactory.getSystemService();
         profileService = serviceFactory.getProfileService();
         userService = serviceFactory.getUserService();

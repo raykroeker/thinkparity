@@ -20,6 +20,8 @@ import com.thinkparity.codebase.model.stream.StreamOpener;
 import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
+import com.thinkparity.ophelia.model.DownloadHelper;
+
 /**
  * <b>Title:</b>thinkParity Internal Document Model<br>
  * <b>Description:</b><br>
@@ -119,8 +121,8 @@ public interface InternalDocumentModel extends DocumentModel {
 
     // TODO-javadoc InternalDocumentModel#handleDocumentPublished
     public DocumentVersion handleDocumentPublished(final Long documentId,
-            final DocumentVersion version, final String streamId,
-            final JabberId publishedBy, final Calendar publishedOn);
+            final DocumentVersion version, final JabberId publishedBy,
+            final Calendar publishedOn);
 
     /**
      * Determine whether or not the draft of the document has been modified by
@@ -156,6 +158,15 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public DocumentFileLock lockVersion(final DocumentVersion version)
             throws CannotLockException;
+
+    /**
+     * Create a new instance of a document version download helper.
+     * 
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @return A <code>DownloadHelper</code>.
+     */
+    public DownloadHelper newDownloadHelper(final DocumentVersion version);
 
     /**
      * Open the document draft input stream.

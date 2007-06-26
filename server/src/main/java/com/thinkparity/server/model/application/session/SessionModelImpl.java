@@ -94,6 +94,25 @@ public final class SessionModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.session.InternalSessionModel#read()
+     *
+     */
+    public Session read() {
+        try {
+            final String sessionId = sessionSql.readSessionId(user.getLocalId(),
+                    DateTimeProvider.getCurrentDateTime());
+            if (null == sessionId) {
+                logger.logWarning("Session for user {0} has expired.", user.getId());
+                return null;
+            } else {
+                return newSession(sessionId, user);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.session.InternalSessionModel#lookupSession(java.lang.String)
      *
      */
@@ -208,6 +227,6 @@ public final class SessionModelImpl extends AbstractModelImpl implements
      * @return A session id <code>String</code>.
      */
     private String newSessionId() {
-        return MD5Util.md5Hex(String.valueOf(currentDateTime().getTimeInMillis()));
+        return MD5Util.md5Base64(String.valueOf(currentDateTime().getTimeInMillis()));
     }
 }

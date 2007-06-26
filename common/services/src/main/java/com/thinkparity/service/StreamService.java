@@ -6,6 +6,9 @@ package com.thinkparity.service;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 
+import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 /**
@@ -19,17 +22,19 @@ import com.thinkparity.codebase.model.stream.StreamSession;
 public interface StreamService {
 
     @WebMethod
-    String create(AuthToken authToken, StreamSession session);
+    StreamSession newDownstreamSession(AuthToken authToken,
+            DocumentVersion version);
 
     @WebMethod
-    StreamSession createSession(AuthToken authToken);
+    StreamSession newDownstreamSession(AuthToken authToken, Product product,
+            Release release);
 
     @WebMethod
-    void delete(AuthToken authToken, String sessionId, String streamId);
+    StreamSession newUpstreamSession(AuthToken authToken,
+            DocumentVersion version);
 
     @WebMethod
-    void deleteSession(AuthToken authToken, StreamSession sessionId);
-
-    @WebMethod
-    StreamSession readSession(AuthToken authToken, String sessionId);
+    StreamSession newUpstreamSession(AuthToken authToken, Product product,
+            Release release, Long contentLength, String contentMD5,
+            String contentType);
 }

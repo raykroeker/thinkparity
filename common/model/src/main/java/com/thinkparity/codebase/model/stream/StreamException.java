@@ -3,6 +3,8 @@
  */
 package com.thinkparity.codebase.model.stream;
 
+import java.text.MessageFormat;
+
 /**
  * <b>Title:</b>thinkParity Stream Exception<br>
  * <b>Description:</b>An exception identifying an error during a stream reader
@@ -28,6 +30,29 @@ public final class StreamException extends RuntimeException {
     StreamException(final Boolean recoverable, final Throwable cause) {
         super(cause);
         this.recoverable = recoverable;
+    }
+
+    /**
+     * Create StreamException.
+     * 
+     * @param cause
+     *            The cause of the error.
+     */
+    StreamException(final String messagePattern,
+            final Object... messageArguments) {
+        super(MessageFormat.format(messagePattern, messageArguments));
+        this.recoverable = Boolean.FALSE;
+    }
+
+    /**
+     * Create StreamException.
+     * 
+     * @param cause
+     *            The cause of the error.
+     */
+    StreamException(final Throwable cause) {
+        super(cause);
+        this.recoverable = Boolean.FALSE;
     }
 
     /**

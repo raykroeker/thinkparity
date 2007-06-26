@@ -27,19 +27,6 @@ import com.thinkparity.desdemona.util.AuthenticationType;
 public interface MigratorModel {
 
     /**
-     * Create a stream of the resources for a model user.
-     * 
-     * @param streamId
-     *            A stream id <code>String</code>.
-     * @param release
-     *            A <code>Release</code>.
-     * @param resources
-     *            A <code>List</code> of <code>Resource</code>s.
-     */
-    public void createStream(final String streamId, final Product product,
-            final Release release, final List<Resource> resources);
-
-    /**
      * Deploy a release for a model user.
      * 
      * @param userId
@@ -50,12 +37,10 @@ public interface MigratorModel {
      *            A <code>Release</code>.
      * @param resources
      *            A <code>List</code> of <code>Resource</code>s.
-     * @param streamId
-     *            A stream id <code>String</code>.
      */
     @ThinkParityAuthenticate(AuthenticationType.SYSTEM)
     public void deploy(final Product product, final Release release,
-            final List<Resource> resources, final String streamId);
+            final List<Resource> resources);
 
     /**
      * Log an error for a model user.

@@ -3,7 +3,12 @@
  */
 package com.thinkparity.ophelia.model.migrator;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -20,8 +25,6 @@ import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 
-import com.thinkparity.codebase.model.DownloadMonitor;
-import com.thinkparity.codebase.model.UploadMonitor;
 import com.thinkparity.codebase.model.migrator.Error;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
@@ -108,24 +111,6 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     @Override
     public void addListener(MigratorListener listener) {
         super.addListener(listener);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.migrator.MigratorModel#deployProduct(com.thinkparity.ophelia.model.migrator.monitor.DeployMonitor, java.lang.String, java.lang.String, java.io.File)
-     *
-     */
-    public void deploy(final ProcessMonitor monitor, final Product product,
-            final Release release, final List<Resource> resources,
-            final File file) {
-        try {
-            // upload the stream
-            final String streamId = upload(file);
-            // deploy
-            getSessionModel().deployMigrator(product, release, resources,
-                    streamId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
     }
 
     /**
@@ -390,15 +375,10 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      */
     private File download(final Product product, final Release release,
             final List<Resource> resources) throws IOException {
-        final InternalSessionModel sessionModel = getSessionModel();
-        final StreamSession session = sessionModel.createStreamSession();
-        final String streamId = sessionModel.createStream(session);
-        sessionModel.createMigratorStream(streamId, product, release, resources);
-        return downloadStream(new DownloadMonitor() {
-            public void chunkDownloaded(final int chunkSize) {
-                logger.logTrace("Downloading {0}/{1}", chunkSize, -1L);
-            }
-        }, streamId);
+        final StreamSession session = getStreamModel().newDownstreamSession(product, release);
+        final File tempFile = workspace.createTempFile();
+        newDownloadHelper(session).download(tempFile);
+        return tempFile;
     }
 
     /**
@@ -459,7 +439,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      */
     private void initializeRelease() throws IOException {
         final String[] releases = new String[] {
-                "v1_0-20070430-1500", "v1_0-20070516-1300", "v1_0-20070612-2246"
+                "v1_0-20070430-1500", "v1_0-20070516-1300",
+                "v1_0-20070612-2246", "v1_0-20070626-1300"
         };
         int beginIndex = -1;
         for (int i = 0; i < releases.length; i++) {
@@ -784,36 +765,5 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             }
         }
         return sqlStatements;
-    }
-
-    /**
-     * Upload a release to the streaming server. The release will be zipped up
-     * and uploaded.
-     * 
-     * @param releaseRoot
-     *            A release root directory <code>File</code>.
-     * @return The stream id <code>String</code>.
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
-    private String upload(final File file) throws FileNotFoundException,
-            IOException {
-        final InternalSessionModel sessionModel = getSessionModel();
-        final StreamSession session = sessionModel.createStreamSession();
-        final InputStream stream = new BufferedInputStream(
-                new FileInputStream(file), getBufferSize());
-        final Long streamSize = file.length();
-        try {
-            final String streamId = sessionModel.createStream(session);
-            upload(new UploadMonitor() {
-                public void chunkUploaded(final int chunkSize) {
-                    logger.logTraceId();
-                    logger.logVariable("chunkSize:{0}", chunkSize);
-                }
-            }, streamId, session, stream, streamSize);
-            return streamId;
-        } finally {
-            stream.close();
-        }
     }
 }

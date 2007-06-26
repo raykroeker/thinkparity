@@ -41,27 +41,14 @@ public class MigratorSEI extends ServiceSEI implements MigratorService {
     }
 
     /**
-     * @see com.thinkparity.service.MigratorService#createStream(com.thinkparity.service.AuthToken,
-     *      java.lang.String, com.thinkparity.codebase.model.migrator.Product,
-     *      com.thinkparity.codebase.model.migrator.Release, java.util.List)
-     * 
-     */
-    public void createStream(final AuthToken authToken,
-            final String streamId, final Product product,
-            final Release release, final List<Resource> resources) {
-        getModel(authToken).createStream(streamId, product, release, resources);
-    }
-
-    /**
      * @see com.thinkparity.service.MigratorService#deploy(com.thinkparity.service.AuthToken,
-     *      java.lang.String, com.thinkparity.codebase.model.migrator.Product,
+     *      com.thinkparity.codebase.model.migrator.Product,
      *      com.thinkparity.codebase.model.migrator.Release, java.util.List)
      * 
      */
-    public void deploy(final AuthToken authToken, final String streamId,
-            final Product product, final Release release,
-            final List<Resource> resources) {
-        getModel(authToken).deploy(product, release, resources, streamId);
+    public void deploy(final AuthToken authToken, final Product product,
+            final Release release, final List<Resource> resources) {
+        getModel(authToken).deploy(product, release, resources);
     }
 
     /**
@@ -126,6 +113,16 @@ public class MigratorSEI extends ServiceSEI implements MigratorService {
     }
 
     /**
+     * Obtain a migrator model for an administrative user.
+     * 
+     * @return An instance of <code>MigratorModel</code>.
+     */
+    private MigratorModel getModel() {
+        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        return ModelFactory.getInstance(User.THINKPARITY, loader).getMigratorModel();
+    }
+
+    /**
      * Obtain a migrator model for an authenticated session.
      * 
      * @param authToken
@@ -134,15 +131,5 @@ public class MigratorSEI extends ServiceSEI implements MigratorService {
      */
     private MigratorModel getModel(final AuthToken authToken) {
         return getModelFactory(authToken).getMigratorModel();
-    }
-
-    /**
-     * Obtain a migrator model for an administrative user.
-     * 
-     * @return An instance of <code>MigratorModel</code>.
-     */
-    private MigratorModel getModel() {
-        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        return ModelFactory.getInstance(User.THINKPARITY, loader).getMigratorModel();
     }
 }

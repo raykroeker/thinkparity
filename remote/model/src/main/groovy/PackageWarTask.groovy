@@ -38,6 +38,7 @@ class PackageWarTask {
         def baseDir = configuration["ant.base-dir"]
         def classesDir = configuration["thinkparity.target.classes-dir"]
         def packageDir = configuration["thinkparity.target.package-dir"]
+        def webappDir = configuration["thinkparity.webapp-dir"]
 
         ant.sequential {
             def warClassesDir = new File(packageDir,"classes")
@@ -84,7 +85,7 @@ class PackageWarTask {
             }
             // war
             def warFile = new File(packageDir,configuration["thinkparity.war-name"])
-            def webxmlFile = new File(classesDir,"WEB-INF/web-${configuration["thinkparity.environment"].name()}.xml")
+            def webxmlFile = new File(webappDir,"WEB-INF/web-${configuration["thinkparity.environment"].name()}.xml")
             delete(file:warFile)
             war(destfile:warFile,duplicate:"fail",update:"true",whenempty:"fail",webxml:webxmlFile) {
                 classes(dir:warClassesDir)

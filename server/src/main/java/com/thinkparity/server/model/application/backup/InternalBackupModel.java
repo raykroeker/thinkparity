@@ -41,7 +41,4 @@ public interface InternalBackupModel extends BackupModel {
 
     public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId);
-
-    public void uploadDocumentVersion(final String streamId,
-            final UUID uniqueId, final Long versionId);
 }

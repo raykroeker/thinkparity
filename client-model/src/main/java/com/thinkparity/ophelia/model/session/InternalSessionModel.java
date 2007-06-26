@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.model.session;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import com.thinkparity.codebase.OS;
@@ -37,7 +36,6 @@ import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
-import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
@@ -137,9 +135,6 @@ public interface InternalSessionModel extends SessionModel {
 	public void createArtifact(final JabberId userId, final UUID uniqueId,
             final Calendar createdOn);
 
-    public void createBackupStream(final JabberId userId,
-            final String streamId, final UUID uniqueId, final Long versionId);
-
     // TODO-javadoc InternalSessionModel#createDraft()
     public void createDraft(final List<JabberId> team, final UUID uniqueId,
             final Calendar createdOn);
@@ -160,22 +155,6 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void createInvitation(final OutgoingUserInvitation invitation);
 
-    /**
-     * Create a migrator stream for a list of resources.
-     * 
-     * @param streamId
-     *            A stream id <code>String</code>.
-     * @param product
-     *            A <code>Product</code>.
-     * @param release
-     *            A <code>Release</code>.
-     * @param resources
-     *            A <code>List</code> of <code>Resource</code>s.
-     */
-    public void createMigratorStream(final String streamId,
-            final Product product, final Release release,
-            final List<Resource> resources);
-
     public void createProfile(final UsernameReservation usernameReservation,
             final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
@@ -185,22 +164,6 @@ public interface InternalSessionModel extends SessionModel {
 
     public UsernameReservation createProfileUsernameReservation(
             final String username);
-
-    /**
-     * Create a stream.
-     * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     * @return A stream id <code>String</code>.
-     */
-    public String createStream(final StreamSession session);
-
-    /**
-     * Initialize a stream.
-     * 
-     * @return A <code>StreamSession</code>.
-     */
-    public StreamSession createStreamSession();
 
     /**
      * Decline an incoming e-mail invitation.
@@ -264,27 +227,6 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void deleteInvitation(final OutgoingUserInvitation invitation,
             final Calendar deletedOn);
-
-    /**
-     * Delete a stream session.
-     * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     */
-    public void deleteStreamSession(final StreamSession session);
-
-    /**
-     * Deploy a migrator release.
-     * 
-     * @param release
-     *            A <code>Release</code>.
-     * @param resources
-     *            A <code>List</code> of <code>Resource</code>s.
-     * @param streamId
-     *            A stream id <code>String</code>.
-     */
-    public void deployMigrator(final Product product, final Release release,
-            final List<Resource> resources, final String streamId);
 
 	/**
      * Obtain the authentication token.
@@ -361,14 +303,14 @@ public interface InternalSessionModel extends SessionModel {
 
     // TODO-javadoc InternalSessionModel#publish
     public void publish(final ContainerVersion version,
-            final Map<DocumentVersion, String> documents,
+            final List<DocumentVersion> documentVersions,
             final List<TeamMember> teamMembers, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishToEMails,
             final List<User> publishToUsers);
 
     // TODO-javadoc InternalSessionModel#publishVersion
     public void publishVersion(final ContainerVersion version,
-            final Map<DocumentVersion, String> documentVersions,
+            final List<DocumentVersion> documentVersions,
             final List<TeamMember> teamMembers,
             final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishToEMails,

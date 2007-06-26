@@ -181,10 +181,10 @@ public final class Publish extends ContainerDelegate {
                         version.getVersionId(), email, publishedOn);
             }
             // upload
-            final Map<DocumentVersion, String> documentVersions =
-                uploadDocumentVersions(monitor, readDocumentVersions(
-                        version.getArtifactId(), version.getVersionId(),
-                        new ComparatorBuilder().createVersionById(Boolean.TRUE)));
+            final List<DocumentVersion> documentVersions = readDocumentVersions(
+                    version.getArtifactId(), version.getVersionId(),
+                    new ComparatorBuilder().createVersionById(Boolean.TRUE));
+            uploadDocumentVersions(monitor, documentVersions);
             // publish
             notifyStepBegin(monitor, PublishStep.PUBLISH);
             // build published to list

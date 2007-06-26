@@ -6,6 +6,8 @@ package com.thinkparity.desdemona.model;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.desdemona.model.amazon.s3.AmazonS3ModelImpl;
+import com.thinkparity.desdemona.model.amazon.s3.InternalAmazonS3Model;
 import com.thinkparity.desdemona.model.artifact.ArtifactModelImpl;
 import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
 import com.thinkparity.desdemona.model.backup.BackupModelImpl;
@@ -22,6 +24,8 @@ import com.thinkparity.desdemona.model.queue.InternalQueueModel;
 import com.thinkparity.desdemona.model.queue.QueueModelImpl;
 import com.thinkparity.desdemona.model.rules.InternalRuleModel;
 import com.thinkparity.desdemona.model.rules.RuleModelImpl;
+import com.thinkparity.desdemona.model.session.InternalSessionModel;
+import com.thinkparity.desdemona.model.session.SessionModelImpl;
 import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 import com.thinkparity.desdemona.model.stream.StreamModelImpl;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
@@ -72,6 +76,16 @@ public final class InternalModelFactory {
         super();
         this.user = user;
         this.classLoader = context.getClass().getClassLoader();
+    }
+
+    /**
+     * Obtain an internal amazon s3 model.
+     * 
+     * @return An instance of <code>InternalAmazonS3Model</code>.
+     */
+    public final InternalAmazonS3Model getAmazonS3Model() {
+        return (InternalAmazonS3Model) newModelProxy(
+                InternalAmazonS3Model.class, AmazonS3ModelImpl.class);
     }
 
     /**
@@ -152,6 +166,16 @@ public final class InternalModelFactory {
     public final InternalRuleModel getRuleModel() {
         return (InternalRuleModel) newModelProxy(
                 InternalRuleModel.class, RuleModelImpl.class);
+    }
+
+    /**
+     * Obtain an internal session model.
+     * 
+     * @return An instance of <code>InternalSessionModel</code>.
+     */
+    public final InternalSessionModel getSessionModel() {
+        return (InternalSessionModel) newModelProxy(
+                InternalSessionModel.class, SessionModelImpl.class);
     }
 
     /**

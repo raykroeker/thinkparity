@@ -4,9 +4,11 @@
 package com.thinkparity.ophelia.model.document;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.ReadableByteChannel;
+
+import com.thinkparity.codebase.nio.ChannelUtil;
 
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
@@ -67,15 +69,15 @@ public class OpenVersionTest extends DocumentTestCase {
                 getDocumentModel(datum.junit).openVersion(dv.getArtifactId(), dv.getVersionId(), new Opener() {
                     public void open(final File file) {
                         try {
-                            final InputStream is = new FileInputStream(file);
+                            final ReadableByteChannel channel = ChannelUtil.openReadChannel(file);
                             try {
                                 final String checksum;
                                 synchronized (getBufferLock()) {
-                                    checksum = MD5Util.md5Hex(is, getBufferArray());
+                                    checksum = MD5Util.md5Base64(channel, getBufferArray());
                                 }
                                 assertEquals("Open version checksum does not match expectation.", getInputFileMD5Checksum("JUnitTestFramework.doc"), checksum);
                             } finally {
-                                is.close();
+                                channel.close();
                             }
                         } catch (final IOException iox) {
                             fail(iox, "Could not test open version.");

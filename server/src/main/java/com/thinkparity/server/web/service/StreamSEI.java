@@ -5,6 +5,9 @@ package com.thinkparity.desdemona.web.service;
 
 import javax.jws.WebService;
 
+import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 import com.thinkparity.desdemona.model.stream.StreamModel;
@@ -31,45 +34,48 @@ public class StreamSEI extends ServiceSEI implements StreamService {
     }
 
     /**
-     * @see com.thinkparity.service.StreamService#create(com.thinkparity.service.AuthToken, java.lang.String)
-     *
+     * @see com.thinkparity.service.StreamService#newDownstreamSession(com.thinkparity.service.AuthToken,
+     *      com.thinkparity.codebase.model.document.DocumentVersion)
+     * 
      */
-    public String create(final AuthToken authToken, final StreamSession session) {
-        return getModel(authToken).create(session.getId());
+    public StreamSession newDownstreamSession(final AuthToken authToken,
+            final DocumentVersion version) {
+        return getModel(authToken).newDownstreamSession(version);
     }
 
     /**
-     * @see com.thinkparity.service.StreamService#createSession(com.thinkparity.service.AuthToken)
-     *
+     * @see com.thinkparity.service.StreamService#newDownstreamSession(com.thinkparity.service.AuthToken,
+     *      com.thinkparity.codebase.model.migrator.Product,
+     *      com.thinkparity.codebase.model.migrator.Release)
+     * 
      */
-    public StreamSession createSession(final AuthToken authToken) {
-        return getModel(authToken).createSession();
+    public StreamSession newDownstreamSession(final AuthToken authToken,
+            final Product product, final Release release) {
+        return getModel(authToken).newDownstreamSession(product, release);
     }
 
     /**
-     * @see com.thinkparity.service.StreamService#delete(com.thinkparity.service.AuthToken, java.lang.String, java.lang.String)
-     *
+     * @see com.thinkparity.service.StreamService#newUpstreamSession(com.thinkparity.service.AuthToken,
+     *      com.thinkparity.codebase.model.document.DocumentVersion)
+     * 
      */
-    public void delete(final AuthToken authToken, final String sessionId,
-            final String streamId) {
-        getModel(authToken).delete(sessionId, streamId);
+    public StreamSession newUpstreamSession(final AuthToken authToken,
+            final DocumentVersion version) {
+        return getModel(authToken).newUpstreamSession(version);
     }
 
     /**
-     * @see com.thinkparity.service.StreamService#deleteSession(com.thinkparity.service.AuthToken, java.lang.String)
-     *
+     * @see com.thinkparity.service.StreamService#newUpstreamSession(com.thinkparity.service.AuthToken,
+     *      com.thinkparity.codebase.model.migrator.Product,
+     *      com.thinkparity.codebase.model.migrator.Release)
+     * 
      */
-    public void deleteSession(final AuthToken authToken, final StreamSession session) {
-        getModel(authToken).deleteSession(session.getId());
-    }
-
-    /**
-     * @see com.thinkparity.service.StreamService#readSession(com.thinkparity.service.AuthToken, java.lang.String)
-     *
-     */
-    public StreamSession readSession(final AuthToken authToken,
-            final String sessionId) {
-        return getModel(authToken).readSession(sessionId);
+    public StreamSession newUpstreamSession(final AuthToken authToken,
+            final Product product, final Release release,
+            final Long contentLength, final String contentMD5,
+            final String contentType) {
+        return getModel(authToken).newUpstreamSession(product, release,
+                contentLength, contentMD5, contentType);
     }
 
     /**

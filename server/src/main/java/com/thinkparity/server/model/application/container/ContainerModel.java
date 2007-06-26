@@ -5,7 +5,6 @@ package com.thinkparity.desdemona.model.container;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 
 import com.thinkparity.codebase.email.EMail;
 
@@ -52,13 +51,13 @@ public interface ContainerModel {
      */
     @ThinkParityAuthenticate(AuthenticationType.USER)
     public void publish(final ContainerVersion version,
-            final Map<DocumentVersion, String> documentVersionStreamIds,
+            final List<DocumentVersion> documentVersions,
             final List<TeamMember> team, final Calendar publishedOn,
             final List<EMail> publishToEMails, final List<User> publishToUsers);
 
     @ThinkParityAuthenticate(AuthenticationType.USER)
     public void publishVersion(final ContainerVersion version,
-            final Map<DocumentVersion, String> documentVersionStreamIds,
+            final List<DocumentVersion> documentVersions,
             final List<TeamMember> team,
             final List<ArtifactReceipt> receivedBy, final Calendar publishedOn,
             final List<EMail> publishToEMails, final List<User> publishToUsers);

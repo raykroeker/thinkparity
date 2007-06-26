@@ -6,7 +6,6 @@ package com.thinkparity.service.client.http;
 import com.thinkparity.codebase.model.session.Environment;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.protocol.Protocol;
 
 import com.thinkparity.service.client.ServiceContext;
 
@@ -23,12 +22,11 @@ final class HttpServiceContext implements ServiceContext {
     private static final String URL_PATTERN;
 
     static {
-        final Environment environment = Environment.valueOf(System.getProperty("thinkparity.environment"));
-        Protocol.registerProtocol("https", new Protocol("https",
-                new HttpSocketFactory(), environment.getServicePort()));
+        final Environment environment = Environment.valueOf(
+                System.getProperty("thinkparity.environment"));
         URL_PATTERN = new StringBuilder(32)
             .append("https://").append(environment.getServiceHost()).append(':')
-            .append(environment.getServicePort()).append("/services/{0}")
+            .append(environment.getServicePort()).append("/tps/service/{0}")
             .toString();
     }
 

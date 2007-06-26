@@ -5,7 +5,6 @@ package com.thinkparity.service;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
@@ -30,14 +29,13 @@ public interface ContainerService {
 
     @WebMethod
     void publish(AuthToken authToken, ContainerVersion version,
-            Map<DocumentVersion, String> documentVersionStreamIds,
-            List<TeamMember> team, Calendar publishedOn,
-            List<EMail> publishToEMails, List<User> publishToUsers);
+            List<DocumentVersion> documentVersions, List<TeamMember> team,
+            Calendar publishedOn, List<EMail> publishToEMails,
+            List<User> publishToUsers);
 
     @WebMethod
     void publishVersion(AuthToken authToken, ContainerVersion version,
-            Map<DocumentVersion, String> documentVersionStreamIds,
-            List<TeamMember> team, List<ArtifactReceipt> receivedBy,
-            Calendar publishedOn, List<EMail> publishToEMails,
-            List<User> publishToUsers);
+            List<DocumentVersion> documentVersions, List<TeamMember> team,
+            List<ArtifactReceipt> receivedBy, Calendar publishedOn,
+            List<EMail> publishToEMails, List<User> publishToUsers);
 }

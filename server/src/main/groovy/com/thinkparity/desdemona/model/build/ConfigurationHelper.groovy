@@ -67,6 +67,7 @@ class ConfigurationHelper {
         configuration["thinkparity.target.classes-dir"] = extractTargetClassesDir()
         configuration["thinkparity.target.package-dir"] = extractTargetPackageDir()
         configuration["thinkparity.war-name"] = extractWarName()
+        configuration["thinkparity.webapp-dir"] = extractWebappDir()
         configuration["thinkparity.zip-name"] = extractZipName()
 
         return configuration
@@ -136,6 +137,15 @@ class ConfigurationHelper {
      */
     File extractTargetClassesDir() {
         return new File(properties["thinkparity.target.classes-dir"])
+    }
+
+    /**
+     * Extract the web-app directory.
+     *
+     * @return A web-app directory <code>File</code>.
+     */
+    File extractWebappDir() {
+        return new File(properties["thinkparity.webapp-dir"])
     }
 
     /**

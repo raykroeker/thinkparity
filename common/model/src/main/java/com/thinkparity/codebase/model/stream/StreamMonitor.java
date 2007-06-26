@@ -31,27 +31,9 @@ public interface StreamMonitor {
     public void chunkSent(final int chunkSize);
 
     /**
-     * A header was received.
+     * Obtain the stream monitor name.
      * 
-     * @param header
-     *            A <code>String</code> header.
+     * @return A stream monitor name <code>String</code>.
      */
-    public void headerReceived(final String header);
-
-    /**
-     * A header was sent.
-     * 
-     * @param header
-     *            A <code>String</code> header.
-     */
-    public void headerSent(final String header);
-
-    /**
-     * A stream error has occured. Some stream errors are recoverable see
-     * {@link StreamException#isRecoverable()} for more information.
-     * 
-     * @param error
-     *            A <code>StreamException</code>.
-     */
-    public void streamError(final StreamException error);
+    public String getName();
 }

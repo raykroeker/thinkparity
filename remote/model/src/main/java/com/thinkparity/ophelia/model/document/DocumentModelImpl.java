@@ -4,9 +4,7 @@
 package com.thinkparity.ophelia.model.document;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -22,14 +20,12 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamUploader;
 
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
@@ -147,11 +143,10 @@ public final class DocumentModelImpl extends
      * 
      */
     public DocumentVersion handleDocumentPublished(final Long containerId,
-            final DocumentVersion version, final String streamId,
-            final JabberId publishedBy, final Calendar publishedOn) {
+            final DocumentVersion version, final JabberId publishedBy,
+            final Calendar publishedOn) {
         logger.logApiId();
         logger.logVariable("version", version);
-        logger.logVariable("streamId", streamId);
         try {
             final InternalArtifactModel artifactModel  = getArtifactModel();
             final Document document;
@@ -167,35 +162,17 @@ public final class DocumentModelImpl extends
                             version.getArtifactUniqueId(), version.getVersionId());
                     localVersion = readVersion(document.getId(), version.getVersionId());
                 } else {
-                    final File streamFile = downloadStream(new DownloadMonitor() {
-                        public void chunkDownloaded(final int chunkSize) {
-                            logger.logInfo("Downloaded {0} bytes", chunkSize);
-                        }
-                    }, streamId);
-                    final InputStream stream = new FileInputStream(streamFile);
-                    try {
-                        localVersion = createVersion(document.getId(),
-                                version.getVersionId(), stream, publishedBy,
-                                publishedOn);
-                    } finally {
-                        stream.close();
-                    }
+                    localVersion = createVersion(document.getId(),
+                            version.getVersionId(), version.getChecksum(),
+                            version.getSize(), publishedBy, publishedOn);
                 }
             }
             else {
                 document = create(version.getArtifactUniqueId(),
                         version.getArtifactName(), publishedBy, publishedOn);
-                final File streamFile = downloadStream(new DownloadMonitor() {
-                    public void chunkDownloaded(final int chunkSize) {}
-                }, streamId);
-                final InputStream stream = new FileInputStream(streamFile);
-                try {
-                    localVersion = createVersion(document.getId(),
-                            version.getVersionId(), stream,
-                            publishedBy, publishedOn);
-                } finally {
-                    stream.close();
-                }
+                localVersion = createVersion(document.getId(),
+                        version.getVersionId(), version.getChecksum(),
+                        version.getSize(), publishedBy, publishedOn);
                 getIndexModel().indexDocument(containerId, document.getId());
             }
             return localVersion;
@@ -412,25 +389,6 @@ public final class DocumentModelImpl extends
     }
 
     /**
-     * Save a version to an output stream.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param uploader
-     *            An <code>StreamUploader</code> to upload to.
-     */
-    public void uploadVersion(final Long documentId, final Long versionId,
-            final StreamUploader uploader) {
-        try {
-            documentIO.uploadVersion(documentId, versionId, uploader);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
@@ -497,65 +455,40 @@ public final class DocumentModelImpl extends
      *            A document id.
      * @param versionId
      *            A document version id.
-     * @param content
-     *            The document's content.
      * @param createdBy
-     *            Who creatd the version.
+     *            Who created the version.
      * @param createdOn
      *            When the version was created.
      * @return A new document version.
      */
 	private DocumentVersion createVersion(final Long documentId,
-            final Long versionId, final InputStream stream,
+            final Long versionId, final String checksum, final Long size,
             final JabberId createdBy, final Calendar createdOn)
             throws CannotLockException, IOException {
-	    final File tempFile = workspace.createTempFile();
-        try {
-            // create a temp file containing the stream
-            streamToFile(stream, tempFile);
-
-    		// create version
-            final Document document = read(documentId);
-    		final DocumentVersion version = new DocumentVersion();
-    		version.setArtifactId(documentId);
-    		version.setArtifactName(document.getName());
-    		version.setArtifactType(document.getType());
-    		version.setArtifactUniqueId(document.getUniqueId());
-            version.setChecksum(checksum(tempFile));
-            version.setChecksumAlgorithm(ChecksumAlgorithm.MD5.name());
-            version.setComment(null);
-    		version.setCreatedBy(createdBy);
-    		version.setCreatedOn(createdOn);
-            version.setName(null);
-    		version.setUpdatedBy(version.getCreatedBy());
-    		version.setUpdatedOn(version.getCreatedOn());
-            version.setSize(tempFile.length());
-            version.setVersionId(versionId);
-            // create version content
-            final InputStream databaseStream = new FileInputStream(tempFile);
-            try {
-                documentIO.createVersion(version, databaseStream, getBufferSize());
-            } finally {
-                databaseStream.close();
-            }
-    		// write local version file
-            final DocumentFileLock versionLock = lockVersion(version, "rws");
-            try {
-                fileToChannel(tempFile, versionLock.getFileChannel(0L));
-                versionLock.getFile().setLastModified(version.getCreatedOn().getTimeInMillis());
-                versionLock.getFile().setReadOnly();
-            } finally {
-                release(versionLock);
-            }
-    		// update document
-    		document.setUpdatedBy(version.getUpdatedBy());
-    		document.setUpdatedOn(version.getUpdatedOn());
-    		documentIO.update(document);
-    		return readVersion(documentId, versionId);
-        } finally {
-            Assert.assertTrue(tempFile.delete(),
-                    "Cannot delete temp file {0}.", tempFile);
-        }
+		// create version
+        final Document document = read(documentId);
+		final DocumentVersion version = new DocumentVersion();
+		version.setArtifactId(documentId);
+		version.setArtifactName(document.getName());
+		version.setArtifactType(document.getType());
+		version.setArtifactUniqueId(document.getUniqueId());
+        version.setChecksum(checksum);
+        version.setChecksumAlgorithm(ChecksumAlgorithm.MD5.name());
+        version.setComment(null);
+		version.setCreatedBy(createdBy);
+		version.setCreatedOn(createdOn);
+        version.setName(null);
+		version.setUpdatedBy(version.getCreatedBy());
+		version.setUpdatedOn(version.getCreatedOn());
+        version.setSize(size);
+        version.setVersionId(versionId);
+        // create version
+        documentIO.createVersion(version);
+		// update document
+		document.setUpdatedBy(version.getUpdatedBy());
+		document.setUpdatedOn(version.getUpdatedOn());
+		documentIO.update(document);
+		return readVersion(documentId, versionId);
 	}
 
     /**

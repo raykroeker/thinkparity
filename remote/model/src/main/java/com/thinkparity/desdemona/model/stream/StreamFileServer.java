@@ -12,8 +12,6 @@ import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
-import com.thinkparity.codebase.model.stream.StreamSession;
-
 /**
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
@@ -47,25 +45,14 @@ final class StreamFileServer {
     }
 
     /**
-     * Invalidate a session.
-     * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     */
-    void destroy(final StreamSession session) {
-    }
-
-    /**
      * Destroy a stream.
      * 
-     * @param session
-     *            A <code>StreamSession</code>.
      * @param streamId
      *            A stream id <code>String</code>.
      */
-    void destroy(final StreamSession session, final String streamId) {
-        final File downstreamFile = find(resolveDownstreamPath(session, streamId));
-        final File upstreamFile = find(resolveUpstreamPath(session, streamId));
+    void destroy(final String streamId) {
+        final File downstreamFile = find(resolveDownstreamPath(streamId));
+        final File upstreamFile = find(resolveUpstreamPath(streamId));
         boolean didDestroyDownstream = true;
         if (null != downstreamFile)
             didDestroyDownstream = downstreamFile.delete();
@@ -88,14 +75,12 @@ final class StreamFileServer {
      * Finalize a stream. Resolve the upstream file and rename it such that it
      * is suitable for download.
      * 
-     * @param streamSession
-     *            A <code>StreamSession</code>.
      * @param streamId
      *            A stream id <code>String</code>.
      */
-    void finalizeStream(final StreamSession session, final String streamId) {
-        final String upstreamPath = resolveUpstreamPath(session, streamId);
-        final String downstreamPath = resolveDownstreamPath(session, streamId);
+    void finalizeStream(final String streamId) {
+        final String upstreamPath = resolveUpstreamPath(streamId);
+        final String downstreamPath = resolveDownstreamPath(streamId);
         final File file = fileSystem.rename(upstreamPath, downstreamPath);
         Assert.assertTrue(file.setReadOnly(),
                 "Cannot mark file as read-only {0}.", file);
@@ -110,10 +95,10 @@ final class StreamFileServer {
      *            A stream id <code>String</code>.
      * @return A workspace <code>FileSystem</code>.
      */
-    File findForDownstream(final StreamSession session, final String streamId) {
-        final File streamFile = find(resolveDownstreamPath(session, streamId));
+    File findForDownstream(final String streamId) {
+        final File streamFile = find(resolveDownstreamPath(streamId));
         if (null == streamFile) {
-            logger.logError("Could not locate downstream file {0}.", streamId);
+            logger.logWarning("Could not locate downstream file {0}.", streamId);
         }
         return streamFile;
     }
@@ -130,12 +115,12 @@ final class StreamFileServer {
      *            A stream id <code>String</code>.
      * @return A <code>File</code>.
      */
-    File findForUpstream(final StreamSession session, final String streamId) {
-        File upstreamFile = fileSystem.find(resolveUpstreamPath(session, streamId));
+    File findForUpstream(final String streamId) {
+        File upstreamFile = fileSystem.find(resolveUpstreamPath(streamId));
         if (null == upstreamFile) {
             try {
-                upstreamFile = fileSystem.createFile(
-                        resolveUpstreamPath(session, streamId));
+                upstreamFile = fileSystem.createFile(resolveUpstreamPath(
+                        streamId));
             } catch (final IOException iox) {
                 throw new StreamException(iox);
             }
@@ -144,23 +129,10 @@ final class StreamFileServer {
     }
 
     /**
-     * Initialize the file server for a session.
-     * 
-     * @param session
-     *            A <code>ServerSession</code>.
-     */
-    void initialize(final StreamSession session) {
-    }
-
-    /**
      * Initialize the file server for a stream.
      * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     *            @param streamId
-     *            A stream id <code>String</code>.
      */
-    void initialize(final StreamSession session, final String streamId) {
+    void initialize(final String streamId) {
     }
 
     /**
@@ -207,24 +179,18 @@ final class StreamFileServer {
     /**
      * Resolve a file system path for a stream.
      * 
-     * @param session
-     *            A <code>StreamSession</code>.
      * @return A <code>FileSystem</code> path <code>String</code>.
      */
-    private String resolveDownstreamPath(final StreamSession session,
-            final String streamId) {
+    private String resolveDownstreamPath(final String streamId) {
         return MessageFormat.format("/{0}", streamId);
     }
 
     /**
      * Resolve a file system path for an upstream file.
      * 
-     * @param session
-     *            A <code>StreamSession</code>.
      * @return A <code>FileSystem</code> path <code>String</code>.
      */
-    private String resolveUpstreamPath(final StreamSession session,
-            final String streamId) {
+    private String resolveUpstreamPath(final String streamId) {
         return MessageFormat.format("/{0}.{1}", streamId, UPSTREAM_PATH_EXTENSION);
     }
 }

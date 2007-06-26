@@ -4,11 +4,12 @@
 package com.thinkparity.ophelia.model.util;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+
+import com.thinkparity.codebase.nio.ChannelUtil;
 
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 
@@ -46,7 +47,7 @@ public final class MD5UtilTest extends ModelTestCase {
                 fileChannel = new RandomAccessFile(datum.inputFiles[i], "r").getChannel();
                 try {
                     synchronized (getBufferLock()) {
-                        md5Checksum = MD5Util.md5Hex(fileChannel, getBufferArray());
+                        md5Checksum = MD5Util.md5Base64(fileChannel, getBufferArray());
                     }
                 } catch (final Throwable t) {
                     md5Checksum = null;
@@ -66,18 +67,18 @@ public final class MD5UtilTest extends ModelTestCase {
      */
     public void testMD5HexStream() {
         String md5Checksum;
-        InputStream inputFileStream;
+        ReadableByteChannel inputChannel;
         for (int i = 0; i < datum.inputFiles.length; i++) {
             try {
-                inputFileStream = new FileInputStream(datum.inputFiles[i]);
+                inputChannel = ChannelUtil.openReadChannel(datum.inputFiles[i]);
                 try {
                     synchronized (getBufferLock()) {
-                        md5Checksum = MD5Util.md5Hex(inputFileStream, getBufferArray());
+                        md5Checksum = MD5Util.md5Base64(inputChannel, getBufferArray());
                     }
                 } catch (final Throwable t) {
                     md5Checksum = null;
                 } finally {
-                    inputFileStream.close();
+                    inputChannel.close();
                 }
                 assertEquals(md5Checksum, datum.inputFileMD5Checksums[i]);
             } catch (final IOException iox) {

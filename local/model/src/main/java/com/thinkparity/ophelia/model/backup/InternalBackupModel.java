@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.backup;
 
-import java.io.InputStream;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -56,18 +55,6 @@ public interface InternalBackupModel extends BackupModel {
      *            A <code>BackupStatisticsUpdatedEvent</code>.
      */
     public void handleStatisticsUpdated(final BackupStatisticsUpdatedEvent event);
-
-    /**
-     * Open a document version input stream.
-     * 
-     * @param uniqueId
-     *            A document unique id <code>UUID</code>.
-     * @param versionId
-     *            A document version id <code>Long</code>.
-     * @return An <code>InputStream</code>.
-     */
-    public InputStream openDocumentVersion(final UUID uniqueId,
-            final Long versionId);
 
     /**
      * Read a container.

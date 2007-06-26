@@ -42,6 +42,14 @@ public final class SessionSql extends AbstractSql {
         .append("where EXPIRES_ON < ?")
         .toString();
 
+    /** Sql to read a session id by the user id unique key. */
+    private static final String SQL_READ_SESSION_ID_UK =
+        new StringBuilder("select SESSION_ID ")
+        .append("from TPSD_SESSION S")
+        .append("inner join TPSD_USER U on U.USER_ID=S.USER_ID ")
+        .append("where U.USER_ID=?")
+        .toString();
+
     /** Sql to read a user id. */
     private static final String SQL_READ_USER_ID_PK =
         new StringBuilder("select U.USER_ID ")
@@ -129,6 +137,35 @@ public final class SessionSql extends AbstractSql {
             if (0 != rowsDeleted && 1 != rowsDeleted)
                 throw panic("Could not delete session.");
             session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read a session id.
+     * 
+     * @param userId
+     *            A user id <code>Long</code>.
+     * @param expireOn
+     *            A session epiry <code>Calendar</code>.
+     * @return A session id <code>String</code>.
+     */
+    public String readSessionId(final Long userId, final Calendar expireOn) {
+        final HypersonicSession session = openSession();
+        try {
+            expire(session, expireOn);
+
+            session.prepareStatement(SQL_READ_SESSION_ID_UK);
+            session.setLong(1, userId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getString("SESSION_ID");
+            } else {
+                return null;
+            }
         } catch (final Throwable t) {
             throw translateError(session, t);
         } finally {

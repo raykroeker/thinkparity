@@ -14,7 +14,6 @@ import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
@@ -59,8 +58,8 @@ public interface InternalDocumentModel extends DocumentModel {
 
     // TODO-javadoc InternalDocumentModel#handleDocumentPublished
     public DocumentVersion handleDocumentPublished(final Long documentId,
-            final DocumentVersion version, final String streamId,
-            final JabberId publishedBy, final Calendar publishedOn);
+            final DocumentVersion version, final JabberId publishedBy,
+            final Calendar publishedOn);
 
     /**
      * Obtain an exclusive lock on a document.
@@ -124,17 +123,4 @@ public interface InternalDocumentModel extends DocumentModel {
      * @return The version size <code>Integer</code>.
      */
     public Long readVersionSize(final Long documentId, final Long versionId);
-
-    /**
-     * Save a version to an output stream.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param uploader
-     *            An <code>StreamUploader</code> to upload to.
-     */
-    public void uploadVersion(final Long documentId, final Long versionId,
-            final StreamUploader uploader);
 }

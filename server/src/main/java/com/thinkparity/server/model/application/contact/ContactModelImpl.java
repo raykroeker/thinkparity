@@ -3,7 +3,12 @@
  */
 package com.thinkparity.desdemona.model.contact;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -22,7 +27,6 @@ import com.thinkparity.codebase.model.contact.*;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.*;
@@ -34,7 +38,6 @@ import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVer
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.InvitationSql;
 import com.thinkparity.desdemona.model.profile.InternalProfileModel;
-import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
 import com.thinkparity.desdemona.model.user.UserModel;
 import com.thinkparity.desdemona.util.smtp.SMTPService;
@@ -824,25 +827,8 @@ public final class ContactModelImpl extends AbstractModelImpl implements
         final List<EMail> publishToEMails = Collections.emptyList();
         final List<User> publishToUsers = new ArrayList<User>();
         publishToUsers.add(user);
-        // upload documents
-        final Map<DocumentVersion, String> documentVersionStreamIds =
-            new HashMap<DocumentVersion, String>(documentVersions.size());
-        final InternalStreamModel streamModel = getStreamModel(user);
-        final StreamSession streamSession = streamModel.createSession();
-        try {
-            String streamId;
-            for (final DocumentVersion documentVersion : documentVersions) {
-                streamId = streamModel.create(streamSession.getId());
-                backupModel.uploadDocumentVersion(streamId,
-                        documentVersion.getArtifactUniqueId(),
-                        documentVersion.getVersionId());
-                documentVersionStreamIds.put(documentVersion, streamId);
-            }
-        } finally {
-            streamModel.deleteSession(streamSession.getId());
-        }
         // publish version
-        getContainerModel(sendAs).publishVersion(version, documentVersionStreamIds,
+        getContainerModel(sendAs).publishVersion(version, documentVersions,
                 teamMembers, receivedBy, publishedOn, publishToEMails,
                 publishToUsers);
     }

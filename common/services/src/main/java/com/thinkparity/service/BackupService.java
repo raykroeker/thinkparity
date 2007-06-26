@@ -33,10 +33,6 @@ public interface BackupService {
     void archive(AuthToken authToken, UUID containerUniqueId);
 
     @WebMethod
-    void createStream(AuthToken authToken, String streamId,
-            UUID documentUniqueId, Long documentVersionId);
-
-    @WebMethod
     void delete(AuthToken authToken, UUID containerUniqueId);
 
     @WebMethod

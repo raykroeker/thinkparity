@@ -4,12 +4,14 @@
 package com.thinkparity.desdemona.model;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
@@ -19,6 +21,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import com.thinkparity.codebase.BytesFormat;
 import com.thinkparity.codebase.Constants;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileSystem;
@@ -30,12 +33,11 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.nio.ChannelUtil;
 
 import com.thinkparity.codebase.model.Context;
-import com.thinkparity.codebase.model.DownloadMonitor;
 import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
+import com.thinkparity.codebase.model.stream.StreamReader;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
@@ -44,6 +46,7 @@ import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.ophelia.model.user.UserUtils;
 
+import com.thinkparity.desdemona.model.amazon.s3.InternalAmazonS3Model;
 import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
 import com.thinkparity.desdemona.model.backup.BackupService;
 import com.thinkparity.desdemona.model.backup.InternalBackupModel;
@@ -54,6 +57,7 @@ import com.thinkparity.desdemona.model.migrator.InternalMigratorModel;
 import com.thinkparity.desdemona.model.profile.InternalProfileModel;
 import com.thinkparity.desdemona.model.queue.InternalQueueModel;
 import com.thinkparity.desdemona.model.rules.InternalRuleModel;
+import com.thinkparity.desdemona.model.session.InternalSessionModel;
 import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
 import com.thinkparity.desdemona.util.DesdemonaProperties;
@@ -159,39 +163,7 @@ public abstract class AbstractModelImpl
        // TIME A global timestamp
        final String hashString = new StringBuffer(userId.toString())
            .append(currentTimeMillis()).toString();
-       return MD5Util.md5Hex(hashString);
-    }
-
-    /**
-     * Calculate a checksum for a file's contents. Create a channel to read the
-     * file.
-     * 
-     * @param file
-     *            A <code>File</code>.
-     * @return An MD5 checksum <code>String</code>.
-     */
-    protected final String checksum(final File file) throws IOException {
-        final ReadableByteChannel channel = ChannelUtil.openReadChannel(file);
-        try {
-            return checksum(channel);
-        } finally {
-            channel.close();
-        }
-    }
-
-    /**
-     * Calculate a checksum for a readable byte channel. Use the workspace
-     * buffer as an intermediary.
-     * 
-     * @param channel
-     *            A <code>ReadableByteChannel</code>.
-     * @return An MD5 checksum <code>String</code>.
-     */
-    protected final String checksum(final ReadableByteChannel channel)
-            throws IOException {
-        synchronized (getBufferLock()) {
-            return MD5Util.md5Hex(channel, getBufferArray());
-        }
+       return MD5Util.md5Base64(hashString);
     }
 
     /**
@@ -298,58 +270,6 @@ public abstract class AbstractModelImpl
     protected Long currentTimeMillis() {
         // TIME This is a global timestamp
         return System.currentTimeMillis();
-    }
-
-    /**
-     * Start a download from the stream server for the model user.
-     * 
-     * @param downloadMonitor
-     *            A download monitor.
-     * @param streamId
-     *            A stream id <code>String</code>.
-     * @return The downloaded <code>File</code>.
-     * @throws IOException
-     */
-    protected final File downloadStream(final DownloadMonitor downloadMonitor,
-            final String streamId) throws IOException {
-        final File streamFile = buildStreamFile(streamId);
-        final StreamSession streamSession = getStreamModel().createSession();
-        final StreamMonitor streamMonitor = new StreamMonitor() {
-            long recoverChunkOffset = 0;
-            long totalChunks = 0;
-            public void chunkReceived(final int chunkSize) {
-                logger.logApiId();
-                logger.logVariable("chunkSize", chunkSize);
-                totalChunks += chunkSize;
-                downloadMonitor.chunkDownloaded(chunkSize);
-            }
-            public void chunkSent(final int chunkSize) {}
-            public void headerReceived(final String header) {}
-            public void headerSent(final String header) {}
-            public void streamError(final StreamException error) {
-                if (error.isRecoverable()) {
-                    if (recoverChunkOffset <= totalChunks) {
-                        logger.logWarning(error, "Network error.");
-                        recoverChunkOffset = totalChunks;
-                        try {
-                            // attempt to resume the download
-                            downloadStream(downloadMonitor, this,
-                                    streamSession, streamId, streamFile,
-                                    Long.valueOf(recoverChunkOffset));
-                        } catch (final IOException iox) {
-                            throw translateError(iox);
-                        }
-                    } else {
-                        throw translateError(error);
-                    }
-                } else {
-                    throw translateError(error);
-                }
-            }
-        };
-        downloadStream(downloadMonitor, streamMonitor, streamSession,
-                streamId, streamFile, 0L);
-        return streamFile;
     }
 
     /**
@@ -489,6 +409,15 @@ public abstract class AbstractModelImpl
     }
 
     /**
+     * Obtain the internal amazon s3 model.
+     * 
+     * @return An instance of <code>InternalAmazonS3Model</code>.
+     */
+    protected final InternalAmazonS3Model getAmazonS3Model() {
+        return InternalModelFactory.getInstance(getContext(), user).getAmazonS3Model();
+    }
+
+    /**
      * Obtain the parity artifact interface.
      * 
      * @return The parity artifact interface.
@@ -543,7 +472,6 @@ public abstract class AbstractModelImpl
     protected final Object getBufferLock() {
         return new Object();
     }
-
     /**
      * Obtain the default buffer size.
      * 
@@ -731,6 +659,10 @@ public abstract class AbstractModelImpl
 
 	protected final InternalUserModel getUserModel() {
         return InternalModelFactory.getInstance(getContext(), user).getUserModel();
+    }
+
+    protected final InternalSessionModel getSessionModel() {
+        return InternalModelFactory.getInstance(getContext(), user).getSessionModel();
     }
 
     protected final InternalUserModel getUserModel(final User user) {
@@ -936,20 +868,6 @@ public abstract class AbstractModelImpl
     }
 
     /**
-     * Build a local file to back a stream. Note that the file is transient in
-     * nature and will be deleted when the user logs out or the next time the
-     * session is established.
-     * 
-     * @param streamId
-     *            A stream id <code>String</code>.
-     * @return A <code>File</code>.
-     * @throws IOException
-     */
-    private File buildStreamFile(final String streamId) throws IOException {
-        return createTempFile(streamId);
-    }
-
-    /**
      * Copy the content of one channel to another. Use the workspace buffer as
      * an intermediary.
      * 
@@ -1018,5 +936,101 @@ public abstract class AbstractModelImpl
         synchronized (getBufferLock()) {
             StreamUtil.copy(stream, channel, getBuffer());
         }
+    }
+
+    /**
+     * Create a new download helper.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @return A <code>DownloadHelper</code>.
+     */
+    protected final DownloadHelper newDownloadHelper(final StreamSession session) {
+        final BytesFormat bytesFormat = new BytesFormat();
+
+        return new DownloadHelper() {
+
+            /**
+             * @see com.thinkparity.ophelia.model.DownloadHelper#download(java.io.File)
+             * 
+             */
+            public void download(final File target) throws IOException {
+                ensureDownload(target);
+                attemptDownload(target);
+            }
+        
+            /**
+             * Attempt a download of the version. Create a new stream reader using the
+             * session; and download the version to the temp file, then return the temp
+             * file.
+             * 
+             * @param target
+             *            A <code>File</code> to download to.
+             * @throws IOException
+             */
+            private void attemptDownload(final File target) throws IOException {
+                final StreamReader reader = new StreamReader(new StreamMonitor () {
+
+                    /**
+                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkReceived(int)
+                     *
+                     */
+                    public void chunkReceived(final int chunkSize) {
+                        logger.logInfo("Downloaded {0}.",
+                                bytesFormat.format(new Long(chunkSize)));
+                    }
+        
+                    /**
+                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkSent(int)
+                     *
+                     */
+                    public void chunkSent(final int chunkSize) {
+                        // not possbile in download
+                        Assert.assertUnreachable("");
+                    }
+        
+                    /**
+                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#getName()
+                     *
+                     */
+                    public String getName() {
+                        return "Model#newDownloadHelper";
+                    }
+
+                }, session);
+                final OutputStream output = new FileOutputStream(target);
+                try {
+                    reader.read(output);
+                } finally {
+                    output.close();
+                }
+            }
+
+            /**
+             * Ensure a download is possible by checking the target file for validity as
+             * well as the session.
+             * 
+             * @param target
+             *            A <code>File</code>.
+             */
+            private void ensureDownload(final File target) {
+                final String error;
+                if (null == target) {
+                    error = "Target must not be null.";
+                } else if (!target.exists()) {
+                    error = "Target {0} must exist.";
+                } else if (!target.isFile()) {
+                    error = "Target {0} must be a file.";
+                } else if (session == null) {
+                    error = "Stream ession must exist.";
+                } else {
+                    error = null;
+                }
+                if (null != error) {
+                    throw new IllegalArgumentException(MessageFormat.format(error,
+                            target, session));
+                }
+            }
+        };
     }
 }

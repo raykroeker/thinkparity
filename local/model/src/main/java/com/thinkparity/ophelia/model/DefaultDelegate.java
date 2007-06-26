@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
@@ -139,6 +141,14 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
     }
 
     /**
+     * @see Model#createTempFile()
+     * 
+     */
+    protected final File createTempFile() throws IOException {
+        return modelImplementation.createTempFile();
+    }
+
+    /**
      * Obtain an internal artifact model.
      * 
      * @return An <code>InternalArtifactModel</code>.
@@ -157,21 +167,21 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
     }
 
     /**
-     * Obtain an internal contact model.
-     * 
-     * @return An instance of <code>InternalContactModel</code>.
-     */
-    protected final InternalContactModel getContactModel() {
-        return modelImplementation.getContactModel();
-    }
-
-    /**
      * Obtain the default buffer size.
      * 
      * @return An <code>Integer</code> buffer size.
      */
     protected final Integer getBufferSize() {
         return modelImplementation.getBufferSize();
+    }
+
+    /**
+     * Obtain an internal contact model.
+     * 
+     * @return An instance of <code>InternalContactModel</code>.
+     */
+    protected final InternalContactModel getContactModel() {
+        return modelImplementation.getContactModel();
     }
 
     /**

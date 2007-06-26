@@ -50,7 +50,7 @@ public class VerificationKey {
             .append(email.getUsername()).append("-")
             .append(System.currentTimeMillis());
         final VerificationKey key = new VerificationKey();
-        key.setKey(MD5Util.md5Hex(code.toString()));
+        key.setKey(MD5Util.md5Base64(code.toString()));
         return key;
     }
 

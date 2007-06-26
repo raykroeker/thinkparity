@@ -4,11 +4,13 @@
 package com.thinkparity.desdemona.model.stream;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamSession;
 
 import com.thinkparity.desdemona.model.Constants.JivePropertyNames;
 import com.thinkparity.desdemona.util.DesdemonaProperties;
@@ -63,6 +65,71 @@ public final class StreamService {
     }
 
     /**
+     * Destroy a stream.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     */
+    public void destroy(final String streamId) {
+        server.destroy(streamId);
+    }
+
+    /**
+     * Determine a stream's existence.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @return True if a stream exists.
+     */
+    public Boolean doesExist(final String streamId) {
+        return server.doesExist(streamId);
+    }
+
+    /**
+     * Finalize the persistence of the stream.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     */
+    public void finalize(final String streamId) {
+        server.finalizeStream(streamId);
+    }
+
+    /**
+     * Intialize a stream.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     */
+    public void initialize(final String streamId) {
+        server.initialize(streamId);
+    }
+
+	/**
+     * Open a stream for an downstream pull.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @return A <code>ReadableByteChannel</code>.
+     */
+    public ReadableByteChannel openForDownstream(final String streamId)
+            throws IOException {
+        return server.openForDownstream(streamId);
+    }
+
+    /**
+     * Open a stream for an upstream push.
+     * 
+     * @param streamId
+     *            A stream id <code>String</code>.
+     * @return A <code>WritableByteChannel</code>.
+     */
+    public WritableByteChannel openForUpstream(final String streamId)
+            throws IOException {
+        return server.openForUpstream(streamId);
+    }
+
+    /**
      * Start the stream service.
      *
      */
@@ -86,66 +153,6 @@ public final class StreamService {
             stopImpl();
         }
         logger.logInfo("Stream service stopped.");
-    }
-
-    /**
-     * Authenticate a stream session.
-     * 
-     * @param sessionId
-     *            A stream session id <code>String</code>.
-     * @return A <code>StreamSession</code>.
-     */
-    StreamSession authenticate(final String sessionId) {
-        final ServerSession session = server.authenticate(sessionId);
-        if (null == session) {
-            return null;
-        } else {
-            return session.getClientSession();
-        }
-    }
-
-    /**
-     * Destroy a stream session.
-     * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     */
-    void destroy(final StreamSession session) {
-        server.destroy(session);
-    }
-
-    /**
-     * Destroy a stream.
-     * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     * @param streamId
-     *            A stream id <code>String</code>.
-     */
-    void destroy(final StreamSession session, final String streamId) {
-        server.destroy(session, streamId);
-    }
-
-    /**
-     * Initialize a session.
-     * 
-     * @param session
-     *            A <code>ServerSession</code>.
-     */
-    void initialize(final ServerSession session) {
-        server.initialize(session);
-    }
-
-    /**
-     * Intialize a stream.
-     * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     * @param streamId
-     *            A stream id <code>String</code>.
-     */
-    void initialize(final StreamSession session, final String streamId) {
-        server.initialize(session, streamId);
     }
 
     /**

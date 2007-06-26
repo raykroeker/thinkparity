@@ -3,28 +3,30 @@
  */
 package com.thinkparity.codebase.model.stream;
 
-import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
+ * <b>Title:</b>thinkParity Stream Session<br>
+ * <b>Description:</b>Provides per-stream meta information for
+ * uploading/downloading thinkParity streams via http.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class StreamSession {
+public final class StreamSession {
 
-    /** The size of the transfer buffer. */
+    /** The transfer buffer size. */
     private Integer bufferSize;
 
-    /** The character set to use. */
-    private Charset charset;
+    /** The http headers. */
+    private final Map<String, String> headers;
 
-    /** The session id <code>String</code>. */
-    private String id;
+    /** The http port. */
+    private Integer port;
 
-    /** The streaming sesssion server host. */
-    private String serverHost;
-
-    /** The streaming sesssion server port. */
-    private Integer serverPort;
+    /** The http uri. */
+    private String uri;
 
     /**
      * Create StreamSession.
@@ -32,6 +34,7 @@ public class StreamSession {
      */
     public StreamSession() {
         super();
+        this.headers = new HashMap<String, String>();
     }
 
     /**
@@ -39,44 +42,35 @@ public class StreamSession {
      * 
      * @return A size <code>Integer</code>.
      */
-    public final Integer getBufferSize() {
+    public Integer getBufferSize() {
         return bufferSize;
     }
 
     /**
-     * Obtain the character set.
-     * 
-     * @return A <code>Charset</code>.
-     */
-    public final Charset getCharset() {
-        return charset;
-    }
-
-    /**
-     * Obtain the session id.
-     * 
-     * @return A session id <code>String</code>.
-     */
-    public final String getId() {
-        return id;
-    }
-
-    /**
-     * Obtain serverHost.
+     * Obtain headers.
      *
-     * @return A String.
+     * @return A Map<String,String>.
      */
-    public String getServerHost() {
-        return serverHost;
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 
     /**
-     * Obtain serverPort.
+     * Obtain port.
      *
      * @return A Integer.
      */
-    public Integer getServerPort() {
-        return serverPort;
+    public Integer getPort() {
+        return port;
+    }
+
+    /**
+     * Obtain the http uri.
+     * 
+     * @return A uri <code>String</code>.
+     */
+    public String getURI() {
+        return uri;
     }
 
     /**
@@ -85,47 +79,38 @@ public class StreamSession {
      * @param bufferSize
      *            A size <code>Integer</code>.
      */
-    public final void setBufferSize(final Integer bufferSize) {
+    public void setBufferSize(final Integer bufferSize) {
         this.bufferSize = bufferSize;
     }
 
     /**
-     * Set the character set.
-     * 
-     * @param charset
-     *            A <code>Charset</code>.
-     */
-    public final void setCharset(final Charset charset) {
-        this.charset = charset;
-    }
-
-    /**
-     * Set the session id.
-     * 
-     * @param id
-     *            A session id <code>String</code>.
-     */
-    public final void setId(final String id) {
-        this.id = id;
-    }
-
-    /**
-     * Set serverHost.
+     * Set the http headers.
      *
-     * @param serverHost
-     *		A String.
+     * @param headers
+     *		A <code>Map<String,String></code>.
      */
-    public void setServerHost(final String serverHost) {
-        this.serverHost = serverHost;
+    public void setHeaders(final Map<String, String> headers) {
+        this.headers.clear();
+        this.headers.putAll(headers);
     }
 
     /**
-     * Set serverPort.
+     * Set port.
      *
-     * @param serverPort
+     * @param port
      *		A Integer.
      */
-    public void setServerPort(final Integer serverPort) {
-        this.serverPort = serverPort;
+    public void setPort(final Integer port) {
+        this.port = port;
+    }
+
+    /**
+     * Set the http uri.
+     *
+     * @param uri
+     *		A <code>String</code>.
+     */
+    public void setURI(final String uri) {
+        this.uri = uri;
     }
 }

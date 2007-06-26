@@ -5,7 +5,12 @@ package com.thinkparity.codebase.net;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.*;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -29,10 +34,19 @@ public final class SocketFactory {
     /** A <code>Log4JWrapper</code>. */
     static final Log4JWrapper LOGGER;
 
+    /** The client keystore password. */
+    private static final char[] KEYSTORE_PASSWORD;
+
+    /** The client keystore path. */
+    private static final String KEYSTORE_PATH;
+
     static {
         LOGGER = new Log4JWrapper(SocketFactory.class);
         LOGGER.logVariable("java.net.useSystemProxies",
                 System.getProperty("java.net.useSystemProxies"));
+
+        KEYSTORE_PATH = "security/client_keystore";
+        KEYSTORE_PASSWORD = "password".toCharArray();
     }
 
     /**
@@ -40,65 +54,63 @@ public final class SocketFactory {
      * 
      * @return A <code>javax.net.SocketFactory</code>.
      */
-    public static javax.net.SocketFactory getInstance() {
+    public static final javax.net.SocketFactory getInstance() {
         return new SocketFactoryImpl();
     }
 
     /**
      * Create an instance of a secure server socket factory.
      * 
-     * @param keyStorePath
-     *            The key store path <code>String</code>.
-     * @param keyStorePassword
-     *            The key store password <code>char[]</code>.
      * @return A <code>javax.net.ServerSocketFactory</code>.
-     * @throws NoSuchProviderException
-     * @throws NoSuchAlgorithmException
-     * @throws UnrecoverableKeyException
-     * @throws KeyStoreException
-     * @throws KeyManagementException
-     * @throws IOException
-     * @throws CertificateException
      */
-    public final static javax.net.SocketFactory getSecureInstance(
-            final String keyStorePath, final char[] keyStorePassword,
-            final String trustedStorePath, final char[] trustedStorePassword)
-            throws NoSuchProviderException, NoSuchAlgorithmException,
-            UnrecoverableKeyException, KeyStoreException,
-            KeyManagementException, IOException, CertificateException {
-        InputStream stream;
-        // load the key store
-        final KeyStore keyStore = KeyStore.getInstance("JKS");
-        stream = ResourceUtil.getInputStream(keyStorePath);
+    public static final javax.net.SocketFactory getSecureInstance() {
         try {
-            keyStore.load(stream, keyStorePassword);
-        } finally {
-            stream.close();
+            InputStream stream;
+            // load the key store
+            final KeyStore keyStore = KeyStore.getInstance("JKS");
+            stream = ResourceUtil.getInputStream(KEYSTORE_PATH);
+            try {
+                keyStore.load(stream, KEYSTORE_PASSWORD);
+            } finally {
+                stream.close();
+            }
+            // create a key manager factory
+            final KeyManagerFactory keyManagerFactory =
+                KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            keyManagerFactory.init(keyStore, KEYSTORE_PASSWORD);
+    
+            // load the trusted store
+            final KeyStore trustedStore = KeyStore.getInstance("JKS");
+            stream = ResourceUtil.getInputStream(KEYSTORE_PATH);
+            try {
+                trustedStore.load(stream, KEYSTORE_PASSWORD);
+            } finally {
+                stream.close();
+            }
+            // create a trust manager factory
+            final TrustManagerFactory trustManagerFactory =
+                TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init(trustedStore);
+    
+            // create a context
+            final SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(keyManagerFactory.getKeyManagers(),
+                    trustManagerFactory.getTrustManagers(), new SecureRandom());
+    
+            // create the factory
+            return new SSLSocketFactoryImpl(sslContext.getSocketFactory());
+        } catch (final KeyStoreException ksx) {
+            throw new IllegalArgumentException("Cannot initialize secure socket factory.", ksx);
+        } catch (final CertificateException cx) {
+            throw new IllegalArgumentException("Cannot initialize secure socket factory.", cx);
+        } catch (final NoSuchAlgorithmException nsax) {
+            throw new IllegalArgumentException("Cannot initialize secure socket factory.", nsax);
+        } catch (final UnrecoverableKeyException ukx) {
+            throw new IllegalArgumentException("Cannot initialize secure socket factory.", ukx);
+        } catch (final KeyManagementException kmx) {
+            throw new IllegalArgumentException("Cannot initialize secure socket factory.", kmx);
+        } catch (final IOException iox) {
+            throw new IllegalArgumentException("Cannot initialize secure socket factory.", iox);
         }
-        // create a key manager factory
-        final KeyManagerFactory keyManagerFactory =
-            KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        keyManagerFactory.init(keyStore, keyStorePassword);
-
-        // load the trusted store
-        final KeyStore trustedStore = KeyStore.getInstance("JKS");
-        stream = ResourceUtil.getInputStream(trustedStorePath);
-        try {
-            trustedStore.load(stream, trustedStorePassword);
-        } finally {
-            stream.close();
-        }
-        // create a trust manager factory
-        final TrustManagerFactory trustManagerFactory =
-            TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trustManagerFactory.init(trustedStore);
-
-        // create a context
-        final SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(keyManagerFactory.getKeyManagers(),
-                trustManagerFactory.getTrustManagers(), new SecureRandom());
-
-        // create the factory
-        return new SSLSocketFactoryImpl(sslContext.getSocketFactory());
     }
 }

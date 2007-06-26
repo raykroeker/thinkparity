@@ -40,22 +40,6 @@ public interface BackupModel {
     public void archive(final UUID uniqueId);
 
     /**
-     * Upload a document version to the stream server using the provided stream
-     * id. The stream can then be downloaded by a client.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param streamId
-     *            A stream id <code>String</code>.
-     * @param uniqueId
-     *            A document unique id <code>UUID</code>.
-     * @param versionId
-     *            A document version id <code>Long</code>.
-     */
-    public void createStream(final String streamId,
-            final UUID documentUniqueId, final Long documentVersionId);
-
-    /**
      * Delete an artifact.
      * 
      * @param userId

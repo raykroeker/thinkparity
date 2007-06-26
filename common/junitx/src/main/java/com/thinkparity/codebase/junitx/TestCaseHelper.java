@@ -189,7 +189,7 @@ public class TestCaseHelper {
     static final String checksum(final ReadableByteChannel channel)
             throws IOException {
         synchronized (getBufferLock()) {
-            return MD5Util.md5Hex(channel, getBufferArray());
+            return MD5Util.md5Base64(channel, getBufferArray());
         }
     }
 

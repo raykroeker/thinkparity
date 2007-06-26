@@ -55,26 +55,26 @@ public abstract class SystemPanel extends AbstractJPanel {
         // These images help to make the rounded corners look good.
         // Draw them only when the panel is full size. This helps the look of animation.
         if (getSize().height >= getPreferredSize().height) {
-            g.drawImage(Images.BrowserTitle.BROWSER_TOP_LEFT_INNER,
+            g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_NO_TITLE_TOP_LEFT_INNER,
                     0,
                     0,
-                    Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getWidth(),
-                    Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getHeight(), this);
-            g.drawImage(Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER,
-                    getSize().width - Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
+                    Images.BrowserTitle.SYSTEM_DIALOG_NO_TITLE_TOP_LEFT_INNER.getWidth(),
+                    Images.BrowserTitle.SYSTEM_DIALOG_NO_TITLE_TOP_LEFT_INNER.getHeight(), this);
+            g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_NO_TITLE_TOP_RIGHT_INNER,
+                    getSize().width - Images.BrowserTitle.SYSTEM_DIALOG_NO_TITLE_TOP_RIGHT_INNER.getWidth(),
                     0,
-                    Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
-                    Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getHeight(), this);
-            g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT,
+                    Images.BrowserTitle.SYSTEM_DIALOG_NO_TITLE_TOP_RIGHT_INNER.getWidth(),
+                    Images.BrowserTitle.SYSTEM_DIALOG_NO_TITLE_TOP_RIGHT_INNER.getHeight(), this);
+            g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT_INNER,
                     0,
-                    getSize().height - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT.getHeight(),
-                    Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT.getWidth(),
-                    Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT.getHeight(), this);
-            g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT,
-                    getSize().width - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getWidth(),
-                    getSize().height - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getHeight(),
-                    Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getWidth(),
-                    Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getHeight(), this);
+                    getSize().height - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT_INNER.getHeight(),
+                    Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT_INNER.getWidth(),
+                    Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT_INNER.getHeight(), this);
+            g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT_INNER,
+                    getSize().width - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT_INNER.getWidth(),
+                    getSize().height - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT_INNER.getHeight(),
+                    Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT_INNER.getWidth(),
+                    Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT_INNER.getHeight(), this);
         }
     }
 }

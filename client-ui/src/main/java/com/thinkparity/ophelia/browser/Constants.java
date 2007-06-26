@@ -247,10 +247,18 @@ public final class Constants {
                 ImageIOUtil.read("BrowserTopRightOuter.png");
             public static final BufferedImage DIALOG_BACKGROUND =
                 ImageIOUtil.read("DialogBackground.png");
-            public static final BufferedImage SYSTEM_DIALOG_BOTTOM_LEFT =
-                ImageIOUtil.read("DialogBottomLeft.png");
-            public static final BufferedImage SYSTEM_DIALOG_BOTTOM_RIGHT =
-                ImageIOUtil.read("DialogBottomRight.png");
+            public static final BufferedImage SYSTEM_DIALOG_BOTTOM_LEFT_INNER =
+                ImageIOUtil.read("SystemDialogBottomLeft.png");
+            public static final BufferedImage SYSTEM_DIALOG_BOTTOM_RIGHT_INNER =
+                ImageIOUtil.read("SystemDialogBottomRight.png");
+            public static final BufferedImage SYSTEM_DIALOG_TOP_LEFT_INNER =
+                ImageIOUtil.read("SystemDialogTopLeft.png");
+            public static final BufferedImage SYSTEM_DIALOG_TOP_RIGHT_INNER =
+                ImageIOUtil.read("SystemDialogTopRight.png");
+            public static final BufferedImage SYSTEM_DIALOG_NO_TITLE_TOP_LEFT_INNER =
+                ImageIOUtil.read("BrowserTopLeftInner.png"); // same as browser top left inner
+            public static final BufferedImage SYSTEM_DIALOG_NO_TITLE_TOP_RIGHT_INNER =
+                ImageIOUtil.read("BrowserTopRightInner.png"); // same as browser top right inner
             public static final BufferedImage DIALOG_TOP_LEFT =
                 ImageIOUtil.read("DialogTopLeft.png");
             public static final BufferedImage DIALOG_TOP_RIGHT =

@@ -155,16 +155,16 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
 
         // These images help to make the rounded corners look good.
         // Note that top left and top right are drawn by the window title.
-        g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT,
+        g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT_INNER,
                 0,
-                getSize().height - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT.getHeight(),
-                Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT.getWidth(),
-                Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT.getHeight(), this);
-        g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT,
-                getSize().width - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getWidth(),
-                getSize().height - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getHeight(),
-                Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getWidth(),
-                Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT.getHeight(), this);
+                getSize().height - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT_INNER.getHeight(),
+                Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT_INNER.getWidth(),
+                Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_LEFT_INNER.getHeight(), this);
+        g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT_INNER,
+                getSize().width - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT_INNER.getWidth(),
+                getSize().height - Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT_INNER.getHeight(),
+                Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT_INNER.getWidth(),
+                Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT_INNER.getHeight(), this);
     }
 
     /** @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload() */

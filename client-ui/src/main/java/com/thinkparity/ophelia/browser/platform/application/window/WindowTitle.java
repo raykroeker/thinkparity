@@ -82,16 +82,16 @@ public class WindowTitle extends AbstractJPanel {
 
             // These images put borders on rounded corners.
             if (borderType == BorderType.WINDOW_BORDER2) {
-                g.drawImage(Images.BrowserTitle.BROWSER_TOP_LEFT_INNER,
+                g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_TOP_LEFT_INNER,
                         0,
                         0,
-                        Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getWidth(),
-                        Images.BrowserTitle.BROWSER_TOP_LEFT_INNER.getHeight(), this);
-                g.drawImage(Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER,
-                        getSize().width - Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
+                        Images.BrowserTitle.SYSTEM_DIALOG_TOP_LEFT_INNER.getWidth(),
+                        Images.BrowserTitle.SYSTEM_DIALOG_TOP_LEFT_INNER.getHeight(), this);
+                g.drawImage(Images.BrowserTitle.SYSTEM_DIALOG_TOP_RIGHT_INNER,
+                        getSize().width - Images.BrowserTitle.SYSTEM_DIALOG_TOP_RIGHT_INNER.getWidth(),
                         0,
-                        Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getWidth(),
-                        Images.BrowserTitle.BROWSER_TOP_RIGHT_INNER.getHeight(), this);
+                        Images.BrowserTitle.SYSTEM_DIALOG_TOP_RIGHT_INNER.getWidth(),
+                        Images.BrowserTitle.SYSTEM_DIALOG_TOP_RIGHT_INNER.getHeight(), this);
             } else {
                 g2.drawImage(Images.BrowserTitle.DIALOG_TOP_LEFT,
                         0,

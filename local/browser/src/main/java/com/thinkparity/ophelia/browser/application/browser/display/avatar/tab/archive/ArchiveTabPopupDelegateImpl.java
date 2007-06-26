@@ -34,12 +34,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
-import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.Delete;
-import com.thinkparity.ophelia.browser.platform.action.container.DisplayVersionInfo;
-import com.thinkparity.ophelia.browser.platform.action.container.Expand;
-import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
-import com.thinkparity.ophelia.browser.platform.action.container.Restore;
+import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword;
@@ -118,6 +113,11 @@ final class ArchiveTabPopupDelegateImpl extends DefaultBrowserPopupDelegate
             addSeparator();
             needSeparator = false;
         }
+
+        // audit report
+        final Data reportData = new Data(1);
+        reportData.set(com.thinkparity.ophelia.browser.platform.action.container.AuditReport.DataKey.CONTAINER_ID, container.getId());
+        addWithExpand(ActionId.CONTAINER_AUDIT_REPORT, reportData, container);
 
         // export
         final Data exportData = new Data(1);

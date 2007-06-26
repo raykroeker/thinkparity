@@ -152,11 +152,19 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             needSeparator = true;
         }
 
-        // export
+        // audit report
         if (isDistributed(container.getId())) {
             if (needSeparator) {
                 addSeparator();
             }
+            final Data reportData = new Data(1);
+            reportData.set(com.thinkparity.ophelia.browser.platform.action.container.AuditReport.DataKey.CONTAINER_ID, container.getId());
+            addWithExpand(ActionId.CONTAINER_AUDIT_REPORT, reportData, container);
+            needSeparator = true;
+        }
+
+        // export
+        if (isDistributed(container.getId())) {
             final Data exportData = new Data(1);
             exportData.set(com.thinkparity.ophelia.browser.platform.action.container.Export.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_EXPORT, exportData, container);

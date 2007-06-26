@@ -86,6 +86,16 @@ public interface ContainerModel {
     public void archive(final Long containerId);
 
     /**
+     * Prepare an audit report.
+     * 
+     * @param outputStream
+     *            An <code>OutputStream</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void auditReport(final OutputStream outputStream, final Long containerId);
+
+    /**
      * Create a container.
      * 
      * @param name
@@ -132,14 +142,12 @@ public interface ContainerModel {
     public Boolean doesExistLocalDraft(final Long containerId);
 
     /**
-     * Export a container version to a directory. The 
+     * Export a container version to a directory.
      * 
-     * @param exportStream
-     *            A <code>OutputStream</code> to export to.
+     * @param outputStream
+     *            An <code>OutputStream</code> to export to.
      * @param containerId
      *            A container id <code>Long</code>.
-     * @param versionId
-     *            A container version id <code>Long</code>.
      */
     public void export(final OutputStream outputStream, final Long containerId);
 

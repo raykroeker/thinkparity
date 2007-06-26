@@ -288,6 +288,24 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Prepare an audit report for a container.
+     * 
+     * @param outputStream
+     *            An <code>OutputStream</code>.
+     * @param containerId
+     *            The container id <code>Long</code>.
+     */
+    public void auditReport(final OutputStream outputStream, final Long containerId) {
+        try {
+            final Container container = read(containerId);
+            final List<ContainerVersion> versions = readVersions(containerId);
+            auditReport(outputStream, container, versions);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Create a container.
      * 
      * @param name
@@ -551,16 +569,16 @@ public final class ContainerModelImpl extends
     /**
      * Export a container.
      * 
-     * @param exportDirectory
-     *            The directory <code>File</code> to export to.
+     * @param outputStream
+     *            An <code>OutputStream</code> to export to.
      * @param containerId
      *            The container id <code>Long</code>.
      */
-    public void export(final OutputStream exportStream, final Long containerId) {
+    public void export(final OutputStream outputStream, final Long containerId) {
         try {
             final Container container = read(containerId);
             final List<ContainerVersion> versions = readVersions(containerId);
-            export(exportStream, container, versions);
+            export(outputStream, container, versions);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -2625,6 +2643,34 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Prepare an audit report for a container.
+     * 
+     * @param outputStream
+     *            An <code>OutputStream</code>.
+     * @param container
+     *            A <code>Container</code>.
+     * @param versions
+     *            A <code>List&lt;ContainerVersion&gt;</code>.
+     * @throws IOException
+     * @throws TransformerException
+     */
+    private void auditReport(final OutputStream outputStream,
+            final Container container, final List<ContainerVersion> versions)
+            throws IOException, TransformerException {
+        final ContainerNameGenerator nameGenerator = getNameGenerator();
+        final FileSystem exportFileSystem = new FileSystem(
+                workspace.createTempDirectory(
+                        nameGenerator.exportDirectoryName(container)));
+        try {
+            final String pdfPath = nameGenerator.pdfFileName(container);
+            prepareAuditReport(container, versions, exportFileSystem, pdfPath);
+            fileToStream(exportFileSystem.findFile(pdfPath), outputStream);
+        } finally {
+            exportFileSystem.deleteTree();
+        }
+    }
+
+    /**
      * Create an instance of a delegate.
      * 
      * @param <D>
@@ -2716,8 +2762,8 @@ public final class ContainerModelImpl extends
     /**
      * Export a container and a list of versions.
      * 
-     * @param exportDirectory
-     *            An export directory <code>File</code>.
+     * @param outputStream
+     *            An <code>OutputStream</code>.
      * @param container
      *            A <code>Container</code>.
      * @param versions
@@ -2725,85 +2771,17 @@ public final class ContainerModelImpl extends
      * @throws IOException
      * @throws TransformerException
      */
-    private void export(final OutputStream exportStream,
+    private void export(final OutputStream outputStream,
             final Container container, final List<ContainerVersion> versions)
             throws IOException, TransformerException {
         final ContainerNameGenerator nameGenerator = getNameGenerator();
         final FileSystem exportFileSystem = new FileSystem(
                 workspace.createTempDirectory(
                         nameGenerator.exportDirectoryName(container)));
-
-        // prepare the data model
         try {
-            final InternalDocumentModel documentModel = getDocumentModel();
-            final DocumentNameGenerator documentNameGenerator = documentModel.getNameGenerator();
-            final Map<ContainerVersion, User> versionsPublishedBy =
-                new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
-            final Map<ContainerVersion, List<DocumentVersion>> documents =
-                new HashMap<ContainerVersion, List<DocumentVersion>>(versions.size(), 1.0F);
-            final Map<DocumentVersion, Long> documentsSize = new HashMap<DocumentVersion, Long>();
-            final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo =
-                new HashMap<ContainerVersion, List<ArtifactReceipt>>(versions.size(), 1.0F);
-            final Map<ContainerVersion, Map<DocumentVersion, Delta>> deltas =
-                new HashMap<ContainerVersion, Map<DocumentVersion, Delta>>(versions.size(), 1.0F);
-            File directory;
-            for (final ContainerVersion version : versions) {
-                versionsPublishedBy.put(version, readUser(version.getUpdatedBy()));
-                publishedTo.put(version, readPublishedTo(
-                        version.getArtifactId(), version.getVersionId()));
-                documents.put(version, readDocumentVersions(
-                        version.getArtifactId(), version.getVersionId()));
-
-                final Map<DocumentVersion, Delta> versionDeltas;
-                final ContainerVersion previousVersion =
-                    readPreviousVersion(version.getArtifactId(), version.getVersionId());
-                if (null == previousVersion) {
-                    versionDeltas = readDocumentVersionDeltas(version.getArtifactId(),
-                            version.getVersionId());
-                } else {
-                    versionDeltas = readDocumentVersionDeltas(version.getArtifactId(),
-                            version.getVersionId(), previousVersion.getVersionId());
-                }
-                deltas.put(version, versionDeltas);
-
-                directory = exportFileSystem.createDirectory(
-                        nameGenerator.exportDirectoryName(version));
-                for (final DocumentVersion documentVersion : documents.get(version)) {
-                    documentsSize.put(documentVersion, documentVersion.getSize());
-                    final File file = new File(directory,
-                            documentNameGenerator.exportFileName(documentVersion));
-                    documentModel.openVersion(documentVersion.getArtifactId(),
-                            documentVersion.getVersionId(), new StreamOpener() {
-                                public void open(final InputStream stream)
-                                        throws IOException {
-                                    streamToFile(stream, file);
-                                }
-                            });
-                }
-            }
-
-            // copy resources into the export file system
-            final Map<String, File> resources = new HashMap<String, File>();
-            addExportResource(exportFileSystem, resources, "header-image",
-                    "images/PDFHeader.jpg");
-            addExportResource(exportFileSystem, resources, "footer-image",
-                    "images/PDFFooter.jpg");
-
-            // generate a pdf
-            final PDFWriter pdfWriter = new PDFWriter(exportFileSystem);
-            pdfWriter.write(nameGenerator.pdfFileName(container), resources,
-                    container, readUser(container.getCreatedBy()),
-                    readLatestVersion(container.getId()), versions,
-                    versionsPublishedBy, documents, documentsSize, publishedTo,
-                    deltas, readTeam(container.getId()));
-
-            /* HACK this is bad; however the jpeg image reader class is not
-             * closing the stream within its class
-             * @see org.apache.fop.image.JpegImage#loadImage() */
-            Runtime.getRuntime().gc();
-
-            // delete the resources so they are not included in the zip file
-            FileUtil.deleteTree(exportFileSystem.findDirectory("images"));
+            final String pdfPath = nameGenerator.pdfFileName(container);
+            prepareAuditReport(container, versions, exportFileSystem, pdfPath);
+            exportDocuments(container, versions, exportFileSystem, nameGenerator);
 
             // create an archive
             final File zipFile = new File(exportFileSystem.getRoot(), container.getName());
@@ -2811,11 +2789,47 @@ public final class ContainerModelImpl extends
                 ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot(),
                         workspace.getBufferArray());
             }
-
-            // copy it
-            fileToStream(zipFile, exportStream);
+            fileToStream(zipFile, outputStream);
         } finally {
             exportFileSystem.deleteTree();
+        }
+    }
+
+    /**
+     * Export documents for a container and a list of versions.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param versions
+     *            A <code>List&lt;ContainerVersion&gt;</code>.
+     * @param exportFileSystem
+     *            A <code>FileSystem</code>.
+     * @param nameGenerator
+     *            A <code>ContainerNameGenerator</code>.
+     */
+    private void exportDocuments(final Container container,
+            final List<ContainerVersion> versions,
+            final FileSystem exportFileSystem,
+            final ContainerNameGenerator nameGenerator) {
+        final InternalDocumentModel documentModel = getDocumentModel();
+        final DocumentNameGenerator documentNameGenerator = documentModel.getNameGenerator();
+        File directory;
+        for (final ContainerVersion version : versions) {
+            final List<DocumentVersion> documentVersions = readDocumentVersions(
+                    version.getArtifactId(), version.getVersionId());
+            directory = exportFileSystem.createDirectory(
+                    nameGenerator.exportDirectoryName(version));
+            for (final DocumentVersion documentVersion : documentVersions) {
+                final File file = new File(directory,
+                        documentNameGenerator.exportFileName(documentVersion));
+                documentModel.openVersion(documentVersion.getArtifactId(),
+                        documentVersion.getVersionId(), new StreamOpener() {
+                            public void open(final InputStream stream)
+                                    throws IOException {
+                                streamToFile(stream, file);
+                            }
+                        });
+            }
         }
     }
 
@@ -3259,6 +3273,82 @@ public final class ContainerModelImpl extends
                 listener.draftUpdated(eventGenerator.generate(container, draft));
             }
         });
+    }
+
+    /**
+     * Prepare an audit report for a container and a list of versions.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param versions
+     *            A <code>List&lt;ContainerVersion&gt;</code>.
+     * @param exportFileSystem
+     *            A <code>FileSystem</code>.
+     * @param pdfPath
+     *            The pdf path <code>String</code>.
+     * @throws IOException
+     * @throws TransformerException
+     */
+    private void prepareAuditReport(final Container container,
+            final List<ContainerVersion> versions,
+            final FileSystem exportFileSystem,
+            final String pdfPath)
+            throws IOException, TransformerException {
+        final Map<ContainerVersion, User> versionsPublishedBy =
+            new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
+        final Map<ContainerVersion, List<DocumentVersion>> documents =
+            new HashMap<ContainerVersion, List<DocumentVersion>>(versions.size(), 1.0F);
+        final Map<DocumentVersion, Long> documentsSize = new HashMap<DocumentVersion, Long>();
+        final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo =
+            new HashMap<ContainerVersion, List<ArtifactReceipt>>(versions.size(), 1.0F);
+        final Map<ContainerVersion, Map<DocumentVersion, Delta>> deltas =
+            new HashMap<ContainerVersion, Map<DocumentVersion, Delta>>(versions.size(), 1.0F);
+        for (final ContainerVersion version : versions) {
+            versionsPublishedBy.put(version, readUser(version.getUpdatedBy()));
+            publishedTo.put(version, readPublishedTo(
+                    version.getArtifactId(), version.getVersionId()));
+            documents.put(version, readDocumentVersions(
+                    version.getArtifactId(), version.getVersionId()));
+            final Map<DocumentVersion, Delta> versionDeltas;
+            final ContainerVersion previousVersion =
+                readPreviousVersion(version.getArtifactId(), version.getVersionId());
+            if (null == previousVersion) {
+                versionDeltas = readDocumentVersionDeltas(version.getArtifactId(),
+                        version.getVersionId());
+            } else {
+                versionDeltas = readDocumentVersionDeltas(version.getArtifactId(),
+                        version.getVersionId(), previousVersion.getVersionId());
+            }
+            deltas.put(version, versionDeltas);
+
+            for (final DocumentVersion documentVersion : documents.get(version)) {
+                documentsSize.put(documentVersion, documentVersion.getSize());
+            }
+        }
+
+        // copy resources into the export file system
+        final Map<String, File> resources = new HashMap<String, File>();
+        addExportResource(exportFileSystem, resources, "header-image",
+                "images/PDFHeader.jpg");
+        addExportResource(exportFileSystem, resources, "footer-image",
+                "images/PDFFooter.jpg");
+
+        // generate a pdf
+        final PDFWriter pdfWriter = new PDFWriter(exportFileSystem);
+        pdfWriter.write(pdfPath, resources,
+                container, readUser(container.getCreatedBy()),
+                readLatestVersion(container.getId()), versions,
+                versionsPublishedBy, documents, documentsSize, publishedTo,
+                deltas, readTeam(container.getId()));
+
+        /* HACK this is bad; however the jpeg image reader class is not
+         * closing the stream within its class
+         * @see org.apache.fop.image.JpegImage#loadImage() */
+        Runtime.getRuntime().gc();
+
+        // delete the resources so that if export is done then
+        // the resources are not included in the zip file
+        FileUtil.deleteTree(exportFileSystem.findDirectory("images"));
     }
 
     /**

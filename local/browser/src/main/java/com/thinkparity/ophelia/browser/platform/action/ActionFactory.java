@@ -134,6 +134,9 @@ public class ActionFactory extends AbstractFactory {
         case CONTAINER_ARCHIVE:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Archive(getBrowser());
             break;
+        case CONTAINER_AUDIT_REPORT:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.AuditReport(getBrowser());
+            break;
         case CONTAINER_COLLAPSE:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Collapse(getBrowser());
             break;

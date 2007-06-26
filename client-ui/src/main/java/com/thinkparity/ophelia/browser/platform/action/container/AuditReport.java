@@ -1,9 +1,8 @@
 /**
- * Created On: 1-Sep-06 3:00:09 PM
+ * Created On: 25-Jun-07 5:07:47 PM
  * $Id$
  */
 package com.thinkparity.ophelia.browser.platform.action.container;
-
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,30 +28,30 @@ import org.jdesktop.jdic.desktop.DesktopException;
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class Export extends AbstractBrowserAction {
+public class AuditReport extends AbstractBrowserAction {
 
     /**
-     * Generate a directory name for export.
+     * Generate a directory name for the report.
      * 
      * @param container
      *            A <code>Container</code>.
      * @return A directory name <code>String</code>.
      */
     private static String exportFileName(final Container container) {
-        return MessageFormat.format("{0}.zip", container.getName());
+        return MessageFormat.format("{0}.pdf", container.getName());
     }
 
     /** The browser application. */
     private final Browser browser;
 
     /**
-     * Create Export.
+     * Create AuditReport.
      * 
      * @param browser
      *            The thinkParity browser application.
      */
-    public Export(final Browser browser) {
-        super(ActionId.CONTAINER_EXPORT);
+    public AuditReport(final Browser browser) {
+        super(ActionId.CONTAINER_AUDIT_REPORT);
         this.browser = browser;
     }
 
@@ -66,21 +65,21 @@ public class Export extends AbstractBrowserAction {
         final Container container = containerModel.read(containerId);
         final File file = new File(Constants.Directories.USER_DATA, exportFileName(container));
         if (file.exists()) {
-            if (browser.confirm("Export.ConfirmOverwrite", new Object[] {file.getName()})) {
+            if (browser.confirm("AuditReport.ConfirmOverwrite", new Object[] {file.getName()})) {
                 if (file.delete()) {
-                    export(containerModel, file, container);
+                    auditReport(containerModel, file, container);
                 } else {
-                    browser.displayErrorDialog("Export.CannotDelete",
+                    browser.displayErrorDialog("AuditReport.CannotDelete",
                             new Object[] {file.getName()});
                 }
             }
         } else {
-            export(containerModel, file, container);
+            auditReport(containerModel, file, container);
         }
     }
 
     /**
-     * Export a container via the model to the file.
+     * Prepare an audit report for the container.
      * 
      * @param containerModel
      *            A <code>ContainerModel</code>.
@@ -89,12 +88,12 @@ public class Export extends AbstractBrowserAction {
      * @param containerId
      *            A container id <code>Long</code>.
      */
-    private void export(final ContainerModel containerModel, final File file,
+    private void auditReport(final ContainerModel containerModel, final File file,
             final Container container) {
         try {
             final OutputStream outputStream = new FileOutputStream(file);
             try {
-                containerModel.export(outputStream, container.getId());
+                containerModel.auditReport(outputStream, container.getId());
             } finally {
                 try {
                     outputStream.flush();
@@ -104,7 +103,7 @@ public class Export extends AbstractBrowserAction {
             }
             browser.setStatusLink(new StatusLink(file));
         } catch (final IOException iox) {
-            browser.displayErrorDialog("Export.CannotExport",
+            browser.displayErrorDialog("AuditReport.CannotExport",
                     new Object[] {container.getName()});
         }
     }

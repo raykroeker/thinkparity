@@ -30,7 +30,7 @@ import org.jdesktop.jdic.desktop.DesktopException;
  * @version $Revision$
  */
 public class Export extends AbstractBrowserAction {
-    
+
     /**
      * Generate a directory name for export.
      * 
@@ -41,7 +41,7 @@ public class Export extends AbstractBrowserAction {
     private static String exportFileName(final Container container) {
         return MessageFormat.format("{0}.zip", container.getName());
     }
-    
+
     /** The browser application. */
     private final Browser browser;
 
@@ -55,13 +55,13 @@ public class Export extends AbstractBrowserAction {
         super(ActionId.CONTAINER_EXPORT);
         this.browser = browser;
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#invoke(com.thinkparity.ophelia.browser.platform.action.Data)
      */
     @Override
     public void invoke(final Data data) {
-        final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);        
+        final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final ContainerModel containerModel = getContainerModel();
         final Container container = containerModel.read(containerId);
         final File file = new File(Constants.Directories.USER_DATA, exportFileName(container));

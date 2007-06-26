@@ -43,18 +43,24 @@
           <fo:block font-size="16pt" font-weight="bold" space-after="3mm"><xsl:value-of select="name"/></fo:block>
           <fo:block font-size="{$bodyTextSize}">
             <xsl:call-template name="displayValue">
-              <xsl:with-param name="itemLeft">First Published:</xsl:with-param>
+              <xsl:with-param name="itemLeft"><xsl:value-of select="localization/firstPublished"/>:</xsl:with-param>
               <xsl:with-param name="itemRight"><xsl:value-of select="firstPublished"/></xsl:with-param>
             </xsl:call-template>
             <xsl:call-template name="displayValue">
-              <xsl:with-param name="itemLeft">Last Published:</xsl:with-param>
+              <xsl:with-param name="itemLeft"><xsl:value-of select="localization/lastPublished"/>:</xsl:with-param>
               <xsl:with-param name="itemRight"><xsl:value-of select="lastPublished"/></xsl:with-param>
             </xsl:call-template>
             <xsl:call-template name="displayTeamMembers"/>
             <xsl:call-template name="displayDocumentSummaries"/>
             <xsl:call-template name="displayVersionSummaries"/>
           </fo:block>
-          <xsl:apply-templates select="versions/version"/>
+          <xsl:apply-templates select="versions/version">
+            <xsl:with-param name="versionPublishedOn"><xsl:value-of select="localization/versionPublishedOn"/></xsl:with-param>
+            <xsl:with-param name="versionPublishedBy"><xsl:value-of select="localization/versionPublishedBy"/></xsl:with-param>
+            <xsl:with-param name="versionPublishedTo"><xsl:value-of select="localization/versionPublishedTo"/></xsl:with-param>
+            <xsl:with-param name="versionDocuments"><xsl:value-of select="localization/versionDocuments"/></xsl:with-param>
+            <xsl:with-param name="versionNote"><xsl:value-of select="localization/versionNote"/></xsl:with-param>
+          </xsl:apply-templates>
           <fo:block id="terminator"/>
         </fo:flow>
       </fo:page-sequence>
@@ -63,23 +69,32 @@
 
   <!-- version -->
   <xsl:template match="version">
+    <xsl:param name="versionPublishedOn"></xsl:param>
+    <xsl:param name="versionPublishedBy"></xsl:param>
+    <xsl:param name="versionPublishedTo"></xsl:param>
+    <xsl:param name="versionDocuments"></xsl:param>
+    <xsl:param name="versionNote"></xsl:param>
     <fo:block space-before="5mm" border-top-style="solid" border-top-color="rgb(89,108,167)" border-top-width="medium" padding-top="2mm"/>
     <fo:block space-before="3mm" font-size="12pt" font-weight="bold" space-after="3mm">
       <fo:block><xsl:value-of select="name"/></fo:block>
     </fo:block>
     <fo:block space-before="3mm" font-size="{$bodyTextSize}">
       <xsl:call-template name="displayValue">
-        <xsl:with-param name="itemLeft">Published:</xsl:with-param>
+        <xsl:with-param name="itemLeft"><xsl:value-of select="$versionPublishedOn"/>:</xsl:with-param>
         <xsl:with-param name="itemRight"><xsl:value-of select="publishedOn"/></xsl:with-param>
       </xsl:call-template>
       <xsl:call-template name="displayValue">
-        <xsl:with-param name="itemLeft">By:</xsl:with-param>
+        <xsl:with-param name="itemLeft"><xsl:value-of select="$versionPublishedBy"/>:</xsl:with-param>
         <xsl:with-param name="itemRight"><xsl:value-of select="publishedBy"/></xsl:with-param>
       </xsl:call-template>
-      <xsl:call-template name="displayUsers"/>
-      <xsl:call-template name="displayDocuments"/>
+      <xsl:call-template name="displayUsers">
+        <xsl:with-param name="heading"><xsl:value-of select="$versionPublishedTo"/></xsl:with-param>
+      </xsl:call-template>
+      <xsl:call-template name="displayDocuments">
+        <xsl:with-param name="heading"><xsl:value-of select="$versionDocuments"/></xsl:with-param>
+      </xsl:call-template>
       <xsl:call-template name="displayValue">
-        <xsl:with-param name="itemLeft">Note:</xsl:with-param>
+        <xsl:with-param name="itemLeft"><xsl:value-of select="$versionNote"/>:</xsl:with-param>
         <xsl:with-param name="itemRight"><xsl:value-of select="note"/></xsl:with-param>
       </xsl:call-template>
     </fo:block>
@@ -87,11 +102,14 @@
 
   <!-- displayDocuments -->
   <xsl:template name="displayDocuments">
+    <xsl:param name="heading"></xsl:param>
     <fo:table table-layout="fixed" space-after="{$tableSpaceAfter}">
       <fo:table-column column-width="{$tableWidthColumn1}"/>
       <fo:table-column column-width="{$tableWidthColumn2}"/>
       <fo:table-body>
-        <xsl:apply-templates select="documents/document"/>
+        <xsl:apply-templates select="documents/document">
+          <xsl:with-param name="heading"><xsl:value-of select="$heading"/></xsl:with-param>
+        </xsl:apply-templates>
       </fo:table-body>
     </fo:table>
   </xsl:template>
@@ -103,6 +121,7 @@
       <fo:table-column column-width="{$tableWidthColumn2}"/>
       <fo:table-body>
         <xsl:apply-templates select="documentSummaries/documentSummary">
+          <xsl:with-param name="heading"><xsl:value-of select="localization/documents"/></xsl:with-param>
           <xsl:with-param name="documentSum"><xsl:value-of select="documentSum"/></xsl:with-param>
         </xsl:apply-templates>
       </fo:table-body>
@@ -116,6 +135,7 @@
       <fo:table-column column-width="{$tableWidthColumn2}"/>
       <fo:table-body>
         <xsl:apply-templates select="teamMembers/teamMember">
+          <xsl:with-param name="heading"><xsl:value-of select="localization/teamMembers"/></xsl:with-param>
           <xsl:with-param name="teamMemberSum"><xsl:value-of select="teamMemberSum"/></xsl:with-param>
         </xsl:apply-templates>
       </fo:table-body>
@@ -124,11 +144,14 @@
 
   <!-- displayUsers -->
   <xsl:template name="displayUsers">
+    <xsl:param name="heading"></xsl:param>
     <fo:table table-layout="fixed" space-after="{$tableSpaceAfter}">
       <fo:table-column column-width="{$tableWidthColumn1}"/>
       <fo:table-column column-width="{$tableWidthColumn2}"/>
       <fo:table-body>
-        <xsl:apply-templates select="users/user"/>
+        <xsl:apply-templates select="users/user">
+          <xsl:with-param name="heading"><xsl:value-of select="$heading"/></xsl:with-param>
+        </xsl:apply-templates>
       </fo:table-body>
     </fo:table>
   </xsl:template>
@@ -160,6 +183,7 @@
       <fo:table-column column-width="{$tableWidthColumn2}"/>
       <fo:table-body>
         <xsl:apply-templates select="versionSummaries/versionSummary">
+          <xsl:with-param name="heading"><xsl:value-of select="localization/versions"/></xsl:with-param>
           <xsl:with-param name="versionSum"><xsl:value-of select="versionSum"/></xsl:with-param>
         </xsl:apply-templates>
       </fo:table-body>
@@ -168,9 +192,10 @@
 
   <!-- document -->
   <xsl:template match="document[position() = 1]">
+    <xsl:param name="heading"></xsl:param>
     <fo:table-row>
       <fo:table-cell>
-        <fo:block>Documents:</fo:block>
+        <fo:block><xsl:value-of select="$heading"/>:</fo:block>
       </fo:table-cell>
       <xsl:call-template name="documentPrint"/>
     </fo:table-row>
@@ -191,10 +216,11 @@
 
   <!-- documentSummary -->
   <xsl:template match="documentSummary[position() = 1]">
+    <xsl:param name="heading"></xsl:param>
     <xsl:param name="documentSum"></xsl:param>
     <fo:table-row>
       <fo:table-cell>
-        <fo:block>Documents (<xsl:value-of select="$documentSum"/>):</fo:block>
+        <fo:block><xsl:value-of select="$heading"/> (<xsl:value-of select="$documentSum"/>):</fo:block>
       </fo:table-cell>
       <xsl:call-template name="documentVersionPrint"/>
     </fo:table-row>
@@ -215,10 +241,11 @@
 
   <!-- teamMember -->
   <xsl:template match="teamMember[position() = 1]">
+    <xsl:param name="heading"></xsl:param>
     <xsl:param name="teamMemberSum"></xsl:param>
     <fo:table-row>
       <fo:table-cell>
-        <fo:block>Participants (<xsl:value-of select="$teamMemberSum"/>):</fo:block>
+        <fo:block><xsl:value-of select="$heading"/> (<xsl:value-of select="$teamMemberSum"/>):</fo:block>
       </fo:table-cell>
       <xsl:call-template name="teamMemberPrint"/>
     </fo:table-row>
@@ -239,9 +266,10 @@
 
   <!-- user -->
   <xsl:template match="user[position() = 1]">
+    <xsl:param name="heading"></xsl:param>
     <fo:table-row>
       <fo:table-cell>
-        <fo:block>To:</fo:block>
+        <fo:block><xsl:value-of select="$heading"/>:</fo:block>
       </fo:table-cell>
       <xsl:call-template name="userPrint"/>
     </fo:table-row>
@@ -262,10 +290,11 @@
 
   <!-- versionSummary -->
   <xsl:template match="versionSummary[position() = 1]">
+    <xsl:param name="heading"></xsl:param>
     <xsl:param name="versionSum"></xsl:param>
     <fo:table-row>
       <fo:table-cell>
-        <fo:block>Versions (<xsl:value-of select="$versionSum"/>):</fo:block>
+        <fo:block><xsl:value-of select="$heading"/> (<xsl:value-of select="$versionSum"/>):</fo:block>
       </fo:table-cell>
       <xsl:call-template name="versionSummaryPrint"/>
     </fo:table-row>

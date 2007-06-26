@@ -11,6 +11,8 @@ import java.util.List;
  */
 final class PDFXMLContainer {
 
+    PDFXMLLocalization localization;
+
     List<PDFXMLDocumentSummary> documentSummaries;
 
     String documentSum;

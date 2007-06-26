@@ -7,11 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javax.xml.transform.TransformerException;
@@ -39,6 +35,13 @@ import com.thoughtworks.xstream.XStream;
  * @version 1.1.2.8
  */
 final class PDFXMLWriter {
+
+    /** A localization bundle. */
+    private static final ResourceBundle BUNDLE;
+
+    static {
+        BUNDLE = ResourceBundle.getBundle("localization/AuditReport_Messages");
+    }
 
     /** A <code>Container</code>. */
     private Container container;
@@ -209,6 +212,7 @@ final class PDFXMLWriter {
         xstream.alias("documentSummary", PDFXMLDocumentSummary.class);
         xstream.alias("user", PDFXMLUser.class);
         xstream.alias("teamMember", PDFXMLTeamMember.class);
+        xstream.alias("localization", PDFXMLLocalization.class);
 
         final FileWriter fileWriter = newFileWriter(path);
         try {
@@ -225,6 +229,7 @@ final class PDFXMLWriter {
      */
     private PDFXMLContainer createPDFContainerXML() {
         final PDFXMLContainer pdfContainerXML = new PDFXMLContainer();
+        pdfContainerXML.localization = createPDFXMLLocalization();
         pdfContainerXML.documentSummaries = createPDFXMLDocumentSummaries(latestVersion);
         pdfContainerXML.documentSum = format(documents.get(latestVersion).size());
         pdfContainerXML.firstPublished = format(firstVersion.getCreatedOn());
@@ -291,8 +296,7 @@ final class PDFXMLWriter {
         if (Delta.NONE == delta) {
             pdfXML.delta = "";
         } else {
-            // TODO HACK localize properly, we want for example " (modified)"
-            final StringBuffer buffer = new StringBuffer(" (").append(delta.toString().toLowerCase()).append(")");
+            final StringBuffer buffer = new StringBuffer(" ").append(getString(delta.toString()));
             pdfXML.delta = buffer.toString();
         }
         return pdfXML;
@@ -343,6 +347,24 @@ final class PDFXMLWriter {
     }
 
     /**
+     * Create the localization xml.
+     */
+    private PDFXMLLocalization createPDFXMLLocalization() {
+        final PDFXMLLocalization pdfXML = new PDFXMLLocalization();
+        pdfXML.firstPublished = getString("FirstPublished");
+        pdfXML.lastPublished = getString("LastPublished");
+        pdfXML.teamMembers = getString("TeamMembers");
+        pdfXML.documents = getString("Documents");
+        pdfXML.versions = getString("Versions");
+        pdfXML.versionPublishedOn = getString("VersionPublishedOn");
+        pdfXML.versionPublishedBy = getString("VersionPublishedBy");
+        pdfXML.versionPublishedTo = getString("VersionPublishedTo");
+        pdfXML.versionDocuments = getString("VersionDocuments");
+        pdfXML.versionNote = getString("VersionNote");
+        return pdfXML;
+    }
+
+    /**
      * Create the team member xml.
      * 
      * @param teamMember
@@ -383,11 +405,12 @@ final class PDFXMLWriter {
         final PDFXMLUser pdfXML = new PDFXMLUser();
         pdfXML.name = receipt.getUser().getName();
         if (receipt.isSetReceivedOn()) {
-            // TODO HACK localize properly, we want for example " (received Jan 17)"
-            final StringBuffer buffer = new StringBuffer(" (received ").append(format(receipt.getReceivedOn())).append(")");
+            final StringBuffer buffer = new StringBuffer(" ");
+            buffer.append(getString("UserReceived", new Object[] {format(receipt.getReceivedOn())}));
             pdfXML.receivedOn = buffer.toString();
         } else {
-            pdfXML.receivedOn = " (not received)";
+            final StringBuffer buffer = new StringBuffer(" ").append(getString("UserDidNotReceive"));
+            pdfXML.receivedOn = buffer.toString();
         }
         return pdfXML;
     }
@@ -523,6 +546,39 @@ final class PDFXMLWriter {
         for (final ContainerVersion version : publishedTo.keySet()) {
             this.statistics.usersPerVersion.put(version, publishedTo.get(version).size());
             this.statistics.usersSum += publishedTo.get(version).size();
+        }
+    }
+
+    /**
+     * Get a localized string.
+     * 
+     * @param key
+     *            A <code>String</code> key.
+     * @return A localized <code>String</code>.
+     */
+    private String getString(final String key) {
+        try {
+            return BUNDLE.getString(key);
+        } catch (final MissingResourceException mrx) {
+            return "!" + key + "!";
+        }
+    }
+
+    /**
+     * Get a localized string.
+     * 
+     * @param key
+     *            A <code>String</code> key.
+     * @param arguments
+     *            The <code>Object[]</code> arguments.
+     * @return A localized <code>String</code>.
+     */
+    private String getString(final String key, final Object[] arguments) {
+        final String pattern = getString(key);
+        try {
+            return MessageFormat.format(pattern, arguments);
+        } catch (final IllegalArgumentException iax) {
+            return "!!" + key + "!!";
         }
     }
 

@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.container;
 import java.util.List;
 
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
+import com.thinkparity.codebase.model.artifact.DraftExistsException;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -68,7 +69,13 @@ public class CreateDraftTest extends ContainerTestCase {
         final Container c_y = readContainer(datum.junit_x, c.getUniqueId());
 
         datum.addListener(datum.junit);
-        ContainerDraft draftCreate = getContainerModel(datum.junit).createDraft(c.getId());
+        ContainerDraft draftCreate;
+        try {
+            draftCreate = getContainerModel(datum.junit).createDraft(c.getId());
+        } catch (final DraftExistsException dex) {
+            draftCreate = null;
+            fail(dex, "Draft already exists.");
+        }
         datum.removeListener(datum.junit);
         datum.waitForEvents();
 

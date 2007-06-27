@@ -13,6 +13,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.DraftExistsException;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
@@ -62,22 +63,6 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void acceptInvitation(final IncomingEMailInvitation invitation,
             final Calendar acceptedOn);
-
-    /**
-     * Notify the session was terminated.
-     *
-     */
-    @ThinkParityTransaction(TransactionType.SUPPORTED)
-    public void notifySessionTerminated();
-
-    /**
-     * Set an offline code.
-     * 
-     * @param offlineCode
-     *            An <code>OfflineCode</code>.
-     */
-    @ThinkParityTransaction(TransactionType.NEVER)
-    public void pushOfflineCode(final OfflineCode offlineCode);
 
     /**
      * Accept the contact invitation.
@@ -137,7 +122,7 @@ public interface InternalSessionModel extends SessionModel {
 
     // TODO-javadoc InternalSessionModel#createDraft()
     public void createDraft(final List<JabberId> team, final UUID uniqueId,
-            final Calendar createdOn);
+            final Calendar createdOn) throws DraftExistsException;
 
     /**
      * Create an outgoing e-mail invitation.
@@ -228,7 +213,7 @@ public interface InternalSessionModel extends SessionModel {
     public void deleteInvitation(final OutgoingUserInvitation invitation,
             final Calendar deletedOn);
 
-	/**
+    /**
      * Obtain the authentication token.
      * 
      * @return An <code>AuthToken</code>.
@@ -242,7 +227,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void initializeToken();
 
-    /**
+	/**
      * Determine the availability of an e-mail address.
      * 
      * @param userId
@@ -253,7 +238,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public Boolean isEmailAvailable(final JabberId userId, final EMail email);
 
-	/**
+    /**
      * Determine whether or not this is the first login.
      * 
      * @return True if this is the first login.
@@ -269,7 +254,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public Boolean isPublishRestricted(final JabberId publishTo);
 
-    /**
+	/**
      * Log an error.
      * 
      * @param product
@@ -301,6 +286,13 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void notifyClientMaintenance();
 
+    /**
+     * Notify the session was terminated.
+     *
+     */
+    @ThinkParityTransaction(TransactionType.SUPPORTED)
+    public void notifySessionTerminated();
+
     // TODO-javadoc InternalSessionModel#publish
     public void publish(final ContainerVersion version,
             final List<DocumentVersion> documentVersions,
@@ -315,6 +307,15 @@ public interface InternalSessionModel extends SessionModel {
             final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
             final Calendar publishedOn, final List<EMail> publishToEMails,
             final List<User> publishToUsers);
+
+    /**
+     * Set an offline code.
+     * 
+     * @param offlineCode
+     *            An <code>OfflineCode</code>.
+     */
+    @ThinkParityTransaction(TransactionType.NEVER)
+    public void pushOfflineCode(final OfflineCode offlineCode);
 
     public Container readBackupContainer(final UUID uniqueId);
 

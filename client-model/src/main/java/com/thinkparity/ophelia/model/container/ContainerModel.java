@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.artifact.DraftExistsException;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
@@ -111,8 +112,12 @@ public interface ContainerModel {
      * @param containerId
      *            The container id.
      * @return A container draft.
+     * @throws DraftExistsException
+     *             if a user attempts to create a draft; when a draft already
+     *             exists
      */
-    public ContainerDraft createDraft(final Long containerId);
+    public ContainerDraft createDraft(final Long containerId)
+            throws DraftExistsException;
 
     /**
      * Delete a container.
@@ -651,6 +656,14 @@ public interface ContainerModel {
             throws CannotLockException;
 
     /**
+     * Remove the seen flag from the container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void removeFlagSeen(final Long containerId);
+
+    /**
      * Remove a container listener.
      * 
      * @param listener
@@ -681,14 +694,6 @@ public interface ContainerModel {
      */
     public void renameDocument(final Long containerId, final Long documentId,
             final String name) throws CannotLockException;
-
-    /**
-     * Remove the seen flag from the container.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    public void removeFlagSeen(final Long containerId);
 
     /**
      * Restore a container from an archive.

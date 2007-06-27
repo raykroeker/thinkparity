@@ -8,11 +8,11 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
-import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.DraftExistsException;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
@@ -24,8 +24,10 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedE
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.Constants.Versioning;
+import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
+import com.thinkparity.desdemona.util.DateTimeProvider;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Artifact Model Implementation<br>
@@ -142,18 +144,30 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
      * 
      */
     public void createDraft(final List<JabberId> team, final UUID uniqueId,
-            final Calendar createdOn) {
+            final Calendar createdOn) throws DraftExistsException {
         try {
             final JabberId keyHolderId = readKeyHolder(uniqueId);
-            Assert.assertTrue(keyHolderId.equals(User.THINKPARITY.getId()),
-                    "Cannot create draft.  Current key holder is {0}.",
-                    keyHolderId);
-
-            final Artifact artifact = read(uniqueId);
-            artifactSql.updateDraftOwner(artifact.getId(), user.getId(),
-                    user.getId(), createdOn);
-            notifyDraftCreated(team, artifact, user.getId(),
-                    DateUtil.getInstance());
+            if (keyHolderId.equals(User.THINKPARITY.getId())) {
+                final Artifact artifact = read(uniqueId);
+                final User currentOwner = getUserModel().read(User.THINKPARITY.getId());
+                try {
+                    artifactSql.updateDraftOwner(artifact, currentOwner, user,
+                            createdOn);
+                } catch (final HypersonicException hx) {
+                    // TODO use a specific error code for this scenario
+                    if ("Could not update draft owner.".equals(hx.getMessage())) {
+                        throw new DraftExistsException();
+                    } else {
+                        throw hx;
+                    }
+                }
+                notifyDraftCreated(team, artifact, user.getId(),
+                        DateTimeProvider.getCurrentDateTime());
+            } else {
+                throw new DraftExistsException();
+            }
+        } catch (final DraftExistsException dex) {
+            throw dex;
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -342,8 +356,8 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
 
         // update key data
         final Artifact artifact = read(uniqueId);
-        artifactSql.updateDraftOwner(artifact.getId(), User.THINKPARITY.getId(),
-                userId, deletedOn);
+        final User newOwner = getUserModel().read(User.THINKPARITY.getId());
+        artifactSql.updateDraftOwner(artifact, user, newOwner, deletedOn);
 
         // fire notification
         final ArtifactDraftDeletedEvent draftDeleted = new ArtifactDraftDeletedEvent();

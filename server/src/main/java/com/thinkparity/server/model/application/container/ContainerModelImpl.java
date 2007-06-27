@@ -420,8 +420,10 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         final InternalArtifactModel artifactModel = getArtifactModel();
         final Artifact artifact = artifactModel.read(version.getArtifactUniqueId());
         // HACK - ContainerModelImpl#updateDraftOwner - should call the model
-        artifactSql.updateDraftOwner(artifact.getId(), User.THINKPARITY.getId(),
-                publishedBy, publishedOn);
+        final InternalUserModel userModel = getUserModel();
+        final User currentOwner = userModel.read(publishedBy);
+        final User newOwner = userModel.read(User.THINKPARITY.getId());
+        artifactSql.updateDraftOwner(artifact, currentOwner, newOwner, publishedOn);
     }
 
     /**

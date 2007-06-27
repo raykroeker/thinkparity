@@ -11,6 +11,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.DraftExistsException;
 
 /**
  * <b>Title:</b><br>
@@ -63,7 +64,7 @@ public interface ArtifactModel {
      *            The artifact unique id.
      */
     public void createDraft(final List<JabberId> team, final UUID uniqueId,
-            final Calendar createdOn);
+            final Calendar createdOn) throws DraftExistsException;
 
 	/**
      * Delete a draft from an artifact.

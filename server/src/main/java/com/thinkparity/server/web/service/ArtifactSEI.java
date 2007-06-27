@@ -11,6 +11,8 @@ import javax.jws.WebService;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.DraftExistsException;
+
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 
 import com.thinkparity.service.ArtifactService;
@@ -74,7 +76,7 @@ public class ArtifactSEI extends ServiceSEI implements ArtifactService {
      * 
      */
     public void createDraft(final AuthToken authToken, final List<JabberId> team,
-            final UUID uniqueId, final Calendar createdOn) {
+            final UUID uniqueId, final Calendar createdOn) throws DraftExistsException {
         getModel(authToken).createDraft(team, uniqueId, createdOn);
     }
 

@@ -11,6 +11,7 @@ import java.util.List;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.artifact.DraftExistsException;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.profile.Profile;
@@ -135,7 +136,7 @@ public class ContainerBuilder {
      * Create a draft.
      *
      */
-    public ContainerBuilder createDraft() {
+    public ContainerBuilder createDraft() throws DraftExistsException {
         logger.logApiId();
         getContainerModel().createDraft(id);
         return this;

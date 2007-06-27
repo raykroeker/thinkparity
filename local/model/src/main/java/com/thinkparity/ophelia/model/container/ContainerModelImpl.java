@@ -28,12 +28,7 @@ import com.thinkparity.codebase.io.StreamOpener;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.ThinkParityException;
-import com.thinkparity.codebase.model.artifact.Artifact;
-import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
-import com.thinkparity.codebase.model.artifact.ArtifactState;
-import com.thinkparity.codebase.model.artifact.ArtifactType;
-import com.thinkparity.codebase.model.artifact.ArtifactVersion;
-import com.thinkparity.codebase.model.artifact.PublishedToEMail;
+import com.thinkparity.codebase.model.artifact.*;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
@@ -355,10 +350,12 @@ public final class ContainerModelImpl extends
      * @see com.thinkparity.ophelia.model.container.ContainerModel#createDraft(java.lang.Long)
      * 
      */
-    public ContainerDraft createDraft(final Long containerId) {
+    public ContainerDraft createDraft(final Long containerId) throws DraftExistsException {
         try {
-            assertContainerDraftDoesNotExist(containerId,
-                    "Draft for {0} already exists.", containerId);
+            if (doesExistDraft(containerId)) {
+                throw new DraftExistsException();
+            }
+
             if (isFirstDraft(containerId)) {
                 createFirstDraft(containerId, localTeamMember(containerId));
             } else {
@@ -427,6 +424,8 @@ public final class ContainerModelImpl extends
             final ContainerDraft postCreationDraft = readDraft(containerId);
             notifyDraftCreated(postCreation, postCreationDraft, localEventGenerator);
             return postCreationDraft;
+        } catch (final DraftExistsException dex) {
+            throw dex;
         } catch (final Throwable t) {
             throw panic(t);
         }

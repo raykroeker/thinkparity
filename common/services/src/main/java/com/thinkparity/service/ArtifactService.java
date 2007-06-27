@@ -12,6 +12,8 @@ import javax.jws.WebService;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.DraftExistsException;
+
 /**
  * <b>Title:</b>thinkParity Artifact Service<br>
  * <b>Description:</b><br>
@@ -37,7 +39,7 @@ public interface ArtifactService {
 
     @WebMethod
     void createDraft(AuthToken authToken, List<JabberId> team,
-            UUID uniqueId, Calendar createdOn);
+            UUID uniqueId, Calendar createdOn) throws DraftExistsException;
 
     @WebMethod
     void deleteDraft(AuthToken authToken, List<JabberId> team,

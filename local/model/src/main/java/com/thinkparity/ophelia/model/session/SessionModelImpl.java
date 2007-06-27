@@ -19,6 +19,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.net.online.ValidationService;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.DraftExistsException;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
@@ -245,10 +246,12 @@ public final class SessionModelImpl extends Model<SessionListener>
      * 
      */
     public void createDraft(final List<JabberId> team, final UUID uniqueId,
-            final Calendar createdOn) {
+            final Calendar createdOn) throws DraftExistsException {
         try {
             artifactService.createDraft(getAuthToken(), team, uniqueId,
                     createdOn);
+        } catch (final DraftExistsException dex) {
+            throw dex;
         } catch (final Throwable t) {
             throw panic(t);
         }

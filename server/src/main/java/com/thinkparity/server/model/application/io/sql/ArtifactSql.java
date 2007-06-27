@@ -13,6 +13,7 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.artifact.RemoteArtifact;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
@@ -132,7 +133,7 @@ public class ArtifactSql extends AbstractSql {
     private static final String SQL_UPDATE_DRAFT_OWNER =
         new StringBuilder("update TPSD_ARTIFACT ")
         .append("set ARTIFACT_DRAFT_OWNER=?,UPDATED_ON=?,UPDATED_BY=? ")
-        .append("where ARTIFACT_ID=?")
+        .append("where ARTIFACT_ID=? and ARTIFACT_DRAFT_OWNER=?")
         .toString();
 
     /** Sql to update the latest version id. */
@@ -495,20 +496,21 @@ public class ArtifactSql extends AbstractSql {
      * @param updatedBy
      *            An updated by user id <code>JabberId</code>.
      */
-    public void updateDraftOwner(final Long artifactId,
-            final JabberId draftOwner, final JabberId updatedBy,
+    public void updateDraftOwner(final Artifact artifact,
+            final User currentOwner, final User newOwner,
             final Calendar updatedOn) {
 		final HypersonicSession session = openSession();
 		try {
 			session.prepareStatement(SQL_UPDATE_DRAFT_OWNER);
-            session.setLong(1, readLocalUserId(draftOwner));
+            session.setLong(1, newOwner.getLocalId());
             session.setCalendar(2, updatedOn);
-			session.setLong(3, readLocalUserId(updatedBy));
-			session.setLong(4, artifactId);
-            if (1 != session.executeUpdate())
-                throw new HypersonicException(
-                        "Could not update artifact draft owner to {0} for {1}",
-                        draftOwner, artifactId);
+			session.setLong(3, newOwner.getLocalId());
+			session.setLong(4, artifact.getId());
+            session.setLong(5, currentOwner.getLocalId());
+            if (1 != session.executeUpdate()) {
+                // TODO use a specific error code for this scenario
+                throw new HypersonicException("Could not update draft owner.");
+            }
 
             session.commit();
         } catch (final Throwable t) {

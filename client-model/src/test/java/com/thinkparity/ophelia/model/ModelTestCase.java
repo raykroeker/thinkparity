@@ -27,6 +27,7 @@ import com.thinkparity.codebase.junitx.TestException;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.DraftExistsException;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -850,7 +851,12 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      */
     protected ContainerDraft createContainerDraft(
             final OpheliaTestUser testUser, final Long containerId) {
-        return getContainerModel(testUser).createDraft(containerId);
+        try {
+            return getContainerModel(testUser).createDraft(containerId);
+        } catch (final DraftExistsException dex) {
+            fail(dex, "Draft for {0} already exists.", containerId);
+            throw new TestException(dex);
+        }
     }
 
     /**
@@ -907,7 +913,12 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         final Container c = getContainerModel(createAs).read(localContainerId);
         logger.logInfo("Creating draft for container \"{0}\" as \"{1}.\"",
                 c.getName(), createAs.getSimpleUsername());
-        return getContainerModel(createAs).createDraft(localContainerId);
+        try {
+            return getContainerModel(createAs).createDraft(localContainerId);
+        } catch (final DraftExistsException dex) {
+            fail(dex, "Draft for {0} already exists.", c.getName());
+            throw new TestException(dex);
+        }
     }
 
     /**

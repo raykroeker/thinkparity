@@ -7,12 +7,7 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -160,7 +155,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
             }
         });
         tabJScrollPane.getVerticalScrollBar().setUnitIncrement(Constants.ScrollBar.UNIT_INCREMENT);
-        new Resizer(getController(), tabJScrollPane, Boolean.FALSE, Resizer.ResizeEdges.MIDDLE);
+        new Resizer(getController(), tabJPanel, Boolean.FALSE, Resizer.ResizeEdges.MIDDLE);
         bindKeys();
     }
 

@@ -35,6 +35,12 @@ public final class WebService extends HttpServlet {
     /** The error response xml components. */
     private static final char[][] ERROR_XML;
 
+    /** The begin/end xml nodes for the error message. */
+    private static final char[][] ERROR_XML_MESSAGE;
+
+    /** The begin/end xml nodes for the error type. */
+    private static final char[][] ERROR_XML_TYPE;
+
     /** The service operation registry. */
     private static final OperationRegistry OPERATION_REGISTRY;
 
@@ -60,8 +66,17 @@ public final class WebService extends HttpServlet {
                 "<?xml version=\"1.0\" encoding=\"".toCharArray(),
                 "\"?><service-error service=\"".toCharArray(),
                 "\" operation=\"".toCharArray(),
-                "\">".toCharArray(),
+                "\"".toCharArray(),
+                ">".toCharArray(),
                 "</service-error>".toCharArray()
+        };
+        ERROR_XML_MESSAGE = new char[][] {
+                " message=\"".toCharArray(),
+                "\"".toCharArray()
+        };
+        ERROR_XML_TYPE = new char[][] {
+                " type=\"".toCharArray(),
+                "\"".toCharArray()
         };
 
         OPERATION_REGISTRY = OperationRegistry.getInstance();
@@ -97,19 +112,6 @@ public final class WebService extends HttpServlet {
     }
 
     /**
-     * Marshal the error message.
-     * 
-     * @param errorMessage
-     *            The error message <code>String</code> to write.
-     * @param writer
-     *            A <code>Writer</code>.
-     */
-    private static void marshalErrorMessage(final String errorMessage,
-            final Writer writer) {
-        XSTREAM.marshal(errorMessage, new XmlWriter(writer));
-    }
-
-    /**
      * Marshal the error stack trace.
      * 
      * @param error
@@ -120,19 +122,6 @@ public final class WebService extends HttpServlet {
     private static void marshalErrorStackTrace(
             final StackTraceElement[] stackTrace, final Writer writer) {
         XSTREAM.marshal(stackTrace, new XmlWriter(writer));
-    }
-
-    /**
-     * Marshal the error type.
-     * 
-     * @param errorType
-     *            The error type <code>Class<?></code> to write.
-     * @param writer
-     *            A <code>Writer</code>.
-     */
-    private static void marshalErrorType(final Class<?> errorType,
-            final Writer writer) {
-        XSTREAM.marshal(errorType, new XmlWriter(writer));
     }
 
     /**
@@ -148,15 +137,15 @@ public final class WebService extends HttpServlet {
     }
 
     /**
-     * Create an error service response for an undeclared error.
+     * Create an error service response for a declared error
      * 
      * @param error
-     *            An undeclared error <code>ServiceException</code>.
+     *            A declared error <code>Throwable</code>.
      * @return A <code>ServiceResponse</code>.
      */
-    private static ServiceResponse newErrorResponse(final ServiceException error) {
+    private static ServiceResponse newErrorResponse(final ServiceException sx) {
         final ServiceResponse errorResponse = new ServiceResponse();
-        errorResponse.setUndeclaredError(error.getMessage(), newStackTrace(error));
+        errorResponse.setUndeclaredError(sx.getMessage(), newStackTrace(sx));
         return errorResponse;
     }
 
@@ -351,12 +340,19 @@ public final class WebService extends HttpServlet {
         writer.write(ERROR_XML[2]);
         writer.write(serviceRequest.getOperation().getId());
         writer.write(ERROR_XML[3]);
-        if (errorResponse.isSetErrorType())
-            marshalErrorType(errorResponse.getErrorType(), writer);
-        if (errorResponse.isSetErrorMessage())
-            marshalErrorMessage(errorResponse.getErrorMessage(), writer);
-        marshalErrorStackTrace(errorResponse.getErrorStackTrace(), writer);
+        if (errorResponse.isSetErrorMessage()) {
+            writer.write(ERROR_XML_MESSAGE[0]);
+            writer.write(xmlEncode(errorResponse.getErrorMessage()));
+            writer.write(ERROR_XML_MESSAGE[1]);
+        }
+        if (errorResponse.isSetErrorType()) {
+            writer.write(ERROR_XML_TYPE[0]);
+            writer.write(errorResponse.getErrorType().getName());
+            writer.write(ERROR_XML_TYPE[1]);
+        }
         writer.write(ERROR_XML[4]);
+        marshalErrorStackTrace(errorResponse.getErrorStackTrace(), writer);
+        writer.write(ERROR_XML[5]);
         writer.flush();
     }
 
@@ -384,6 +380,17 @@ public final class WebService extends HttpServlet {
         }
         writer.write(RESPONSE_XML[4]);
         writer.flush();
+    }
+
+    /**
+     * Encode a string for xml transport.
+     * 
+     * @param string
+     *            A <code>String</code>.
+     * @return An xml <code>String</code>.
+     */
+    private static String xmlEncode(final String string) {
+        return StringUtil.searchAndReplace(string, "\"", "").toString();
     }
 
     /**

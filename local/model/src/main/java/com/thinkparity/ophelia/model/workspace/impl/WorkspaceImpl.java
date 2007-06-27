@@ -511,7 +511,7 @@ public final class WorkspaceImpl implements Workspace {
 
     /**
      * Initialize logging. Check the operating mode. If in development or
-     * testing mode; enable the sql and xmpp debuggers.
+     * testing mode; enable the sql and service debuggers.
      * 
      */
     private void bootstrapLog4J() {
@@ -559,16 +559,16 @@ public final class WorkspaceImpl implements Workspace {
                         File.separatorChar, "thinkParity XA.log"));
         // xa additivity
         logging.setProperty("log4j.additivity.XA_DEBUGGER", "false");
-        // xmpp appender
-        logging.setProperty("log4j.appender.XMPP_DEBUGGER", "org.apache.log4j.RollingFileAppender");
-        logging.setProperty("log4j.appender.XMPP_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
-        logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
-        logging.setProperty("log4j.appender.XMPP_DEBUGGER.layout.ConversionPattern", Constants.Log4J.LAYOUT_CONVERSION_PATTERN);
-        logging.setProperty("log4j.appender.XMPP_DEBUGGER.File",
+        // service appender
+        logging.setProperty("log4j.appender.SERVICE_DEBUGGER", "org.apache.log4j.RollingFileAppender");
+        logging.setProperty("log4j.appender.SERVICE_DEBUGGER.MaxFileSize", Constants.Log4J.MAX_FILE_SIZE);
+        logging.setProperty("log4j.appender.SERVICE_DEBUGGER.layout", "org.apache.log4j.PatternLayout");
+        logging.setProperty("log4j.appender.SERVICE_DEBUGGER.layout.ConversionPattern", Constants.Log4J.SERVICE_CONVERSION_PATTERN);
+        logging.setProperty("log4j.appender.SERVICE_DEBUGGER.File",
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
-                        File.separatorChar, "thinkParity XMPP.log"));
-        // xmpp additivity
-        logging.setProperty("log4j.additivity.XMPP_DEBUGGER", "false");
+                        File.separatorChar, "thinkParity Service.log"));
+        // service additivity
+        logging.setProperty("log4j.additivity.SERVICE_DEBUGGER", "false");
         // loggers
         logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
         // renderers
@@ -605,7 +605,7 @@ public final class WorkspaceImpl implements Workspace {
         new Log4JWrapper("METRIX_DEBUGGER").logInfo("{0} - {1}", "thinkParity", Release.NAME);
         new Log4JWrapper("SQL_DEBUGGER").logInfo("{0} - {1}", "thinkParity", Release.NAME);
         new Log4JWrapper("XA_DEBUGGER").logInfo("{0} - {1}", "thinkParity", Release.NAME);
-        new Log4JWrapper("XMPP_DEBUGGER").logInfo("{0} - {1}", "thinkParity", Release.NAME);
+        new Log4JWrapper("SERVICE_DEBUGGER").logInfo("{0} - {1}", "thinkParity", Release.NAME);
     }
 
     /**

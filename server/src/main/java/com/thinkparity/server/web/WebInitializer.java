@@ -107,7 +107,6 @@ public final class WebInitializer implements ServletContextListener {
         setProperty(properties, "thinkparity.temp.root", servletContext);
         setProperty(properties, "xmpp.domain", servletContext);
         setSystemProperty(properties, "thinkparity.release-name");
-        // NOCOMMIT - WebListener#contextInitialized
         properties.println(System.out);
         final StringBuffer buffer = new StringBuffer();
         PropertiesUtil.print(buffer, System.getProperties());

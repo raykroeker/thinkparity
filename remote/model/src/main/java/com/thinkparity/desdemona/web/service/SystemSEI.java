@@ -7,6 +7,8 @@ import java.util.Calendar;
 
 import javax.jws.WebService;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.ModelFactory;
@@ -49,14 +51,19 @@ public class SystemSEI extends ServiceSEI implements SystemService {
     }
 
     /**
-     * Obtain a system model for an authenticated session.
-     * 
-     * @param authToken
-     *            A session <code>AuthToken</code>.
-     * @return An instance of <code>SystemModel</code>.
+     * @see com.thinkparity.service.SystemService#throwDeclaredError(com.thinkparity.service.AuthToken)
+     *
      */
-    private SystemModel getModel(final AuthToken authToken) {
-        return getModelFactory(authToken).getSystemModel();
+    public void throwDeclaredError(AuthToken authToken) throws Exception {
+        throw new Exception("System Service:  Throw Declared Error");
+    }
+
+    /**
+     * @see com.thinkparity.service.SystemService#throwError(com.thinkparity.service.AuthToken)
+     *
+     */
+    public void throwError(final AuthToken authToken) {
+        throw Assert.createNotYetImplemented("System Service:  Throw Error");
     }
 
     /**
@@ -67,5 +74,16 @@ public class SystemSEI extends ServiceSEI implements SystemService {
     private SystemModel getModel() {
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
         return ModelFactory.getInstance(User.THINKPARITY, loader).getSystemModel();
+    }
+
+    /**
+     * Obtain a system model for an authenticated session.
+     * 
+     * @param authToken
+     *            A session <code>AuthToken</code>.
+     * @return An instance of <code>SystemModel</code>.
+     */
+    private SystemModel getModel(final AuthToken authToken) {
+        return getModelFactory(authToken).getSystemModel();
     }
 }

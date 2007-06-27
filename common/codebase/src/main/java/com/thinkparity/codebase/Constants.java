@@ -14,9 +14,9 @@ import java.util.TimeZone;
  */
 public class Constants {
 
-    public static final TimeZone UNIVERSAL_TIME_ZONE = TimeZone.getTimeZone("Universal");
-
     public static final TimeZone DEFAULT_TIME_ZONE = TimeZone.getDefault();
+
+    public static final TimeZone UNIVERSAL_TIME_ZONE = TimeZone.getTimeZone("Universal");
 
     /**
      * <b>Title:</b>Checksum Algorithms<br>
@@ -28,16 +28,16 @@ public class Constants {
      * <b>Title:</b>thinkParity File Constants<br>
      * <b>Description:</b>thinkParity file constants.<br>
      */
-    public static final class File {
-        public static final String TEMP_FILE_PREFIX = "thinkParity.";
+    public static final class Directory {
+        public static final String TEMP_DIR_PREFIX = "thinkParity.";
     }
 
     /**
      * <b>Title:</b>thinkParity File Constants<br>
      * <b>Description:</b>thinkParity file constants.<br>
      */
-    public static final class Directory {
-        public static final String TEMP_DIR_PREFIX = "thinkParity.";
+    public static final class File {
+        public static final String TEMP_FILE_PREFIX = "thinkParity.";
     }
 
     /**
@@ -56,9 +56,10 @@ public class Constants {
      */
     public static final class Log4J {
         public static final String LAYOUT_CONVERSION_PATTERN = "%d{ISO8601} %x %t %p %m%n";
-        public static final String MAX_FILE_SIZE = "3MB";
         public static final String MAX_BACKUP_INDEX = "1";
+        public static final String MAX_FILE_SIZE = "3MB";
         public static final String METRICS_LAYOUT_CONVERSION_PATTERN = "%d{ISO8601} %m%n";
+        public static final String SERVICE_CONVERSION_PATTERN = "%d{ISO8601} %x %t %m%n";
     }
 
     /**

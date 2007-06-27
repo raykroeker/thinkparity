@@ -25,7 +25,7 @@ public abstract class ContactInvitation {
     protected Calendar createdOn;
 
     /** The invitation id. */
-    protected Long id;
+    protected transient Long id;
 
     /**
      * Create ContactInvitation.

@@ -28,4 +28,20 @@ public interface SystemService {
 
     @WebMethod
     String readVersion(AuthToken authToken);
+
+    /**
+     * Throw a declared error.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     */
+    @WebMethod void throwDeclaredError(AuthToken authToken) throws Exception;
+
+    /**
+     * Throw an error.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     */
+    @WebMethod void throwError(AuthToken authToken);
 }

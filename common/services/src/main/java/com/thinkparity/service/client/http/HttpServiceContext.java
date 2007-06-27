@@ -3,6 +3,11 @@
  */
 package com.thinkparity.service.client.http;
 
+import java.io.IOException;
+import java.io.Writer;
+
+import com.thinkparity.codebase.log4j.Log4JWrapper;
+
 import com.thinkparity.codebase.model.session.Environment;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -36,12 +41,20 @@ final class HttpServiceContext implements ServiceContext {
     /** The http client. */
     private HttpClient httpClient;
 
+    /** A log4j wrapper. */
+    private final Log4JWrapper logger;
+
+    /** A log4j writer. */
+    private final Log4JWriter logWriter;
+
     /**
      * Create HttpServiceContext.
      *
      */
     HttpServiceContext() {
         super();
+        this.logger = new Log4JWrapper("SERVICE_DEBUGGER");
+        this.logWriter = new Log4JWriter();
     }
 
     /**
@@ -63,6 +76,15 @@ final class HttpServiceContext implements ServiceContext {
     }
 
     /**
+     * Obtain logWriter.
+     *
+     * @return A Log4JWriter.
+     */
+    public Log4JWriter getLogWriter() {
+        return logWriter;
+    }
+
+    /**
      * Obtain urlPattern.
      *
      * @return A String.
@@ -80,7 +102,7 @@ final class HttpServiceContext implements ServiceContext {
     public void setContentType(final String contentType) {
         this.contentType = contentType;
     }
-
+    
     /**
      * Set httpClient.
      *
@@ -89,5 +111,46 @@ final class HttpServiceContext implements ServiceContext {
      */
     public void setHttpClient(final HttpClient httpClient) {
         this.httpClient = httpClient;
+    }
+
+    /** <b>Title:</b>Http Service Context Log4J Writer<br> */
+    private class Log4JWriter extends Writer {
+
+        /** A buffer to log. */
+        private final StringBuilder buffer = new StringBuilder();
+
+        /**
+         * @see java.io.Writer#close()
+         *
+         */
+        @Override
+        public void close() throws IOException {
+            /* nothing to do */
+        }
+
+        /**
+         * @see java.io.Writer#flush()
+         *
+         */
+        @Override
+        public void flush() throws IOException {
+            if (logger.isDebugEnabled()) {
+                logger.logDebug(buffer.toString());
+                buffer.setLength(0);
+            }
+        }
+
+        /**
+         * @see java.io.Writer#write(char[], int, int)
+         *
+         */
+        @Override
+        public void write(final char[] cbuf, final int off, final int len)
+                throws IOException {
+            if (logger.isDebugEnabled()) {
+                for (int i = 0; i < len; i++)
+                    buffer.append(cbuf[off + i]);
+            }
+        }
     }
 }

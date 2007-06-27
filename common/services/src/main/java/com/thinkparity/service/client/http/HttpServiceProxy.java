@@ -36,8 +36,8 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     /** The xml charset (encoding). */
     private static final Charset CHARSET;
 
-    /** The node names for the error response. */
-    private static final String[] ERROR_NODE_NAMES;
+    /** The error response attribute names. */
+    private static final String[] ERROR_XML_ATTRIBUTE_NAMES;
 
     /** A log4j wrapper. */
     private static final Log4JWrapper LOGGER;
@@ -57,7 +57,7 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     static {
         CHARSET = StringUtil.Charset.UTF_8.getCharset();
 
-        ERROR_NODE_NAMES = new String[] { "message", "type" };
+        ERROR_XML_ATTRIBUTE_NAMES = new String[] { "message", "type" };
 
         LOGGER = new Log4JWrapper(HttpServiceProxy.class);
 
@@ -236,37 +236,15 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     }
 
     /**
-     * Unmarshall the error message.
-     * 
-     * @param xppReader
-     *            An <code>XppReader</code>.
-     * @return A <code>String</code>.
-     */
-    private static String unmarshalErrorMessage(final XppReader xppReader) {
-        return (String) XSTREAM.unmarshal(xppReader);
-    }
-
-    /**
      * Unmarshall the error stack trace of the response.
      * 
      * @param xppReader
      *            An <code>XppReader</code>.
      * @return A <code>StackTraceElement[]</code>.
      */
-    private static StackTraceElement[] unmarshalErrorStackTrace(
+    private static StackTraceElement[] unmarshalErrorStack(
             final XppReader xppReader) {
         return (StackTraceElement[]) XSTREAM.unmarshal(xppReader);
-    }
-
-    /**
-     * Unmarshall the error of the response.
-     * 
-     * @param xppReader
-     *            An <code>XppReader</code>.
-     * @return A <code>Object</code>.
-     */
-    private static Class unmarshalErrorType(final XppReader xppReader) {
-        return (Class) XSTREAM.unmarshal(xppReader);
     }
 
     /**
@@ -274,10 +252,7 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
      * 
      * @param parser
      *            An <code>XmlPullParser</code>.
-     * @return A <code>Object</code>.
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     * @throws ClassNotFoundException
+     * @return A <code>Result</code>.
      */
     private static Result unmarshalResult(final XppReader xppReader) {
         final Object value = XSTREAM.unmarshal(xppReader);
@@ -392,7 +367,7 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
      *
      */
     public void writeRequest(final OutputStream stream) throws IOException {
-        writeRequest(newStreamWriter(System.out));
+        writeRequest(context.getLogWriter());
         writeRequest(newStreamWriter(stream));
     }
 
@@ -434,26 +409,20 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
             xppReader.moveDown();
             response.setResult(unmarshalResult(xppReader));
         } else if (RESPONSE_NODE_NAMES[1].equals(xppReader.getNodeName())) {
+            final String message = xppReader.getAttribute(ERROR_XML_ATTRIBUTE_NAMES[0]);
+            final String typeString = xppReader.getAttribute(ERROR_XML_ATTRIBUTE_NAMES[1]);
+            Class<?> type = null;
+            try {
+                type = null == typeString ? null : Class.forName(typeString);
+            } catch (final Exception x) {
+                type = null;
+            }
             xppReader.moveDown();
-            final String errorMessage;
-            if (ERROR_NODE_NAMES[0].equals(xppReader.getNodeName())) {
-                errorMessage = unmarshalErrorMessage(xppReader);
-                xppReader.moveDown();
+            final StackTraceElement[] stack = unmarshalErrorStack(xppReader);
+            if (null == type) {
+                response.setUndeclaredError(message, stack);
             } else {
-                errorMessage = null;
-            }
-            final Class<?> errorType;
-            if (ERROR_NODE_NAMES[1].equals(xppReader.getNodeName())) {
-                errorType = unmarshalErrorType(xppReader);
-                xppReader.moveDown();
-            } else {
-                errorType = null;
-            }
-            final StackTraceElement[] errorStackTrace = unmarshalErrorStackTrace(xppReader);
-            if (null == errorType) {
-                response.setUndeclaredError(errorMessage, errorStackTrace);
-            } else {
-                response.setDeclaredError(errorType, errorMessage, errorStackTrace);
+                response.setDeclaredError(type, message, stack);
             }
         } else {
             Assert.assertUnreachable("Unknown service response node name {0}.",

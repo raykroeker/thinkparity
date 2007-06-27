@@ -165,6 +165,7 @@ public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
      * Reload the license agreement text.
      */
     private void reloadLicenseAgreementText() {
+        licenseAgreementJTextArea.setText("");
         SwingUtil.insert(licenseAgreementJTextArea, openResource("LicenseAgreement"));
     }
 

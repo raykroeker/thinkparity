@@ -15,11 +15,12 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
- *
- * @author  user
+ * <b>Title:</b>thinkParity OpheliaUI Sign-Up Intro Avatar<br>
+ * 
+ * @author robert@thinkparity.com
  */
 public class SignupIntroAvatar extends DefaultSignupPage {
-    
+
     /** Creates new form SignupIntroAvatar */
     public SignupIntroAvatar() {
         super("SignupAvatar.Intro", BrowserConstants.DIALOGUE_BACKGROUND);
@@ -68,11 +69,10 @@ public class SignupIntroAvatar extends DefaultSignupPage {
         final Graphics g2 = g.create();
         try {
             // Draw the logo.
-            g2.drawImage(Images.BrowserTitle.LOGO,
-                    (getWidth() - Images.BrowserTitle.LOGO.getWidth()) / 2,
-                    Images.BrowserTitle.LOGO.getHeight(),
-                    Images.BrowserTitle.LOGO.getWidth(),
-                    Images.BrowserTitle.LOGO.getHeight(), SignupIntroAvatar.this);
+            g2.drawImage(Images.BrowserTitle.LOGO_LARGE,
+                    (getWidth() - Images.BrowserTitle.LOGO_LARGE.getWidth()) / 2, 35,
+                    Images.BrowserTitle.LOGO_LARGE.getWidth(),
+                    Images.BrowserTitle.LOGO_LARGE.getHeight(), SignupIntroAvatar.this);
         }
         finally { g2.dispose(); }
     }

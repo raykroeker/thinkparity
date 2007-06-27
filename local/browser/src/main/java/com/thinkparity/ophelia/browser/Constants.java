@@ -267,6 +267,8 @@ public final class Constants {
                 ImageIOUtil.read("BrowserTitle_SearchHalo.png");
             public static final BufferedImage LOGO =
                 ImageIOUtil.read("thinkParityLogo.png");
+            public static final BufferedImage LOGO_LARGE =
+                ImageIOUtil.read("thinkParityLogoLarge.png");
             public static final BufferedImage SEARCH_BACKGROUND =
                 ImageIOUtil.read("BrowserTitle_SearchBackground.png");
         }

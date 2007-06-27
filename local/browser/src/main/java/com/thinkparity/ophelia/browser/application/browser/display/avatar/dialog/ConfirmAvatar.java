@@ -4,9 +4,12 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.text.MessageFormat;
 
 import javax.swing.AbstractAction;
+import javax.swing.KeyStroke;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -40,12 +43,8 @@ public final class ConfirmAvatar extends Avatar {
      */
     public ConfirmAvatar() {
         super("ConfirmAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
-        bindEscapeKey("Cancel", new AbstractAction() {
-            public void actionPerformed(final ActionEvent e) {
-                disposeWindow();
-            }
-        });
         initComponents();
+        bindKeys();
     }
 
     /**
@@ -89,14 +88,49 @@ public final class ConfirmAvatar extends Avatar {
 
     public void setState(final State state) {}
 
-    private void confirmJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmJButtonActionPerformed
+    /**
+     * Bind keys.
+     */
+    private void bindKeys() {
+        final AbstractAction confirmAction = new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                confirm();
+            }
+        };
+        final AbstractAction denyAction = new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                deny();
+            }
+        };
+        bindEscapeKey("Cancel", denyAction);
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_Y, 0), confirmAction);
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.SHIFT_DOWN_MASK), confirmAction);
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_N, 0), denyAction);
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.SHIFT_DOWN_MASK), denyAction);
+    }
+
+    /**
+     * User confirms.
+     */
+    private void confirm() {
         confirm = Boolean.TRUE;
         disposeWindow();
+    }
+
+    private void confirmJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmJButtonActionPerformed
+        confirm();
     }//GEN-LAST:event_confirmJButtonActionPerformed
 
-    private void denyJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_denyJButtonActionPerformed
+    /**
+     * User denies.
+     */
+    private void deny() {
         confirm = Boolean.FALSE;
         disposeWindow();
+    }
+
+    private void denyJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_denyJButtonActionPerformed
+        deny();
     }//GEN-LAST:event_denyJButtonActionPerformed
 
     /**

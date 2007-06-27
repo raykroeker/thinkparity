@@ -1527,9 +1527,12 @@ public class Browser extends AbstractApplication {
      *            A comment <code>String</code>.
      */
     public void runUpdateDraftComment(final Long containerId, final String comment) {
-        final Data data = new Data(2);
+        final Data data = new Data(3);
         data.set(UpdateDraftComment.DataKey.CONTAINER_ID, containerId);
-        data.set(UpdateDraftComment.DataKey.COMMENT, comment);
+        if (null != comment) {
+            data.set(UpdateDraftComment.DataKey.COMMENT, comment);
+        }
+        data.set(UpdateDraftComment.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
         invoke(ActionId.CONTAINER_UPDATE_DRAFT_COMMENT, data);
     }
 

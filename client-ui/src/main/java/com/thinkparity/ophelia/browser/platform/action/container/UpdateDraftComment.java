@@ -36,8 +36,9 @@ public final class UpdateDraftComment extends AbstractBrowserAction {
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final String comment = (String) data.get(DataKey.COMMENT);
+        final Boolean displayAvatar = (Boolean) data.get(DataKey.DISPLAY_AVATAR);
 
-        if (null == comment) {
+        if (displayAvatar) {
             // launch the dialog
             browser.displayUpdateDraftCommentDialog(containerId);
         } else {
@@ -46,5 +47,5 @@ public final class UpdateDraftComment extends AbstractBrowserAction {
         }                  
     }
 
-    public enum DataKey { CONTAINER_ID, COMMENT }
+    public enum DataKey { CONTAINER_ID, COMMENT, DISPLAY_AVATAR }
 }

@@ -282,8 +282,9 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
 
         // update draft comment
         if (online) {
-            final Data data = new Data(1);
+            final Data data = new Data(2);
             data.set(UpdateDraftComment.DataKey.CONTAINER_ID, draft.getContainerId());
+            data.set(UpdateDraftComment.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
             add(ActionId.CONTAINER_UPDATE_DRAFT_COMMENT, data);
         }
 

@@ -1,13 +1,17 @@
 /*
- * ContainerUpdateNoteAvatar.java
+ * UpdateDraftCommentAvatar.java
  *
  * Created on May 16, 2007, 3:47 AM
  */
 
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
 import javax.swing.text.AbstractDocument;
 
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextComponentLengthFilter;
 
@@ -24,43 +28,77 @@ import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
  *
- * @author  user
+ * @author robert@thinkparity.com
  */
 public class UpdateDraftCommentAvatar extends Avatar {
 
     /** An instance of <code>ContainerConstraints</code>. */
     private final ContainerConstraints containerConstraints;
 
-    /** Creates new form ContainerUpdateNoteAvatar */
+    /** The initial comment <code>String</code>. */
+    private String initialComment;
+
+    /** Creates new form UpdateDraftCommentAvatar */
     public UpdateDraftCommentAvatar() {
-        super("UpdateNoteAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("UpdateDraftCommentAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         this.containerConstraints = ContainerConstraints.getInstance();
         initComponents();
-    }
-
-    public void setState(final State state) {
-    }
-
-    public State getState() {
-        return null;
+        addValidationListener(commentJTextArea);
+        bindEscapeKey();
     }
 
     public AvatarId getId() {
         return AvatarId.DIALOG_CONTAINER_UPDATE_DRAFT_COMMENT;
     }
 
+    public State getState() {
+        return null;
+    }
+
     public void reload() {
         if (input != null) {
             reloadComment();
-            noteJTextArea.setCaretPosition(0); //scroll to top
+            commentJTextArea.setCaretPosition(0); //scroll to top
+            validateInput();
         }
     }
 
+    public void setState(final State state) {
+    }
+
     /**
-     * Extract the note.
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#validateInput()
+     */
+    @Override
+    protected void validateInput() {
+        super.validateInput();
+        final String comment = extractComment();
+        if (null == comment && null == initialComment) {
+            addInputError(Separator.Space.toString());
+        } else if (null != comment
+                && null != initialComment
+                && comment.equals(initialComment)) {
+            addInputError(Separator.Space.toString());
+        }
+        okJButton.setEnabled(!containsInputErrors());
+    }
+
+    /**
+     * Make the escape key behave like cancel.
+     */
+    private void bindEscapeKey() {
+        bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                cancelJButtonActionPerformed(e);
+            }
+        });
+    }
+
+    /**
+     * Extract the comment.
      */
     private String extractComment() {
-        return SwingUtil.extract(noteJTextArea, Boolean.TRUE);
+        return SwingUtil.extract(commentJTextArea, Boolean.TRUE);
     }
 
     /**
@@ -83,13 +121,11 @@ public class UpdateDraftCommentAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JButton okJButton = ButtonFactory.create();
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
-        noteJScrollPane = new javax.swing.JScrollPane();
-        noteJTextArea = new javax.swing.JTextArea();
+        final javax.swing.JScrollPane commentJScrollPane = new javax.swing.JScrollPane();
 
         okJButton.setFont(Fonts.DialogButtonFont);
-        okJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateNoteAvatar.OK"));
+        okJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateDraftCommentAvatar.OK"));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 okJButtonActionPerformed(evt);
@@ -97,21 +133,21 @@ public class UpdateDraftCommentAvatar extends Avatar {
         });
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
-        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateNoteAvatar.Cancel"));
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateDraftCommentAvatar.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelJButtonActionPerformed(evt);
             }
         });
 
-        noteJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        noteJTextArea.setColumns(20);
-        noteJTextArea.setFont(Fonts.DialogTextEntryFont);
-        noteJTextArea.setLineWrap(true);
-        noteJTextArea.setRows(5);
-        noteJTextArea.setWrapStyleWord(true);
-        ((AbstractDocument) noteJTextArea.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(containerConstraints.getDraftComment()));
-        noteJScrollPane.setViewportView(noteJTextArea);
+        commentJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        commentJTextArea.setColumns(20);
+        commentJTextArea.setFont(Fonts.DialogTextEntryFont);
+        commentJTextArea.setLineWrap(true);
+        commentJTextArea.setRows(5);
+        commentJTextArea.setWrapStyleWord(true);
+        ((AbstractDocument) commentJTextArea.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(containerConstraints.getDraftComment()));
+        commentJScrollPane.setViewportView(commentJTextArea);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -120,7 +156,7 @@ public class UpdateDraftCommentAvatar extends Avatar {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(noteJScrollPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .addComponent(commentJScrollPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(okJButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -134,7 +170,7 @@ public class UpdateDraftCommentAvatar extends Avatar {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(noteJScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(commentJScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cancelJButton)
@@ -146,7 +182,7 @@ public class UpdateDraftCommentAvatar extends Avatar {
     private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
         if (isInputValid()) {
             disposeWindow();
-            updateNote();
+            updateComment();
         }
     }//GEN-LAST:event_okJButtonActionPerformed
 
@@ -155,25 +191,26 @@ public class UpdateDraftCommentAvatar extends Avatar {
     }//GEN-LAST:event_cancelJButtonActionPerformed
 
     /**
-     * Reload the note.
+     * Reload the comment.
      */
     private void reloadComment() {
         final Long containerId = getInputContainerId();
-        noteJTextArea.setText(((UpdateDraftCommentProvider) contentProvider).readComment(containerId));
+        initialComment = ((UpdateDraftCommentProvider) contentProvider).readComment(containerId);
+        commentJTextArea.setText(initialComment);
     }
 
     /**
-     * Update the version note.
+     * Update the version comment.
      */
-    private void updateNote() {
+    private void updateComment() {
         final Long containerId = getInputContainerId();
         final String comment = extractComment();
         getController().runUpdateDraftComment(containerId, comment);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane noteJScrollPane;
-    private javax.swing.JTextArea noteJTextArea;
+    private final javax.swing.JTextArea commentJTextArea = new javax.swing.JTextArea();
+    private final javax.swing.JButton okJButton = ButtonFactory.create();
     // End of variables declaration//GEN-END:variables
 
     public enum DataKey { CONTAINER_ID }

@@ -894,21 +894,13 @@ public class ContainerPanel extends DefaultTabPanel {
 
     private void eastJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJPanelMousePressed
         selectPanel();
-        if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
-            tabDelegate.toggleExpansion(this);
-        }
     }//GEN-LAST:event_eastJPanelMousePressed
 
     private void eastJPanelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_eastJPanelMouseReleased
     }//GEN-LAST:event_eastJPanelMouseReleased
 
     private void expandedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMousePressed
-        logger.logApiId();
-        logger.logVariable("e", e);
         selectPanel();
-        if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
-            tabDelegate.toggleExpansion(this);
-        }
     }//GEN-LAST:event_expandedJPanelMousePressed
 
     private void expandedJPanelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandedJPanelMouseReleased

@@ -12,10 +12,10 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
+import com.thinkparity.codebase.io.StreamOpener;
+
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.stream.StreamOpener;
-import com.thinkparity.codebase.model.stream.StreamUploader;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
@@ -144,13 +144,6 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 		.append("set UPDATED_ON=?,ARTIFACT_NAME=?,ARTIFACT_STATE_ID=? ")
 		.append("where ARTIFACT_ID=?")
 		.toString();
-
-	/** Sql to open a stream to upload the document version's content. */
-    private static final String SQL_UPLOAD_VERSION =
-            new StringBuffer("select DV.CONTENT ")
-            .append("from DOCUMENT_VERSION DV ")
-            .append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
-            .toString();
 
 	/** Generic artifact io. */
 	private final ArtifactIOHandler artifactIO;
@@ -293,7 +286,7 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 
 	/**
      * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#openStream(java.lang.Long,
-     *      java.lang.Long, com.thinkparity.codebase.model.stream.StreamOpener)
+     *      java.lang.Long, com.thinkparity.codebase.io.StreamOpener)
      * 
      */
     public void openStream(final Long documentId, final Long versionId,
@@ -433,34 +426,6 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
             session.close();
 		}
 	}
-
-    /**
-     * @see com.thinkparity.ophelia.model.io.handler.DocumentIOHandler#saveVersion(java.lang.Long,
-     *      java.lang.Long, java.io.OutputStream, java.lang.Integer)
-     * 
-     */
-    public void uploadVersion(final Long documentId, final Long versionId,
-            final StreamUploader uploader) throws IOException {
-        final Session session = openSession();
-        try {
-            session.prepareStatement(SQL_UPLOAD_VERSION);
-            session.setLong(1, documentId);
-            session.setLong(2, versionId);
-            session.executeQuery();
-            if (session.nextResult()) {
-                final InputStream stream = session.getBlob("CONTENT"); 
-                try {
-                    uploader.upload(stream);
-                } finally {
-                    stream.close();
-                }
-            } else {
-                uploader.upload(null);
-            }
-        } finally {
-            session.close();
-        }
-    }
 
 	/**
      * Extract the document.

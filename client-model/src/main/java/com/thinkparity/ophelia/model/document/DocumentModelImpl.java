@@ -20,6 +20,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
+import com.thinkparity.codebase.io.StreamOpener;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
@@ -29,9 +30,7 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamOpener;
 import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.stream.StreamUploader;
 
 import com.thinkparity.ophelia.model.DownloadHelper;
 import com.thinkparity.ophelia.model.Model;
@@ -532,7 +531,7 @@ public final class DocumentModelImpl extends
 
     /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#openVersion(java.lang.Long,
-     *      java.lang.Long, com.thinkparity.codebase.model.stream.StreamOpener)
+     *      java.lang.Long, com.thinkparity.codebase.io.StreamOpener)
      * 
      */
     public void openVersion(final Long documentId, final Long versionId,
@@ -912,25 +911,6 @@ public final class DocumentModelImpl extends
             updateDraft(lock, documentId, content);
         } catch (final CannotLockException clx) {
             throw clx;
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-	/**
-     * Save a version to an output stream.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param uploader
-     *            An <code>StreamUploader</code> to upload to.
-     */
-    public void uploadVersion(final Long documentId, final Long versionId,
-            final StreamUploader uploader) {
-        try {
-            documentIO.uploadVersion(documentId, versionId, uploader);
         } catch (final Throwable t) {
             throw panic(t);
         }

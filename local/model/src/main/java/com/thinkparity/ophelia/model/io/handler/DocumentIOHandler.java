@@ -8,10 +8,10 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
+import com.thinkparity.codebase.io.StreamOpener;
+
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.stream.StreamOpener;
-import com.thinkparity.codebase.model.stream.StreamUploader;
 
 import com.thinkparity.ophelia.model.io.IOHandler;
 
@@ -91,17 +91,4 @@ public interface DocumentIOHandler extends IOHandler {
      *            A <code>Document</code>.
      */
 	public void update(final Document document);
-
-    /**
-     * Upload a document version.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param upload
-     *            An <code>Upload</code> target.
-     */
-    public void uploadVersion(final Long documentId, final Long versionId,
-            final StreamUploader uploader) throws IOException;
 }

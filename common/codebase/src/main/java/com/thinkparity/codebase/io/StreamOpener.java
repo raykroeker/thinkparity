@@ -1,7 +1,7 @@
 /*
  * Created On:  22-Feb-07 10:59:54 PM
  */
-package com.thinkparity.codebase.model.stream;
+package com.thinkparity.codebase.io;
 
 import java.io.IOException;
 import java.io.InputStream;

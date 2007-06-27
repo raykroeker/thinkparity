@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import com.thinkparity.codebase.io.StreamOpener;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
@@ -16,8 +17,6 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.stream.StreamOpener;
-import com.thinkparity.codebase.model.stream.StreamUploader;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.DownloadHelper;
@@ -298,17 +297,4 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public void updateDraft(final DocumentFileLock lock, final Long documentId,
             final InputStream content);
-
-    /**
-     * Save a version to an output stream.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @param uploader
-     *            An <code>StreamUploader</code> to upload to.
-     */
-    public void uploadVersion(final Long documentId, final Long versionId,
-            final StreamUploader uploader);
 }

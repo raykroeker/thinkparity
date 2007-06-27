@@ -9,12 +9,13 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import com.thinkparity.codebase.io.StreamOpener;
+
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.stream.StreamOpener;
 
 import com.thinkparity.ophelia.OpheliaTestUser;
 

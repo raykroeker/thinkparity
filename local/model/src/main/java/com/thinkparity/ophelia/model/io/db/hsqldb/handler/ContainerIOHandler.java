@@ -13,6 +13,7 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.io.StreamOpener;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
@@ -27,7 +28,6 @@ import com.thinkparity.codebase.model.container.ContainerVersionDelta;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.stream.StreamOpener;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -1197,7 +1197,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#openDraftDocument(java.lang.Long, java.lang.Long, com.thinkparity.codebase.model.stream.StreamOpener)
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#openDraftDocument(java.lang.Long, java.lang.Long, com.thinkparity.codebase.io.StreamOpener)
      *
      */
     public void openDraftDocument(final Long containerDraftId,

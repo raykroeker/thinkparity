@@ -16,7 +16,7 @@ import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.stream.StreamOpener;
+import com.thinkparity.codebase.io.StreamOpener;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.ophelia.model.util.Opener;

@@ -139,6 +139,8 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
         switch (environment) {
         case DEVELOPMENT_LOCALHOST:
             return "development.thinkparity";
+        case DEVELOPMENT_TESTING:
+            return "development_testing.thinkparity";
         case PRODUCTION:
             return "thinkparity";
         default:

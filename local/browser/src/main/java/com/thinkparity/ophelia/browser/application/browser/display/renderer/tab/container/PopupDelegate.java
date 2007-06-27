@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 
 import java.util.List;
 
-import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -52,18 +51,20 @@ public interface PopupDelegate extends TabPanelPopupDelegate {
     /**
      * Display a popup menu for the version.
      * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
      * @param version
      *            A <code>ContainerVersion</code>.
      * @param documentViews
      *            A list of <code>DocumentView</code>.
-     * @param publishedTo
-     *            A list of <code>ArtifactReceipt</code>.
-     * @param publishedBy
-     *            A <code>User</code>.
+     * @param latestVersion
+     *            A <code>Boolean</code>, true for the latest version.       
      */
-    public void showForVersion(final ContainerVersion version,
-            final List<DocumentView> documentViews,
-            final List<ArtifactReceipt> publishedTo, final User publishedBy);
+    public void showForVersion(final Container container,
+            final ContainerDraft draft, final ContainerVersion version,
+            final List<DocumentView> documentViews, final Boolean latestVersion);
 
     /**
      * Display a popup menu for a draft document.

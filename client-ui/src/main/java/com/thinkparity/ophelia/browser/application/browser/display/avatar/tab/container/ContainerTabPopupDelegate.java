@@ -16,7 +16,6 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 
-import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -291,7 +290,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         // delete draft
         // This menu is shown if online, or if it has never been published.
         if (online || !isDistributed(container.getId())) {
-            final Data deleteData = new Data(2);
+            final Data deleteData = new Data(1);
             deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
             add(ActionId.CONTAINER_DELETE_DRAFT, deleteData);
         }
@@ -353,13 +352,21 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.ContainerVersion, java.util.List, java.util.List, com.thinkparity.codebase.model.user.User)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForVersion(com.thinkparity.codebase.model.container.Container, com.thinkparity.ophelia.model.container.ContainerDraft, com.thinkparity.codebase.model.container.ContainerVersion, java.util.List, java.lang.Boolean)
      */
-    public void showForVersion(final ContainerVersion version,
-            final List<DocumentView> documentViews,
-            final List<ArtifactReceipt> publishedTo, final User publishedBy) {
+    public void showForVersion(final Container container,
+            final ContainerDraft draft, final ContainerVersion version,
+            final List<DocumentView> documentViews, final Boolean latestVersion) {
         final boolean online = isOnline();
         boolean needSeparator = false;
+
+        // create draft
+        if (online && latestVersion && null == draft && container.isLatest()) {
+            final Data createDraftData = new Data(1);
+            createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
+            addWithExpand(ActionId.CONTAINER_CREATE_DRAFT, createDraftData, container);  
+            needSeparator = true;
+        }
 
         // publish version
         if (online) {

@@ -1836,10 +1836,6 @@ public class ContainerPanel extends DefaultTabPanel {
     private final class VersionCell extends AbstractWestCell {
         /** The <code>DocumentView</code>s. */ 
         private final List<DocumentView> documentViews;
-        /** A published to <code>User</code>. */
-        private final User publishedBy;
-        /** A <code>PublishedToView</code>. */
-        private final PublishedToView publishedTo;
         /** A <code>ContainerVersion</code>. */
         private final ContainerVersion version;
         /**
@@ -1861,8 +1857,6 @@ public class ContainerPanel extends DefaultTabPanel {
             super(Boolean.FALSE);
             this.documentViews = documentViews;
             this.version = version;
-            this.publishedBy = publishedBy;
-            this.publishedTo = publishedTo;
             for (final DocumentView documentView : documentViews) {
                 add(new VersionDocumentCell(this, documentView.getVersion(),
                         documentView.getDelta()));
@@ -1908,8 +1902,7 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public void showPopup() {
-            popupDelegate.showForVersion(version, documentViews,
-                    publishedTo.getArtifactReceipts(), publishedBy);
+            popupDelegate.showForVersion(container, getDraft(), version, documentViews, version.equals(latestVersion));
         }
     }
 

@@ -16,7 +16,7 @@ import com.thinkparity.codebase.model.user.User;
  */
 public class ArtifactReceipt {
 
-    private Long artifactId;
+    private transient Long artifactId;
 
     private Calendar publishedOn;
 

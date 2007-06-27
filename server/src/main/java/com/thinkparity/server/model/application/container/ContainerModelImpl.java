@@ -250,7 +250,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         event.setDocumentVersions(documentVersions);
         event.setPublishedBy(publishedBy);
         event.setPublishedOn(publishedOn);
-        event.setPublishedTo(publishToUsers);
+        event.setPublishedTo(localize(publishToUsers));
         event.setVersion(version);
         // enqueue to all publish to users
         final List<JabberId> enqueueTo = new ArrayList<JabberId>();
@@ -280,26 +280,17 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             final ContainerVersion version, final List<TeamMember> teamMembers,
             final JabberId publishedBy, final Calendar publishedOn,
             final List<User> publishToUsers) {
-        final List<User> teamUsers = new ArrayList<User>(teamMembers.size());
-        final List<JabberId> teamUserIds = new ArrayList<JabberId>(teamMembers.size());
-        for (final TeamMember teamMember : teamMembers) {
-            teamUsers.add(teamMember);
-            teamUserIds.add(teamMember.getId());
-        }
-
         final PublishedNotificationEvent event =
             new PublishedNotificationEvent();
         event.setPublishedBy(publishedBy);
         event.setPublishedOn(publishedOn);
         event.setVersion(version);
         // set the team as the existing team members and the publish to users
-        final List<User> newTeam = new ArrayList<User>(teamMembers.size() + publishToUsers.size());
-        for (final TeamMember teamMember : teamMembers) {
-            newTeam.add(teamMember);
-        }
+        final List<User> newTeam = localize(teamMembers);
+        final InternalUserModel userModel = getUserModel();
         for (final User publishToUser : publishToUsers) {
             if (!contains(newTeam, publishToUser)) {
-                newTeam.add(publishToUser);
+                newTeam.add(userModel.read(publishToUser.getId()));
             }
         }
         event.setTeam(newTeam);
@@ -340,7 +331,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
                 artifact.getId()).equals(version.getVersionId()));
         event.setPublishedBy(publishedBy);
         event.setPublishedOn(publishedOn);
-        event.setPublishedTo(publishToUsers);
+        event.setPublishedTo(localize(publishToUsers));
         event.setReceivedBy(receivedBy);
         event.setVersion(version);
         // enqueue to all publish to users
@@ -348,6 +339,24 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         for (final User publishToUser : publishToUsers)
             enqueueTo.add(publishToUser.getId());
         enqueueEvents(enqueueTo, event);
+    }
+
+    /**
+     * Convert a list of users to local users.
+     * 
+     * @param <T>
+     *            A type of user.
+     * @param users
+     *            A <code>List<User></code>.
+     * @return A <code>List<User></code>.
+     */
+    private <T extends User> List<User> localize(final List<T> users) {
+        final List<User> localUsers = new ArrayList<User>(users.size());
+        final InternalUserModel userModel = getUserModel();
+        for (final T user : users) {
+            localUsers.add(userModel.read(user.getId()));
+        }
+        return localUsers;
     }
 
     /**
@@ -384,13 +393,11 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         event.setPublishedOn(publishedOn);
         event.setVersion(version);
         // set the team as the existing team members and the publish to users
-        final List<User> newTeam = new ArrayList<User>(teamMembers.size() + publishToUsers.size());
-        for (final TeamMember teamMember : teamMembers) {
-            newTeam.add(teamMember);
-        }
+        final List<User> newTeam = localize(teamMembers);
+        final InternalUserModel userModel = getUserModel();
         for (final User publishToUser : publishToUsers) {
             if (!contains(newTeam, publishToUser)) {
-                newTeam.add(publishToUser);
+                newTeam.add(userModel.read(publishToUser.getId()));
             }
         }
         event.setTeam(newTeam);

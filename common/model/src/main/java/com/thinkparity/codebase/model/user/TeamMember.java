@@ -16,7 +16,7 @@ package com.thinkparity.codebase.model.user;
 public class TeamMember extends User {
 
     /** The artifact id. */
-    private Long artifactId;
+    private transient Long artifactId;
 
     /**
      * Create TeamMember.

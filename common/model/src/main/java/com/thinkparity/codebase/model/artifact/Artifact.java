@@ -44,7 +44,7 @@ public abstract class Artifact {
 	private final List<ArtifactFlag> flags;
 
 	/** The id <code>Long</code>. */
-	private Long id;
+	private transient Long id;
 
 	/** The name <code>String</code>. */
 	private String name;

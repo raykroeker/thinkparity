@@ -438,6 +438,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_AUTH_TOKEN)) {
             return (AuthToken) workspace.getAttribute(WS_ATTRIBUTE_KEY_AUTH_TOKEN);
         } else {
+            logger.logError("User session is null.");
             return null;
         }
     }

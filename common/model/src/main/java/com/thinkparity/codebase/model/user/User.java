@@ -48,7 +48,7 @@ public class User {
 	private JabberId id;
 
 	/** The local user pk. */
-    private Long localId;
+    private transient Long localId;
 
 	/** The user's name. */
 	private String name;

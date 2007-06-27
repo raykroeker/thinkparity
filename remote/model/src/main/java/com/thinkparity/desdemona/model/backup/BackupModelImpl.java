@@ -433,11 +433,15 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      *            A user <code>User</code>.
      */
     private void enqueueBackupEventImpl(final User user) {
+        logger.logTrace("Entry");
+        logger.logVariable("user", user);
         final BackupStatisticsUpdatedEvent bsue = new BackupStatisticsUpdatedEvent();
         bsue.setStatistics(readStatisticsImpl(user));
+        logger.logVariable("bsue", bsue);
         final InternalQueueModel queueModel = getQueueModel(user);
         queueModel.enqueueEvent(bsue);
         queueModel.flush();
+        logger.logTrace("Exit");
     }
 
     /**
@@ -833,7 +837,9 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      * @return An instance of <code>Statistics</code>.
      */
     private Statistics readStatisticsImpl(final User user) {
+        logger.logTrace("Entry");
         final List<UUID> backedUpContainerIds = readBackedUpContainerIds(user);
+        logger.logVariable("backedUpContainerIds", backedUpContainerIds);
         final com.thinkparity.ophelia.model.container.InternalContainerModel
                 containerModel = getModelFactory(user).getContainerModel();
         final com.thinkparity.ophelia.model.document.InternalDocumentModel
@@ -847,16 +853,19 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             versions.clear();
             versions.addAll(containerModel.readVersions(artifactModel.readId(
                     backedUpContainerId)));
+            logger.logVariable("versions", versions);
             for (final ContainerVersion version : versions) {
                 documents.clear();
                 documents.addAll(containerModel.readDocuments(
                         version.getArtifactId(), version.getVersionId()));
+                logger.logVariable("documents", documents);
                 for (final Document document : documents) {
                     if (!allDocuments.contains(document))
                         allDocuments.add(document);
                 }
             }
         }
+        logger.logVariable("allDocuments", allDocuments);
         final List<DocumentVersion> allDocumentVersions = new ArrayList<DocumentVersion>();
         long diskUsage = 0;
         for (final Document document : allDocuments) {
@@ -866,8 +875,11 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
                 diskUsage += documentVersion.getSize().longValue();
             }
         }
+        logger.logVariable("allDocumentVersions", allDocumentVersions);
         final Statistics statistics = new Statistics();
         statistics.setDiskUsage(Long.valueOf(diskUsage));
+        logger.logVariable("statistics", statistics);
+        logger.logTrace("Exit");
         return statistics;
     }
 

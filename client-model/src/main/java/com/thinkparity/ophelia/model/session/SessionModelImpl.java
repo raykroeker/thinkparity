@@ -631,8 +631,14 @@ public final class SessionModelImpl extends Model<SessionListener>
                 throw new InvalidLocationException();
             }
         } catch (final InvalidCredentialsException icx) {
+            pushOfflineCode(OfflineCode.OFFLINE);
+            getSessionModel().notifySessionTerminated();
+
             throw icx;
         } catch (final InvalidLocationException ilx) {
+            pushOfflineCode(OfflineCode.OFFLINE);
+            getSessionModel().notifySessionTerminated();
+
             throw ilx;
         } catch (final Throwable t) {
             throw panic(t);

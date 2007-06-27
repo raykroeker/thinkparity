@@ -66,6 +66,8 @@ public final class SessionModelImpl extends AbstractModelImpl implements
                 sessionSql.create(user.getLocalId(), sessionId, session);
                 return sessionId;
             }
+        } catch (final InvalidCredentialsException icx) {
+            throw icx;
         } catch (final Throwable t) {
             throw panic(t);
         }

@@ -206,8 +206,10 @@ public class SessionApplication extends AbstractApplication {
             });
         } catch (final InvalidCredentialsException icx) {
             logger.logError(icx, "Cannot login.");
+            connectTimer.cancel();
         } catch (final InvalidLocationException ilx) {
             logger.logError(ilx, "Cannot login.");
+            connectTimer.cancel();
         }
     }
 
@@ -228,6 +230,11 @@ public class SessionApplication extends AbstractApplication {
      */
     private void connectLater(final Long delay) {
         logApiId();
+        if (null != connectTimer) {
+            connectTimer.cancel();
+            connectTimer = null;
+        }
+
         connectTimer = new Timer("TPS-OpheliaUI-SessionConnect", Boolean.TRUE);
         connectTimer.schedule(new TimerTask() {
             public void run() {

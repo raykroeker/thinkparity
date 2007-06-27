@@ -4,6 +4,7 @@
 package com.thinkparity.service.client.http;
 
 import java.io.*;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -90,15 +91,19 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
      * @throws InstantiationException
      * @throws InvocationTargetException
      * @throws IllegalAccessException
-     * @throws NoSuchMethodException
      */
     private static Object newErrorInstance(final Class<?> errorType,
             final String message) throws InstantiationException,
-            InvocationTargetException, IllegalAccessException,
-            NoSuchMethodException {
-        return errorType.getConstructor(
-                new Class[] { String.class }).newInstance(
-                        new Object[] { message });
+            InvocationTargetException, IllegalAccessException {
+        try {
+            // try to use a string-based constructor
+            final Constructor<?> constructor = errorType.getConstructor(
+                    new Class[] { String.class });
+            return constructor.newInstance(new Object[] { message });
+        } catch (final NoSuchMethodException nsxm) {
+            // no string-based constructor exists; create default instance
+            return errorType.newInstance();
+        }
     }
 
     /**

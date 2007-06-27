@@ -37,12 +37,12 @@ public class SessionSEI extends ServiceSEI implements SessionService {
      * 
      */
     public String login(final Credentials credentials)
-            /*throws InvalidCredentialsException*/ {
+            throws InvalidCredentialsException {
         try {
             return getModel().login(credentials);
         } catch (final InvalidCredentialsException icx) {
             logger.logError(icx, "Cannot login as {0}.", credentials);
-            return null;
+            throw icx;
         }
     }
 

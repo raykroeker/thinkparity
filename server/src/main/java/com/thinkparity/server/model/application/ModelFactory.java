@@ -92,7 +92,7 @@ public final class ModelFactory {
             modelInstance.initialize();
             return Proxy.newProxyInstance(loader,
                     new Class<?>[] { modelInterface },
-                    new ModelInvocationHandler(modelImplementation, modelInstance));
+                    new ModelInvocationHandler(modelInstance));
         } catch (final Exception x) {
             throw new ThinkParityException("Cannot instantiate model.", x);
         }

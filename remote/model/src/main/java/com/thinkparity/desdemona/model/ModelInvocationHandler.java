@@ -27,9 +27,6 @@ final class ModelInvocationHandler implements InvocationHandler {
         LOGGER = new Log4JWrapper(ModelInvocationHandler.class);
     }
 
-    /** The model synchronization lock <code>Object</code>. */
-    private final Object lock;
-
     /** The target <code>AbstractModelImpl</code>. */
     private final AbstractModelImpl model;
 
@@ -37,9 +34,8 @@ final class ModelInvocationHandler implements InvocationHandler {
      * Create ModelInvocationHandler.
      *
      */
-    ModelInvocationHandler(final Object lock, final AbstractModelImpl model) {
+    ModelInvocationHandler(final AbstractModelImpl model) {
         super();
-        this.lock = lock;
         this.model = model;
     }
 
@@ -56,16 +52,14 @@ final class ModelInvocationHandler implements InvocationHandler {
                 LOGGER.logDebug("args[{0}]:{1}", i, args[i]);
         }
         ModelInvocationMetrics.begin(method);
-        synchronized (lock) {
-            try {
-                return LOGGER.logVariable("result", method.invoke(model, args));
-            } catch (final InvocationTargetException itx) {
-                throw itx.getTargetException();
-            } catch (final Throwable t) {
-                throw t;
-            } finally {
-                ModelInvocationMetrics.end(method);
-            }
+        try {
+            return LOGGER.logVariable("result", method.invoke(model, args));
+        } catch (final InvocationTargetException itx) {
+            throw itx.getTargetException();
+        } catch (final Throwable t) {
+            throw t;
+        } finally {
+            ModelInvocationMetrics.end(method);
         }
     }
 }

@@ -27,15 +27,15 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  */
 public class FileChooserAvatar extends Avatar {
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JFileChooser jFileChooser = new ThinkParityJFileChooser();
+    // End of variables declaration//GEN-END:variables
+
     /** Creates new form FileChooserAvatar */
     public FileChooserAvatar() {
         super("FileChooserAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
-        bindEscapeKey("Cancel", new AbstractAction() {
-            public void actionPerformed(final ActionEvent e) {
-                disposeWindow();
-            }
-        });
         initComponents();
+        bindEscapeKey();
     }
 
     /**
@@ -59,9 +59,13 @@ public class FileChooserAvatar extends Avatar {
         return (ThinkParityJFileChooser)jFileChooser;
     }
 
-    public AvatarId getId() { return AvatarId.DIALOG_FILE_CHOOSER; }
+    public AvatarId getId() {
+        return AvatarId.DIALOG_FILE_CHOOSER;
+    }
 
-    public State getState() { return null; }
+    public State getState() {
+        return null;
+    }
 
     public Boolean isInputValid() {
         final File file = jFileChooser.getSelectedFile();
@@ -82,6 +86,17 @@ public class FileChooserAvatar extends Avatar {
     }
 
     public void setState(final State state) {}
+
+    /**
+     * Make the escape key behave like cancel.
+     */
+    private void bindEscapeKey() {
+        bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                disposeWindow();
+            }
+        });
+    }
 
     /**
      * Obtain the input current directory.
@@ -174,10 +189,6 @@ public class FileChooserAvatar extends Avatar {
     private void reloadMultiSelection() {
         jFileChooser.setMultiSelectionEnabled(getInputMultiSelection().booleanValue());
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JFileChooser jFileChooser = new ThinkParityJFileChooser();
-    // End of variables declaration//GEN-END:variables
 
     /** Data keys. */
     public enum DataKey { CURRENT_DIRECTORY, FILE_SELECTION_MODE, MULTI_SELECTION, SOURCE }

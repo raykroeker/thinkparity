@@ -218,7 +218,7 @@ public final class PublishContainerAvatar extends Avatar implements
      *
      */
     public void setDetermination(final Long containerId, final Integer steps) {
-        publishJProgressBar.setMinimum(1);
+        publishJProgressBar.setMinimum(0);
         publishJProgressBar.setMaximum(steps);
         publishJProgressBar.setIndeterminate(false);
     }

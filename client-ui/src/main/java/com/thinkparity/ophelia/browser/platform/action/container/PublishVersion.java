@@ -98,18 +98,23 @@ public class PublishVersion extends AbstractBrowserAction {
                 public void determineSteps(final Integer steps) {
                     this.stepIndex = 0;
                     this.steps = steps;
-                    monitor.setSteps(steps);
+                    // allow an extra step for PublishStep.PUBLISH
+                    this.steps++;
+                    monitor.setSteps(this.steps);
                     monitor.setStep(stepIndex);
                 }
                 @Override
                 public void endProcess() {
-                    monitor.complete();
+                    if (null != steps && steps.intValue() > 0) {
+                        stepIndex = steps;
+                        monitor.setStep(stepIndex);
+                    }
                 }
                 @Override
                 public void endStep(final Step step) {
                     if (PublishStep.PUBLISH == step) {
                         // we're done
-                        stepIndex = steps - 1;
+                        stepIndex = steps;
                         monitor.setStep(stepIndex);
                     } else if (null != steps && steps.intValue() > 0) {
                         stepIndex++;
@@ -137,6 +142,8 @@ public class PublishVersion extends AbstractBrowserAction {
                     version.getArtifactId(), version.getVersionId(),
                     emails, contacts, teamMembers);
             containerModel.applyFlagSeen(version.getArtifactId());
+            // notify the avatar that the publish is complete at the last possible moment
+            monitor.complete();
             return version;
         }
     }

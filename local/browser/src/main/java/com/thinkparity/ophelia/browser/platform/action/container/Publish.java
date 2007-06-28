@@ -10,6 +10,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.model.contact.ContactModel;
@@ -256,8 +257,12 @@ public class Publish extends AbstractBrowserAction {
                 return null;
             }
             containerModel.applyFlagSeen(container.getId());
-            return containerModel.readLatestVersion(container.getId());
+            final ContainerVersion latestVersion = containerModel.readLatestVersion(container.getId());
+            // notify the avatar that the publish is complete at the last possible moment
+            monitor.complete();
+            return latestVersion;
         }
+
 		/**
          * Create a new publish monitor.
          * 
@@ -286,18 +291,23 @@ public class Publish extends AbstractBrowserAction {
                 public void determineSteps(final Integer steps) {
                     this.stepIndex = 0;
                     this.steps = steps;
-                    monitor.setSteps(steps);
+                    // allow an extra step for PublishStep.PUBLISH
+                    this.steps++;
+                    monitor.setSteps(this.steps);
                     monitor.setStep(stepIndex);
                 }
                 @Override
                 public void endProcess() {
-                    monitor.complete();
+                    if (null != steps && steps.intValue() > 0) {
+                        stepIndex = steps;
+                        monitor.setStep(stepIndex);
+                    }
                 }
                 @Override
                 public void endStep(final Step step) {
                     if (PublishStep.PUBLISH == step) {
                         // we're done
-                        stepIndex = steps - 1;
+                        stepIndex = steps;
                         monitor.setStep(stepIndex);
                     } else if (null != steps && steps.intValue() > 0) {
                         stepIndex++;

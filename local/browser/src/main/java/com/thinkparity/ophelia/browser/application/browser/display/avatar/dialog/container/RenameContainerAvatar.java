@@ -202,13 +202,9 @@ public class RenameContainerAvatar extends Avatar {
     }// GEN-LAST:event_nameJTextFieldActionPerformed
 
     private void okJButtonActionPerformed(final java.awt.event.ActionEvent evt) {// GEN-FIRST:event_okJButtonActionPerformed
-        if(isInputValid()) {
-            final Long containerId = getInputContainerId();
-            final String containerName = extractName();
-            if (!containerName.equals(getInputContainerName())) {
-                getController().runRenameContainer(containerId, containerName);
-            }
+        if (isInputValid()) {
             disposeWindow();
+            getController().runRenameContainer(getInputContainerId(), extractName());
         }
     }// GEN-LAST:event_okJButtonActionPerformed
 

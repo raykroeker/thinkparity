@@ -7,14 +7,15 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import com.thinkparity.codebase.FileUtil;
-import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
@@ -31,27 +32,30 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  * @author  Administrator
  */
 public class RenameDocumentAvatar extends Avatar {
-    
+
     /** List of draft documents for this package. */
-    private Document[] draftDocuments;
+    private List<Document> draftDocuments;
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
+    private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
+    private final javax.swing.JButton okJButton = ButtonFactory.create();
+    // End of variables declaration//GEN-END:variables
 
     /** Creates new form RenameDocumentAvatar */
     public RenameDocumentAvatar() {
         super("RenameDocumentAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
-        initDocumentHandler();
+        addValidationListener(nameJTextField);
         bindEscapeKey();
-    }
-
-    public void setState(final State state) {
-    }
-
-    public State getState() {
-        return null;
     }
 
     public AvatarId getId() {
         return AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT;
+    }
+
+    public State getState() {
+        return null;
     }
 
     public void reload() {
@@ -60,33 +64,60 @@ public class RenameDocumentAvatar extends Avatar {
         if (input!=null) {
             readDraftDocuments();
             reloadName();
-            reloadErrorMessage();
+            validateInput();
         }
     }
-    
-    /**
-     *  Initialize the document handler for the name text field.
-     */
-    private void initDocumentHandler() {
-        javax.swing.text.Document document = nameJTextField.getDocument();
-        document.addDocumentListener( new DocumentHandler() );   
+
+    public void setState(final State state) {
     }
-    
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#validateInput()
+     */
+    @Override
+    protected void validateInput() {
+        super.validateInput();
+        final String newName = extractName();
+        if (null == newName) {
+            addInputError(Separator.Space.toString());
+        } else if (newName.equals(getInputDocumentName())) {
+            addInputError(Separator.Space.toString());
+        } else if (!isInputExtensionValid()) {
+            addInputError(getString("ErrorExtension", new Object[] {FileUtil.getExtension(getInputDocumentName())}));
+        } else if (!isInputNameUnique()) {
+            addInputError(getString("ErrorNotUnique"));
+        }
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors()) {
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        }
+        okJButton.setEnabled(!containsInputErrors());
+    }
+
     /**
      * Make the escape key behave like cancel.
      */
     private void bindEscapeKey() {
         bindEscapeKey("Cancel", new AbstractAction() {
-            /** @see java.io.Serializable */
-            private static final long serialVersionUID = 1;
-
-            /** @see javax.swing.ActionListener#actionPerformed(java.awt.event.ActionEvent) */
             public void actionPerformed(final ActionEvent e) {
                 cancelJButtonActionPerformed(e);
             }
         });
     }
-    
+
+    private void cancelJButtonActionPerformed(final java.awt.event.ActionEvent evt) {// GEN-FIRST:event_cancelJButtonActionPerformed
+        disposeWindow();
+    }// GEN-LAST:event_cancelJButtonActionPerformed
+
+    /**
+     * Extract the name from the control.
+     *
+     * @return The name.
+     */
+    private String extractName() {
+        return SwingUtil.extract(nameJTextField, Boolean.TRUE);
+    }
+
     /**
      * Obtain the input container id.
      *
@@ -95,7 +126,7 @@ public class RenameDocumentAvatar extends Avatar {
     private Long getInputContainerId() {
         return (Long) ((Data) input).get(DataKey.CONTAINER_ID);
     }
-    
+
     /**
      * Obtain the input document id.
      *
@@ -112,123 +143,7 @@ public class RenameDocumentAvatar extends Avatar {
      */
     private String getInputDocumentName() {
         return (String) ((Data) input).get(DataKey.DOCUMENT_NAME);
-    }
-    
-    /**
-     * Determine whether the user input is valid.
-     * This method should return false whenever we want the
-     * OK button to be disabled.
-     * 
-     * @return True if the input is valid; false otherwise.
-     */
-    public Boolean isInputValid() {
-        if (isInputEntered() && isInputExtensionValid() && isInputNameUnique()) {
-            return Boolean.TRUE;
-        } else {
-            return Boolean.FALSE;
-        }
-    }
-    
-    /**
-     * Check if the user typed a name.
-     */
-    private Boolean isInputEntered() {
-        final String name = extractName();
-        if (null != name && (0 < name.length())) {
-            return Boolean.TRUE;
-        }
-        else {
-            return Boolean.FALSE;
-        }
-    }
-    
-    /**
-     * Check if the extension is valid.
-     * The extension is not required if the input name doesn't have one.
-     * If there is an extension then it must stay the same.
-     */
-    private Boolean isInputExtensionValid() {
-        if (FileUtil.getName(getInputDocumentName()).equals(getInputDocumentName())) {
-            return Boolean.TRUE;
-        }
-        
-        if (isInputEntered()) {        
-            final String originalExtension = FileUtil.getExtension(getInputDocumentName());
-            final String newExtension = FileUtil.getExtension(extractName());
-            if (originalExtension.equalsIgnoreCase(newExtension)) {
-                return Boolean.TRUE;
-            }
-        }
-        
-        return Boolean.FALSE;
-    }
-   
-    /**
-     * Check if the name is unique.
-     */
-    private Boolean isInputNameUnique() {
-        if (isInputEntered()) { 
-            Boolean unique = Boolean.TRUE;
-            final String newName = extractName();
-            if (!newName.equalsIgnoreCase(getInputDocumentName())) {
-                for (final Document document : draftDocuments) {
-                    if (document.getName().equalsIgnoreCase(newName)) {
-                        unique = Boolean.FALSE;
-                        break;
-                    }
-                }
-            }
-            return unique;
-        }
-        
-        return Boolean.FALSE;
-    }
-       
-    /**
-     * Read draft documents.
-     */
-    private void readDraftDocuments() {
-        final Long containerId = getInputContainerId();
-        draftDocuments = (Document[])((RenameDocumentProvider) contentProvider).readDraftDocuments(containerId);
     }  
-    
-    /**
-     * Extract the name from the control.
-     *
-     * @return The name.
-     */
-    private String extractName() {
-        return SwingUtil.extract(nameJTextField, Boolean.TRUE);
-    }
-    
-    /**
-     *  Reload the name text control.
-     */
-    private void reloadName() {
-        nameJTextField.setText("");
-        if (null != input) {
-            final String name = getInputDocumentName();
-            nameJTextField.setText(name);
-            nameJTextField.select(0, FileUtil.getName(name).length());
-        }
-        nameJTextField.requestFocusInWindow();
-    }
-    
-    /**
-     * Reload the error message.
-     */
-    private void reloadErrorMessage() {
-        if (!isInputEntered()) {
-            errorMessageJLabel.setText("");
-        } else if (!isInputExtensionValid()) {
-            errorMessageJLabel.setText(getString("ErrorExtension", new Object[] {FileUtil.getExtension(getInputDocumentName())}));
-        } else if (!isInputNameUnique()) {
-            errorMessageJLabel.setText(getString("ErrorNotUnique"));
-        } else {
-            errorMessageJLabel.setText("");
-        }
-       
-    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -295,7 +210,7 @@ public class RenameDocumentAvatar extends Avatar {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(34, Short.MAX_VALUE)
+                .addContainerGap(24, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(nameJLabel))
@@ -309,53 +224,73 @@ public class RenameDocumentAvatar extends Avatar {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Check if the extension is valid.
+     * The extension is not required if the input name doesn't have one.
+     * If there is an extension then it must stay the same.
+     */
+    private Boolean isInputExtensionValid() {
+        if (FileUtil.getName(getInputDocumentName()).equals(getInputDocumentName())) {
+            return Boolean.TRUE;
+        } else {      
+            final String originalExtension = FileUtil.getExtension(getInputDocumentName());
+            final String newExtension = FileUtil.getExtension(extractName());
+            if (originalExtension.equalsIgnoreCase(newExtension)) {
+                return Boolean.TRUE;
+            }
+        }
+
+        return Boolean.FALSE;
+    }
+
+    /**
+     * Check if the name is unique.
+     */
+    private Boolean isInputNameUnique() {
+        Boolean unique = Boolean.TRUE;
+        final String newName = extractName();
+        if (!newName.equalsIgnoreCase(getInputDocumentName())) {
+            for (final Document document : draftDocuments) {
+                if (document.getName().equalsIgnoreCase(newName)) {
+                    unique = Boolean.FALSE;
+                    break;
+                }
+            }
+        }
+        return unique;
+    }
+
     private void nameJTextFieldActionPerformed(final java.awt.event.ActionEvent evt) {// GEN-FIRST:event_nameJTextFieldActionPerformed
         okJButtonActionPerformed(evt);
     }// GEN-LAST:event_nameJTextFieldActionPerformed
 
-    private void cancelJButtonActionPerformed(final java.awt.event.ActionEvent evt) {// GEN-FIRST:event_cancelJButtonActionPerformed
-        disposeWindow();
-    }// GEN-LAST:event_cancelJButtonActionPerformed
-
     private void okJButtonActionPerformed(final java.awt.event.ActionEvent evt) {// GEN-FIRST:event_okJButtonActionPerformed
         if (isInputValid()) {
-            final Long containerId = getInputContainerId();
-            final Long documentId = getInputDocumentId();
-            final String documentName = extractName();
-            if (!documentName.equals(getInputDocumentName())) {
-                disposeWindow();
-                getController().runRenameDocument(containerId, documentId, documentName);
-            }
+            disposeWindow();
+            getController().runRenameDocument(getInputContainerId(), getInputDocumentId(), extractName());
         }
     }// GEN-LAST:event_okJButtonActionPerformed
-    
-    // Enable or disable the OK control.
-    class DocumentHandler implements DocumentListener {
-        public void changedUpdate(final DocumentEvent e) {
-            // Nothing to do here
-        }
 
-        public void insertUpdate(final DocumentEvent e) {
-            if (isInputValid()) {
-                okJButton.setEnabled(Boolean.TRUE);
-            }
-            else {
-                okJButton.setEnabled(Boolean.FALSE);
-            }
-            reloadErrorMessage();
-        }
-
-        public void removeUpdate(final DocumentEvent e) {
-            // Do the same check as insertUpdate()
-            insertUpdate(e);
-        }
+    /**
+     * Read draft documents.
+     */
+    private void readDraftDocuments() {
+        final Long containerId = getInputContainerId();
+        draftDocuments = ((RenameDocumentProvider) contentProvider).readDraftDocuments(containerId);
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
-    private final javax.swing.JButton okJButton = ButtonFactory.create();
-    // End of variables declaration//GEN-END:variables
+    /**
+     *  Reload the name text control.
+     */
+    private void reloadName() {
+        nameJTextField.setText("");
+        if (null != input) {
+            final String name = getInputDocumentName();
+            nameJTextField.setText(name);
+            nameJTextField.select(0, FileUtil.getName(name).length());
+        }
+        nameJTextField.requestFocusInWindow();
+    }
 
     public enum DataKey { CONTAINER_ID, DOCUMENT_ID, DOCUMENT_NAME }
 }

@@ -1026,12 +1026,11 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
             public void documentModified(final ContainerEvent e) {
                 SwingUtil.ensureDispatchThread(new Runnable() {
                     public void run() {
-                        // confirm that the panel exists and the draft exists, since it is
-                        // possible that this event is already out of date.
+                        // double check that the panel exists and the draft exists
                         if (!isPanel(e.getContainer().getId())) {
                             logger.logError("Draft monitor, panel does not exist for container id {0}.", containerId);
                         } else if (!((ContainerPanel)lookupPanel(e.getContainer().getId())).isLocalDraft()) {
-                            logger.logError("Draft monitor, draft does not exist for container id {0}.", containerId);
+                            logger.logError("Draft monitor, local draft does not exist for container id {0}.", containerId);
                         } else {
                             syncDocumentModified(e.getContainer(), e.getDraft(), e.getDocument());
                         }

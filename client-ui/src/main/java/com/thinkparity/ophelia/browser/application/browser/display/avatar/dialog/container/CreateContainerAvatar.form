@@ -34,7 +34,7 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="1" attributes="0">
-              <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="nameJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="nameJTextField" alignment="3" min="-2" max="-2" attributes="0"/>

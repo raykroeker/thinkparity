@@ -9,11 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument;
-import javax.swing.text.Document;
 
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextComponentLengthFilter;
 
@@ -43,24 +41,22 @@ public class CreateContainerAvatar extends Avatar {
     /** An instance of <code>ContainerConstraints</code>. */
     private final ContainerConstraints containerConstraints;
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
+    private final javax.swing.JButton okJButton = ButtonFactory.create();
+    // End of variables declaration//GEN-END:variables
+
     /** Creates new form CreateContainerAvatar */
     public CreateContainerAvatar() {
         super("CreateContainerAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         this.containerConstraints = ContainerConstraints.getInstance();
         initComponents();
-        initDocumentHandler();
-        bindEscapeKey("Cancel", new AbstractAction() {
-            public void actionPerformed(final ActionEvent e) {
-                cancelJButtonActionPerformed(e);
-            }
-        });
+        addValidationListener(nameJTextField);
+        bindEscapeKey();
     }
 
     public AvatarId getId() {
         return AvatarId.DIALOG_CONTAINER_CREATE;
-    }
-
-    public void setState(final State state) {
     }
 
     public State getState() {
@@ -72,9 +68,54 @@ public class CreateContainerAvatar extends Avatar {
         // the input isn't set up yet.
         if (input!=null) {
             nameJTextField.setText("");
-            okJButton.setEnabled(Boolean.FALSE);
             nameJTextField.requestFocusInWindow();
+            validateInput();
         }
+    }
+
+    public void setState(final State state) {
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#validateInput()
+     */
+    @Override
+    protected void validateInput() {
+        super.validateInput();
+        if (null == extractName()) {
+            addInputError(Separator.Space.toString());
+        }
+        okJButton.setEnabled(!containsInputErrors());
+    }
+
+    /**
+     * Make the escape key behave like cancel.
+     */
+    private void bindEscapeKey() {
+        bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                cancelJButtonActionPerformed(e);
+            }
+        });
+    }
+
+    private void cancelJButtonActionPerformed(final java.awt.event.ActionEvent evt) {// GEN-FIRST:event_cancelJButtonActionPerformed
+        disposeWindow();
+    }
+
+    /**
+     * If the user presses "OK" or Enter, and input is valid, create the container
+     */
+    private void createContainer() {
+        final String containerName = extractName();
+        final Integer numFiles = (Integer) ((Data) input)
+                .get(DataKey.NUM_FILES);
+        if (numFiles > 0) {
+            final List<File> files = getDataFiles((Data) input, DataKey.FILES);
+            getController().runCreateContainer(containerName, files);
+        } else {
+            getController().runCreateContainer(containerName);
+        }     
     }
 
     /**
@@ -84,22 +125,23 @@ public class CreateContainerAvatar extends Avatar {
      */
     private String extractName() {
         return SwingUtil.extract(nameJTextField, Boolean.TRUE);
-    }
+    }                                             
 
     /**
-     * Determine whether the user input is valid.
-     * This method should return false whenever we want the
-     * OK button to be disabled.
+     * Convert the data element found at the given key to a list of files.
      * 
-     * @return True if the input is valid; false otherwise.
+     * @param data
+     *            The action data.
+     * @param key
+     *            The data element key.
+     * @return A list of files.
      */
-    public Boolean isInputValid() {
-        final String name = extractName();
-        if (null != name && (0 < name.length())) {
-            return Boolean.TRUE;
-        } else {
-            return Boolean.FALSE;
-        }
+    private List<File> getDataFiles(final Data data, final Enum<?> key) {
+        final List<?> list = (List<?>) data.get(key);
+        if(null == list) { return null; }
+        final List<File> files = new ArrayList<File>();
+        for(final Object o : list) { files.add((File) o); }
+        return files;
     }
 
     /** This method is called from within the constructor to
@@ -162,7 +204,7 @@ public class CreateContainerAvatar extends Avatar {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(34, 34, 34)
+                .add(24, 24, 24)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(nameJLabel)
                     .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -174,86 +216,16 @@ public class CreateContainerAvatar extends Avatar {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void nameJTextFieldActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_nameJTextFieldActionPerformed
+    private void nameJTextFieldActionPerformed(final java.awt.event.ActionEvent evt) {// GEN-FIRST:event_nameJTextFieldActionPerformed
         okJButtonActionPerformed(evt);
-    }// GEN-LAST:event_nameJTextFieldActionPerformed
+    }// GEN-LAST:event_nameJTextFieldActionPerformed    
 
-    private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_okJButtonActionPerformed
+    private void okJButtonActionPerformed(final java.awt.event.ActionEvent evt) {// GEN-FIRST:event_okJButtonActionPerformed
         if (isInputValid()) {
             disposeWindow();
             createContainer();
         }
     }// GEN-LAST:event_okJButtonActionPerformed
 
-    private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_cancelJButtonActionPerformed
-        disposeWindow();
-    }                                             
-  
-    private void initDocumentHandler() {
-        Document document = nameJTextField.getDocument();
-        document.addDocumentListener( new DocumentHandler() );        
-    }
-
-    // Enable or disable the OK control. Some notes:
-    //    - ActionPerformed on a JTextField will happen when press enter.
-    //    - TextChanged message is received after user presses letter but before extractName() will see it.
-    //    - The correct way to enable and disable the OK control is with the document interface.    
-    class DocumentHandler implements DocumentListener {
-        public void insertUpdate( DocumentEvent event ) {
-            if ( isInputValid() ) {
-                okJButton.setEnabled(Boolean.TRUE);
-            }
-            else {
-                okJButton.setEnabled(Boolean.FALSE);
-            }
-        }
-
-        public void removeUpdate( DocumentEvent event ) {
-            // Do the same check as insertUpdate()
-            insertUpdate( event );
-        }
-
-        public void changedUpdate( DocumentEvent event ) {
-            // Nothing to do here
-        }
-    }
-
-    /**
-     * If the user presses "OK" or Enter, and input is valid, create the container
-     */
-    private void createContainer() {
-        final String containerName = extractName();
-        final Integer numFiles = (Integer) ((Data) input)
-                .get(DataKey.NUM_FILES);
-        if (numFiles > 0) {
-            final List<File> files = getDataFiles((Data) input, DataKey.FILES);
-            getController().runCreateContainer(containerName, files);
-        } else {
-            getController().runCreateContainer(containerName);
-        }     
-    }
-
-    /**
-     * Convert the data element found at the given key to a list of files.
-     * 
-     * @param data
-     *            The action data.
-     * @param key
-     *            The data element key.
-     * @return A list of files.
-     */
-    private List<File> getDataFiles(final Data data, final Enum<?> key) {
-        final List<?> list = (List<?>) data.get(key);
-        if(null == list) { return null; }
-        final List<File> files = new ArrayList<File>();
-        for(final Object o : list) { files.add((File) o); }
-        return files;
-    }    
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
-    private final javax.swing.JButton okJButton = ButtonFactory.create();
-    // End of variables declaration//GEN-END:variables
-
-    public enum DataKey { NUM_FILES, FILES }
+    public enum DataKey { FILES, NUM_FILES }
 }

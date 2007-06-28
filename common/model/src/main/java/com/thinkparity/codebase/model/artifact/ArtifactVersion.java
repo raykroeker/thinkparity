@@ -34,7 +34,7 @@ public abstract class ArtifactVersion {
 	private Calendar createdOn;
 
 	/** The id <code>Long</code>. */
-	private Long id;
+	private transient Long id;
 
 	/** The meta data <code>Properties</code>. */
 	private final Properties metaData;

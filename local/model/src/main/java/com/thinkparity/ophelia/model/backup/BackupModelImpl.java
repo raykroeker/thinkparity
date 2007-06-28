@@ -102,17 +102,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#delete(java.lang.Long)
-     *
-     */
-    public void delete(final Long artifactId) {
-        if (isBackupEnabled()) {
-            final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
-            getSessionModel().deleteArtifact(uniqueId);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#handleStatisticsUpdated(com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent)
      *
      */

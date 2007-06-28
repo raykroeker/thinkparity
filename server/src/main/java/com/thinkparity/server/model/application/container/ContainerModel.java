@@ -9,6 +9,7 @@ import java.util.List;
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -25,6 +26,16 @@ import com.thinkparity.desdemona.util.AuthenticationType;
  * @version 1.1.2.22
  */
 public interface ContainerModel {
+
+    /**
+     * Delete a container.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param deletedOn
+     *            A deleted on <code>Calendar</code>.
+     */
+    public void delete(final Container container, final Calendar deletedOn);
 
     /**
      * Publish a container version.

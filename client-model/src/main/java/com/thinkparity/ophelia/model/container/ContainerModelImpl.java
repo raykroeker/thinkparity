@@ -81,6 +81,9 @@ import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.util.sort.user.UserComparatorFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
+import com.thinkparity.service.ContainerService;
+import com.thinkparity.service.client.ServiceFactory;
+
 /**
  * <b>Title:</b>thinkParity Container Model Implementation</br>
  * <b>Description:</b>
@@ -128,6 +131,9 @@ public final class ContainerModelImpl extends
 
     /** The container io layer. */
     private ContainerIOHandler containerIO;
+
+    /** The container web-service. */
+    private ContainerService containerService;
 
     /** A default container comparator. */
     private final Comparator<Artifact> defaultComparator;
@@ -437,32 +443,11 @@ public final class ContainerModelImpl extends
      */
     public void delete(final Long containerId) throws CannotLockException {
         try {
-            final User localUser = localUser();
             final Container container = read(containerId);
-            final List<Document> allDocuments = readAllDocuments(containerId);
-            final Map<Document, DocumentFileLock> allDocumentsLocks = lockDocuments(allDocuments);
-            final Map<DocumentVersion, DocumentFileLock> allDocumentVersionsLocks = lockDocumentVersions(allDocuments);
-            if (isDistributed(container.getId())) {
-                final InternalSessionModel sessionModel = getSessionModel();
-                final Calendar deletedOn = sessionModel.readDateTime();
-                // delete the draft
-                if (containerIO.doesExistLocalDraft(containerId, localUser.getLocalId())) {
-                    sessionModel.deleteDraft(container.getUniqueId(), deletedOn);
-                }
-                // the archive user is not part of the team
-                if (isLocalTeamMember(container.getId())) {
-                    final TeamMember localTeamMember = localTeamMember(container.getId());
-                    final List<JabberId> team = getArtifactModel().readTeamIds(container.getId());
-                    team.remove(localUserId());
-                    sessionModel.removeTeamMember(
-                            container.getUniqueId(), team, localTeamMember.getId());
-                }
-                // delete from the backup
-                getBackupModel().delete(containerId);
-                deleteLocal(container.getId(), allDocuments, allDocumentsLocks, allDocumentVersionsLocks);
-            } else {
-                deleteLocal(container.getId(), allDocuments, allDocumentsLocks, allDocumentVersionsLocks);
-            }
+            // delete
+            final Delete delegate = createDelegate(Delete.class);
+            delegate.setContainerId(containerId);
+            delegate.delete();
             // fire event
             notifyContainerDeleted(container, localEventGenerator);
         } catch (final CannotLockException clx) {
@@ -2002,6 +1987,9 @@ public final class ContainerModelImpl extends
         this.artifactIO = IOFactory.getDefault(workspace).createArtifactHandler();
         this.containerIO = IOFactory.getDefault(workspace).createContainerHandler();
         this.documentIO = IOFactory.getDefault(workspace).createDocumentHandler();
+
+        final ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        this.containerService = serviceFactory.getContainerService();
     }
 
     /**
@@ -2212,6 +2200,15 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Obtain the container web-service io.
+     * 
+     * @return An instance of <code>ContainerService</code>.
+     */
+    ContainerService getContainerService() {
+        return containerService;
+    }
+
+    /**
      * Obtain the document persitence io.
      * 
      * @return An instance of <code>DocumentIOHandler</code>.
@@ -2372,6 +2369,28 @@ public final class ContainerModelImpl extends
         final Map<DocumentVersion, DocumentFileLock> locks = new HashMap<DocumentVersion, DocumentFileLock>(versions.size(), 1.0F);
         for (final DocumentVersion version : versions) {
             locks.put(version, getDocumentModel().lockVersion(version));
+        }
+        return locks;
+    }
+
+    /**
+     * Lock a list of documents' versions.
+     * 
+     * @param documents
+     *            A <code>List</code> of <code>Document</code>s.
+     * @return A <code>Map</code> of <code>Document</code>s to their
+     *         <code>DocumentLock</code>s.
+     */
+    Map<DocumentVersion, DocumentFileLock> lockDocumentVersions(
+            final List<Document> documents) throws CannotLockException {
+        final Map<DocumentVersion, DocumentFileLock> locks = new HashMap<DocumentVersion, DocumentFileLock>();
+        final List<DocumentVersion> versions = new ArrayList<DocumentVersion>();
+        for (final Document document : documents) {
+            versions.clear();
+            versions.addAll(getDocumentModel().readVersions(document.getId()));
+            for (final DocumentVersion version : versions) {
+                locks.put(version, getDocumentModel().lockVersion(version));
+            }
         }
         return locks;
     }
@@ -2885,40 +2904,6 @@ public final class ContainerModelImpl extends
      */
     private Boolean isFirstDraft(final Long containerId) {
         return 0 == readVersions(containerId).size();
-    }
-
-    /**
-     * Determine if the local user ia a team member. The only scenaio where this
-     * will not be the case is for archive users.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @return True if the local user is a team member.
-     */
-    private boolean isLocalTeamMember(final Long containerId) {
-        return contains(getArtifactModel().readTeam2(containerId), localUser());
-    }
-    
-    /**
-     * Lock a list of documents' versions.
-     * 
-     * @param documents
-     *            A <code>List</code> of <code>Document</code>s.
-     * @return A <code>Map</code> of <code>Document</code>s to their
-     *         <code>DocumentLock</code>s.
-     */
-    private Map<DocumentVersion, DocumentFileLock> lockDocumentVersions(
-            final List<Document> documents) throws CannotLockException {
-        final Map<DocumentVersion, DocumentFileLock> locks = new HashMap<DocumentVersion, DocumentFileLock>();
-        final List<DocumentVersion> versions = new ArrayList<DocumentVersion>();
-        for (final Document document : documents) {
-            versions.clear();
-            versions.addAll(getDocumentModel().readVersions(document.getId()));
-            for (final DocumentVersion version : versions) {
-                locks.put(version, getDocumentModel().lockVersion(version));
-            }
-        }
-        return locks;
     }
 
     /**

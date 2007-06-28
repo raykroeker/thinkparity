@@ -13,6 +13,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -52,6 +53,26 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.container.ContainerModel#delete(com.thinkparity.codebase.model.container.Container, java.util.Calendar)
+     *
+     */
+    public void delete(final Container container, final Calendar deletedOn) {
+        try {
+            final Artifact artifact = localize(container);
+            final InternalArtifactModel artifactModel = getArtifactModel();
+            if (artifactModel.doesExistDraft(artifact)) {
+                artifactModel.deleteDraft(artifact, deletedOn);
+            }
+            if (artifactModel.isTeamMember(artifact)) {
+                artifactModel.removeTeamMember(artifact);
+            }
+            getBackupModel().delete(artifact.getUniqueId());
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.container.ContainerModel#publish(com.thinkparity.codebase.model.container.ContainerVersion,
      *      java.util.List, java.util.List, java.util.Calendar, java.util.List,
      *      java.util.List)
@@ -62,6 +83,9 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             final List<TeamMember> team, final Calendar publishedOn,
             final List<EMail> publishToEMails, final List<User> publishToUsers) {
         try {
+            // create if required
+            handleResolution(version);
+
             // enqueue invitation events
             createInvitations(user.getId(), version, publishToEMails, publishedOn);
 
@@ -113,7 +137,6 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         }
     }
 
-
     /**
      * @see com.thinkparity.desdemona.model.AbstractModelImpl#initialize()
      *
@@ -133,6 +156,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     protected final User readUser(final JabberId userId) {
         return getUserModel().read(userId);
     }
+
 
     /**
      * Add the published by user to the team.
@@ -342,24 +366,6 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * Convert a list of users to local users.
-     * 
-     * @param <T>
-     *            A type of user.
-     * @param users
-     *            A <code>List<User></code>.
-     * @return A <code>List<User></code>.
-     */
-    private <T extends User> List<User> localize(final List<T> users) {
-        final List<User> localUsers = new ArrayList<User>(users.size());
-        final InternalUserModel userModel = getUserModel();
-        for (final T user : users) {
-            localUsers.add(userModel.read(user.getId()));
-        }
-        return localUsers;
-    }
-
-    /**
      * Enqueue a container version published notification event. All of the existing
      * team members as well as the publish to users will receive the event. As
      * well the team portrayed by the event will be the combination of the
@@ -403,6 +409,54 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         event.setTeam(newTeam);
         // enqueue to the new team
         enqueueEvents(getIds(newTeam, new ArrayList<JabberId>()), event);
+    }
+
+    /**
+     * Handle a container version resolution. If the container does not exist;
+     * create it.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     */
+    private void handleResolution(final ContainerVersion version) {
+        final InternalArtifactModel artifactModel = getArtifactModel();
+        if (artifactModel.doesExist(version.getArtifactUniqueId())) {
+            logger.logInfo("Artifact {0} exists.", version.getArtifactName());
+        } else {
+            artifactModel.create(version.getArtifactUniqueId(),
+                    version.getCreatedOn());
+        }
+    }
+
+    /**
+     * Convert a list of users to local users.
+     * 
+     * @param <T>
+     *            A type of user.
+     * @param users
+     *            A <code>List<User></code>.
+     * @return A <code>List<User></code>.
+     */
+    private <T extends User> List<User> localize(final List<T> users) {
+        final List<User> localUsers = new ArrayList<User>(users.size());
+        final InternalUserModel userModel = getUserModel();
+        for (final T user : users) {
+            localUsers.add(userModel.read(user.getId()));
+        }
+        return localUsers;
+    }
+
+    /**
+     * Obtain a local reference for an artifact.
+     * 
+     * @param <T>
+     *            An artifact type.
+     * @param artifact
+     *            A <code>T</code>.
+     * @return An <code>Artifact</code>.
+     */
+    private <T extends Artifact> Artifact localize(final T artifact) {
+        return getArtifactModel().read(artifact.getUniqueId());
     }
 
     /**

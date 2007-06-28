@@ -181,6 +181,21 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
+     * Obtain the index of a team member in a user list.
+     * 
+     * @param users
+     *            A user list.
+     * @param teamMember
+     *            A team member.
+     * @return The index of the team member in the users list or -1 if the team
+     *         member does not exist in the list.
+     */
+    protected static final <U extends User, V extends User> int indexOf(
+            final List<U> users, final V user) {
+        return USER_UTILS.indexOf(users, user);
+    }
+
+    /**
      * Notify a process monitor that a given number of steps is upcoming.
      * 
      * @param monitor
@@ -193,7 +208,7 @@ public abstract class Model<T extends EventListener> extends
         monitor.determineSteps(steps);
     }
 
-    /**
+	/**
      * Notify a process monitor that a given process will begin.
      * 
      * @param monitor
@@ -230,7 +245,7 @@ public abstract class Model<T extends EventListener> extends
         notifyStepBegin(monitor, step, null);
     }
 
-	/**
+    /**
      * Notify a process monitor that a given step will begin.
      * 
      * @param monitor
@@ -270,10 +285,10 @@ public abstract class Model<T extends EventListener> extends
     /** A thinkParity <code>Workspace</code>. */
 	protected Workspace workspace;
 
-    /** The decryption cipher. */
+	/** The decryption cipher. */
     private transient Cipher decryptionCipher;
 
-	/** The encryption cipher. */
+    /** The encryption cipher. */
     private transient Cipher encryptionCipher;
 
     /** The <code>ModelInvocationContext</code>. */
@@ -294,7 +309,7 @@ public abstract class Model<T extends EventListener> extends
         this.notifiers = new Vector<EventNotifier<T>>(3);
 	}
 
-    /**
+	/**
      * Add a thinkParity event listener.
      * 
      * @param listener
@@ -308,7 +323,7 @@ public abstract class Model<T extends EventListener> extends
                 workspace, this, listener);
     }
 
-	/**
+    /**
      * Assert that the artifact does not exist.
      * 
      * @param uniqueId
@@ -324,7 +339,7 @@ public abstract class Model<T extends EventListener> extends
                 assertArguments);
     }
 
-    /**
+	/**
      * Assert that a container draft does not exist.
      * 
      * @param containerId
@@ -340,7 +355,7 @@ public abstract class Model<T extends EventListener> extends
                 assertion, assertionArguments);
     }
 
-	/**
+    /**
      * Assert that a container draft exists.
      * 
      * @param containerId
@@ -663,7 +678,7 @@ public abstract class Model<T extends EventListener> extends
         return getArtifactModel().doesVersionExist(artifactId);
     }
 
-    /**
+	/**
      * Determine whether or not a version exists.
      * 
      * @param artifactId
@@ -676,7 +691,7 @@ public abstract class Model<T extends EventListener> extends
         return getArtifactModel().doesVersionExist(artifactId, versionId);
     }
 
-	/**
+    /**
      * Assert the session is online. We are throwing a specific error here in
      * order to allow a client of the model an opportunity to display an
      * appropriate message.
@@ -1487,21 +1502,6 @@ public abstract class Model<T extends EventListener> extends
             secretKeySpec = new SecretKeySpec(rawKey, "AES");
         }
         return secretKeySpec;
-    }
-
-    /**
-     * Obtain the index of a team member in a user list.
-     * 
-     * @param users
-     *            A user list.
-     * @param teamMember
-     *            A team member.
-     * @return The index of the team member in the users list or -1 if the team
-     *         member does not exist in the list.
-     */
-    private <U extends User, V extends User> int indexOf(final List<U> users,
-            final V user) {
-        return USER_UTILS.indexOf(users, user);
     }
 
     /**

@@ -180,14 +180,6 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void delete(final JabberId contactId);
 
-    /**
-     * Delete an artifact from the backup.
-     * 
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     */
-    public void deleteArtifact(final UUID uniqueId);
-
     // TODO-javadoc InternalSessionModel#deleteDraft()
     public void deleteDraft(final UUID uniqueId, final Calendar deletedOn);
 

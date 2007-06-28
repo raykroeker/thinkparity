@@ -28,6 +28,8 @@ import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
 import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
+import com.thinkparity.service.ContainerService;
+
 /**
  * <b>Title:</b>thinkParity OpheliaModel Container Delegate<br>
  * <b>Description:</b>The abstraction of all container delegate implemenations.
@@ -50,6 +52,9 @@ public abstract class ContainerDelegate extends
     /** An instance of a document persistence interface. */ 
     protected DocumentIOHandler documentIO;
 
+    /** An instance of a container web-service interface. */
+    protected ContainerService containerService;
+
     /**
      * Create ContainerDelegate.
      * 
@@ -68,6 +73,8 @@ public abstract class ContainerDelegate extends
         this.artifactIO = modelImplementation.getArtifactIO();
         this.containerIO = modelImplementation.getContainerIO();
         this.documentIO = modelImplementation.getDocumentIO();
+
+        this.containerService = modelImplementation.getContainerService();
     }
     /**
      * @see ContainerModelImpl#calculateDelta(Container, ContainerVersion,
@@ -220,6 +227,15 @@ public abstract class ContainerDelegate extends
     protected final Map<DocumentVersion, DocumentFileLock> lockDocumentVersions(
             final Document document) throws CannotLockException {
         return modelImplementation.lockDocumentVersions(document);
+    }
+
+    /**
+     * @see ContainerModelImpl#lockDocumentVersions(List)
+     * 
+     */
+    protected final Map<DocumentVersion, DocumentFileLock> lockDocumentVersions(
+            final List<Document> documents) throws CannotLockException {
+        return modelImplementation.lockDocumentVersions(documents);
     }
 
     /**

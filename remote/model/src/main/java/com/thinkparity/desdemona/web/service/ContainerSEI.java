@@ -11,6 +11,7 @@ import javax.jws.WebService;
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -37,6 +38,15 @@ public class ContainerSEI extends ServiceSEI implements ContainerService {
      */
     public ContainerSEI() {
         super();
+    }
+
+    /**
+     * @see com.thinkparity.service.ContainerService#delete(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.container.Container)
+     *
+     */
+    public void delete(final AuthToken authToken, final Container container,
+            final Calendar deletedOn) {
+        getModel(authToken).delete(container, deletedOn);
     }
 
     /**

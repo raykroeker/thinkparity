@@ -375,18 +375,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
-     *
-     */
-    public void deleteArtifact(final UUID containerUniqueId) {
-        try {
-            backupService.delete(getAuthToken(), containerUniqueId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#deleteDraft(java.util.UUID,
      *      java.util.Calendar)
      * 
@@ -736,6 +724,22 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#pushOfflineCode(com.thinkparity.ophelia.model.session.OfflineCode)
+     *
+     */
+    public void pushOfflineCode(final OfflineCode offlineCode) {
+        try {
+            if (!isSetOfflineCodes()) {
+                setOfflineCodes(new OfflineCodes());
+            }
+            final OfflineCodes offlineCodes = getOfflineCodes();
+            offlineCodes.push(offlineCode);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupContainer(java.util.UUID)
      * 
      */
@@ -746,7 +750,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupContainers()
      * 
@@ -758,7 +762,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupContainerVersions(java.util.UUID)
      *
@@ -1008,7 +1012,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readProfile()
      * 
      */
@@ -1020,7 +1024,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readProfileEMails()
      * 
      */
@@ -1068,7 +1072,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.Model#removeListener(com.thinkparity.ophelia.model.util.EventListener)
      * 
      */
@@ -1077,7 +1081,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         super.removeListener(listener);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#removeProfileEmail(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.model.profile.ProfileEMail)
      *
      */
@@ -1323,22 +1327,6 @@ public final class SessionModelImpl extends Model<SessionListener>
                 listener.sessionEstablished();
             }
         });
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#pushOfflineCode(com.thinkparity.ophelia.model.session.OfflineCode)
-     *
-     */
-    public void pushOfflineCode(final OfflineCode offlineCode) {
-        try {
-            if (!isSetOfflineCodes()) {
-                setOfflineCodes(new OfflineCodes());
-            }
-            final OfflineCodes offlineCodes = getOfflineCodes();
-            offlineCodes.push(offlineCode);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
     }
 
     /**

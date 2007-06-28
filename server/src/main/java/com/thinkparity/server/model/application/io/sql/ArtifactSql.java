@@ -56,6 +56,20 @@ public class ArtifactSql extends AbstractSql {
         .append("where ARTIFACT_ID=? and USER_ID=?")
         .toString();
 
+    /** Sql to determine team membership existence. */
+    private static final String SQL_DOES_EXIST_TEAM_MEMBER_PK =
+        new StringBuilder("select count(ATR.ARTIFACT_ID) \"TEAM_REL_COUNT\" ")
+        .append("from TPSD_ARTIFACT_TEAM_REL ATR ")
+        .append("where ATR.ARTIFACT_ID=? and ATR.USER_ID=?")
+        .toString();
+
+    /** Sql to determine artifact existence by unique key. */
+    private static final String SQL_DOES_EXIST_UK =
+        new StringBuilder("select count(A.ARTIFACT_ID) \"ARTIFACT_COUNT\" ")
+        .append("from TPSD_ARTIFACT A ")
+        .append("where A.ARTIFACT_UNIQUE_ID=?")
+        .toString();
+
     /** Sql to read an artifact. */
 	private static final String SQL_READ =
 	    new StringBuilder("select ARTIFACT_ID,ARTIFACT_UNIQUE_ID,CREATED_ON,")
@@ -64,14 +78,14 @@ public class ArtifactSql extends AbstractSql {
         .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
 
-    /** Sql to read the artifact id. */
+	/** Sql to read the artifact id. */
     private static final String SQL_READ_ARTIFACT_ID =
         new StringBuilder("select A.ARTIFACT_ID ")
         .append("from TPSD_ARTIFACT A ")
         .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
 
-    /** Sql to read the artifact draft owner. */
+	/** Sql to read the artifact draft owner. */
     private static final String SQL_READ_DRAFT_OWNER =
         new StringBuilder("select U.USERNAME \"ARTIFACT_DRAFT_OWNER\" ")
         .append("from TPSD_ARTIFACT A ")
@@ -79,7 +93,7 @@ public class ArtifactSql extends AbstractSql {
         .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
 
-	/** Sql to read all draft unique ids for a user. */
+    /** Sql to read all draft unique ids for a user. */
     private static final String SQL_READ_DRAFT_UNIQUE_IDS =
         new StringBuilder("select A.ARTIFACT_UNIQUE_ID ")
         .append("from TPSD_ARTIFACT A ")
@@ -87,14 +101,14 @@ public class ArtifactSql extends AbstractSql {
         .append("order by A.ARTIFACT_ID asc")
         .toString();
 
-	/** Sql to read the latest version id. */
+    /** Sql to read the latest version id. */
     private static final String SQL_READ_LATEST_VERSION_ID =
         new StringBuilder("select A.ARTIFACT_LATEST_VERSION_ID ")
         .append("from TPSD_ARTIFACT A ")
         .append("where A.ARTIFACT_ID=?")
         .toString();
 
-    /** Sql to read a user's artifacts from the team. */
+	/** Sql to read a user's artifacts from the team. */
     private static final String SQL_READ_TEAM_ARTIFACT_UNIQUE_IDS =
         new StringBuilder("select A.ARTIFACT_UNIQUE_ID ")
         .append("from TPSD_ARTIFACT_TEAM_REL ATR ")
@@ -112,7 +126,7 @@ public class ArtifactSql extends AbstractSql {
         .append("order by U.USERNAME asc")
         .toString();
 
-	/** Sql to read the team relationship. */
+    /** Sql to read the team relationship. */
     private static final String SQL_READ_TEAM_REL_BY_ARTIFACT_ID =
         new StringBuilder("select U.USERNAME,U.USER_ID,ATR.ARTIFACT_ID ")
         .append("from TPSD_ARTIFACT_TEAM_REL ATR ")
@@ -129,7 +143,7 @@ public class ArtifactSql extends AbstractSql {
         .append("where ATR.ARTIFACT_ID=?")
         .toString();
 
-    /** Sql to update the draft owner. */
+	/** Sql to update the draft owner. */
     private static final String SQL_UPDATE_DRAFT_OWNER =
         new StringBuilder("update TPSD_ARTIFACT ")
         .append("set ARTIFACT_DRAFT_OWNER=?,UPDATED_ON=?,UPDATED_BY=? ")
@@ -143,7 +157,7 @@ public class ArtifactSql extends AbstractSql {
         .append("where ARTIFACT_ID=? AND ARTIFACT_DRAFT_OWNER=?")
         .toString();
 
-	/** A user sql interface. */
+    /** A user sql interface. */
     private final UserSql userSql;
 
     /**
@@ -154,7 +168,6 @@ public class ArtifactSql extends AbstractSql {
         super();
         this.userSql = new UserSql();
 	}
-
     /**
      * Create an artifact.
      * 
@@ -266,6 +279,69 @@ public class ArtifactSql extends AbstractSql {
             session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Determine an artifact's existence.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return True if the artifact exists.
+     */
+    public Boolean doesExist(final UUID uniqueId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_UK);
+            session.setUniqueId(1, uniqueId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int artifactCount = session.getInteger("ARTIFACT_COUNT");
+                if (0 == artifactCount) {
+                    return Boolean.FALSE;
+                } else if (1 == artifactCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine artifact existence.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine artifact existence.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Determine whether or not a team relationship exists.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @param userId
+     *            A user id <code>Long</code>.
+     * @return True if a team relationship exists.
+     */
+    public Boolean doesExistTeamMember(final Long artifactId, final Long userId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_TEAM_MEMBER_PK);
+            session.setLong(1, artifactId);
+            session.setLong(2, userId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int teamRelCount = session.getInteger("TEAM_REL_COUNT");
+                if (0 == teamRelCount) {
+                    return Boolean.FALSE;
+                } else if (1 == teamRelCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine team relationship existence.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine team relationship existence.");
+            }
         } finally {
             session.close();
         }

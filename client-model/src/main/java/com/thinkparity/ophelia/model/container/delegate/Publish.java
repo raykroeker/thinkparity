@@ -102,14 +102,13 @@ public final class Publish extends ContainerDelegate {
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar publishedOn = sessionModel.readDateTime();
             final Container container = read(containerId);
-            // if the artfiact doesn't exist on the server; create it there
-            if (!isDistributed(container.getId())) {
-                createDistributed(container, publishedOn);
-            }
             // ensure the user is the key holder
-            final JabberId keyHolder = sessionModel.readKeyHolder(container.getUniqueId());
-            Assert.assertTrue("User does not own draft.",
-                    keyHolder.equals(localUserId()));
+            if (isDistributed(containerId)) {
+                final JabberId keyHolder = sessionModel.readKeyHolder(container.getUniqueId());
+                Assert.assertTrue("User does not own draft.",
+                        keyHolder.equals(localUserId()));
+            }
+            // ensure draft existence
             final InternalArtifactModel artifactModel = getArtifactModel();
             Assert.assertTrue("User does not own draft.",
                     artifactModel.isFlagApplied(containerId, ArtifactFlag.KEY));

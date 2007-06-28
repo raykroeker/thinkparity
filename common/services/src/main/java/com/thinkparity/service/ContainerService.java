@@ -12,6 +12,7 @@ import javax.jws.WebService;
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -26,6 +27,19 @@ import com.thinkparity.codebase.model.user.User;
  */
 @WebService(name = "Container")
 public interface ContainerService {
+
+    /**
+     * Delete a container.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param container
+     *            A <code>Container</code>.
+     * @param deletedOn
+     *            A deleted on <code>Calendar</code>.
+     */
+    @WebMethod
+    void delete(AuthToken authToken, Container container, Calendar deletedOn);
 
     @WebMethod
     void publish(AuthToken authToken, ContainerVersion version,

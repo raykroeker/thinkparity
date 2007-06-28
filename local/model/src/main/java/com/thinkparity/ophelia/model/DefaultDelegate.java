@@ -10,6 +10,7 @@ import java.util.List;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -36,7 +37,7 @@ import com.thinkparity.ophelia.model.util.Step;
 public class DefaultDelegate<T extends Model> implements Delegate<T> {
 
     /**
-     * @see Model#contains(List, JabberId)
+     * @see com.thinkparity.ophelia.model.Model#contains(List, JabberId)
      * 
      */
     protected static final <U extends User> Boolean contains(
@@ -45,7 +46,7 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
     }
 
     /**
-     * @see Model#contains(List, User)
+     * @see com.thinkparity.ophelia.model.Model#contains(List, User)
      * 
      */
     protected static final <U extends User, V extends User> Boolean contains(
@@ -54,7 +55,7 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
     }
 
     /**
-     * @see Model#getIds(List, List)
+     * @see com.thinkparity.ophelia.model.Model#getIds(List, List)
      * 
      */
     protected static final <U extends User> List<JabberId> getIds(
@@ -63,7 +64,7 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
     }
 
     /**
-     * @see Model#indexOf(List, JabberId)
+     * @see com.thinkparity.ophelia.model.Model#indexOf(List, JabberId)
      * 
      */
     protected static final <U extends User> int indexOf(final List<U> users,
@@ -72,7 +73,16 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
     }
 
     /**
-     * @see Model#notifyDetermine(ProcessMonitor, Integer)
+     * @see com.thinkparity.ophelia.model.Model#indexOf(List, User)
+     * 
+     */
+    protected static final <U extends User, V extends User> int indexOf(
+            final List<U> users, final V user) {
+        return Model.indexOf(users, user);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.Model#notifyDetermine(ProcessMonitor, Integer)
      * 
      */
     protected static final void notifyDetermine(final ProcessMonitor monitor,
@@ -81,7 +91,7 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
     }
 
     /**
-     * @see Model#notifyProcessBegin(ProcessMonitor)
+     * @see com.thinkparity.ophelia.model.Model#notifyProcessBegin(ProcessMonitor)
      * 
      */
     protected static final void notifyProcessBegin(final ProcessMonitor monitor) {
@@ -89,7 +99,7 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
     }
 
     /**
-     * @see Model#notifyStepBegin(ProcessMonitor, Step)
+     * @see com.thinkparity.ophelia.model.Model#notifyStepBegin(ProcessMonitor, Step)
      * 
      */
     protected static final void notifyStepBegin(final ProcessMonitor monitor,
@@ -98,7 +108,7 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
     }
 
     /**
-     * @see Model#notifyStepBegin(ProcessMonitor, Step, Object)
+     * @see com.thinkparity.ophelia.model.Model#notifyStepBegin(ProcessMonitor, Step, Object)
      * 
      */
     protected static final void notifyStepBegin(final ProcessMonitor monitor,
@@ -107,7 +117,7 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
     }
 
     /**
-     * @see Model#notifyStepEnd(ProcessMonitor, Step)
+     * @see com.thinkparity.ophelia.model.Model#notifyStepEnd(ProcessMonitor, Step)
      * 
      */
     protected static final void notifyStepEnd(final ProcessMonitor monitor,
@@ -141,7 +151,7 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
     }
 
     /**
-     * @see Model#createTempFile()
+     * @see com.thinkparity.ophelia.model.Model#createTempFile()
      * 
      */
     protected final File createTempFile() throws IOException {
@@ -227,6 +237,14 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
      */
     protected final InternalUserModel getUserModel() {
         return modelImplementation.getUserModel();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.Model#localTeamMember(Long)
+     * 
+     */
+    protected final TeamMember localTeamMember(final Long artifactId) {
+        return modelImplementation.localTeamMember(artifactId);
     }
 
     /**

@@ -6,6 +6,10 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact;
 
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.user.User;
@@ -29,17 +33,22 @@ public class UserInfoAvatar extends Avatar {
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel companyJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel inviteJLabel = LabelFactory.createLink("",Fonts.DialogFont);
+    private final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel titleJLabel = new javax.swing.JLabel();
+    // End of variables declaration//GEN-END:variables
+
     /** Creates new form UserInfoAvatar */
     public UserInfoAvatar() {
         super("UserInfoAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
+        bindEscapeKey();
     }
 
     public AvatarId getId() {
         return AvatarId.DIALOG_CONTACT_INFO;
-    }
-
-    public void setState(final State state) {
     }
 
     public State getState() {
@@ -48,15 +57,29 @@ public class UserInfoAvatar extends Avatar {
 
     public void reload() {
         if (input!=null) {
-            final User user = getUser(getInputUserId());
+            final User user = readUser(getInputUserId());
             reloadInvite(user);
-            nameJTextField.setText(user.getName());
-            companyJTextField.setText(user.getOrganization());
-            titleJTextField.setText(user.getTitle());
+            nameJLabel.setText(user.getName());
+            companyJLabel.setText(user.getOrganization());
+            titleJLabel.setText(user.getTitle());
         }
     }
 
-    private void closeJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
+    public void setState(final State state) {
+    }
+
+    /**
+     * Make the escape key behave like cancel.
+     */
+    private void bindEscapeKey() {
+        bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                disposeWindow();
+            }
+        });
+    }
+
+    private void closeJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
         disposeWindow();
     }//GEN-LAST:event_closeJButtonActionPerformed
 
@@ -95,15 +118,6 @@ public class UserInfoAvatar extends Avatar {
         }
     }
 
-    /**
-     * Obtain the user.
-     *
-     * @return The user.
-     */
-    private User getUser(final JabberId userId) {
-        return ((UserInfoProvider)contentProvider).readUser(userId);
-    }
-
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -112,9 +126,9 @@ public class UserInfoAvatar extends Avatar {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         final javax.swing.JButton closeJButton = ButtonFactory.create();
-        final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel titleJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel companyJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel nameHeadingJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel titleHeadingJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel companyHeadingJLabel = new javax.swing.JLabel();
 
         closeJButton.setFont(Fonts.DialogButtonFont);
         closeJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Close"));
@@ -124,29 +138,26 @@ public class UserInfoAvatar extends Avatar {
             }
         });
 
-        nameJLabel.setFont(Fonts.DialogFont);
-        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Name"));
+        nameHeadingJLabel.setFont(Fonts.DialogFont);
+        nameHeadingJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Name"));
 
-        nameJTextField.setEditable(false);
-        nameJTextField.setFont(Fonts.DialogTextEntryFont);
-        nameJTextField.setFocusable(false);
-        nameJTextField.setOpaque(false);
+        nameJLabel.setFont(Fonts.DialogFont);
+        nameJLabel.setText("!name!");
+        nameJLabel.setPreferredSize(new java.awt.Dimension(34, 20));
+
+        titleHeadingJLabel.setFont(Fonts.DialogFont);
+        titleHeadingJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.TitleLabel"));
 
         titleJLabel.setFont(Fonts.DialogFont);
-        titleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.TitleLabel"));
+        titleJLabel.setText("!title!");
+        titleJLabel.setPreferredSize(new java.awt.Dimension(26, 20));
 
-        titleJTextField.setEditable(false);
-        titleJTextField.setFont(Fonts.DialogTextEntryFont);
-        titleJTextField.setFocusable(false);
-        titleJTextField.setOpaque(false);
+        companyHeadingJLabel.setFont(Fonts.DialogFont);
+        companyHeadingJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Company"));
 
         companyJLabel.setFont(Fonts.DialogFont);
-        companyJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Company"));
-
-        companyJTextField.setEditable(false);
-        companyJTextField.setFont(Fonts.DialogTextEntryFont);
-        companyJTextField.setFocusable(false);
-        companyJTextField.setOpaque(false);
+        companyJLabel.setText("!company!");
+        companyJLabel.setPreferredSize(new java.awt.Dimension(51, 20));
 
         inviteJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Invite"));
         inviteJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -162,38 +173,38 @@ public class UserInfoAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                    .add(layout.createSequentialGroup()
                         .add(inviteJLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 181, Short.MAX_VALUE)
                         .add(closeJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 59, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                    .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(nameJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
-                            .add(titleJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
-                            .add(companyJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE))
+                            .add(companyHeadingJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 99, Short.MAX_VALUE)
+                            .add(titleHeadingJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 99, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, nameHeadingJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 99, Short.MAX_VALUE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(companyJTextField)
-                            .add(titleJTextField)
-                            .add(nameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE))))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                            .add(companyJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(titleJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 255, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(24, 24, 24)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(nameJLabel))
+                    .add(nameHeadingJLabel)
+                    .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(titleJLabel))
+                    .add(titleHeadingJLabel)
+                    .add(titleJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(companyJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(companyJLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 18, Short.MAX_VALUE)
+                    .add(companyHeadingJLabel)
+                    .add(companyJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 19, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(closeJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(inviteJLabel))
@@ -201,9 +212,9 @@ public class UserInfoAvatar extends Avatar {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void inviteJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_inviteJLabelMousePressed
+    private void inviteJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_inviteJLabelMousePressed
         disposeWindow();
-        getController().runCreateOutgoingUserInvitation(getUser(getInputUserId()).getLocalId());
+        getController().runCreateOutgoingUserInvitation(readUser(getInputUserId()).getLocalId());
     }//GEN-LAST:event_inviteJLabelMousePressed
 
     /**
@@ -218,6 +229,15 @@ public class UserInfoAvatar extends Avatar {
     }
 
     /**
+     * Read the user.
+     *
+     * @return The user.
+     */
+    private User readUser(final JabberId userId) {
+        return ((UserInfoProvider)contentProvider).readUser(userId);
+    }
+
+    /**
      * Set the invite link visible or not as appropriate.
      * 
      * @param user
@@ -226,13 +246,6 @@ public class UserInfoAvatar extends Avatar {
     private void reloadInvite(final User user) {
         inviteJLabel.setVisible(!isLocalUser(user) && !doesExistContact(user) && !doesExistOutgoingUserInvitation(user));
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JTextField companyJTextField = new javax.swing.JTextField();
-    private final javax.swing.JLabel inviteJLabel = LabelFactory.createLink("",Fonts.DialogFont);
-    private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
-    private final javax.swing.JTextField titleJTextField = new javax.swing.JTextField();
-    // End of variables declaration//GEN-END:variables
 
     public enum DataKey { USER_ID }
 }

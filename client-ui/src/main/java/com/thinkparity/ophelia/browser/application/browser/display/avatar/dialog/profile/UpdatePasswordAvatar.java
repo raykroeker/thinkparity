@@ -4,10 +4,10 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 import javax.swing.AbstractAction;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument;
 
 import com.thinkparity.codebase.StringUtil.Separator;
@@ -37,9 +37,6 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  */
 public class UpdatePasswordAvatar extends Avatar {
 
-    /** An instance of <code>ProfileConstraints</code>. */
-    private final ProfileConstraints profileConstraints;
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPasswordField confirmNewPasswordJPasswordField = new javax.swing.JPasswordField();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
@@ -49,6 +46,9 @@ public class UpdatePasswordAvatar extends Avatar {
     private final javax.swing.JPasswordField oldPasswordJPasswordField = new javax.swing.JPasswordField();
     // End of variables declaration//GEN-END:variables
 
+    /** An instance of <code>ProfileConstraints</code>. */
+    private final ProfileConstraints profileConstraints;
+
     /**
      * Create UpdatePasswordAvatar.
      * 
@@ -57,12 +57,11 @@ public class UpdatePasswordAvatar extends Avatar {
         super("UpdatePasswordAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         this.profileConstraints = ProfileConstraints.getInstance();
         initComponents();
-        initDocumentHandlers();
-        bindEscapeKey("Cancel", new AbstractAction() {
-            public void actionPerformed(final ActionEvent e) {
-                cancelJButtonActionPerformed(e);
-            }
-        });
+        addValidationListener(oldPasswordJPasswordField);
+        addValidationListener(newPasswordJPasswordField);
+        addValidationListener(confirmNewPasswordJPasswordField);
+        initFocusListeners();
+        bindEscapeKey();
     }
 
     public AvatarId getId() {
@@ -92,37 +91,37 @@ public class UpdatePasswordAvatar extends Avatar {
      *
      */
     @Override
-    protected final void validateInput() {
-        super.validateInput();
-        final String password = extractPassword();
-        final String newPassword = extractNewPassword();
-        final String confirmNewPassword = extractConfirmNewPassword();
-        final int minimumPasswordLength = profileConstraints.getPassword().getMinLength();
-
-        if (null == password)
-            addInputError(Separator.Space.toString());
-
-        if (null == newPassword) {
-            addInputError(Separator.Space.toString());
-        } else if (newPassword.length() < minimumPasswordLength) {
-            addInputError(getString("ErrorPasswordTooShort", new Object[] {minimumPasswordLength}));
-        }
-
-        if (null == confirmNewPassword) {
-            addInputError(Separator.Space.toString());
-        } else if (null != newPassword && !newPassword.equals(confirmNewPassword)) {
-            addInputError(getString("ErrorPasswordsDoNotMatch"));
-        }
-
-        errorMessageJLabel.setText(" ");
-        if (containsInputErrors())
-            errorMessageJLabel.setText(getInputErrors().get(0));
-        okJButton.setEnabled(!containsInputErrors());
+    public final void validateInput() {
+        validateInput(Boolean.FALSE);
     }
 
-    private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isInputValid()
+     */
+    @Override
+    protected Boolean isInputValid() {
+        validateInput(Boolean.TRUE);
+        return !containsInputErrors();
+    }
+
+    /**
+     * Make the escape key behave like cancel.
+     */
+    private void bindEscapeKey() {
+        bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                cancelJButtonActionPerformed(e);
+            }
+        });
+    }
+
+    private void cancelJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
+
+    private void confirmNewPasswordJPasswordFieldActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmNewPasswordJPasswordFieldActionPerformed
+        okJButtonActionPerformed(evt);
+    }//GEN-LAST:event_confirmNewPasswordJPasswordFieldActionPerformed
 
     /**
      * Extract the confirm new password from the control.
@@ -168,7 +167,7 @@ public class UpdatePasswordAvatar extends Avatar {
         return SwingUtil.extract(oldPasswordJPasswordField, Boolean.TRUE);
     }
 
-    private void forgotPasswordJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_forgotPasswordJLabelMousePressed
+    private void forgotPasswordJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_forgotPasswordJLabelMousePressed
         getController().runContactUs();
     }//GEN-LAST:event_forgotPasswordJLabelMousePressed
 
@@ -205,12 +204,27 @@ public class UpdatePasswordAvatar extends Avatar {
 
         oldPasswordJPasswordField.setFont(Fonts.DialogTextEntryFont);
         ((AbstractDocument) oldPasswordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));
+        oldPasswordJPasswordField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                oldPasswordJPasswordFieldActionPerformed(evt);
+            }
+        });
 
         newPasswordJPasswordField.setFont(Fonts.DialogTextEntryFont);
         ((AbstractDocument) newPasswordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));
+        newPasswordJPasswordField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newPasswordJPasswordFieldActionPerformed(evt);
+            }
+        });
 
         confirmNewPasswordJPasswordField.setFont(Fonts.DialogTextEntryFont);
         ((AbstractDocument) confirmNewPasswordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));
+        confirmNewPasswordJPasswordField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmNewPasswordJPasswordFieldActionPerformed(evt);
+            }
+        });
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
@@ -277,7 +291,7 @@ public class UpdatePasswordAvatar extends Avatar {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(32, 32, 32)
+                .addGap(24, 24, 24)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(oldPasswordJLabel)
                     .addComponent(oldPasswordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -301,21 +315,20 @@ public class UpdatePasswordAvatar extends Avatar {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void initDocumentHandlers() {
-        final DocumentListener documentListener = new DocumentListener() {
-            public void changedUpdate(final DocumentEvent e) {
+    /**
+     * Initialize the focus listeners.
+     */
+    private void initFocusListeners() {
+        final FocusListener focusListener = new FocusListener() {
+            public void focusGained(FocusEvent e) {
                 validateInput();
             }
-            public void insertUpdate(final DocumentEvent e) {
-                validateInput();
-            }
-            public void removeUpdate(final DocumentEvent e) {
+            public void focusLost(FocusEvent e) {
                 validateInput();
             }
         };
-        oldPasswordJPasswordField.getDocument().addDocumentListener(documentListener);
-        newPasswordJPasswordField.getDocument().addDocumentListener(documentListener);
-        confirmNewPasswordJPasswordField.getDocument().addDocumentListener(documentListener);
+        newPasswordJPasswordField.addFocusListener(focusListener);
+        confirmNewPasswordJPasswordField.addFocusListener(focusListener);
     }
 
     /**
@@ -348,12 +361,28 @@ public class UpdatePasswordAvatar extends Avatar {
         }
     }
 
-    private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
-        if (isInputValid() && isPasswordValid()) {
-            disposeWindow();
-            updatePassword();
+    private void newPasswordJPasswordFieldActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newPasswordJPasswordFieldActionPerformed
+        okJButtonActionPerformed(evt);
+    }//GEN-LAST:event_newPasswordJPasswordFieldActionPerformed
+
+    private void okJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
+        if (isInputValid()) {
+            SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
+            errorMessageJLabel.setText(getString("CheckingPassword"));
+            errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel
+                    .getWidth(), errorMessageJLabel.getHeight());
+            final Boolean passwordValid = isPasswordValid();
+            SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+            if (passwordValid) {
+                disposeWindow();
+                updatePassword();
+            }
         }
     }//GEN-LAST:event_okJButtonActionPerformed
+
+    private void oldPasswordJPasswordFieldActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_oldPasswordJPasswordFieldActionPerformed
+        okJButtonActionPerformed(evt);
+    }//GEN-LAST:event_oldPasswordJPasswordFieldActionPerformed
 
     private void reloadConfirmNewPassword() {
         confirmNewPasswordJPasswordField.setText("");
@@ -385,5 +414,45 @@ public class UpdatePasswordAvatar extends Avatar {
         final String newPasswordConfirm = extractConfirmNewPassword();
         getController().runUpdateProfilePassword(credentials, newPassword,
                 newPasswordConfirm);
+    }
+
+    /**
+     * Validate input.
+     * 
+     * @param ignoreFocus
+     *            A <code>Boolean</code> to ignore focus or not.
+     */
+    private void validateInput(final Boolean ignoreFocus) {
+        super.validateInput();
+        final String password = extractPassword();
+        final String newPassword = extractNewPassword();
+        final String confirmNewPassword = extractConfirmNewPassword();
+        final int minimumPasswordLength = profileConstraints.getPassword().getMinLength();
+
+        if (null == password) {
+            addInputError(Separator.Space.toString());
+        }
+
+        if (null == newPassword) {
+            addInputError(Separator.Space.toString());
+        } else if (newPassword.length() < minimumPasswordLength) {
+            if (ignoreFocus || !newPasswordJPasswordField.isFocusOwner()) {
+                addInputError(getString("ErrorPasswordTooShort", new Object[] {minimumPasswordLength}));
+            }
+        }
+
+        if (null == confirmNewPassword) {
+            addInputError(Separator.Space.toString());
+        } else if (null != newPassword && !newPassword.equals(confirmNewPassword)) {
+            if (ignoreFocus || !confirmNewPasswordJPasswordField.isFocusOwner()) {
+                addInputError(getString("ErrorPasswordsDoNotMatch"));
+            }
+        }
+
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors()) {
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        }
+        okJButton.setEnabled(!containsInputErrors());
     }
 }

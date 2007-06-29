@@ -71,9 +71,13 @@ public final class ConfirmAvatar extends Avatar {
         }
     }
 
-    public AvatarId getId() { return AvatarId.DIALOG_CONFIRM; }
+    public AvatarId getId() {
+        return AvatarId.DIALOG_CONFIRM;
+    }
 
-    public State getState() { return null; }
+    public State getState() {
+        return null;
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
@@ -229,9 +233,9 @@ public final class ConfirmAvatar extends Avatar {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(31, Short.MAX_VALUE)
-                .addComponent(confirmMessageJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(20, 20, 20)
+                .addContainerGap(27, Short.MAX_VALUE)
+                .addComponent(confirmMessageJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(16, 16, 16)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(denyJButton)
                     .addComponent(confirmJButton))
@@ -244,8 +248,7 @@ public final class ConfirmAvatar extends Avatar {
      *
      */
     private void reloadConfirmJButton() {
-        final String text = getString(getInputString(DataKey.CONFIRM_BUTTON_KEY,
-                "Confirm"));
+        final String text = getString(getInputString(DataKey.CONFIRM_BUTTON_KEY, "Confirm"));
         confirmJButton.setText(text);
     }
 
@@ -276,8 +279,7 @@ public final class ConfirmAvatar extends Avatar {
      *
      */
     private void reloadDenyJButton() {
-        final String text = getString(getInputString(DataKey.DENY_BUTTON_KEY,
-                "Deny"));
+        final String text = getString(getInputString(DataKey.DENY_BUTTON_KEY, "Deny"));
         denyJButton.setText(text);
     }
 

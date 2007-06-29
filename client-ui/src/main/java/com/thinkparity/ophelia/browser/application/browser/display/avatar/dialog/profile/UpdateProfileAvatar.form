@@ -12,60 +12,76 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="1" attributes="0">
-                      <Component id="changePasswordJLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="136" max="32767" attributes="0"/>
-                      <Component id="saveJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="profileJSeparator" pref="455" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="cancelJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
+                      <Component id="backupJLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="390" max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="1" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="102" alignment="1" attributes="0">
+                                      <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="titleJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="nameJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="organizationJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="phoneJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="mobilePhoneJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="addressJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="cityJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="provinceJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="countryJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="postalCodeJLabel" alignment="0" min="-2" max="-2" attributes="1"/>
+                                          <Component id="emailJLabel" min="-2" max="-2" attributes="1"/>
+                                      </Group>
+                                      <EmptySpace pref="24" max="32767" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                          <Component id="emailJTextField" alignment="0" max="32767" attributes="1"/>
+                                          <Component id="postalCodeJTextField" alignment="1" max="32767" attributes="1"/>
+                                          <Component id="countryJComboBox" alignment="1" max="32767" attributes="1"/>
+                                          <Component id="provinceJTextField" alignment="1" max="32767" attributes="1"/>
+                                          <Component id="cityJTextField" alignment="1" max="32767" attributes="1"/>
+                                          <Component id="addressJTextField" alignment="1" max="32767" attributes="1"/>
+                                          <Component id="mobilePhoneJTextField" alignment="1" max="32767" attributes="1"/>
+                                          <Component id="phoneJTextField" alignment="1" max="32767" attributes="1"/>
+                                          <Component id="organizationJTextField" alignment="1" max="32767" attributes="3"/>
+                                          <Component id="titleJTextField" alignment="1" max="32767" attributes="3"/>
+                                          <Component id="nameJTextField" linkSize="5" alignment="1" min="-2" pref="321" max="-2" attributes="3"/>
+                                      </Group>
+                                  </Group>
+                                  <Component id="backupExplanationJLabel" alignment="0" pref="439" max="32767" attributes="0"/>
+                                  <Component id="backupStatisticsJLabel" linkSize="5" alignment="1" min="-2" pref="313" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="profileExplanationJLabel" alignment="1" pref="455" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="provinceJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="cityJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="addressJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="mobilePhoneJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="phoneJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="organizationJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="titleJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="nameJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="countryJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="postalCodeJLabel" alignment="0" min="-2" max="-2" attributes="1"/>
-                              </Group>
-                              <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="postalCodeJTextField" alignment="0" pref="253" max="32767" attributes="0"/>
-                                  <Component id="organizationJTextField" alignment="0" pref="253" max="32767" attributes="2"/>
-                                  <Component id="phoneJTextField" alignment="0" pref="253" max="32767" attributes="0"/>
-                                  <Component id="mobilePhoneJTextField" alignment="0" pref="253" max="32767" attributes="0"/>
-                                  <Component id="addressJTextField" alignment="0" pref="253" max="32767" attributes="0"/>
-                                  <Component id="cityJTextField" alignment="0" pref="253" max="32767" attributes="0"/>
-                                  <Component id="provinceJTextField" alignment="0" pref="253" max="32767" attributes="0"/>
-                                  <Component id="titleJTextField" alignment="0" pref="253" max="32767" attributes="2"/>
-                                  <Component id="nameJTextField" alignment="0" pref="253" max="32767" attributes="2"/>
-                                  <Component id="countryJComboBox" alignment="1" pref="253" max="32767" attributes="0"/>
-                              </Group>
+                              <Component id="errorMessageJLabel" pref="439" max="32767" attributes="0"/>
+                              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="emailJLabel" min="-2" max="-2" attributes="1"/>
-                              <EmptySpace min="-2" pref="76" max="-2" attributes="0"/>
-                              <Component id="emailJTextField" pref="252" max="32767" attributes="0"/>
+                          <Group type="102" alignment="1" attributes="0">
+                              <Component id="changePasswordJButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace pref="198" max="32767" attributes="0"/>
+                              <Component id="saveJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="cancelJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="backupJLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="13" max="-2" attributes="0"/>
-                              <Component id="backupStatisticsJLabel" pref="252" max="32767" attributes="0"/>
-                          </Group>
-                          <Component id="profileJSeparator" alignment="1" pref="360" max="32767" attributes="0"/>
-                          <Component id="errorMessageJLabel" alignment="1" pref="360" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
                   </Group>
               </Group>
           </Group>
@@ -74,7 +90,9 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="1" attributes="0">
-              <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
+              <Component id="profileExplanationJLabel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="nameJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="nameJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -116,8 +134,8 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="countryJLabel" linkSize="2" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="countryJComboBox" linkSize="2" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="countryJLabel" linkSize="2" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -126,23 +144,25 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="emailJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="emailJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="emailJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
               <Component id="profileJSeparator" min="-2" pref="10" max="-2" attributes="0"/>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="backupExplanationJLabel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="backupStatisticsJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="backupJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="backupStatisticsJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
               <Component id="errorMessageJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="saveJButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="cancelJButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="changePasswordJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="changePasswordJButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -150,6 +170,19 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
+    <Component class="javax.swing.JLabel" name="profileExplanationJLabel">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogFont" type="code"/>
+        </Property>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="localization/Browser_Messages.properties" key="UpdateProfileAvatar.ProfileExplanation" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
+      </AuxValues>
+    </Component>
     <Component class="javax.swing.JLabel" name="countryJLabel">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
@@ -180,6 +213,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="John McClean"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="profileJTextFieldActionPerformed"/>
+      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) nameJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getName()));"/>
@@ -190,6 +226,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="john@nypd.org"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="profileJTextFieldActionPerformed"/>
+      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getEmail()));"/>
@@ -226,6 +265,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Over The Hill Cop"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="profileJTextFieldActionPerformed"/>
+      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) titleJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getTitle()));"/>
@@ -265,6 +307,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="NYPD"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="profileJTextFieldActionPerformed"/>
+      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) organizationJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getOrganization()));"/>
@@ -289,6 +334,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="90210"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="profileJTextFieldActionPerformed"/>
+      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) postalCodeJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPostalCode()));"/>
@@ -312,6 +360,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="555-555-1111"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="profileJTextFieldActionPerformed"/>
+      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) phoneJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPhone()));"/>
@@ -336,6 +387,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="555-555-1111"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="profileJTextFieldActionPerformed"/>
+      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) mobilePhoneJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getMobilePhone()));"/>
@@ -359,6 +413,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="NY"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="profileJTextFieldActionPerformed"/>
+      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) provinceJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getProvince()));"/>
@@ -375,14 +432,16 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="cityJTextField">
       <Properties>
         <Property name="text" type="java.lang.String" value="NYC"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="profileJTextFieldActionPerformed"/>
+      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) cityJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getCity()));"/>
@@ -399,14 +458,16 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="addressJTextField">
       <Properties>
         <Property name="text" type="java.lang.String" value="1234 5th Street"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="profileJTextFieldActionPerformed"/>
+      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) addressJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getAddress()));"/>
@@ -417,6 +478,19 @@
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JLabel" name="backupExplanationJLabel">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogFont" type="code"/>
+        </Property>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="localization/Browser_Messages.properties" key="UpdateProfileAvatar.BackupExplanation" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="backupJLabel">
@@ -457,17 +531,20 @@
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
-    <Component class="javax.swing.JLabel" name="changePasswordJLabel">
+    <Component class="javax.swing.JButton" name="changePasswordJButton">
       <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogButtonFont" type="code"/>
+        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="localization/Browser_Messages.properties" key="UpdateProfileAvatar.Password" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="mousePressed" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="changePasswordJLabelMousePressed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="changePasswordJButtonActionPerformed"/>
       </Events>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="LabelFactory.createLink(&quot;&quot;,Fonts.DialogFont);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create();"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>

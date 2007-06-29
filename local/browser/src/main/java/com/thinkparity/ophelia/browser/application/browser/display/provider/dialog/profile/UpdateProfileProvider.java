@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.dia
 
 import java.util.List;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.codebase.model.backup.Statistics;
@@ -17,13 +16,13 @@ import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 
-import com.thinkparity.ophelia.browser.application.browser.display.provider.CompositeFlatSingleContentProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
 
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class UpdateProfileProvider extends CompositeFlatSingleContentProvider {
+public class UpdateProfileProvider extends ContentProvider {
 
     /** An instance of <code>BackupModel</code>. */
     private final BackupModel backupModel;
@@ -47,16 +46,6 @@ public class UpdateProfileProvider extends CompositeFlatSingleContentProvider {
         super(profileModel);
         this.backupModel = backupModel;
         this.sessionModel = sessionModel;
-    }
-
-    @Override
-    public Object getElement(Integer index, Object input) {
-        throw Assert.createNotYetImplemented("UpdateProfileProvider#getElement");
-    }
-
-    @Override
-    public Object[] getElements(Integer index, Object input) {
-        throw Assert.createNotYetImplemented("UpdateProfileProvider#getElements");
     }
 
     /**

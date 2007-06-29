@@ -242,6 +242,30 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             add(ActionId.CONTAINER_REMOVE_DOCUMENT, removeData);
         }
 
+        // include the document's id and unique id in the menu
+        if (model.isDevelopmentMode()) {
+            final Clipboard systemClipboard =
+                Toolkit.getDefaultToolkit().getSystemClipboard();
+            final ActionListener debugActionListener = new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    final StringSelection stringSelection =
+                        new StringSelection(((JComponent) e.getSource()).getClientProperty("COPY_ME").toString());
+                    systemClipboard.setContents(stringSelection, null);
+                }
+            };
+            final JMenuItem idJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getId():{0,number,#}", document.getId()));
+            idJMenuItem.putClientProperty("COPY_ME", document.getId());
+            idJMenuItem.addActionListener(debugActionListener);
+
+            final JMenuItem uidJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getUniqueId():{0}", document.getUniqueId()));
+            uidJMenuItem.putClientProperty("COPY_ME", document.getUniqueId());
+            uidJMenuItem.addActionListener(debugActionListener);
+
+            addSeparator();
+            add(idJMenuItem);
+            add(uidJMenuItem);
+        }
+
         show();
     }
 
@@ -254,7 +278,36 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         data.set(OpenVersion.DataKey.DOCUMENT_ID, documentVersion.getArtifactId());
         data.set(OpenVersion.DataKey.VERSION_ID, documentVersion.getVersionId());
         add(ActionId.DOCUMENT_OPEN_VERSION, data);
-        
+
+        // include the document version's id version id and unique id in the menu
+        if (model.isDevelopmentMode()) {
+            final Clipboard systemClipboard =
+                Toolkit.getDefaultToolkit().getSystemClipboard();
+            final ActionListener debugActionListener = new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    final StringSelection stringSelection =
+                        new StringSelection(((JComponent) e.getSource()).getClientProperty("COPY_ME").toString());
+                    systemClipboard.setContents(stringSelection, null);
+                }
+            };
+            final JMenuItem idJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getId():{0,number,#}", documentVersion.getArtifactId()));
+            idJMenuItem.putClientProperty("COPY_ME", documentVersion.getArtifactId());
+            idJMenuItem.addActionListener(debugActionListener);
+
+            final JMenuItem versionIdJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getVersionId():{0,number,#}", documentVersion.getVersionId()));
+            versionIdJMenuItem.putClientProperty("COPY_ME", documentVersion.getVersionId());
+            versionIdJMenuItem.addActionListener(debugActionListener);
+
+            final JMenuItem uidJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getUniqueId():{0}", documentVersion.getArtifactUniqueId()));
+            uidJMenuItem.putClientProperty("COPY_ME", documentVersion.getArtifactUniqueId());
+            uidJMenuItem.addActionListener(debugActionListener);
+
+            addSeparator();
+            add(idJMenuItem);
+            add(versionIdJMenuItem);
+            add(uidJMenuItem);
+        }
+
         show();
     }
 

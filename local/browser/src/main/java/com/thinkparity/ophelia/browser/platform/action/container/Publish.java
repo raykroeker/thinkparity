@@ -217,6 +217,7 @@ public class Publish extends AbstractBrowserAction {
             /* if any e-mail addresses are contact e-mails, convert them to
              * contact references */
             Contact contact;
+            ContainerVersion latestVersion = null;
             final EMail[] duplicateEmails = (EMail[])emails.toArray(new EMail[0]);
             for (final EMail email : duplicateEmails) {
                 if (contactModel.doesExist(email)) {
@@ -235,9 +236,11 @@ public class Publish extends AbstractBrowserAction {
                 action.browser.retry(action, container.getName());
                 return null;
             }
+            boolean success = false;
             try {
                 containerModel.publish(publishMonitor, container.getId(),
                         versionName, emails, contacts, teamMembers);
+                success = true;
             } catch (final OfflineException ox) {
                 // TODO implement a "you are offline" notification
                 monitor.reset();
@@ -255,11 +258,14 @@ public class Publish extends AbstractBrowserAction {
                 publishMonitor = newPublishMonitor();
                 action.browser.retry(action, container.getName());
                 return null;
+            } finally {
+                if (success) {
+                    containerModel.applyFlagSeen(container.getId());
+                    latestVersion = containerModel.readLatestVersion(container.getId());
+                }
+                // notify the avatar that the publish is complete at the last possible moment
+                monitor.complete();
             }
-            containerModel.applyFlagSeen(container.getId());
-            final ContainerVersion latestVersion = containerModel.readLatestVersion(container.getId());
-            // notify the avatar that the publish is complete at the last possible moment
-            monitor.complete();
             return latestVersion;
         }
 

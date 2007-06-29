@@ -138,12 +138,19 @@ public class PublishVersion extends AbstractBrowserAction {
                     }
                 }
             }
-            containerModel.publishVersion(publishMonitor,
-                    version.getArtifactId(), version.getVersionId(),
-                    emails, contacts, teamMembers);
-            containerModel.applyFlagSeen(version.getArtifactId());
-            // notify the avatar that the publish is complete at the last possible moment
-            monitor.complete();
+            boolean success = false;
+            try {
+                containerModel.publishVersion(publishMonitor,
+                        version.getArtifactId(), version.getVersionId(),
+                        emails, contacts, teamMembers);
+                success = true;
+            } finally {
+                if (success) {
+                    containerModel.applyFlagSeen(version.getArtifactId());
+                }
+                // notify the avatar that the publish is complete at the last possible moment
+                monitor.complete();
+            }
             return version;
         }
     }

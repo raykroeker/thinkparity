@@ -46,11 +46,15 @@
     </context-param>
     <context-param>
         <param-name>thinkparity.migrator.logerror.notify</param-name>
-        <param-value>true</param-value>
+        <param-value>false</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.migrator.logerror.notify.to</param-name>
         <param-value>raymond+fatal-error@thinkparity.com</param-value>
+    </context-param>
+    <context-param>
+        <param-name>thinkparity.migrator.logerror.notify.cc</param-name>
+        <param-value>raymond+error-cc@thinkparity.com</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.mode</param-name>

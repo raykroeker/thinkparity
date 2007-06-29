@@ -874,7 +874,13 @@ public final class DocumentModelImpl extends
      */
     public void revertDraft(final DocumentFileLock lock, final Long documentId) {
         try {
-            revertDraft(lock, documentId, readLatestVersion(documentId).getVersionId());
+            final DocumentFileLock newLock;
+            try {
+                deleteFile(lock);
+            } finally {
+                newLock = lock(documentId);
+            }
+            revertDraft(newLock, documentId, readLatestVersion(documentId).getVersionId());
         } catch (final Throwable t) {
             throw panic(t);
         }

@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
 
+import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
@@ -236,11 +237,11 @@ public class Publish extends AbstractBrowserAction {
                 action.browser.retry(action, container.getName());
                 return null;
             }
-            boolean success = false;
             try {
                 containerModel.publish(publishMonitor, container.getId(),
                         versionName, emails, contacts, teamMembers);
-                success = true;
+                containerModel.applyFlagSeen(container.getId());
+                latestVersion = containerModel.readLatestVersion(container.getId());
             } catch (final OfflineException ox) {
                 // TODO implement a "you are offline" notification
                 monitor.reset();
@@ -258,11 +259,17 @@ public class Publish extends AbstractBrowserAction {
                 publishMonitor = newPublishMonitor();
                 action.browser.retry(action, container.getName());
                 return null;
-            } finally {
-                if (success) {
-                    containerModel.applyFlagSeen(container.getId());
-                    latestVersion = containerModel.readLatestVersion(container.getId());
+            } catch (final ThinkParityException tx) {
+                try {
+                    containerModel.restoreDraft(container.getId());
+                } catch (final CannotLockException clx2) {
+                    // not a whole lot that can be done here
+                    action.logger.logFatal(clx2,
+                            "Could not restore draft for {0}.", container);
                 }
+                monitor.reset();
+                throw tx;
+            } finally {
                 // notify the avatar that the publish is complete at the last possible moment
                 monitor.complete();
             }

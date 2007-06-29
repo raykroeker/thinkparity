@@ -7,7 +7,6 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.user.UserNameTokenizer;
 
@@ -34,13 +33,22 @@ public class InvitationText {
      * @param invitedBy
      *            The invited by user.
      */
-    InvitationText(final Environment environment, final Locale locale,
-            final User invitedBy) {
+    InvitationText(final Locale locale, final User invitedBy) {
         super();
         this.invitedBy = invitedBy;
         this.resourceBundle = ResourceBundle.getBundle(
                 "localization.Invitation_Messages", locale);
         this.userNameTokenizer = new UserNameTokenizer(invitedBy.getName());
+    }
+
+    /**
+     * Obtain the personal portion (name) of the from address.
+     * 
+     * @return A from personal <code>String</code>.
+     */
+    public String getFromPersonal() {
+        return MessageFormat.format(resourceBundle.getString("from"),
+                invitedBy.getName());
     }
 
     /**
@@ -62,7 +70,9 @@ public class InvitationText {
      * 
      * @return A string.
      */
-    public String getBodyType() { return "text/plain"; }
+    public String getBodyType() {
+        return "text/plain";
+    }
 
     /**
      * Obtain the invitation subject.

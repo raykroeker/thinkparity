@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.model.contact;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -12,6 +13,7 @@ import java.util.Locale;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
@@ -31,6 +33,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.*;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.Constants;
 import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
@@ -707,17 +710,23 @@ public final class ContactModelImpl extends AbstractModelImpl implements
      * @throws MessagingException
      */
 	private void inject(final MimeMessage mimeMessage, final EMail email,
-            final User invitedBy) throws MessagingException {
-        final InvitationText text = new InvitationText(getEnvironment(),
-                Locale.getDefault(), invitedBy);
+            final User invitedBy) throws MessagingException,
+            UnsupportedEncodingException {
+	    final InvitationText text = new InvitationText(Locale.getDefault(),
+                invitedBy);
+
+        final InternetAddress fromInternetAddress = new InternetAddress();
+        fromInternetAddress.setAddress(Constants.Internet.Mail.FROM_ADDRESS);
+        fromInternetAddress.setPersonal(text.getFromPersonal());
+        mimeMessage.setFrom(fromInternetAddress);
 	    mimeMessage.setSubject(text.getSubject());
 
-        final MimeBodyPart invitationBody = new MimeBodyPart();
-        invitationBody.setContent(text.getBody(), text.getBodyType());
+        final MimeBodyPart mimeBodyPart = new MimeBodyPart();
+        mimeBodyPart.setContent(text.getBody(), text.getBodyType());
 
-        final Multipart invitation = new MimeMultipart();
-        invitation.addBodyPart(invitationBody);
-        mimeMessage.setContent(invitation);
+        final Multipart mimeMultipart = new MimeMultipart();
+        mimeMultipart.addBodyPart(mimeBodyPart);
+        mimeMessage.setContent(mimeMultipart);
     }
 
     /**

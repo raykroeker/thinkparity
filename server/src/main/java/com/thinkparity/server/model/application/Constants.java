@@ -12,16 +12,15 @@ package com.thinkparity.desdemona.model;
  */
 public interface Constants {
 
-    /** Internet Constants */
+    /** <b>Title:</b>Internet Constants:  Mail<br> */
     public static final class Internet {
-        /** Internet Mail Constants. */
+
+        /** <b>Title:</b>Mail Constants:  From address<br> */
         public static final class Mail {
-            public static final String BCC_ADDRESS = "raymond+bcc@thinkparity.com";
-            public static final String BCC_PERSONAL = "thinkParity BCC";
             public static final String FROM_ADDRESS = "thinkparity.noreply@thinkparity.com";
-            public static final String FROM_PERSONAL = "thinkParity Team";
         }
     }
+
     /** Jabber Constants */
     public static final class Jabber {
         public static final String SYSTEM_QUALIFIED_JABBER_ID = "thinkparity@thinkparity.net/parity";

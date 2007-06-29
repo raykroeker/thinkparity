@@ -190,9 +190,7 @@ public final class Publish extends ContainerDelegate {
             final List<User> publishTo = new ArrayList<User>();
             publishTo.addAll(contacts);
             publishTo.addAll(teamMembers);
-            sessionModel.publish(version, documentVersions,
-                    readTeam(version.getArtifactId()), localUserId(),
-                    publishedOn, emails, publishTo);
+            sessionModel.publish(version, documentVersions, emails, publishTo);
             notifyStepEnd(monitor, PublishStep.PUBLISH);
         } finally {
             releaseLocks(locks.values());

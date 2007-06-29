@@ -11,6 +11,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 
@@ -50,6 +51,9 @@ public class ContainerEvent {
     /** Team member info. */
     private final TeamMember teamMember;
 
+    /** User info. */
+    private final User user;
+
     /** A container version. */
     private final ContainerVersion version;
 
@@ -63,7 +67,7 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container) {
         this(source, container, null, null, null, null, null, null,
-                EMPTY_OUTGOING_EMAIL_INVITATIONS);
+                EMPTY_OUTGOING_EMAIL_INVITATIONS, null);
     }
 
     /**
@@ -79,27 +83,7 @@ public class ContainerEvent {
     public ContainerEvent(final Source source, final Container container,
             final ContainerDraft draft) {
         this(source, container, draft, null, null, null, null, null,
-                EMPTY_OUTGOING_EMAIL_INVITATIONS);
-    }
-
-    /**
-     * Create ContainerEvent.
-     * 
-     * @param source
-     *            The event source
-     * @param container
-     *            A container.
-     * @param draft
-     *            A container draft.
-     * @param version
-     *            A container version.
-     */
-    public ContainerEvent(final Source source, final Container container,
-            final ContainerDraft draft, final ContainerVersion previousVersion,
-            final ContainerVersion version, final ContainerVersion nextVersion,
-            final TeamMember teamMember) {
-        this(source, container, draft, previousVersion, version, nextVersion,
-                teamMember, EMPTY_OUTGOING_EMAIL_INVITATIONS);
+                EMPTY_OUTGOING_EMAIL_INVITATIONS, null);
     }
 
     /**
@@ -120,7 +104,27 @@ public class ContainerEvent {
             final TeamMember teamMember,
             final List<OutgoingEMailInvitation> outgoingEMailInvitations) {
         this(source, container, draft, previousVersion, version, nextVersion,
-                teamMember, null, outgoingEMailInvitations);
+                teamMember, null, outgoingEMailInvitations, null);
+    }
+
+    /**
+     * Create ContainerEvent.
+     * 
+     * @param source
+     *            The event source
+     * @param container
+     *            A container.
+     * @param draft
+     *            A container draft.
+     * @param version
+     *            A container version.
+     */
+    public ContainerEvent(final Source source, final Container container,
+            final ContainerDraft draft, final ContainerVersion previousVersion,
+            final ContainerVersion version, final ContainerVersion nextVersion,
+            final User user) {
+        this(source, container, draft, previousVersion, version, nextVersion,
+                null, null, EMPTY_OUTGOING_EMAIL_INVITATIONS, user);
     }
 
     /**
@@ -138,7 +142,7 @@ public class ContainerEvent {
     public ContainerEvent(final Source source, final Container container,
             final ContainerDraft draft, final Document document) {
         this(source, container, draft, null, null, null, null, document,
-                EMPTY_OUTGOING_EMAIL_INVITATIONS);
+                EMPTY_OUTGOING_EMAIL_INVITATIONS, null);
     }
 
     /**
@@ -170,7 +174,7 @@ public class ContainerEvent {
     public ContainerEvent(final Source source, final Container container,
             final TeamMember teamMember) {
         this(source, container, null, null, null, null, teamMember, null,
-                EMPTY_OUTGOING_EMAIL_INVITATIONS);
+                EMPTY_OUTGOING_EMAIL_INVITATIONS, null);
     }
 
     /**
@@ -188,7 +192,7 @@ public class ContainerEvent {
     public ContainerEvent(final Source source, final Container container,
             final TeamMember teamMember, final ContainerVersion version) {
         this(source, container, null, null, version, null, teamMember, null,
-                EMPTY_OUTGOING_EMAIL_INVITATIONS);
+                EMPTY_OUTGOING_EMAIL_INVITATIONS, null);
     }
 
     /**
@@ -224,7 +228,8 @@ public class ContainerEvent {
             final ContainerDraft draft, final ContainerVersion previousVersion,
             final ContainerVersion version, final ContainerVersion nextVersion,
             final TeamMember teamMember, final Document document,
-            final List<OutgoingEMailInvitation> outgoingEMailInvitations) {
+            final List<OutgoingEMailInvitation> outgoingEMailInvitations,
+            final User user) {
         super();
         this.source = source;
         this.container = container;
@@ -235,6 +240,7 @@ public class ContainerEvent {
         this.previousVersion = previousVersion;
         this.teamMember = teamMember;
         this.version = version;
+        this.user = user;
     }
 
     /**
@@ -292,6 +298,15 @@ public class ContainerEvent {
      * @return The User.
      */
     public TeamMember getTeamMember() { return teamMember; }
+
+    /**
+     * Obtain user.
+     *
+     * @return A User.
+     */
+    public User getUser() {
+        return user;
+    }
 
     /**
      * Obtain the version

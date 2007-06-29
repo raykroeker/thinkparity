@@ -88,15 +88,6 @@ public abstract class ContainerDelegate extends
     }
 
     /**
-     * @see ContainerModelImpl#createDistributed(Container, Calendar)
-     * 
-     */
-    protected final void createDistributed(final Container container,
-            final Calendar createdOn) {
-        modelImplementation.createDistributed(container, createdOn);
-    }
-
-    /**
      * @see ContainerModelImpl#createVersion(Long, Long, String, String,
      *      JabberId, Calendar)
      * 

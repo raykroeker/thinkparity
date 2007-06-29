@@ -11,6 +11,7 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
@@ -30,16 +31,16 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedE
 @ThinkParityTransaction(TransactionType.REQUIRED)
 public interface InternalArtifactModel extends ArtifactModel {
 
-	/**
-     * Add the team member. Add the user to the local team data. Needs to be
-     * online in order to retreive user information.
+    /**
+     * Add a local team member.
      * 
-     * @param artifactId
-     *            The artifact id <code>Long</code>.
-     * @param userId
-     *            The user id <code>JabberId</code>.
+     * @param artifact
+     *            An <code>Artifact</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @return A <code>TeamMember</code>.
      */
-    public TeamMember addTeamMember(final Long artifactId, final JabberId userId);
+    public TeamMember addTeamMember(final Artifact artifact, final User user);
 
     /**
      * Apply the archived flag.
@@ -74,14 +75,6 @@ public interface InternalArtifactModel extends ArtifactModel {
     public void applyFlagLatest(final Long artifactId);
 
     /**
-     * Remove the latest flag.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     */
-    public void removeFlagLatest(final Long artifactId);
-
-    /**
      * Apply the seen flag.
      * 
      * @param artifactId
@@ -96,9 +89,9 @@ public interface InternalArtifactModel extends ArtifactModel {
      *            An artifact id.
      * @return The new team.
      */
-    public List<TeamMember> createTeam(final Long artifactId);
+    public List<TeamMember> createTeam(final Artifact artifact);
 
-	/**
+    /**
      * Delete the team in its entirety.
      *
      * @param artifactId
@@ -108,7 +101,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      */
     public void deleteTeam(final Long artifactId);
 
-    /**
+	/**
      * Determine if an artifact exists.
      * 
      * @param artifactId
@@ -138,17 +131,6 @@ public interface InternalArtifactModel extends ArtifactModel {
     /**
      * Determine if the artifact version exists.
      * 
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     * @param versionId
-     *            An artifact version id.
-     * @return True if the artifact version exists.
-     */
-    public Boolean doesVersionExist(final UUID uniqueId, final Long versionId);
-
-    /**
-     * Determine if the artifact version exists.
-     * 
      * @param artifactId
      *            An artifact id.
      * @param versionId
@@ -156,6 +138,17 @@ public interface InternalArtifactModel extends ArtifactModel {
      * @return True if the artifact version exists.
      */
     public Boolean doesVersionExist(final Long artifactId, final Long versionId);
+
+    /**
+     * Determine if the artifact version exists.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @param versionId
+     *            An artifact version id.
+     * @return True if the artifact version exists.
+     */
+    public Boolean doesVersionExist(final UUID uniqueId, final Long versionId);
 
     /**
      * Handle the remote event generated when a draft is created.
@@ -191,7 +184,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      *            The user's jabber id.
      */
     public void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event);
-    
+
     /**
      * Handle the team member removed remote event.
      * 
@@ -202,7 +195,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      */
     public void handleTeamMemberRemoved(
             final ArtifactTeamMemberRemovedEvent event);
-
+    
     /**
      * Determine whether or not the artifact has been seen.
      * 
@@ -302,6 +295,14 @@ public interface InternalArtifactModel extends ArtifactModel {
      *            An artifact id <code>Long</code>.
      */
     public void removeFlagKey(final Long artifactId);
+
+    /**
+     * Remove the latest flag.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     */
+    public void removeFlagLatest(final Long artifactId);
 
     /**
      * Remove the seen flag.

@@ -12,6 +12,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
@@ -73,9 +74,9 @@ class ContainerEventGenerator {
     ContainerEvent generate(final Container container,
             final ContainerDraft draft, final ContainerVersion previousVersion,
             final ContainerVersion version, final ContainerVersion nextVersion,
-            final TeamMember teamMember) {
+            final User user) {
         return new ContainerEvent(source, container, draft, previousVersion,
-                version, nextVersion, teamMember);
+                version, nextVersion, user);
     }
 
     /**

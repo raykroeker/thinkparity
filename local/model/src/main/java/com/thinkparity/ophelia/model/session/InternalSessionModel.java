@@ -37,7 +37,6 @@ import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
-import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
@@ -83,42 +82,10 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void addProfileEmail(final ProfileEMail email);
 
-    /**
-     * Add a team member. This will create the team member relationship in the
-     * distributed network with a pending state.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     * @param jabberId
-     *            A jabber id.
-     */
-    public void addTeamMember(final UUID uniqueId, final List<JabberId> team,
-            final JabberId jabberId);
-
-    /**
-     * Archive an artifact. This will simply apply the archived flag within the
-     * backup.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     */
-    public void archiveArtifact(final JabberId userId, final UUID uniqueId);
-
     public void confirmArtifactReceipt(final UUID uniqueId,
             final Long versionId, final JabberId publishedBy,
             final Calendar publishedOn, final List<JabberId> publishedTo,
             final JabberId receivedBy, final Calendar receivedOn);
-
-    /**
-     * Send a creation packet to the parity server.
-     * 
-     * @param uniqueId
-     *            An artifact unique id.
-     */
-	public void createArtifact(final JabberId userId, final UUID uniqueId,
-            final Calendar createdOn);
 
     // TODO-javadoc InternalSessionModel#createDraft()
     public void createDraft(final List<JabberId> team, final UUID uniqueId,
@@ -288,17 +255,13 @@ public interface InternalSessionModel extends SessionModel {
     // TODO-javadoc InternalSessionModel#publish
     public void publish(final ContainerVersion version,
             final List<DocumentVersion> documentVersions,
-            final List<TeamMember> teamMembers, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishToEMails,
-            final List<User> publishToUsers);
+            final List<EMail> publishToEMails, final List<User> publishToUsers);
 
     // TODO-javadoc InternalSessionModel#publishVersion
     public void publishVersion(final ContainerVersion version,
             final List<DocumentVersion> documentVersions,
-            final List<TeamMember> teamMembers,
-            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishToEMails,
-            final List<User> publishToUsers);
+            final List<ArtifactReceipt> receivedBy, final Calendar publishedOn,
+            final List<EMail> publishToEMails, final List<User> publishToUsers);
 
     /**
      * Set an offline code.
@@ -548,28 +511,6 @@ public interface InternalSessionModel extends SessionModel {
      *            A <code>ProfileEMail</code>.
      */
     public void removeProfileEmail(final JabberId userId, final ProfileEMail email);
-
-    /**
-     * Remove a team member from the artifact team.
-     * 
-     * @param uniqueId
-     *            An artifact unique id.
-     * @param jabberId
-     *            A jabber id.
-     */
-    public void removeTeamMember(final UUID uniqueId,
-            final List<JabberId> team, final JabberId jabberId);
-
-    /**
-     * Restore an artifact. This will simply remove the archived flag within the
-     * backup.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>Long</code>.
-     */
-    public void restoreArtifact(final JabberId userId, final UUID uniqueId);
 
     /**
      * Update the a user's profile.

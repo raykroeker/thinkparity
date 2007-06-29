@@ -6,8 +6,6 @@ package com.thinkparity.desdemona.model.io.sql;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
@@ -60,22 +58,19 @@ public class QueueSql extends AbstractSql {
         .append("where UEQ.USER_ID=?")
         .toString();
 
-	private final UserSql userSql;
-
     /**
      * Create QueueSql.
      *
      */
 	public QueueSql() {
         super();
-        this.userSql = new UserSql();
 	}
 
-    public void createEvent(final JabberId userId, final XMPPEvent event) {
+    public void createEvent(final Long userId, final XMPPEvent event) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_CREATE_EVENT);
-            session.setLong(1, readLocalUserId(userId));
+            session.setLong(1, userId);
             session.setString(2, event.getId());
             session.setCalendar(3, event.getDate());
             session.setInt(4, event.getPriority().priority());
@@ -91,11 +86,11 @@ public class QueueSql extends AbstractSql {
         }
     }
 
-    public void deleteEvent(final JabberId userId, final String eventId) {
+    public void deleteEvent(final Long userId, final String eventId) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_DELETE_EVENT);
-            session.setLong(1, readLocalUserId(userId));
+            session.setLong(1, userId);
             session.setString(2, eventId);
             if (1 != session.executeUpdate())
                 throw new HypersonicException(
@@ -110,12 +105,12 @@ public class QueueSql extends AbstractSql {
         }
     }
 
-    public void deleteEvents(final JabberId userId) {
+    public void deleteEvents(final Long userId) {
         final HypersonicSession session = openSession();
         try {
             final Integer eventCount = readEventCount(userId);
             session.prepareStatement(SQL_DELETE_EVENTS);
-            session.setLong(1, readLocalUserId(userId));
+            session.setLong(1, userId);
             if (eventCount.intValue() != session.executeUpdate())
                 throw panic("Could not delete queue events.");
 
@@ -136,11 +131,11 @@ public class QueueSql extends AbstractSql {
      *            An <code>EventOpener</code>.
      * @return A <code>List</code> of <code>XMPPEvent</code>.
      */
-    public List<XMPPEvent> readEvents(final JabberId userId) {
+    public List<XMPPEvent> readEvents(final Long userId) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_EVENTS);
-            session.setLong(1, readLocalUserId(userId));
+            session.setLong(1, userId);
             session.executeQuery();
             final List<XMPPEvent> events = new ArrayList<XMPPEvent>();
             while (session.nextResult()) {
@@ -179,11 +174,11 @@ public class QueueSql extends AbstractSql {
         }
     }
 
-    private Integer readEventCount(final JabberId userId) {
+    private Integer readEventCount(final Long userId) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_EVENT_COUNT);
-            session.setLong(1, readLocalUserId(userId));
+            session.setLong(1, userId);
             session.executeQuery();
             if (session.nextResult()) {
                 return session.getInteger("EVENT_COUNT");
@@ -193,9 +188,5 @@ public class QueueSql extends AbstractSql {
         } finally {
             session.close();
         }
-    }
-
-    private Long readLocalUserId(final JabberId userId) {
-        return userSql.readLocalUserId(userId);
     }
 }

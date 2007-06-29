@@ -37,16 +37,6 @@ public class ArtifactSEI extends ServiceSEI implements ArtifactService {
     }
 
     /**
-     * @see com.thinkparity.service.ArtifactService#addTeamMember(com.thinkparity.service.AuthToken, java.util.List, java.util.UUID, com.thinkparity.codebase.jabber.JabberId)
-     *
-     */
-    public void addTeamMember(final AuthToken authToken,
-            final List<JabberId> team, final UUID uniqueId,
-            final JabberId teamMemberId) {
-        getModel(authToken).addTeamMember(team, uniqueId, teamMemberId);
-    }
-
-    /**
      * @see com.thinkparity.service.ArtifactService#confirmReceipt(com.thinkparity.service.AuthToken,
      *      java.util.UUID, java.lang.Long,
      *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
@@ -59,15 +49,6 @@ public class ArtifactSEI extends ServiceSEI implements ArtifactService {
             final Calendar receivedOn) {
         getModel(authToken).confirmReceipt(uniqueId, versionId, publishedBy,
                 publishedOn, publishedTo, receivedOn);
-    }
-
-    /**
-     * @see com.thinkparity.service.ArtifactService#createArtifact(com.thinkparity.service.AuthToken, java.util.UUID, java.util.Calendar)
-     *
-     */
-    public void createArtifact(final AuthToken authToken, final UUID uniqueId,
-            final Calendar createdOn) {
-        getModel(authToken).create(uniqueId, createdOn);
     }
 
     /**
@@ -97,18 +78,6 @@ public class ArtifactSEI extends ServiceSEI implements ArtifactService {
      */
     public JabberId readKeyHolder(final AuthToken authToken, final UUID uniqueId) {
         return getModel(authToken).readKeyHolder(uniqueId);
-    }
-
-    /**
-     * @see com.thinkparity.service.ArtifactService#removeTeamMember(com.thinkparity.service.AuthToken,
-     *      java.util.List, java.util.UUID,
-     *      com.thinkparity.codebase.jabber.JabberId)
-     * 
-     */
-    public void removeTeamMember(final AuthToken authToken,
-            final List<JabberId> team, final UUID uniqueId,
-            final JabberId teamMemberId) {
-        getModel(authToken).removeTeamMember(team, uniqueId, teamMemberId);
     }
 
     /**

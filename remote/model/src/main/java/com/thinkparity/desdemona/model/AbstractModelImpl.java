@@ -418,13 +418,24 @@ public abstract class AbstractModelImpl
     }
 
     /**
-     * Obtain the parity artifact interface.
+     * Obtain an internal artifact model.
      * 
-     * @return The parity artifact interface.
+     * @return An instance of <code>InternalArtifactModel</code>.
      */
-	protected final InternalArtifactModel getArtifactModel() {
-		return InternalModelFactory.getInstance(getContext(), user).getArtifactModel();
-	}
+    protected final InternalArtifactModel getArtifactModel() {
+        return InternalModelFactory.getInstance(getContext(), user).getArtifactModel();
+    }
+
+    /**
+     * Obtain an internal artifact model.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return An instance of <code>InternalArtifactModel</code>.
+     */
+    protected final InternalArtifactModel getArtifactModel(final User user) {
+        return InternalModelFactory.getInstance(getContext(), user).getArtifactModel();
+    }
 
     /**
      * Obtain an internal backup model.
@@ -631,11 +642,15 @@ public abstract class AbstractModelImpl
         return InternalModelFactory.getInstance(getContext(), user).getRuleModel();
     }
 
-	protected final InternalStreamModel getStreamModel() {
+	protected final InternalSessionModel getSessionModel() {
+        return InternalModelFactory.getInstance(getContext(), user).getSessionModel();
+    }
+
+    protected final InternalStreamModel getStreamModel() {
         return InternalModelFactory.getInstance(getContext(), user).getStreamModel();
     }
 
-    protected final InternalStreamModel getStreamModel(final User user) {
+	protected final InternalStreamModel getStreamModel(final User user) {
         return InternalModelFactory.getInstance(getContext(), user).getStreamModel();
     }
 
@@ -657,12 +672,8 @@ public abstract class AbstractModelImpl
         return tempFileSystem;
     }
 
-	protected final InternalUserModel getUserModel() {
+    protected final InternalUserModel getUserModel() {
         return InternalModelFactory.getInstance(getContext(), user).getUserModel();
-    }
-
-    protected final InternalSessionModel getSessionModel() {
-        return InternalModelFactory.getInstance(getContext(), user).getSessionModel();
     }
 
     protected final InternalUserModel getUserModel(final User user) {
@@ -803,6 +814,102 @@ public abstract class AbstractModelImpl
     }
 
     /**
+     * Create a new download helper.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     * @return A <code>DownloadHelper</code>.
+     */
+    protected final DownloadHelper newDownloadHelper(final StreamSession session) {
+        final BytesFormat bytesFormat = new BytesFormat();
+
+        return new DownloadHelper() {
+
+            /**
+             * @see com.thinkparity.ophelia.model.DownloadHelper#download(java.io.File)
+             * 
+             */
+            public void download(final File target) throws IOException {
+                ensureDownload(target);
+                attemptDownload(target);
+            }
+        
+            /**
+             * Attempt a download of the version. Create a new stream reader using the
+             * session; and download the version to the temp file, then return the temp
+             * file.
+             * 
+             * @param target
+             *            A <code>File</code> to download to.
+             * @throws IOException
+             */
+            private void attemptDownload(final File target) throws IOException {
+                final StreamReader reader = new StreamReader(new StreamMonitor () {
+
+                    /**
+                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkReceived(int)
+                     *
+                     */
+                    public void chunkReceived(final int chunkSize) {
+                        logger.logInfo("Downloaded {0}.",
+                                bytesFormat.format(new Long(chunkSize)));
+                    }
+        
+                    /**
+                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkSent(int)
+                     *
+                     */
+                    public void chunkSent(final int chunkSize) {
+                        // not possbile in download
+                        Assert.assertUnreachable("");
+                    }
+        
+                    /**
+                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#getName()
+                     *
+                     */
+                    public String getName() {
+                        return "Model#newDownloadHelper";
+                    }
+
+                }, session);
+                final OutputStream output = new FileOutputStream(target);
+                try {
+                    reader.read(output);
+                } finally {
+                    output.close();
+                }
+            }
+
+            /**
+             * Ensure a download is possible by checking the target file for validity as
+             * well as the session.
+             * 
+             * @param target
+             *            A <code>File</code>.
+             */
+            private void ensureDownload(final File target) {
+                final String error;
+                if (null == target) {
+                    error = "Target must not be null.";
+                } else if (!target.exists()) {
+                    error = "Target {0} must exist.";
+                } else if (!target.isFile()) {
+                    error = "Target {0} must be a file.";
+                } else if (session == null) {
+                    error = "Stream ession must exist.";
+                } else {
+                    error = null;
+                }
+                if (null != error) {
+                    throw new IllegalArgumentException(MessageFormat.format(error,
+                            target, session));
+                }
+            }
+        };
+    }
+
+    /**
      * @see com.thinkparity.codebase.model.AbstractModelImpl#panic(java.lang.Throwable)
      *
      */
@@ -936,101 +1043,5 @@ public abstract class AbstractModelImpl
         synchronized (getBufferLock()) {
             StreamUtil.copy(stream, channel, getBuffer());
         }
-    }
-
-    /**
-     * Create a new download helper.
-     * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     * @return A <code>DownloadHelper</code>.
-     */
-    protected final DownloadHelper newDownloadHelper(final StreamSession session) {
-        final BytesFormat bytesFormat = new BytesFormat();
-
-        return new DownloadHelper() {
-
-            /**
-             * @see com.thinkparity.ophelia.model.DownloadHelper#download(java.io.File)
-             * 
-             */
-            public void download(final File target) throws IOException {
-                ensureDownload(target);
-                attemptDownload(target);
-            }
-        
-            /**
-             * Attempt a download of the version. Create a new stream reader using the
-             * session; and download the version to the temp file, then return the temp
-             * file.
-             * 
-             * @param target
-             *            A <code>File</code> to download to.
-             * @throws IOException
-             */
-            private void attemptDownload(final File target) throws IOException {
-                final StreamReader reader = new StreamReader(new StreamMonitor () {
-
-                    /**
-                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkReceived(int)
-                     *
-                     */
-                    public void chunkReceived(final int chunkSize) {
-                        logger.logInfo("Downloaded {0}.",
-                                bytesFormat.format(new Long(chunkSize)));
-                    }
-        
-                    /**
-                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkSent(int)
-                     *
-                     */
-                    public void chunkSent(final int chunkSize) {
-                        // not possbile in download
-                        Assert.assertUnreachable("");
-                    }
-        
-                    /**
-                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#getName()
-                     *
-                     */
-                    public String getName() {
-                        return "Model#newDownloadHelper";
-                    }
-
-                }, session);
-                final OutputStream output = new FileOutputStream(target);
-                try {
-                    reader.read(output);
-                } finally {
-                    output.close();
-                }
-            }
-
-            /**
-             * Ensure a download is possible by checking the target file for validity as
-             * well as the session.
-             * 
-             * @param target
-             *            A <code>File</code>.
-             */
-            private void ensureDownload(final File target) {
-                final String error;
-                if (null == target) {
-                    error = "Target must not be null.";
-                } else if (!target.exists()) {
-                    error = "Target {0} must exist.";
-                } else if (!target.isFile()) {
-                    error = "Target {0} must be a file.";
-                } else if (session == null) {
-                    error = "Stream ession must exist.";
-                } else {
-                    error = null;
-                }
-                if (null != error) {
-                    throw new IllegalArgumentException(MessageFormat.format(error,
-                            target, session));
-                }
-            }
-        };
     }
 }

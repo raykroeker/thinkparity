@@ -147,20 +147,24 @@ public final class RestoreBackup extends ContainerDelegate {
                     container.getId(),
                     userModel.readLazyCreate(teamId).getLocalId());
         }
-        // restore the draft if one existed
+        // restore the draft if the package is not archived and one existed
         final InternalSessionModel sessionModel = getSessionModel();
-        final JabberId draftOwner = sessionModel.readKeyHolder(
-                container.getUniqueId());
-        if (draftOwner.equals(User.THINKPARITY.getId())) {
-            logger.logInfo("No remote draft exists for {0}.", container.getName());
+        if (container.isArchived()) {
+            logger.logInfo("Container {0} is archived ignoring draft.", container.getName());
         } else {
-            final List<TeamMember> team = artifactIO.readTeamRel2(container.getId());
-            final ContainerDraft draft = new ContainerDraft();
-            draft.setLocal(Boolean.FALSE);
-            draft.setContainerId(container.getId());
-            draft.setOwner(team.get(indexOf(team, draftOwner)));
-            containerIO.createDraft(draft);
-        }        
+            final JabberId draftOwner = sessionModel.readKeyHolder(
+                    container.getUniqueId());
+            if (draftOwner.equals(User.THINKPARITY.getId())) {
+                logger.logInfo("No remote draft exists for {0}.", container.getName());
+            } else {
+                final List<TeamMember> team = artifactIO.readTeamRel2(container.getId());
+                final ContainerDraft draft = new ContainerDraft();
+                draft.setLocal(Boolean.FALSE);
+                draft.setContainerId(container.getId());
+                draft.setOwner(team.get(indexOf(team, draftOwner)));
+                containerIO.createDraft(draft);
+            }
+        }
         // restore version info
         final List<ContainerVersion> versions =
             backupModel.readContainerVersions(container.getUniqueId());

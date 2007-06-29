@@ -3,8 +3,6 @@
  */
 package com.thinkparity.desdemona.model.queue;
 
-import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 /**
@@ -21,14 +19,6 @@ public interface InternalQueueModel extends QueueModel {
      * 
      */
     void deleteEvents();
-
-    /**
-     * Delete all queue events for a user.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     */
-    void deleteEvents(JabberId userId);
 
     /**
      * Enqueue a default priority event for the model user.

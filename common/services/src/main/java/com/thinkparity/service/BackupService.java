@@ -30,9 +30,6 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 public interface BackupService {
 
     @WebMethod
-    void archive(AuthToken authToken, UUID containerUniqueId);
-
-    @WebMethod
     void delete(AuthToken authToken, UUID containerUniqueId);
 
     @WebMethod
@@ -67,7 +64,4 @@ public interface BackupService {
     @WebMethod
     List<JabberId> readTeamIds(AuthToken authToken,
             UUID containerUniqueId);
-
-    @WebMethod
-    void restore(AuthToken authToken, UUID containerUniqueId);
 }

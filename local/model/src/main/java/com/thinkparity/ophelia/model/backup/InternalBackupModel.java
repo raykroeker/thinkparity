@@ -32,15 +32,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEve
 public interface InternalBackupModel extends BackupModel {
 
     /**
-     * Archive an artifact. This will simply apply the archived flag within the
-     * backup.
-     * 
-     * @param artifactId
-     *            An artifact id <code>Long</code>.
-     */
-    public void archive(final Long artifactId);
-
-    /**
      * Handle the remote statistics updated event.
      * 
      * @param event
@@ -207,13 +198,4 @@ public interface InternalBackupModel extends BackupModel {
      * @see com.thinkparity.ophelia.model.archive.ArchiveReader#readTeamIds(java.util.UUID)
      */
     public List<JabberId> readTeamIds(final UUID uniqueId);
-
-    /**
-     * Restore an artifact. This will simply remove the archived flag within the
-     * backup.
-     * 
-     * @param artifactId
-     *            An artifact id <code>Long</code>.
-     */
-    public void restore(final Long artifactId);
 }

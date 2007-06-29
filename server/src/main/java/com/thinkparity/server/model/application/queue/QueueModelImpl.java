@@ -6,8 +6,6 @@ package com.thinkparity.desdemona.model.queue;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.queue.notification.NotificationSession;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
@@ -68,7 +66,7 @@ public class QueueModelImpl extends AbstractModelImpl implements QueueModel,
      */
     public void deleteEvent(final XMPPEvent event) {
         try {
-            queueSql.deleteEvent(user.getId(), event.getId());
+            queueSql.deleteEvent(user.getLocalId(), event.getId());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -80,19 +78,7 @@ public class QueueModelImpl extends AbstractModelImpl implements QueueModel,
      */
     public void deleteEvents() {
         try {
-            queueSql.deleteEvents(user.getId());
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.queue.InternalQueueModel#deleteEvents(com.thinkparity.codebase.jabber.JabberId)
-     * 
-     */
-    public void deleteEvents(final JabberId userId) {
-        try {
-            queueSql.deleteEvents(userId);
+            queueSql.deleteEvents(user.getLocalId());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -121,7 +107,7 @@ public class QueueModelImpl extends AbstractModelImpl implements QueueModel,
             event.setDate(currentDateTime());
             event.setId(newEventId());
             event.setPriority(priority);
-            queueSql.createEvent(user.getId(), event);
+            queueSql.createEvent(user.getLocalId(), event);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -142,7 +128,7 @@ public class QueueModelImpl extends AbstractModelImpl implements QueueModel,
      */
     public List<XMPPEvent> readEvents() {
         try {
-            return queueSql.readEvents(user.getId());
+            return queueSql.readEvents(user.getLocalId());
         } catch (final Throwable t) {
             throw panic(t);
         }

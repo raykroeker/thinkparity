@@ -12,7 +12,6 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.annotation.ThinkParityAuthenticate;
@@ -28,6 +27,14 @@ import com.thinkparity.desdemona.util.AuthenticationType;
 public interface ContainerModel {
 
     /**
+     * Archive the container.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    public void archive(final Container container);
+
+    /**
      * Delete a container.
      * 
      * @param container
@@ -38,21 +45,12 @@ public interface ContainerModel {
     public void delete(final Container container, final Calendar deletedOn);
 
     /**
-     * Publish a container version.
+     * Publish a container version for the model user.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
      * @param version
      *            A <code>ContainerVersion</code>.
      * @param documentVersions
-     *            A <code>List</code> of <code>DocumentVersion</code>s
-     *            belonging to version.
-     * @param teamMembers
-     *            A <code>List</code> of <code>TeamMember</code>s.
-     * @param publishedBy
-     *            A published by user id <code>JabberId</code>.
-     * @param publishedOn
-     *            A published on <code>Calendar</code>.
+     *            A <code>List</code> of <code>DocumentVersion</code>s.
      * @param publishToEMails
      *            A <code>List</code> of <code>EMail</code> addresses to
      *            publish to.  It is assumed that the e-mail addresses do not
@@ -63,14 +61,36 @@ public interface ContainerModel {
     @ThinkParityAuthenticate(AuthenticationType.USER)
     public void publish(final ContainerVersion version,
             final List<DocumentVersion> documentVersions,
-            final List<TeamMember> team, final Calendar publishedOn,
             final List<EMail> publishToEMails, final List<User> publishToUsers);
 
+    /**
+     * Publish an existing version of a package for the model user.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param documentVersions
+     *            A <code>List<DocumentVersion></code>.
+     * @param receivedBy
+     *            A <code>List<ArtifactReceipt></code>.
+     * @param publishedOn
+     *            A published on <code>Calendar</code>.
+     * @param publishToEMails
+     *            A <code>List<EMail></code>.
+     * @param publishToUsers
+     *            A <code>List<User></code>.
+     */
     @ThinkParityAuthenticate(AuthenticationType.USER)
     public void publishVersion(final ContainerVersion version,
             final List<DocumentVersion> documentVersions,
-            final List<TeamMember> team,
             final List<ArtifactReceipt> receivedBy, final Calendar publishedOn,
             final List<EMail> publishToEMails, final List<User> publishToUsers);
+
+    /**
+     * Restore the container.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    public void restore(final Container container);
 }
 

@@ -108,8 +108,7 @@ public final class PublishVersion extends ContainerDelegate {
                 new ComparatorBuilder().createVersionById(Boolean.TRUE));
         uploadDocumentVersions(monitor, documentVersions);
         notifyStepBegin(monitor, PublishStep.PUBLISH);
-        sessionModel.publishVersion(version, documentVersions,
-                readTeam(version.getArtifactId()), receivedBy, localUserId(),
+        sessionModel.publishVersion(version, documentVersions, receivedBy,
                 publishedOn, emails, publishToUsers);
         notifyStepEnd(monitor, PublishStep.PUBLISH);
     }

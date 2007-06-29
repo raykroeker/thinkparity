@@ -15,6 +15,7 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.session.Environment;
@@ -56,24 +57,19 @@ public final class ArtifactModelImpl extends Model implements
 	}
 
     /**
-     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#addTeamMember(java.lang.Long,
-     *      com.thinkparity.codebase.jabber.JabberId)
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#addTeamMember(com.thinkparity.codebase.model.artifact.Artifact,
+     *      com.thinkparity.codebase.model.user.User)
      * 
      */
-	public TeamMember addTeamMember(final Long artifactId, final JabberId userId) {
+    public TeamMember addTeamMember(final Artifact artifact, final User user) {
         try {
-            assertNotTeamMember("The team member has already been added.",
-                    artifactId, userId);
-            // create local user data
-            final User user = getUserModel().readLazyCreate(userId);
-            // create local team data
-            return addTeamMember(artifactId, user.getLocalId());
+            return addTeamMember(artifact.getId(), user);
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagArchived(java.lang.Long)
      * 
      */
@@ -85,7 +81,7 @@ public final class ArtifactModelImpl extends Model implements
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagBookmark(java.lang.Long)
      * 
      */
@@ -137,11 +133,10 @@ public final class ArtifactModelImpl extends Model implements
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#createTeam(java.lang.Long)
      * 
      */
-    public List<TeamMember> createTeam(final Long artifactId) {
+    public List<TeamMember> createTeam(final Artifact artifact) {
         try {
-            // note that we are calling the "offline" version of the api
-            addTeamMember(artifactId, localUser().getLocalId());
-            return readTeam2(artifactId);
+            addTeamMember(artifact, localUser());
+            return readTeam2(artifact.getId());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -305,12 +300,17 @@ public final class ArtifactModelImpl extends Model implements
      */
     public void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event) {
         try {
-            final Long artifactId = readId(event.getUniqueId());
-            if (null == artifactId) {
-                logger.logWarning("Artifact for event {0} does not exist locally.",
-                        event);
+            if (localUserId().equals(event.getJabberId())) {
+                logger.logInfo("Ignoring local user.");
             } else {
-                addTeamMember(artifactId, event.getJabberId());
+                final Long artifactId = readId(event.getUniqueId());
+                if (null == artifactId) {
+                    logger.logWarning("Artifact for event {0} does not exist locally.",
+                            event);
+                } else {
+                    final User user = getUserModel().readLazyCreate(event.getJabberId());
+                    addTeamMember(artifactId, user);
+                }
             }
         } catch(final Throwable t) {
             throw panic(t);
@@ -568,21 +568,20 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-     * Add a team member. Since we are using a local user id instead of a remote
-     * one we know the user info has already been downloaded and the api does
-     * not require the user to be online.
+     * Add a team member to an artifact.
      * 
      * @param artifactId
-     *            An artifact id.
-     * @param userId
-     *            A local user id.
-     * @return A team member.
+     *            An artifact id <code>Long</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @return A <code>TeamMember</code>.
      */
-    private TeamMember addTeamMember(final Long artifactId, final Long userId) {
-        artifactIO.createTeamRel(artifactId, userId);
+    private TeamMember addTeamMember(final Long artifactId, final User user) {
+        // create local team data
+        artifactIO.createTeamRel(artifactId, user.getLocalId());
         // reindex NOTE no practical assurance that this is a container id
         getIndexModel().indexContainer(artifactId);
-        return artifactIO.readTeamRel(artifactId, userId);
+        return artifactIO.readTeamRel(artifactId, user.getLocalId());
     }
 
     /**

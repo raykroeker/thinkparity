@@ -8,7 +8,6 @@ import java.util.Map;
 
 import com.thinkparity.codebase.assertion.Assert;
 
-import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
@@ -166,14 +165,6 @@ public final class XMPPEventHandler {
             public void handleEvent(final User user, final XMPPEvent event) {
                 final PublishedNotificationEvent pne = (PublishedNotificationEvent) event;
                 modelFactory.getContainerModel().handleEvent(pne);
-                /* NOTE the backup model will make the ultimate decision as to
-                 * whether or not the event will be fired based upon the backup
-                 * feature of the user */
-                for (final User teamUser : pne.getTeam()) {
-                    com.thinkparity.desdemona.model.InternalModelFactory
-                            .getInstance(new Context(), teamUser)
-                            .getBackupModel().enqueueBackupEvent();
-                }
             }
         });
         addListener(VersionPublishedEvent.class, new XMPPEventListener() {
@@ -186,14 +177,6 @@ public final class XMPPEventHandler {
             public void handleEvent(final User user, final XMPPEvent event) {
                 final VersionPublishedNotificationEvent vpne = (VersionPublishedNotificationEvent) event;
                 modelFactory.getContainerModel().handleEvent(vpne);
-                /* NOTE the backup model will make the ultimate decision as to
-                 * whether or not the event will be fired based upon the backup
-                 * feature of the user */
-                for (final User teamUser : vpne.getTeam()) {
-                    com.thinkparity.desdemona.model.InternalModelFactory
-                                    .getInstance(new Context(), teamUser)
-                                    .getBackupModel().enqueueBackupEvent();
-                }
             }
         });
     }

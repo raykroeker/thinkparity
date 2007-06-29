@@ -42,14 +42,6 @@ public class BackupSEI extends ServiceSEI implements BackupService {
     }
 
     /**
-     * @see com.thinkparity.service.BackupService#archive(com.thinkparity.service.AuthToken, java.util.UUID)
-     *
-     */
-    public void archive(final AuthToken authToken, final UUID containerUniqueId) {
-        getModel(authToken).archive(containerUniqueId);
-    }
-
-    /**
      * @see com.thinkparity.service.BackupService#delete(com.thinkparity.service.AuthToken, java.util.UUID)
      *
      */
@@ -137,14 +129,6 @@ public class BackupSEI extends ServiceSEI implements BackupService {
     public List<JabberId> readTeamIds(final AuthToken authToken,
             final UUID containerUniqueId) {
         return getModel(authToken).readTeamIds(containerUniqueId);
-    }
-
-    /**
-     * @see com.thinkparity.service.BackupService#restore(com.thinkparity.service.AuthToken, java.util.UUID)
-     *
-     */
-    public void restore(final AuthToken authToken, final UUID containerUniqueId) {
-        getModel(authToken).restore(containerUniqueId);
     }
 
     /**

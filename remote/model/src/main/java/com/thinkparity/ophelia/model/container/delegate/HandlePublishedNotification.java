@@ -3,10 +3,6 @@
  */
 package com.thinkparity.ophelia.model.container.delegate;
 
-import java.util.List;
-
-import com.thinkparity.codebase.model.user.TeamMember;
-import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent;
 
 import com.thinkparity.ophelia.model.container.ContainerDelegate;
@@ -50,14 +46,6 @@ public final class HandlePublishedNotification extends
         } else {
             removeFlagLatest();
         }
-        // update the team definition
-        final List<TeamMember> localTeam = readTeam();
-        final List<User> eventTeam = getTeam();
-        for (final User eventTeamUser : eventTeam) {
-            if (!contains(localTeam, eventTeamUser)) {
-                addTeamMember(eventTeamUser);
-            }
-        }
         // if a draft exists locally delete it
         if (doesExistDraft()) {
             logger.logWarning("Invalid state.  Local draft for event {0} should not exist.",
@@ -74,17 +62,6 @@ public final class HandlePublishedNotification extends
      */
     public void setEvent(final PublishedNotificationEvent event) {
         this.event = event;
-    }
-
-    /**
-     * Add a user to the team.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @return A <code>TeamMember</code>.
-     */
-    private TeamMember addTeamMember(final User user) {
-        return getArtifactModel().addTeamMember(getContainerId(), user.getId());
     }
 
     /**
@@ -136,30 +113,12 @@ public final class HandlePublishedNotification extends
     }
 
     /**
-     * Obtain the event's team users.
-     * 
-     * @return A <code>List</code> of <code>User</code>s.
-     */
-    private List<User> getTeam() {
-        return event.getTeam();
-    }
-
-    /**
      * Obtain the event version's version id.
      * 
      * @return A version id <code>Long</code>.
      */
     private Long getVersionId() {
         return event.getVersion().getVersionId();
-    }
-
-    /**
-     * Read the team for the container.
-     * 
-     * @return A <code>List</code> of <code>TeamMember</code>s.
-     */
-    private List<TeamMember> readTeam() {
-        return getArtifactModel().readTeam2(getContainerId());
     }
 
     /**

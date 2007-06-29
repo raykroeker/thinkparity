@@ -15,7 +15,6 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 /**
@@ -27,6 +26,17 @@ import com.thinkparity.codebase.model.user.User;
  */
 @WebService(name = "Container")
 public interface ContainerService {
+
+    /**
+     * Archive the container.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param container
+     *            A <code>Container</code>.
+     */
+    @WebMethod
+    void archive(AuthToken authToken, Container container);
 
     /**
      * Delete a container.
@@ -41,15 +51,57 @@ public interface ContainerService {
     @WebMethod
     void delete(AuthToken authToken, Container container, Calendar deletedOn);
 
+    /**
+     * Publish a new version of a container.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param documentVersions
+     *            A <code>List<DocumentVersion></code>s.
+     * @param publishToEMails
+     *            A <code>List<EMail></code>.
+     * @param publishToUsers
+     *            A <code>List<User></code>.
+     */
     @WebMethod
     void publish(AuthToken authToken, ContainerVersion version,
-            List<DocumentVersion> documentVersions, List<TeamMember> team,
-            Calendar publishedOn, List<EMail> publishToEMails,
-            List<User> publishToUsers);
+            List<DocumentVersion> documentVersions,
+            List<EMail> publishToEMails, List<User> publishToUsers);
 
+    /**
+     * Publish an existing version of a container.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param documentVersions
+     *            A <code>List<DocumentVersion></code>s.
+     * @param receivedBy
+     *            A <code>List<ArtifactReceipt></code>.
+     * @param publishedOn
+     *            A published on <code>Calendar</code>.
+     * @param publishToEMails
+     *            A <code>List<EMail></code>.
+     * @param publishToUsers
+     *            A <code>List<User></code>.
+     */
     @WebMethod
     void publishVersion(AuthToken authToken, ContainerVersion version,
-            List<DocumentVersion> documentVersions, List<TeamMember> team,
+            List<DocumentVersion> documentVersions,
             List<ArtifactReceipt> receivedBy, Calendar publishedOn,
             List<EMail> publishToEMails, List<User> publishToUsers);
+
+    /**
+     * Restore the container from the archive.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param container
+     *            A <code>Container</code>.
+     */
+    @WebMethod
+    void restore(AuthToken authToken, Container container);
 }

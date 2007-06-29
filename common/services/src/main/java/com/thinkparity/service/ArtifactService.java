@@ -25,17 +25,9 @@ import com.thinkparity.codebase.model.artifact.DraftExistsException;
 public interface ArtifactService {
 
     @WebMethod
-    void addTeamMember(AuthToken authToken, List<JabberId> team,
-            UUID uniqueId, JabberId teamMemberId);
-
-    @WebMethod
     void confirmReceipt(AuthToken authToken, UUID uniqueId,
             Long versionId, JabberId publishedBy, Calendar publishedOn,
             List<JabberId> publishedTo, Calendar receivedOn);
-
-    @WebMethod
-    void createArtifact(AuthToken authToken, UUID uniqueId,
-            Calendar createdOn);
 
     @WebMethod
     void createDraft(AuthToken authToken, List<JabberId> team,
@@ -47,8 +39,4 @@ public interface ArtifactService {
 
     @WebMethod
     JabberId readKeyHolder(AuthToken authToken, UUID uniqueId);
-
-    @WebMethod
-    void removeTeamMember(AuthToken authToken, List<JabberId> team,
-            UUID uniqueId, JabberId teamMemberId);
 }

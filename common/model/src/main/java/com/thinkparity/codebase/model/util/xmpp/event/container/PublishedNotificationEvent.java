@@ -3,16 +3,12 @@
  */
 package com.thinkparity.codebase.model.util.xmpp.event.container;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
-import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 /**
@@ -33,9 +29,6 @@ public final class PublishedNotificationEvent extends XMPPEvent {
     /** The published on <code>Calendar</code>. */
     private Calendar publishedOn;
 
-    /** A <code>List</code> of <code>User</code>s participating in the team. */
-    private final List<User> team;
-
     /** The <code>ArtifactVersion</code>. */
     private ArtifactVersion version;
 
@@ -45,27 +38,6 @@ public final class PublishedNotificationEvent extends XMPPEvent {
      */
     public PublishedNotificationEvent() {
         super();
-        this.team = new ArrayList<User>();
-    }
-
-    /**
-     * Add a team id.
-     * 
-     * @param teamMember
-     *            A team member's <code>User</code>.
-     * @return True if the team id list is modified.
-     */
-    public boolean addTeamMember(final User teamMember) {
-        return team.add(teamMember);
-    }
-
-
-    /**
-     * Clear all team user ids.
-     *
-     */
-    public void clearTeam() {
-        this.team.clear();
     }
 
     /**
@@ -87,32 +59,12 @@ public final class PublishedNotificationEvent extends XMPPEvent {
     }
 
     /**
-     * Obtain teamUserIds.
-     * 
-     * @return A <code>List</code> of user id <code>JabberId</code>s.
-     */
-    public List<User> getTeam() {
-        return Collections.unmodifiableList(team);
-    }
-
-    /**
      * Obtain version.
      *
      * @return A ArtifactVersion.
      */
     public ArtifactVersion getVersion() {
         return version;
-    }
-
-    /**
-     * Remove a team id.
-     * 
-     * @param teamId
-     *            A team member's user id <code>JabberId</code>.
-     * @return True if the team id list is modified.
-     */
-    public boolean removeTeamMember(final User teamMember) {
-        return team.remove(teamMember);
     }
 
     /**
@@ -133,17 +85,6 @@ public final class PublishedNotificationEvent extends XMPPEvent {
      */
     public void setPublishedOn(final Calendar publishedOn) {
         this.publishedOn = publishedOn;
-    }
-
-    /**
-     * Set teamUserIds.
-     *
-     * @param teamUserIds
-     *		A List<JabberId>.
-     */
-    public void setTeam(final List<User> team) {
-        this.team.clear();
-        this.team.addAll(team);
     }
 
     /**

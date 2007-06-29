@@ -87,21 +87,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#archive(java.lang.Long)
-     *
-     */
-    public void archive(final Long artifactId) {
-        try {
-            if (isBackupEnabled()) {
-                final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
-                getSessionModel().archiveArtifact(localUserId(), uniqueId);
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#handleStatisticsUpdated(com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent)
      *
      */
@@ -390,36 +375,12 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#restore(java.lang.Long)
-     *
-     */
-    public void restore(final Long artifactId) {
-        try {
-            if (isBackupEnabled()) {
-                final UUID uniqueId = getArtifactModel().readUniqueId(artifactId);
-                getSessionModel().restoreArtifact(localUserId(), uniqueId);
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
     @Override
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {}
-
-    /**
-     * Determine if backup is enabled for the user.
-     * 
-     * @return True if backup is enabled.
-     */
-    private boolean isBackupEnabled() {
-        return getProfileModel().isBackupEnabled().booleanValue();
-    }
 
     /**
      * Fire a backup statistics updated event.

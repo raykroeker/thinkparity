@@ -375,7 +375,7 @@ public final class SystemApplication extends AbstractApplication {
             impl.fireNotification(new DefaultNotification() {
                 @Override
                 public String getContentLine1() {
-                    return e.getTeamMember().getName();
+                    return e.getUser().getName();
                 }
                 @Override
                 public String getContentLine2() {
@@ -407,7 +407,7 @@ public final class SystemApplication extends AbstractApplication {
             impl.fireNotification(new DefaultNotification() {
                 @Override
                 public String getContentLine1() {
-                    return e.getTeamMember().getName();
+                    return e.getUser().getName();
                 }
                 @Override
                 public String getContentLine2() {

@@ -30,16 +30,6 @@ import com.thinkparity.desdemona.util.AuthenticationType;
 public interface BackupModel {
 
     /**
-     * Archive an artifact.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    public void archive(final UUID uniqueId);
-
-    /**
      * Delete an artifact.
      * 
      * @param userId
@@ -154,15 +144,4 @@ public interface BackupModel {
      *            An artifact unique id <code>UUID</code>.
      */
     public List<JabberId> readTeamIds(final UUID uniqueId);
-
-    /**
-     * Restore an artifact. This will simply remove the archived flag within the
-     * backup.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>Long</code>.
-     */
-    public void restore(final UUID containerUniqueId);
 }

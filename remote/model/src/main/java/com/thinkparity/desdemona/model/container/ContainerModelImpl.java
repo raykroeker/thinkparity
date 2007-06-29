@@ -12,6 +12,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -25,10 +26,10 @@ import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublished
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
+import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
-import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
 
 /**
@@ -41,15 +42,25 @@ import com.thinkparity.desdemona.model.user.InternalUserModel;
 public final class ContainerModelImpl extends AbstractModelImpl implements
         ContainerModel, InternalContainerModel {
 
-    /** Artifact database io. */
-    private ArtifactSql artifactSql;
-
     /**
      * Create ContainerModelImpl.
      *
      */
     public ContainerModelImpl() {
         super();
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.container.ContainerModel#archive(com.thinkparity.codebase.model.container.Container)
+     *
+     */
+    public void archive(final Container container) {
+        try {
+            getArtifactModel().removeTeamMember(localize(container));
+            getBackupModel().archive(container.getUniqueId());
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -60,11 +71,14 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         try {
             final Artifact artifact = localize(container);
             final InternalArtifactModel artifactModel = getArtifactModel();
-            if (artifactModel.doesExistDraft(artifact)) {
+            if (artifactModel.isDraftOwner(artifact)) {
                 artifactModel.deleteDraft(artifact, deletedOn);
-            }
-            if (artifactModel.isTeamMember(artifact)) {
-                artifactModel.removeTeamMember(artifact);
+            } else {
+                /* this is the case if a user has archived their container; they
+                 * are no longer part of the team */
+                if (artifactModel.isTeamMember(artifact)) {
+                    artifactModel.removeTeamMember(artifact);
+                }
             }
             getBackupModel().delete(artifact.getUniqueId());
         } catch (final Throwable t) {
@@ -74,37 +88,37 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
 
     /**
      * @see com.thinkparity.desdemona.model.container.ContainerModel#publish(com.thinkparity.codebase.model.container.ContainerVersion,
-     *      java.util.List, java.util.List, java.util.Calendar, java.util.List,
-     *      java.util.List)
+     *      java.util.List, java.util.List, java.util.List)
      * 
      */
     public void publish(final ContainerVersion version,
             final List<DocumentVersion> documentVersions,
-            final List<TeamMember> team, final Calendar publishedOn,
             final List<EMail> publishToEMails, final List<User> publishToUsers) {
         try {
             // create if required
             handleResolution(version);
 
-            // enqueue invitation events
-            createInvitations(user.getId(), version, publishToEMails, publishedOn);
+            // delete draft
+            deleteDraft(version);
 
             // enqueue container published events
-            enqueueContainerPublished(version, documentVersions, user.getId(),
-                    publishedOn, publishToUsers);
+            enqueueContainerPublished(version, documentVersions, publishToUsers);
+
+            // add new team members as required
+            handleTeamResolution(version, publishToUsers);
+
+            // restore from backup as required
+            handleBackupResolution(version, publishToUsers);
 
             // enqueue container published notification events
-            enqueueContainerPublishedNotification(version, team, user.getId(),
-                    publishedOn, publishToUsers);
-
-            // add session user to the team
-            addTeamMember(version);
+            enqueueContainerPublishedNotification(version);
 
             // update the latest version
-            updateLatestVersion(version, user.getId(), publishedOn);
+            updateLatestVersion(version);
 
-            // update draft owner back to the system
-            updateDraftOwner(version, user.getId(), publishedOn);
+            // enqueue invitation events
+            createInvitations(user.getId(), version, publishToEMails,
+                    version.getCreatedOn());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -112,28 +126,45 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
 
     /**
      * @see com.thinkparity.desdemona.model.container.ContainerModel#publishVersion(com.thinkparity.codebase.model.container.ContainerVersion,
-     *      java.util.List, java.util.List, java.util.List, java.util.Calendar,
-     *      java.util.List, java.util.List)
+     *      java.util.List, java.util.List, java.util.Calendar, java.util.List,
+     *      java.util.List)
      * 
      */
     public void publishVersion(final ContainerVersion version,
-            final List<DocumentVersion> documentVersionStreamIds,
-            final List<TeamMember> team,
+            final List<DocumentVersion> documentVersions,
             final List<ArtifactReceipt> receivedBy, final Calendar publishedOn,
             final List<EMail> publishToEMails, final List<User> publishToUsers) {
         try {
-            // create requisite incoming/outgoing e-mail invitations
-            createInvitations(user.getId(), version, publishToEMails, publishedOn);
-
             // enqueue container version published events
-            enqueueContainerVersionPublished(version, documentVersionStreamIds,
-                    receivedBy, user.getId(), publishedOn, publishToUsers);
+            enqueueContainerVersionPublished(version, documentVersions,
+                    receivedBy, publishToUsers);
+
+            // add new team members as required
+            handleTeamResolution(version, publishToUsers);
+
+            // restore from backup as required
+            handleBackupResolution(version, publishToUsers);
 
             // enqueue container version published notification events
-            enqueueContainerVersionPublishedNotification(version, team,
-                    user.getId(), publishedOn, publishToUsers);
+            enqueueContainerVersionPublishedNotification(version, user.getId(), publishedOn, publishToUsers);
+
+            // create requisite incoming/outgoing e-mail invitations
+            createInvitations(user.getId(), version, publishToEMails, publishedOn);
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.container.ContainerModel#restore(com.thinkparity.codebase.model.container.Container)
+     *
+     */
+    public void restore(final Container container) {
+        try {
+            getArtifactModel().addTeamMember(localize(container));
+            getBackupModel().restore(container.getUniqueId());
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 
@@ -142,9 +173,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
      *
      */
     @Override
-    protected void initialize() {
-        artifactSql = new ArtifactSql();
-    }
+    protected void initialize() {}
 
     /**
      * Read a user.
@@ -155,26 +184,6 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
      */
     protected final User readUser(final JabberId userId) {
         return getUserModel().read(userId);
-    }
-
-
-    /**
-     * Add the published by user to the team.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param version
-     *            A <code>ContainerVersion</code>.
-     * @param publishedBy
-     *            The published by user id <code>JabberId</code>.
-     */
-    private void addTeamMember(final ContainerVersion version) {
-        final InternalArtifactModel artifactModel = getArtifactModel();
-        final Artifact artifact = artifactModel.read(version.getArtifactUniqueId());
-        final List<TeamMember> localTeam = artifactModel.readTeam(artifact.getId());
-        if (!contains(localTeam, user)) {
-            artifactModel.addTeamMember(artifact.getId());
-        }
     }
 
     /**
@@ -251,6 +260,19 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * Delete a draft.  The draft ownership is reverted back to the system user;
+     * and all team members are sent a "draft deleted" event.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     */
+    private void deleteDraft(final ContainerVersion version) {
+        final InternalArtifactModel artifactModel = getArtifactModel();
+        final Artifact artifact = artifactModel.read(version.getArtifactUniqueId());
+        getArtifactModel().deleteDraft(artifact, version.getCreatedOn());
+    }
+
+    /**
      * Enqueue a container published event. All of the publish to users will
      * receive an event.
      * 
@@ -259,21 +281,16 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
      * @param documentVersions
      *            A <code>Map</code> of <code>DocumentVersion</code>s and
      *            their stream id <code>String</code>s.
-     * @param publishedBy
-     *            The published by user id <code>JabberId</code>.
-     * @param publishedOn
-     *            The published on <code>Calendar</code>.
      * @param publishToUsers
      *            A <code>List</code> of <code>User</code>s to publish to.
      */
     private void enqueueContainerPublished(final ContainerVersion version,
             final List<DocumentVersion> documentVersions,
-            final JabberId publishedBy, final Calendar publishedOn,
             final List<User> publishToUsers) {
         final PublishedEvent event = new PublishedEvent();
         event.setDocumentVersions(documentVersions);
-        event.setPublishedBy(publishedBy);
-        event.setPublishedOn(publishedOn);
+        event.setPublishedBy(version.getCreatedBy());
+        event.setPublishedOn(version.getCreatedOn());
         event.setPublishedTo(localize(publishToUsers));
         event.setVersion(version);
         // enqueue to all publish to users
@@ -285,41 +302,22 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
 
     /**
      * Enqueue a container published notification event. All of the existing
-     * team members as well as the publish to users will receive the event. As
-     * well the team portrayed by the event will be the combination of the
-     * existing team and any new users listed by publish to users.
+     * team members will receive the event.
      * 
      * @param version
      *            A <code>ContainerVersion</code>.
-     * @param teamMembers
-     *            A <code>List</code> of existing <code>TeamMember</code>s.
-     * @param publishedBy
-     *            A published by user id <code>JabberId</code>.
-     * @param publishedOn
-     *            A published on <code>Calendar</code>.
-     * @param publishToUsers
-     *            A publish to <code>List</code> of <code>User</code>s.
      */
     private void enqueueContainerPublishedNotification(
-            final ContainerVersion version, final List<TeamMember> teamMembers,
-            final JabberId publishedBy, final Calendar publishedOn,
-            final List<User> publishToUsers) {
+            final ContainerVersion version) {
         final PublishedNotificationEvent event =
             new PublishedNotificationEvent();
-        event.setPublishedBy(publishedBy);
-        event.setPublishedOn(publishedOn);
+        event.setPublishedBy(version.getCreatedBy());
+        event.setPublishedOn(version.getCreatedOn());
         event.setVersion(version);
-        // set the team as the existing team members and the publish to users
-        final List<User> newTeam = localize(teamMembers);
-        final InternalUserModel userModel = getUserModel();
-        for (final User publishToUser : publishToUsers) {
-            if (!contains(newTeam, publishToUser)) {
-                newTeam.add(userModel.read(publishToUser.getId()));
-            }
-        }
-        event.setTeam(newTeam);
-        // enqueue to the new team
-        enqueueEvents(getIds(newTeam, new ArrayList<JabberId>()), event);
+        // enqueue to the team
+        final Artifact localArtifact = localize(version);
+        final List<TeamMember> team = getArtifactModel().readTeam(localArtifact.getId());
+        enqueueEvents(getIds(team, new ArrayList<JabberId>()), event);
     }
 
     /**
@@ -334,27 +332,22 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
      * @param receivedBy
      *            A <code>List</code> of <code>ArtifactReceipt</code> for
      *            previously sent to users.
-     * @param publishedBy
-     *            The published by user id <code>JabberId</code>.
-     * @param publishedOn
-     *            The published on <code>Calendar</code>.
      * @param publishToUsers
      *            A <code>List</code> of <code>User</code>s to publish to.
      */
     private void enqueueContainerVersionPublished(
             final ContainerVersion version,
             final List<DocumentVersion> documentVersions,
-            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
-            final Calendar publishedOn, final List<User> publishToUsers) {
-        final InternalArtifactModel artifactModel = getArtifactModel();
-        final Artifact artifact = artifactModel.read(version.getArtifactUniqueId());
+            final List<ArtifactReceipt> receivedBy,
+            final List<User> publishToUsers) {
+        final Artifact localArtifact = localize(version);
+        final Long latestVersionId = readLatestVersionId(localArtifact);
 
         final VersionPublishedEvent event = new VersionPublishedEvent();
         event.setDocumentVersions(documentVersions);
-        event.setLatestVersion(artifactSql.readLatestVersionId(
-                artifact.getId()).equals(version.getVersionId()));
-        event.setPublishedBy(publishedBy);
-        event.setPublishedOn(publishedOn);
+        event.setLatestVersion(latestVersionId.equals(version.getVersionId()));
+        event.setPublishedBy(version.getCreatedBy());
+        event.setPublishedOn(version.getCreatedOn());
         event.setPublishedTo(localize(publishToUsers));
         event.setReceivedBy(receivedBy);
         event.setVersion(version);
@@ -366,15 +359,12 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * Enqueue a container version published notification event. All of the existing
-     * team members as well as the publish to users will receive the event. As
-     * well the team portrayed by the event will be the combination of the
-     * existing team and any new users listed by publish to users.
+     * Enqueue a container version published notification event. All of the team
+     * members will receive the event. Note that in this case the version
+     * created by/on are different from the published by/on.
      * 
      * @param version
      *            A <code>ContainerVersion</code>.
-     * @param teamMembers
-     *            A <code>List</code> of existing <code>TeamMember</code>s.
      * @param publishedBy
      *            A published by user id <code>JabberId</code>.
      * @param publishedOn
@@ -383,32 +373,41 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
      *            A publish to <code>List</code> of <code>User</code>s.
      */
     private void enqueueContainerVersionPublishedNotification(
-            final ContainerVersion version, final List<TeamMember> teamMembers,
-            final JabberId publishedBy, final Calendar publishedOn,
-            final List<User> publishToUsers) {
-        final List<User> teamUsers = new ArrayList<User>(teamMembers.size());
-        final List<JabberId> teamUserIds = new ArrayList<JabberId>(teamMembers.size());
-        for (final TeamMember teamMember : teamMembers) {
-            teamUsers.add(teamMember);
-            teamUserIds.add(teamMember.getId());
-        }
-
-        final VersionPublishedNotificationEvent event =
-            new VersionPublishedNotificationEvent();
+            final ContainerVersion version, final JabberId publishedBy,
+            final Calendar publishedOn, final List<User> publishToUsers) {
+        final VersionPublishedNotificationEvent event = new VersionPublishedNotificationEvent();
         event.setPublishedBy(publishedBy);
         event.setPublishedOn(publishedOn);
         event.setVersion(version);
-        // set the team as the existing team members and the publish to users
-        final List<User> newTeam = localize(teamMembers);
-        final InternalUserModel userModel = getUserModel();
+        
+        // enqueue to the team
+        final Artifact localArtifact = localize(version);
+        final List<TeamMember> team = getArtifactModel().readTeam(localArtifact.getId());
+        // enqueue to the new team
+        enqueueEvents(getIds(team, new ArrayList<JabberId>()), event);
+    }
+
+    /**
+     * Restore the package from the backup.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param publishToUsers
+     *            A <code>List<User></code>.
+     */
+    private void handleBackupResolution(final ContainerVersion version,
+            final List<User> publishToUsers) {
+        final Artifact localArtifact = localize(version);
+        InternalBackupModel backupModel;
         for (final User publishToUser : publishToUsers) {
-            if (!contains(newTeam, publishToUser)) {
-                newTeam.add(userModel.read(publishToUser.getId()));
+            backupModel = getBackupModel(publishToUser);
+            if (backupModel.isBackupEnabled()
+                    && backupModel.isBackedUp(localArtifact)
+                    && backupModel.isArchived(localArtifact)) {
+                getBackupModel(localize(publishToUser)).restore(
+                        version.getArtifactUniqueId());
             }
         }
-        event.setTeam(newTeam);
-        // enqueue to the new team
-        enqueueEvents(getIds(newTeam, new ArrayList<JabberId>()), event);
     }
 
     /**
@@ -429,6 +428,41 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * Handle the team resolution. Any publish to users not on the team; are
+     * added and a "team member added" event is distributed.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param publishToUsers
+     *            A <code>List<User></code>.
+     */
+    private void handleTeamResolution(final ContainerVersion version,
+            final List<User> publishToUsers) {
+        final Artifact localArtifact = localize(version);
+        final InternalArtifactModel artifactModel = getArtifactModel();
+        final List<TeamMember> team = artifactModel.readTeam(localArtifact.getId());
+
+        // build the list of new members
+        final List<User> newMembers = new ArrayList<User>();
+        if (contains(team, user)) {
+            logger.logDebug("Team contains user {0}.", user.getId());
+        } else {
+            logger.logDebug("Team does not contain user {0}.", user.getId());
+            newMembers.add(user);
+        }
+        for (int i = 0; i < publishToUsers.size(); i++) {
+            if (contains(team, publishToUsers.get(i))) {
+                logger.logDebug("Team contains user {0}.", publishToUsers.get(i).getId());
+            } else {
+                logger.logDebug("Team does not contain user {0}.", publishToUsers.get(i).getId());
+                newMembers.add(localize(publishToUsers.get(i)));
+            }
+        }
+        artifactModel.addTeamMembers(localArtifact, newMembers);
+    }
+
+    
+    /**
      * Convert a list of users to local users.
      * 
      * @param <T>
@@ -447,6 +481,19 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * Obtain a local reference for a user.
+     * 
+     * @param <T>
+     *            A user type.
+     * @param user
+     *            A <code>T</code>.
+     * @return A <code>User</code>.
+     */
+    private <T extends User> User localize(final T user) {
+        return getUserModel().read(user.getId());
+    }
+
+    /**
      * Obtain a local reference for an artifact.
      * 
      * @param <T>
@@ -460,44 +507,38 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * Update the draft owner back to the system.
+     * Obtain a local reference for an artifact version.
      * 
+     * @param <T>
+     *            An artifact version type.
      * @param version
-     *            A <code>ContainerVersion</code>.
-     * @param publishedBy
-     *            The published by user id <code>JabberId</code>.
-     * @param publishedOn
-     *            The published on <code>Calendar</code>.
+     *            A <code>T</code>.
+     * @return An <code>Artifact</code>.
      */
-    private void updateDraftOwner(final ContainerVersion version,
-            final JabberId publishedBy, final Calendar publishedOn) {
-        final InternalArtifactModel artifactModel = getArtifactModel();
-        final Artifact artifact = artifactModel.read(version.getArtifactUniqueId());
-        // HACK - ContainerModelImpl#updateDraftOwner - should call the model
-        final InternalUserModel userModel = getUserModel();
-        final User currentOwner = userModel.read(publishedBy);
-        final User newOwner = userModel.read(User.THINKPARITY.getId());
-        artifactSql.updateDraftOwner(artifact, currentOwner, newOwner, publishedOn);
+    private <T extends ArtifactVersion> Artifact localize(final T version) {
+        return getArtifactModel().read(version.getArtifactUniqueId());
     }
 
     /**
-     * Update the latest version id.
+     * Read the latest version id for a version.
+     * 
+     * @param artifact
+     *            An <code>Artifact</code>.
+     * @return The latest version id.
+     */
+    private Long readLatestVersionId(final Artifact artifact) {
+        return getArtifactModel().readLatestVersionId(artifact);
+    }
+
+    /**
+     * Update the latest version reference.
      * 
      * @param version
-     *            A <code>ContainerVersion</code>.
-     * @param publishedBy
-     *            The published by user id <code>JabberId</code>.
-     * @param publishedOn
-     *            The published on <code>Calendar</code>.
+     *            An <code>ArtifactVersion</code>.
      */
-    private void updateLatestVersion(final ContainerVersion version,
-            final JabberId publishedBy, final Calendar publishedOn) {
-        final InternalArtifactModel artifactModel = getArtifactModel();
-        final Artifact artifact = artifactModel.read(version.getArtifactUniqueId());
-        final InternalUserModel userModel = getUserModel();
-        final User publishedByUser = userModel.read(publishedBy);
-        // HACK - ContainerModelImpl#updateLatestVersion - should call the model
-        artifactSql.updateLatestVersionId(artifact.getId(),
-                version.getVersionId(), publishedByUser.getLocalId(), publishedOn);
+    private void updateLatestVersion(final ContainerVersion version) {
+        final Artifact localArtifact = localize(version);
+        getArtifactModel().updateLatestVersionId(localArtifact,
+                version.getVersionId(), version.getCreatedOn());
     }
 }

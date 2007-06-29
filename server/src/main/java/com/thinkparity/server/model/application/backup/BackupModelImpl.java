@@ -67,7 +67,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      */
     public void archive(final UUID uniqueId) {
         try {
-            if (isBackupEnabled(user)) {
+            if (isBackupEnabledImpl(user)) {
                 archiveImpl(user, uniqueId);
             } else {
                 logger.logWarning("User {0} has no backup feature.",
@@ -85,7 +85,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      */
     public void delete(final UUID uniqueId) {
         try {
-            if (isBackupEnabled(user)) {
+            if (isBackupEnabledImpl(user)) {
                 deleteImpl(user, uniqueId);
             } else {
                 logger.logWarning("User {0} has no backup feature.",
@@ -102,12 +102,48 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      */
     public void enqueueBackupEvent() {
         try {
-            if (isBackupEnabled(user)) {
+            if (isBackupEnabledImpl(user)) {
                 enqueueBackupEventImpl(user);
             } else {
                 logger.logWarning("User {0} has no backup feature.",
                         user.getId());
             }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    public Boolean isArchived(final Artifact artifact) {
+        try {
+            if (isBackupEnabled() && isBackedUp(artifact)) {
+                return backupSql.doesExistArchive(user, artifact);
+            } else {
+                logger.logWarning("User {0} has no backup feature.",
+                        user.getId());
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    public Boolean isBackedUp(final Artifact artifact) {
+        try {
+            if (isBackupEnabledImpl(user)) {
+                return Boolean.valueOf(isContainerBackedUpImpl(user,
+                      artifact.getUniqueId()));
+            } else {
+                logger.logWarning("User {0} has no backup feature.");
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    public Boolean isBackupEnabled() {
+        try {
+            return isBackupEnabledImpl(user);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -168,7 +204,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      */
     public List<Container> readContainers() {
         try {
-            if (isBackupEnabled(user)) {
+            if (isBackupEnabledImpl(user)) {
                 return readContainersImpl(user);
             } else {
                 logger.logWarning("User {0} has no backup feature.",
@@ -199,7 +235,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      */
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId) {
         try {
-            if (isBackupEnabled(user)) {
+            if (isBackupEnabledImpl(user)) {
                 return readContainerVersionsImpl(user, uniqueId);
             } else {
                 logger.logWarning("User {0} has no backup feature.",
@@ -219,7 +255,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     public List<Document> readDocuments(final UUID containerUniqueId,
             final Long containerVersionId) {
         try {
-            if (isBackupEnabled(user)) {
+            if (isBackupEnabledImpl(user)) {
                 return readContainerDocumentsImpl(user, containerUniqueId,
                         containerVersionId);
             } else {
@@ -239,7 +275,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     public List<DocumentVersion> readDocumentVersions(
             final UUID containerUniqueId, final Long containerVersionId) {
         try {
-            if (isBackupEnabled(user)) {
+            if (isBackupEnabledImpl(user)) {
                 return readContainerDocumentVersionsImpl(user, containerUniqueId, containerVersionId);
             } else {
                 logger.logWarning("User {0} has no backup feature.",
@@ -258,7 +294,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     public List<ArtifactReceipt> readPublishedTo(final UUID containerUniqueId,
             final Long containerVersionId) {
         try {
-            if (isBackupEnabled(user)) {
+            if (isBackupEnabledImpl(user)) {
                 return readContainerPublishedToImpl(user, containerUniqueId,
                         containerVersionId);
             } else {
@@ -279,7 +315,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     public List<PublishedToEMail> readPublishedToEMails(
             final UUID containerUniqueId, final Long containerVersionId) {
         try {
-            if (isBackupEnabled(user)) {
+            if (isBackupEnabledImpl(user)) {
                 return readContainerPublishedToEMailsImpl(user,
                         containerUniqueId, containerVersionId);
             } else {
@@ -298,7 +334,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      */
     public Statistics readStatistics() {
         try {
-            if (isBackupEnabled(user)) {
+            if (isBackupEnabledImpl(user)) {
                 return readStatisticsImpl(user);
             } else {
                 logger.logWarning("User {0} has no backup feature.",
@@ -317,7 +353,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      */
     public List<JabberId> readTeamIds(final UUID uniqueId) {
         try {
-            if (isBackupEnabled(user)) {
+            if (isBackupEnabledImpl(user)) {
                 return readTeamIdsImpl(user, uniqueId);
             } else {
                 logger.logWarning("User {0} has no backup feature.",
@@ -336,7 +372,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      */
     public void restore(final UUID uniqueId) {
         try {
-            if (isBackupEnabled(user)) {
+            if (isBackupEnabledImpl(user)) {
                 restoreImpl(user, uniqueId);
             } else {
                 logger.logWarning("User {0} has no backup feature.",
@@ -411,7 +447,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         final Artifact artifact = getArtifactModel().read(uniqueId);
         if (isArchived(user, uniqueId))
             backupSql.deleteArchive(user, artifact);
-        if (!isContainerBackedUp(uniqueId)) {
+        if (!isContainerBackedUpImpl(uniqueId)) {
             final com.thinkparity.ophelia.model.container.InternalContainerModel
                     containerModel = getModelFactory(user).getContainerModel();
             final com.thinkparity.ophelia.model.artifact.InternalArtifactModel
@@ -463,7 +499,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      * @return An archive's <code>ClientModelFactory</code>.
      */
     private InternalModelFactory getModelFactory(final User user) {
-        if (isBackupEnabled(user)) {
+        if (isBackupEnabledImpl(user)) {
             return BackupService.getInstance().getModelFactory();
         } else {
             throw new BackupException("User {0} has no backup feature.",
@@ -504,7 +540,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      *            A user id <code>JabberId</code>.
      * @return True if backup is enabled.
      */
-    private boolean isBackupEnabled(final User user) {
+    private boolean isBackupEnabledImpl(final User user) {
         /* NOTE the product id/name should be read from the interface once the
          * migrator code is complete */
         final List<Feature> features = getUserModel(user).readFeatures(Ophelia.PRODUCT_ID);
@@ -527,10 +563,9 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      * @return True if the user is either a team member; or has archived the
      *         artifact.
      */
-    private boolean isContainerBackedUp(final User user, final UUID uniqueId) {
+    private boolean isContainerBackedUpImpl(final User user, final UUID uniqueId) {
         return isTeamMember(user, uniqueId) || isArchived(user, uniqueId);
     }
-
     /**
      * Determine if the container is backed up. We check the server team
      * membership as well as the server archive flag.
@@ -540,7 +575,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      * @return True if the user is either a team member; or has archived the
      *         artifact.
      */
-    private boolean isContainerBackedUp(final UUID uniqueId) {
+    private boolean isContainerBackedUpImpl(final UUID uniqueId) {
         final Artifact artifact = getArtifactModel().read(uniqueId);
         return 0 < artifactSql.readTeamRelCount(artifact.getId())
                 || isArchived(uniqueId);
@@ -567,7 +602,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     private List<TeamMember> readArtifactTeamImpl(final UUID uniqueId) {
-        if (isContainerBackedUp(uniqueId)) {
+        if (isContainerBackedUpImpl(uniqueId)) {
             final Long containerId = getModelFactory().getArtifactModel().readId(uniqueId);
             return getModelFactory().getArtifactModel().readTeam2(containerId);
         } else {
@@ -603,7 +638,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      */
     private List<Document> readContainerDocumentsImpl(final User user,
             final UUID uniqueId, final Long versionId) {
-        if (isContainerBackedUp(user, uniqueId)) {
+        if (isContainerBackedUpImpl(user, uniqueId)) {
             final InternalModelFactory modelFactory = getModelFactory(user);
             final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
             return modelFactory.getContainerModel().readDocuments(containerId, versionId);
@@ -628,7 +663,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      */
     private List<DocumentVersion> readContainerDocumentVersionsImpl(
             final User user, final UUID uniqueId, final Long versionId) {
-        if (isContainerBackedUp(user, uniqueId)) {
+        if (isContainerBackedUpImpl(user, uniqueId)) {
             final InternalModelFactory modelFactory = getModelFactory(user);
             final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
             return modelFactory.getContainerModel().readDocumentVersions(containerId, versionId);
@@ -641,7 +676,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
 
     private List<DocumentVersion> readContainerDocumentVersionsImpl(
             final UUID uniqueId, final Long versionId) {
-        if (isContainerBackedUp(uniqueId)) {
+        if (isContainerBackedUpImpl(uniqueId)) {
             final Long containerId = getModelFactory().getArtifactModel().readId(uniqueId);
             return getModelFactory().getContainerModel().readDocumentVersions(containerId, versionId);
         } else {
@@ -651,7 +686,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     private Container readContainerImpl(final UUID uniqueId) {
-        if (isContainerBackedUp(uniqueId)) {
+        if (isContainerBackedUpImpl(uniqueId)) {
             final Long containerId = getModelFactory().getArtifactModel().readId(uniqueId);
             return getModelFactory().getContainerModel().read(containerId);
         } else {
@@ -669,7 +704,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      * @return A <code>ContainerVersion</code>.
      */
     private ContainerVersion readContainerLatestVersionImpl(final UUID uniqueId) {
-        if (isContainerBackedUp(uniqueId)) {
+        if (isContainerBackedUpImpl(uniqueId)) {
             final InternalModelFactory modelFactory = getModelFactory();
             final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
             return modelFactory.getContainerModel().readLatestVersion(containerId);
@@ -694,7 +729,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      */
     private List<PublishedToEMail> readContainerPublishedToEMailsImpl(
             final User user, final UUID uniqueId, final Long versionId) {
-        if (isContainerBackedUp(user, uniqueId)) {
+        if (isContainerBackedUpImpl(user, uniqueId)) {
             final List<PublishedToEMail> publishedTo = new ArrayList<PublishedToEMail>();
             final InternalContactModel contactModel = getContactModel();
             final List<OutgoingEMailInvitation> invitations =
@@ -737,7 +772,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      */
     private List<ArtifactReceipt> readContainerPublishedToImpl(final User user,
             final UUID uniqueId, final Long versionId) {
-        if (isContainerBackedUp(user, uniqueId)) {
+        if (isContainerBackedUpImpl(user, uniqueId)) {
             final InternalModelFactory modelFactory = getModelFactory(user);
             final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
             return modelFactory.getContainerModel().readPublishedTo(containerId, versionId);
@@ -796,7 +831,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      */
     private ContainerVersion readContainerVersionImpl(final UUID uniqueId,
             final Long versionId) {
-        if (isContainerBackedUp(uniqueId)) {
+        if (isContainerBackedUpImpl(uniqueId)) {
             final InternalModelFactory modelFactory = getModelFactory();
             final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
             return modelFactory.getContainerModel().readVersion(containerId, versionId);
@@ -818,7 +853,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      */
     private List<ContainerVersion> readContainerVersionsImpl(final User user,
             final UUID uniqueId) {
-        if (isContainerBackedUp(user, uniqueId)) {
+        if (isContainerBackedUpImpl(user, uniqueId)) {
             final InternalModelFactory modelFactory = getModelFactory(user);
             final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
             return modelFactory.getContainerModel().readVersions(containerId);
@@ -894,7 +929,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      * @return A <code>List</code> of <code>JabberId</code>s.
      */
     private List<JabberId> readTeamIdsImpl(final User user, final UUID uniqueId) {
-        if (isContainerBackedUp(user, uniqueId)) {
+        if (isContainerBackedUpImpl(user, uniqueId)) {
             final InternalModelFactory modelFactory = getModelFactory(user);
             final Long artifactId = modelFactory.getArtifactModel().readId(uniqueId);
             return modelFactory.getArtifactModel().readTeamIds(artifactId);

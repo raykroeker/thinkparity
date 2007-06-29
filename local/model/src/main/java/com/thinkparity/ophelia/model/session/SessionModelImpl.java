@@ -45,7 +45,6 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.session.InvalidLocationException;
-import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.Token;
 
@@ -179,34 +178,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#addTeamMember(java.util.UUID,
-     *      java.util.List, com.thinkparity.codebase.jabber.JabberId)
-     * 
-     */
-    public void addTeamMember(final UUID uniqueId, final List<JabberId> team,
-            final JabberId teamMemberId) {
-        try {
-            artifactService.addTeamMember(getAuthToken(), team, uniqueId,
-                    teamMemberId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#archiveArtifact(com.thinkparity.codebase.jabber.JabberId,
-     *      java.util.UUID)
-     * 
-     */
-    public void archiveArtifact(final JabberId userId, final UUID containerUniqueId) {
-        try {
-            backupService.archive(getAuthToken(), containerUniqueId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#confirmArtifactReceipt(java.util.UUID,
      *      java.lang.Long, com.thinkparity.codebase.jabber.JabberId,
      *      java.util.Calendar, java.util.List,
@@ -222,20 +193,6 @@ public final class SessionModelImpl extends Model<SessionListener>
                     versionId, publishedBy, publishedOn, publishedTo,
                     receivedOn);
         } catch (final Throwable t) {
-            throw panic(t);
-        }
-	}
-
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createArtifact(com.thinkparity.codebase.jabber.JabberId,
-     *      java.util.UUID, java.util.Calendar)
-     * 
-     */
-    public void createArtifact(final JabberId userId, final UUID uniqueId,
-            final Calendar createdOn) {
-		try {
-            artifactService.createArtifact(getAuthToken(), uniqueId, createdOn);
-		} catch (final Throwable t) {
             throw panic(t);
         }
 	}
@@ -682,19 +639,14 @@ public final class SessionModelImpl extends Model<SessionListener>
 
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#publish(com.thinkparity.codebase.model.container.ContainerVersion,
-     *      java.util.List, java.util.List,
-     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
-     *      java.util.List, java.util.List)
+     *      java.util.List, java.util.List, java.util.List)
      * 
      */
     public void publish(final ContainerVersion version,
             final List<DocumentVersion> documentVersions,
-            final List<TeamMember> team, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishToEMails,
-            final List<User> publishToUsers) {
+            final List<EMail> publishToEMails, final List<User> publishToUsers) {
         try {
-            containerService.publish(getAuthToken(), version,
-                    documentVersions, team, publishedOn,
+            containerService.publish(getAuthToken(), version, documentVersions,
                     publishToEMails, publishToUsers);
         } catch(final Throwable t) {
             throw panic(t);
@@ -710,14 +662,12 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     public void publishVersion(final ContainerVersion version,
             final List<DocumentVersion> documentVersions,
-            final List<TeamMember> team,
-            final List<ArtifactReceipt> receivedBy, final JabberId publishedBy,
-            final Calendar publishedOn, final List<EMail> publishToEMails,
-            final List<User> publishToUsers) {
+            final List<ArtifactReceipt> receivedBy, final Calendar publishedOn,
+            final List<EMail> publishToEMails, final List<User> publishToUsers) {
         try {
             containerService.publishVersion(getAuthToken(), version,
-                    documentVersions, team, receivedBy,
-                    publishedOn, publishToEMails, publishToUsers);
+                    documentVersions, receivedBy, publishedOn, publishToEMails,
+                    publishToUsers);
         } catch(final Throwable t) {
             throw panic(t);
         }
@@ -1088,34 +1038,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     public void removeProfileEmail(final JabberId userId, final ProfileEMail email) {
         try {
             profileService.removeEMail(getAuthToken(), email.getEmail());
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#removeTeamMember(java.util.UUID,
-     *      java.util.List, com.thinkparity.codebase.jabber.JabberId)
-     * 
-     */
-    public void removeTeamMember(final UUID uniqueId, final List<JabberId> team,
-            final JabberId teamMemberId) {
-        try {
-            artifactService.removeTeamMember(getAuthToken(), team, uniqueId,
-                    teamMemberId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#restoreArtifact(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
-     *
-     */
-    public void restoreArtifact(final JabberId userId,
-            final UUID containerUniqueId) {
-        try {
-            backupService.restore(getAuthToken(), containerUniqueId);
         } catch (final Throwable t) {
             throw panic(t);
         }

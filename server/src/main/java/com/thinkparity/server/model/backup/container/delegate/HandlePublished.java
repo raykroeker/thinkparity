@@ -15,7 +15,6 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
 
-import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.container.ContainerDelegate;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.document.CannotLockException;
@@ -36,8 +35,8 @@ public final class HandlePublished extends ContainerDelegate {
     /** A published event. */
     private PublishedEvent event;
 
-    /** The published by team member. */
-    private TeamMember publishedBy;
+    /** The published by user. */
+    private User publishedBy;
 
     /** Whether or not the package was restored from archive. */
     private Boolean restore;
@@ -73,7 +72,7 @@ public final class HandlePublished extends ContainerDelegate {
      * Obtain the published by team member.
      * @return A the published by <code>TeamMember</code>.
      */
-    public TeamMember getPublishedBy() {
+    public User getPublishedBy() {
         return publishedBy;
     }
 
@@ -82,7 +81,6 @@ public final class HandlePublished extends ContainerDelegate {
      *
      */
     public void handlePublished() throws CannotLockException {
-        final InternalArtifactModel artifactModel = getArtifactModel();
         final Container container = handleResolution();
         final ContainerVersion version = createVersion(container.getId(),
                 event.getVersion().getVersionId(), event.getVersion().getName(),
@@ -99,12 +97,12 @@ public final class HandlePublished extends ContainerDelegate {
             publishedToIds.add(publishedToUser.getId());
             publishedToUsers.add(userModel.readLazyCreate(publishedToUser.getId()));
         }
-        // add only published by user to the team
+        // resolve published by user
         final List<TeamMember> localTeam = readTeam(container.getId());
-        if (!contains(localTeam, event.getPublishedBy())) {
-            publishedBy = artifactModel.addTeamMember(container.getId(), event.getPublishedBy());
-        } else {
+        if (contains(localTeam, event.getPublishedBy())) {
             publishedBy = localTeam.get(indexOf(localTeam, event.getPublishedBy()));
+        } else {
+            publishedBy = getUserModel().readLazyCreate(event.getPublishedBy());
         }
         // delete draft
         draft = readDraft(container.getId());

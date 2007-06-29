@@ -14,7 +14,6 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.container.ContainerModel;
@@ -41,6 +40,14 @@ public class ContainerSEI extends ServiceSEI implements ContainerService {
     }
 
     /**
+     * @see com.thinkparity.service.ContainerService#archive(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.container.Container)
+     *
+     */
+    public void archive(final AuthToken authToken, final Container container) {
+        getModel(authToken).archive(container);
+    }
+
+    /**
      * @see com.thinkparity.service.ContainerService#delete(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.container.Container)
      *
      */
@@ -59,10 +66,9 @@ public class ContainerSEI extends ServiceSEI implements ContainerService {
     public void publish(final AuthToken authToken,
             final ContainerVersion version,
             final List<DocumentVersion> documentVersions,
-            final List<TeamMember> team, final Calendar publishedOn,
             final List<EMail> publishToEMails, final List<User> publishToUsers) {
-        getModel(authToken).publish(version, documentVersions,
-                team, publishedOn, publishToEMails, publishToUsers);
+        getModel(authToken).publish(version, documentVersions, publishToEMails,
+                publishToUsers);
     }
 
     /**
@@ -75,11 +81,18 @@ public class ContainerSEI extends ServiceSEI implements ContainerService {
     public void publishVersion(final AuthToken authToken,
             final ContainerVersion version,
             final List<DocumentVersion> documentVersions,
-            final List<TeamMember> team,
             final List<ArtifactReceipt> receivedBy, final Calendar publishedOn,
             final List<EMail> publishToEMails, final List<User> publishToUsers) {
-        getModel(authToken).publishVersion(version, documentVersions, team,
+        getModel(authToken).publishVersion(version, documentVersions,
                 receivedBy, publishedOn, publishToEMails, publishToUsers);
+    }
+
+    /**
+     * @see com.thinkparity.service.ContainerService#restore(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.container.Container)
+     *
+     */
+    public void restore(final AuthToken authToken, final Container container) {
+        getModel(authToken).restore(container);
     }
 
     /**

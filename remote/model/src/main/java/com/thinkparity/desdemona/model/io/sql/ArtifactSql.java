@@ -213,19 +213,21 @@ public class ArtifactSql extends AbstractSql {
      * 
      * @param artifactId
      *            An artifact id <code>Long</code>.
-     * @param userId
-     *            A user id <code>JabberId</code>.
+     * @param userIds
+     *            A user id <code>List<Long></code>.
      */
-    public void createTeamRel(final Long artifactId, final Long userId) {
+    public void createTeamRel(final Long artifactId, final List<Long> userIds) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_CREATE_TEAM_REL);
             session.setLong(1, artifactId);
-            session.setLong(2, userId);
-            if(1 != session.executeUpdate())
-                throw new HypersonicException(
+            for (final Long userId : userIds) {
+                session.setLong(2, userId);
+                if(1 != session.executeUpdate())
+                    throw new HypersonicException(
                         "Could not create team relationship for {0}:{1}.",
                         artifactId, userId);
+            }
 
             session.commit();
         } catch (final Throwable t) {
@@ -233,6 +235,20 @@ public class ArtifactSql extends AbstractSql {
         } finally {
             session.close();
         }
+    }
+
+    /**
+     * Create a team relationship.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @param userId
+     *            A user id <code>Long</code>.
+     */
+    public void createTeamRel(final Long artifactId, final Long userId) {
+        final List<Long> userIds = new ArrayList<Long>(1);
+        userIds.add(userId);
+        createTeamRel(artifactId, userIds);
     }
 
 	/**
@@ -598,12 +614,12 @@ public class ArtifactSql extends AbstractSql {
 
     public void updateLatestVersionId(final Long artifactId,
             final Long versionId, final Long draftOwnerId,
-            final Calendar updatedOn) {
+            final Long updatedBy, final Calendar updatedOn) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_UPDATE_LATEST_VERSION_ID);
             session.setLong(1, versionId);
-            session.setLong(2, draftOwnerId);
+            session.setLong(2, updatedBy);
             session.setCalendar(3, updatedOn);
             session.setLong(4, artifactId);
             session.setLong(5, draftOwnerId);

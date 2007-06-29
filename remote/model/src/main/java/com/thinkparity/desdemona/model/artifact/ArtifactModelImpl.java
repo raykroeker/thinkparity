@@ -26,7 +26,6 @@ import com.thinkparity.desdemona.model.ParityServerModelException;
 import com.thinkparity.desdemona.model.Constants.Versioning;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
-import com.thinkparity.desdemona.model.user.InternalUserModel;
 import com.thinkparity.desdemona.util.DateTimeProvider;
 
 /**
@@ -51,40 +50,41 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.artifact.ArtifactModel#addTeamMember(java.util.List,
-     *      java.util.UUID, com.thinkparity.codebase.jabber.JabberId)
-     * 
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#addTeamMember(com.thinkparity.codebase.model.artifact.Artifact)
+     *
      */
-    public void addTeamMember(final List<JabberId> team, final UUID uniqueId,
-            final JabberId teamMemberId) {
+    public void addTeamMember(final Artifact artifact) {
         try {
-            final InternalUserModel userModel = getUserModel();
-
-            final Artifact artifact = read(uniqueId);
-            final User teamMember = userModel.read(teamMemberId);
-            final List<TeamMember> teamMembers = readTeam(artifact.getId());
-            if (!contains(teamMembers, teamMember)) {
-                addTeamMember(artifact.getId(), teamMember.getLocalId());
-            }
-
-            final ArtifactTeamMemberAddedEvent teamMemberAdded = new ArtifactTeamMemberAddedEvent();
-            teamMemberAdded.setJabberId(teamMemberId);
-            teamMemberAdded.setUniqueId(uniqueId);
-            enqueueEvents(team, teamMemberAdded);
-        } catch(final Throwable t) {
-            throw translateError(t);
+            final List<User> users = new ArrayList<User>(1);
+            users.add(user);
+            addTeamMembers(artifact, users);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#addTeamMember(java.lang.Long)
-     *
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#addTeamMember(com.thinkparity.codebase.model.artifact.Artifact)
+     * 
      */
-    public void addTeamMember(final Long artifactId) {
+    public void addTeamMembers(final Artifact artifact, final List<User> users) {
         try {
-            addTeamMember(artifactId, user.getLocalId());
-        } catch (final Throwable t) {
-            throw panic(t);
+            final List<Long> userIds = new ArrayList<Long>(users.size());
+            for (final User user : users) {
+                userIds.add(user.getLocalId());
+            }
+            artifactSql.createTeamRel(artifact.getId(), userIds);
+            // fire notifications
+            final List<TeamMember> team = artifactSql.readTeamRel(artifact.getId());
+            ArtifactTeamMemberAddedEvent event;
+            for (final User user : users) {
+                event = new ArtifactTeamMemberAddedEvent();
+                event.setJabberId(user.getId());
+                event.setUniqueId(artifact.getUniqueId());
+                enqueueEvents(getIds(team, new ArrayList<JabberId>(team.size())), event);    
+            }
+        } catch(final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -109,15 +109,6 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
             eventUserIds.add(publishedBy);
             eventUserIds.addAll(publishedTo);
             enqueueEvents(eventUserIds, received);
-
-            // add user to the team
-            final InternalArtifactModel artifactModel = getArtifactModel();
-            final Artifact artifact = getArtifactModel().read(uniqueId);
-            final List<TeamMember> localTeam = artifactModel.readTeam(
-                    artifact.getId());
-            final User receivedByUser = getUserModel().read(user.getId());
-            if (!contains(localTeam, receivedByUser))
-                addTeamMember(artifact.getId(), receivedByUser.getLocalId());
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -180,12 +171,25 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
      */
     public void deleteDraft(final Artifact artifact, final Calendar deletedOn) {
         try {
+            Assert.assertTrue(isDraftOwner(artifact),
+                    "User {0} is not the draft owner.", user.getId());
+
+            // update draft owner to system user
+            final User newOwner = getUserModel().read(User.THINKPARITY.getId());
+            artifactSql.updateDraftOwner(artifact, user, newOwner, deletedOn);
+
+            // fire notification
+            final ArtifactDraftDeletedEvent draftDeleted = new ArtifactDraftDeletedEvent();
+            draftDeleted.setUniqueId(artifact.getUniqueId());
+            draftDeleted.setDeletedBy(user.getId());
+            draftDeleted.setDeletedOn(deletedOn);
+
             final List<TeamMember> team = artifactSql.readTeamRel(artifact.getId());
             final List<JabberId> teamIds = new ArrayList<JabberId>(team.size());
             for (final TeamMember teamMember : team) {
                 teamIds.add(teamMember.getId());
             }
-            deleteDraft(teamIds, artifact.getUniqueId(), deletedOn);
+            enqueueEvents(teamIds, draftDeleted);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -242,14 +246,14 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#doesExistDraft(com.thinkparity.codebase.model.artifact.Artifact)
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#isDraftOwner(com.thinkparity.codebase.model.artifact.Artifact)
      *
      */
-    public Boolean doesExistDraft(final Artifact artifact) {
+    public Boolean isDraftOwner(final Artifact artifact) {
         try {
             final JabberId draftOwner = artifactSql.readDraftOwner(
                     artifact.getUniqueId());
-            return !draftOwner.equals(User.THINKPARITY.getId());
+            return draftOwner.equals(user.getId());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -309,6 +313,18 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#readLatestVersionId(com.thinkparity.codebase.model.artifact.Artifact)
+     *
+     */
+    public Long readLatestVersionId(Artifact artifact) {
+        try {
+            return artifactSql.readLatestVersionId(artifact.getId());
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#readTeam(com.thinkparity.codebase.jabber.JabberId,
      *      java.lang.Long)
      * 
@@ -340,51 +356,30 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
     public void removeTeamMember(final Artifact artifact) {
         try {
             final List<TeamMember> team = artifactSql.readTeamRel(artifact.getId());
-            final List<JabberId> teamIds = new ArrayList<JabberId>();
-            for (final TeamMember teamMember : team) {
-                teamIds.add(teamMember.getId());
-            }
-            removeTeamMember(teamIds, artifact.getUniqueId(), user.getId());
+            artifactSql.deleteTeamRel(artifact.getId(), user.getLocalId());
+            // fire notifications
+            ArtifactTeamMemberRemovedEvent event = new ArtifactTeamMemberRemovedEvent();
+            event.setJabberId(user.getId());
+            event.setUniqueId(artifact.getUniqueId());
+            enqueueEvents(getIds(team, new ArrayList<JabberId>(team.size())), event);    
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#removeTeamMember(com.thinkparity.codebase.jabber.JabberId,
-     *      java.lang.Long, java.lang.Long)
-     * 
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#updateLatestVersion(com.thinkparity.codebase.model.artifact.ArtifactVersion)
+     *
      */
-    public void removeTeamMember(final JabberId userId, final Long artifactId,
-            final Long teamMemberId) {
+    public void updateLatestVersionId(final Artifact artifact,
+            final Long versionId, final Calendar createdOn) {
         try {
-            artifactSql.deleteTeamRel(artifactId, teamMemberId);
+            final User draftOwner = getUserModel().read(User.THINKPARITY.getId());
+            artifactSql.updateLatestVersionId(artifact.getId(),
+                    versionId, draftOwner.getLocalId(),
+                    user.getLocalId(), createdOn);
         } catch (final Throwable t) {
             throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.artifact.ArtifactModel#removeTeamMember(java.util.List,
-     *      java.util.UUID, com.thinkparity.codebase.jabber.JabberId)
-     * 
-     */
-    public void removeTeamMember(final List<JabberId> team,
-            final UUID uniqueId, final JabberId teamMemberId) {
-        try {
-            final InternalUserModel userModel = getUserModel();
-
-            final Artifact artifact = read(uniqueId);
-            final User teamMember = userModel.read(teamMemberId);
-            artifactSql.deleteTeamRel(artifact.getId(), teamMember.getLocalId());
-
-            final ArtifactTeamMemberRemovedEvent teamMemberRemoved = 
-                new ArtifactTeamMemberRemovedEvent();
-            teamMemberRemoved.setUniqueId(uniqueId);
-            teamMemberRemoved.setJabberId(teamMemberId);
-            enqueueEvents(team, teamMemberRemoved);
-        } catch (final Throwable t) {
-            throw translateError(t);
         }
     }
 
@@ -395,18 +390,6 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
     @Override
     protected void initialize() {
         artifactSql = new ArtifactSql();
-    }
-
-    /**
-     * Add a user to an artifact team.
-     * 
-     * @param artifactId
-     *            An artifact id <code>Long</code>.
-     * @param userId
-     *            A user id <code>Long</code>.
-     */
-    private void addTeamMember(final Long artifactId, final Long userId) {
-        artifactSql.createTeamRel(artifactId, userId);
     }
 
     /**

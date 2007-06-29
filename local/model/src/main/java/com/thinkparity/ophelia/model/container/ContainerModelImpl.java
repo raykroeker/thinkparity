@@ -81,6 +81,7 @@ import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.util.sort.user.UserComparatorFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
+import com.thinkparity.service.AuthToken;
 import com.thinkparity.service.ContainerService;
 import com.thinkparity.service.client.ServiceFactory;
 
@@ -276,15 +277,21 @@ public final class ContainerModelImpl extends
             if (doesExistDraft(containerId))
                 deleteDraft(containerId);
             getArtifactModel().applyFlagArchived(containerId);
-            getBackupModel().archive(containerId);
-            getSessionModel().removeTeamMember(
-                    getArtifactModel().readUniqueId(containerId),
-                    getArtifactModel().readTeamIds(containerId), localUserId());
+            containerService.archive(getAuthToken(), read(containerId));
 
             notifyContainerArchived(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
+    }
+
+    /**
+     * Obtain the service authentication token.
+     * 
+     * @return An <code>AuthToken</code>.
+     */
+    private AuthToken getAuthToken() {
+        return getSessionModel().getAuthToken();
     }
 
     /**
@@ -338,7 +345,7 @@ public final class ContainerModelImpl extends
     
             // create team
             final TeamMember teamMember = getArtifactModel().createTeam(
-                    container.getId()).get(0);
+                    container).get(0);
     
             // create first draft
             createFirstDraft(container.getId(), teamMember);
@@ -371,9 +378,6 @@ public final class ContainerModelImpl extends
                 final InternalArtifactModel artifactModel = getArtifactModel();
 
                 final Container container = read(containerId);
-                if (!isDistributed(container.getId())) {
-                    createDistributed(container, createdOn);
-                }
                 final ContainerVersion latestVersion =
                         readLatestVersion(container.getId());
                 final List<Document> documents = readDocuments(
@@ -1763,7 +1767,7 @@ public final class ContainerModelImpl extends
 
             final InternalArtifactModel artifactModel = getArtifactModel();
             artifactModel.removeFlagArchived(containerId);
-            // restore the draft if one existed
+            // restore the draft if one exists
             final InternalSessionModel sessionModel = getSessionModel();
             final JabberId draftOwner = sessionModel.readKeyHolder(
                     artifactModel.readUniqueId(containerId));
@@ -1777,14 +1781,7 @@ public final class ContainerModelImpl extends
                 draft.setOwner(team.get(indexOf(team, draftOwner)));
                 containerIO.createDraft(draft);
             }
-            getBackupModel().restore(containerId);
-            sessionModel.addTeamMember(
-                    artifactModel.readUniqueId(containerId),
-                    artifactModel.readTeamIds(containerId), localUserId());
-            // note the order of this add; it is important that it happen after
-            // the remote add
-            artifactModel.addTeamMember(containerId, localUserId());
-
+            containerService.restore(getAuthToken(), read(containerId));
             notifyContainerRestored(read(containerId), localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
@@ -2074,20 +2071,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Create the container in the distributed network.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     */
-    void createDistributed(final Container container, final Calendar createdOn) {
-        final InternalSessionModel sessionModel = getSessionModel();
-        sessionModel.createArtifact(localUserId(), container.getUniqueId(),
-                createdOn);
-        // TODO update the container's created on date
-        // TODO update all documents' created on dates
-    }
-
-    /**
      * Create a new container version.
      * 
      * @param containerId
@@ -2284,7 +2267,8 @@ public final class ContainerModelImpl extends
             container.setUpdatedOn(container.getCreatedOn());
             // create
             containerIO.create(container);
-    
+            // add local user to the team
+            getArtifactModel().addTeamMember(container, localUser());
             // index
             modelFactory.getIndexModel().indexContainer(container.getId());
         }
@@ -3074,12 +3058,11 @@ public final class ContainerModelImpl extends
     private void notifyContainerPublished(final Container container,
             final ContainerDraft draft, final ContainerVersion previousVersion,
             final ContainerVersion version, final ContainerVersion nextVersion,
-            final TeamMember teamMember,
-            final ContainerEventGenerator eventGenerator) {
+            final User user, final ContainerEventGenerator eventGenerator) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
                 listener.containerPublished(eventGenerator.generate(container,
-                        draft, previousVersion, version, nextVersion, teamMember));
+                        draft, previousVersion, version, nextVersion, user));
             }
         });
     }

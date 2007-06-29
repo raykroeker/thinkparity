@@ -38,8 +38,8 @@ public final class HandleVersionPublished extends ContainerDelegate {
     /** A version published event. */
     private VersionPublishedEvent event;
 
-    /** The published by team member. */
-    private TeamMember publishedBy;
+    /** The published by user. */
+    private User publishedBy;
 
     /** Whether or not the package was restored from archive. */
     private Boolean restore;
@@ -64,9 +64,9 @@ public final class HandleVersionPublished extends ContainerDelegate {
     /**
      * Obtain the published by team member.
      * 
-     * @return A <code>TeamMember</code>.
+     * @return A <code>User</code>.
      */
-    public TeamMember getPublishedBy() {
+    public User getPublishedBy() {
         return publishedBy;
     }
 
@@ -103,13 +103,12 @@ public final class HandleVersionPublished extends ContainerDelegate {
         // update published to for the local user
         containerIO.updatePublishedTo(container.getId(), version.getVersionId(),
                 event.getPublishedOn(), localUserId(), receivedOn);
-        // add the published by user to the local team
+        // resolve the published by user
         final List<TeamMember> localTeam = readTeam(container.getId());
         if (contains(localTeam, event.getPublishedBy())) {
             publishedBy = localTeam.get(indexOf(localTeam, event.getPublishedBy()));
         } else {
-            publishedBy = getArtifactModel().addTeamMember(container.getId(),
-                    event.getPublishedBy());
+            publishedBy = getUserModel().readLazyCreate(event.getPublishedBy());
         }
         // update the local published to list for the received by list
         ArtifactReceipt localReceipt;
@@ -156,7 +155,6 @@ public final class HandleVersionPublished extends ContainerDelegate {
                 ArtifactFlag.ARCHIVED);
         if (restore.booleanValue()) {
             artifactModel.removeFlagArchived(container.getId());
-            getBackupModel().restore(container.getId());
         }
         // index
         getIndexModel().indexContainer(container.getId());

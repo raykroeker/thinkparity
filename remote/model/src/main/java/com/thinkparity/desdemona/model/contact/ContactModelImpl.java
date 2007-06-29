@@ -27,7 +27,6 @@ import com.thinkparity.codebase.model.contact.*;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.*;
 
@@ -819,8 +818,6 @@ public final class ContactModelImpl extends AbstractModelImpl implements
         final List<DocumentVersion> documentVersions =
             backupModel.readContainerDocumentVersions(container.getUniqueId(),
                     version.getVersionId());
-        final List<TeamMember> teamMembers = backupModel.readArtifactTeam(
-                container.getUniqueId());
         final List<ArtifactReceipt> receivedBy = backupModel.readPublishedTo(
                 container.getUniqueId(), version.getVersionId());
         final Calendar publishedOn = version.getCreatedOn();
@@ -829,7 +826,6 @@ public final class ContactModelImpl extends AbstractModelImpl implements
         publishToUsers.add(user);
         // publish version
         getContainerModel(sendAs).publishVersion(version, documentVersions,
-                teamMembers, receivedBy, publishedOn, publishToEMails,
-                publishToUsers);
+                receivedBy, publishedOn, publishToEMails, publishToUsers);
     }
 }

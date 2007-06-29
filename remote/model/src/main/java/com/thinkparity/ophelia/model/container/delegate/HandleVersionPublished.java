@@ -36,8 +36,8 @@ public final class HandleVersionPublished extends ContainerDelegate {
     /** A version published event. */
     private VersionPublishedEvent event;
 
-    /** The published by team member. */
-    private TeamMember publishedBy;
+    /** The published by user. */
+    private User publishedBy;
 
     /** Whether or not the package was restored from archive. */
     private Boolean restore;
@@ -62,9 +62,9 @@ public final class HandleVersionPublished extends ContainerDelegate {
     /**
      * Obtain the published by team member.
      * 
-     * @return A <code>TeamMember</code>.
+     * @return A <code>User</code>.
      */
-    public TeamMember getPublishedBy() {
+    public User getPublishedBy() {
         return publishedBy;
     }
 
@@ -77,7 +77,8 @@ public final class HandleVersionPublished extends ContainerDelegate {
         final ContainerVersion version = handleVersionResolution(
                 container.getUniqueId(), event.getVersion().getVersionId(),
                 event.getVersion().getName(), event.getVersion().getComment(),
-                event.getPublishedBy(), event.getPublishedOn());
+                event.getVersion().getCreatedBy(),
+                event.getVersion().getCreatedOn());
         // apply the latest flag
         if (event.isLatestVersion()) {
             applyFlagLatest();
@@ -103,13 +104,12 @@ public final class HandleVersionPublished extends ContainerDelegate {
                     version.getVersionId(), receipt.getPublishedOn(),
                     receivedBy.getId(), receipt.getReceivedOn());
         }
-        // add the published by user to the local team
+        // resolve the published by user
         final List<TeamMember> localTeam = readTeam(container.getId());
         if (contains(localTeam, event.getPublishedBy())) {
             publishedBy = localTeam.get(indexOf(localTeam, event.getPublishedBy()));
         } else {
-            publishedBy = getArtifactModel().addTeamMember(container.getId(),
-                    event.getPublishedBy());
+            publishedBy = getUserModel().readLazyCreate(event.getPublishedBy());
         }
         // calculate delta information
         final ContainerVersion previous = readPreviousVersion(
@@ -208,8 +208,8 @@ public final class HandleVersionPublished extends ContainerDelegate {
      */
     private ContainerVersion handleVersionResolution(final UUID uniqueId,
             final Long versionId, final String versionName,
-            final String versionComment, final JabberId publishedBy,
-            final Calendar publishedOn) {
+            final String versionComment, final JabberId createdBy,
+            final Calendar createdOn) {
         final InternalArtifactModel artifactModel = getArtifactModel();
         final Long containerId = artifactModel.readId(uniqueId);
         final ContainerVersion version;
@@ -217,7 +217,7 @@ public final class HandleVersionPublished extends ContainerDelegate {
             version = readVersion(containerId, versionId);
         } else {
             version = createVersion(containerId, versionId, versionName,
-                    versionComment, publishedBy, publishedOn);
+                    versionComment, createdBy, createdOn);
         }
         return version;
     }

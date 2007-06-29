@@ -38,8 +38,8 @@ public final class HandlePublished extends ContainerDelegate {
     /** A published event. */
     private PublishedEvent event;
 
-    /** The published by team member. */
-    private TeamMember publishedBy;
+    /** The published by user. */
+    private User publishedBy;
 
     /** Whether or not the package was restored from archive. */
     private Boolean restore;
@@ -75,7 +75,7 @@ public final class HandlePublished extends ContainerDelegate {
      * Obtain the published by team member.
      * @return A the published by <code>TeamMember</code>.
      */
-    public TeamMember getPublishedBy() {
+    public User getPublishedBy() {
         return publishedBy;
     }
 
@@ -103,12 +103,12 @@ public final class HandlePublished extends ContainerDelegate {
             publishedToIds.add(publishedToUser.getId());
             publishedToUsers.add(userModel.readLazyCreate(publishedToUser.getId()));
         }
-        // add only published by user to the team
+        // resolve published by user
         final List<TeamMember> localTeam = readTeam(container.getId());
-        if (!contains(localTeam, event.getPublishedBy())) {
-            publishedBy = artifactModel.addTeamMember(container.getId(), event.getPublishedBy());
-        } else {
+        if (contains(localTeam, event.getPublishedBy())) {
             publishedBy = localTeam.get(indexOf(localTeam, event.getPublishedBy()));
+        } else {
+            publishedBy = getUserModel().readLazyCreate(event.getPublishedBy());
         }
         // delete draft
         draft = readDraft(container.getId());
@@ -139,7 +139,6 @@ public final class HandlePublished extends ContainerDelegate {
                 ArtifactFlag.ARCHIVED);
         if (restore.booleanValue()) {
             artifactModel.removeFlagArchived(container.getId());
-            getBackupModel().restore(container.getId());
         }
         // index
         getIndexModel().indexContainer(container.getId());

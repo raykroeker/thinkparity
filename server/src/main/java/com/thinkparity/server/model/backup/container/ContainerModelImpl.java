@@ -1167,12 +1167,11 @@ public final class ContainerModelImpl extends
     private void notifyContainerPublished(final Container container,
             final ContainerDraft draft, final ContainerVersion previousVersion,
             final ContainerVersion version, final ContainerVersion nextVersion,
-            final TeamMember teamMember,
-            final ContainerEventGenerator eventGenerator) {
+            final User user, final ContainerEventGenerator eventGenerator) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
                 listener.containerPublished(eventGenerator.generate(container,
-                        draft, previousVersion, version, nextVersion, teamMember));
+                        draft, previousVersion, version, nextVersion, user));
             }
         });
     }

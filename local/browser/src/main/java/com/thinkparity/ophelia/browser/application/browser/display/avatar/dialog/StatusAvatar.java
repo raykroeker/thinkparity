@@ -28,18 +28,18 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  */
 public final class StatusAvatar extends Avatar {
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel statusMessageJLabel = new javax.swing.JLabel();
+    // End of variables declaration//GEN-END:variables
+
     /**
      * Create StatusAvatar.
      *
      */
     public StatusAvatar() {
         super("StatusAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
-        bindEscapeKey("Cancel", new AbstractAction() {
-            public void actionPerformed(final ActionEvent e) {
-                disposeWindow();
-            }
-        });
         initComponents();
+        bindEscapeKey();
     }
 
     /**
@@ -57,9 +57,13 @@ public final class StatusAvatar extends Avatar {
         }
     }
 
-    public AvatarId getId() { return AvatarId.DIALOG_STATUS; }
+    public AvatarId getId() {
+        return AvatarId.DIALOG_STATUS;
+    }
 
-    public State getState() { return null; }
+    public State getState() {
+        return null;
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
@@ -71,9 +75,46 @@ public final class StatusAvatar extends Avatar {
 
     public void setState(final State state) {}
 
-    private void closeJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
+    /**
+     * Make the escape key behave like cancel.
+     */
+    private void bindEscapeKey() {
+        bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                disposeWindow();
+            }
+        });
+    }
+
+    private void closeJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
         disposeWindow();
     }//GEN-LAST:event_closeJButtonActionPerformed
+
+    /**
+     * Get the status message arguments.
+     * 
+     * @return Status message arguments <code>Object[]</code>.
+     */
+    private Object[] getInputStatusMessageArguments() {
+        if (null == input) {
+            return null;
+        } else {
+            return (Object[]) ((Data) input).get(DataKey.STATUS_MESSAGE_ARGUMENTS);
+        }
+    }
+
+    /**
+     * Get the status message key from the input.
+     * 
+     * @return A status message key <code>String</code>.
+     */
+    private String getInputStatusMessageKey() {
+        if (null == input) {
+            return null;
+        } else {
+            return (String) ((Data) input).get(DataKey.STATUS_MESSAGE_KEY);
+        }
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -110,43 +151,13 @@ public final class StatusAvatar extends Avatar {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(31, 31, 31)
-                .addComponent(statusMessageJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
+                .addGap(27, 27, 27)
+                .addComponent(statusMessageJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE)
                 .addComponent(closeJButton)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel statusMessageJLabel = new javax.swing.JLabel();
-    // End of variables declaration//GEN-END:variables
-
-    /**
-     * Get the status message arguments.
-     * 
-     * @return Status message arguments <code>Object[]</code>.
-     */
-    private Object[] getInputStatusMessageArguments() {
-        if (null == input) {
-            return null;
-        } else {
-            return (Object[]) ((Data) input).get(DataKey.STATUS_MESSAGE_ARGUMENTS);
-        }
-    }
-
-    /**
-     * Get the status message key from the input.
-     * 
-     * @return A status message key <code>String</code>.
-     */
-    private String getInputStatusMessageKey() {
-        if (null == input) {
-            return null;
-        } else {
-            return (String) ((Data) input).get(DataKey.STATUS_MESSAGE_KEY);
-        }
-    }
 
     /**
      * Reload the status message label.

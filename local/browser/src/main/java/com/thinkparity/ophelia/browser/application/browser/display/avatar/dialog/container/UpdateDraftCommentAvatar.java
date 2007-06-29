@@ -32,6 +32,11 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  */
 public class UpdateDraftCommentAvatar extends Avatar {
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JTextArea commentJTextArea = new javax.swing.JTextArea();
+    private final javax.swing.JButton okJButton = ButtonFactory.create();
+    // End of variables declaration//GEN-END:variables
+
     /** An instance of <code>ContainerConstraints</code>. */
     private final ContainerConstraints containerConstraints;
 
@@ -94,6 +99,10 @@ public class UpdateDraftCommentAvatar extends Avatar {
         });
     }
 
+    private void cancelJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
+        disposeWindow();
+    }//GEN-LAST:event_cancelJButtonActionPerformed
+
     /**
      * Extract the comment.
      */
@@ -144,7 +153,7 @@ public class UpdateDraftCommentAvatar extends Avatar {
         commentJTextArea.setColumns(20);
         commentJTextArea.setFont(Fonts.DialogTextEntryFont);
         commentJTextArea.setLineWrap(true);
-        commentJTextArea.setRows(5);
+        commentJTextArea.setRows(4);
         commentJTextArea.setWrapStyleWord(true);
         ((AbstractDocument) commentJTextArea.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(containerConstraints.getDraftComment()));
         commentJScrollPane.setViewportView(commentJTextArea);
@@ -153,11 +162,11 @@ public class UpdateDraftCommentAvatar extends Avatar {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(commentJScrollPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(commentJScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(okJButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cancelJButton)))
@@ -168,27 +177,23 @@ public class UpdateDraftCommentAvatar extends Avatar {
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
+            .addGroup(layout.createSequentialGroup()
+                .addGap(24, 24, 24)
                 .addComponent(commentJScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
+                .addGap(21, 21, 21)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cancelJButton)
                     .addComponent(okJButton))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
+    private void okJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
         if (isInputValid()) {
             disposeWindow();
             updateComment();
         }
     }//GEN-LAST:event_okJButtonActionPerformed
-
-    private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
-        disposeWindow();
-    }//GEN-LAST:event_cancelJButtonActionPerformed
 
     /**
      * Reload the comment.
@@ -207,11 +212,6 @@ public class UpdateDraftCommentAvatar extends Avatar {
         final String comment = extractComment();
         getController().runUpdateDraftComment(containerId, comment);
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JTextArea commentJTextArea = new javax.swing.JTextArea();
-    private final javax.swing.JButton okJButton = ButtonFactory.create();
-    // End of variables declaration//GEN-END:variables
 
     public enum DataKey { CONTAINER_ID }
 }

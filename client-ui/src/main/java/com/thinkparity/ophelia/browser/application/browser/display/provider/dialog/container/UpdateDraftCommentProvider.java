@@ -25,10 +25,6 @@ public class UpdateDraftCommentProvider extends ContentProvider {
      *            An instance of <code>ProfileModel</code>.
      * @param containerModel
      *            An instance of <code>ContainerModel</code>.
-     * @param userModel
-     *            An instance of <code>UserModel</code>.
-     * @param contactModel
-     *            An instance of <code>ContactModel</code>.
      */
     public UpdateDraftCommentProvider(final ProfileModel profileModel,
             final ContainerModel containerModel) {

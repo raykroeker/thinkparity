@@ -10,8 +10,9 @@ import com.thinkparity.codebase.model.util.jta.TransactionType;
 /**
  * <b>Title:</b>thinkParity Internal Profile Model<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.6
+ * @version 1.1.2.12
  */
 @ThinkParityTransaction(TransactionType.REQUIRED)
 public interface InternalProfileModel extends ProfileModel {
@@ -21,12 +22,20 @@ public interface InternalProfileModel extends ProfileModel {
      * and save it locally.
      * 
      */
-    public void initialize();
+    void initialize();
 
     /**
      * Read the user's credentials.
      * 
      * @return An instance of <code>Credentials</code>.
      */
-    public Credentials readCredentials();
+    Credentials readCredentials();
+
+    /**
+     * Update the release for the profile.
+     * 
+     * @param release
+     *            A <code>Release</code>.
+     */
+    void updateProductRelease();
 }

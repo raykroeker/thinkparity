@@ -107,10 +107,11 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void createInvitation(final OutgoingUserInvitation invitation);
 
-    public void createProfile(final UsernameReservation usernameReservation,
-            final EMailReservation emailReservation,
-            final Credentials credentials, final Profile profile,
-            final EMail email, final SecurityCredentials securityCredentials);
+    void createProfile(Product product, Release release,
+            UsernameReservation usernameReservation,
+            EMailReservation emailReservation, Credentials credentials,
+            Profile profile, EMail email,
+            SecurityCredentials securityCredentials);
 
     public EMailReservation createProfileEMailReservation(final EMail email);
 

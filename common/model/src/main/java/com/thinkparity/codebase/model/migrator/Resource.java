@@ -21,7 +21,7 @@ public final class Resource {
     private String checksumAlgorithm;
 
     /** A resource id <code>Long</code>. */
-    private Long id;
+    private transient Long id;
 
     /** A resource path <code>String</code>. */
     private String path;

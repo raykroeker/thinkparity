@@ -27,6 +27,8 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.*;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.TemporaryCredentials;
@@ -41,6 +43,7 @@ import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.EMailSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
+import com.thinkparity.desdemona.model.migrator.InternalMigratorModel;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
 import com.thinkparity.desdemona.util.DateTimeProvider;
 import com.thinkparity.desdemona.util.smtp.SMTPService;
@@ -104,7 +107,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      *      com.thinkparity.codebase.model.profile.SecurityCredentials)
      * 
      */
-    public void create(final UsernameReservation usernameReservation,
+    public void create(final Product product, final Release release,
+            final UsernameReservation usernameReservation,
             final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
             final EMail email, final SecurityCredentials securityCredentials) {
@@ -129,15 +133,27 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
 
             profile.setLocalId(userSql.create(credentials,
                     securityCredentials.getQuestion(),
-                    securityCredentials.getAnswer(), profile.getVCard()));
+                    securityCredentials.getAnswer(), profile.getVCard(), now));
 
             // add e-mail address
             final VerificationKey key = VerificationKey.generate(email);
             userSql.createEmail(profile.getLocalId(), email, key);
 
             // add features
-            for (final Feature feature : profile.getFeatures())
-                userSql.createFeature(profile, feature);
+            final InternalMigratorModel migratorModel = getMigratorModel();
+            final Product localProduct = migratorModel.readProduct(
+                    product.getName());
+            Feature localFeature;
+            for (final Feature feature : profile.getFeatures()) {
+                localFeature = migratorModel.readProductFeature(localProduct,
+                        feature.getName());
+                userSql.createFeature(profile, localFeature);
+            }
+
+            // set release
+            final Release localRelease = migratorModel.readRelease(
+                    localProduct.getName(), release.getName(), release.getOs());
+            userSql.createProductRelease(profile, localProduct, localRelease);
 
             // remove username reservation
             userSql.deleteUsernameReservation(usernameReservation.getToken());
@@ -411,7 +427,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             throw translateError(t);
         }
     }
-    
+
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#removeEmail(com.thinkparity.codebase.email.EMail)
      * 
@@ -425,7 +441,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             throw translateError(t);
         }
     }
-
+    
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#update(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.profile.ProfileVCard)
@@ -501,6 +517,24 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             }
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.profile.ProfileModel#updateProductRelease(com.thinkparity.codebase.model.migrator.Product, com.thinkparity.codebase.model.migrator.Release)
+     *
+     */
+    public void updateProductRelease(final Product product,
+            final Release release) {
+        try {
+            final InternalMigratorModel migratorModel = getMigratorModel();
+            final Product localProduct = migratorModel.readProduct(product.getName());
+            final Release localRelease = migratorModel.readRelease(
+                    localProduct.getName(), release.getName(), release.getOs());
+
+            userSql.updateProductRelease(user, localProduct, localRelease);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 

@@ -51,14 +51,14 @@ import com.thinkparity.desdemona.util.smtp.SMTPService;
  * @version 1.1.2.1
  */
 public final class MigratorModelImpl extends AbstractModelImpl implements
-        MigratorModel {
+        MigratorModel, InternalMigratorModel {
 
     /** A <code>MigratorSql</code> persistence. */
     private MigratorSql migratorSql;
 
     /** An instance of <code>SMTPService</code>. */
     private final SMTPService smtpService;
-   
+
     /**
      * Create MigratorModelImpl.
      *
@@ -67,7 +67,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
         super();
         this.smtpService = SMTPService.getInstance();
     }
-
+   
     /**
      * @see com.thinkparity.desdemona.model.migrator.MigratorModel#deploy(com.thinkparity.codebase.model.migrator.Product,
      *      com.thinkparity.codebase.model.migrator.Release, java.util.List)
@@ -189,6 +189,18 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
             return migratorSql.readProduct(name);
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.migrator.InternalMigratorModel#readProductFeature(com.thinkparity.codebase.model.migrator.Product, java.lang.String)
+     *
+     */
+    public Feature readProductFeature(final Product product, final String name) {
+        try {
+            return migratorSql.readProductFeature(product, name);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 

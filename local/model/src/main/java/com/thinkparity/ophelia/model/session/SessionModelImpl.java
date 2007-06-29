@@ -247,15 +247,16 @@ public final class SessionModelImpl extends Model<SessionListener>
      *      java.lang.String)
      * 
      */
-    public void createProfile(final UsernameReservation usernameReservation,
+    public void createProfile(final Product product, final Release release,
+            final UsernameReservation usernameReservation,
             final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
             final EMail email, final SecurityCredentials securityCredentials) {
         try {
             // HACK - SessionModelImpl#createProfile - no authentication required
-            profileService.create(newEmptyAuthToken(), usernameReservation,
-                    emailReservation, credentials, profile, email,
-                    securityCredentials);
+            profileService.create(newEmptyAuthToken(), product, release,
+                    usernameReservation, emailReservation, credentials,
+                    profile, email, securityCredentials);
         } catch (final Throwable t) {
             throw panic(t);
         }

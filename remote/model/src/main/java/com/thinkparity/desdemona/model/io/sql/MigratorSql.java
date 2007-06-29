@@ -29,47 +29,6 @@ import com.thinkparity.desdemona.model.migrator.ResourceOpener;
  */
 public final class MigratorSql extends AbstractSql {
 
-    /**
-     * Delete all resources not referenced by the latest release.
-     * 
-     * @param resources
-     *            A <code>List</code> of <code>Resource</code>.
-     */
-    public void deleteResources(final List<Resource> resources) {
-        final HypersonicSession session = openSession();
-        try {
-            session.prepareStatement(SQL_DELETE_RESOURCE_REL);
-            for (final Resource resource : resources) {
-                session.setLong(1, resource.getId());
-                session.executeUpdate();
-            }
-            session.prepareStatement(SQL_DELETE_RESOURCE);
-            for (final Resource resource : resources) {
-                session.setLong(1, resource.getId());
-                if (1 != session.executeUpdate())
-                    throw panic("Could not delete resource {0}:{1}.",
-                            resource.getReleaseName(), resource.getPath());
-            }
-            session.commit();
-        } catch (final Throwable t) {
-            throw translateError(session, t);
-        } finally {
-            session.close();
-        }
-    }
-
-    /** Delete all resource relationships where the resource is specified. */
-    private static final String SQL_DELETE_RESOURCE_REL =
-        new StringBuilder("delete from TPSD_PRODUCT_RELEASE_RESOURCE_REL ")
-        .append("where RESOURCE_ID=?")
-        .toString();
-
-    /** Delete all resource relationships where the resource is specified. */
-    private static final String SQL_DELETE_RESOURCE =
-        new StringBuilder("delete from TPSD_PRODUCT_RELEASE_RESOURCE ")
-        .append("where RESOURCE_ID=?")
-        .toString();
-
     /** Sql to create an error. */
     private static final String SQL_CREATE_ERROR =
         new StringBuilder("insert into TPSD_PRODUCT_RELEASE_ERROR ")
@@ -97,6 +56,18 @@ public final class MigratorSql extends AbstractSql {
         .append("(RESOURCE_CHECKSUM,RESOURCE_CHECKSUM_ALGORITHM,")
         .append("RESOURCE_SIZE,RESOURCE) ")
         .append("values (?,?,?,?)")
+        .toString();
+
+    /** Delete all resource relationships where the resource is specified. */
+    private static final String SQL_DELETE_RESOURCE =
+        new StringBuilder("delete from TPSD_PRODUCT_RELEASE_RESOURCE ")
+        .append("where RESOURCE_ID=?")
+        .toString();
+
+    /** Delete all resource relationships where the resource is specified. */
+    private static final String SQL_DELETE_RESOURCE_REL =
+        new StringBuilder("delete from TPSD_PRODUCT_RELEASE_RESOURCE_REL ")
+        .append("where RESOURCE_ID=?")
         .toString();
 
     /** Sql to determine release existence. */
@@ -129,6 +100,25 @@ public final class MigratorSql extends AbstractSql {
         .append("order by R.RELEASE_DATE desc")
         .toString();
 
+    /** Sql to read a release. */
+    private static final String SQL_READ_PREVIOUS_RELEASES =
+        new StringBuilder("select R.RELEASE_ID,R.RELEASE_NAME,R.RELEASE_OS,")
+        .append("R.RELEASE_DATE,P.PRODUCT_NAME ")
+        .append("from TPSD_PRODUCT_RELEASE R ")
+        .append("inner join TPSD_PRODUCT P on R.PRODUCT_ID=P.PRODUCT_ID ")
+        .append("where P.PRODUCT_NAME=? and R.RELEASE_OS=? ")
+        .append("and R.RELEASE_DATE<? ")
+        .append("order by R.RELEASE_DATE desc")
+        .toString();
+
+    /** Sql to read a product feature by its unique key. */
+    private static final String SQL_READ_PRODUCT_FEATURE_UK =
+        new StringBuilder("select PF.PRODUCT_ID,PF.FEATURE_ID,PF.FEATURE_NAME ")
+        .append("from TPSD_PRODUCT_FEATURE PF ")
+        .append("inner join TPSD_PRODUCT P on P.PRODUCT_ID=PF.PRODUCT_ID ")
+        .append("where P.PRODUCT_ID=? and PF.FEATURE_NAME=?")
+        .toString();
+
     /** Sql to read a product feature list. */
     private static final String SQL_READ_PRODUCT_FEATURES =
         new StringBuilder("select PF.PRODUCT_ID,PF.FEATURE_ID,PF.FEATURE_NAME ")
@@ -152,17 +142,6 @@ public final class MigratorSql extends AbstractSql {
         .append("inner join TPSD_PRODUCT P on R.PRODUCT_ID=P.PRODUCT_ID ")
         .append("where P.PRODUCT_NAME=? and R.RELEASE_NAME=? ")
         .append("and R.RELEASE_OS=?")
-        .toString();
-
-    /** Sql to read a release. */
-    private static final String SQL_READ_PREVIOUS_RELEASES =
-        new StringBuilder("select R.RELEASE_ID,R.RELEASE_NAME,R.RELEASE_OS,")
-        .append("R.RELEASE_DATE,P.PRODUCT_NAME ")
-        .append("from TPSD_PRODUCT_RELEASE R ")
-        .append("inner join TPSD_PRODUCT P on R.PRODUCT_ID=P.PRODUCT_ID ")
-        .append("where P.PRODUCT_NAME=? and R.RELEASE_OS=? ")
-        .append("and R.RELEASE_DATE<? ")
-        .append("order by R.RELEASE_DATE desc")
         .toString();
 
     /** Read a release resource by its unique key. */
@@ -307,6 +286,35 @@ public final class MigratorSql extends AbstractSql {
     }
 
     /**
+     * Delete all resources not referenced by the latest release.
+     * 
+     * @param resources
+     *            A <code>List</code> of <code>Resource</code>.
+     */
+    public void deleteResources(final List<Resource> resources) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_RESOURCE_REL);
+            for (final Resource resource : resources) {
+                session.setLong(1, resource.getId());
+                session.executeUpdate();
+            }
+            session.prepareStatement(SQL_DELETE_RESOURCE);
+            for (final Resource resource : resources) {
+                session.setLong(1, resource.getId());
+                if (1 != session.executeUpdate())
+                    throw panic("Could not delete resource {0}:{1}.",
+                            resource.getReleaseName(), resource.getPath());
+            }
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Determine if a release exists.
      * 
      * @param productId
@@ -399,6 +407,36 @@ public final class MigratorSql extends AbstractSql {
     }
 
     /**
+     * Read a release.
+     * 
+     * @param productUniqueId
+     *            A product unique id <code>UUID</code>.
+     * @param name
+     *            A release name <code>String</code>.
+     * @param os
+     *            An <code>OS</code>.
+     * @return A <code>Release</code>.
+     */
+    public String readLatestReleaseName(final String productName, final OS os) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_LATEST_RELEASE_NAME);
+            session.setString(1, productName);
+            session.setString(2, os.name());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getString("RELEASE_NAME");
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Read the previous release.
      * 
      * @param productName
@@ -431,36 +469,6 @@ public final class MigratorSql extends AbstractSql {
     }
 
     /**
-     * Read a release.
-     * 
-     * @param productUniqueId
-     *            A product unique id <code>UUID</code>.
-     * @param name
-     *            A release name <code>String</code>.
-     * @param os
-     *            An <code>OS</code>.
-     * @return A <code>Release</code>.
-     */
-    public String readLatestReleaseName(final String productName, final OS os) {
-        final HypersonicSession session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_LATEST_RELEASE_NAME);
-            session.setString(1, productName);
-            session.setString(2, os.name());
-            session.executeQuery();
-            if (session.nextResult()) {
-                return session.getString("RELEASE_NAME");
-            } else {
-                return null;
-            }
-        } catch (final Throwable t) {
-            throw translateError(session, t);
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
      * Read a product.
      * 
      * @param name
@@ -478,6 +486,34 @@ public final class MigratorSql extends AbstractSql {
             } else {
                 return null;
             }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read a product feature.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @param name
+     *            A feature name <code>String</code>.
+     * @return A <code>Feature</code>.
+     */
+    public Feature readProductFeature(final Product product, final String name) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_PRODUCT_FEATURE_UK);
+            session.setLong(1, product.getId());
+            session.setString(2, name);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractProductFeature(session);
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
         } finally {
             session.close();
         }

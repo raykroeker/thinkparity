@@ -13,6 +13,8 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
@@ -38,8 +40,9 @@ public final class UserSql extends AbstractSql {
     /** Sql to create a user. */
     private static final String SQL_CREATE =
         new StringBuilder("insert into TPSD_USER ")
-        .append("(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD) ")
-        .append("values (?,?,?,?,?,?)")
+        .append("(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,")
+        .append("VCARD,CREATED_ON) ")
+        .append("values (?,?,?,?,?,?,?)")
         .toString();
 
     /** Sql to create an email address. */
@@ -61,6 +64,13 @@ public final class UserSql extends AbstractSql {
         new StringBuilder("insert into TPSD_USER_FEATURE_REL ")
         .append("(USER_ID,FEATURE_ID) ")
         .append("values (?,?)")
+        .toString();
+
+    /** Sql to create a user release relationship. */
+    private static final String SQL_CREATE_PRODUCT_RELEASE =
+        new StringBuilder("insert into TPSD_USER_PRODUCT_RELEASE_REL ")
+        .append("(USER_ID,PRODUCT_ID,RELEASE_ID) ")
+        .append("values (?,?,?)")
         .toString();
 
     /** Sql to create temporary credentials. */
@@ -170,6 +180,13 @@ public final class UserSql extends AbstractSql {
         .append("order by U.USERNAME asc")
         .toString();
 
+    /** Sql to read a user. */
+    private static final String SQL_READ_BY_CREDENTIALS =
+        new StringBuilder("select U.USERNAME,U.USER_ID ")
+        .append("from TPSD_USER U ")
+        .append("where U.USERNAME=? and U.PASSWORD=? and U.DISABLED=?")
+        .toString();
+
     /** Sql to read a username from an e-mail address. */
     private static final String SQL_READ_BY_EMAIL =
         new StringBuilder("select U.USERNAME,U.USER_ID ")
@@ -184,13 +201,6 @@ public final class UserSql extends AbstractSql {
         new StringBuilder("select U.USERNAME,U.USER_ID ")
         .append("from TPSD_USER U ")
         .append("where U.USER_ID=?")
-        .toString();
-
-    /** Sql to read a user. */
-    private static final String SQL_READ_BY_CREDENTIALS =
-        new StringBuilder("select U.USERNAME,U.USER_ID ")
-        .append("from TPSD_USER U ")
-        .append("where U.USERNAME=? and U.PASSWORD=? and U.DISABLED=?")
         .toString();
 
     /** Sql to read a user. */
@@ -275,7 +285,14 @@ public final class UserSql extends AbstractSql {
         .append("set PASSWORD=? ")
         .append("where USERNAME=? and PASSWORD=?")
         .toString();
-        
+
+    /** Sql to update a user release relationship. */
+    private static final String SQL_UPDATE_PRODUCT_RELEASE =
+        new StringBuilder("update TPSD_USER_PRODUCT_RELEASE_REL ")
+        .append("set RELEASE_ID=? ")
+        .append("where USER_ID=? and PRODUCT_ID=?")
+        .toString();
+
     /** Sql to create the user's token. */
     private static final String SQL_UPDATE_TOKEN =
         new StringBuilder("update TPSD_USER ")
@@ -286,7 +303,7 @@ public final class UserSql extends AbstractSql {
     private static final String SQL_UPDATE_VCARD =
         new StringBuilder("update TPSD_USER set VCARD=? where USER_ID=?")
         .toString();
-
+        
     private static final String SQL_VERIFY_EMAIL =
         new StringBuilder("update TPSD_USER_EMAIL ")
         .append("set VERIFIED=?, VERIFICATION_KEY=?")
@@ -321,7 +338,7 @@ public final class UserSql extends AbstractSql {
      */
     public <T extends UserVCard> Long create(final Credentials credentials,
             final String securityQuestion, final String securityAnswer,
-            final T vcard) {
+            final T vcard, final Calendar createdOn) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_CREATE);
@@ -331,6 +348,7 @@ public final class UserSql extends AbstractSql {
             session.setString(4, securityAnswer);
             session.setBoolean(5, Boolean.FALSE);
             session.setVCard(6, vcard);
+            session.setCalendar(7, createdOn);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create user.");
             final Long userId = session.getIdentity("TPSD_USER");
@@ -407,6 +425,34 @@ public final class UserSql extends AbstractSql {
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create feature relationship.");
 
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Create a user/product release relationship.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     */
+    public void createProductRelease(final User user, final Product product,
+            final Release release) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_PRODUCT_RELEASE);
+            session.setLong(1, user.getLocalId());
+            session.setLong(2, product.getId());
+            session.setLong(3, release.getId());
+            if (1 != session.executeUpdate())
+                throw panic("Could not create product release.");
             session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);
@@ -783,6 +829,26 @@ public final class UserSql extends AbstractSql {
         }
     }
 
+    public User read(final Credentials credentials) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_BY_CREDENTIALS);
+            session.setString(1, credentials.getUsername());
+            session.setString(2, credentials.getPassword());
+            session.setBoolean(3, Boolean.FALSE);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extract(session);
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
     /**
      * Read a user id for an e-mail address.
      * 
@@ -846,25 +912,6 @@ public final class UserSql extends AbstractSql {
         }
     }
 
-    public User read(final Credentials credentials) {
-        final HypersonicSession session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_BY_CREDENTIALS);
-            session.setString(1, credentials.getUsername());
-            session.setString(2, credentials.getPassword());
-            session.setBoolean(3, Boolean.FALSE);
-            session.executeQuery();
-            if (session.nextResult()) {
-                return extract(session);
-            } else {
-                return null;
-            }
-        } catch (final Throwable t) {
-            throw translateError(session, t);
-        } finally {
-            session.close();
-        }
-    }
     /**
      * Read the user credentials.
      * 
@@ -887,7 +934,6 @@ public final class UserSql extends AbstractSql {
             session.close();
         }
     }
-
     public EMail readEmail(final Long userId, final EMail email,
             final VerificationKey key) {
         final HypersonicSession session = openSession();
@@ -1049,6 +1095,34 @@ public final class UserSql extends AbstractSql {
             if (1 != session.executeUpdate())
                 throw new HypersonicException("User password cannot be updated.");
 
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Update a user/product release relationship.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     */
+    public void updateProductRelease(final User user, final Product product,
+            final Release release) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_PRODUCT_RELEASE);
+            session.setLong(1, release.getId());
+            session.setLong(2, user.getLocalId());
+            session.setLong(3, product.getId());
+            if (1 != session.executeUpdate())
+                throw panic("Could not update product release.");
             session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);

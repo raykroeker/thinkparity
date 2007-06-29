@@ -12,13 +12,13 @@ package com.thinkparity.codebase.model.migrator;
 public class Feature {
 
     /** The feature id <code>Long</code>. */
-    private Long featureId;
+    private transient Long featureId;
 
     /** The feature name <code>String</code>. */
     private String name;
 
     /** The product id <code>Long</code>. */
-    private Long productId;
+    private transient Long productId;
 
     /**
      * Create Feature.

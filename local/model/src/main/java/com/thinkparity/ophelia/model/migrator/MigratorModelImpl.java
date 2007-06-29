@@ -472,6 +472,9 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
 
         // delete the index
         getHelpModel().deleteIndex();
+
+        // update remotely
+        getProfileModel().updateProductRelease();
     }
 
     /**

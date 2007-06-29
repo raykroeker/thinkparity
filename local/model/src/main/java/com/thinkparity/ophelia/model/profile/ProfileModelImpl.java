@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.thinkparity.codebase.LocaleUtil;
+import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
@@ -16,6 +17,8 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
@@ -35,6 +38,10 @@ import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ProfileIOHandler;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
+import com.thinkparity.service.AuthToken;
+import com.thinkparity.service.ProfileService;
+import com.thinkparity.service.client.ServiceFactory;
+
 /**
  * <b>Title:</b>thinkParity Profile Model Implementation<br>
  * <b>Description:</b><br>
@@ -50,6 +57,9 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
 
     /** The profile db io. */
     private ProfileIOHandler profileIO;
+
+    /** The profile web-service. */
+    private ProfileService profileService;
 
     /**
      * Create ProfileModelImpl.
@@ -121,11 +131,16 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
                     "Reservation e-mail address {0} does not match e-mail address {1}.",
                     emailReservation.getEMail(), email);
 
-            /* HACK - ProfileModelImpl#create() - security question/answer are
-             * not specified */
-            getSessionModel().createProfile(usernameReservation,
-                    emailReservation, credentials, profile, email,
-                    securityCredentials);
+            final Product product = new Product();
+            product.setName(Constants.Product.NAME);
+
+            final Release release = new Release();
+            release.setName(Constants.Release.NAME);
+            release.setOs(OSUtil.getOs());
+
+            getSessionModel().createProfile(product, release,
+                    usernameReservation, emailReservation, credentials, profile,
+                    email, securityCredentials);
         } catch (final ReservationExpiredException rex) {
             throw rex;
         } catch (final Throwable t) {
@@ -412,6 +427,25 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.profile.InternalProfileModel#updateProductRelease()
+     *
+     */
+    public void updateProductRelease() {
+        try {
+            final Product product = new Product();
+            product.setName(Constants.Product.NAME);
+
+            final Release release = new Release();
+            release.setName(Constants.Release.NAME);
+            release.setOs(OSUtil.getOs());
+
+            profileService.updateProductRelease(getAuthToken(), product, release);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#validateCredentials(com.thinkparity.codebase.model.session.Credentials)
      *
      */
@@ -457,6 +491,9 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
         this.profileIO = IOFactory.getDefault(workspace).createProfileHandler();
+
+        final ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        this.profileService = serviceFactory.getProfileService();
     }
 
     /**
@@ -475,12 +512,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         assertIsValid(profile.getVCard());
     }
 
-    private void assertIsValid(final SecurityCredentials securityCredentials) {
-        Assert.assertNotNull(securityCredentials, "Security question cannot be null.");
-        Assert.assertNotNull(securityCredentials.getQuestion(), "Security question cannot be null.");
-        Assert.assertNotNull(securityCredentials.getAnswer(), "Security question answer cannot be null.");
-    }
-
     private void assertIsValid(final ProfileVCard vcard) {
         assertIsSet("country", vcard.getCountry());
         assertIsValidCountry("country", vcard.getCountry());
@@ -493,6 +524,12 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         assertIsSet("timeZone", vcard.getTimeZone());
         assertIsValidTimeZone("timeZone", vcard.getTimeZone());
         assertIsSet("title", vcard.getTitle());
+    }
+
+    private void assertIsValid(final SecurityCredentials securityCredentials) {
+        Assert.assertNotNull(securityCredentials, "Security question cannot be null.");
+        Assert.assertNotNull(securityCredentials.getQuestion(), "Security question cannot be null.");
+        Assert.assertNotNull(securityCredentials.getAnswer(), "Security question answer cannot be null.");
     }
 
     private void assertIsValidCountry(final String name, final String value) {
@@ -532,6 +569,15 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         try {
             Thread.sleep(3 * 1000);
         } catch (final InterruptedException ix) {}
+    }
+
+    /**
+     * Obtain the web-service authentication token.
+     * 
+     * @return An <code>AuthToken</code>.
+     */
+    private AuthToken getAuthToken() {
+        return getSessionModel().getAuthToken();
     }
 
     /**

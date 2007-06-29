@@ -21,7 +21,7 @@ public final class Release implements Comparable<Release> {
     private Calendar date;
 
     /** A release id <code>Long</code>. */
-    private Long id;
+    private transient Long id;
 
     /** A name <code>String</code>. */
     private String name;

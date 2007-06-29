@@ -30,6 +30,7 @@ create table TPSD_USER(
     DISABLED char not null,
     TOKEN varchar(64),
     VCARD clob not null,
+    CREATED_ON timestamp not null,
     primary key(USER_ID),
     unique(USERNAME)
 );
@@ -234,6 +235,15 @@ create table TPSD_USER_FEATURE_REL(
     primary key(USER_ID,FEATURE_ID),
     foreign key(USER_ID) references TPSD_USER(USER_ID),
     foreign key(FEATURE_ID) references TPSD_PRODUCT_FEATURE(FEATURE_ID)
+);
+create table TPSD_USER_PRODUCT_RELEASE_REL(
+    USER_ID bigint not null,
+    PRODUCT_ID bigint not null,
+    RELEASE_ID bigint not null,
+    primary key(USER_ID,PRODUCT_ID,RELEASE_ID),
+    foreign key(USER_ID) references TPSD_USER(USER_ID),
+    foreign key(PRODUCT_ID) references TPSD_PRODUCT(PRODUCT_ID),
+    foreign key(RELEASE_ID) references TPSD_PRODUCT_RELEASE(RELEASE_ID)
 );
 
 create table TPSD_BACKUP_USER_ARCHIVE(

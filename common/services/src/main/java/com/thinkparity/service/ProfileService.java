@@ -11,6 +11,8 @@ import javax.jws.WebService;
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
@@ -34,7 +36,8 @@ public interface ProfileService {
     void addEMail(AuthToken authToken, EMail email);
 
     @WebMethod
-    void create(AuthToken authToken, UsernameReservation usernameReservation,
+    void create(AuthToken authToken, Product product, Release release,
+            UsernameReservation usernameReservation,
             EMailReservation emailReservation, Credentials credentials,
             Profile profile, EMail email,
             SecurityCredentials securityCredentials);
@@ -73,6 +76,20 @@ public interface ProfileService {
     @WebMethod
     void updatePassword(AuthToken authToken, Credentials credentials,
             String password);
+
+    /**
+     * Update the product release for the profile.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     */
+    @WebMethod
+    void updateProductRelease(AuthToken authToken, Product product,
+            Release release);
 
     @WebMethod
     void verifyEMail(AuthToken authToken, EMail email, String token);

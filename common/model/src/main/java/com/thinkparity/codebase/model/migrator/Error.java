@@ -21,7 +21,7 @@ public class Error {
     private String stack;
 
     /** An error id <code>String</code>. */
-    private Long id;
+    private transient Long id;
 
     /** The method signature <code>String</code>. */
     private String method;

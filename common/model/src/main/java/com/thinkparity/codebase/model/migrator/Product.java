@@ -13,7 +13,7 @@ package com.thinkparity.codebase.model.migrator;
 public final class Product {
 
     /** The product id <code>Long</code>. */
-    private Long id;
+    private transient Long id;
 
     /** The product name <code>String</code>. */
     private String name;

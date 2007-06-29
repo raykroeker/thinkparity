@@ -10,6 +10,8 @@ import javax.jws.WebService;
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
@@ -61,12 +63,15 @@ public class ProfileSEI extends ServiceSEI implements ProfileService {
      *      com.thinkparity.codebase.model.profile.SecurityCredentials)
      * 
      */
-    public void create(final AuthToken authToken, final UsernameReservation usernameReservation,
+    public void create(final AuthToken authToken, final Product product,
+            final Release release,
+            final UsernameReservation usernameReservation,
             final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
             final EMail email, final SecurityCredentials securityCredentials) {
-        getModel().create(usernameReservation, emailReservation,
-                credentials, profile, email, securityCredentials);
+        getModel().create(product, release, usernameReservation,
+                emailReservation, credentials, profile, email,
+                securityCredentials);
     }
 
     /**
@@ -158,6 +163,15 @@ public class ProfileSEI extends ServiceSEI implements ProfileService {
     public void updatePassword(final AuthToken authToken,
             final Credentials credentials, final String password) {
         getModel(authToken).updatePassword(credentials, password);
+    }
+
+    /**
+     * @see com.thinkparity.service.ProfileService#updateProductRelease(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.migrator.Product, com.thinkparity.codebase.model.migrator.Release)
+     *
+     */
+    public void updateProductRelease(final AuthToken authToken,
+            final Product product, final Release release) {
+        getModel(authToken).updateProductRelease(product, release);
     }
 
     /**

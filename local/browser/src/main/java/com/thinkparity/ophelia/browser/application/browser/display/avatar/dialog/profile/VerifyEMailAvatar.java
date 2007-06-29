@@ -37,16 +37,18 @@ public class VerifyEMailAvatar extends Avatar {
     /** The emails. */
     private List<ProfileEMail> emails;
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
+    private final javax.swing.JTextField keyJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
+    private final javax.swing.JButton verifyJButton = ButtonFactory.create();
+    // End of variables declaration//GEN-END:variables
+
     /** Creates new form VerifyEMailAvatar */
     public VerifyEMailAvatar() {
         super("VerifyEMailAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
-        initDocumentHandler();
-        bindEscapeKey("Cancel", new AbstractAction() {
-            public void actionPerformed(final ActionEvent e) {
-                cancelJButtonActionPerformed(e);
-            }
-        });
+        addValidationListener(keyJTextField);
+        bindEscapeKey();
     }
 
     /**
@@ -80,7 +82,7 @@ public class VerifyEMailAvatar extends Avatar {
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.ophelia.browser.platform.util.State)
      */
     @Override
-    public void setState(State state) {
+    public void setState(final State state) {
         throw Assert.createNotYetImplemented("VerifyEMailAvatar#setState");
     }
 
@@ -103,12 +105,32 @@ public class VerifyEMailAvatar extends Avatar {
         verifyJButton.setEnabled(!containsInputErrors());
     }
 
+    /**
+     * Make the escape key behave like cancel.
+     */
+    private void bindEscapeKey() {
+        bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                cancelJButtonActionPerformed(e);
+            }
+        });
+    }
+
     private void cancelJButtonActionPerformed(final java.awt.event.ActionEvent e) {//GEN-FIRST:event_cancelJButtonActionPerformed
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
 
     private String extractInputKey() {
         return SwingUtil.extract(keyJTextField, Boolean.TRUE);
+    }
+
+    /**
+     * Obtain the profile e-mail address.
+     * 
+     * @return A <code>ProfileEMail</code>.
+     */
+    private ProfileEMail getEMail() {
+        return 0 < emails.size() ? emails.get(0) : null;
     }
 
     /** This method is called from within the constructor to
@@ -118,11 +140,8 @@ public class VerifyEMailAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        javax.swing.JButton cancelJButton;
-        javax.swing.JLabel keyJLabel;
-
-        keyJLabel = new javax.swing.JLabel();
-        cancelJButton = ButtonFactory.create();
+        final javax.swing.JLabel keyJLabel = new javax.swing.JLabel();
+        final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
         keyJLabel.setFont(Fonts.DialogFont);
         keyJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("VerifyEMailAvatar.VerificationKey"));
@@ -178,11 +197,11 @@ public class VerifyEMailAvatar extends Avatar {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(33, 33, 33)
+                .add(24, 24, 24)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(keyJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(keyJLabel))
-                .add(15, 15, 15)
+                .add(14, 14, 14)
                 .add(errorMessageJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 19, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -191,33 +210,6 @@ public class VerifyEMailAvatar extends Avatar {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    /**
-     * Obtain the profile e-mail address.
-     * 
-     * @return A <code>ProfileEMail</code>.
-     */
-    private ProfileEMail getEMail() {
-        return 0 < emails.size() ? emails.get(0) : null;
-    }
-
-    /**
-     * Initialize document handler.
-     */
-    private void initDocumentHandler() {
-        final DocumentListener documentListener = new DocumentListener() {
-            public void changedUpdate(final DocumentEvent e) {
-                validateInput();
-            }
-            public void insertUpdate(final DocumentEvent e) {
-                validateInput();
-            }
-            public void removeUpdate(final DocumentEvent e) {
-                validateInput();
-            }
-        };
-        keyJTextField.getDocument().addDocumentListener(documentListener);
-    }
 
     private void keyJTextFieldActionPerformed(final java.awt.event.ActionEvent e) {//GEN-FIRST:event_keyJTextFieldActionPerformed
         verifyJButtonActionPerformed(e);
@@ -236,9 +228,12 @@ public class VerifyEMailAvatar extends Avatar {
      * Verify the email.
      */
     private void verifyEMail() {
-        final Long emailId = getEMail().getEmailId();
-        final String verificationKey = extractInputKey();
-        getController().runVerifyEmail(emailId, verificationKey);
+        final ProfileEMail email = getEMail();
+        if (null != email) {
+            final Long emailId = email.getEmailId();
+            final String verificationKey = extractInputKey();
+            getController().runVerifyEmail(emailId, verificationKey);
+        }
     }
 
     private void verifyJButtonActionPerformed(final java.awt.event.ActionEvent e) {//GEN-FIRST:event_verifyJButtonActionPerformed
@@ -247,10 +242,4 @@ public class VerifyEMailAvatar extends Avatar {
             verifyEMail();
         }
     }//GEN-LAST:event_verifyJButtonActionPerformed
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField keyJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
-    private final javax.swing.JButton verifyJButton = ButtonFactory.create();
-    // End of variables declaration//GEN-END:variables
 }

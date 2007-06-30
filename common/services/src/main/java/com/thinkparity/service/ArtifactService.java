@@ -25,11 +25,6 @@ import com.thinkparity.codebase.model.artifact.DraftExistsException;
 public interface ArtifactService {
 
     @WebMethod
-    void confirmReceipt(AuthToken authToken, UUID uniqueId,
-            Long versionId, JabberId publishedBy, Calendar publishedOn,
-            List<JabberId> publishedTo, Calendar receivedOn);
-
-    @WebMethod
     void createDraft(AuthToken authToken, List<JabberId> team,
             UUID uniqueId, Calendar createdOn) throws DraftExistsException;
 

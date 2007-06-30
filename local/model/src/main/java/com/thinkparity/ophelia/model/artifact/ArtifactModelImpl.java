@@ -46,7 +46,7 @@ public final class ArtifactModelImpl extends Model implements
     /** Artifact persistance io. */
 	private ArtifactIOHandler artifactIO;
 
-	/**
+    /**
 	 * Create a ArtifactModelImpl.
 	 * 
 	 * @param workspace
@@ -56,7 +56,7 @@ public final class ArtifactModelImpl extends Model implements
         super();
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#addTeamMember(com.thinkparity.codebase.model.artifact.Artifact,
      *      com.thinkparity.codebase.model.user.User)
      * 
@@ -81,7 +81,7 @@ public final class ArtifactModelImpl extends Model implements
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagBookmark(java.lang.Long)
      * 
      */
@@ -93,7 +93,7 @@ public final class ArtifactModelImpl extends Model implements
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagKey(java.lang.Long)
      * 
      */
@@ -393,6 +393,25 @@ public final class ArtifactModelImpl extends Model implements
     public Long readLatestVersionId(final Long artifactId) {
         try {
             return artifactIO.readLatestVersionId(artifactId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#readTeam(com.thinkparity.codebase.model.artifact.Artifact)
+     *
+     */
+    public List<TeamMember> readTeam(final Artifact artifact) {
+        try {
+            /* TODO ArtifactModelImpl#readTeam - not quite right; the interface
+             * artifact model should have default team member
+             * comparators/filters */
+            return readTeam(artifact.getId(), new Comparator<User>() {
+                public int compare(final User o1, final User o2) {
+                    return 0;
+                }
+            }, FilterManager.createDefault());
         } catch (final Throwable t) {
             throw panic(t);
         }

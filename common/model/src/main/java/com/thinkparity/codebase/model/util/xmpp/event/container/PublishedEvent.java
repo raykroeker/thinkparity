@@ -13,6 +13,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
@@ -39,6 +40,9 @@ public final class PublishedEvent extends XMPPEvent {
     /** Who the container was published to. */
     private final List<User> publishedTo;
 
+    /** The existing <code>List<TeamMember></code>. */
+    private final List<TeamMember> team;
+
     /** The <code>ContainerVersion</code>. */
     private ContainerVersion version;
 
@@ -50,6 +54,7 @@ public final class PublishedEvent extends XMPPEvent {
         super();
         this.documentVersions = new ArrayList<DocumentVersion>();
         this.publishedTo = new ArrayList<User>();
+        this.team = new ArrayList<TeamMember>();
     }
 
     public void clearDocumentVersions() {
@@ -89,6 +94,10 @@ public final class PublishedEvent extends XMPPEvent {
      */
     public List<User> getPublishedTo() {
         return Collections.unmodifiableList(publishedTo);
+    }
+
+    public List<TeamMember> getTeam() {
+        return Collections.unmodifiableList(team);
     }
 
     /**
@@ -132,6 +141,11 @@ public final class PublishedEvent extends XMPPEvent {
      */
     public void setPublishedTo(final List<User> publishedTo) {
         this.publishedTo.addAll(publishedTo);
+    }
+
+    public void setTeam(final List<TeamMember> team) {
+        this.team.clear();
+        this.team.addAll(team);
     }
 
     /**

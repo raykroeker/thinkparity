@@ -17,7 +17,6 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 
@@ -84,32 +83,6 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
                 enqueueEvents(getIds(team, new ArrayList<JabberId>(team.size())), event);    
             }
         } catch(final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.artifact.ArtifactModel#confirmReceipt(java.util.UUID,
-     *      java.lang.Long, com.thinkparity.codebase.jabber.JabberId,
-     *      java.util.Calendar, java.util.List, java.util.Calendar)
-     * 
-     */
-    public void confirmReceipt(final UUID uniqueId, final Long versionId,
-            final JabberId publishedBy, final Calendar publishedOn,
-            final List<JabberId> publishedTo, final Calendar receivedOn) {
-        try {
-            final ArtifactReceivedEvent received = new ArtifactReceivedEvent();
-            received.setUniqueId(uniqueId);
-            received.setVersionId(versionId);
-            received.setPublishedOn(publishedOn);
-            received.setReceivedBy(user.getId());
-            received.setReceivedOn(receivedOn);
-            final List<JabberId> eventUserIds =
-                new ArrayList<JabberId>(publishedTo.size() + 1);
-            eventUserIds.add(publishedBy);
-            eventUserIds.addAll(publishedTo);
-            enqueueEvents(eventUserIds, received);
-        } catch (final Throwable t) {
             throw translateError(t);
         }
     }

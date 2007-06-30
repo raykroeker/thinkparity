@@ -37,21 +37,6 @@ public class ArtifactSEI extends ServiceSEI implements ArtifactService {
     }
 
     /**
-     * @see com.thinkparity.service.ArtifactService#confirmReceipt(com.thinkparity.service.AuthToken,
-     *      java.util.UUID, java.lang.Long,
-     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar,
-     *      java.util.List, java.util.Calendar)
-     * 
-     */
-    public void confirmReceipt(final AuthToken authToken, final UUID uniqueId,
-            final Long versionId, final JabberId publishedBy,
-            final Calendar publishedOn, final List<JabberId> publishedTo,
-            final Calendar receivedOn) {
-        getModel(authToken).confirmReceipt(uniqueId, versionId, publishedBy,
-                publishedOn, publishedTo, receivedOn);
-    }
-
-    /**
      * @see com.thinkparity.service.ArtifactService#createDraft(com.thinkparity.service.AuthToken,
      *      java.util.List, java.util.UUID, java.util.Calendar)
      * 

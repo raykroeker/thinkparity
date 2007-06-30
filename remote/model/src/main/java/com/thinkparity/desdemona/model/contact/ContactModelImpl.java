@@ -831,7 +831,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                 container.getUniqueId(), version.getVersionId());
         final Calendar publishedOn = version.getCreatedOn();
         final List<EMail> publishToEMails = Collections.emptyList();
-        final List<User> publishToUsers = new ArrayList<User>();
+        final List<User> publishToUsers = new ArrayList<User>(1);
         publishToUsers.add(user);
         // publish version
         getContainerModel(sendAs).publishVersion(version, documentVersions,

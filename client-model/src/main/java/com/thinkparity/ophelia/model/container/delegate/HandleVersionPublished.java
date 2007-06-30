@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.container.delegate;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
@@ -81,6 +80,7 @@ public final class HandleVersionPublished extends ContainerDelegate {
                 event.getVersion().getName(), event.getVersion().getComment(),
                 event.getVersion().getCreatedBy(),
                 event.getVersion().getCreatedOn());
+        handleTeamResolution(container, event.getTeam());
         final InternalSessionModel sessionModel = getSessionModel();
         final Calendar receivedOn = sessionModel.readDateTime();
         // apply the latest flag
@@ -159,21 +159,8 @@ public final class HandleVersionPublished extends ContainerDelegate {
         // index
         getIndexModel().indexContainer(container.getId());
         // confirm receipt
-        sessionModel.confirmArtifactReceipt(container.getUniqueId(),
-                version.getVersionId(), event.getPublishedBy(),
-                event.getPublishedOn(),
-                /* NOTE this used to read the local team and pass it as a
-                 * parameter; which caused ticket #606
-                 * 
-                 * now the event's published to list is used
-                 * 
-                 * this also causes a publish of an existing version not to
-                 * propogate the distribution chain #555 therefore it was
-                 * changed to use the local published to list
-                 */
-                getIds(containerIO.readPublishedTo(container.getId(),
-                        version.getVersionId()), new ArrayList<JabberId>()),
-                localUserId(), receivedOn);
+        containerService.confirmReceipt(getAuthToken(), version,
+                event.getPublishedOn(), receivedOn);
     }
 
     /**

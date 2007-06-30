@@ -16,8 +16,6 @@ import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentFileLock;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 
-import com.thinkparity.service.AuthToken;
-
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
@@ -65,14 +63,5 @@ public final class Delete extends ContainerDelegate {
      */
     public void setContainerId(final Long containerId) {
         this.containerId = containerId;
-    }
-
-    /**
-     * Obtain the web-service authentication token.
-     * 
-     * @return An <code>AuthToken</code>.
-     */
-    private AuthToken getAuthToken() {
-        return getSessionModel().getAuthToken();
     }
 }

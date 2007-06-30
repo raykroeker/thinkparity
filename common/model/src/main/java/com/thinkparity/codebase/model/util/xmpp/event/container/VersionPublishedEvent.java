@@ -14,6 +14,7 @@ import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
@@ -46,6 +47,9 @@ public final class VersionPublishedEvent extends XMPPEvent {
     /** Who has already received the version. */
     private final List<ArtifactReceipt> receivedBy;
 
+    /** The existing <code>List<TeamMember></code>. */
+    private final List<TeamMember> team;
+
     /** The <code>ContainerVersion</code>. */
     private ContainerVersion version;
 
@@ -58,6 +62,7 @@ public final class VersionPublishedEvent extends XMPPEvent {
         this.documentVersions = new ArrayList<DocumentVersion>();
         this.publishedTo = new ArrayList<User>();
         this.receivedBy = new ArrayList<ArtifactReceipt>();
+        this.team = new ArrayList<TeamMember>();
     }
 
     public void clearDocumentVersions() {
@@ -113,6 +118,10 @@ public final class VersionPublishedEvent extends XMPPEvent {
 
     public List<ArtifactReceipt> getReceivedBy() {
         return Collections.unmodifiableList(receivedBy);
+    }
+
+    public List<TeamMember> getTeam() {
+        return Collections.unmodifiableList(team);
     }
 
     /**
@@ -179,6 +188,11 @@ public final class VersionPublishedEvent extends XMPPEvent {
 
     public void setReceivedBy(final List<ArtifactReceipt> receivedBy) {
         this.receivedBy.addAll(receivedBy);
+    }
+
+    public void setTeam(final List<TeamMember> team) {
+        this.team.clear();
+        this.team.addAll(team);
     }
 
     /**

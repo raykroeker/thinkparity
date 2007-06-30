@@ -28,6 +28,7 @@ import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
 import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
+import com.thinkparity.service.AuthToken;
 import com.thinkparity.service.ContainerService;
 
 /**
@@ -49,11 +50,11 @@ public abstract class ContainerDelegate extends
     /** An instance of a container persistence interface. */ 
     protected ContainerIOHandler containerIO;
 
-    /** An instance of a document persistence interface. */ 
-    protected DocumentIOHandler documentIO;
-
     /** An instance of a container web-service interface. */
     protected ContainerService containerService;
+
+    /** An instance of a document persistence interface. */ 
+    protected DocumentIOHandler documentIO;
 
     /**
      * Create ContainerDelegate.
@@ -76,6 +77,7 @@ public abstract class ContainerDelegate extends
 
         this.containerService = modelImplementation.getContainerService();
     }
+
     /**
      * @see ContainerModelImpl#calculateDelta(Container, ContainerVersion,
      *      ContainerVersion)
@@ -86,7 +88,6 @@ public abstract class ContainerDelegate extends
             final ContainerVersion compareTo) {
         return modelImplementation.calculateDelta(container, compare, compareTo);
     }
-
     /**
      * @see ContainerModelImpl#createVersion(Long, Long, String, String,
      *      JabberId, Calendar)
@@ -137,6 +138,15 @@ public abstract class ContainerDelegate extends
     }
 
     /**
+     * Obtain the web-service authentication token.
+     * 
+     * @return An <code>AuthToken</code>.
+     */
+    protected final AuthToken getAuthToken() {
+        return getSessionModel().getAuthToken();
+    }
+
+    /**
      * @see ContainerModelImpl#getContainerConstraints()
      * 
      */
@@ -167,6 +177,16 @@ public abstract class ContainerDelegate extends
             final String name) {
         return modelImplementation.handleResolution(uniqueId, publishedBy,
                 publishedOn, name);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModelImpl#handleTeamResolution(Container,
+     *      List)
+     * 
+     */
+    protected final List<TeamMember> handleTeamResolution(
+            final Container container, final List<TeamMember> team) {
+        return modelImplementation.handleTeamResolution(container, team);
     }
 
     /**

@@ -91,6 +91,7 @@ public final class HandlePublished extends ContainerDelegate {
                 event.getVersion().getVersionId(), event.getVersion().getName(),
                 event.getVersion().getComment(), event.getPublishedBy(),
                 event.getVersion().getCreatedOn());
+        handleTeamResolution(container, event.getTeam());
         final Calendar receivedOn = sessionModel.readDateTime();
         // update documents
         handleDocumentVersionsResolution(version, event.getDocumentVersions(),
@@ -142,22 +143,9 @@ public final class HandlePublished extends ContainerDelegate {
         }
         // index
         getIndexModel().indexContainer(container.getId());
-        // send confirmation
-        sessionModel.confirmArtifactReceipt(container.getUniqueId(),
-                version.getVersionId(), event.getPublishedBy(),
-                event.getPublishedOn(),
-                /* NOTE this used to read the local team and pass it as a
-                 * parameter; which caused ticket #606
-                 * 
-                 * now the event's published to list is used
-                 * 
-                 * this also causes a publish of an existing version not to
-                 * propogate the distribution chain #555 therefore it was
-                 * changed to use the local published to list
-                 */
-                getIds(containerIO.readPublishedTo(container.getId(),
-                        version.getVersionId()), new ArrayList<JabberId>()),
-                localUserId(), receivedOn);
+        // confirm receipt
+        containerService.confirmReceipt(getAuthToken(), version,
+                event.getPublishedOn(), receivedOn);
     }
 
     /**

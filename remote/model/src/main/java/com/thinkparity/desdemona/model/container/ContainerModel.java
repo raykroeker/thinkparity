@@ -35,6 +35,19 @@ public interface ContainerModel {
     public void archive(final Container container);
 
     /**
+     * Confirm receipt of a container version.
+     * 
+     * @param container
+     *            A <code>ContainerVersion</code>.
+     * @param publishedOn
+     *            A published on <code>Calendar</code>.
+     * @param receivedOn
+     *            A received on <code>Calendar</code>.
+     */
+    public void confirmReceipt(final ContainerVersion version,
+            final Calendar publishedOn, final Calendar receivedOn);
+
+    /**
      * Delete a container.
      * 
      * @param container

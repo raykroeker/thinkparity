@@ -48,6 +48,17 @@ public class ContainerSEI extends ServiceSEI implements ContainerService {
     }
 
     /**
+     * @see com.thinkparity.service.ContainerService#confirmReceipt(AuthToken,
+     *      ContainerVersion, Calendar, Calendar)
+     * 
+     */
+    public void confirmReceipt(final AuthToken authToken,
+            final ContainerVersion version, final Calendar publishedOn,
+            final Calendar receivedOn) {
+        getModel(authToken).confirmReceipt(version, publishedOn, receivedOn);
+    }
+
+    /**
      * @see com.thinkparity.service.ContainerService#delete(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.container.Container)
      *
      */

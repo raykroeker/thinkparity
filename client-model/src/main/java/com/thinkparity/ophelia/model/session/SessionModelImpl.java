@@ -178,26 +178,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#confirmArtifactReceipt(java.util.UUID,
-     *      java.lang.Long, com.thinkparity.codebase.jabber.JabberId,
-     *      java.util.Calendar, java.util.List,
-     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
-     * 
-     */
-    public void confirmArtifactReceipt(final UUID uniqueId,
-            final Long versionId, final JabberId publishedBy,
-            final Calendar publishedOn, final List<JabberId> publishedTo,
-            final JabberId receivedBy, final Calendar receivedOn) {
-        try {
-            artifactService.confirmReceipt(getAuthToken(), uniqueId,
-                    versionId, publishedBy, publishedOn, publishedTo,
-                    receivedOn);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-	}
-
-    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createDraft(java.util.List,
      *      java.util.UUID, java.util.Calendar)
      * 

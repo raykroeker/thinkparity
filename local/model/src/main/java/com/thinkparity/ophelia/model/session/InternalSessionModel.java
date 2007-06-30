@@ -82,11 +82,6 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void addProfileEmail(final ProfileEMail email);
 
-    public void confirmArtifactReceipt(final UUID uniqueId,
-            final Long versionId, final JabberId publishedBy,
-            final Calendar publishedOn, final List<JabberId> publishedTo,
-            final JabberId receivedBy, final Calendar receivedOn);
-
     // TODO-javadoc InternalSessionModel#createDraft()
     public void createDraft(final List<JabberId> team, final UUID uniqueId,
             final Calendar createdOn) throws DraftExistsException;
@@ -106,12 +101,6 @@ public interface InternalSessionModel extends SessionModel {
      *            An <code>OutgoingUserInvitation</code>.
      */
     public void createInvitation(final OutgoingUserInvitation invitation);
-
-    void createProfile(Product product, Release release,
-            UsernameReservation usernameReservation,
-            EMailReservation emailReservation, Credentials credentials,
-            Profile profile, EMail email,
-            SecurityCredentials securityCredentials);
 
     public EMailReservation createProfileEMailReservation(final EMail email);
 
@@ -187,7 +176,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public void initializeToken();
 
-	/**
+    /**
      * Determine the availability of an e-mail address.
      * 
      * @param userId
@@ -198,7 +187,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public Boolean isEmailAvailable(final JabberId userId, final EMail email);
 
-    /**
+	/**
      * Determine whether or not this is the first login.
      * 
      * @return True if this is the first login.
@@ -214,7 +203,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public Boolean isPublishRestricted(final JabberId publishTo);
 
-	/**
+    /**
      * Log an error.
      * 
      * @param product
@@ -229,7 +218,7 @@ public interface InternalSessionModel extends SessionModel {
     public void logError(final Product product, final Release release,
             final Error error);
 
-    /**
+	/**
      * Login for the first time in this workspace.
      * 
      * @param credentials
@@ -494,7 +483,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public Statistics readStatistics();
 
-	/**
+    /**
      * Read a thinkParity user from the server.
      * 
      * @param userId
@@ -502,8 +491,8 @@ public interface InternalSessionModel extends SessionModel {
      * @return A <code>User</code>
      */
     public User readUser(final JabberId userId);
-	
-    /**
+
+	/**
      * Remove an email from a user's profile.
      * 
      * @param userId
@@ -512,7 +501,7 @@ public interface InternalSessionModel extends SessionModel {
      *            A <code>ProfileEMail</code>.
      */
     public void removeProfileEmail(final JabberId userId, final ProfileEMail email);
-
+	
     /**
      * Update the a user's profile.
      * 
@@ -543,4 +532,10 @@ public interface InternalSessionModel extends SessionModel {
      *            A verification key <code>String</code>.
      */
     public void verifyProfileEmail(final ProfileEMail email, final String key);
+
+    void createProfile(Product product, Release release,
+            UsernameReservation usernameReservation,
+            EMailReservation emailReservation, Credentials credentials,
+            Profile profile, EMail email,
+            SecurityCredentials securityCredentials);
 }

@@ -39,6 +39,18 @@ public interface ContainerService {
     void archive(AuthToken authToken, Container container);
 
     /**
+     * Confirm receipt of a container version.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     */
+    @WebMethod
+    void confirmReceipt(AuthToken authToken, ContainerVersion version,
+            Calendar publishedOn, Calendar receivedOn);
+
+    /**
      * Delete a container.
      * 
      * @param authToken

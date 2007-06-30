@@ -73,6 +73,7 @@ import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
 import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
+import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
 import com.thinkparity.ophelia.model.util.filter.UserFilterManager;
@@ -283,15 +284,6 @@ public final class ContainerModelImpl extends
         } catch (final Throwable t) {
             throw panic(t);
         }
-    }
-
-    /**
-     * Obtain the service authentication token.
-     * 
-     * @return An <code>AuthToken</code>.
-     */
-    private AuthToken getAuthToken() {
-        return getSessionModel().getAuthToken();
     }
 
     /**
@@ -2247,14 +2239,14 @@ public final class ContainerModelImpl extends
     Container handleResolution(final UUID uniqueId, final JabberId publishedBy,
             final Calendar publishedOn, final String name) {
         // determine the existance of the container and the version.
-        final InternalArtifactModel artifactModel = modelFactory.getArtifactModel();
+        final InternalArtifactModel artifactModel = getArtifactModel();
         final boolean doesExist = artifactModel.doesExist(uniqueId).booleanValue();
         final Container container;
         if (doesExist) {
             container = read(artifactModel.readId(uniqueId));
         } else {
             // ensure the published by user exists locally
-            modelFactory.getUserModel().readLazyCreate(publishedBy);
+            getUserModel().readLazyCreate(publishedBy);
     
             container = new Container();
             container.setCreatedBy(publishedBy);
@@ -2270,9 +2262,43 @@ public final class ContainerModelImpl extends
             // add local user to the team
             getArtifactModel().addTeamMember(container, localUser());
             // index
-            modelFactory.getIndexModel().indexContainer(container.getId());
+            getIndexModel().indexContainer(container.getId());
         }
         return container;
+    }
+
+    /**
+     * Handle the team resolution.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param team
+     *            A <code>List<TeamMember></code>.
+     * @return A <code>List<TeamMember></code>.
+     */
+    List<TeamMember> handleTeamResolution(final Container container,
+            final List<TeamMember> team) {
+        final InternalArtifactModel artifactModel = getArtifactModel();
+        final InternalUserModel userModel = getUserModel();
+        final List<TeamMember> localTeam = artifactModel.readTeam(container);
+        boolean exists;
+        for (final TeamMember teamMember : team) {
+            exists = false;
+            for (final TeamMember localTeamMember : localTeam) {
+                if (localTeamMember.getId().equals(teamMember.getId())) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (exists) {
+                logger.logInfo("Team member {0} exists locally.", teamMember.getId());
+            } else {
+                logger.logInfo("Adding team member {0}.", teamMember.getId());
+                final User localUser = userModel.readLazyCreate(teamMember.getId());
+                artifactModel.addTeamMember(container, localUser);
+            }
+        }
+        return artifactModel.readTeam(container);
     }
 
     /**
@@ -2866,6 +2892,15 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Obtain the service authentication token.
+     * 
+     * @return An <code>AuthToken</code>.
+     */
+    private AuthToken getAuthToken() {
+        return getSessionModel().getAuthToken();
+    }
+
+    /**
      * Obtain a container name generator.
      * 
      * @return A <code>ContainerNameGenerator</code>.
@@ -3058,11 +3093,14 @@ public final class ContainerModelImpl extends
     private void notifyContainerPublished(final Container container,
             final ContainerDraft draft, final ContainerVersion previousVersion,
             final ContainerVersion version, final ContainerVersion nextVersion,
-            final User user, final ContainerEventGenerator eventGenerator) {
+            final TeamMember teamMember,
+            final List<OutgoingEMailInvitation> outgoingEMailInvitations,
+            final ContainerEventGenerator eventGenerator) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
                 listener.containerPublished(eventGenerator.generate(container,
-                        draft, previousVersion, version, nextVersion, user));
+                        draft, previousVersion, version, nextVersion, teamMember,
+                        outgoingEMailInvitations));
             }
         });
     }
@@ -3082,14 +3120,11 @@ public final class ContainerModelImpl extends
     private void notifyContainerPublished(final Container container,
             final ContainerDraft draft, final ContainerVersion previousVersion,
             final ContainerVersion version, final ContainerVersion nextVersion,
-            final TeamMember teamMember,
-            final List<OutgoingEMailInvitation> outgoingEMailInvitations,
-            final ContainerEventGenerator eventGenerator) {
+            final User user, final ContainerEventGenerator eventGenerator) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
                 listener.containerPublished(eventGenerator.generate(container,
-                        draft, previousVersion, version, nextVersion, teamMember,
-                        outgoingEMailInvitations));
+                        draft, previousVersion, version, nextVersion, user));
             }
         });
     }

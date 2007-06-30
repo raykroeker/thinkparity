@@ -101,7 +101,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      */
     public void deleteTeam(final Long artifactId);
 
-	/**
+    /**
      * Determine if an artifact exists.
      * 
      * @param artifactId
@@ -110,7 +110,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      */
     public Boolean doesExist(final Long artifactId);
 
-    /**
+	/**
      * Determine if an artifact exists.
      * 
      * @param uniqueId
@@ -195,7 +195,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      */
     public void handleTeamMemberRemoved(
             final ArtifactTeamMemberRemovedEvent event);
-    
+
     /**
      * Determine whether or not the artifact has been seen.
      * 
@@ -204,7 +204,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      * @return True if the artifact has been seen; false otherwise.
      */
     public Boolean hasBeenSeen(final Long artifactId);
-
+    
     /**
      * Read the earliest version id for an artifact.
      * 
@@ -319,4 +319,13 @@ public interface InternalArtifactModel extends ArtifactModel {
      *            The team member.
      */
     public void removeTeamMember(final Long artifactId, final JabberId userId);
+
+    /**
+     * Read the team for an artifact.
+     * 
+     * @param artifact
+     *            An <code>Artifact</code>.
+     * @return A <code>List<TeamMember></code>.
+     */
+    List<TeamMember> readTeam(Artifact artifact);
 }

@@ -19,6 +19,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedEvent;
@@ -58,6 +59,40 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         try {
             getArtifactModel().removeTeamMember(localize(container));
             getBackupModel().archive(container.getUniqueId());
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.container.ContainerModel#confirmReceipt(com.thinkparity.codebase.model.container.ContainerVersion,
+     *      java.util.Calendar, java.util.Calendar)
+     * 
+     */
+    public void confirmReceipt(final ContainerVersion version,
+            final Calendar publishedOn, final Calendar receivedOn) {
+        try {
+            final ArtifactReceivedEvent event = new ArtifactReceivedEvent();
+            event.setUniqueId(version.getArtifactUniqueId());
+            event.setVersionId(version.getVersionId());
+            event.setPublishedOn(publishedOn);
+            event.setReceivedBy(user.getId());
+            event.setReceivedOn(receivedOn);
+
+            final List<ArtifactReceipt> publishedToReceipts =
+                getBackupModel().readPublishedTo(version.getArtifactUniqueId(),
+                        version.getVersionId());
+            final List<JabberId> userIds = new ArrayList<JabberId>();
+            for (final ArtifactReceipt publishedToReceipt : publishedToReceipts) {
+                if (userIds.contains(publishedToReceipt.getUser().getId())) {
+                    logger.logInfo("User id list contains {0}.", publishedToReceipt.getUser().getId());
+                } else {
+                    logger.logInfo("Adding user id {0}.", publishedToReceipt.getUser().getId());
+                    userIds.add(publishedToReceipt.getUser().getId());
+                }
+            }
+            userIds.add(version.getCreatedBy());
+            enqueueEvents(userIds, event);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -146,7 +181,8 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             handleBackupResolution(version, publishToUsers);
 
             // enqueue container version published notification events
-            enqueueContainerVersionPublishedNotification(version, user.getId(), publishedOn, publishToUsers);
+            enqueueContainerVersionPublishedNotification(version, user.getId(),
+                    publishedOn, publishToUsers);
 
             // create requisite incoming/outgoing e-mail invitations
             createInvitations(user.getId(), version, publishToEMails, publishedOn);
@@ -287,11 +323,14 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     private void enqueueContainerPublished(final ContainerVersion version,
             final List<DocumentVersion> documentVersions,
             final List<User> publishToUsers) {
+        final Artifact localArtifact = localize(version);
+
         final PublishedEvent event = new PublishedEvent();
         event.setDocumentVersions(documentVersions);
         event.setPublishedBy(version.getCreatedBy());
         event.setPublishedOn(version.getCreatedOn());
         event.setPublishedTo(localize(publishToUsers));
+        event.setTeam(getArtifactModel().readTeam(localArtifact.getId()));
         event.setVersion(version);
         // enqueue to all publish to users
         final List<JabberId> enqueueTo = new ArrayList<JabberId>();
@@ -350,6 +389,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         event.setPublishedOn(version.getCreatedOn());
         event.setPublishedTo(localize(publishToUsers));
         event.setReceivedBy(receivedBy);
+        event.setTeam(getArtifactModel().readTeam(localArtifact.getId()));
         event.setVersion(version);
         // enqueue to all publish to users
         final List<JabberId> enqueueTo = new ArrayList<JabberId>();

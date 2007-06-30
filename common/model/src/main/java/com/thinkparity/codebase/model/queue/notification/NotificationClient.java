@@ -169,7 +169,12 @@ public abstract class NotificationClient {
         LOGGER.logTraceId();
         try {
             final int len = input.read(buffer);
-            fireChunkReceived(len);
+            if (-1 == len) {
+                // the stream has been terminated from the other end
+                fireStreamError(new NotificationException("Remote disconnect."));
+            } else {
+                fireChunkReceived(len);
+            }
         } catch (final IOException iox) {
             fireStreamError(new NotificationException(iox));
         }

@@ -14,10 +14,21 @@ public final class NotificationException extends RuntimeException {
 
     /**
      * Create NotificationException.
-     *
-     * @param cause
+     * 
+     * @param message
+     *            The exception message.
      */
-    public NotificationException(final Throwable cause) {
+    NotificationException(final String message) {
+        super(message);
+    }
+    
+    /**
+     * Create NotificationException.
+     * 
+     * @param cause
+     *            The cause of the notification exception.
+     */
+    NotificationException(final Throwable cause) {
         super(cause);
     }
 }

@@ -68,12 +68,16 @@ public final class NotificationReader extends NotificationClient {
      * 
      */
     public void waitForNotification() {
+        LOGGER.logTrace("Entry");
         notify = false;
         final String sessionId = getSessionId();
         final byte[] bytes = new byte[sessionId.getBytes().length];
+        LOGGER.logTrace("Before read");
         read(bytes);
+        LOGGER.logTrace("After read");
         if (Arrays.equals(sessionId.getBytes(getCharset()), bytes)) {
             notify = true;
         }
+        LOGGER.logTrace("Exit");
     }
 }

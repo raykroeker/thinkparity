@@ -890,11 +890,17 @@ public final class DocumentModelImpl extends
     public void updateDraft(final DocumentFileLock lock, final Long documentId,
             final InputStream content) {
         try {
+            final DocumentFileLock newLock;
             try {
-                streamToChannel(content, lock.getFileChannel(0L));
-                lock.getFile().setLastModified(currentDateTime().getTimeInMillis());
+                deleteFile(lock);
             } finally {
-                release(lock);
+                newLock = lock(documentId);
+            }
+            try {
+                streamToChannel(content, newLock.getFileChannel(0L));
+                newLock.getFile().setLastModified(currentDateTime().getTimeInMillis());
+            } finally {
+                release(newLock);
             }
         } catch (final Throwable t) {
             throw panic(t);

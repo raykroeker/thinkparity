@@ -46,7 +46,7 @@ public final class ChannelUtil {
         return new RandomAccessFile(file, "rws").getChannel();
     }
 
-    /**
+        /**
      * Copy the content from a readable channel to a writable one.
      * 
      * @param readChannel
@@ -62,15 +62,25 @@ public final class ChannelUtil {
             throws IOException {
         if (!buffer.isDirect())
             throw new IllegalArgumentException("Buffer must be a direct allocation.");
-        int read;
+        int read, limit;
         while (true) {
+            // fill the buffer to capacity
+            limit = 0;
             buffer.clear();
             read = readChannel.read(buffer);
-            if (-1 == read) {
+            if (-1 == read) {   // we're done
                 break;
+            } else {
+                limit += read;
+            }
+            while (-1 < read && buffer.position() < buffer.capacity()) {
+                read = readChannel.read(buffer);
+                if (-1 < read) {
+                    limit += read;
+                }
             }
             buffer.flip();
-            buffer.limit(read);
+            buffer.limit(limit);
             while (buffer.hasRemaining()) {
                 writeChannel.write(buffer);
             }

@@ -2458,66 +2458,87 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Upload a list of document versions to the streaming server.
+     * Upload a list of document versions to the streaming server. Note that
+     * only documents that have changed according to their deltas are uploaded.
      * 
      * @param monitor
      *            A <code>ProcessMonitor</code>.
      * @param versions
      *            A <code>List</code> of <code>DocumentVersion</code>s.
+     * @param deltas
+     *            A <code>Map<DocumentVersion, Delta></code>.
      * @return A <code>Map</code> of <code>DocumentVersion</code>s and
      *         their stream id <code>String</code>.s
      */
     void uploadDocumentVersions(final ProcessMonitor monitor,
-            final List<DocumentVersion> versions) {
+            final List<DocumentVersion> versions,
+            final Map<DocumentVersion, Delta> deltas) {
         // set fixed progress determination
         notifyDetermine(monitor, countSteps(versions));
         // upload versions
         final InternalDocumentModel documentModel = modelFactory.getDocumentModel();
         StreamSession session;
+        Delta delta;
         for (final DocumentVersion version : versions) {
-            session = getStreamModel().newUpstreamSession(version);
-            notifyStepBegin(monitor, PublishStep.UPLOAD_STREAM, version.getArtifactName());
-            final StreamWriter writer = new StreamWriter(new StreamMonitor() {
-
-                /** A running count of the chunks uploaded. */
-                private long totalChunks = 0;
-
-                /**
-                 * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkReceived(int)
-                 * 
-                 */
-                public void chunkReceived(final int chunkSize) {
-                    // not possible for upload
-                    Assert.assertUnreachable("");
-                }
-
-                /**
-                 * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkSent(int)
-                 *
-                 */
-                public void chunkSent(final int chunkSize) {
-                    totalChunks += chunkSize;
-                    while (totalChunks >= STEP_SIZE) {
-                        totalChunks -= STEP_SIZE;
-                        ContainerModelImpl.notifyStepEnd(monitor,
-                                PublishStep.UPLOAD_STREAM);
+            delta = deltas.get(version);
+            switch (delta) {
+            case ADDED:
+            case MODIFIED:
+                logger.logInfo("Document {0} has been {1}.  Uploading.",
+                        version.getArtifactName(), delta.name().toLowerCase());
+                session = getStreamModel().newUpstreamSession(version);
+                notifyStepBegin(monitor, PublishStep.UPLOAD_STREAM, version.getArtifactName());
+                final StreamWriter writer = new StreamWriter(new StreamMonitor() {
+    
+                    /** A running count of the chunks uploaded. */
+                    private long totalChunks = 0;
+    
+                    /**
+                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkReceived(int)
+                     * 
+                     */
+                    public void chunkReceived(final int chunkSize) {
+                        // not possible for upload
+                        Assert.assertUnreachable("");
                     }
-                }
-
-                /**
-                 * @see com.thinkparity.codebase.model.stream.StreamMonitor#getName()
-                 *
-                 */
-                public String getName() {
-                    return "ContainerModelImpl#uploadDocumentVersions";
-                }
-
-            }, session);
-            documentModel.openVersion(version.getArtifactId(), version.getVersionId(), new StreamOpener() {
-                public void open(final InputStream stream) throws IOException {
-                    writer.write(stream, version.getSize());
-                }
-            });
+    
+                    /**
+                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkSent(int)
+                     *
+                     */
+                    public void chunkSent(final int chunkSize) {
+                        totalChunks += chunkSize;
+                        while (totalChunks >= STEP_SIZE) {
+                            totalChunks -= STEP_SIZE;
+                            ContainerModelImpl.notifyStepEnd(monitor,
+                                    PublishStep.UPLOAD_STREAM);
+                        }
+                    }
+    
+                    /**
+                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#getName()
+                     *
+                     */
+                    public String getName() {
+                        return "ContainerModelImpl#uploadDocumentVersions";
+                    }
+    
+                }, session);
+                documentModel.openVersion(version.getArtifactId(), version.getVersionId(), new StreamOpener() {
+                    public void open(final InputStream stream) throws IOException {
+                        writer.write(stream, version.getSize());
+                    }
+                });
+                break;
+            case NONE:
+                logger.logInfo("Document {0} is unchanged.  No upload required.",
+                        version.getArtifactName());
+                break;
+            default:
+                /* NOTE removed documents are not in the document version
+                 * and therefore are not considered here */
+                Assert.assertUnreachable("Unsupported delta {0}.", delta);
+            }
             notifyStepEnd(monitor, PublishStep.UPLOAD_STREAM);
         }
     }

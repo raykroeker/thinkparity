@@ -21,6 +21,7 @@ import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -64,11 +65,11 @@ public final class Publish extends ContainerDelegate {
     /** A publish <code>ProcessMonitor</code>. */
     private ProcessMonitor monitor;
 
-    /** The version name <code>String</code>. */
-    private String versionName;
-
     /** A list of team members to publish to. */
     private List<TeamMember> teamMembers;
+
+    /** The version name <code>String</code>. */
+    private String versionName;
 
     /**
      * Create PublishDelegate.
@@ -183,7 +184,15 @@ public final class Publish extends ContainerDelegate {
             final List<DocumentVersion> documentVersions = readDocumentVersions(
                     version.getArtifactId(), version.getVersionId(),
                     new ComparatorBuilder().createVersionById(Boolean.TRUE));
-            uploadDocumentVersions(monitor, documentVersions);
+            final Map<DocumentVersion, Delta> deltas;
+            if (null == previous) {
+                deltas = readDocumentVersionDeltas(containerId,
+                        version.getVersionId());
+            } else {
+                deltas = readDocumentVersionDeltas(containerId,
+                        version.getVersionId(), previous.getVersionId());
+            }
+            uploadDocumentVersions(monitor, documentVersions, deltas);
             // publish
             notifyStepBegin(monitor, PublishStep.PUBLISH);
             // build published to list
@@ -238,16 +247,6 @@ public final class Publish extends ContainerDelegate {
     }
 
     /**
-     * Set the version name.
-     * 
-     * @param name
-     *            A name <code>String</code>.
-     */
-    public void setVersionName(final String versionName) {
-        this.versionName = versionName;
-    }
-
-    /**
      * Set teamMembers.
      *
      * @param teamMembers
@@ -255,6 +254,16 @@ public final class Publish extends ContainerDelegate {
      */
     public void setTeamMembers(List<TeamMember> teamMembers) {
         this.teamMembers = teamMembers;
+    }
+
+    /**
+     * Set the version name.
+     * 
+     * @param name
+     *            A name <code>String</code>.
+     */
+    public void setVersionName(final String versionName) {
+        this.versionName = versionName;
     }
 
     /**

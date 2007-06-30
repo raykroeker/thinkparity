@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -14,6 +15,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -106,7 +108,15 @@ public final class PublishVersion extends ContainerDelegate {
         final List<DocumentVersion> documentVersions = readDocumentVersions(
                 version.getArtifactId(), version.getVersionId(),
                 new ComparatorBuilder().createVersionById(Boolean.TRUE));
-        uploadDocumentVersions(monitor, documentVersions);
+        final ContainerVersion previous = readPreviousVersion(containerId, versionId);
+        final Map<DocumentVersion, Delta> deltas;
+        if (null == previous) {
+            deltas = readDocumentVersionDeltas(containerId, versionId);
+        } else {
+            deltas = readDocumentVersionDeltas(containerId, versionId,
+                    previous.getVersionId());
+        }
+        uploadDocumentVersions(monitor, documentVersions, deltas);
         notifyStepBegin(monitor, PublishStep.PUBLISH);
         sessionModel.publishVersion(version, documentVersions, receivedBy,
                 publishedOn, emails, publishToUsers);

@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerConstraints;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionDelta;
+import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -274,6 +275,29 @@ public abstract class ContainerDelegate extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModelImpl#readDocumentVersionDeltas(Long,
+     *      Long)
+     * 
+     */
+    protected Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+            final Long containerId, final Long compareVersionId) {
+        return modelImplementation.readDocumentVersionDeltas(containerId,
+                compareVersionId);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModelImpl#readDocumentVersionDeltas(Long,
+     *      Long, Long)
+     * 
+     */
+    protected Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+            final Long containerId, final Long compareVersionId,
+            final Long compareToVersionId) {
+        return modelImplementation.readDocumentVersionDeltas(containerId,
+                compareVersionId, compareToVersionId);
+    }
+
+    /**
      * @see ContainerModelImpl#readDocumentVersions(Long, Long, Comparator)
      * 
      */
@@ -352,11 +376,13 @@ public abstract class ContainerDelegate extends
     }
 
     /**
-     * @see ContainerModelImpl#uploadDocumentVersions(ProcessMonitor, List)
+     * @see com.thinkparity.ophelia.model.container.ContainerModelImpl#uploadDocumentVersions(ProcessMonitor,
+     *      List, Map)
      * 
      */
     protected void uploadDocumentVersions(final ProcessMonitor monitor,
-            final List<DocumentVersion> versions) {
-        modelImplementation.uploadDocumentVersions(monitor, versions);
+            final List<DocumentVersion> versions,
+            final Map<DocumentVersion, Delta> deltas) {
+        modelImplementation.uploadDocumentVersions(monitor, versions, deltas);
     }
 }

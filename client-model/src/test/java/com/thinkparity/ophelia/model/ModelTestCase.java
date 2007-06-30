@@ -987,6 +987,33 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
+     * Export a container.
+     * 
+     * @param exportAs
+     *            An <code>OpheliaTestUser</code> to export as.
+     * @param localContainerId
+     *            A container id <code>Long</code> local to exportAs.
+     * @param exportTo
+     *            A directory <code>File</code> to export to.
+     */
+    protected void exportContainerAuditReport(final OpheliaTestUser exportAs,
+            final Long localContainerId, final File exportTo) {
+        final Container container = readContainer(exportAs, localContainerId);
+        logger.logInfo("Exporting container \"{0}\" as \"{1}\" to \"{2}\".", container.getId(),
+                exportAs.getSimpleUsername(), exportTo);
+        try {
+            final OutputStream exportStream = new FileOutputStream(exportTo);
+            try {
+                getContainerModel(exportAs).exportAuditReport(exportStream, localContainerId);
+            } finally {
+                exportStream.close();
+            }
+        } catch (final IOException iox) {
+            fail("Cannot export {0} as {1}.", exportTo, exportAs.getSimpleUsername());
+        }
+    }
+
+    /**
      * Obtain an internal artifact model.
      * 
      * @return An instance of <code>InternalArtifactModel</code>.

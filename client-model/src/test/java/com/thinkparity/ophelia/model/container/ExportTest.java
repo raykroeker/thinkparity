@@ -63,6 +63,39 @@ public class ExportTest extends ContainerTestCase {
     }
 
     /**
+     * Test the export of the audit report.
+     *
+     */
+    public void testExportAuditReport() {
+        final Container c = createContainer(datum.junit, NAME);
+        final List<Document> d_list = addDocuments(datum.junit, c.getId());
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
+        createDraft(datum.junit, c.getId());
+        datum.waitForEvents();
+        // remove half of the documents
+        for (int i = 0; i < d_list.size(); i++) {
+            if (1 == i % 2)
+                removeDocument(datum.junit, c.getId(), d_list.get(i).getId());
+        }
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
+        // re-add half of the documents
+        createDraft(datum.junit, c.getId());
+        datum.waitForEvents();
+        final String[] inputFileNames = getInputFileNames();
+        for (int i = 0; i < inputFileNames.length; i++) {
+            if (1 == i % 2) {
+                addDocument(datum.junit, c.getId(), inputFileNames[i]);
+            }
+        }
+        publishToUsers(datum.junit, c.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
+        datum.waitForEvents();
+        exportContainerAuditReport(datum.junit, c.getId(),
+                new File(getOutputDirectory(), c.getName() + ".pdf"));
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.container.ContainerTestCase#setUp()
      * 
      */

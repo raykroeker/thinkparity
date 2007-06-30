@@ -287,24 +287,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Prepare an audit report for a container.
-     * 
-     * @param outputStream
-     *            An <code>OutputStream</code>.
-     * @param containerId
-     *            The container id <code>Long</code>.
-     */
-    public void auditReport(final OutputStream outputStream, final Long containerId) {
-        try {
-            final Container container = read(containerId);
-            final List<ContainerVersion> versions = readVersions(containerId);
-            auditReport(outputStream, container, versions);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * Create a container.
      * 
      * @param name
@@ -558,6 +540,24 @@ public final class ContainerModelImpl extends
             final Container container = read(containerId);
             final List<ContainerVersion> versions = readVersions(containerId);
             export(outputStream, container, versions);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * Prepare an audit report for a container.
+     * 
+     * @param outputStream
+     *            An <code>OutputStream</code>.
+     * @param containerId
+     *            The container id <code>Long</code>.
+     */
+    public void exportAuditReport(final OutputStream outputStream, final Long containerId) {
+        try {
+            final Container container = read(containerId);
+            final List<ContainerVersion> versions = readVersions(containerId);
+            exportAuditReport(outputStream, container, versions);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -2722,34 +2722,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Prepare an audit report for a container.
-     * 
-     * @param outputStream
-     *            An <code>OutputStream</code>.
-     * @param container
-     *            A <code>Container</code>.
-     * @param versions
-     *            A <code>List&lt;ContainerVersion&gt;</code>.
-     * @throws IOException
-     * @throws TransformerException
-     */
-    private void auditReport(final OutputStream outputStream,
-            final Container container, final List<ContainerVersion> versions)
-            throws IOException, TransformerException {
-        final ContainerNameGenerator nameGenerator = getNameGenerator();
-        final FileSystem exportFileSystem = new FileSystem(
-                workspace.createTempDirectory(
-                        nameGenerator.exportDirectoryName(container)));
-        try {
-            final String pdfPath = nameGenerator.pdfFileName(container);
-            prepareAuditReport(container, versions, exportFileSystem, pdfPath);
-            fileToStream(exportFileSystem.findFile(pdfPath), outputStream);
-        } finally {
-            exportFileSystem.deleteTree();
-        }
-    }
-
-    /**
      * Create an instance of a delegate.
      * 
      * @param <D>
@@ -2858,8 +2830,8 @@ public final class ContainerModelImpl extends
                 workspace.createTempDirectory(
                         nameGenerator.exportDirectoryName(container)));
         try {
-            final String pdfPath = nameGenerator.pdfFileName(container);
-            prepareAuditReport(container, versions, exportFileSystem, pdfPath);
+            final String reportPath = nameGenerator.pdfFileName(container);
+            writeAuditReport(container, versions, exportFileSystem, reportPath);
             exportDocuments(container, versions, exportFileSystem, nameGenerator);
 
             // create an archive
@@ -2869,6 +2841,34 @@ public final class ContainerModelImpl extends
                         workspace.getBufferArray());
             }
             fileToStream(zipFile, outputStream);
+        } finally {
+            exportFileSystem.deleteTree();
+        }
+    }
+
+    /**
+     * Export an audit report for a container and a list of versions.
+     * 
+     * @param outputStream
+     *            An <code>OutputStream</code> to write the report to.
+     * @param container
+     *            A <code>Container</code>.
+     * @param versions
+     *            A <code>List<ContainerVersion></code>.
+     * @throws IOException
+     * @throws TransformerException
+     */
+    private void exportAuditReport(final OutputStream outputStream,
+            final Container container, final List<ContainerVersion> versions)
+            throws IOException, TransformerException {
+        final ContainerNameGenerator nameGenerator = getNameGenerator();
+        final FileSystem exportFileSystem = new FileSystem(
+                workspace.createTempDirectory(
+                        nameGenerator.exportDirectoryName(container)));
+        try {
+            final String reportPath = nameGenerator.pdfFileName(container);
+            writeAuditReport(container, versions, exportFileSystem, reportPath);
+            fileToStream(exportFileSystem.findFile(reportPath), outputStream);
         } finally {
             exportFileSystem.deleteTree();
         }
@@ -3329,82 +3329,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Prepare an audit report for a container and a list of versions.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     * @param versions
-     *            A <code>List&lt;ContainerVersion&gt;</code>.
-     * @param exportFileSystem
-     *            A <code>FileSystem</code>.
-     * @param pdfPath
-     *            The pdf path <code>String</code>.
-     * @throws IOException
-     * @throws TransformerException
-     */
-    private void prepareAuditReport(final Container container,
-            final List<ContainerVersion> versions,
-            final FileSystem exportFileSystem,
-            final String pdfPath)
-            throws IOException, TransformerException {
-        final Map<ContainerVersion, User> versionsPublishedBy =
-            new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
-        final Map<ContainerVersion, List<DocumentVersion>> documents =
-            new HashMap<ContainerVersion, List<DocumentVersion>>(versions.size(), 1.0F);
-        final Map<DocumentVersion, Long> documentsSize = new HashMap<DocumentVersion, Long>();
-        final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo =
-            new HashMap<ContainerVersion, List<ArtifactReceipt>>(versions.size(), 1.0F);
-        final Map<ContainerVersion, Map<DocumentVersion, Delta>> deltas =
-            new HashMap<ContainerVersion, Map<DocumentVersion, Delta>>(versions.size(), 1.0F);
-        for (final ContainerVersion version : versions) {
-            versionsPublishedBy.put(version, readUser(version.getUpdatedBy()));
-            publishedTo.put(version, readPublishedTo(
-                    version.getArtifactId(), version.getVersionId()));
-            documents.put(version, readDocumentVersions(
-                    version.getArtifactId(), version.getVersionId()));
-            final Map<DocumentVersion, Delta> versionDeltas;
-            final ContainerVersion previousVersion =
-                readPreviousVersion(version.getArtifactId(), version.getVersionId());
-            if (null == previousVersion) {
-                versionDeltas = readDocumentVersionDeltas(version.getArtifactId(),
-                        version.getVersionId());
-            } else {
-                versionDeltas = readDocumentVersionDeltas(version.getArtifactId(),
-                        version.getVersionId(), previousVersion.getVersionId());
-            }
-            deltas.put(version, versionDeltas);
-
-            for (final DocumentVersion documentVersion : documents.get(version)) {
-                documentsSize.put(documentVersion, documentVersion.getSize());
-            }
-        }
-
-        // copy resources into the export file system
-        final Map<String, File> resources = new HashMap<String, File>();
-        addExportResource(exportFileSystem, resources, "header-image",
-                "images/PDFHeader.jpg");
-        addExportResource(exportFileSystem, resources, "footer-image",
-                "images/PDFFooter.jpg");
-
-        // generate a pdf
-        final PDFWriter pdfWriter = new PDFWriter(exportFileSystem);
-        pdfWriter.write(pdfPath, resources,
-                container, readUser(container.getCreatedBy()),
-                readLatestVersion(container.getId()), versions,
-                versionsPublishedBy, documents, documentsSize, publishedTo,
-                deltas, readTeam(container.getId()));
-
-        /* HACK this is bad; however the jpeg image reader class is not
-         * closing the stream within its class
-         * @see org.apache.fop.image.JpegImage#loadImage() */
-        Runtime.getRuntime().gc();
-
-        // delete the resources so that if export is done then
-        // the resources are not included in the zip file
-        FileUtil.deleteTree(exportFileSystem.findDirectory("images"));
-    }
-
-    /**
      * Read the documents for the container version.
      * 
      * @param containerId
@@ -3498,5 +3422,81 @@ public final class ContainerModelImpl extends
         }
         // create draft document
         createDraftDocument(containerId, documentId);
+    }
+
+    /**
+     * Write an audit report for a container and a list of versions. The audit
+     * report is written to the pdf path specified within the file-system.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param versions
+     *            A <code>List&lt;ContainerVersion&gt;</code>.
+     * @param fileSystem
+     *            A <code>FileSystem</code> within which the audit report is
+     *            generated.
+     * @param path
+     *            A relative path <code>String</code> within the file system
+     *            specifying the audit report.
+     * @throws IOException
+     * @throws TransformerException
+     */
+    private void writeAuditReport(final Container container,
+            final List<ContainerVersion> versions, final FileSystem fileSystem,
+            final String path) throws IOException, TransformerException {
+        final Map<ContainerVersion, User> versionsPublishedBy =
+            new HashMap<ContainerVersion, User>(versions.size(), 1.0F);
+        final Map<ContainerVersion, List<DocumentVersion>> documents =
+            new HashMap<ContainerVersion, List<DocumentVersion>>(versions.size(), 1.0F);
+        final Map<DocumentVersion, Long> documentsSize = new HashMap<DocumentVersion, Long>();
+        final Map<ContainerVersion, List<ArtifactReceipt>> publishedTo =
+            new HashMap<ContainerVersion, List<ArtifactReceipt>>(versions.size(), 1.0F);
+        final Map<ContainerVersion, Map<DocumentVersion, Delta>> deltas =
+            new HashMap<ContainerVersion, Map<DocumentVersion, Delta>>(versions.size(), 1.0F);
+        for (final ContainerVersion version : versions) {
+            versionsPublishedBy.put(version, readUser(version.getUpdatedBy()));
+            publishedTo.put(version, readPublishedTo(
+                    version.getArtifactId(), version.getVersionId()));
+            documents.put(version, readDocumentVersions(
+                    version.getArtifactId(), version.getVersionId()));
+            final Map<DocumentVersion, Delta> versionDeltas;
+            final ContainerVersion previousVersion =
+                readPreviousVersion(version.getArtifactId(), version.getVersionId());
+            if (null == previousVersion) {
+                versionDeltas = readDocumentVersionDeltas(version.getArtifactId(),
+                        version.getVersionId());
+            } else {
+                versionDeltas = readDocumentVersionDeltas(version.getArtifactId(),
+                        version.getVersionId(), previousVersion.getVersionId());
+            }
+            deltas.put(version, versionDeltas);
+
+            for (final DocumentVersion documentVersion : documents.get(version)) {
+                documentsSize.put(documentVersion, documentVersion.getSize());
+            }
+        }
+
+        // copy resources into the export file system
+        final Map<String, File> resources = new HashMap<String, File>();
+        addExportResource(fileSystem, resources, "header-image",
+                "images/PDFHeader.jpg");
+        addExportResource(fileSystem, resources, "footer-image",
+                "images/PDFFooter.jpg");
+
+        // generate a pdf
+        final PDFWriter pdfWriter = new PDFWriter(fileSystem);
+        pdfWriter.write(path, resources, container,
+                readUser(container.getCreatedBy()),
+                readLatestVersion(container.getId()), versions,
+                versionsPublishedBy, documents, documentsSize, publishedTo,
+                deltas, readTeam(container.getId()));
+
+        /* HACK this is bad; however the jpeg image reader class is not
+         * closing the stream within its class
+         * @see org.apache.fop.image.JpegImage#loadImage() */
+        Runtime.getRuntime().gc();
+
+        // delete the temporary image resources
+        FileUtil.deleteTree(fileSystem.findDirectory("images"));
     }
 }

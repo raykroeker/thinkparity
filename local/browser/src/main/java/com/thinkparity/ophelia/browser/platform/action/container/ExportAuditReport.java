@@ -25,10 +25,13 @@ import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
 import org.jdesktop.jdic.desktop.DesktopException;
 
 /**
- * @author rob_masako@shaw.ca
- * @version $Revision$
+ * <b>Title:</b>thinkParity Ophelia UI Export Audit Report<br>
+ * <b>Description:</b>An action to export an audit report for a container.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class AuditReport extends AbstractBrowserAction {
+public final class ExportAuditReport extends AbstractBrowserAction {
 
     /**
      * Generate a directory name for the report.
@@ -45,18 +48,19 @@ public class AuditReport extends AbstractBrowserAction {
     private final Browser browser;
 
     /**
-     * Create AuditReport.
+     * Create ExportAuditReport.
      * 
      * @param browser
      *            The thinkParity browser application.
      */
-    public AuditReport(final Browser browser) {
-        super(ActionId.CONTAINER_AUDIT_REPORT);
+    public ExportAuditReport(final Browser browser) {
+        super(ActionId.CONTAINER_EXPORT_AUDIT_REPORT);
         this.browser = browser;
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#invoke(com.thinkparity.ophelia.browser.platform.action.Data)
+     * 
      */
     @Override
     public void invoke(final Data data) {
@@ -67,19 +71,19 @@ public class AuditReport extends AbstractBrowserAction {
         if (file.exists()) {
             if (browser.confirm("AuditReport.ConfirmOverwrite", new Object[] {file.getName()})) {
                 if (file.delete()) {
-                    auditReport(containerModel, file, container);
+                    exportAuditReport(containerModel, file, container);
                 } else {
                     browser.displayErrorDialog("AuditReport.CannotDelete",
                             new Object[] {file.getName()});
                 }
             }
         } else {
-            auditReport(containerModel, file, container);
+            exportAuditReport(containerModel, file, container);
         }
     }
 
     /**
-     * Prepare an audit report for the container.
+     * Export an audit report for the container.
      * 
      * @param containerModel
      *            A <code>ContainerModel</code>.
@@ -88,12 +92,12 @@ public class AuditReport extends AbstractBrowserAction {
      * @param containerId
      *            A container id <code>Long</code>.
      */
-    private void auditReport(final ContainerModel containerModel, final File file,
-            final Container container) {
+    private void exportAuditReport(final ContainerModel containerModel,
+            final File file, final Container container) {
         try {
             final OutputStream outputStream = new FileOutputStream(file);
             try {
-                containerModel.auditReport(outputStream, container.getId());
+                containerModel.exportAuditReport(outputStream, container.getId());
             } finally {
                 try {
                     outputStream.flush();

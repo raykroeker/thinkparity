@@ -87,16 +87,6 @@ public interface ContainerModel {
     public void archive(final Long containerId);
 
     /**
-     * Prepare an audit report.
-     * 
-     * @param outputStream
-     *            An <code>OutputStream</code>.
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    public void auditReport(final OutputStream outputStream, final Long containerId);
-
-    /**
      * Create a container.
      * 
      * @param name
@@ -155,6 +145,17 @@ public interface ContainerModel {
      *            A container id <code>Long</code>.
      */
     public void export(final OutputStream outputStream, final Long containerId);
+
+    /**
+     * Export an audit report.
+     * 
+     * @param outputStream
+     *            An <code>OutputStream</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void exportAuditReport(final OutputStream outputStream,
+            final Long containerId);
 
     /**
      * Create a document monitor.

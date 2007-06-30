@@ -123,9 +123,8 @@ public final class DocumentModelImpl extends
      */
     public DocumentDraft createDraft(final DocumentFileLock lock, final Long documentId) {
         try {
-            final Document document = read(documentId);
-            final DocumentVersion latestVersion = readLatestVersion(documentId);
-            writeVersion(document.getId(), latestVersion.getVersionId(), lock);
+            writeVersion(readLatestVersion(documentId), lock);
+            lock.getFile().setWritable(true, true);
             return readDraft(lock, documentId);
         } catch (final Throwable t) {
             throw panic(t);
@@ -468,12 +467,10 @@ public final class DocumentModelImpl extends
 			// open the local file
 			final File draftFile = getDraftFile(document);
             if (!draftFile.exists()) {
-                final DocumentVersion latestVersion = readLatestVersion(documentId);
                 final DocumentFileLock lock = lock(document);
                 try {
-                    writeVersion(documentId, latestVersion.getVersionId(), lock);
-                    draftFile.setLastModified(latestVersion.getCreatedOn().getTimeInMillis());
-                    draftFile.setWritable(true, true);
+                    writeVersion(readLatestVersion(documentId), lock);
+                    lock.getFile().setWritable(true, true);
                 } finally {
                     release(lock);
                 }
@@ -516,9 +513,7 @@ public final class DocumentModelImpl extends
             if (!versionFile.exists()) {
                 final DocumentFileLock lock = lockVersion(version);
                 try {
-                    writeVersion(documentId, versionId, lock);
-                    versionFile.setLastModified(
-                            version.getCreatedOn().getTimeInMillis());
+                    writeVersion(version, lock);
                 } finally {
                     release(lock);
                 }
@@ -880,7 +875,8 @@ public final class DocumentModelImpl extends
             } finally {
                 newLock = lock(documentId);
             }
-            revertDraft(newLock, documentId, readLatestVersion(documentId).getVersionId());
+            writeVersion(readLatestVersion(documentId), newLock);
+            newLock.getFile().setWritable(true, true);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1338,25 +1334,6 @@ public final class DocumentModelImpl extends
     }
 
     /**
-     * Revert a draft file to its latest version content.
-     * 
-     * @param lock
-     *            A <code>DocumentFileLock</code>.
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @throws IOException
-     */
-    private void revertDraft(final DocumentFileLock lock, final Long documentId,
-            final Long versionId) throws IOException {
-        writeVersion(documentId, versionId, lock);
-        final DocumentVersion version = readVersion(documentId, versionId);
-        lock.getFile().setLastModified(
-                version.getCreatedOn().getTimeInMillis());
-    }
-
-    /**
      * Write the contents of the document version to the document file lock's
      * underlying file channel.
      * 
@@ -1365,12 +1342,12 @@ public final class DocumentModelImpl extends
      * @param versionId A version id <code>Long<code>.
      * @param lock  A <code>DocumentFileLock<code>.
      */
-    private void writeVersion(final Long documentId, final Long versionId,
-            final DocumentFileLock lock) {
-        openVersion(documentId, versionId, new StreamOpener() {
+    private void writeVersion(final DocumentVersion version, final DocumentFileLock lock) {
+        openVersion(version.getArtifactId(), version.getVersionId(), new StreamOpener() {
             public void open(final InputStream stream) throws IOException {
                 streamToChannel(stream, lock.getFileChannel(0L));
             }
         });
+        lock.getFile().setLastModified(version.getCreatedOn().getTimeInMillis());
     }
 }

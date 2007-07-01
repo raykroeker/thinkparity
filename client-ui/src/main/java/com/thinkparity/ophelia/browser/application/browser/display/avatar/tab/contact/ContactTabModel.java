@@ -823,16 +823,14 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
          * @return An <code>Integer</code> priority.
          */
         private Integer getTypePriority(final ContactTabPanel panel) {
-            if (panel.isSetIncomingEMail()) {
+            if (panel.isSetIncomingEMail() || panel.isSetIncomingUser()) {
                 return 0;
-            } else if (panel.isSetIncomingUser()) {
-                return 1;
             } else if (panel.isSetOutgoingUser()) {
-                return 2;
+                return 1;
             } else if (panel.isSetOutgoingEMail()) {
-                return 3;
+                return 2;
             } else {
-                return 4;
+                return 3;
             }
         }
 

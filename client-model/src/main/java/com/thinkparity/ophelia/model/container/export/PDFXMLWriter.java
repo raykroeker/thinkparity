@@ -447,9 +447,9 @@ final class PDFXMLWriter {
         pdfXML.documents = createPDFXMLDocuments(version);
         pdfXML.documentSum = format(statistics.documentsPerVersion.get(version));
         pdfXML.name = getVersionName(version);
-        pdfXML.note = version.getComment();
+        pdfXML.note = getVersionComment(version);
         pdfXML.publishedBy = versionsPublishedBy.get(version).getName();
-        pdfXML.publishedOn = format(version.getUpdatedOn());
+        pdfXML.publishedOn = format(version.getCreatedOn());
         pdfXML.users = createPDFXMLUsers(version);
         pdfXML.userSum = format(statistics.usersPerVersion.get(version));
         pdfXML.versionId = format(versionId);
@@ -484,7 +484,7 @@ final class PDFXMLWriter {
         final PDFXMLContainerVersionSummary pdfXML = new PDFXMLContainerVersionSummary();
         pdfXML.name = getVersionName(version);
         pdfXML.publishedBy = versionsPublishedBy.get(version).getName();
-        pdfXML.publishedOn = format(version.getUpdatedOn());
+        pdfXML.publishedOn = format(version.getCreatedOn());
         pdfXML.versionId = format(versionId);
         return pdfXML;
     }
@@ -583,6 +583,21 @@ final class PDFXMLWriter {
     }
 
     /**
+     * Get the version comment.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @return A comment <code>String</code>.
+     */
+    private String getVersionComment(final ContainerVersion version) {
+        String comment = version.getComment();
+        if (null == comment) {
+            comment = "-";
+        }
+        return comment;
+    }
+
+    /**
      * Get the version name.
      * 
      * @param version
@@ -593,7 +608,7 @@ final class PDFXMLWriter {
         if (version.isSetName()) {
             return version.getName();
         } else {
-            return MessageFormat.format("{0}", format(version.getUpdatedOn()));
+            return MessageFormat.format("{0}", format(version.getCreatedOn()));
         }
     }
 

@@ -15,17 +15,24 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="25" pref="25" max="25" attributes="0"/>
-                      <Component id="explanation2JLabel" min="-2" pref="355" max="-2" attributes="1"/>
+          <Group type="102" alignment="1" attributes="0">
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
+                      <EmptySpace min="-2" pref="64" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="importantNoteJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="explanationJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="explanation2JLabel" alignment="0" min="-2" pref="361" max="-2" attributes="1"/>
+                      </Group>
+                      <EmptySpace pref="40" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="errorMessageJLabel" alignment="0" pref="380" max="32767" attributes="0"/>
-                  <Component id="importantNoteJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="explanationJLabel" alignment="0" pref="380" max="32767" attributes="0"/>
-                  <Component id="progressBarJPanel" alignment="0" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="progressBarJPanel" alignment="1" max="32767" attributes="0"/>
+                          <Component id="errorMessageJLabel" alignment="0" pref="455" max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -34,7 +41,7 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="99" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="166" max="-2" attributes="0"/>
               <Component id="explanationJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
               <Component id="importantNoteJLabel" min="-2" max="-2" attributes="0"/>
@@ -42,9 +49,9 @@
               <Component id="explanation2JLabel" min="-2" pref="51" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
               <Component id="errorMessageJLabel" min="-2" pref="14" max="-2" attributes="0"/>
-              <EmptySpace pref="17" max="32767" attributes="0"/>
+              <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
               <Component id="progressBarJPanel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -119,8 +126,8 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="stepJLabel" alignment="1" pref="380" max="32767" attributes="0"/>
-              <Component id="loginJProgressBar" alignment="0" pref="380" max="32767" attributes="0"/>
+              <Component id="stepJLabel" alignment="1" pref="455" max="32767" attributes="0"/>
+              <Component id="loginJProgressBar" alignment="0" pref="455" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">

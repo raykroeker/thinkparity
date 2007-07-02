@@ -20,6 +20,13 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
  */
 public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JRadioButton acceptJRadioButton = new javax.swing.JRadioButton();
+    private final javax.swing.JRadioButton declineJRadioButton = new javax.swing.JRadioButton();
+    private final javax.swing.JScrollPane licenseAgreementJScrollPane = new javax.swing.JScrollPane();
+    private final javax.swing.JTextArea licenseAgreementJTextArea = new javax.swing.JTextArea();
+    // End of variables declaration//GEN-END:variables
+
     /** Creates new form SignupLicenseAgreementAvatar */
     public SignupLicenseAgreementAvatar() {
         super("SignupAvatar.LicenseAgreement", BrowserConstants.DIALOGUE_BACKGROUND);
@@ -77,12 +84,12 @@ public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
         }
     }
 
-    private void acceptJRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_acceptJRadioButtonActionPerformed
+    private void acceptJRadioButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_acceptJRadioButtonActionPerformed
         acceptJRadioButton.setSelected(true);
         validateInput();
     }//GEN-LAST:event_acceptJRadioButtonActionPerformed
 
-    private void declineJRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_declineJRadioButtonActionPerformed
+    private void declineJRadioButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_declineJRadioButtonActionPerformed
         declineJRadioButton.setSelected(true);
         validateInput();
     }//GEN-LAST:event_declineJRadioButtonActionPerformed
@@ -175,11 +182,4 @@ public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
     private void reloadRadioButtons() {
         acceptJRadioButton.setSelected(true);
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JRadioButton acceptJRadioButton = new javax.swing.JRadioButton();
-    private final javax.swing.JRadioButton declineJRadioButton = new javax.swing.JRadioButton();
-    private final javax.swing.JScrollPane licenseAgreementJScrollPane = new javax.swing.JScrollPane();
-    private final javax.swing.JTextArea licenseAgreementJTextArea = new javax.swing.JTextArea();
-    // End of variables declaration//GEN-END:variables
 }

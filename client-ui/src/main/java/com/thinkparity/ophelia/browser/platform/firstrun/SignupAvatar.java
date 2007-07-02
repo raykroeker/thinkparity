@@ -35,11 +35,11 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     /** A <code>CardLayout</code>. */
     final java.awt.CardLayout cardLayout;
 
-    /** The current <code>SignupPage</code>. */
-    private SignupPage currentPage;
-
     /** Signup cancelled flag <code>Boolean</code>. */
     private Boolean cancelled;
+
+    /** The current <code>SignupPage</code>. */
+    private SignupPage currentPage;
 
     /** The list of <code>SignupPage</code>s. */
     private final List<SignupPage> signupPages;
@@ -47,24 +47,20 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     /** The <code>WindowTitle</code>. */
     private WindowTitle windowTitle;
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JButton cancelJButton = ButtonFactory.create();
+    private final javax.swing.JPanel contentJPanel = new javax.swing.JPanel();
+    private final javax.swing.JButton nextJButton = ButtonFactory.create();
+    private final javax.swing.JButton prevJButton = ButtonFactory.create();
+    // End of variables declaration//GEN-END:variables
+
     /** Creates new form SignupAvatar */
     public SignupAvatar() {
         super("SignupAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         signupPages = new ArrayList<SignupPage>();
         cancelled = Boolean.FALSE;
         initComponents();
-        bindEscapeKey("Cancel", new AbstractAction() {
-            private static final long serialVersionUID = 1;
-            public void actionPerformed(final ActionEvent e) {
-                cancelJButtonActionPerformed(e);
-            }
-        });
-        bindEnterKey("Next", new AbstractAction() {
-            private static final long serialVersionUID = 1;
-            public void actionPerformed(final ActionEvent e) {
-                nextJButtonActionPerformed(e);
-            }
-        });
+        bindKeys();
         this.cardLayout = new java.awt.CardLayout();
         contentJPanel.setLayout(cardLayout);
     }
@@ -84,18 +80,18 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate#getSharedLocalization()
-     */
-    public Localization getSharedLocalization() {
-        return getLocalization();
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getId()
      * 
      */
     public AvatarId getId() {
         return AvatarId.DIALOG_PLATFORM_SIGNUP;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate#getSharedLocalization()
+     */
+    public Localization getSharedLocalization() {
+        return getLocalization();
     }
 
     /** @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getState() */
@@ -121,6 +117,14 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     public void registerPage(final SignupPage signupPage) {
         signupPages.add(signupPage);
         contentJPanel.add((Component)signupPage, signupPage.getPageName());
+    }
+
+    /** @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload() */
+    public void reload() {
+        for (final SignupPage signupPage : signupPages) {
+            signupPage.reload();
+        }
+        setFirstPage();
     }
 
     /**
@@ -167,15 +171,23 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
                 Images.BrowserTitle.SYSTEM_DIALOG_BOTTOM_RIGHT_INNER.getHeight(), this);
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload() */
-    public void reload() {
-        for (final SignupPage signupPage : signupPages) {
-            signupPage.reload();
-        }
-        setFirstPage();
+    /**
+     * Bind keys to actions.
+     */
+    private void bindKeys() {
+        bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                cancelJButtonActionPerformed(e);
+            }
+        });
+        bindEnterKey("Next", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                nextJButtonActionPerformed(e);
+            }
+        });
     }
 
-    private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
+    private void cancelJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
         cancelled = Boolean.TRUE;
         synchronized (this) {
             notifyAll();
@@ -190,10 +202,6 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        contentJPanel = new javax.swing.JPanel();
-        prevJButton = ButtonFactory.create();
-        nextJButton = ButtonFactory.create();
-        cancelJButton = ButtonFactory.create();
 
         contentJPanel.setOpaque(false);
         javax.swing.GroupLayout contentJPanelLayout = new javax.swing.GroupLayout(contentJPanel);
@@ -281,7 +289,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
         return foundPage;
     }
 
-    private void nextJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextJButtonActionPerformed
+    private void nextJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextJButtonActionPerformed
         if (currentPage.isNextOk()) {
             currentPage.saveData();
             if (currentPage.isLastPage()) {
@@ -348,6 +356,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
         reloadPrevButton();
         reloadWindowTitle();
         page.validateInput();
+        page.setDefaultFocus();
     }
 
     /**
@@ -357,11 +366,4 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
         cancelled = Boolean.FALSE;
         // NOTE The wizard always ends in login. Login is responsible for disposing the window.
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton cancelJButton;
-    private javax.swing.JPanel contentJPanel;
-    private javax.swing.JButton nextJButton;
-    private javax.swing.JButton prevJButton;
-    // End of variables declaration//GEN-END:variables
 }

@@ -6,6 +6,7 @@
 
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
+import java.awt.Graphics;
 import java.util.List;
 
 import com.thinkparity.codebase.model.migrator.Feature;
@@ -13,6 +14,7 @@ import com.thinkparity.codebase.model.session.Credentials;
 
 import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 
+import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -26,6 +28,13 @@ import com.thinkparity.ophelia.browser.platform.firstrun.SignupData.DataKey;
  */
 public class SignupSummaryAvatar extends DefaultSignupPage implements
         LoginSwingDisplay, InitializeMediator {
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
+    private final javax.swing.JProgressBar loginJProgressBar = new javax.swing.JProgressBar();
+    private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel stepJLabel = new javax.swing.JLabel();
+    // End of variables declaration//GEN-END:variables
 
     /** Creates new form SignupSummaryAvatar */
     public SignupSummaryAvatar() {
@@ -81,6 +90,14 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#isLastPage()
+     */
+    @Override
+    public Boolean isLastPage() {
+        return Boolean.TRUE;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isNextOk()
      */
     public Boolean isNextOk() {
@@ -94,14 +111,6 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
         }
         login();
         return !containsInputErrors();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#isLastPage()
-     */
-    @Override
-    public Boolean isLastPage() {
-        return Boolean.TRUE;
     }
 
     /**
@@ -177,6 +186,23 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
     }
 
     /**
+     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+     */
+    @Override
+    protected void paintComponent(final Graphics g) {
+        super.paintComponent(g);
+        final Graphics g2 = g.create();
+        try {
+            // Draw the logo.
+            g2.drawImage(Images.BrowserTitle.LOGO_LARGE,
+                    (getWidth() - Images.BrowserTitle.LOGO_LARGE.getWidth()) / 2, 35,
+                    Images.BrowserTitle.LOGO_LARGE.getWidth(),
+                    Images.BrowserTitle.LOGO_LARGE.getHeight(), SignupSummaryAvatar.this);
+        }
+        finally { g2.dispose(); }
+    }
+
+    /**
      * Enable or disable the next and cancel buttons.
      * 
      * @param enable
@@ -228,8 +254,8 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
         progressBarJPanel.setLayout(progressBarJPanelLayout);
         progressBarJPanelLayout.setHorizontalGroup(
             progressBarJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(stepJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
-            .addComponent(loginJProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+            .addComponent(stepJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
+            .addComponent(loginJProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
         );
         progressBarJPanelLayout.setVerticalGroup(
             progressBarJPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -245,22 +271,26 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addComponent(explanation2JLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 355, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
-                    .addComponent(importantNoteJLabel)
-                    .addComponent(explanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
-                    .addComponent(progressBarJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(64, 64, 64)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(importantNoteJLabel)
+                            .addComponent(explanationJLabel)
+                            .addComponent(explanation2JLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(progressBarJPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(99, 99, 99)
+                .addGap(166, 166, 166)
                 .addComponent(explanationJLabel)
                 .addGap(45, 45, 45)
                 .addComponent(importantNoteJLabel)
@@ -268,9 +298,9 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
                 .addComponent(explanation2JLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(22, 22, 22)
                 .addComponent(errorMessageJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
+                .addGap(17, 17, 17)
                 .addComponent(progressBarJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(27, 27, 27))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -292,11 +322,4 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
         stepJLabel.setText(" ");
         validate();
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
-    private final javax.swing.JProgressBar loginJProgressBar = new javax.swing.JProgressBar();
-    private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel stepJLabel = new javax.swing.JLabel();
-    // End of variables declaration//GEN-END:variables
 }

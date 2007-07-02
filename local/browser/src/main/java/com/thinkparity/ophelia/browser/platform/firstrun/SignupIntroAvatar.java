@@ -21,6 +21,12 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  */
 public class SignupIntroAvatar extends DefaultSignupPage {
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.ButtonGroup accountButtonGroup = new javax.swing.ButtonGroup();
+    private final javax.swing.JRadioButton doNotHaveAccountJRadioButton = new javax.swing.JRadioButton();
+    private final javax.swing.JRadioButton haveAccountJRadioButton = new javax.swing.JRadioButton();
+    // End of variables declaration//GEN-END:variables
+
     /** Creates new form SignupIntroAvatar */
     public SignupIntroAvatar() {
         super("SignupAvatar.Intro", BrowserConstants.DIALOGUE_BACKGROUND);
@@ -61,23 +67,6 @@ public class SignupIntroAvatar extends DefaultSignupPage {
     }
 
     /**
-     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-     */
-    @Override
-    protected void paintComponent(final Graphics g) {
-        super.paintComponent(g);
-        final Graphics g2 = g.create();
-        try {
-            // Draw the logo.
-            g2.drawImage(Images.BrowserTitle.LOGO_LARGE,
-                    (getWidth() - Images.BrowserTitle.LOGO_LARGE.getWidth()) / 2, 35,
-                    Images.BrowserTitle.LOGO_LARGE.getWidth(),
-                    Images.BrowserTitle.LOGO_LARGE.getHeight(), SignupIntroAvatar.this);
-        }
-        finally { g2.dispose(); }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
      */
     @Override
@@ -105,6 +94,23 @@ public class SignupIntroAvatar extends DefaultSignupPage {
         }
     }
 
+    /**
+     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+     */
+    @Override
+    protected void paintComponent(final Graphics g) {
+        super.paintComponent(g);
+        final Graphics g2 = g.create();
+        try {
+            // Draw the logo.
+            g2.drawImage(Images.BrowserTitle.LOGO_LARGE,
+                    (getWidth() - Images.BrowserTitle.LOGO_LARGE.getWidth()) / 2, 35,
+                    Images.BrowserTitle.LOGO_LARGE.getWidth(),
+                    Images.BrowserTitle.LOGO_LARGE.getHeight(), SignupIntroAvatar.this);
+        }
+        finally { g2.dispose(); }
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -112,7 +118,6 @@ public class SignupIntroAvatar extends DefaultSignupPage {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        accountButtonGroup = new javax.swing.ButtonGroup();
         final javax.swing.JLabel welcomeJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
 
@@ -141,22 +146,25 @@ public class SignupIntroAvatar extends DefaultSignupPage {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(39, 39, 39)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap(27, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(79, 79, 79)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(59, 59, 59)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(explanationJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(welcomeJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 379, Short.MAX_VALUE))
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(doNotHaveAccountJRadioButton)
-                            .addComponent(haveAccountJRadioButton)))
-                    .addComponent(welcomeJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 406, Short.MAX_VALUE)
-                    .addComponent(explanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 406, Short.MAX_VALUE))
-                .addContainerGap())
+                            .addComponent(haveAccountJRadioButton)
+                            .addComponent(doNotHaveAccountJRadioButton))
+                        .addGap(121, 121, 121))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(172, 172, 172)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(140, 140, 140)
                 .addComponent(welcomeJLabel)
                 .addGap(42, 42, 42)
                 .addComponent(explanationJLabel)
@@ -174,10 +182,4 @@ public class SignupIntroAvatar extends DefaultSignupPage {
     private void reloadAccountRadioButtons() {
         doNotHaveAccountJRadioButton.setSelected(true);
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.ButtonGroup accountButtonGroup;
-    private final javax.swing.JRadioButton doNotHaveAccountJRadioButton = new javax.swing.JRadioButton();
-    private final javax.swing.JRadioButton haveAccountJRadioButton = new javax.swing.JRadioButton();
-    // End of variables declaration//GEN-END:variables
 }

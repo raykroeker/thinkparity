@@ -8,8 +8,6 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 
 import java.util.List;
 
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument;
 
 import com.thinkparity.codebase.StringUtil.Separator;
@@ -45,12 +43,20 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
     /** An instance of <code>ProfileConstraints</code>. */
     private final ProfileConstraints profileConstraints;
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel forgotPasswordJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JPasswordField passwordJPasswordField = new javax.swing.JPasswordField();
+    private final javax.swing.JTextField usernameJTextField = new javax.swing.JTextField();
+    // End of variables declaration//GEN-END:variables
+
     /** Creates new form SignupCredentialsAvatar */
     public SignupCredentialsAvatar() {
         super("SignupAvatar.Credentials", BrowserConstants.DIALOGUE_BACKGROUND);
         this.profileConstraints = ProfileConstraints.getInstance();
         initComponents();
-        initDocumentHandlers();
+        addValidationListener(usernameJTextField);
+        addValidationListener(passwordJPasswordField);
         SignupLoginHelper.getInstance().setLoginCredentialsDisplay(this);
     }
 
@@ -120,6 +126,15 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
     }
 
     /**
+     * Determine if features have been set.
+     * 
+     * @return true if features have been set.
+     */
+    public Boolean isSetFeatures() {
+        return (null != features);
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
      */
     @Override
@@ -135,6 +150,14 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
         if (isSetFeatures()) {
             ((Data) input).set(SignupData.DataKey.FEATURES, features);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#setDefaultFocus()
+     */
+    @Override
+    public void setDefaultFocus() {
+        usernameJTextField.requestFocusInWindow();
     }
 
     /**
@@ -285,27 +308,27 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(explanationJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
+                    .addComponent(explanationJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
+                        .addGap(16, 16, 16)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 435, Short.MAX_VALUE)
+                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(forgotPasswordExplanationJLabel)
                                     .addComponent(passwordJLabel)
                                     .addComponent(usernameJLabel))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(usernameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(forgotPasswordJLabel)
-                                    .addComponent(passwordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))))
-                .addContainerGap())
+                                    .addComponent(usernameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                                    .addComponent(passwordJPasswordField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE))))))
+                .addGap(26, 26, 26))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(85, 85, 85)
+                .addGap(30, 30, 30)
                 .addComponent(explanationJLabel)
                 .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -321,28 +344,9 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
                     .addComponent(forgotPasswordJLabel))
                 .addGap(24, 24, 24)
                 .addComponent(errorMessageJLabel)
-                .addContainerGap(113, Short.MAX_VALUE))
+                .addContainerGap(168, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    /**
-     * Initialize document handlers.
-     */
-    private void initDocumentHandlers() {
-        final DocumentListener documentListener = new DocumentListener() {
-            public void changedUpdate(final DocumentEvent e) {
-                validateInput();
-            }
-            public void insertUpdate(final DocumentEvent e) {
-                validateInput();
-            }
-            public void removeUpdate(final DocumentEvent e) {
-                validateInput();
-            }
-        };
-        usernameJTextField.getDocument().addDocumentListener(documentListener);
-        passwordJPasswordField.getDocument().addDocumentListener(documentListener);
-    }
 
     /**
      * Install the progress bar.
@@ -351,15 +355,6 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
         final LoginSwingDisplay display = SignupLoginHelper.getInstance().getLoginSwingDisplay();
         Assert.assertNotNull("The login swing display null.", display);
         display.installProgressBar();
-    }
-
-    /**
-     * Determine if features have been set.
-     * 
-     * @return true if features have been set.
-     */
-    public Boolean isSetFeatures() {
-        return (null != features);
     }
 
     /**
@@ -392,11 +387,4 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
     private void setFeatures(final List<Feature> features) {
         this.features = features;
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel forgotPasswordJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JPasswordField passwordJPasswordField = new javax.swing.JPasswordField();
-    private final javax.swing.JTextField usernameJTextField = new javax.swing.JTextField();
-    // End of variables declaration//GEN-END:variables
 }

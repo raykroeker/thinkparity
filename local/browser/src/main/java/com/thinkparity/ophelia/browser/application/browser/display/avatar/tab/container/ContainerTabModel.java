@@ -165,6 +165,20 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#applySearch(java.lang.String)
+     *
+     */
+    @Override
+    protected void applySearch(final String searchExpression) {
+        this.comparator = new Comparator<TabPanel>() {
+            public int compare(final TabPanel o1, final TabPanel o2) {
+                return 0;
+            };
+        };
+        super.applySearch(searchExpression);
+    }
+
+    /**
      * Apply the sort to the filtered list of panels.
      * 
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySort()
@@ -299,6 +313,16 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     protected List<Long> readSearchResults() {
         checkThread();
         return ((ContainerProvider) contentProvider).search(searchExpression);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#removeSearch()
+     *
+     */
+    @Override
+    protected void removeSearch() {
+        this.comparator = null;
+        super.removeSearch();
     }
 
     /**
@@ -788,7 +812,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     private Long lookupId(final Long documentId) {
         return containerIdLookup.get(documentId);
     }
-
+    
     /**
      * Lookup the index of the container's corresponding panel.
      * 
@@ -815,7 +839,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     private Container read(final Long containerId) {
         return ((ContainerProvider) contentProvider).read(containerId);
     }
-    
+
     /**
      * Read the containers from the provider.
      * 

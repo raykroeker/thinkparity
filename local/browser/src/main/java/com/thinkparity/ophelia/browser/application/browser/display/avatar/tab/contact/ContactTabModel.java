@@ -41,16 +41,16 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         TabAvatarFilterDelegate {
 
     /** The <code>ContactTabActionDelegate</code>. */
-    private final ContactTabActionDelegate actionDelegate;    
+    private final ContactTabActionDelegate actionDelegate;
 
     /** An array of available <code>Locale</code>s. */
     private final Locale[] availableLocales;
 
+    /** The <code>ContactTabComparator</code>. */
+    private Comparator<TabPanel> comparator;    
+
     /** The <code>Locale</code>. */
     private final Locale locale;
-
-    /** The <code>ContactTabComparator</code>. */
-    private final ContactTabComparator comparator;
 
     /** The <code>ContactTabPopupDelegate</code>. */
     private final ContactTabPopupDelegate popupDelegate;
@@ -96,6 +96,20 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      */
     public Boolean isFilterSelected(final TabAvatarFilterBy tabAvatarFilterBy) {
         return Boolean.FALSE;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#applySearch(java.lang.String)
+     *
+     */
+    @Override
+    protected void applySearch(final String searchExpression) {
+        this.comparator = new Comparator<TabPanel>() {
+            public int compare(final TabPanel o1, final TabPanel o2) {
+                return 0;
+            }
+        };
+        super.applySearch(searchExpression);
     }
 
     /**
@@ -245,6 +259,16 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         for (final Long invitationId : outgoingUserInvitationIds)
             panelIds.add(new ContactPanelId(invitationId));
         return panelIds;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#removeSearch()
+     *
+     */
+    @Override
+    protected void removeSearch() {
+        this.comparator =  new ContactTabComparator();
+        super.removeSearch();
     }
 
     /**
@@ -788,6 +812,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
 
         /**
          * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+         * 
          */
         public int compare(final TabPanel o1, final TabPanel o2) {
             final ContactTabPanel p1 = (ContactTabPanel) o1;

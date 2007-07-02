@@ -473,7 +473,7 @@ public abstract class Model<T extends EventListener> extends
      */
     protected void assertServiceIsReachable(final Environment environment) {
         Assert.assertTrue(environment.isServiceReachable(),
-                "XMPP environment {0}:{1} is not reachable.",
+                "Service environment {0}:{1} is not reachable.",
                 environment.getServiceHost(), environment.getServicePort());
     }
 
@@ -1057,7 +1057,7 @@ public abstract class Model<T extends EventListener> extends
                      *
                      */
                     public void chunkReceived(final int chunkSize) {
-                        logger.logInfo("Downloaded {0}.",
+                        logger.logDebug("Downloaded {0}.",
                                 bytesFormat.format(new Long(chunkSize)));
                     }
         

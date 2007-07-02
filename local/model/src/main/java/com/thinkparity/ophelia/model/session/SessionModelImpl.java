@@ -491,7 +491,13 @@ public final class SessionModelImpl extends Model<SessionListener>
     public void login(final Credentials credentials)
             throws InvalidCredentialsException {
         try {
-            assertServiceIsReachable(environment);
+            if (!environment.isServiceReachable()) {
+                if (!isServerMaintenance()) {
+                    notifyServerMaintenance();
+                }
+                return;
+            }
+
             // login
             final String sessionId = sessionService.login(credentials);
             // save auth token
@@ -518,7 +524,13 @@ public final class SessionModelImpl extends Model<SessionListener>
             if (isClientMaintenance())
                 return;
 
-            assertServiceIsReachable(environment);
+            if (!environment.isServiceReachable()) {
+                if (!isServerMaintenance()) {
+                    notifyServerMaintenance();
+                }
+                return;
+            }
+
             notifyProcessBegin(monitor);
             final Credentials credentials = readCredentials();
             // check that the credentials match
@@ -681,7 +693,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupContainers()
      * 
@@ -693,7 +705,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupContainerVersions(java.util.UUID)
      *
@@ -943,7 +955,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readProfile()
      * 
      */
@@ -955,7 +967,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readProfileEMails()
      * 
      */
@@ -1003,7 +1015,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.Model#removeListener(com.thinkparity.ophelia.model.util.EventListener)
      * 
      */
@@ -1012,7 +1024,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         super.removeListener(listener);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#removeProfileEmail(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.model.profile.ProfileEMail)
      *
      */
@@ -1127,6 +1139,20 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
+     * Determine whether or not we are currently performing server maintenance.
+     * 
+     * @return True if we are performing server maintenance.
+     */
+    private boolean isServerMaintenance() {
+        final OfflineCodes offlineCodes = getOfflineCodes();
+        if (null == offlineCodes) {
+            return false;
+        } else {
+            return offlineCodes.contains(OfflineCode.SERVER_MAINTENANCE);
+        }
+    }
+
+    /**
      * Determine whether or not the authentication token has been set.
      * 
      * @return True if the authentication token has been set.
@@ -1218,6 +1244,18 @@ public final class SessionModelImpl extends Model<SessionListener>
         isOnlineValidator.setDaemon(true);
         isOnlineValidator.setName("TPS-OpheliaModel-IsOnline");
         return isOnlineValidator;
+    }
+
+    /**
+     * Set a server maintenance offline code and fire a session terminated
+     * event.
+     * 
+     */
+    private void notifyServerMaintenance() {
+        // set an offline state
+        pushOfflineCode(OfflineCode.SERVER_MAINTENANCE);
+        // fire event
+        notifySessionTerminated();
     }
 
     /**

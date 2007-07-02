@@ -116,22 +116,6 @@ final class LuceneUtil {
     }
 
     /**
-     * Parse the expression and replace any special characters.
-     * 
-     * @param expression
-     *            A search expression <code>String</code>.
-     * @return A special lucene format expression <code>String</code> with
-     *         special characters escaped.
-     */
-    String stripSpecialCharacters(final String expression) {
-        String escapedExpression = expression;
-        for (int i = 0; i < SPECIAL_STRINGS.length; i++) {
-            escapedExpression = escapedExpression.replace(SPECIAL_STRINGS[i], "");
-        }
-        return escapedExpression;
-    }
-
-    /**
      * Tokenize the expression.
      * 
      * @param expression

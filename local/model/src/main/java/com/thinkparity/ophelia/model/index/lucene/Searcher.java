@@ -104,7 +104,7 @@ public class Searcher {
             tokenizedExpressions.addAll(LUCENE_UTIL.tokenizeExpression(expression));
             queryParser = new QueryParser(field.name(), analyzer);
             for (String tokenizedExpression : tokenizedExpressions) {
-                tokenizedExpression = LUCENE_UTIL.stripSpecialCharacters(tokenizedExpression);
+                tokenizedExpression = LUCENE_UTIL.escapeSpecialCharacters(tokenizedExpression);
                 tokenizedExpression = LUCENE_UTIL.appendWildcard(tokenizedExpression);
                 LUCENE_UTIL.logVariable("tokenizedExpression", tokenizedExpression);
                 try {

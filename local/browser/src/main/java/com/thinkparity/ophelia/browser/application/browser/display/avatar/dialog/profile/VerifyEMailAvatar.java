@@ -7,11 +7,14 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.text.AbstractDocument;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.text.JTextComponentLengthFilter;
 
+import com.thinkparity.codebase.model.profile.ProfileConstraints;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -35,6 +38,9 @@ public class VerifyEMailAvatar extends Avatar {
     /** The emails. */
     private List<ProfileEMail> emails;
 
+    /** An instance of <code>ProfileConstraints</code>. */
+    private final ProfileConstraints profileConstraints;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField keyJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
@@ -44,6 +50,7 @@ public class VerifyEMailAvatar extends Avatar {
     /** Creates new form VerifyEMailAvatar */
     public VerifyEMailAvatar() {
         super("VerifyEMailAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
+        this.profileConstraints = ProfileConstraints.getInstance();
         initComponents();
         addValidationListener(keyJTextField);
         bindEscapeKey();
@@ -145,6 +152,7 @@ public class VerifyEMailAvatar extends Avatar {
         keyJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("VerifyEMailAvatar.VerificationKey"));
 
         keyJTextField.setFont(Fonts.DialogTextEntryFont);
+        ((AbstractDocument) keyJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getVerifyEmailKey()));
         keyJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 keyJTextFieldActionPerformed(evt);

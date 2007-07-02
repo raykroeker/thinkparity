@@ -517,7 +517,7 @@ public class ContainerPanel extends DefaultTabPanel {
             // set the container cell.
             westCells.set(0, new ContainerCell(
                     draft, latestVersion, versions, documentViews, team));
-            final Boolean wasLocalDraft = ((westCells.size() > 0) &&
+            final Boolean wasLocalDraft = ((westCells.size() > 1) &&
                     (westCells.get(1) instanceof DraftCell));
             if (wasLocalDraft && isLocalDraft()) {
                 // set the draft cell
@@ -937,7 +937,7 @@ public class ContainerPanel extends DefaultTabPanel {
                     new Object[] {getDraft().getOwner().getName()}); 
         } else if (null != latestVersion) {
             return localization.getString("ContainerMessagePublishDate",
-                    new Object[] {formatFuzzy(latestVersion.getUpdatedOn())});
+                    new Object[] {formatFuzzy(latestVersion.getCreatedOn())});
         } else {
             return "";
         }

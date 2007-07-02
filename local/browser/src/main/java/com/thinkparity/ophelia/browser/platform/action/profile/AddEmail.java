@@ -17,6 +17,9 @@ import com.thinkparity.ophelia.model.profile.ProfileModel;
  */
 public class AddEmail extends AbstractBrowserAction {
 
+    /** The browser application. */
+    private final Browser browser;
+
     /**
      * Create AddEmail.
      * 
@@ -25,6 +28,7 @@ public class AddEmail extends AbstractBrowserAction {
      */
     public AddEmail(final Browser browser) {
         super(ActionId.PROFILE_ADD_EMAIL);
+        this.browser = browser;
     }
 
     /**
@@ -36,6 +40,7 @@ public class AddEmail extends AbstractBrowserAction {
 
         final ProfileModel profileModel = getProfileModel();
         profileModel.addEmail(email);
+        browser.displayStatusDialog("AddEmail.Explanation");
     }
 
     public enum DataKey { EMAIL }

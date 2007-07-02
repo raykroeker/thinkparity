@@ -89,14 +89,14 @@ public final class PublishContainerAvatar extends Avatar implements
     /** An instance of <code>ContainerConstraints</code>. */
     private final ContainerConstraints containerConstraints;
 
+    /** The default version name <code>String</code>. */
+    private String defaultVersionName;
+
     /** A list of email delimiters. */
     private List<String>emailDelimiters;
 
     /** The team members list <code>PublishContainerAvatarUserListModel</code>. */
     private final PublishContainerAvatarUserListModel teamMembersListModel;
-
-    /** The default version name <code>String</code>. */
-    private String defaultVersionName;
 
     /**
      * Creates PublishContainerAvatar.
@@ -167,39 +167,15 @@ public final class PublishContainerAvatar extends Avatar implements
         validate();
     }
 
-    /**
-     * Determine whether the user input for the dialog is valid.
-     * 
-     * @return True if the input is valid; false otherwise.
-     */
-    public Boolean isInputValid() {        
-        final PublishContainerAvatarUserListModel teamMembersModel =
-            (PublishContainerAvatarUserListModel) teamMembersJList.getModel();
-        final PublishContainerAvatarUserListModel contactsModel =
-            (PublishContainerAvatarUserListModel) contactsJList.getModel();
-        if (teamMembersModel.isItemSelected() || contactsModel.isItemSelected()) {
-            try {
-                extractEMails();
-                return Boolean.TRUE;
-            } catch (final EMailFormatException efx) {}
-        } else {
-            try {
-                final List<EMail> emails = extractEMails();
-                return 0 < emails.size();
-            } catch (final EMailFormatException efx) {}
-        }
-        return Boolean.FALSE;
-    }
-
     public void reload() {
         reloadProgressBar();
         if (input != null) { 
             reloadPublishToLists();
             reloadEMails();
             reloadVersionName();
-            publishJButton.setEnabled(isInputValid());
             contactsJScrollPane.getViewport().setViewPosition(new Point(0,0));
             teamMembersJScrollPane.getViewport().setViewPosition(new Point(0,0));
+            validateInput();
         }
     }
 
@@ -209,7 +185,7 @@ public final class PublishContainerAvatar extends Avatar implements
      */
     public void resetProgressBar(final Long containerId) {
         reloadProgressBar();
-        publishJButton.setEnabled(isInputValid());
+        validateInput();
         showBusyIndicators(Boolean.FALSE);
     }
 
@@ -253,9 +229,23 @@ public final class PublishContainerAvatar extends Avatar implements
     @Override
     protected void validateInput() {
         super.validateInput();
+
+        // check emails parse correctly
+        List<EMail> emails = Collections.emptyList();
         try {
-            extractEMails();
+            emails = extractEMails();
         } catch (final EMailFormatException efx) {
+            addInputError(Separator.EmptyString.toString());
+        }
+
+        // check there is at least one person to publish to
+        final PublishContainerAvatarUserListModel teamMembersModel =
+            (PublishContainerAvatarUserListModel) teamMembersJList.getModel();
+        final PublishContainerAvatarUserListModel contactsModel =
+            (PublishContainerAvatarUserListModel) contactsJList.getModel();
+        if (!teamMembersModel.isItemSelected()
+                && !contactsModel.isItemSelected()
+                && 0 == emails.size()) {
             addInputError(Separator.EmptyString.toString());
         }
 
@@ -273,17 +263,21 @@ public final class PublishContainerAvatar extends Avatar implements
         });
     }
 
-    private void cancelJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
+    private void cancelJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelJButtonActionPerformed
         disposeWindow();
     }//GEN-LAST:event_cancelJButtonActionPerformed
-
-    private ThinkParitySwingMonitor createMonitor() {
-        return new PublishContainerSwingMonitor(this, getInputContainerId());
-    }
 
     private void contactsJListMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_contactsJListMousePressed
         listMousePressed(contactsListModel, e);
     }//GEN-LAST:event_contactsJListMousePressed
+
+    private ThinkParitySwingMonitor createMonitor() {
+        return new PublishContainerSwingMonitor(this, getInputContainerId());
+    }
+ 
+    private void emailsJTextFieldActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emailsJTextFieldActionPerformed
+        publishJButtonActionPerformed(evt);
+    }//GEN-LAST:event_emailsJTextFieldActionPerformed
 
     /**
      * Enable or disable text entry in the dialog.
@@ -292,22 +286,8 @@ public final class PublishContainerAvatar extends Avatar implements
      *            The enable <code>Boolean</code>.
      */
     private void enableTextEntry(final Boolean enable) {
-        enableTextEntry(emailsJTextField, enable);
-        enableTextEntry(versionNameJTextField, enable && PublishType.PUBLISH == getInputPublishType());
-    }
-
-    /**
-     * Enable or disable text entry for a text field.
-     * 
-     * @param jTextField
-     *            A <code>JTextField</code>.
-     * @param enable
-     *            The enable <code>Boolean</code>.
-     */
-    private void enableTextEntry(final javax.swing.JTextField jTextField, final Boolean enable) {
-        jTextField.setEditable(enable);
-        jTextField.setFocusable(enable);
-        jTextField.setOpaque(enable);
+        setEditable(emailsJTextField, enable);
+        setEditable(versionNameJTextField, enable && PublishType.PUBLISH == getInputPublishType());
     }
 
     /**
@@ -423,7 +403,13 @@ public final class PublishContainerAvatar extends Avatar implements
 
         versionNameJTextField.setFont(Fonts.DialogTextEntryFont);
         ((AbstractDocument) versionNameJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(containerConstraints.getVersionName()));
+        versionNameJTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                versionNameJTextFieldActionPerformed(evt);
+            }
+        });
 
+        teamMembersJLabel.setFont(Fonts.DialogFont);
         teamMembersJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.TeamMembers"));
 
         teamMembersJScrollPane.setBorder(null);
@@ -466,6 +452,11 @@ public final class PublishContainerAvatar extends Avatar implements
 
         emailsJTextField.setFont(Fonts.DialogTextEntryFont);
         ((AbstractDocument) emailsJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(containerConstraints.getEMails()));
+        emailsJTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                emailsJTextFieldActionPerformed(evt);
+            }
+        });
 
         buttonBarJPanel.setOpaque(false);
         fillerJLabel.setFont(Fonts.DialogFont);
@@ -562,28 +553,28 @@ public final class PublishContainerAvatar extends Avatar implements
                         .add(contactsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
                         .addContainerGap())
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(teamMembersJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 341, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(versionNameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 344, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 16, Short.MAX_VALUE)
-                        .add(contactsJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(emailsJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 77, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
                     .add(layout.createSequentialGroup()
                         .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())))
+                        .addContainerGap())
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(16, 16, 16)
+                        .add(teamMembersJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+                        .add(26, 26, 26))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(16, 16, 16)
+                        .add(versionNameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+                        .add(26, 26, 26))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(16, 16, 16)
+                        .add(contactsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+                        .add(26, 26, 26))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(16, 16, 16)
+                        .add(emailsJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+                        .add(26, 26, 26))))
         );
-
-        layout.linkSize(new java.awt.Component[] {contactsJScrollPane, emailsJTextField, teamMembersJScrollPane, versionNameJTextField}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
@@ -663,7 +654,7 @@ public final class PublishContainerAvatar extends Avatar implements
                 if (listModelIndex >= 0) {
                     listModel.set(listModelIndex, user);
                 }
-                publishJButton.setEnabled(isInputValid());
+                validateInput();
             }
         }
     }
@@ -701,7 +692,7 @@ public final class PublishContainerAvatar extends Avatar implements
         }  
     }
 
-    private void publishJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_publishJButtonActionPerformed
+    private void publishJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_publishJButtonActionPerformed
         if (isInputValid()) {
             publishJButton.setEnabled(false);
             publishContainer();
@@ -717,7 +708,7 @@ public final class PublishContainerAvatar extends Avatar implements
      * 
      * @return The list of contacts.
      */
-    private List<Contact> readContacts(List<TeamMember> teamMembers) {
+    private List<Contact> readContacts(final List<TeamMember> teamMembers) {
         return ((PublishContainerProvider) contentProvider)
                 .readPublishToContacts(teamMembers);
     }
@@ -861,13 +852,13 @@ public final class PublishContainerAvatar extends Avatar implements
                 name = FUZZY_DATE_FORMAT.format(readVersionPublishDate(containerId, versionId));
             }
             versionNameJTextField.setText(name);
-            enableTextEntry(versionNameJTextField, false);
+            setEditable(versionNameJTextField, false);
             break;
         case PUBLISH:
             defaultVersionName = FUZZY_DATE_FORMAT.format(Calendar.getInstance());
             versionNameJTextField.setText(defaultVersionName);
             versionNameJTextField.selectAll();
-            enableTextEntry(versionNameJTextField, true);
+            setEditable(versionNameJTextField, true);
             break;
         default:
             Assert.assertUnreachable("Unknown publish type.");
@@ -903,6 +894,10 @@ public final class PublishContainerAvatar extends Avatar implements
     private void teamMembersJListMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_teamMembersJListMousePressed
         listMousePressed(teamMembersListModel, e);
     }//GEN-LAST:event_teamMembersJListMousePressed
+
+    private void versionNameJTextFieldActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_versionNameJTextFieldActionPerformed
+        publishJButtonActionPerformed(evt);
+    }//GEN-LAST:event_versionNameJTextFieldActionPerformed
 
     public enum DataKey { CONTAINER_ID, PUBLISH_TYPE, VERSION_ID }
 

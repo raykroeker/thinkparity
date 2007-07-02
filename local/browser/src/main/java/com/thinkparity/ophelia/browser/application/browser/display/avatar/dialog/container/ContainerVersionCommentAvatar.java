@@ -6,6 +6,10 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+
 import com.thinkparity.codebase.model.container.ContainerVersion;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -22,34 +26,47 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  * @author  Administrator
  */
 public class ContainerVersionCommentAvatar extends Avatar {
-    
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JTextArea commentJTextArea = new javax.swing.JTextArea();
+    // End of variables declaration//GEN-END:variables
 
     /** Creates new form ContainerVersionCommentAvatar */
     public ContainerVersionCommentAvatar() {
         super("ContainerVersionCommentAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
+        bindEscapeKey();
     }
 
-    public void setState(final State state) {
+    public AvatarId getId() {
+        return AvatarId.DIALOG_CONTAINER_VERSION_COMMENT;
     }
 
     public State getState() {
         return null;
     }
 
-    public AvatarId getId() {
-        return AvatarId.DIALOG_CONTAINER_VERSION_COMMENT;
-    }
-    
     public void reload() {
         if (input != null) {
             reloadComment();
             commentJTextArea.setCaretPosition(0); //scroll to top
         }
     }
-    
+
+    public void setState(final State state) {
+    }
+
+    /**
+     * Make the escape key behave like cancel.
+     */
+    private void bindEscapeKey() {
+        bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                disposeWindow();
+            }
+        });
+    }
+
     /**
      * Obtain the input container id.
      *
@@ -63,7 +80,7 @@ public class ContainerVersionCommentAvatar extends Avatar {
             return null;
         }
     }
-    
+
     /**
      * Obtain the input container version id.
      *
@@ -104,8 +121,10 @@ public class ContainerVersionCommentAvatar extends Avatar {
         commentJTextArea.setEditable(false);
         commentJTextArea.setFont(Fonts.DialogTextEntryFont);
         commentJTextArea.setLineWrap(true);
+        commentJTextArea.setRows(4);
         commentJTextArea.setWrapStyleWord(true);
         commentJTextArea.setFocusable(false);
+        commentJTextArea.setPreferredSize(new java.awt.Dimension(164, 76));
         commentJScrollPane.setViewportView(commentJTextArea);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
@@ -122,15 +141,15 @@ public class ContainerVersionCommentAvatar extends Avatar {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 14, Short.MAX_VALUE)
+                .add(24, 24, 24)
+                .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 21, Short.MAX_VALUE)
                 .add(okJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void okJButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_okJButtonActionPerformed
+    private void okJButtonActionPerformed(final java.awt.event.ActionEvent evt) {// GEN-FIRST:event_okJButtonActionPerformed
         if (isInputValid()) {
             disposeWindow();
         }
@@ -150,10 +169,5 @@ public class ContainerVersionCommentAvatar extends Avatar {
         }
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JTextArea commentJTextArea = new javax.swing.JTextArea();
-    // End of variables declaration//GEN-END:variables
-    
     public enum DataKey { CONTAINER_ID, VERSION_ID }
-
 }

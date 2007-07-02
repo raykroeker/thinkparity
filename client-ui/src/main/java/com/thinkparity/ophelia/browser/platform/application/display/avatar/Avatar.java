@@ -354,7 +354,8 @@ public abstract class Avatar extends AbstractJPanel {
     /**
      * Add an avatar validation listener to the text component.
      *
-     * @param jTextComponent A swing <code>JTextComponent</code>.
+     * @param jTextComponent
+     *            A swing <code>JTextComponent</code>.
      */
     protected final void addValidationListener(final JTextComponent jTextComponent) {
         final String listenerId = getId().name() + "#documentListener";
@@ -393,6 +394,20 @@ public abstract class Avatar extends AbstractJPanel {
 	protected final Boolean containsInputErrors() {
         return 0 < inputErrors.size();
 	}
+
+    /**
+     * Enable or disable text entry for a text component.
+     * 
+     * @param jTextComponent
+     *            A swing <code>JTextComponent</code>.
+     * @param enable
+     *            The enable <code>Boolean</code>.
+     */
+    protected void setEditable(final JTextComponent jTextComponent, final Boolean enable) {
+        jTextComponent.setEditable(enable);
+        jTextComponent.setFocusable(enable);
+        jTextComponent.setOpaque(enable);
+    }
 
 	/**
 	 * Obtain the error.

@@ -28,7 +28,7 @@ public final class NotificationException extends RuntimeException {
      * @param cause
      *            The cause of the notification exception.
      */
-    NotificationException(final Throwable cause) {
+    public NotificationException(final Throwable cause) {
         super(cause);
     }
 }

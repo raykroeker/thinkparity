@@ -129,7 +129,7 @@ public class ProviderFactory {
             provider = new UpdateDraftCommentProvider(profileModel, containerModel);
             break;
         case DIALOG_CONTAINER_VERSION_COMMENT:
-            provider = new ContainerVersionProvider(profileModel, containerModel, userModel);
+            provider = new ContainerVersionProvider(profileModel, containerModel);
             break;
         case DIALOG_PLATFORM_SIGNUP:
         case DIALOG_PLATFORM_SIGNUP_ACCOUNT:

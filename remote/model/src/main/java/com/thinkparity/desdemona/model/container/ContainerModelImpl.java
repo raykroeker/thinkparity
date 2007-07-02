@@ -38,7 +38,7 @@ import com.thinkparity.desdemona.model.user.InternalUserModel;
  * <b>Description:</b>The desdemona model container implementation.<br>
  * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.33
+ * @version 1.1.2.42
  */
 public final class ContainerModelImpl extends AbstractModelImpl implements
         ContainerModel, InternalContainerModel {

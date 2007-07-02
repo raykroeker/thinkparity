@@ -129,13 +129,10 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     public void toggleExpansion(final TabPanel tabPanel, final Boolean animate) {
         checkThread();
         ArchiveTabPanel archivePanel = (ArchiveTabPanel) tabPanel;
-        if (!archivePanel.getContainer().isSeen()) {
-            final Long containerId = archivePanel.getContainer().getId();  
+        if (!archivePanel.getContainer().isSeen()) { 
             browser.runApplyContainerFlagSeen(archivePanel.getContainer().getId());
-            syncContainer(archivePanel.getContainer().getId(), Boolean.FALSE);
-            // NOTE not sure why we are re-assigning raymond@thinkparity.com
-            archivePanel = (ArchiveTabPanel) lookupPanel(containerId);
         }
+
         super.toggleExpansion(archivePanel, animate);
     }
 
@@ -242,11 +239,8 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      */
     @Override
     protected TabPanel lookupPanel(final Long panelId) {
-        final int panelIndex = lookupIndex(panelId); 
-        if (-1 == panelIndex)
-            return null;
-        else
-            return panels.get(panelIndex);
+        final int panelIndex = lookupIndex(panelId);
+        return -1 == panelIndex ? null : panels.get(panelIndex);
     }
 
     /**
@@ -286,9 +280,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
         for (final ContainerVersion version : versions) {
             versionDocumentViews = readDocumentViews(version.getArtifactId(),
                     version.getVersionId());
-            for (final DocumentView versionDocumentView : versionDocumentViews) {
-                containerIdLookup.put(versionDocumentView.getDocumentId(), container.getId());
-            }
             documentViews.put(version, versionDocumentViews);
             publishedTo.put(version, readPublishedTo(version.getArtifactId(),
                     version.getVersionId()));
@@ -433,6 +424,18 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Add a lookup relationship.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void addContainerIdLookup(final Long documentId, final Long containerId) {
+        containerIdLookup.put(documentId, containerId);
+    }
+
+    /**
      * Add a container panel. This will read the container's versions and add
      * the appropriate version panel as well.
      * 
@@ -440,20 +443,7 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      *            A <code>container</code>.
      */
     private void addContainerPanel(final Container container) {
-        addContainerPanel(panels.size() == 0 ? 0 : panels.size() - 1, container);
-    }
-
-    /**
-     * Add a container panel. This will read the container's data and add the
-     * container panel.
-     * 
-     * @param index
-     *            An <code>Integer</code> index.
-     * @param container
-     *            A <code>container</code>.
-     */
-    private void addContainerPanel(final int index,
-            final Container container) {
+        checkThread();
         final DraftView draftView = readDraftView(container.getId());
         final ContainerVersion latestVersion = readLatestVersion(container.getId());
         final ContainerVersion earliestVersion;
@@ -464,11 +454,11 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
         }
         if (draftView.isLocal()) {
             for (final Document document : draftView.getDocuments()) {
-                containerIdLookup.put(document.getId(), container.getId());
+                addContainerIdLookup(document.getId(), container.getId());
             }
         }
         final TabPanel tabPanel = toDisplay(container, draftView, earliestVersion, latestVersion);
-        panels.add(index, tabPanel);
+        panels.add(tabPanel);
         if (isExpanded(tabPanel)) {
             setExpandedPanelData(tabPanel);
         }
@@ -695,6 +685,23 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Remove a lookup relationship.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void removeContainerIdLookup(final Long containerId) {
+        Long lookupContainerId;
+        for (final Iterator<Long> iLookupValues =
+                containerIdLookup.values().iterator(); iLookupValues.hasNext(); ) {
+            lookupContainerId = iLookupValues.next();
+            if (lookupContainerId.equals(containerId)) {
+                iLookupValues.remove();
+            }
+        }
+    }
+
+    /**
      * Remove a container panel.
      * 
      * @param container
@@ -704,14 +711,7 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      */
     private void removeContainerPanel(final Long containerId,
             final boolean removeExpandedState) {
-        Long lookupContainerId;
-        for (final Iterator<Long> iLookupValues =
-            containerIdLookup.values().iterator(); iLookupValues.hasNext(); ) {
-            lookupContainerId = iLookupValues.next();
-            if (lookupContainerId.equals(containerId)) {
-                iLookupValues.remove();
-            }
-        }
+        removeContainerIdLookup(containerId);
         final int panelIndex = lookupIndex(containerId);
         if (-1 == panelIndex) {
             logger.logError("Cannot remove archive panel, container id {0}.", containerId);
@@ -721,6 +721,35 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
                 removeExpandedState(containerPanel);
             }
         }
+    }
+
+    /**
+     * Synchronize the container in the display.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param remote
+     *            A remote event <code>Boolean</code> indicator.             
+     */
+    void syncContainerImpl(final Long containerId, final Boolean remote) {
+        debug();
+        boolean requestFocus = false;
+        final Container container = read(containerId);
+        if (null == container) {
+            removeContainerPanel(containerId, true);
+        } else {
+            final int panelIndex = lookupIndex(containerId);
+            if (-1 < panelIndex) {
+                requestFocus = ((Component)lookupPanel(containerId)).isFocusOwner();
+                removeContainerPanel(containerId, false);
+            }
+            addContainerPanel(container);
+        }
+        synchronize();
+        if (requestFocus) {
+            requestFocusInWindow(lookupPanel(containerId));
+        }
+        debug();
     }
 
     /**

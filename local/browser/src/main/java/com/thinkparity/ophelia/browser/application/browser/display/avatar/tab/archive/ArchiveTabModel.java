@@ -89,11 +89,11 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
                         }
                     };
                 }
-                public String getText() {
-                    return getString(filterByValue);
-                }
                 public String getName() {
                     return filterByValue.toString();
+                }
+                public String getText() {
+                    return getString(filterByValue);
                 }
             });
         }
@@ -148,6 +148,20 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
         if (isFilterApplied()) {
             FilterManager.filter(filteredPanels, filterBy);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#applySearch(java.lang.String)
+     *
+     */
+    @Override
+    protected void applySearch(final String searchExpression) {
+        this.comparator = new Comparator<TabPanel>() {
+            public int compare(final TabPanel o1, final TabPanel o2) {
+                return 0;
+            }
+        };
+        super.applySearch(searchExpression);
     }
 
     /**
@@ -243,6 +257,16 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     protected List<Long> readSearchResults() {
         checkThread();
         return getProvider().search(searchExpression);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#removeSearch()
+     *
+     */
+    @Override
+    protected void removeSearch() {
+        this.comparator = null;
+        super.removeSearch();
     }
 
     /**
@@ -355,6 +379,45 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Synchronize the container in the display.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param remote
+     *            A remote event <code>Boolean</code> indicator.             
+     */
+    void syncContainerImpl(final Long containerId, final Boolean remote) {
+        debug();
+        boolean requestFocus = false;
+        final Container container = read(containerId);
+        // remove the container from the panel list
+        if (null == container) {
+            removeContainerPanel(containerId, true);
+        } else {
+            final int panelIndex = lookupIndex(container.getId());
+            if (-1 < panelIndex) {
+                // if the reload is the result of a remote event add the container
+                // at the top of the list; otherwise add it in the same location
+                // it previously existed
+                requestFocus = ((Component)lookupPanel(containerId)).hasFocus();
+                removeContainerPanel(containerId, false);
+                if (remote) {
+                    addContainerPanel(0, container);
+                } else {
+                    addContainerPanel(panelIndex, container);
+                }
+            } else {
+                addContainerPanel(0, container);
+            }
+        }
+        synchronize();
+        if (requestFocus) {
+            requestFocusInWindow(lookupPanel(containerId));
+        }
+        debug();
+    }
+
+    /**
      * Synchronize when a flag has changed.
      * Performance is a concern so unnecessary steps are avoided.
      * 
@@ -451,15 +514,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Obtain the provider.
-     * 
-     * @return An instance of <code>ArchiveTabProvider</code>.
-     */
-    private ArchiveTabProvider getProvider() {
-        return (ArchiveTabProvider) contentProvider;
-    }
-
-    /**
      * Get the initial filter.
      * 
      * @return A <code>FilterBy</code>.
@@ -467,6 +521,15 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     private FilterBy getInitialFilter() {
         final FilterBy filterBy = FilterBy.FILTER_NONE;
         return filterBy;
+    }
+
+    /**
+     * Obtain the provider.
+     * 
+     * @return An instance of <code>ArchiveTabProvider</code>.
+     */
+    private ArchiveTabProvider getProvider() {
+        return (ArchiveTabProvider) contentProvider;
     }
 
     /**
@@ -506,7 +569,7 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
                 return i;
         return -1;
     }
-
+    
     /**
      * Read the container from the provider.
      * 
@@ -517,7 +580,7 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     private Container read(final Long containerId) {
         return getProvider().read(containerId);
     }
-    
+
     /**
      * Read the containers from the provider.
      * 
@@ -585,6 +648,20 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Read the published to user list.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>PublishedToView</code>.
+     */
+    private PublishedToView readPublishedTo(final Long containerId,
+            final Long versionId) {
+        return getProvider().readPublishedTo(containerId, versionId);
+    }
+
+    /**
      * Read the team.
      * 
      * @param containerId
@@ -604,20 +681,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      */
     private User readUser(final JabberId userId) {
         return getProvider().readUser(userId);
-    }
-
-    /**
-     * Read the published to user list.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A container version id <code>Long</code>.
-     * @return A <code>PublishedToView</code>.
-     */
-    private PublishedToView readPublishedTo(final Long containerId,
-            final Long versionId) {
-        return getProvider().readPublishedTo(containerId, versionId);
     }
 
     /**
@@ -658,45 +721,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
                 removeExpandedState(containerPanel);
             }
         }
-    }
-
-    /**
-     * Synchronize the container in the display.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param remote
-     *            A remote event <code>Boolean</code> indicator.             
-     */
-    void syncContainerImpl(final Long containerId, final Boolean remote) {
-        debug();
-        boolean requestFocus = false;
-        final Container container = read(containerId);
-        // remove the container from the panel list
-        if (null == container) {
-            removeContainerPanel(containerId, true);
-        } else {
-            final int panelIndex = lookupIndex(container.getId());
-            if (-1 < panelIndex) {
-                // if the reload is the result of a remote event add the container
-                // at the top of the list; otherwise add it in the same location
-                // it previously existed
-                requestFocus = ((Component)lookupPanel(containerId)).hasFocus();
-                removeContainerPanel(containerId, false);
-                if (remote) {
-                    addContainerPanel(0, container);
-                } else {
-                    addContainerPanel(panelIndex, container);
-                }
-            } else {
-                addContainerPanel(0, container);
-            }
-        }
-        synchronize();
-        if (requestFocus) {
-            requestFocusInWindow(lookupPanel(containerId));
-        }
-        debug();
     }
 
     /**

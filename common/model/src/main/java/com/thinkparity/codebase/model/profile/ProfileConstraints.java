@@ -83,6 +83,9 @@ public final class ProfileConstraints {
     /** The profile username <code>StringConstraint</code>. */
     private final StringConstraint username;
 
+    /** The verify email key <code>StringConstraint</code>. */
+    private final StringConstraint verifyEmailKey;
+
     /**
      * Create ProfileConstraints.
      *
@@ -93,13 +96,13 @@ public final class ProfileConstraints {
         this.address.setMaxLength(64);
         this.address.setMinLength(1);
         this.address.setName("Address");
-        this.address.setNullable(Boolean.TRUE);
+        this.address.setNullable(Boolean.FALSE);
 
         this.city = new StringConstraint();
         this.city.setMaxLength(64);
         this.city.setMinLength(1);
         this.city.setName("City");
-        this.city.setNullable(Boolean.TRUE);
+        this.city.setNullable(Boolean.FALSE);
 
         this.country = new CountryConstraint();
         this.country.setName("Country");
@@ -153,13 +156,13 @@ public final class ProfileConstraints {
         this.postalCode.setMaxLength(64);
         this.postalCode.setMinLength(1);
         this.postalCode.setName("Postal code");
-        this.postalCode.setNullable(Boolean.TRUE);
+        this.postalCode.setNullable(Boolean.FALSE);
 
         this.province = new StringConstraint();
         this.province.setMaxLength(64);
         this.province.setMinLength(1);
         this.province.setName("Province");
-        this.province.setNullable(Boolean.TRUE);
+        this.province.setNullable(Boolean.FALSE);
 
         this.securityAnswer = new StringConstraint();
         this.securityAnswer.setMaxLength(64);
@@ -188,6 +191,12 @@ public final class ProfileConstraints {
         this.username.setMinLength(6);
         this.username.setName("Username");
         this.username.setNullable(Boolean.FALSE);
+
+        this.verifyEmailKey = new StringConstraint();
+        this.verifyEmailKey.setMaxLength(512);
+        this.verifyEmailKey.setMinLength(1);
+        this.verifyEmailKey.setName("Verify Email Key");
+        this.verifyEmailKey.setNullable(Boolean.FALSE);
     }
 
     /**
@@ -352,5 +361,12 @@ public final class ProfileConstraints {
         return username;
     }
 
-    
+    /**
+     * Obtain the verify email key constraint.
+     * 
+     * @return A <code>StringConstraint</code>.
+     */
+    public StringConstraint getVerifyEmailKey() {
+        return verifyEmailKey;
+    }
 }

@@ -851,7 +851,7 @@ public abstract class AbstractModelImpl
                      *
                      */
                     public void chunkReceived(final int chunkSize) {
-                        logger.logInfo("Downloaded {0}.",
+                        logger.logDebug("Downloaded {0}.",
                                 bytesFormat.format(new Long(chunkSize)));
                     }
         

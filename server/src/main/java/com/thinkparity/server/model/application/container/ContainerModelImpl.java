@@ -154,6 +154,9 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             // enqueue invitation events
             createInvitations(user.getId(), version, publishToEMails,
                     version.getCreatedOn());
+
+            // enqueue backup updated events
+            enqueueBackupStatistics(version);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -186,6 +189,9 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
 
             // create requisite incoming/outgoing e-mail invitations
             createInvitations(user.getId(), version, publishToEMails, publishedOn);
+
+            // enqueue backup updated events
+            enqueueBackupStatistics(version);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -306,6 +312,20 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         final InternalArtifactModel artifactModel = getArtifactModel();
         final Artifact artifact = artifactModel.read(version.getArtifactUniqueId());
         getArtifactModel().deleteDraft(artifact, version.getCreatedOn());
+    }
+
+    /**
+     * Enqueue a backup statistics updated event for each team member.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     */
+    private void enqueueBackupStatistics(final ContainerVersion version) {
+        final Artifact localArtifact = localize(version);
+        final List<TeamMember> team = getArtifactModel().readTeam(localArtifact.getId());
+        for (final TeamMember teamMember : team) {
+            getBackupModel(teamMember).enqueueBackupEvent();
+        }
     }
 
     /**

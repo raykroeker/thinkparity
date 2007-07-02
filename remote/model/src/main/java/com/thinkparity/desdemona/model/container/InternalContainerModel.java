@@ -8,6 +8,6 @@ package com.thinkparity.desdemona.model.container;
  * <b>Description:</b>A public desdemona model container interface.<br>
  * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.22
+ * @version 1.1.2.4
  */
 public interface InternalContainerModel extends ContainerModel {}

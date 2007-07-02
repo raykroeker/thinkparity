@@ -75,20 +75,6 @@ public class PublishContainerProvider extends ContentProvider {
     }
 
     /**
-     * Get the comment associated with a container version.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.  
-     * @return The comment <code>String</code>.              
-     */
-    public String readContainerVersionComment(final Long containerId,
-            final Long versionId) {
-        return containerModel.readVersion(containerId, versionId).getComment();
-    }
-
-    /**
      * Get the version Id associated with the latest version, or null if
      * there is no version.
      * 

@@ -19,8 +19,14 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="progressBarJPanel" max="32767" attributes="0"/>
-                  <Component id="explanationJLabel" alignment="1" pref="380" max="32767" attributes="0"/>
-                  <Component id="warningJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="explanationJLabel" alignment="0" min="-2" pref="360" max="-2" attributes="0"/>
+                          <Component id="warningJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="50" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -32,8 +38,8 @@
               <EmptySpace min="-2" pref="57" max="-2" attributes="0"/>
               <Component id="warningJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="explanationJLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="47" max="32767" attributes="0"/>
+              <Component id="explanationJLabel" min="-2" pref="105" max="-2" attributes="0"/>
+              <EmptySpace pref="40" max="32767" attributes="0"/>
               <Component id="progressBarJPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="49" max="-2" attributes="0"/>
           </Group>
@@ -80,8 +86,8 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="stepJLabel" alignment="1" pref="380" max="32767" attributes="0"/>
-              <Component id="loginJProgressBar" alignment="0" pref="380" max="32767" attributes="0"/>
+              <Component id="stepJLabel" alignment="1" pref="455" max="32767" attributes="0"/>
+              <Component id="loginJProgressBar" alignment="0" pref="455" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">

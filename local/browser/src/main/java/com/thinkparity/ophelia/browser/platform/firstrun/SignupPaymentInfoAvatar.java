@@ -119,6 +119,14 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#setDefaultFocus()
+     */
+    @Override
+    public void setDefaultFocus() {
+        betaActivationCodeJTextField.requestFocusInWindow();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#validateInput()
      *
      */

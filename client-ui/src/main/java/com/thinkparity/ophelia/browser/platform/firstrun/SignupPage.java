@@ -66,6 +66,11 @@ public interface SignupPage {
     public void saveData();
 
     /**
+     * Set the default focus.
+     */
+    public void setDefaultFocus();
+
+    /**
      * Set the signup delegate.
      * 
      * @param signupDelegate

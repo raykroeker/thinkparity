@@ -172,6 +172,14 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#setDefaultFocus()
+     */
+    @Override
+    public void setDefaultFocus() {
+        accountTypeStandardJRadioButton.requestFocusInWindow();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#validateInput()
      *
      */

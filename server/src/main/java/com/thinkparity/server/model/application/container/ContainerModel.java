@@ -22,7 +22,7 @@ import com.thinkparity.desdemona.util.AuthenticationType;
  * <b>Description:</b>A public desdemona model container interface.<br>
  * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.22
+ * @version 1.1.2.30
  */
 public interface ContainerModel {
 

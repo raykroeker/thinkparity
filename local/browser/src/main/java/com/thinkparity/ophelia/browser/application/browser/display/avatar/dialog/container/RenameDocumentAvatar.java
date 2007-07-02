@@ -10,12 +10,15 @@ import java.awt.event.ActionEvent;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.text.AbstractDocument;
 
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.text.JTextComponentLengthFilter;
 
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentConstraints;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
@@ -33,6 +36,9 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  */
 public class RenameDocumentAvatar extends Avatar {
 
+    /** An instance of <code>DocumentConstraints</code>. */
+    private final DocumentConstraints documentConstraints;
+
     /** List of draft documents for this package. */
     private List<Document> draftDocuments;
 
@@ -45,6 +51,7 @@ public class RenameDocumentAvatar extends Avatar {
     /** Creates new form RenameDocumentAvatar */
     public RenameDocumentAvatar() {
         super("RenameDocumentAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
+        this.documentConstraints = DocumentConstraints.getInstance();
         initComponents();
         addValidationListener(nameJTextField);
         bindEscapeKey();
@@ -159,6 +166,7 @@ public class RenameDocumentAvatar extends Avatar {
         nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RenameDocumentAvatar.Name"));
 
         nameJTextField.setFont(Fonts.DialogTextEntryFont);
+        ((AbstractDocument) nameJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(documentConstraints.getDocumentName()));
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 nameJTextFieldActionPerformed(evt);

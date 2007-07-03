@@ -16,18 +16,18 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="profileJSeparator" pref="455" max="32767" attributes="0"/>
+                      <Component id="profileJSeparator" pref="499" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
                       <Component id="backupJLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="390" max="32767" attributes="0"/>
+                      <EmptySpace pref="423" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="errorMessageJLabel" pref="439" max="32767" attributes="0"/>
+                              <Component id="errorMessageJLabel" pref="485" max="32767" attributes="0"/>
                               <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="1" attributes="0">
@@ -59,7 +59,7 @@
                                           <Component id="postalCodeJLabel" alignment="0" min="-2" max="-2" attributes="1"/>
                                           <Component id="emailJLabel" min="-2" max="-2" attributes="1"/>
                                       </Group>
-                                      <EmptySpace pref="24" max="32767" attributes="0"/>
+                                      <EmptySpace pref="46" max="32767" attributes="0"/>
                                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                           <Component id="countryJPanel" max="32767" attributes="1"/>
                                           <Component id="emailJTextField" alignment="0" max="32767" attributes="1"/>
@@ -74,12 +74,12 @@
                                           <Component id="nameJTextField" linkSize="5" alignment="0" pref="321" max="32767" attributes="3"/>
                                       </Group>
                                   </Group>
-                                  <Component id="backupExplanationJLabel" alignment="0" pref="439" max="32767" attributes="0"/>
+                                  <Component id="backupExplanationJLabel" alignment="0" pref="483" max="32767" attributes="0"/>
                                   <Component id="backupStatisticsJLabel" linkSize="5" alignment="1" min="-2" pref="313" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="profileExplanationJLabel" alignment="1" pref="455" max="32767" attributes="0"/>
+                          <Component id="profileExplanationJLabel" alignment="1" pref="499" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -464,6 +464,7 @@
             <Property name="text" type="java.lang.String" value="Middle Earth"/>
           </Properties>
           <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
             <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
           </AuxValues>
           <Constraints>

@@ -70,7 +70,7 @@ public class UpdateProfileAvatar extends Avatar {
     private final javax.swing.JComboBox countryJComboBox = new javax.swing.JComboBox();
     private final javax.swing.JLabel countryJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel countryJPanel = new javax.swing.JPanel();
-    private final javax.swing.JTextField countryJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField countryJTextField = TextFactory.create();
     private final javax.swing.JLabel emailJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField emailJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
@@ -391,8 +391,8 @@ public class UpdateProfileAvatar extends Avatar {
         nameJTextField.setText("John McClean");
         ((AbstractDocument) nameJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getName()));
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                profileJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                profileJTextFieldActionPerformed(e);
             }
         });
 
@@ -402,8 +402,8 @@ public class UpdateProfileAvatar extends Avatar {
         titleJTextField.setText("Over The Hill Cop");
         ((AbstractDocument) titleJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getTitle()));
         titleJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                profileJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                profileJTextFieldActionPerformed(e);
             }
         });
 
@@ -413,8 +413,8 @@ public class UpdateProfileAvatar extends Avatar {
         organizationJTextField.setText("NYPD");
         ((AbstractDocument) organizationJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getOrganization()));
         organizationJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                profileJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                profileJTextFieldActionPerformed(e);
             }
         });
 
@@ -424,8 +424,8 @@ public class UpdateProfileAvatar extends Avatar {
         phoneJTextField.setText("555-555-1111");
         ((AbstractDocument) phoneJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPhone()));
         phoneJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                profileJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                profileJTextFieldActionPerformed(e);
             }
         });
 
@@ -435,8 +435,8 @@ public class UpdateProfileAvatar extends Avatar {
         mobilePhoneJTextField.setText("555-555-1111");
         ((AbstractDocument) mobilePhoneJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getMobilePhone()));
         mobilePhoneJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                profileJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                profileJTextFieldActionPerformed(e);
             }
         });
 
@@ -446,8 +446,8 @@ public class UpdateProfileAvatar extends Avatar {
         addressJTextField.setText("1234 5th Street");
         ((AbstractDocument) addressJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getAddress()));
         addressJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                profileJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                profileJTextFieldActionPerformed(e);
             }
         });
 
@@ -457,8 +457,8 @@ public class UpdateProfileAvatar extends Avatar {
         cityJTextField.setText("NYC");
         ((AbstractDocument) cityJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getCity()));
         cityJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                profileJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                profileJTextFieldActionPerformed(e);
             }
         });
 
@@ -468,8 +468,8 @@ public class UpdateProfileAvatar extends Avatar {
         provinceJTextField.setText("NY");
         ((AbstractDocument) provinceJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getProvince()));
         provinceJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                profileJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                profileJTextFieldActionPerformed(e);
             }
         });
 
@@ -500,8 +500,8 @@ public class UpdateProfileAvatar extends Avatar {
         postalCodeJTextField.setText("90210");
         ((AbstractDocument) postalCodeJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPostalCode()));
         postalCodeJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                profileJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                profileJTextFieldActionPerformed(e);
             }
         });
 
@@ -511,8 +511,8 @@ public class UpdateProfileAvatar extends Avatar {
         emailJTextField.setText("john@nypd.org");
         ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getEmail()));
         emailJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                profileJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                profileJTextFieldActionPerformed(e);
             }
         });
 
@@ -532,24 +532,24 @@ public class UpdateProfileAvatar extends Avatar {
         changePasswordJButton.setFont(Fonts.DialogButtonFont);
         changePasswordJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateProfileAvatar.Password"));
         changePasswordJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                changePasswordJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                changePasswordJButtonActionPerformed(e);
             }
         });
 
         saveJButton.setFont(Fonts.DialogButtonFont);
         saveJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateProfileAvatar.OK"));
         saveJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                saveJButtonActionPerformed(e);
             }
         });
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
         cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateProfileAvatar.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelJButtonActionPerformed(e);
             }
         });
 
@@ -561,16 +561,16 @@ public class UpdateProfileAvatar extends Avatar {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(profileJSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
+                        .addComponent(profileJSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE)
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
                         .addGap(16, 16, 16)
                         .addComponent(backupJLabel)
-                        .addContainerGap(390, Short.MAX_VALUE))
+                        .addContainerGap(423, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE)
+                                .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 485, Short.MAX_VALUE)
                                 .addGap(14, 14, 14))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addComponent(changePasswordJButton)
@@ -597,7 +597,7 @@ public class UpdateProfileAvatar extends Avatar {
                                             .addComponent(countryJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                             .addComponent(postalCodeJLabel)
                                             .addComponent(emailJLabel))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                             .addComponent(countryJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                             .addComponent(emailJTextField)
@@ -610,10 +610,10 @@ public class UpdateProfileAvatar extends Avatar {
                                             .addComponent(organizationJTextField, javax.swing.GroupLayout.Alignment.TRAILING)
                                             .addComponent(titleJTextField, javax.swing.GroupLayout.Alignment.TRAILING)
                                             .addComponent(nameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE)))
-                                    .addComponent(backupExplanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE)
+                                    .addComponent(backupExplanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 483, Short.MAX_VALUE)
                                     .addComponent(backupStatisticsJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 313, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(16, 16, 16))
-                            .addComponent(profileExplanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
+                            .addComponent(profileExplanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE))
                         .addContainerGap())))
         );
 

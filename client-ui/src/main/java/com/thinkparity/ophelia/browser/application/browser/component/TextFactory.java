@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.component;
 
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,10 +14,13 @@ import javax.swing.JPasswordField;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+import com.thinkparity.codebase.swing.MaximumSizeProvider;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Text Factory<br>
@@ -95,6 +99,24 @@ public class TextFactory extends ComponentFactory {
             }
         });
         JPOPUP_MENU.add(selectAll);
+
+        JPOPUP_MENU.addPopupMenuListener(new PopupMenuListener() {
+            public void popupMenuCanceled(final PopupMenuEvent e) {}
+            public void popupMenuWillBecomeInvisible(final PopupMenuEvent e) {}
+            public void popupMenuWillBecomeVisible(final PopupMenuEvent e) {
+                final JTextComponent source = (JTextComponent) JPOPUP_MENU.getInvoker();
+                if (source.getSelectionStart() == source.getSelectionEnd()) {
+                    /* no selection is set; disable some elements */
+                    copy.setEnabled(false);
+                    cut.setEnabled(false);
+                    delete.setEnabled(false);
+                } else {
+                    copy.setEnabled(true);
+                    cut.setEnabled(true);
+                    delete.setEnabled(true);
+                }
+            }
+        });
 	}
 
     public static JTextField create() {
@@ -103,6 +125,11 @@ public class TextFactory extends ComponentFactory {
 
     public static JTextField create(final Font font) {
         return SINGLETON.doCreate(font);
+    }
+
+    public static JTextField create(final Integer columns,
+            final MaximumSizeProvider<JTextField> maxSizeProvider) {
+        return SINGLETON.doCreate(columns, maxSizeProvider);
     }
 
     public static JTextArea createArea() {
@@ -129,7 +156,7 @@ public class TextFactory extends ComponentFactory {
         super();
 	}
 
-	private JTextField doCreate() {
+    private JTextField doCreate() {
 		final JTextField jTextField = new JTextField();
 		applyDefaultFont(jTextField);
         applyJPopupMenu(jTextField, JPOPUP_MENU);
@@ -140,6 +167,19 @@ public class TextFactory extends ComponentFactory {
         final JTextField jTextField = doCreate();
         applyFont(jTextField, font);
         return jTextField;      
+    }
+
+	private JTextField doCreate(final Integer columns,
+            final MaximumSizeProvider<JTextField> maxSizeProvider) {
+        final JTextField jTextField = new JTextField(columns.intValue()) {
+            @Override
+            public Dimension getMaximumSize() {
+                return maxSizeProvider.getMaximumSize(this);
+            }
+        };
+        applyDefaultFont(jTextField);
+        applyJPopupMenu(jTextField, JPOPUP_MENU);
+        return jTextField;
     }
 
 	private JTextArea doCreateArea() {

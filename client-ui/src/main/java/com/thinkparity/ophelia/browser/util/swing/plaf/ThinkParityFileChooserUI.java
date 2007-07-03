@@ -39,6 +39,10 @@ import javax.swing.plaf.InsetsUIResource;
 import javax.swing.plaf.basic.BasicDirectoryModel;
 import javax.swing.plaf.basic.BasicFileChooserUI;
 
+import com.thinkparity.codebase.swing.MaximumSizeProvider;
+
+import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
+
 import sun.awt.shell.ShellFolder;
 import sun.swing.FilePane;
 import sun.swing.WindowsPlacesBar;
@@ -460,12 +464,13 @@ public class ThinkParityFileChooserUI extends BasicFileChooserUI {
         fileAndFilterPanel.setLayout(new BoxLayout(fileAndFilterPanel,
                 BoxLayout.Y_AXIS));
 
-        filenameTextField = new JTextField(35) {
-            public Dimension getMaximumSize() {
-                return new Dimension(Short.MAX_VALUE,
-                        super.getPreferredSize().height);
-            }
-        };
+        filenameTextField = TextFactory.create(35,
+                new MaximumSizeProvider<JTextField>() {
+                    public Dimension getMaximumSize(final JTextField jComponent) {
+                        return new Dimension(Short.MAX_VALUE,
+                                jComponent.getPreferredSize().height);
+                    }
+        });
 
         fnl.setLabelFor(filenameTextField);
         filenameTextField.addFocusListener(new FocusAdapter() {

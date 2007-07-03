@@ -20,6 +20,7 @@ import com.thinkparity.codebase.model.container.ContainerConstraints;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
+import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -42,7 +43,7 @@ public class CreateContainerAvatar extends Avatar {
     private final ContainerConstraints containerConstraints;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField nameJTextField = TextFactory.create();
     private final javax.swing.JButton okJButton = ButtonFactory.create();
     // End of variables declaration//GEN-END:variables
 
@@ -160,24 +161,24 @@ public class CreateContainerAvatar extends Avatar {
         nameJTextField.setFont(Fonts.DialogTextEntryFont);
         ((AbstractDocument) nameJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(containerConstraints.getContainerName()));
         nameJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                nameJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                nameJTextFieldActionPerformed(e);
             }
         });
 
         okJButton.setFont(Fonts.DialogButtonFont);
         okJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("CreateContainerAvatar.Ok"));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                okJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                okJButtonActionPerformed(e);
             }
         });
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
         cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("CreateContainerAvatar.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelJButtonActionPerformed(e);
             }
         });
 

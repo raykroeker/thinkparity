@@ -184,6 +184,18 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints.insets = new java.awt.Insets(11, 0, 4, 4);
         add(rightJLabel, gridBagConstraints);
 
+        searchJTextField.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(final DocumentEvent e) {
+                searchJTextFieldChangedUpdate(e);
+            }
+            public void insertUpdate(final DocumentEvent e) {
+                searchJTextFieldInsertUpdate(e);
+            }
+            public void removeUpdate(final DocumentEvent e) {
+                searchJTextFieldRemoveUpdate(e);
+            }
+        });
+        searchJTextField.setBorder(new TopBottomBorder(Colors.Browser.MainTitle.SEARCH_OUTLINE));
         searchJTextField.setMargin(new java.awt.Insets(3, 5, 0, 4));
         searchJTextField.setMinimumSize(new java.awt.Dimension(1, 19));
         searchJTextField.setOpaque(false);

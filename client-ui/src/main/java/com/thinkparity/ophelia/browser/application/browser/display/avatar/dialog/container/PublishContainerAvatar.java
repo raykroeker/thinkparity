@@ -39,6 +39,7 @@ import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
+import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.PublishContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.dialog.container.PublishContainerAvatarUserCellRenderer;
@@ -73,7 +74,7 @@ public final class PublishContainerAvatar extends Avatar implements
     private final javax.swing.JLabel contactsJLabel = new javax.swing.JLabel();
     private final javax.swing.JList contactsJList = new javax.swing.JList();
     private final javax.swing.JScrollPane contactsJScrollPane = new javax.swing.JScrollPane();
-    private final javax.swing.JTextField emailsJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField emailsJTextField = TextFactory.create();
     private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
     private final javax.swing.JButton publishJButton = ButtonFactory.create();
     private final javax.swing.JProgressBar publishJProgressBar = new javax.swing.JProgressBar();
@@ -81,7 +82,7 @@ public final class PublishContainerAvatar extends Avatar implements
     private final javax.swing.JLabel teamMembersJLabel = new javax.swing.JLabel();
     private final javax.swing.JList teamMembersJList = new javax.swing.JList();
     private final javax.swing.JScrollPane teamMembersJScrollPane = new javax.swing.JScrollPane();
-    private final javax.swing.JTextField versionNameJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField versionNameJTextField = TextFactory.create();
     // End of variables declaration//GEN-END:variables
 
     /** The contacts list <code>PublishContainerAvatarUserListModel</code>. */
@@ -426,8 +427,8 @@ public final class PublishContainerAvatar extends Avatar implements
         versionNameJTextField.setFont(Fonts.DialogTextEntryFont);
         ((AbstractDocument) versionNameJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(containerConstraints.getVersionName()));
         versionNameJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                versionNameJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                versionNameJTextFieldActionPerformed(e);
             }
         });
 
@@ -443,8 +444,8 @@ public final class PublishContainerAvatar extends Avatar implements
         teamMembersJList.setOpaque(false);
         teamMembersJList.setVisibleRowCount(4);
         teamMembersJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                teamMembersJListMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                teamMembersJListMousePressed(e);
             }
         });
 
@@ -462,8 +463,8 @@ public final class PublishContainerAvatar extends Avatar implements
         contactsJList.setOpaque(false);
         contactsJList.setVisibleRowCount(4);
         contactsJList.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                contactsJListMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                contactsJListMousePressed(e);
             }
         });
 
@@ -475,8 +476,8 @@ public final class PublishContainerAvatar extends Avatar implements
         emailsJTextField.setFont(Fonts.DialogTextEntryFont);
         ((AbstractDocument) emailsJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(containerConstraints.getEMails()));
         emailsJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                emailsJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                emailsJTextFieldActionPerformed(e);
             }
         });
 
@@ -487,16 +488,16 @@ public final class PublishContainerAvatar extends Avatar implements
         publishJButton.setFont(Fonts.DialogButtonFont);
         publishJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.Publish"));
         publishJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                publishJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                publishJButtonActionPerformed(e);
             }
         });
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
         cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelJButtonActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelJButtonActionPerformed(e);
             }
         });
 
@@ -539,8 +540,8 @@ public final class PublishContainerAvatar extends Avatar implements
         progressBarJPanel.setLayout(progressBarJPanelLayout);
         progressBarJPanelLayout.setHorizontalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-            .add(statusJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+            .add(publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
+            .add(statusJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
         );
         progressBarJPanelLayout.setVerticalGroup(
             progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -563,38 +564,38 @@ public final class PublishContainerAvatar extends Avatar implements
                         .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addContainerGap())
                     .add(layout.createSequentialGroup()
-                        .add(versionNameJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
+                        .add(versionNameJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 114, Short.MAX_VALUE)
                         .add(260, 260, 260))
                     .add(layout.createSequentialGroup()
-                        .add(versionNameJSeparator, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                        .add(versionNameJSeparator, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
                         .addContainerGap())
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(teamMembersJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                        .add(teamMembersJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
                         .addContainerGap())
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(contactsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                        .add(contactsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
                         .addContainerGap())
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                        .add(emailsJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
                         .addContainerGap())
                     .add(layout.createSequentialGroup()
                         .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addContainerGap())
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(16, 16, 16)
-                        .add(teamMembersJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+                        .add(teamMembersJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE)
                         .add(26, 26, 26))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(16, 16, 16)
-                        .add(versionNameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+                        .add(versionNameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE)
                         .add(26, 26, 26))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(16, 16, 16)
-                        .add(contactsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+                        .add(contactsJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE)
                         .add(26, 26, 26))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(16, 16, 16)
-                        .add(emailsJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+                        .add(emailsJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE)
                         .add(26, 26, 26))))
         );
         layout.setVerticalGroup(

@@ -177,6 +177,7 @@ public class MainStatusAvatar extends Avatar {
      *
      */
     public void fireSessionEvent() {
+        reloadLinks();
         reloadConnection();
     }
 
@@ -599,16 +600,20 @@ public class MainStatusAvatar extends Avatar {
             final List<IncomingEMailInvitation> incomingEMail = readIncomingEMailInvitations();
             final List<IncomingUserInvitation> incomingUser = readIncomingUserInvitations();
             if (0 < unVerifiedEMails.size()) {
-                /* if there is no verified e-mail address display a link about
-                 * the e-mails only. */
-                textJLabel.setText(getString("Text.VerifyEMail") + Separator.Space);
-                linkJLabel.setText(getString("Link.VerifyEMail"));
-                optionalTextJLabel.setText(Separator.Space + getString("OptionalText.VerifyEMail"));
-                linkRunnable = new Runnable() {
-                    public void run() {
-                        getController().displayVerifyEmailDialog();
-                    }
-                };
+                if (isOnline()) {
+                    /* if there is no verified e-mail address display a link about
+                     * the e-mails only. */
+                    textJLabel.setText(getString("Text.VerifyEMail") + Separator.Space);
+                    linkJLabel.setText(getString("Link.VerifyEMail"));
+                    optionalTextJLabel.setText(Separator.Space + getString("OptionalText.VerifyEMail"));
+                    linkRunnable = new Runnable() {
+                        public void run() {
+                            getController().displayVerifyEmailDialog();
+                        }
+                    };
+                } else {
+                    textJLabel.setText(getString("Text.VerifyEMailOffline"));
+                }
             } else {
                 if (0 < unseenContainers.size()) {
                     if (0 < incomingEMail.size() || 0 < incomingUser.size()) {

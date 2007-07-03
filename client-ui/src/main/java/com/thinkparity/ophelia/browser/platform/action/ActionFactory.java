@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.platform.action;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.application.system.SystemApplication;
 import com.thinkparity.ophelia.browser.platform.AbstractFactory;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
@@ -91,6 +92,12 @@ public class ActionFactory extends AbstractFactory {
         case CONTACT_ACCEPT_INCOMING_USER_INVITATION:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingUserInvitation(getBrowser());
             break;
+        case CONTACT_CLEAR_INCOMING_EMAIL_INVITATION_NOTIFICATIONS:
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.ClearIncomingEMailInvitationNotifications(getSystem());
+            break;
+        case CONTACT_CLEAR_INCOMING_USER_INVITATION_NOTIFICATIONS:
+            action = new com.thinkparity.ophelia.browser.platform.action.contact.ClearIncomingUserInvitationNotifications(getSystem());
+            break;
         case CONTACT_COLLAPSE:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.Collapse(getBrowser());
             break;
@@ -133,6 +140,9 @@ public class ActionFactory extends AbstractFactory {
             break;
         case CONTAINER_ARCHIVE:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Archive(getBrowser());
+            break;
+        case CONTAINER_CLEAR_NOTIFICATIONS:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.ClearNotifications(getSystem());
             break;
         case CONTAINER_COLLAPSE:
             action = new com.thinkparity.ophelia.browser.platform.action.container.Collapse(getBrowser());
@@ -290,8 +300,10 @@ public class ActionFactory extends AbstractFactory {
         return action;
 	}
 
-    /**
-     * Get the browser.
+	/**
+     * Obtain the browser application.
+     * 
+     * @return A <code>Browser</code>.
      */
     private Browser getBrowser() {
         return (Browser) new ApplicationRegistry().get(ApplicationId.BROWSER);
@@ -302,6 +314,15 @@ public class ActionFactory extends AbstractFactory {
      */
     private Platform getPlatform() {
         return platform;
+    }
+
+    /**
+     * Obtain the system application.
+     * 
+     * @return A <code>SystemApplication</code>.
+     */
+    private SystemApplication getSystem() {
+        return (SystemApplication) new ApplicationRegistry().get(ApplicationId.SYSTEM);
     }
 
     /**

@@ -4,16 +4,74 @@
 package com.thinkparity.ophelia.browser.application.system.dialog;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Ophelia UI System Application Notification<br>
+ * <b>Description:</b>A notification can be uniquely identified by an id. It
+ * can contain many lines/headings and a title. It is also invokeable.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
 public interface Notification {
-    public String getContentLine1();
-    public String getContentLine2();
-    public String getHeadingLine1();
-    public String getHeadingLine2();
-    public int getNumberLines();
-    public String getTextTitle();
-    public String getLinkTitle();
-    public void invokeAction();
+
+    /**
+     * Obtain the first line of the content.
+     * 
+     * @return A content <code>String</code>.
+     */
+    String getContentLine1();
+
+    /**
+     * Obtain the second line of the content.
+     * 
+     * @return A content <code>String</code>.
+     */
+    String getContentLine2();
+
+    /**
+     * Obtain the first line of the heading.
+     * 
+     * @return A heading <code>String</code>.
+     */
+    String getHeadingLine1();
+
+    /**
+     * Obtain the second line of the heading.
+     * 
+     * @return A heading <code>String</code>.
+     */
+    String getHeadingLine2();
+
+    /**
+     * Obtain the notification id.
+     * 
+     * @return A notification id <code>String</code>.
+     */
+    String getId();
+
+    /**
+     * Obtain the title of the notification as a link.
+     * 
+     * @return A link <code>String</code>.
+     */
+    String getLinkTitle();
+
+    /**
+     * Obtain the number of lines of content.
+     * 
+     * @return A positive <code>int</code>.
+     */
+    int getNumberLines();
+
+    /**
+     * Obtain the title of the notification a text.
+     * 
+     * @return A text <code>String</code>.
+     */
+    String getTextTitle();
+
+    /**
+     * Invoke the notification's action.
+     *
+     */
+    void invokeAction();
 }

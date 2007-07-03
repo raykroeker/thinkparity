@@ -1128,6 +1128,42 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Run the clear container notifications action.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void runClearContainerNotifications(final Long containerId) {
+        final Data data = new Data(1);
+        data.set(ClearNotifications.DataKey.CONTAINER_ID, containerId);
+        invoke(ActionId.CONTAINER_CLEAR_NOTIFICATIONS, data);
+    }
+
+    /**
+     * Run the clear incoming user invitation notifications action.
+     * 
+     * @param invitationId
+     *            A invitation id <code>Long</code>.
+     */
+    public void runClearIncomingEMailInvitationNotifications(final Long invitationId) {
+        final Data data = new Data(1);
+        data.set(ClearIncomingEMailInvitationNotifications.DataKey.INVITATION_ID, invitationId);
+        invoke(ActionId.CONTACT_CLEAR_INCOMING_EMAIL_INVITATION_NOTIFICATIONS, data);
+    }
+
+    /**
+     * Run the clear incoming User invitation notifications action.
+     * 
+     * @param invitationId
+     *            A invitation id <code>Long</code>.
+     */
+    public void runClearIncomingUserInvitationNotifications(final Long invitationId) {
+        final Data data = new Data(1);
+        data.set(ClearIncomingUserInvitationNotifications.DataKey.INVITATION_ID, invitationId);
+        invoke(ActionId.CONTACT_CLEAR_INCOMING_USER_INVITATION_NOTIFICATIONS, data);
+    }
+
+    /**
      * Run the contact us action.
      *
      */

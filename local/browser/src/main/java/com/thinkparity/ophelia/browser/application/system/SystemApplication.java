@@ -7,6 +7,8 @@ import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.swing.AbstractJFrame;
 
+import com.thinkparity.codebase.model.contact.ContactInvitation;
+import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.util.http.Link;
 import com.thinkparity.codebase.model.util.http.LinkFactory;
@@ -69,6 +71,28 @@ public final class SystemApplication extends AbstractApplication {
     public void applyBusyIndicator() {}
 
     /**
+     * Clear the container notifications.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    public void clearContainerNotifications(final Long containerId) {
+        impl.fireClearNotifications(newNotificationId(Container.class,
+                containerId));
+    }
+
+    /**
+     * Clear the incoming invitation notifications.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     */
+    public void clearInvitationNotifications(final Long invitationId) {
+        impl.fireClearNotifications(newNotificationId(ContactInvitation.class,
+                invitationId));
+    }
+
+    /**
      * Display the info notification.
      * 
      */
@@ -76,7 +100,7 @@ public final class SystemApplication extends AbstractApplication {
         impl.displayInfo();
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#end(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -118,7 +142,7 @@ public final class SystemApplication extends AbstractApplication {
         return ApplicationId.SYSTEM;
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#getMainWindow()
      *
      */
@@ -195,13 +219,13 @@ public final class SystemApplication extends AbstractApplication {
         return getPlatform().isDevelopmentMode();
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#removeBusyIndicator()
      *
      */
     public void removeBusyIndicator() {}
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#restore(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -277,7 +301,7 @@ public final class SystemApplication extends AbstractApplication {
         runLater(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#start(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -293,7 +317,7 @@ public final class SystemApplication extends AbstractApplication {
 		notifyStart();
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getProfile()
      * 
      */
@@ -316,7 +340,7 @@ public final class SystemApplication extends AbstractApplication {
      *
      */
     void fireConnectionOffline() {
-        impl.reloadConnectionStatus(Connection.OFFLINE);
+        impl.fireConnectionOffline();
     }
 
     /**
@@ -324,7 +348,17 @@ public final class SystemApplication extends AbstractApplication {
      *
      */
     void fireConnectionOnline() {
-        impl.reloadConnectionStatus(Connection.ONLINE);
+        impl.fireConnectionOnline();
+    }
+
+    /**
+     * Fire a contact incoming e-mail invitation deleted event.
+     * 
+     * @param e
+     *            A <code>ContactEvent</code>.
+     */
+    void fireContactIncomingEMailInvitationDeleted(final ContactEvent e) {
+        clearInvitationNotifications(e.getIncomingInvitation().getId());
     }
 
     /**
@@ -335,7 +369,8 @@ public final class SystemApplication extends AbstractApplication {
      */
     void fireContactIncomingInvitationCreated(final ContactEvent e) {
         final Data data = new Data(1);
-        data.set(Show.DataKey.INVITATION_ID, e.getIncomingInvitation().getId());
+        final Long id = e.getIncomingInvitation().getId();
+        data.set(Show.DataKey.INVITATION_ID, id);
         impl.fireNotification(new DefaultNotification() {
             @Override
             public String getContentLine1() {
@@ -344,6 +379,10 @@ public final class SystemApplication extends AbstractApplication {
             @Override
             public String getHeadingLine1() {
                 return getString("Notification.ContactIncomingInvitationCreated.HeadingLine1");
+            }
+            @Override
+            public String getId() {
+                return newNotificationId(ContactInvitation.class, id);
             }
             @Override
             public String getLinkTitle() {
@@ -361,6 +400,16 @@ public final class SystemApplication extends AbstractApplication {
     }
 
     /**
+     * Fire a contact incoming user invitation deleted event.
+     * 
+     * @param e
+     *            A <code>ContactEvent</code>.
+     */
+    void fireContactIncomingUserInvitationDeleted(final ContactEvent e) {
+        clearInvitationNotifications(e.getIncomingInvitation().getId());
+    }
+
+    /**
      * Fire a container published event.
      * 
      * @param e
@@ -368,7 +417,8 @@ public final class SystemApplication extends AbstractApplication {
      */
     void fireContainerPublished(final ContainerEvent e) {
         final Data data = new Data(2);
-        data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.CONTAINER_ID, e.getContainer().getId());
+        final Long id = e.getContainer().getId();
+        data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.CONTAINER_ID, id);
         data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.VERSION_ID, e.getVersion().getVersionId());
         if (null == e.getPreviousVersion() && null == e.getNextVersion()) {
             // this is the first publish event
@@ -388,6 +438,10 @@ public final class SystemApplication extends AbstractApplication {
                 @Override
                 public String getHeadingLine2() {
                     return getString("Notification.ContainerPublishedFirstTime.HeadingLine2");
+                }
+                @Override
+                public String getId() {
+                    return newNotificationId(Container.class, id);
                 }
                 @Override
                 public String getLinkTitle() {
@@ -422,6 +476,10 @@ public final class SystemApplication extends AbstractApplication {
                     return getString("Notification.ContainerPublishedNotFirstTime.HeadingLine2");
                 }
                 @Override
+                public String getId() {
+                    return newNotificationId(Container.class, id);
+                }
+                @Override
                 public String getLinkTitle() {
                     return getString("Notification.ContainerPublishedNotFirstTime.Title");
                 }
@@ -435,6 +493,19 @@ public final class SystemApplication extends AbstractApplication {
                 }
             });
         }
+    }
+
+    /**
+     * Create a notification id for a type/type id pair.
+     * 
+     * @param type
+     *            A <code>Class<?></code>.
+     * @param typeId
+     *            A type id <code>Long</code>.
+     * @return A notification id <code>String</code>.
+     */
+    private String newNotificationId(final Class<?> type, final Long typeId) {
+        return new StringBuilder(type.getName()).append("//").append(typeId).toString();
     }
 
     /**

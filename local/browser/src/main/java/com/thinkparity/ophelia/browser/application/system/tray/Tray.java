@@ -7,13 +7,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.browser.Constants.Icons;
 import com.thinkparity.ophelia.browser.application.system.SystemApplication;
-import com.thinkparity.ophelia.browser.platform.Platform;
 
 import org.jdesktop.jdic.tray.SystemTray;
 import org.jdesktop.jdic.tray.TrayIcon;
@@ -27,9 +25,6 @@ public final class Tray {
 
 	/** Indicates whether or not the system tray is installed. */
 	private Boolean isInstalled;
-
-    /** An apache logger wrapper. */
-    private final Log4JWrapper logger;
 
     /** A menu builder for the system tray application. */
     private final TrayMenuBuilder menuBuilder;
@@ -51,11 +46,28 @@ public final class Tray {
 	 */
 	public Tray(final SystemApplication systemApplication, final Profile profile) {
 		super();
-        this.logger = new Log4JWrapper(getClass());
         this.menuBuilder = new TrayMenuBuilder(systemApplication);
 		this.isInstalled = Boolean.FALSE;
 		this.systemApplication = systemApplication;
 	}
+
+    /**
+     * Fire a connection offline event.
+     *
+     */
+    public void fireConnectionOffline() {
+        setCaption();
+        setIcon();
+    }
+
+    /**
+     * Fire a connection online event.
+     *
+     */
+    public void fireConnectionOnline() {
+        setCaption();
+        setIcon();
+    }
 
     /**
      * Install the system tray.
@@ -90,32 +102,9 @@ public final class Tray {
 		systemTray.addTrayIcon(systemTrayIcon);
 		isInstalled = Boolean.TRUE;
 
-        reloadConnection(systemApplication.getConnection());
+        setCaption();
+        setIcon();
 	}
-
-    /**
-     * Reload the connection information.
-     *
-     * @param cx
-     *      The platform connection.
-     */
-    public void reloadConnection(final Platform.Connection cx) {
-        logger.logVariable("cx", cx);
-        switch(cx) {
-        case OFFLINE:
-            updateMenuOffline();
-            setCaption();
-            setIcon();
-            break;
-        case ONLINE:
-            updateMenuOnline();
-            setCaption();
-            setIcon();
-            break;
-        default:
-            Assert.assertUnreachable("[UNKNOWN CONNECTION]");
-        }
-    }
 
     /** Uninstall the system tray. */
 	public void unInstall() {
@@ -186,10 +175,4 @@ public final class Tray {
             throw Assert.createUnreachable("Unknown connection.");
         }
     }
-
-    /** Update the offline menu. */
-    private void updateMenuOffline() {}
-
-    /** Update the online menu. */
-    private void updateMenuOnline() {}
 }

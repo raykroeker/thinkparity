@@ -143,11 +143,15 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#toggleExpansion(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.lang.Boolean)
      */
     @Override
-    public void toggleExpansion(TabPanel tabPanel, Boolean animate) {
+    public void toggleExpansion(final TabPanel tabPanel, final Boolean animate) {
         checkThread();
-        ContainerPanel containerPanel = (ContainerPanel) tabPanel;
-        if (!containerPanel.getContainer().isSeen()) { 
-            browser.runApplyContainerFlagSeen(containerPanel.getContainer().getId());
+        final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
+        final Container container = containerPanel.getContainer();
+
+        browser.runClearContainerNotifications(container.getId());
+
+        if (!container.isSeen()) { 
+            browser.runApplyContainerFlagSeen(container.getId());
         }
 
         super.toggleExpansion(containerPanel, animate);

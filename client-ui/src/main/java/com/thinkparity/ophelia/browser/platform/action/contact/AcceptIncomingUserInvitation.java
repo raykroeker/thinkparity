@@ -19,6 +19,9 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  */
 public class AcceptIncomingUserInvitation extends AbstractBrowserAction {
 
+    /** A browser application. */
+    private final Browser browser;
+
     /**
      * Create AcceptIncomingUserInvitation.
      * 
@@ -27,6 +30,7 @@ public class AcceptIncomingUserInvitation extends AbstractBrowserAction {
      */
 	public AcceptIncomingUserInvitation(final Browser browser) {
 		super(ActionId.CONTACT_ACCEPT_INCOMING_USER_INVITATION);
+        this.browser = browser;
 	}
 
     /**
@@ -38,6 +42,9 @@ public class AcceptIncomingUserInvitation extends AbstractBrowserAction {
 
         final ContactModel contactModel = getContactModel();
         contactModel.acceptIncomingUserInvitation(invitationId);
+
+        // clear any displayed notifications
+        browser.runClearIncomingEMailInvitationNotifications(invitationId);
 	}
 
 	public enum DataKey { INVITATION_ID }

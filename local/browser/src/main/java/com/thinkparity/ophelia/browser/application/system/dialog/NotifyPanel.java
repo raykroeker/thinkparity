@@ -43,6 +43,18 @@ public final class NotifyPanel extends SystemPanel {
         NOTIFICATIONS = new Vector<Notification>();
     }
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel contentLine1JLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel contentLine2JLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel countJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel headingLine1JLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel headingLine2JLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel nextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel previousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel titleLinkJLabel = LabelFactory.createLink("",Fonts.DefaultFontBold);
+    private javax.swing.JLabel titleTextJLabel;
+    // End of variables declaration//GEN-END:variables
+
     /** The current notification index. */
     private int notificationIndex;
 
@@ -62,16 +74,35 @@ public final class NotifyPanel extends SystemPanel {
     }
 
     /**
-     * Reload the notifications.
+     * Close notifications.
      * 
-     * @param notifications
-     *            A <code>Notification</code> <code>List</code>.
+     * @param notificationId
+     *            A notification id <code>String</code>.
      */
-    public void display(final Notification notification) {
+    void close(final String notificationId) {
+        int index;
+        while (-1 < (index = indexOf(notificationId))) {
+            logger.logInfo("Closing notification {0}.", notificationId);
+            closeNotifyPanel(index);
+        }
+    }
+
+    /**
+     * Display a notification.
+     * 
+     * @param notification
+     *            A <code>Notification</code>.
+     */
+    void display(final Notification notification) {
         NOTIFICATIONS.add(notification);
         notificationIndex = NOTIFICATIONS.size()-1;
         reload();
     }
+
+    private void closeJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
+        ((javax.swing.JButton) evt.getSource()).setIcon(CLOSE_ICON);
+        closeNotifyPanel();
+    }//GEN-LAST:event_closeJButtonActionPerformed
 
     private void closeJButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJButtonMouseEntered
         ((javax.swing.JButton) evt.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
@@ -80,11 +111,6 @@ public final class NotifyPanel extends SystemPanel {
     private void closeJButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJButtonMouseExited
         ((javax.swing.JButton) evt.getSource()).setIcon(CLOSE_ICON);
     }//GEN-LAST:event_closeJButtonMouseExited
-
-    private void closeJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
-        ((javax.swing.JButton) evt.getSource()).setIcon(CLOSE_ICON);
-        closeNotifyPanel();
-    }//GEN-LAST:event_closeJButtonActionPerformed
 
     /**
      * Close the notify panel.
@@ -111,6 +137,23 @@ public final class NotifyPanel extends SystemPanel {
             }
             reload();
         }
+    }
+
+    /**
+     * Obtain the index of the notification within the list.
+     * 
+     * @param notificationId
+     *            A notification id <code>String</code>.
+     * @return An <code>int</code> index or -1 if the notification does not
+     *         exist.
+     */
+    private int indexOf(final String notificationId) {
+        for (int i = 0; i < NOTIFICATIONS.size(); i++) {
+            if (NOTIFICATIONS.get(i).getId().equals(notificationId)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -356,11 +399,6 @@ public final class NotifyPanel extends SystemPanel {
         }
     }//GEN-LAST:event_nextJLabelMousePressed
 
-    private void titleLinkJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_titleLinkJLabelMousePressed
-        NOTIFICATIONS.get(notificationIndex).invokeAction();
-        closeNotifyPanel(notificationIndex);
-    }//GEN-LAST:event_titleLinkJLabelMousePressed
-
     private void previousJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_previousJLabelMousePressed
         if (isPreviousEnabled()) {
             notificationIndex--;
@@ -395,7 +433,6 @@ public final class NotifyPanel extends SystemPanel {
             countJLabel.setText(" ");
         }
     }
-
     /**
      * Reload the next button.
      *
@@ -403,7 +440,6 @@ public final class NotifyPanel extends SystemPanel {
     private void reloadNext() {
         nextJLabel.setVisible(isNextEnabled());
     }
-
     /**
      * Reload the content for the first line of the notification.
      */
@@ -420,7 +456,6 @@ public final class NotifyPanel extends SystemPanel {
             contentLine1JLabel.setText(" ");
         }
     }
-
     /**
      * Reload the content for the second line of the notification.
      */
@@ -437,7 +472,6 @@ public final class NotifyPanel extends SystemPanel {
             contentLine2JLabel.setText(" ");
         }
     }
-
     /**
      * Reload the heading for the first line of the notification.
      */
@@ -448,7 +482,6 @@ public final class NotifyPanel extends SystemPanel {
             headingLine1JLabel.setText(" ");
         }
     }
-
     /**
      * Reload the heading for the second line of the notification.
      */
@@ -459,7 +492,13 @@ public final class NotifyPanel extends SystemPanel {
             headingLine2JLabel.setText(" ");
         }
     }
-
+    /**
+     * Reload the previous button.
+     *
+     */
+    private void reloadPrevious() {
+        previousJLabel.setVisible(isPreviousEnabled());
+    }
     /**
      * Reload the notififcation title text.
      *
@@ -483,24 +522,8 @@ public final class NotifyPanel extends SystemPanel {
             }
         }
     }
-
-    /**
-     * Reload the previous button.
-     *
-     */
-    private void reloadPrevious() {
-        previousJLabel.setVisible(isPreviousEnabled());
-    }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel contentLine1JLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel contentLine2JLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel countJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel headingLine1JLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel headingLine2JLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel nextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel previousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel titleLinkJLabel = LabelFactory.createLink("",Fonts.DefaultFontBold);
-    private javax.swing.JLabel titleTextJLabel;
-    // End of variables declaration//GEN-END:variables
+    private void titleLinkJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_titleLinkJLabelMousePressed
+        NOTIFICATIONS.get(notificationIndex).invokeAction();
+        closeNotifyPanel(notificationIndex);
+    }//GEN-LAST:event_titleLinkJLabelMousePressed
 }

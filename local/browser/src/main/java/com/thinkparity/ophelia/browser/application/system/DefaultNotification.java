@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.application.system;
 
+import com.thinkparity.codebase.JVMUniqueId;
+
 import com.thinkparity.ophelia.browser.application.system.dialog.Notification;
 
 /**
@@ -52,6 +54,14 @@ class DefaultNotification implements Notification {
      */
     public String getHeadingLine2() {
         return null;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#getId()
+     *
+     */
+    public String getId() {
+        return JVMUniqueId.nextId().toString();
     }
 
     /**

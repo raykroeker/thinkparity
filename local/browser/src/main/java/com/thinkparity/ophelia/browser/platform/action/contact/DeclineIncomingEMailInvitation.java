@@ -48,6 +48,9 @@ public final class DeclineIncomingEMailInvitation extends AbstractBrowserAction 
                 new Object[] { invitation.getExtendedBy().getName() })) {
             contactModel.declineIncomingEMailInvitation(invitationId);
         }
+
+        // clear any displayed notifications
+        browser.runClearIncomingEMailInvitationNotifications(invitationId);
 	}
 
 	public enum DataKey { INVITATION_ID }

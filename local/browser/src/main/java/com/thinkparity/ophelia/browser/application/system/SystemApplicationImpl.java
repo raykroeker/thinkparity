@@ -11,7 +11,6 @@ import com.thinkparity.ophelia.browser.application.system.dialog.DisplayInfoFram
 import com.thinkparity.ophelia.browser.application.system.dialog.Notification;
 import com.thinkparity.ophelia.browser.application.system.dialog.NotifyFrame;
 import com.thinkparity.ophelia.browser.application.system.tray.Tray;
-import com.thinkparity.ophelia.browser.platform.Platform;
 
 /**
  * @author raykroeker@gmail.com
@@ -109,6 +108,38 @@ class SystemApplicationImpl extends Thread {
 	}
 
 	/**
+     * Fire a clear notification event.
+     * 
+     * @param notificationId
+     *            A notification id <code>String</code>.
+     */
+    void fireClearNotifications(final String notificationId) {
+        synchronized (this) {
+            NotifyFrame.close(notificationId);
+        }
+    }
+
+	/**
+     * Fire a connection offline event.
+     * 
+     */
+    void fireConnectionOffline() {
+        synchronized (this) {
+            sysTray.fireConnectionOffline();
+        }
+    }
+
+	/**
+     * Fire a connection online event.
+     * 
+     */
+    void fireConnectionOnline() {
+        synchronized (this) {
+            sysTray.fireConnectionOnline();
+        }
+    }
+
+    /**
 	 * Notification that an artifact has been received.
 	 * 
 	 * @param artifact
@@ -121,18 +152,13 @@ class SystemApplicationImpl extends Thread {
 		}
 	}
 
-	String getString(final String localKey) {
+    String getString(final String localKey) {
 		return sysApp.getString(localKey);
 	}
 
-	String getString(final String localKey, final Object[] arguments) {
+    String getString(final String localKey, final Object[] arguments) {
 		return sysApp.getString(localKey, arguments);
 	}
-
-	/** Set the menu for the system tray. */
-    void reloadConnectionStatus(final Platform.Connection cx) {
-        synchronized(this) { sysTray.reloadConnection(cx); }
-    }
 
     /**
 	 * Reset the number of queue items.

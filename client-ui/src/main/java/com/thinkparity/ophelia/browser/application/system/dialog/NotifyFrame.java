@@ -98,6 +98,18 @@ public class NotifyFrame extends SystemFrame {
     }
 
     /**
+     * Close notifications.
+     * 
+     * @param notificationId
+     *            A notification id <code>String</code>.
+     */
+    public static void close(final String notificationId) {
+        if (isDisplayed()) {
+            frame.doClose(notificationId);
+        }
+    }
+
+    /**
      * Close the notification.
      *
      */
@@ -126,8 +138,20 @@ public class NotifyFrame extends SystemFrame {
     }
 
     /**
-     * Reload the notifications.
-     *
+     * Close a notification.
+     * 
+     * @param notificationId
+     *            A notification id <code>String</code>.
+     */
+    private void doClose(final String notificationId) {
+        panel.close(notificationId);
+    }
+
+    /**
+     * Display a notification.
+     * 
+     * @param notification
+     *            A <code>Notification</code>.
      */
     private void doDisplay(final Notification notification) {
         // The call to pack() ensures that components in the

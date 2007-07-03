@@ -96,6 +96,16 @@ class EventDispatcher {
                     systemApplication.fireContactIncomingInvitationCreated(e);                    
                 }
             }
+            @Override
+            public void incomingEMailInvitationDeleted(final ContactEvent e) {
+                if (e.isRemote())
+                    systemApplication.fireContactIncomingEMailInvitationDeleted(e);
+            }
+            @Override
+            public void incomingUserInvitationDeleted(final ContactEvent e) {
+                if (e.isRemote())
+                    systemApplication.fireContactIncomingUserInvitationDeleted(e);
+            }
         };
     }
 

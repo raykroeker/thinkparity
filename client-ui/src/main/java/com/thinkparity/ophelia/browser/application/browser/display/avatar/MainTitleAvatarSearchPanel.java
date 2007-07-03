@@ -28,6 +28,7 @@ import com.thinkparity.codebase.swing.border.TopBottomBorder;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.Constants.Search;
 import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
+import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar.TabId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
@@ -171,20 +172,6 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        searchJTextField = new javax.swing.JTextField();
-        searchJTextField.setBorder(new TopBottomBorder(Colors.Browser.MainTitle.SEARCH_OUTLINE));
-        searchJTextField.getDocument().addDocumentListener(new DocumentListener() {
-            public void changedUpdate(final DocumentEvent e) {
-                searchJTextFieldChangedUpdate(e);
-            }
-            public void insertUpdate(final DocumentEvent e) {
-                searchJTextFieldInsertUpdate(e);
-            }
-            public void removeUpdate(final DocumentEvent e) {
-                searchJTextFieldRemoveUpdate(e);
-            }
-        });
-
         setLayout(new java.awt.GridBagLayout());
 
         setOpaque(false);
@@ -202,27 +189,27 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         searchJTextField.setOpaque(false);
         searchJTextField.setPreferredSize(new java.awt.Dimension(1, 19));
         searchJTextField.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                searchJTextFieldMouseEntered(evt);
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                searchJTextFieldMouseEntered(e);
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                searchJTextFieldMouseExited(evt);
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                searchJTextFieldMouseExited(e);
             }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                searchJTextFieldMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                searchJTextFieldMousePressed(e);
             }
         });
         searchJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                searchJTextFieldActionPerformed(evt);
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                searchJTextFieldActionPerformed(e);
             }
         });
         searchJTextField.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                searchJTextFieldFocusGained(evt);
+            public void focusGained(java.awt.event.FocusEvent e) {
+                searchJTextFieldFocusGained(e);
             }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                searchJTextFieldFocusLost(evt);
+            public void focusLost(java.awt.event.FocusEvent e) {
+                searchJTextFieldFocusLost(e);
             }
         });
 
@@ -237,14 +224,14 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         leftJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_SearchLeft.png")));
         leftJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
         leftJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                leftJLabelMouseEntered(evt);
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                leftJLabelMouseEntered(e);
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                leftJLabelMouseExited(evt);
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                leftJLabelMouseExited(e);
             }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                leftJLabelMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                leftJLabelMousePressed(e);
             }
         });
 
@@ -405,6 +392,6 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel leftJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel rightJLabel = new javax.swing.JLabel();
-    private javax.swing.JTextField searchJTextField;
+    private final javax.swing.JTextField searchJTextField = TextFactory.create();
     // End of variables declaration//GEN-END:variables
 }

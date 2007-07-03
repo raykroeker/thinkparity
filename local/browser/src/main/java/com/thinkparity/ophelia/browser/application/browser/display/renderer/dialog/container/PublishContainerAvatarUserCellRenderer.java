@@ -70,8 +70,8 @@ public class PublishContainerAvatarUserCellRenderer extends AbstractJPanel imple
      */
     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         final PublishContainerAvatarUser user = (PublishContainerAvatarUser) value;
-        
-        if (null == user.getUser()) {
+
+        if (!user.isUser() && !user.isEMailUser()) {
             spacer = Boolean.TRUE;     
             userJCheckBox.setVisible(false);     
         } else {  
@@ -80,7 +80,7 @@ public class PublishContainerAvatarUserCellRenderer extends AbstractJPanel imple
             userJCheckBox.setText(user.getExtendedName());
             userJCheckBox.setSelected(user.isSelected());
         }
-        
+
         return this;
     }
 

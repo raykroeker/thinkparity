@@ -28,6 +28,7 @@ import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextComponentLengthFilter;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.ContainerConstraints;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -324,6 +325,27 @@ public final class PublishContainerAvatar extends Avatar implements
         } else {
             return versionName;
         }
+    }
+
+    /**
+     * Get a combined list of emails.
+     * 
+     * @param emails
+     *            A list of <code>EMail</code>.
+     * @param publishToEMails
+     *            A list of <code>PublishedToEMail</code>.
+     * @return A list of <code>EMail</code>.
+     */
+    private List<EMail> getEMails(final List<EMail> emails, final List<PublishedToEMail> publishToEMails) {
+        final List<EMail> finalEmails = new ArrayList<EMail>();
+        finalEmails.addAll(emails);
+        for (final PublishedToEMail publishedToEMail : publishToEMails) {
+            final EMail email = publishedToEMail.getEMail();
+            if (!finalEmails.contains(email)) {
+                finalEmails.add(email);
+            }
+        }
+        return finalEmails;
     }
 
     /**
@@ -669,9 +691,9 @@ public final class PublishContainerAvatar extends Avatar implements
             (PublishContainerAvatarUserListModel) contactsJList.getModel();
         final PublishContainerAvatarUserListModel teamMembersModel = 
             (PublishContainerAvatarUserListModel) teamMembersJList.getModel();
-        final List<EMail> emails = extractEMails();
         final List<Contact> contacts = contactsModel.getSelectedContacts();
         final List<TeamMember> teamMembers = teamMembersModel.getSelectedTeamMembers();
+        final List<EMail> emails = getEMails(extractEMails(), teamMembersModel.getSelectedEMailUsers());
         final String versionName = extractVersionName();
 
         // Publish
@@ -725,6 +747,14 @@ public final class PublishContainerAvatar extends Avatar implements
      */
     private List<ArtifactReceipt> readLatestVersionPublishedTo() {
         return ((PublishContainerProvider) contentProvider).readLatestVersionPublishedTo(
+                getInputContainerId());
+    }
+
+    /**
+     * Read user emails that got this version.
+     */
+    private List<PublishedToEMail> readLatestVersionPublishedToEMails() {
+        return ((PublishContainerProvider) contentProvider).readLatestVersionPublishedToEMails(
                 getInputContainerId());
     }
 
@@ -813,12 +843,17 @@ public final class PublishContainerAvatar extends Avatar implements
         if (autoSelect) {
             final User updatedBy = readLatestVersionUpdatedBy();
             final List<ArtifactReceipt> publishedTo = readLatestVersionPublishedTo();
-            // add selected team members first, then non-selected team members
+            final List<PublishedToEMail> publishedToEMails = readLatestVersionPublishedToEMails();
+            // add selected team members first, then published to emails, then non-selected team members
             for (final TeamMember teamMember : teamMembers) {
                 if (isVersionRecipient(teamMember, updatedBy, publishedTo)) {
                     teamMembersListModel.addElement(new PublishContainerAvatarUser(
                             teamMember, Boolean.TRUE));
                 }
+            }
+            for (final PublishedToEMail emailUser : publishedToEMails) {
+                teamMembersListModel.addElement(new PublishContainerAvatarUser(
+                        emailUser, Boolean.TRUE));
             }
             for (final TeamMember teamMember : teamMembers) {
                 if (!isVersionRecipient(teamMember, updatedBy, publishedTo)) {
@@ -903,6 +938,9 @@ public final class PublishContainerAvatar extends Avatar implements
 
     public class PublishContainerAvatarUser {
 
+        /** The email user. */
+        private PublishedToEMail emailUser;
+
         /** The selection status. */
         private Boolean selected;
 
@@ -914,28 +952,52 @@ public final class PublishContainerAvatar extends Avatar implements
             this.selected = selected;
         }
 
+        public PublishContainerAvatarUser(final PublishedToEMail emailUser, final Boolean selected) {
+            this.emailUser = emailUser;
+            this.selected = selected;
+        }
+
+        public PublishedToEMail getEMailUser() {
+            return emailUser;
+        }
+
         public String getExtendedName() {
-            if (null == user.getTitle()) {
+            if (null != user && null == user.getTitle()) {
                 logger.logWarning("{0}{0}{0}TITLE IS NULL{0}{1}{0}{2}{0}{3}{0}{4}{0}{5}{0}{6}{0}{7}{0}{8}{0}{0}{0}",
                         "\r\n", user.getFlags(), user.getId(), user.getLocalId(),
                         user.getName(), user.getOrganization(),
                         user.getSimpleUsername(), user.getUsername(),
                         user.getClass());
             }
-            return localization.getString("UserName",
-                    new Object[] {user.getName(), user.getTitle(), user.getOrganization()} );
+            if (isUser()) {
+                return localization.getString("UserName",
+                        new Object[] {user.getName(), user.getTitle(), user.getOrganization()} );
+            } else if (isEMailUser()) {
+                return emailUser.getEMail().toString();
+            } else {
+                return null;
+            }
+                
         }
 
         public User getUser() {
             return user;
         }
 
+        public Boolean isEMailUser() {
+            return null != getEMailUser();
+        }
+
         public Boolean isSelected() {
-            if (null == user) {
+            if (null == user && null == emailUser) {
                 return Boolean.FALSE;
             } else {
                 return selected;
             }
+        }
+
+        public Boolean isUser() {
+            return null != getUser();
         }
 
         public void toggleSelected() {
@@ -955,18 +1017,29 @@ public final class PublishContainerAvatar extends Avatar implements
             List<Contact> selectedContacts = new ArrayList<Contact>();
             for (int index = 0; index < getSize(); index++) {
                 PublishContainerAvatarUser user = (PublishContainerAvatarUser)getElementAt(index);
-                if (user.isSelected() && (user.getUser() instanceof Contact)) {
+                if (user.isSelected() && user.isUser() && (user.getUser() instanceof Contact)) {
                     selectedContacts.add((Contact)user.getUser());
                 }                
             }
             return selectedContacts;
         }
 
+        private List<PublishedToEMail> getSelectedEMailUsers() {
+            List<PublishedToEMail> selectedEMailUsers = new ArrayList<PublishedToEMail>();
+            for (int index = 0; index < getSize(); index++) {
+                PublishContainerAvatarUser user = (PublishContainerAvatarUser)getElementAt(index);
+                if (user.isSelected() && user.isEMailUser()) {
+                    selectedEMailUsers.add(user.getEMailUser());
+                }
+            }
+            return selectedEMailUsers;
+        }
+
         private List<TeamMember> getSelectedTeamMembers() {
             List<TeamMember> selectedTeamMembers = new ArrayList<TeamMember>();
             for (int index = 0; index < getSize(); index++) {
                 PublishContainerAvatarUser user = (PublishContainerAvatarUser)getElementAt(index);
-                if (user.isSelected() && (user.getUser() instanceof TeamMember)) {
+                if (user.isSelected() && user.isUser() && (user.getUser() instanceof TeamMember)) {
                     selectedTeamMembers.add((TeamMember)user.getUser());
                 }                
             }

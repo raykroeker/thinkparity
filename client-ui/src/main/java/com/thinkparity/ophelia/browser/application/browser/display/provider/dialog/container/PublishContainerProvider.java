@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -102,6 +103,22 @@ public class PublishContainerProvider extends ContentProvider {
         final ContainerVersion latestVersion = containerModel.readLatestVersion(
                 containerId);
         return containerModel.readPublishedTo(containerId, latestVersion.getVersionId());
+    }
+
+    /**
+     * Get the list of published to emails.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return A List of <code><ArtifactReceipt></code>.
+     */
+    public List<PublishedToEMail> readLatestVersionPublishedToEMails(
+            final Long containerId) {
+        final ContainerVersion latestVersion = containerModel.readLatestVersion(
+                containerId);
+        return containerModel.readPublishedToEMails(containerId, latestVersion.getVersionId());
     }
 
     /**

@@ -74,7 +74,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
                 signupDelegate.wait();
                 if (!signupDelegate.isCancelled()) {
                     installProgressBar();
-                    enableButtons(Boolean.FALSE);
+                    setVisibleButtons(Boolean.FALSE);
                 }
             } catch (final Throwable t) {
                 throw new BrowserException(
@@ -208,17 +208,6 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
     }
 
     /**
-     * Enable or disable the next and cancel buttons.
-     * 
-     * @param enable
-     *            Enable or disable <code>Boolean</code>.
-     */
-    private void enableButtons(final Boolean enable) {
-        signupDelegate.enableNextButton(enable);
-        signupDelegate.enableCancelButton(enable);
-    }
-
-    /**
      * Extract the credentials.
      * 
      * @return An instance of <code>Credentials</code>.
@@ -308,22 +297,23 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(explanationJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(16, 16, 16)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(forgotPasswordExplanationJLabel)
-                                    .addComponent(passwordJLabel)
-                                    .addComponent(usernameJLabel))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(forgotPasswordJLabel)
-                                    .addComponent(usernameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
-                                    .addComponent(passwordJPasswordField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE))))))
-                .addGap(26, 26, 26))
+                            .addComponent(forgotPasswordExplanationJLabel)
+                            .addComponent(passwordJLabel)
+                            .addComponent(usernameJLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(forgotPasswordJLabel)
+                            .addComponent(usernameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                            .addComponent(passwordJPasswordField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE))
+                        .addGap(26, 26, 26))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(explanationJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
+                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -344,7 +334,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
                     .addComponent(forgotPasswordJLabel))
                 .addGap(24, 24, 24)
                 .addComponent(errorMessageJLabel)
-                .addContainerGap(168, Short.MAX_VALUE))
+                .addContainerGap(109, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -386,5 +376,16 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
      */
     private void setFeatures(final List<Feature> features) {
         this.features = features;
+    }
+
+    /**
+     * Show or hide the next and cancel buttons.
+     * 
+     * @param visible
+     *            Visible <code>Boolean</code>.
+     */
+    private void setVisibleButtons(final Boolean visible) {
+        signupDelegate.setVisibleNextButton(visible);
+        signupDelegate.setVisibleCancelButton(visible);
     }
 }

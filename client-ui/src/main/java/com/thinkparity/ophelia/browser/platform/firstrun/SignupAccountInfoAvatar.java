@@ -81,6 +81,19 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      */
     private final Map<String, UsernameReservation> usernameReservations;
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JRadioButton accountTypeGuestJRadioButton = new javax.swing.JRadioButton();
+    private final javax.swing.JRadioButton accountTypeStandardJRadioButton = new javax.swing.JRadioButton();
+    private final javax.swing.JPasswordField confirmPasswordJPasswordField = TextFactory.createPassword();
+    private final javax.swing.JTextField emailJTextField = new javax.swing.JTextField();
+    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel learnMoreJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JPasswordField passwordJPasswordField = TextFactory.createPassword();
+    private final javax.swing.JTextField securityAnswerJTextField = new javax.swing.JTextField();
+    private final javax.swing.JComboBox securityQuestionJComboBox = new javax.swing.JComboBox();
+    private final javax.swing.JTextField usernameJTextField = TextFactory.create();
+    // End of variables declaration//GEN-END:variables
+
     /**
      * Create SignupAccountInfoAvatar.
      */
@@ -92,7 +105,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         this.emailReservations = new HashMap<EMail, EMailReservation>();
         initSecurityQuestionModel();
         initComponents();
-        initDocumentHandlers();
+        addValidationListeners();
         initFocusListener();
     }
 
@@ -195,6 +208,32 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
     protected Boolean isInputValid() {
         validateInput(Boolean.TRUE);
         return !containsInputErrors();
+    }
+
+    /**
+     * Add validation listeners.
+     */
+    private void addValidationListeners() {
+        addValidationListener(emailJTextField);
+        addValidationListener(usernameJTextField);
+        addValidationListener(passwordJPasswordField);
+        addValidationListener(confirmPasswordJPasswordField);
+        addValidationListener(securityAnswerJTextField);
+
+        // NOTE The following ensures validateInput() is called as keyboard edits are made in the combo box.
+        if (null != getSecurityQuestionDocument()) {
+            getSecurityQuestionDocument().addDocumentListener(new DocumentListener() {
+                public void changedUpdate(final DocumentEvent e) {
+                    validateInput();
+                }
+                public void insertUpdate(final DocumentEvent e) {
+                    validateInput();
+                }
+                public void removeUpdate(final DocumentEvent e) {
+                    validateInput();
+                }
+            });
+        }
     }
 
     /**
@@ -417,6 +456,8 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         final javax.swing.JLabel securityTitleJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel securityQuestionJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel securityAnswerJLabel = new javax.swing.JLabel();
+        final javax.swing.JSeparator jSeparator1 = new javax.swing.JSeparator();
+        final javax.swing.JSeparator jSeparator2 = new javax.swing.JSeparator();
 
         setOpaque(false);
         accountTypeTitleJLabel.setFont(Fonts.DialogFont);
@@ -450,36 +491,36 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         emailJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.EmailLabel"));
 
         emailJTextField.setFont(Fonts.DialogTextEntryFont);
-        emailJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
-        emailJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
-        emailJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
+        emailJTextField.setMaximumSize(new java.awt.Dimension(300, 2147483647));
+        emailJTextField.setMinimumSize(new java.awt.Dimension(300, 20));
+        emailJTextField.setPreferredSize(new java.awt.Dimension(300, 20));
         ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getEmail()));
 
         usernameJLabel.setFont(Fonts.DialogFont);
         usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.UsernameLabel"));
 
         usernameJTextField.setFont(Fonts.DialogTextEntryFont);
-        usernameJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
-        usernameJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
-        usernameJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
+        usernameJTextField.setMaximumSize(new java.awt.Dimension(300, 2147483647));
+        usernameJTextField.setMinimumSize(new java.awt.Dimension(300, 20));
+        usernameJTextField.setPreferredSize(new java.awt.Dimension(300, 20));
         ((AbstractDocument) usernameJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getUsername()));
 
         passwordJLabel.setFont(Fonts.DialogFont);
         passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.PasswordLabel"));
 
         passwordJPasswordField.setFont(Fonts.DialogTextEntryFont);
-        passwordJPasswordField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
-        passwordJPasswordField.setMinimumSize(new java.awt.Dimension(275, 20));
-        passwordJPasswordField.setPreferredSize(new java.awt.Dimension(275, 20));
+        passwordJPasswordField.setMaximumSize(new java.awt.Dimension(300, 2147483647));
+        passwordJPasswordField.setMinimumSize(new java.awt.Dimension(300, 20));
+        passwordJPasswordField.setPreferredSize(new java.awt.Dimension(300, 20));
         ((AbstractDocument) passwordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));
 
         confirmPasswordJLabel.setFont(Fonts.DialogFont);
         confirmPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.ConfirmPasswordLabel"));
 
         confirmPasswordJPasswordField.setFont(Fonts.DialogTextEntryFont);
-        confirmPasswordJPasswordField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
-        confirmPasswordJPasswordField.setMinimumSize(new java.awt.Dimension(275, 20));
-        confirmPasswordJPasswordField.setPreferredSize(new java.awt.Dimension(275, 20));
+        confirmPasswordJPasswordField.setMaximumSize(new java.awt.Dimension(300, 2147483647));
+        confirmPasswordJPasswordField.setMinimumSize(new java.awt.Dimension(300, 20));
+        confirmPasswordJPasswordField.setPreferredSize(new java.awt.Dimension(300, 20));
         ((AbstractDocument) confirmPasswordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));
 
         securityTitleJLabel.setFont(Fonts.DialogFont);
@@ -491,9 +532,9 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         securityQuestionJComboBox.setEditable(true);
         securityQuestionJComboBox.setFont(Fonts.DialogTextEntryFont);
         securityQuestionJComboBox.setModel(securityQuestionModel);
-        securityQuestionJComboBox.setMaximumSize(new java.awt.Dimension(275, 32767));
-        securityQuestionJComboBox.setMinimumSize(new java.awt.Dimension(275, 18));
-        securityQuestionJComboBox.setPreferredSize(new java.awt.Dimension(275, 20));
+        securityQuestionJComboBox.setMaximumSize(new java.awt.Dimension(300, 32767));
+        securityQuestionJComboBox.setMinimumSize(new java.awt.Dimension(300, 18));
+        securityQuestionJComboBox.setPreferredSize(new java.awt.Dimension(300, 20));
         if (null != getSecurityQuestionDocument()) {
             ((AbstractDocument) getSecurityQuestionDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getSecurityQuestion()));
         }
@@ -502,9 +543,9 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         securityAnswerJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.SecurityAnswer"));
 
         securityAnswerJTextField.setFont(Fonts.DialogTextEntryFont);
-        securityAnswerJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
-        securityAnswerJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
-        securityAnswerJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
+        securityAnswerJTextField.setMaximumSize(new java.awt.Dimension(300, 2147483647));
+        securityAnswerJTextField.setMinimumSize(new java.awt.Dimension(300, 20));
+        securityAnswerJTextField.setPreferredSize(new java.awt.Dimension(300, 20));
         ((AbstractDocument) securityAnswerJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getSecurityAnswer()));
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
@@ -518,64 +559,74 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(securityTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
-                            .addComponent(accountTypeTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
-                            .addComponent(loginInfoTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(27, 27, 27)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(emailJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(passwordJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)
-                                    .addComponent(usernameJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)
-                                    .addComponent(confirmPasswordJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(emailJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(usernameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(passwordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(confirmPasswordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(26, 26, 26)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(securityQuestionJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(securityAnswerJLabel))
-                                .addGap(24, 24, 24)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(securityAnswerJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(securityQuestionJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 268, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addGap(26, 26, 26)
+                        .addComponent(accountTypeGuestJRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(55, 55, 55)
+                        .addComponent(learnMoreJLabel))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(35, 35, 35)
+                        .addGap(26, 26, 26)
+                        .addComponent(accountTypeStandardJRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, 118, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(accountTypeStandardJRadioButton)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(accountTypeGuestJRadioButton)
-                                .addGap(55, 55, 55)
-                                .addComponent(learnMoreJLabel)))
-                        .addGap(187, 187, 187))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(36, 36, 36)
-                        .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 429, Short.MAX_VALUE)))
+                            .addComponent(confirmPasswordJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(emailJLabel)
+                            .addComponent(passwordJLabel)
+                            .addComponent(usernameJLabel))
+                        .addGap(33, 33, 33)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(emailJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(usernameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(passwordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(confirmPasswordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(26, 26, 26)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(securityQuestionJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(securityAnswerJLabel))
+                        .addGap(26, 26, 26)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(securityAnswerJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(securityQuestionJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(securityTitleJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 414, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jSeparator2, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(accountTypeTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(loginInfoTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {confirmPasswordJPasswordField, emailJTextField, passwordJPasswordField, securityAnswerJTextField, securityQuestionJComboBox, usernameJTextField});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {securityAnswerJTextField, securityQuestionJComboBox});
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(22, 22, 22)
+                .addGap(27, 27, 27)
                 .addComponent(accountTypeTitleJLabel)
                 .addGap(14, 14, 14)
                 .addComponent(accountTypeStandardJRadioButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(accountTypeGuestJRadioButton)
-                    .addComponent(learnMoreJLabel))
-                .addGap(22, 22, 22)
+                    .addComponent(learnMoreJLabel)
+                    .addComponent(accountTypeGuestJRadioButton))
+                .addGap(15, 15, 15)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(loginInfoTitleJLabel)
-                .addGap(12, 12, 12)
+                .addGap(14, 14, 14)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(emailJLabel)
                     .addComponent(emailJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -591,9 +642,11 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(confirmPasswordJLabel)
                     .addComponent(confirmPasswordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(16, 16, 16)
-                .addComponent(securityTitleJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(15, 15, 15)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(securityTitleJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(securityQuestionJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(securityQuestionJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -601,37 +654,11 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(securityAnswerJLabel)
                     .addComponent(securityAnswerJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(15, 15, 15)
+                .addGap(19, 19, 19)
                 .addComponent(errorMessageJLabel)
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    /**
-     * Initialize document handlers.
-     */
-    private void initDocumentHandlers() {
-        final DocumentListener documentListener = new DocumentListener() {
-            public void changedUpdate(final DocumentEvent e) {
-                validateInput();
-            }
-            public void insertUpdate(final DocumentEvent e) {
-                validateInput();
-            }
-            public void removeUpdate(final DocumentEvent e) {
-                validateInput();
-            }
-        };
-        emailJTextField.getDocument().addDocumentListener(documentListener);
-        usernameJTextField.getDocument().addDocumentListener(documentListener);
-        passwordJPasswordField.getDocument().addDocumentListener(documentListener);
-        confirmPasswordJPasswordField.getDocument().addDocumentListener(documentListener);
-        securityAnswerJTextField.getDocument().addDocumentListener(documentListener);
-        // NOTE The following ensures validateInput() is called as keyboard edits are made in the combo box.
-        if (null != getSecurityQuestionDocument()) {
-            getSecurityQuestionDocument().addDocumentListener(documentListener);
-        }
-    }
 
     /**
      * Initialize the focus listener.
@@ -796,17 +823,4 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
             signupDelegate.enableNextButton(!containsInputErrors());
         }
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JRadioButton accountTypeGuestJRadioButton = new javax.swing.JRadioButton();
-    private final javax.swing.JRadioButton accountTypeStandardJRadioButton = new javax.swing.JRadioButton();
-    private final javax.swing.JPasswordField confirmPasswordJPasswordField = TextFactory.createPassword();
-    private final javax.swing.JTextField emailJTextField = new javax.swing.JTextField();
-    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel learnMoreJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JPasswordField passwordJPasswordField = TextFactory.createPassword();
-    private final javax.swing.JTextField securityAnswerJTextField = new javax.swing.JTextField();
-    private final javax.swing.JComboBox securityQuestionJComboBox = new javax.swing.JComboBox();
-    private final javax.swing.JTextField usernameJTextField = TextFactory.create();
-    // End of variables declaration//GEN-END:variables
 }

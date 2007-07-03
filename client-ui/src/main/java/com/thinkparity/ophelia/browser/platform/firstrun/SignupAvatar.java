@@ -128,6 +128,13 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate#setFocusNextButton()
+     */
+    public void setFocusNextButton() {
+        nextJButton.requestFocusInWindow();
+    }
+
+    /**
      * Set the next page.
      */
     public void setNextPage() {
@@ -141,6 +148,20 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
      */
     public void setState(final State state) {
         throw Assert.createNotYetImplemented("SignupAvatar#setState");
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate#setVisibleCancelButton(java.lang.Boolean)
+     */
+    public void setVisibleCancelButton(final Boolean visible) {
+        cancelJButton.setVisible(visible);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate#setVisibleNextButton(java.lang.Boolean)
+     */
+    public void setVisibleNextButton(final Boolean visible) {
+        nextJButton.setVisible(visible);
     }
 
     /**

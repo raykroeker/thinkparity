@@ -136,6 +136,14 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#setDefaultFocus()
+     */
+    @Override
+    public void setDefaultFocus() {
+        signupDelegate.setFocusNextButton();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#setDetermination(java.lang.Integer)
      */
     public void setDetermination(final Integer steps) {
@@ -150,7 +158,7 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
     public void setValidCredentials(final Boolean validCredentials) {
         if (!validCredentials) {
             errorMessageJLabel.setText(getString("ErrorInvalidCredentials"));
-            enableButtons(Boolean.TRUE);
+            setVisibleButtons(Boolean.TRUE);
             reloadProgressBar();
         }
     }
@@ -200,17 +208,6 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
                     Images.BrowserTitle.LOGO_LARGE.getHeight(), SignupSummaryAvatar.this);
         }
         finally { g2.dispose(); }
-    }
-
-    /**
-     * Enable or disable the next and cancel buttons.
-     * 
-     * @param enable
-     *            Enable or disable <code>Boolean</code>.
-     */
-    private void enableButtons(final Boolean enable) {
-        signupDelegate.enableNextButton(enable);
-        signupDelegate.enableCancelButton(enable);
     }
 
     /** This method is called from within the constructor to
@@ -308,7 +305,7 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
      * Login.
      */
     private void login() {
-        enableButtons(Boolean.FALSE);
+        setVisibleButtons(Boolean.FALSE);
         final Credentials credentials = (Credentials) ((Data) input).get(DataKey.CREDENTIALS);
         platform.runLogin(credentials.getUsername(), credentials.getPassword(),
                 new LoginSwingMonitor(this), this);
@@ -321,5 +318,16 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
         progressBarJPanel.setVisible(false);
         stepJLabel.setText(" ");
         validate();
+    }
+
+    /**
+     * Show or hide the next and cancel buttons.
+     * 
+     * @param visible
+     *            Visible <code>Boolean</code>.
+     */
+    private void setVisibleButtons(final Boolean visible) {
+        signupDelegate.setVisibleNextButton(visible);
+        signupDelegate.setVisibleCancelButton(visible);
     }
 }

@@ -6,6 +6,7 @@
 
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
+import java.awt.Graphics;
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -14,6 +15,7 @@ import com.thinkparity.codebase.model.migrator.Feature;
 
 import com.thinkparity.ophelia.model.Constants.Product.Features;
 
+import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
@@ -27,6 +29,14 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
 
     /** Progress bar indeterminate flag. */
     private Boolean indeterminate;
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
+    private final javax.swing.JProgressBar loginJProgressBar = new javax.swing.JProgressBar();
+    private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel stepJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel warningJLabel = new javax.swing.JLabel();
+    // End of variables declaration//GEN-END:variables
 
     /** Creates new form SignupLoginAvatar */
     public SignupLoginAvatar() {
@@ -121,6 +131,14 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#setDefaultFocus()
+     */
+    @Override
+    public void setDefaultFocus() {
+        signupDelegate.setFocusNextButton();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#setDetermination(java.lang.Integer)
      */
     public void setDetermination(final Integer steps) {
@@ -149,6 +167,23 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
         } else {
             stepJLabel.setText(" ");
         }
+    }
+
+    /**
+     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+     */
+    @Override
+    protected void paintComponent(final Graphics g) {
+        super.paintComponent(g);
+        final Graphics g2 = g.create();
+        try {
+            // Draw the logo.
+            g2.drawImage(Images.BrowserTitle.LOGO_LARGE,
+                    (getWidth() - Images.BrowserTitle.LOGO_LARGE.getWidth()) / 2, 35,
+                    Images.BrowserTitle.LOGO_LARGE.getWidth(),
+                    Images.BrowserTitle.LOGO_LARGE.getHeight(), SignupLoginAvatar.this);
+        }
+        finally { g2.dispose(); }
     }
 
     /** This method is called from within the constructor to
@@ -200,27 +235,27 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(progressBarJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(45, 45, 45)
+                        .addGap(64, 64, 64)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(explanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 360, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(warningJLabel))
-                        .addGap(50, 50, 50)))
-                .addContainerGap())
+                            .addComponent(warningJLabel)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(progressBarJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(57, 57, 57)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(166, 166, 166)
                 .addComponent(warningJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(explanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
+                .addGap(58, 58, 58)
                 .addComponent(progressBarJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(49, 49, 49))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -273,12 +308,4 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
         stepJLabel.setText(" ");
         validate();
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
-    private final javax.swing.JProgressBar loginJProgressBar = new javax.swing.JProgressBar();
-    private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel stepJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel warningJLabel = new javax.swing.JLabel();
-    // End of variables declaration//GEN-END:variables
 }

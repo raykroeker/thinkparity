@@ -36,6 +36,10 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
     /** TODO remove this when beta is done. */
     /** The beta activation code. */
     private static String BETA_ACTIVATION_CODE;
+
+    /** Final year in the year list. */
+    private static final int FINAL_YEAR = 2020;
+
     static {
         BETA_ACTIVATION_CODE = "thinkParity Beta 2007";
     }
@@ -49,8 +53,21 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
     /** The country <code>DefaultComboBoxModel</code>. */
     private final DefaultComboBoxModel cardYearModel;
 
-    /** Final year in the year list. */
-    private static final int FINAL_YEAR = 2020;
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JTextField betaActivationCodeJTextField = new javax.swing.JTextField();
+    private final javax.swing.JLabel betaActivationLearnMoreJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JComboBox cardMonthJComboBox = new javax.swing.JComboBox();
+    private final javax.swing.JLabel cardNameJLabel = new javax.swing.JLabel();
+    private final javax.swing.JTextField cardNameJTextField = new javax.swing.JTextField();
+    private final javax.swing.JLabel cardNumberJLabel = new javax.swing.JLabel();
+    private final javax.swing.JTextField cardNumberJTextField = new javax.swing.JTextField();
+    private final javax.swing.JComboBox cardTypeJComboBox = new javax.swing.JComboBox();
+    private final javax.swing.JLabel cardTypeJLabel = new javax.swing.JLabel();
+    private final javax.swing.JComboBox cardYearJComboBox = new javax.swing.JComboBox();
+    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel expiryDateJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
+    // End of variables declaration//GEN-END:variables
 
     /** Creates new form SignupPaymentInfoAvatar */
     public SignupPaymentInfoAvatar() {
@@ -145,7 +162,7 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
     }
 
     // TODO Remove this after beta.
-    private void betaActivationLearnMoreJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_betaActivationLearnMoreJLabelMousePressed
+    private void betaActivationLearnMoreJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_betaActivationLearnMoreJLabelMousePressed
         platform.runLearnMore(LearnMore.Topic.BETA);
     }//GEN-LAST:event_betaActivationLearnMoreJLabelMousePressed
 
@@ -203,7 +220,6 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
     private void initComponents() {
         final javax.swing.JLabel betaExplanationJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel betaActivationCodeJLabel = new javax.swing.JLabel();
-        betaActivationCodeJTextField = new javax.swing.JTextField();
 
         setOpaque(false);
         explanationJLabel.setFont(Fonts.DialogFont);
@@ -263,47 +279,42 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(betaExplanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(explanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(28, 28, 28)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(cardTypeJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(cardNumberJLabel)
-                                    .addComponent(cardNameJLabel)
-                                    .addComponent(expiryDateJLabel))
-                                .addGap(23, 23, 23)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(cardNameJTextField)
-                                    .addComponent(cardNumberJTextField)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(cardMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(cardYearJComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addComponent(cardTypeJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 57, Short.MAX_VALUE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(40, 40, 40)
-                        .addComponent(betaActivationCodeJLabel)
+                        .addGap(16, 16, 16)
+                        .addComponent(betaActivationCodeJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(betaActivationLearnMoreJLabel)
-                            .addComponent(betaActivationCodeJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(betaActivationCodeJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE))
+                    .addComponent(betaExplanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 423, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(explanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(38, 38, 38)
-                        .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)))
+                        .addGap(28, 28, 28)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(cardTypeJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cardNumberJLabel)
+                            .addComponent(cardNameJLabel)
+                            .addComponent(expiryDateJLabel))
+                        .addGap(23, 23, 23)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(cardNameJTextField)
+                            .addComponent(cardNumberJTextField)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(cardMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cardYearJComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(cardTypeJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 57, Short.MAX_VALUE))
+                    .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(131, 131, 131)
+                .addGap(27, 27, 27)
                 .addComponent(betaExplanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -311,7 +322,9 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
                     .addComponent(betaActivationCodeJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(betaActivationLearnMoreJLabel)
-                .addGap(27, 27, 27)
+                .addGap(14, 14, 14)
+                .addComponent(errorMessageJLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(explanationJLabel)
                 .addGap(19, 19, 19)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -330,9 +343,7 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
                     .addComponent(cardMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cardYearJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(expiryDateJLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
-                .addComponent(errorMessageJLabel)
-                .addGap(36, 36, 36))
+                .addContainerGap(164, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -370,6 +381,7 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
         cardMonthJComboBox.setVisible(false);
         cardYearJComboBox.setVisible(false);
         expiryDateJLabel.setVisible(false);
+        errorMessageJLabel.setText(" ");
         validate();
     }
 
@@ -417,32 +429,16 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
         }
     }
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField betaActivationCodeJTextField;
-    private final javax.swing.JLabel betaActivationLearnMoreJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JComboBox cardMonthJComboBox = new javax.swing.JComboBox();
-    private final javax.swing.JLabel cardNameJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField cardNameJTextField = new javax.swing.JTextField();
-    private final javax.swing.JLabel cardNumberJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField cardNumberJTextField = new javax.swing.JTextField();
-    private final javax.swing.JComboBox cardTypeJComboBox = new javax.swing.JComboBox();
-    private final javax.swing.JLabel cardTypeJLabel = new javax.swing.JLabel();
-    private final javax.swing.JComboBox cardYearJComboBox = new javax.swing.JComboBox();
-    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel expiryDateJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
-    // End of variables declaration//GEN-END:variables
-
     /**
      * Credit card types
      */
     private enum CardType {
-        VISA("Visa"),
-        MASTERCARD("MasterCard"),
         AMERICAN_EXPRESS("AmericanExpress"),
-        DISCOVER("Discover"),
         DINERS_CLUB("DinersClub"),
-        JCB("JCB");
+        DISCOVER("Discover"),
+        JCB("JCB"),
+        MASTERCARD("MasterCard"),
+        VISA("Visa");
 
         /** The credit card name localization key */
         private final String nameKey;

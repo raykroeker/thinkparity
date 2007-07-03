@@ -42,6 +42,27 @@ public interface SignupDelegate {
     public Boolean isCancelled();
 
     /**
+     * Set focus on the next button.
+     */
+    public void setFocusNextButton();
+
+    /**
+     * Set visible on the cancel button.
+     * 
+     * @param visible
+     *            Visible <code>Boolean</code>.
+     */
+    public void setVisibleCancelButton(final Boolean visible);
+
+    /**
+     * Set visible on the next button.
+     * 
+     * @param visible
+     *            Visible <code>Boolean</code>.
+     */
+    public void setVisibleNextButton(final Boolean visible);
+
+    /**
      * Set the next page.
      * 
      * This method should be used only used when the page needs to change

@@ -84,7 +84,8 @@ public final class HttpSocketFactory implements ProtocolSocketFactory {
         if (params.isParameterSet(HttpConnectionParams.SO_RCVBUF)) {
             socket.setReceiveBufferSize(params.getIntParameter(HttpConnectionParams.SO_RCVBUF, 0));
         }
-        if (params.isParameterSet(HttpConnectionParams.SO_LINGER)) {
+        if (params.isParameterSet(HttpConnectionParams.SO_LINGER)
+                && 0 < params.getIntParameter(HttpConnectionParams.SO_LINGER, 0)) {
             socket.setSoLinger(true, params.getIntParameter(HttpConnectionParams.SO_LINGER, 0));
         }
         return socket;

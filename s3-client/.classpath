@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/s3-model/main/java"/>
+	<classpathentry kind="src" path="src/s3-model/main/resources"/>
+	<classpathentry kind="src" path="src/s3-ui/main/java"/>
+	<classpathentry kind="src" path="src/s3-ui/main/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
-	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/sun.com/servlet/2.3/servlet.zip"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/apache.org/jakarta/commons/cli/1.0/cli.jar" sourcepath="/THINKPARITY_HOME/vendor/apache.org/jakarta/commons/cli/1.0/cli-sources.zip"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/apache.org/jakarta/commons/httpclient/3.0.1/httpclient.jar" sourcepath="/THINKPARITY_HOME/vendor/apache.org/jakarta/commons/httpclient/3.0.1/httpclient-sources.zip"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xpp3/1.1.3.4.O/xpp3.jar" sourcepath="/THINKPARITY_HOME/vendor/xpp3/1.1.3.4.O/xpp3-sources.jar"/>
+	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/commons-codec/1.3/commons-codec.jar" sourcepath="/THINKPARITY_HOME/vendor/commons-codec/1.3/commons-codec-sources.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -54,10 +54,9 @@
         <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="searchJTextFieldFocusLost"/>
       </Events>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
         <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="searchJTextField.setBorder(new TopBottomBorder(Colors.Browser.MainTitle.SEARCH_OUTLINE));&#xa;searchJTextField.getDocument().addDocumentListener(new DocumentListener() {&#xa;        public void changedUpdate(final DocumentEvent e) {&#xa;            searchJTextFieldChangedUpdate(e);&#xa;        }&#xa;        public void insertUpdate(final DocumentEvent e) {&#xa;            searchJTextFieldInsertUpdate(e);&#xa;        }&#xa;        public void removeUpdate(final DocumentEvent e) {&#xa;            searchJTextFieldRemoveUpdate(e);&#xa;        }&#xa;});"/>
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
       </AuxValues>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">

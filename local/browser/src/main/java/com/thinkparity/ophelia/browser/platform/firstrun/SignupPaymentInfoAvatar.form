@@ -26,10 +26,10 @@
                           <Component id="betaActivationLearnMoreJLabel" min="-2" max="-2" attributes="0"/>
                           <Component id="betaActivationCodeJTextField" min="-2" pref="289" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="16" max="32767" attributes="0"/>
+                      <EmptySpace pref="44" max="32767" attributes="0"/>
                   </Group>
                   <Component id="betaExplanationJLabel" alignment="0" min="-2" pref="423" max="-2" attributes="0"/>
-                  <Component id="explanationJLabel" alignment="0" pref="455" max="32767" attributes="0"/>
+                  <Component id="explanationJLabel" alignment="0" pref="483" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
@@ -51,7 +51,7 @@
                       </Group>
                       <EmptySpace pref="57" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="errorMessageJLabel" alignment="0" pref="455" max="32767" attributes="1"/>
+                  <Component id="errorMessageJLabel" alignment="0" pref="483" max="32767" attributes="1"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -199,6 +199,7 @@
         </Property>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -209,6 +210,7 @@
         </Property>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -283,6 +285,7 @@
         </Property>
       </Properties>
       <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>

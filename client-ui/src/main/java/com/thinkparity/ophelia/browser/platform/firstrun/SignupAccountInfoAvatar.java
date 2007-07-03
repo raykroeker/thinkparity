@@ -85,11 +85,11 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
     private final javax.swing.JRadioButton accountTypeGuestJRadioButton = new javax.swing.JRadioButton();
     private final javax.swing.JRadioButton accountTypeStandardJRadioButton = new javax.swing.JRadioButton();
     private final javax.swing.JPasswordField confirmPasswordJPasswordField = TextFactory.createPassword();
-    private final javax.swing.JTextField emailJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField emailJTextField = TextFactory.create();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel learnMoreJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JPasswordField passwordJPasswordField = TextFactory.createPassword();
-    private final javax.swing.JTextField securityAnswerJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField securityAnswerJTextField = TextFactory.create();
     private final javax.swing.JComboBox securityQuestionJComboBox = new javax.swing.JComboBox();
     private final javax.swing.JTextField usernameJTextField = TextFactory.create();
     // End of variables declaration//GEN-END:variables
@@ -479,8 +479,8 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
 
         learnMoreJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.LearnMore"));
         learnMoreJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                learnMoreJLabelMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                learnMoreJLabelMousePressed(e);
             }
         });
 

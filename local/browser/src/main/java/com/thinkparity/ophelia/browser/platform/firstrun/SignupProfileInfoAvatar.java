@@ -22,6 +22,7 @@ import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.dialog.profile.LocaleRenderer;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -36,19 +37,19 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 public final class SignupProfileInfoAvatar extends DefaultSignupPage {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JTextField addressJTextField = new javax.swing.JTextField();
-    private final javax.swing.JTextField cityJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField addressJTextField = TextFactory.create();
+    private final javax.swing.JTextField cityJTextField = TextFactory.create();
     private final javax.swing.JComboBox countryJComboBox = new javax.swing.JComboBox();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField mobilePhoneJTextField = new javax.swing.JTextField();
-    private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
-    private final javax.swing.JTextField organizationJTextField = new javax.swing.JTextField();
-    private final javax.swing.JTextField phoneJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField mobilePhoneJTextField = TextFactory.create();
+    private final javax.swing.JTextField nameJTextField = TextFactory.create();
+    private final javax.swing.JTextField organizationJTextField = TextFactory.create();
+    private final javax.swing.JTextField phoneJTextField = TextFactory.create();
     private final javax.swing.JLabel postalCodeJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField postalCodeJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField postalCodeJTextField = TextFactory.create();
     private final javax.swing.JLabel provinceJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField provinceJTextField = new javax.swing.JTextField();
-    private final javax.swing.JTextField userTitleJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField provinceJTextField = TextFactory.create();
+    private final javax.swing.JTextField userTitleJTextField = TextFactory.create();
     // End of variables declaration//GEN-END:variables
 
     /** The country <code>DefaultComboBoxModel</code>. */
@@ -331,7 +332,7 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(errorMessageJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
+                    .addComponent(errorMessageJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 461, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(16, 16, 16)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -360,7 +361,7 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(16, 16, 16)
                         .addComponent(nameJLabel))
-                    .addComponent(explanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
+                    .addComponent(explanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 461, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(

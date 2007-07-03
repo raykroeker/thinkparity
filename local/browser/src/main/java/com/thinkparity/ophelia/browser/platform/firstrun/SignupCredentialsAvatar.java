@@ -26,6 +26,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
+import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
@@ -47,7 +48,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel forgotPasswordJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JPasswordField passwordJPasswordField = new javax.swing.JPasswordField();
-    private final javax.swing.JTextField usernameJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField usernameJTextField = TextFactory.create();
     // End of variables declaration//GEN-END:variables
 
     /** Creates new form SignupCredentialsAvatar */
@@ -281,8 +282,8 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
         forgotPasswordJLabel.setFont(Fonts.DialogFont);
         forgotPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Credentials.ForgetPassword"));
         forgotPasswordJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                forgotPasswordJLabelMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                forgotPasswordJLabelMousePressed(e);
             }
         });
 
@@ -311,8 +312,8 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
                         .addGap(26, 26, 26))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(explanationJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
-                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
+                            .addComponent(explanationJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 492, Short.MAX_VALUE)
+                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 492, Short.MAX_VALUE))
                         .addContainerGap())))
         );
         layout.setVerticalGroup(

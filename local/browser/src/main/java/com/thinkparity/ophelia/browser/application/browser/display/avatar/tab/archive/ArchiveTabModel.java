@@ -370,45 +370,6 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Synchronize the container in the display.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param remote
-     *            A remote event <code>Boolean</code> indicator.             
-     */
-    void syncContainerImpl(final Long containerId, final Boolean remote) {
-        debug();
-        boolean requestFocus = false;
-        final Container container = read(containerId);
-        // remove the container from the panel list
-        if (null == container) {
-            removeContainerPanel(containerId, true);
-        } else {
-            final int panelIndex = lookupIndex(container.getId());
-            if (-1 < panelIndex) {
-                // if the reload is the result of a remote event add the container
-                // at the top of the list; otherwise add it in the same location
-                // it previously existed
-                requestFocus = ((Component)lookupPanel(containerId)).hasFocus();
-                removeContainerPanel(containerId, false);
-                if (remote) {
-                    addContainerPanel(0, container);
-                } else {
-                    addContainerPanel(panelIndex, container);
-                }
-            } else {
-                addContainerPanel(0, container);
-            }
-        }
-        synchronize();
-        if (requestFocus) {
-            requestFocusInWindow(lookupPanel(containerId));
-        }
-        debug();
-    }
-
-    /**
      * Synchronize when a flag has changed.
      * Performance is a concern so unnecessary steps are avoided.
      * 
@@ -731,7 +692,7 @@ public final class ArchiveTabModel extends TabPanelModel<Long> implements
      * @param remote
      *            A remote event <code>Boolean</code> indicator.             
      */
-    void syncContainerImpl(final Long containerId, final Boolean remote) {
+    private void syncContainerImpl(final Long containerId, final Boolean remote) {
         debug();
         boolean requestFocus = false;
         final Container container = read(containerId);

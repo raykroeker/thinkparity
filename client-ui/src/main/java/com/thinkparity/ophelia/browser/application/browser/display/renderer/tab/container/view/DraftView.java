@@ -3,10 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view;
 
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.document.Document;
@@ -92,6 +89,19 @@ public class DraftView {
      */
     public void setDraft(final ContainerDraft draft) {
         this.draft = draft;
+        if (null != draft) {
+            final List<Document> sorted = new ArrayList<Document>(draft.getDocumentCount());
+            sorted.addAll(draft.getDocuments());
+            Collections.sort(sorted, new Comparator<Artifact>() {
+                public int compare(final Artifact o1, final Artifact o2) {
+                    final int compareCreatedOn = o1.getCreatedOn().compareTo(o2.getCreatedOn()) * -1;
+                    return 0 == compareCreatedOn
+                            ? o1.getName().compareTo(o2.getName())
+                                    : compareCreatedOn;
+                }
+            });
+            this.draft.setDocuments(sorted);
+        }
     }
 
     /**

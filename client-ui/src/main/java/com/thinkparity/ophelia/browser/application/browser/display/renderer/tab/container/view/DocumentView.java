@@ -18,6 +18,9 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
  */
 public class DocumentView {
 
+    /** The <code>Calendar</code> the document was created. */
+    private Calendar createdOn;
+
     /** The document version's <code>Delta</code>. */
     private Delta delta;
 
@@ -34,6 +37,15 @@ public class DocumentView {
     public DocumentView() {
         super();
     }
+    /**
+     * Obtain the document created on date.
+     * 
+     * @return A created on <code>Calendar</code>.
+     */
+    public Calendar getCreatedOn() {
+        return createdOn;
+    }
+
     /**
      * Obtain delta.
      *
@@ -89,6 +101,16 @@ public class DocumentView {
     }
 
     /**
+     * Set created on.
+     * 
+     * @param createdOn
+     *            A created on <code>Calendar</code>.
+     */
+    public void setCreatedOn(final Calendar createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    /**
      * Set delta.
      *
      * @param delta
@@ -107,7 +129,6 @@ public class DocumentView {
     public void setFirstPublishedOn(final Calendar firstPublishedOn) {
         this.firstPublishedOn = firstPublishedOn;
     }
-
     /**
      * Set version.
      *

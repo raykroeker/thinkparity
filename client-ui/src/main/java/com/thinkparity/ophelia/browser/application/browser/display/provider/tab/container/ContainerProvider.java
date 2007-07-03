@@ -25,7 +25,6 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.contact.ContactModel;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
@@ -241,12 +240,15 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
                     versionId, previousVersion.getVersionId());
         }
         final List<DocumentView> views = new ArrayList<DocumentView>(versions.size());
+        Document document;
         DocumentVersion firstVersion;
         DocumentView view;
         for (final Entry<DocumentVersion, Delta> entry : versions.entrySet()) {
+            document = documentModel.read(entry.getKey().getArtifactId());
             firstVersion = documentModel.readEarliestVersion(entry.getKey().getArtifactId());
 
             view = new DocumentView();
+            view.setCreatedOn(document.getCreatedOn());
             view.setDelta(entry.getValue());
             view.setVersion(entry.getKey());
             view.setFirstPublishedOn(firstVersion.getCreatedOn());
@@ -254,28 +256,10 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
         }
         Collections.sort(views, new Comparator<DocumentView>() {
             public int compare(final DocumentView o1, final DocumentView o2) {
-                // Oldest are first in the list.
-                return o1.getFirstPublishedOn().compareTo(
-                       o2.getFirstPublishedOn());
+                return o1.getCreatedOn().compareTo(o2.getCreatedOn()) * -1;
             }
         });
         return views;
-    }
-
-    /**
-     * Read a container draft.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @return A <code>ContainerDraft</code>.
-     */
-    public ContainerDraft readDraft(final Long containerId) {
-        final Comparator<Artifact> comparator = new Comparator<Artifact>() {
-            public int compare(final Artifact o1, final Artifact o2) {
-                return o1.getCreatedOn().compareTo(o2.getCreatedOn());
-            }
-        };
-        return containerModel.readDraft(containerId, comparator);
     }
 
     /**
@@ -287,7 +271,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	 */
     public DraftView readDraftView(final Long containerId) {
         final DraftView draftView = new DraftView();
-        draftView.setDraft(readDraft(containerId));
+        draftView.setDraft(containerModel.readDraft(containerId));
         DocumentVersion firstVersion;
         if (draftView.isSetDraft()) {
             for (final Document document : draftView.getDraft().getDocuments()) {
@@ -371,7 +355,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public User readUser(final JabberId userId) {
         return userModel.read(userId);
     }
-    
+
     /**
      * Read a list of container versions.
      * 
@@ -382,7 +366,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public List<ContainerVersion> readVersions(final Long containerId) {
         return containerModel.readVersions(containerId);
     }
-
+    
     /**
 	 * Search for containers.
 	 * 

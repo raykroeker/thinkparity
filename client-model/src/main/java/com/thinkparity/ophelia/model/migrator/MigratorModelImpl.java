@@ -440,7 +440,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     private void initializeRelease() throws IOException {
         final String[] releases = new String[] {
                 "v1_0-20070430-1500", "v1_0-20070516-1300",
-                "v1_0-20070612-2246", "v1_0-20070626-1300"
+                "v1_0-20070612-2246", "v1_0-20070626-1300",
+                "v1_0-20070703-1030"
         };
         int beginIndex = -1;
         for (int i = 0; i < releases.length; i++) {

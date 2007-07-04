@@ -91,7 +91,7 @@ Local Configuration:                ${localconfig}
 
     <!-- cvs configuration -->
     <property name="cvs.compressionlevel" value="9"/>
-    <property name="cvs.cvsroot" value=":pserver:${scm.credentials}@tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
+    <property name="cvs.cvsroot" value=":pserver:${scm.credentials}@tps-yxx-0.thinkparity.org:2401/cvs/repo/thinkparity"/>
     <property name="cvs.branch" value="v1_0"/>
     <property name="cvs.modules" value="remote/model"/>
 

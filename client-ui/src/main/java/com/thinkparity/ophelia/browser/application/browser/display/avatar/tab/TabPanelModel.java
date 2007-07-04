@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab;
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
@@ -643,6 +644,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      */
     @Override
     protected void synchronizeImpl() {
+        final TabPanel focusedPanel = getFocusedPanel();
         checkThread();
         debug();
         applySearchFilter();
@@ -683,6 +685,8 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         if (!isSelectedPanel() ||
                 (isSelectedPanel() && !visiblePanels.contains(getSelectedPanel()))) {
             selectFirstPanel();
+        } else if (null != focusedPanel && visiblePanels.contains(focusedPanel)) {
+            ((Component)focusedPanel).requestFocusInWindow();
         }
         debug();
     }
@@ -717,6 +721,23 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      */
     private void checkThread() {
         Assert.assertTrue(EventQueue.isDispatchThread(), "Tab panel model not on the AWT event dispatch thread.");
+    }
+
+    /**
+     * Get the focused panel.
+     * Only the selected panel can have focus but there may be times
+     * that no panel has focus.
+     * 
+     * @return The focused <code>TabPanel</code>, or null if there is none.
+     */
+    private TabPanel getFocusedPanel() {
+        if (isSelectedPanel()) {
+            final TabPanel panel = getSelectedPanel();
+            if (((Component)panel).isFocusOwner()) {
+                return panel;
+            }
+        }
+        return null;
     }
 
     /**

@@ -56,6 +56,9 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     /** A <code>FuzzyDateFormat</code>. */
     private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
 
+    /** A keyboard popup y location <code>int</code>. */
+    protected static final int KEYBOARD_POPUP_Y;
+
     static {
         ANIMATION_HEIGHT_ADJUSTMENT = 12;
         ANIMATION_MAXIMUM_HEIGHT = 165;
@@ -64,6 +67,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
         BORDER_EXPANDED = new BottomBorder(Colors.Browser.Panel.PANEL_EXPANDED_BORDER);
         FUZZY_DATE_FORMAT = new FuzzyDateFormat();
         IMAGE_CACHE = new MainPanelImageCache();
+        KEYBOARD_POPUP_Y = 12;
     }
 
     /**
@@ -122,6 +126,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
 		this.id = JVMUniqueId.nextId();
         this.session = session;
         bindKeys();
+        addPopupListeners();
 	}
 
     /**
@@ -269,6 +274,12 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     }
 
     /**
+     * Add popup listeners. This is to show a popup when shift-f10 is pressed.
+     */
+    protected void addPopupListeners() {
+    }
+
+    /**
      * Adjust the border color.
      * 
      * @param expanded
@@ -285,9 +296,23 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     }
 
     /**
+     * Bind or unbind expanded panel key bindings.
+     * 
+     * When expanded, the keys are bound to actions. When collapsed,
+     * the key binding is removed so it can be interpreted elsewhere.
+     * 
+     * @param expanded
+     *            The expanded <code>Boolean</code>.
+     */
+    protected void bindExpandedKeys(final Boolean expanded) {
+    }
+
+    /**
      * Bind keys to actions.
      */
     protected void bindKeys() {
+        bindExpandedKeys(isExpanded());
+
         // plus to expand
         bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, InputEvent.SHIFT_DOWN_MASK),
             new AbstractAction() {
@@ -387,6 +412,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
             repaint();
             firePropertyChange("expanded", !expanded, expanded);
         }
+        bindExpandedKeys(Boolean.FALSE);
     }
 
     /**
@@ -441,6 +467,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
             repaint();
             firePropertyChange("expanded", !expanded, expanded);
         }
+        bindExpandedKeys(Boolean.TRUE);
     }
 
     /**

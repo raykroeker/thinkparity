@@ -765,7 +765,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         panel.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(final PropertyChangeEvent evt) {
                 if ("expanded".equals(evt.getPropertyName())) {
-                    if (panel.isExpanded()) {
+                    if (panel.isExpanded() && null != panel.getDraft()) {
                         // Check if the DocumentDraft become out of date while
                         // the draft monitor was off, if it has then syncContainer()
                         // will result in startSessionDraftMonitor() being called above.

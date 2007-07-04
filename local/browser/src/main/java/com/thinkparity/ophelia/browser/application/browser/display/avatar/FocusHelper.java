@@ -1,8 +1,8 @@
 /**
- * Created On: 4-Jun-07 11:31:02 AM
+ * Created On: 4-Jul-07 2:24:13 AM
  * $Id$
  */
-package com.thinkparity.codebase.swing;
+package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -10,12 +10,15 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JComponent;
 
+import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-final class JComponentRequestFocusHelper {
+public class FocusHelper {
 
     /**
      * A client property key <code>String</code> used to store the mouse
@@ -24,35 +27,28 @@ final class JComponentRequestFocusHelper {
     private static final String LISTENER_CLIENT_PROPERTY_KEY;
 
     static {
-        LISTENER_CLIENT_PROPERTY_KEY = new StringBuffer(JComponentRequestFocusHelper.class
+        LISTENER_CLIENT_PROPERTY_KEY = new StringBuffer(FocusHelper.class
                 .getName()).append("#mouseListener").toString();
     }
 
-    /**
-     * Create JComponentRequestFocusHelper.
-     * 
-     * @param jPanel
-     *            An <code>AbstractJPanel</code>.
-     */
-    JComponentRequestFocusHelper(final AbstractJPanel jPanel) {
-        this();
-    }
+    /** A <code>Browser</code>. */
+    final Browser browser;
 
     /**
-     * Create JComponentRequestFocusHelper.
-     *
+     * Create FocusHelper.
      */
-    private JComponentRequestFocusHelper() {
+    public FocusHelper() {
         super();
+        this.browser = getBrowser();
     }
 
     /**
-     * Add a request focus listener to the component.
+     * Add a mouse listener to the component that redirects focus appropriately.
      * 
      * @param jComponent
      *            A <code>JComponent</code>.
      */
-    void addListener(final JComponent jComponent) {
+    void addFocusListener(final JComponent jComponent) {
         // property to protect against adding it twice
         MouseListener mouseListener =
             (MouseListener) jComponent.getClientProperty(LISTENER_CLIENT_PROPERTY_KEY);
@@ -60,7 +56,7 @@ final class JComponentRequestFocusHelper {
             mouseListener = new MouseAdapter() {
                 @Override
                 public void mousePressed(final MouseEvent e) {
-                    jComponent.requestFocusInWindow();
+                    browser.requestFocusInTab();
                 }
             };
             jComponent.addMouseListener(mouseListener);
@@ -82,5 +78,14 @@ final class JComponentRequestFocusHelper {
             jComponent.putClientProperty(LISTENER_CLIENT_PROPERTY_KEY, null);
             mouseListener = null;
         }    
+    }
+
+    /**
+     * Obtain the browser application.
+     * 
+     * @return The browser application.
+     */
+    private Browser getBrowser() {
+        return (Browser) new ApplicationRegistry().get(ApplicationId.BROWSER);
     }
 }

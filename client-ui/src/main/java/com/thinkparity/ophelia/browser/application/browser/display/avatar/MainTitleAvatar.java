@@ -49,7 +49,7 @@ public final class MainTitleAvatar extends Avatar {
         initComponents();
         installResizer();
         installMoveListener();
-        installRequestFocusListener();
+        new FocusHelper().addFocusListener(this);
 
         // double click to maximize the browser window
         this.addMouseListener(new java.awt.event.MouseAdapter() {

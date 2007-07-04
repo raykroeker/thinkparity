@@ -59,7 +59,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         this.allTabs = new HashMap<TabId, Tab>();
         initComponents();
         addMoveListener(this);
-        addRequestFocusListener(this);
+        new FocusHelper().addFocusListener(this);
         new Resizer(getBrowser(), this, Boolean.FALSE, Resizer.ResizeEdges.LEFT);
         new Resizer(getBrowser(), containerJLabel, Boolean.FALSE, Resizer.ResizeEdges.LEFT);
     }

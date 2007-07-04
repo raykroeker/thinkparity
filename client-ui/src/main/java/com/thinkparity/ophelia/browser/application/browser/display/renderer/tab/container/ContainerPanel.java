@@ -19,7 +19,7 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.Icon;
-import javax.swing.JPanel;
+import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataEvent;
@@ -42,10 +42,10 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
-import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.KeyboardPopupHelper;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.FileIconReader;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
@@ -53,8 +53,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DraftView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.PublishedToView;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.*;
-import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
-import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.util.localization.BrowserLocalization;
 import com.thinkparity.ophelia.browser.util.localization.Localization;
 
@@ -636,16 +634,58 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * Bind or unbind temporary key bindings.
-     * 
-     * When expanded, the keys are bound to actions. When collapsed,
-     * the key binding is removed so it can be interpreted elsewhere.
-     * 
-     * @param enable
-     *            The enable <code>Boolean</code>.
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#addPopupListeners()
      */
-    private void bindTemporaryKeys(final Boolean enable) {
-        if (enable) {
+    @Override
+    protected void addPopupListeners() {
+        final KeyboardPopupHelper keyboardPopupHelper = new KeyboardPopupHelper();
+        keyboardPopupHelper.addPopupListener(ContainerPanel.this, new Runnable() {
+            public void run() {
+                if (!isExpanded()) {
+                    selectPanel();
+                    popupDelegate.initialize(ContainerPanel.this,
+                                    ContainerPanel.this.getWidth() / 5,
+                                    ContainerPanel.this.getHeight() / 2);
+                    popupDelegate.showForContainer(container, getDraft());
+                } else {
+                    if (PanelFocusHelper.Focus.EAST == PanelFocusHelper.getFocus()) {
+                        if (!eastListModel.isSelectionEmpty()) {
+                            final Cell cell = eastListModel.getSelectedCell();
+                            final int index = eastListModel.getSelectedIndex();
+                            if (cell.isPopupAvailable()) {
+                                final JComponent jComponent = (JComponent)getPanelCellRenderer(
+                                                ListType.EAST_LIST, index);
+                                popupDelegate.initialize(jComponent,
+                                                jComponent.getWidth() / 5,
+                                                jComponent.getHeight() / 2);
+                                cell.showPopup();
+                            }
+                        }
+                    } else {
+                        if (!westListModel.isSelectionEmpty()) {
+                            final Cell cell = westListModel.getSelectedCell();
+                            final int index = westListModel.getSelectedIndex();
+                            if (cell.isPopupAvailable()) {
+                                final JComponent jComponent = (JComponent)getPanelCellRenderer(
+                                        ListType.WEST_LIST, index);
+                                popupDelegate.initialize(jComponent,
+                                                jComponent.getWidth() / 4,
+                                                jComponent.getHeight() / 2);
+                                cell.showPopup();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#bindExpandedKeys(java.lang.Boolean)
+     */
+    @Override
+    protected void bindExpandedKeys(final Boolean expanded) {
+        if (expanded) {
             bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0));
             bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0));
             bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0));
@@ -668,7 +708,6 @@ public class ContainerPanel extends DefaultTabPanel {
     @Override
     protected void bindKeys() {
         super.bindKeys();
-        bindTemporaryKeys(isExpanded());
 
         // cursor left: focus on west list
         bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),
@@ -693,39 +732,6 @@ public class ContainerPanel extends DefaultTabPanel {
                         }
                     }
                 });
-
-        // TODO move this somewhere else
-        final ApplicationRegistry applicationRegistry = new ApplicationRegistry();
-        final Browser browser = (Browser)applicationRegistry.get(ApplicationId.BROWSER);
-        browser.getMainWindow().addPropertyChangeListener("showPopup", new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (ContainerPanel.this.hasFocus()) {
-                    if (!isExpanded()) {
-                        selectPanel();
-                        popupDelegate.initialize(ContainerPanel.this, ContainerPanel.this.getWidth()/4, ContainerPanel.this.getHeight()/2);
-                        popupDelegate.showForContainer(container, getDraft());
-                    }
-                }
-            }
-        });
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#doCollapse(boolean, javax.swing.JPanel, javax.swing.JPanel)
-     */
-    @Override
-    protected void doCollapse(boolean animate, JPanel collapsedJPanel, JPanel expandedJPanel) {
-        super.doCollapse(animate, collapsedJPanel, expandedJPanel);
-        bindTemporaryKeys(Boolean.FALSE);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#doExpand(boolean, javax.swing.JPanel, javax.swing.JPanel)
-     */
-    @Override
-    protected void doExpand(boolean animate, JPanel collapsedJPanel, JPanel expandedJPanel) {
-        super.doExpand(animate, collapsedJPanel, expandedJPanel);
-        bindTemporaryKeys(Boolean.TRUE);
     }
 
     /**

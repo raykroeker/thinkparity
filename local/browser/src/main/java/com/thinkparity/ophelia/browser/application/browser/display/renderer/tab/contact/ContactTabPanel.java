@@ -30,6 +30,7 @@ import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.KeyboardPopupHelper;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.util.localization.BrowserLocalization;
@@ -427,6 +428,21 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#addPopupListeners()
+     */
+    @Override
+    protected void addPopupListeners() {
+        final KeyboardPopupHelper keyboardPopupHelper = new KeyboardPopupHelper();
+        keyboardPopupHelper.addPopupListener(ContactTabPanel.this, new Runnable() {
+            public void run() {
+                selectPanel();
+                popupDelegate.initialize(ContactTabPanel.this, ContactTabPanel.this.getWidth()/5, KEYBOARD_POPUP_Y);
+                showPopup();
+            }
+        });
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#isExpandable()
      */
     @Override
@@ -454,11 +470,11 @@ public class ContactTabPanel extends DefaultTabPanel {
         }
     }
 
-    private void collapsedContactJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedContactJPanelMousePressed
+    private void collapsedContactJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedContactJPanelMousePressed
         jPanelMousePressed((javax.swing.JPanel) e.getSource(), e);
     }//GEN-LAST:event_collapsedContactJPanelMousePressed
 
-    private void collapsedContactJPanelMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedContactJPanelMouseReleased
+    private void collapsedContactJPanelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedContactJPanelMouseReleased
         jPanelMouseReleased((javax.swing.JPanel) e.getSource(), e);
     }//GEN-LAST:event_collapsedContactJPanelMouseReleased
 
@@ -1050,18 +1066,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
             selectPanel();
             popupDelegate.initialize(jPanel, e.getX(), e.getY());
-            if (isSetContact())
-                popupDelegate.showForContact(contact, isExpanded());
-            else if (isSetIncomingEMail())
-                popupDelegate.showForInvitation(incomingEMail);
-            else if (isSetIncomingUser())
-                popupDelegate.showForInvitation(incomingUser);
-            else if (isSetOutgoingEMail())
-                popupDelegate.showForInvitation(outgoingEMail);
-            else if (isSetOutgoingUser())
-                popupDelegate.showForInvitation(outgoingUser);
-            else
-                Assert.assertUnreachable("Inconsistent contact tab panel state.");
+            showPopup();
         } else if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
             selectPanel();
         } else if ((e.getClickCount() % 2) == 0 && e.getButton() == MouseEvent.BUTTON1) {
@@ -1086,18 +1091,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
             selectPanel();
             popupDelegate.initialize(jPanel, e.getX(), e.getY());
-            if (isSetContact())
-                popupDelegate.showForContact(contact, isExpanded());
-            else if (isSetIncomingEMail())
-                popupDelegate.showForInvitation(incomingEMail);
-            else if (isSetIncomingUser())
-                popupDelegate.showForInvitation(incomingUser);
-            else if (isSetOutgoingEMail())
-                popupDelegate.showForInvitation(outgoingEMail);
-            else if (isSetOutgoingUser())
-                popupDelegate.showForInvitation(outgoingUser);
-            else
-                Assert.assertUnreachable("Inconsistent contact tab panel state.");
+            showPopup();
         }
     }
 
@@ -1132,5 +1126,23 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     private void selectPanel() {
         tabDelegate.selectPanel(this);
+    }
+
+    /**
+     * Show a popup.
+     */
+    private void showPopup() {
+        if (isSetContact())
+            popupDelegate.showForContact(contact, isExpanded());
+        else if (isSetIncomingEMail())
+            popupDelegate.showForInvitation(incomingEMail);
+        else if (isSetIncomingUser())
+            popupDelegate.showForInvitation(incomingUser);
+        else if (isSetOutgoingEMail())
+            popupDelegate.showForInvitation(outgoingEMail);
+        else if (isSetOutgoingUser())
+            popupDelegate.showForInvitation(outgoingUser);
+        else
+            Assert.assertUnreachable("Inconsistent contact tab panel state.");
     }
 }

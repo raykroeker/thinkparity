@@ -8,7 +8,12 @@ package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab
 
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+
+import javax.swing.AbstractAction;
+import javax.swing.KeyStroke;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.SwingUtil;
@@ -19,6 +24,7 @@ import com.thinkparity.ophelia.model.help.HelpTopic;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.KeyboardPopupHelper;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelListManager;
 import com.thinkparity.ophelia.browser.util.localization.BrowserLocalization;
@@ -45,6 +51,9 @@ public class HelpTabPanel extends DefaultTabPanel {
     /** The panel localization. */
     private final Localization localization;
 
+    /** The panel list manager. */
+    private final PanelListManager panelListManager;
+
     /** The help tab's <code>PopupDelegate</code>. */
     private PopupDelegate popupDelegate;
 
@@ -58,8 +67,9 @@ public class HelpTabPanel extends DefaultTabPanel {
         super(session);
         this.localization = new BrowserLocalization("HelpTabPanel");
         this.helpContentModel = new HelpContentModel(this, helpContentJTextArea);
-        new PanelListManager(helpContentModel, localization, firstJLabel,
-                previousJLabel, countJLabel, nextJLabel, lastJLabel);
+        this.panelListManager = new PanelListManager(helpContentModel,
+                localization, firstJLabel, previousJLabel, countJLabel,
+                nextJLabel, lastJLabel);
         initComponents();
     }
 
@@ -191,6 +201,47 @@ public class HelpTabPanel extends DefaultTabPanel {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#addPopupListeners()
+     */
+    @Override
+    protected void addPopupListeners() {
+        final KeyboardPopupHelper keyboardPopupHelper = new KeyboardPopupHelper();
+        keyboardPopupHelper.addPopupListener(HelpTabPanel.this, new Runnable() {
+            public void run() {
+                selectPanel();
+                popupDelegate.initialize(HelpTabPanel.this, HelpTabPanel.this.getWidth()/5, KEYBOARD_POPUP_Y);
+                popupDelegate.showForHelpTopic(helpTopic);
+            }
+        });
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#bindExpandedKeys(java.lang.Boolean)
+     */
+    @Override
+    protected void bindExpandedKeys(final Boolean expanded) {
+        if (expanded) {
+            bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0));
+            bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0));
+            bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0));
+            bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_END, 0));
+            bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0));
+            bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0));
+            bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0));
+            bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0));
+        } else {
+            unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0));
+            unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0));
+            unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0));
+            unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_END, 0));
+            unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0));
+            unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0));
+            unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0));
+            unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0));
+        }
+    }
+
+    /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
     @Override
@@ -204,6 +255,22 @@ public class HelpTabPanel extends DefaultTabPanel {
         } else {
             renderer.paintBackground(g, getWidth(), height, selected);
         }
+    }
+
+    /**
+     * Bind a keystroke destined for the east and west lists.
+     * 
+     * @param keyStroke
+     *            A <code>KeyStroke</code>.
+     */
+    private void bindKeyStrokeToLists(final KeyStroke keyStroke) {
+        bindKey(keyStroke, new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                if (isExpanded()) {
+                    panelListManager.processKeyStroke(keyStroke);
+                }
+            }
+        });
     }
 
     private void collapsedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMousePressed

@@ -4,7 +4,10 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
+
+import javax.swing.KeyStroke;
 
 import com.thinkparity.ophelia.browser.util.localization.Localization;
 
@@ -81,6 +84,39 @@ public class PanelListManager {
     }
 
     /**
+     * Process a key stroke.
+     * 
+     * @param keyStroke
+     *            A <code>KeyStroke</code>. 
+     */
+    public void processKeyStroke(final KeyStroke keyStroke) {
+        switch(keyStroke.getKeyCode()) {
+        case KeyEvent.VK_PAGE_DOWN:
+        case KeyEvent.VK_DOWN:
+        case KeyEvent.VK_RIGHT:
+            if (isNextAvailable()) {
+                goNext();
+            }
+            break;
+        case KeyEvent.VK_PAGE_UP:
+        case KeyEvent.VK_UP:
+        case KeyEvent.VK_LEFT:
+            if (isPreviousAvailable()) {
+                goPrevious();
+            }
+            break;
+        case KeyEvent.VK_HOME:
+            goFirst();
+            break;
+        case KeyEvent.VK_END:
+            goLast();
+            break;
+        default:
+            break;
+        }
+    }
+
+    /**
      * Get the number of pages.
      * 
      * @return The <code>int</code> number of pages.
@@ -99,21 +135,34 @@ public class PanelListManager {
     }
 
     /**
-     * Handle a mouse press on a label.
-     * 
-     * @param e
-     *            A <code>MouseEvent</code>.
+     * Go to the first page.
      */
-    private void jLabelMousePressed(final java.awt.event.MouseEvent e) {
-        if (e.getSource().equals(firstJLabel)) {
-            setSelectedPage(0);
-        } else if (e.getSource().equals(previousJLabel)) {
-            setSelectedPage(getSelectedPage() - 1);
-        } else if (e.getSource().equals(nextJLabel)) {
-            setSelectedPage(getSelectedPage() + 1);
-        } else if (e.getSource().equals(lastJLabel)) {
-            setSelectedPage(getNumberPages() - 1);
-        }
+    private void goFirst() {
+        setSelectedPage(0);
+        reloadControls();
+    }
+
+    /**
+     * Go to the last page.
+     */
+    private void goLast() {
+        setSelectedPage(getNumberPages() - 1);
+        reloadControls();
+    }
+
+    /**
+     * Go to the next page.
+     */
+    private void goNext() {
+        setSelectedPage(getSelectedPage() + 1);
+        reloadControls();
+    }
+
+    /**
+     * Go to the previous page.
+     */
+    private void goPrevious() {
+        setSelectedPage(getSelectedPage() - 1);
         reloadControls();
     }
 
@@ -130,6 +179,60 @@ public class PanelListManager {
         this.previousJLabel.addMouseListener(mouseAdapter);
         this.nextJLabel.addMouseListener(mouseAdapter);
         this.lastJLabel.addMouseListener(mouseAdapter);
+    }
+
+    /**
+     * Determine if "first" is available.
+     * 
+     * @return true if "first" is available.
+     */
+    private boolean isFirstAvailable() {
+        return getSelectedPage() > 1;
+    }
+
+    /**
+     * Determine if "last" is available.
+     * 
+     * @return true if "last" is available.
+     */
+    private boolean isLastAvailable() {
+        return getNumberPages() > 1 && getSelectedPage()+2 < getNumberPages();
+    }
+
+    /**
+     * Determine if "next" is available.
+     * 
+     * @return true if "next" is available.
+     */
+    private boolean isNextAvailable() {
+        return getNumberPages() > 1 && getSelectedPage()+1 < getNumberPages();
+    }
+
+    /**
+     * Determine if "previous" is available.
+     * 
+     * @return true if "previous" is available.
+     */
+    private boolean isPreviousAvailable() {
+        return getSelectedPage() > 0;
+    }
+
+    /**
+     * Handle a mouse press on a label.
+     * 
+     * @param e
+     *            A <code>MouseEvent</code>.
+     */
+    private void jLabelMousePressed(final java.awt.event.MouseEvent e) {
+        if (e.getSource().equals(firstJLabel)) {
+            goFirst();
+        } else if (e.getSource().equals(previousJLabel)) {
+            goPrevious();
+        } else if (e.getSource().equals(nextJLabel)) {
+            goNext();
+        } else if (e.getSource().equals(lastJLabel)) {
+            goLast();
+        }
     }
 
     /**
@@ -159,28 +262,28 @@ public class PanelListManager {
      * Reload the first JLabel.
      */
     private void reloadFirst() {
-        firstJLabel.setVisible(getSelectedPage() > 1);
+        firstJLabel.setVisible(isFirstAvailable());
     }
 
     /**
      * Reload the last JLabel.
      */
     private void reloadLast() {
-        lastJLabel.setVisible(getNumberPages() > 1 && getSelectedPage()+2 < getNumberPages());
+        lastJLabel.setVisible(isLastAvailable());
     }
 
     /**
      * Reload the next JLabel.
      */
     private void reloadNext() {
-        nextJLabel.setVisible(getNumberPages() > 1 && getSelectedPage()+1 < getNumberPages());
+        nextJLabel.setVisible(isNextAvailable());
     }
 
     /**
      * Reload the previous JLabel.
      */
     private void reloadPrevious() {
-        previousJLabel.setVisible(getSelectedPage() > 0);
+        previousJLabel.setVisible(isPreviousAvailable());
     }
 
     /**

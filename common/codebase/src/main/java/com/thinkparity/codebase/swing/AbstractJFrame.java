@@ -154,20 +154,6 @@ public abstract class AbstractJFrame extends JFrame {
     }
 
     /**
-     * Add a request focus listener to the component. This will request focus on
-     * the component when the mouse is clicked.
-     * 
-     * @param jComponent
-     *            A <code>JComponent</code>.
-     */
-    protected final void addRequestFocusListener(final JComponent jComponent) {
-        if (null == requestFocusHelper) {
-            requestFocusHelper = new JComponentRequestFocusHelper(this);
-        }
-        requestFocusHelper.addListener(jComponent);
-    }
-
-    /**
      * Add a move listener to the component for the panel. A move listener will
      * allow the user will be able to click on and drag the component in order
      * to move the underlying window ancestor.

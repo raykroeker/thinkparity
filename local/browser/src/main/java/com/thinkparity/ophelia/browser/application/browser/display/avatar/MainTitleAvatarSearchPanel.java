@@ -12,8 +12,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
@@ -83,17 +81,9 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
         this.filterPopupDelegate = new FilterPopupDelegate();
         initComponents();
         addMoveListener(this);
-        addRequestFocusListener(this);
-        new Resizer(getBrowser(), this, Boolean.FALSE, Resizer.ResizeEdges.RIGHT);     
-
-        // TODO clean this up
-        getBrowser().getMainWindow().addPropertyChangeListener("showPopup", new PropertyChangeListener() {
-            public void propertyChange(final PropertyChangeEvent e) {
-                if (searchJTextField.hasFocus() && isFilterActive() && !MenuFactory.isPopupMenu()) {
-                    showFilterMenu();
-                }
-            }
-        });
+        addPopupListener();
+        new FocusHelper().addFocusListener(this);
+        new Resizer(getBrowser(), this, Boolean.FALSE, Resizer.ResizeEdges.RIGHT);
     }
 
     /**
@@ -144,12 +134,26 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     }
 
     /**
+     * Add popup listener. This shows a popup when shift-f10 is pressed.
+     */
+    private void addPopupListener() {
+        new KeyboardPopupHelper().addPopupListener(searchJTextField, new Runnable() {
+            public void run() {
+                if (isFilterActive()) {
+                    showFilterMenu();
+                }
+            }
+        });
+    }
+
+    /**
      * Apply a search.
      * 
      */
     private void applySearch() {
         mainTitleAvatar.getController().applySearch(
                 SwingUtil.extract(searchJTextField));
+        requestFocus();
     }
 
     /**

@@ -7,6 +7,8 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
@@ -364,8 +366,12 @@ public class BrowserWindow extends AbstractJFrame {
     private void initMenu(final Boolean maximized) {
         final JMenuBar menuBar = new BrowserMenuBar(browser, this, maximized);
         addMoveListener(menuBar);
-        addRequestFocusListener(menuBar);
         setJMenuBar(menuBar);
+        menuBar.addMouseListener(new MouseAdapter() {
+            public void mousePressed(final MouseEvent e) {
+                browser.requestFocusInTab();
+            }
+        });
     }
 
     /**

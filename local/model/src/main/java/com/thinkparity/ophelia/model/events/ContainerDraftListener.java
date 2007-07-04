@@ -18,10 +18,10 @@ import com.thinkparity.codebase.event.EventListener;
 public interface ContainerDraftListener extends EventListener {
 
     /**
-     * A draft's document was modified.
+     * A draft document's state has changed.
      * 
      * @param e
-     *            The container event.
+     *            A <code>ContainerEvent</code>.
      */
-    public void documentModified(final ContainerEvent e);
+    public void stateChanged(final ContainerEvent e);
 }

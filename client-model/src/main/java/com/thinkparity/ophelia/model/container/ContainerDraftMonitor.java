@@ -6,16 +6,20 @@ package com.thinkparity.ophelia.model.container;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.thinkparity.codebase.assertion.Assert;
+
 import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
+import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 
 /**
  * <b>Title:</b>thinkParity Document Monitor<br>
  * <b>Description:</b>A document monitor. This class will using the java timer
- * abstraction in order to monitor a file on the file system for changes.<br>
+ * abstraction in order to monitor a file on the file system for in document
+ * state within the draft.<br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
@@ -36,7 +40,7 @@ public class ContainerDraftMonitor {
     private final InternalDocumentModel documentModel;
 
     /** A <code>ContainerDraft</code> to monitor. */
-    private final ContainerDraft draft;
+    private ContainerDraft draft;
 
     /** A <code>ContainerEventGenerator</code>. */
     private final ContainerEventGenerator eventGenerator;
@@ -88,17 +92,37 @@ public class ContainerDraftMonitor {
             @Override
             public void run() {
                 for (final Document document : draft.getDocuments()) {
-                    final ContainerDraft.ArtifactState state = draft.getState(document);
-                    if (ContainerDraft.ArtifactState.NONE == state ||
-                        ContainerDraft.ArtifactState.MODIFIED == state ) {
-                        final Boolean documentModified =
-                            ContainerDraft.ArtifactState.NONE == state ? Boolean.FALSE : Boolean.TRUE;
-                        if (documentModel.isDraftModified(document.getId()) != documentModified) {
-                            listener.documentModified(
-                                    eventGenerator.generate(
-                                            containerModel.read(draft.getContainerId()),
-                                            containerModel.readDraft(draft.getContainerId()),
-                                            documentModel.read(document.getId())));
+                    final ArtifactState state = draft.getState(document);
+                    final Boolean modified = documentModel.isDraftModified(document.getId());
+                    if (modified) {
+                        switch (state) {
+                        case NONE:
+                            draft = containerModel.readDraft(draft.getContainerId());
+                            listener.stateChanged(eventGenerator.generate(
+                                    containerModel.read(draft.getContainerId()),
+                                    draft, documentModel.read(document.getId())));
+                            break;
+                        case MODIFIED:
+                            break;
+                        default:
+                            Assert.assertUnreachable(
+                                    "Illegal state transition from {0} to modified for document {1}.",
+                                    state.name().toLowerCase(), document.getName());
+                        }
+                    } else {
+                        switch (state) {
+                        case NONE:
+                            break;
+                        case MODIFIED:
+                            draft = containerModel.readDraft(draft.getContainerId());
+                            listener.stateChanged(eventGenerator.generate(
+                                    containerModel.read(draft.getContainerId()),
+                                    draft, documentModel.read(document.getId())));
+                            break;
+                        default:
+                            Assert.assertUnreachable(
+                                    "Illegal state transition from {0} to modified for document {1}.",
+                                    state.name().toLowerCase(), document.getName());
                         }
                     }
                 }

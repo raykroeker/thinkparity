@@ -1051,7 +1051,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         }
         // create a new monitor and start it
         monitor = getDraftMonitor(containerId, new ContainerDraftListener() {
-            public void documentModified(final ContainerEvent e) {
+            public void stateChanged(final ContainerEvent e) {
                 SwingUtil.ensureDispatchThread(new Runnable() {
                     public void run() {
                         // double check that the panel exists and the draft exists

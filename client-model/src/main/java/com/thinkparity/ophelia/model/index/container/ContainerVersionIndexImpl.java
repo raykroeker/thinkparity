@@ -44,6 +44,12 @@ public final class ContainerVersionIndexImpl extends
     /** Container verison comment index field. */
     private static final FieldBuilder IDX_CONTAINER_VERSION_COMMENT_REV;
 
+    /** The version name index field. */
+    private static final FieldBuilder IDX_CONTAINER_VERSION_NAME;
+
+    /** The version name index field. */
+    private static final FieldBuilder IDX_CONTAINER_VERSION_NAME_REV;
+
     /** Composite container version id index field. */
     private static final FieldBuilder IDX_CONTAINER_VERSION_ID;
 
@@ -62,22 +68,34 @@ public final class ContainerVersionIndexImpl extends
         ID_SEP = '.';
 
         IDX_CONTAINER_VERSION_ID = new FieldBuilder()
-                .setIndex(Field.Index.UN_TOKENIZED)
-                .setName("CONTAINER_VERSION.CONTAINER_VERSION_ID")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
+            .setIndex(Field.Index.UN_TOKENIZED)
+            .setName("CONTAINER_VERSION.CONTAINER_VERSION_ID")
+            .setStore(Field.Store.YES)
+            .setTermVector(Field.TermVector.NO);
 
         IDX_CONTAINER_VERSION_COMMENT = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTAINER_VERSION.COMMENT")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
+            .setIndex(Field.Index.TOKENIZED)
+            .setName("CONTAINER_VERSION.COMMENT")
+            .setStore(Field.Store.YES)
+            .setTermVector(Field.TermVector.NO);
         
         IDX_CONTAINER_VERSION_COMMENT_REV = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTAINER_VERSION.COMMENT_REV")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
+            .setIndex(Field.Index.TOKENIZED)
+            .setName("CONTAINER_VERSION.COMMENT_REV")
+            .setStore(Field.Store.YES)
+            .setTermVector(Field.TermVector.NO);
+
+        IDX_CONTAINER_VERSION_NAME = new FieldBuilder()
+            .setIndex(Field.Index.TOKENIZED)
+            .setName("CONTAINER_VERSION.NAME")
+            .setStore(Field.Store.YES)
+            .setTermVector(Field.TermVector.NO);
+
+        IDX_CONTAINER_VERSION_NAME_REV = new FieldBuilder()
+            .setIndex(Field.Index.TOKENIZED)
+            .setName("CONTAINER_VERSION.NAME_REV")
+            .setStore(Field.Store.YES)
+            .setTermVector(Field.TermVector.NO);
     }
 
     /**
@@ -112,6 +130,10 @@ public final class ContainerVersionIndexImpl extends
             indexBuilder.append(IDX_CONTAINER_VERSION_COMMENT.setValue(o.getComment()).toField())
                 .append(IDX_CONTAINER_VERSION_COMMENT_REV.setValue(reverse(IDX_CONTAINER_VERSION_COMMENT)).toField());
         }
+        if (o.isSetName()) {
+            indexBuilder.append(IDX_CONTAINER_VERSION_NAME.setValue(o.getName()).toField())
+                .append(IDX_CONTAINER_VERSION_NAME_REV.setValue(reverse(IDX_CONTAINER_VERSION_NAME)).toField());
+        }
         index(indexBuilder.toDocument());
     }
 
@@ -122,8 +144,10 @@ public final class ContainerVersionIndexImpl extends
     public List<Pair<Long, Long>> search(final String expression) throws IOException {
         final List<Field> fields = new ArrayList<Field>();
         fields.add(IDX_CONTAINER_VERSION_COMMENT.toSearchField());
+        fields.add(IDX_CONTAINER_VERSION_NAME.toSearchField());
         final List<Field> reversedFields = new ArrayList<Field>();
         reversedFields.add(IDX_CONTAINER_VERSION_COMMENT_REV.toSearchField());
+        reversedFields.add(IDX_CONTAINER_VERSION_NAME_REV.toSearchField());
         return search(IDX_CONTAINER_VERSION_ID.toSearchField(), fields, reversedFields, expression);
     }
 
@@ -138,6 +162,7 @@ public final class ContainerVersionIndexImpl extends
 
     /**
      * @see com.thinkparity.ophelia.model.index.AbstractIndexImpl#resolveHit(java.lang.String)
+     * 
      */
     @Override
     protected Pair<Long, Long> resolveHit(final String hitIdValue) {

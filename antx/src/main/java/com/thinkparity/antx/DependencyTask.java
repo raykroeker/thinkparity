@@ -522,14 +522,22 @@ public class DependencyTask extends AntXTask {
      */
     private File getVendorDirectory() {
         final String vendorDirname = getProperty(getProject(), PROPERTY_NAME_VENDOR_DIR);
-        File vendorDir = new File(vendorDirname);
-        if (vendorDir.exists() && vendorDir.isDirectory() && vendorDir.canRead())
-            return vendorDir;
-        vendorDir = new File(getProject().getBaseDir(), vendorDirname);
-        if (vendorDir.exists() && vendorDir.isDirectory() && vendorDir.canRead())
-            return vendorDir;
-        else
-            throw panic("Cannot resolve vendor directory {0}.", vendorDirname);
+        final File vendorDir = new File(vendorDirname);
+        if (!vendorDir.exists()) {
+            if (!vendorDir.mkdirs()) {
+                throw panic("Vendor directory {0} does not exist and cannot be created.", vendorDirname);
+            }
+        }
+        if (!vendorDir.isDirectory()) {
+            throw panic("Vendor directory {0} is not a directory.", vendorDirname);
+        }
+        if (!vendorDir.canRead()) {
+            throw panic("Vendor directory {0} cannot be read.", vendorDirname);
+        }
+        if (!vendorDir.canWrite()) {
+            throw panic("Vendor directory {0} cannot be written to.", vendorDirname);
+        }
+        return vendorDir;
     }
 
     /**
@@ -542,7 +550,7 @@ public class DependencyTask extends AntXTask {
             cvsLocator = new CvsLocator(getProperty(project, PROPERTY_NAME_CVS_ROOT),
                     Integer.valueOf(getProperty(project, PROPERTY_NAME_CVS_COMPRESSION_LEVEL)),
                     getProperty(project, PROPERTY_NAME_CVS_BRANCH),
-                    project.getBaseDir());
+                    getVendorDirectory().getParentFile());
         }
         cvsLocator.locate(dependencyPath);
     }

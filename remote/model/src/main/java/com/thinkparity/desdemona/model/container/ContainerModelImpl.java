@@ -405,7 +405,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         final VersionPublishedEvent event = new VersionPublishedEvent();
         event.setDocumentVersions(documentVersions);
         event.setLatestVersion(latestVersionId.equals(version.getVersionId()));
-        event.setPublishedBy(version.getCreatedBy());
+        event.setPublishedBy(user.getId());
         event.setPublishedOn(version.getCreatedOn());
         event.setPublishedTo(localize(publishToUsers));
         event.setReceivedBy(receivedBy);

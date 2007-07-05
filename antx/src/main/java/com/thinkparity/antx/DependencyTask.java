@@ -35,6 +35,8 @@ public class DependencyTask extends AntXTask {
 
     private static final String PROPERTY_NAME_TARGET_CLASSES_DIR;
 
+    private static final String PROPERTY_NAME_TARGET_GENERATE_CLASSES_DIR;
+
     private static final String PROPERTY_NAME_TARGET_TEST_CLASSES_DIR;
 
     private static final String PROPERTY_NAME_VENDOR_DIR;
@@ -44,6 +46,7 @@ public class DependencyTask extends AntXTask {
         PROPERTY_NAME_CVS_COMPRESSION_LEVEL = "cvs.compressionlevel";
         PROPERTY_NAME_CVS_ROOT = "cvs.cvsroot";
         PROPERTY_NAME_TARGET_CLASSES_DIR = "target.classes.dir";
+        PROPERTY_NAME_TARGET_GENERATE_CLASSES_DIR = "target.generate-classes.dir";
         PROPERTY_NAME_TARGET_TEST_CLASSES_DIR = "target.test-classes.dir";
         PROPERTY_NAME_VENDOR_DIR = "antx.vendor-dir";
     }
@@ -305,6 +308,7 @@ public class DependencyTask extends AntXTask {
             throw panic("Unknown type {0}", path, provider, scope, type, version, null);
         }
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_CLASSES_DIR);
+        validateFileProperty(getProject(), PROPERTY_NAME_TARGET_GENERATE_CLASSES_DIR);
         validateFileProperty(getProject(), PROPERTY_NAME_TARGET_TEST_CLASSES_DIR);
     }
 
@@ -397,26 +401,31 @@ public class DependencyTask extends AntXTask {
             switch (dependency.getType()) {
             case JAVA:
                 switch (dependency.getScope()) {
+                case GENERATE:
+                    addClassPathElement(Scope.GENERATE, dependency);
+
+                    track(Scope.GENERATE, dependency);
+                    break;
                 case COMPILE:
                     addClassPathElement(Scope.COMPILE, dependency);
-                    addClassPathElement(Scope.RUNTIME, dependency);
+                    addClassPathElement(Scope.RUN, dependency);
                     addClassPathElement(Scope.TEST, dependency);
     
-                    addFilesetLocation(Type.JAVA, Scope.RUNTIME, dependency);
+                    addFilesetLocation(Type.JAVA, Scope.RUN, dependency);
                     addFilesetLocation(Type.JAVA, Scope.TEST, dependency);
     
                     track(Scope.COMPILE, dependency);
-                    track(Scope.RUNTIME, dependency);
+                    track(Scope.RUN, dependency);
                     track(Scope.TEST, dependency);
                     break;
-                case RUNTIME:
-                    addClassPathElement(Scope.RUNTIME, dependency);
+                case RUN:
+                    addClassPathElement(Scope.RUN, dependency);
                     addClassPathElement(Scope.TEST, dependency);
     
-                    addFilesetLocation(Type.JAVA, Scope.RUNTIME, dependency);
+                    addFilesetLocation(Type.JAVA, Scope.RUN, dependency);
                     addFilesetLocation(Type.JAVA, Scope.TEST, dependency);
     
-                    track(Scope.RUNTIME, dependency);
+                    track(Scope.RUN, dependency);
                     track(Scope.TEST, dependency);
                     break;
                 case TEST:
@@ -432,17 +441,18 @@ public class DependencyTask extends AntXTask {
                 break;
             case NATIVE:
                 switch (dependency.getScope()) {
+                case GENERATE:      // deliberate fall through
                 case COMPILE:
                     throw panic("Unexpected scope {0} for type {1}.",
                             scope.name(), type.name());
-                case RUNTIME:
-                    addLibraryPathElement(Scope.RUNTIME, dependency.getLocation());
+                case RUN:
+                    addLibraryPathElement(Scope.RUN, dependency.getLocation());
                     addLibraryPathElement(Scope.TEST, dependency.getLocation());
     
-                    addFilesetLocation(Type.NATIVE, Scope.RUNTIME, dependency);
+                    addFilesetLocation(Type.NATIVE, Scope.RUN, dependency);
                     addFilesetLocation(Type.NATIVE, Scope.TEST, dependency);
     
-                    track(Scope.RUNTIME, dependency);
+                    track(Scope.RUN, dependency);
                     track(Scope.TEST, dependency);
                     break;
                 case TEST:
@@ -478,12 +488,17 @@ public class DependencyTask extends AntXTask {
         final Path classPath = new Path(project);
         PathElement target;
         switch (scope) {
+        case GENERATE:
+            target = classPath.new PathElement();
+            target.setLocation(getFileProperty(project, PROPERTY_NAME_TARGET_GENERATE_CLASSES_DIR));
+            classPath.add(target);
+            break;
         case COMPILE:
             target = classPath.new PathElement();
             target.setLocation(getFileProperty(project, PROPERTY_NAME_TARGET_CLASSES_DIR));
             classPath.add(target);
             break;
-        case RUNTIME:
+        case RUN:
             target = classPath.new PathElement();
             target.setLocation(getFileProperty(project, PROPERTY_NAME_TARGET_CLASSES_DIR));
             classPath.add(target);

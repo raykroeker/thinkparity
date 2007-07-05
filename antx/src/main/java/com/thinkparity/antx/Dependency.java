@@ -52,7 +52,8 @@ public class Dependency {
             return true;
         if (getClass() != obj.getClass())
             return false;
-        return ((Dependency) obj).location.equals(location);
+        final Dependency dep = (Dependency) obj;
+        return dep.location.equals(location) && dep.scope.equals(scope);
     }
 
     /**
@@ -117,7 +118,8 @@ public class Dependency {
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((location == null) ? 0 : location.hashCode());
+        result = PRIME * result * location.hashCode();
+        result = PRIME * result * scope.hashCode();
         return result;
     }
 
@@ -202,7 +204,7 @@ public class Dependency {
      * <b>Description:</b>Defines the scope of the depenency. Used to build
      * appropriate path references for compilation runtime and testing.<br>
      */
-    public enum Scope { COMPILE, RUNTIME, TEST }
+    public enum Scope { COMPILE, GENERATE, RUN, TEST }
 
     /**
      * <b>Title:</b>Dependency Type<br>

@@ -33,6 +33,8 @@ public final class HandleVersionPublishedNotification extends
      *
      */
     public void handleVersionPublishedNotification() throws CannotLockException {
+        /* no need to replicate the client logic because the backup is the
+         * "hidden" team member */
     }
 
     /**

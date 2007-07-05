@@ -663,9 +663,9 @@ public final class ContainerModelImpl extends
             if (delegate.didRestore().booleanValue()) {
                 notifyContainerRestored(container, remoteEventGenerator);
             }
-            notifyContainerPublished(container, delegate.getDraft(),
-                    previousVersion, version, nextVersion,
-                    delegate.getPublishedBy(), remoteEventGenerator);
+            notifyContainerPublished(container, previousVersion, version,
+                    nextVersion, delegate.getPublishedBy(),
+                    remoteEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -714,7 +714,7 @@ public final class ContainerModelImpl extends
                     containerId, version.getVersionId());
             final ContainerVersion nextVersion = readPreviousVersion(
                     containerId, version.getVersionId());
-            notifyContainerPublished(container, null, previousVersion, version,
+            notifyContainerPublished(container, previousVersion, version,
                     nextVersion, delegate.getPublishedBy(),
                     remoteEventGenerator);
         } catch (final Throwable t) {
@@ -950,7 +950,7 @@ public final class ContainerModelImpl extends
             final ContainerVersion previousVersion = readPreviousVersion(containerId, versionId);
             final ContainerVersion nextVersion = readNextVersion(containerId, versionId);
             final TeamMember localTeamMember = localTeamMember(containerId);
-            notifyContainerPublished(container, null, version, previousVersion,
+            notifyContainerPublished(container, version, previousVersion,
                     nextVersion, localTeamMember, localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
@@ -3139,13 +3139,13 @@ public final class ContainerModelImpl extends
      *            A <code>ContainerEventGenerator</code>.
      */
     private void notifyContainerPublished(final Container container,
-            final ContainerDraft draft, final ContainerVersion previousVersion,
+            final ContainerVersion previousVersion,
             final ContainerVersion version, final ContainerVersion nextVersion,
             final User user, final ContainerEventGenerator eventGenerator) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
                 listener.containerPublished(eventGenerator.generate(container,
-                        draft, previousVersion, version, nextVersion, user));
+                        previousVersion, version, nextVersion, user));
             }
         });
     }

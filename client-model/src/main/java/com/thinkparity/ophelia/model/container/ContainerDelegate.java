@@ -279,7 +279,7 @@ public abstract class ContainerDelegate extends
      *      Long)
      * 
      */
-    protected Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+    protected final Map<DocumentVersion, Delta> readDocumentVersionDeltas(
             final Long containerId, final Long compareVersionId) {
         return modelImplementation.readDocumentVersionDeltas(containerId,
                 compareVersionId);
@@ -290,7 +290,7 @@ public abstract class ContainerDelegate extends
      *      Long, Long)
      * 
      */
-    protected Map<DocumentVersion, Delta> readDocumentVersionDeltas(
+    protected final Map<DocumentVersion, Delta> readDocumentVersionDeltas(
             final Long containerId, final Long compareVersionId,
             final Long compareToVersionId) {
         return modelImplementation.readDocumentVersionDeltas(containerId,
@@ -380,7 +380,7 @@ public abstract class ContainerDelegate extends
      *      List, Map)
      * 
      */
-    protected void uploadDocumentVersions(final ProcessMonitor monitor,
+    protected final void uploadDocumentVersions(final ProcessMonitor monitor,
             final List<DocumentVersion> versions,
             final Map<DocumentVersion, Delta> deltas) {
         modelImplementation.uploadDocumentVersions(monitor, versions, deltas);

@@ -18,7 +18,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.container.ContainerDelegate;
-import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
@@ -31,9 +30,6 @@ import com.thinkparity.ophelia.model.user.InternalUserModel;
  * @version 1.1.2.1
  */
 public final class HandlePublished extends ContainerDelegate {
-
-    /** The existing container draft. */
-    private ContainerDraft draft;
 
     /** A published event. */
     private PublishedEvent event;
@@ -63,16 +59,8 @@ public final class HandlePublished extends ContainerDelegate {
     }
 
     /**
-     * Obtain the container draft.
-     * 
-     * @return A <code>ContainerDraft</code>.
-     */
-    public ContainerDraft getDraft() {
-        return draft;
-    }
-
-    /**
      * Obtain the published by team member.
+     * 
      * @return A the published by <code>TeamMember</code>.
      */
     public User getPublishedBy() {
@@ -110,14 +98,6 @@ public final class HandlePublished extends ContainerDelegate {
             publishedBy = localTeam.get(indexOf(localTeam, event.getPublishedBy()));
         } else {
             publishedBy = getUserModel().readLazyCreate(event.getPublishedBy());
-        }
-        // delete draft
-        draft = readDraft(container.getId());
-        if (null == draft) {
-            logger.logInfo("Draft did not previously exist for {0}.",
-                    container.getName());
-        } else {
-            deleteDraft(container.getId());
         }
         // create published to list
         containerIO.createPublishedTo(container.getId(),

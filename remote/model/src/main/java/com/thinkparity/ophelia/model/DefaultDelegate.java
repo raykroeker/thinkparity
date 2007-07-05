@@ -8,6 +8,7 @@ import java.util.List;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -94,6 +95,15 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
      */
     protected final InternalIndexModel getIndexModel() {
         return modelImplementation.getIndexModel();
+    }
+
+    /**
+     * Obtain a server artifact model.
+     * 
+     * @return An instance of<code>InternalArtifactModel</code>.
+     */
+    protected final com.thinkparity.desdemona.model.artifact.InternalArtifactModel getServerArtifactModel() {
+        return com.thinkparity.desdemona.model.InternalModelFactory.getInstance(new Context(), localUser()).getArtifactModel();
     }
 
     /**

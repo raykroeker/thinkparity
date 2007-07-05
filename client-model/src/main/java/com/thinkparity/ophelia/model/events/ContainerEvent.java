@@ -120,10 +120,10 @@ public class ContainerEvent {
      *            A container version.
      */
     public ContainerEvent(final Source source, final Container container,
-            final ContainerDraft draft, final ContainerVersion previousVersion,
+            final ContainerVersion previousVersion,
             final ContainerVersion version, final ContainerVersion nextVersion,
             final User user) {
-        this(source, container, draft, previousVersion, version, nextVersion,
+        this(source, container, null, previousVersion, version, nextVersion,
                 null, null, EMPTY_OUTGOING_EMAIL_INVITATIONS, user);
     }
 

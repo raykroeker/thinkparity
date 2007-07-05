@@ -18,7 +18,7 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="errorMessageJLabel" alignment="1" pref="461" max="32767" attributes="1"/>
+                  <Component id="errorMessageJLabel" alignment="1" pref="455" max="32767" attributes="1"/>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
@@ -51,7 +51,7 @@
                       <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
                       <Component id="nameJLabel" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="explanationJLabel" alignment="0" pref="461" max="32767" attributes="0"/>
+                  <Component id="explanationJLabel" alignment="0" pref="455" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>

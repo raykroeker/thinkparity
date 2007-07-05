@@ -282,8 +282,8 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
         forgotPasswordJLabel.setFont(Fonts.DialogFont);
         forgotPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Credentials.ForgetPassword"));
         forgotPasswordJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                forgotPasswordJLabelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                forgotPasswordJLabelMousePressed(evt);
             }
         });
 
@@ -312,8 +312,8 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
                         .addGap(26, 26, 26))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(explanationJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 492, Short.MAX_VALUE)
-                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 492, Short.MAX_VALUE))
+                            .addComponent(explanationJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
+                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
                         .addContainerGap())))
         );
         layout.setVerticalGroup(

@@ -17,6 +17,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.monitor.PublishStep;
+import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
@@ -138,14 +139,22 @@ public class PublishVersion extends AbstractBrowserAction {
                     }
                 }
             }
+            boolean offline = false;
             try {
                 containerModel.publishVersion(publishMonitor,
                         version.getArtifactId(), version.getVersionId(),
                         emails, contacts, teamMembers);
                 containerModel.applyFlagSeen(version.getArtifactId());
+            } catch (final OfflineException ox) {
+                offline = true;
+                monitor.reset();
+                return null;
             } finally {
                 // notify the avatar that the publish is complete at the last possible moment
                 monitor.complete();
+                if (offline) {
+                    action.browser.displayErrorDialog("ErrorOffline");
+                }
             }
             return version;
         }

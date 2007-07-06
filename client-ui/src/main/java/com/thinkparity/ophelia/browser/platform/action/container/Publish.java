@@ -237,15 +237,22 @@ public class Publish extends AbstractBrowserAction {
                 action.browser.retry(action, container.getName());
                 return null;
             }
+            boolean offline = false;
             try {
                 containerModel.publish(publishMonitor, container.getId(),
                         versionName, emails, contacts, teamMembers);
                 containerModel.applyFlagSeen(container.getId());
                 latestVersion = containerModel.readLatestVersion(container.getId());
             } catch (final OfflineException ox) {
-                // TODO implement a "you are offline" notification
+                offline = true;
+                try {
+                    containerModel.restoreDraft(container.getId());
+                } catch (final CannotLockException clx2) {
+                    // not a whole lot that can be done here
+                    action.logger.logFatal(clx2,
+                            "Could not restore draft for {0}.", container);
+                }
                 monitor.reset();
-                publishMonitor = newPublishMonitor();
                 return null;
             } catch (final CannotLockException clx) {
                 try {
@@ -272,6 +279,9 @@ public class Publish extends AbstractBrowserAction {
             } finally {
                 // notify the avatar that the publish is complete at the last possible moment
                 monitor.complete();
+                if (offline) {
+                    action.browser.displayErrorDialog("ErrorOffline");
+                }
             }
             return latestVersion;
         }

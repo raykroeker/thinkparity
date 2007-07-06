@@ -98,9 +98,11 @@ public class ContainerDraftMonitor {
                         switch (state) {
                         case NONE:
                             draft = containerModel.readDraft(draft.getContainerId());
-                            listener.stateChanged(eventGenerator.generate(
-                                    containerModel.read(draft.getContainerId()),
-                                    draft, documentModel.read(document.getId())));
+                            if (null != draft) {
+                                listener.stateChanged(eventGenerator.generate(
+                                        containerModel.read(draft.getContainerId()),
+                                        draft, documentModel.read(document.getId())));
+                            }
                             break;
                         case MODIFIED:
                             break;
@@ -115,9 +117,11 @@ public class ContainerDraftMonitor {
                             break;
                         case MODIFIED:
                             draft = containerModel.readDraft(draft.getContainerId());
-                            listener.stateChanged(eventGenerator.generate(
-                                    containerModel.read(draft.getContainerId()),
-                                    draft, documentModel.read(document.getId())));
+                            if (null != draft) {
+                                listener.stateChanged(eventGenerator.generate(
+                                        containerModel.read(draft.getContainerId()),
+                                        draft, documentModel.read(document.getId())));
+                            }
                             break;
                         default:
                             Assert.assertUnreachable(

@@ -18,6 +18,7 @@ import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.container.IllegalStateTransitionException;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -105,6 +106,8 @@ public class AddDocument extends AbstractBrowserAction {
                     if (ContainerDraft.ArtifactState.REMOVED == containerDraft.getState(document)) {
                         try {
                             getContainerModel().revertDocument(containerId, document.getId());
+                        } catch (final IllegalStateTransitionException istx) {
+                            throw translateError(istx);
                         } catch (final CannotLockException clx) {
                             throw translateError(clx);
                         }

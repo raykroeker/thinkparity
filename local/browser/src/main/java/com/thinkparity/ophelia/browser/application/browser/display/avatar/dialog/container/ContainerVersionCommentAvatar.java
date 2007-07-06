@@ -121,7 +121,6 @@ public class ContainerVersionCommentAvatar extends Avatar {
         commentJTextArea.setEditable(false);
         commentJTextArea.setFont(Fonts.DialogTextEntryFont);
         commentJTextArea.setLineWrap(true);
-        commentJTextArea.setRows(4);
         commentJTextArea.setWrapStyleWord(true);
         commentJTextArea.setFocusable(false);
         commentJTextArea.setPreferredSize(new java.awt.Dimension(164, 76));

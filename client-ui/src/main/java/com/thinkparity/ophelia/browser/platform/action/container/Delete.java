@@ -31,12 +31,6 @@ public class Delete extends AbstractBrowserAction {
     private Container container;
 
     /**
-     * A <code>Boolean</code>. Used by invoke and retry invoke to maintain
-     * the draft exists flag.
-     */
-    private Boolean draftExists;
-
-    /**
      * Create Delete.
      * 
      * @param browser
@@ -49,6 +43,7 @@ public class Delete extends AbstractBrowserAction {
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.action.AbstractAction#invoke(com.thinkparity.ophelia.browser.platform.action.Data)
+     * 
      */
     @Override
     public void invoke(final Data data) {
@@ -58,12 +53,12 @@ public class Delete extends AbstractBrowserAction {
         if (draftExists) {
             if (browser.confirm("ContainerDelete.ConfirmDeleteDraftExistsMessage",
                     new Object[] { container.getName() })) {
-                invoke(container, draftExists);
+                invoke(container);
             }
         } else {
             if (browser.confirm("ContainerDelete.ConfirmDeleteMessage",
                     new Object[] { container.getName() })) {
-                invoke(container, draftExists);
+                invoke(container);
             }
         }
     }
@@ -74,7 +69,7 @@ public class Delete extends AbstractBrowserAction {
      */
     @Override
     public void retryInvokeAction() {
-        invoke(container, draftExists);
+        invoke(container);
     }
 
     /**
@@ -82,21 +77,18 @@ public class Delete extends AbstractBrowserAction {
      * 
      * @param container
      *            A <code>Container</code>.
-     * @param draftExists
-     *            A draft exists <code>Boolean</code>.
      */
-    private void invoke(final Container container, final Boolean draftExists) {
+    private void invoke(final Container container) {
         this.container = container;
-        this.draftExists = draftExists;
         try {
-            if (draftExists) {
-                getContainerModel().deleteDraft(container.getId());
-            }
             getContainerModel().delete(container.getId());
         } catch (final CannotLockException clx) {
+            logger.logWarning("Cannot lock document for container {0}.  {1}",
+                    container.getName(), clx.getMessage());
             browser.retry(this, container.getName());
         }
     }
 
+    /** <b>Title:</b>Delete Data Keys<br> */
     public enum DataKey { CONTAINER_ID }
 }

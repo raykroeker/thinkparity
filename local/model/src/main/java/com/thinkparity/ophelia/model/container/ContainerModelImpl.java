@@ -2378,7 +2378,12 @@ public final class ContainerModelImpl extends
         final List<DocumentVersion> versions = getDocumentModel().readVersions(document.getId());
         final Map<DocumentVersion, DocumentFileLock> locks = new HashMap<DocumentVersion, DocumentFileLock>(versions.size(), 1.0F);
         for (final DocumentVersion version : versions) {
-            locks.put(version, getDocumentModel().lockVersion(version));
+            try {
+                locks.put(version, getDocumentModel().lockVersion(version));
+            } catch (final CannotLockException clx) {
+                releaseLocks(locks.values());
+                throw clx;
+            }
         }
         return locks;
     }
@@ -2399,7 +2404,12 @@ public final class ContainerModelImpl extends
             versions.clear();
             versions.addAll(getDocumentModel().readVersions(document.getId()));
             for (final DocumentVersion version : versions) {
-                locks.put(version, getDocumentModel().lockVersion(version));
+                try {
+                    locks.put(version, getDocumentModel().lockVersion(version));
+                } catch (final CannotLockException clx) {
+                    releaseLocks(locks.values());
+                    throw clx;
+                }
             }
         }
         return locks;

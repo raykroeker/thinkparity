@@ -40,7 +40,7 @@ public interface InternalDocumentModel extends DocumentModel {
      *            A document id <code>Long</code>.
      */
     public DocumentDraft createDraft(final DocumentFileLock lock,
-            final Long documentId);
+            final Long documentId) throws CannotLockException;
 
     /**
      * Create a new document version based upon an existing document. This will

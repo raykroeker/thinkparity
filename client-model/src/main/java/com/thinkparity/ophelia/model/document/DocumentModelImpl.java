@@ -116,15 +116,26 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
-     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#createDraft(com.thinkparity.codebase.model.document.DocumentLock,
+    /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#createDraft(com.thinkparity.ophelia.model.document.DocumentFileLock,
      *      java.lang.Long)
      * 
      */
-    public DocumentDraft createDraft(final DocumentFileLock lock, final Long documentId) {
+    public DocumentDraft createDraft(final DocumentFileLock lock,
+            final Long documentId) throws CannotLockException {
         try {
-            writeVersion(readLatestVersion(documentId), lock);
+            final DocumentVersion latestVersion = readLatestVersion(documentId);
+            writeVersion(latestVersion, lock);
             lock.getFile().setWritable(true, true);
+            lock.release();
+            try {
+                Assert.assertTrue(lock.getFile().setLastModified(
+                        latestVersion.getCreatedOn().getTimeInMillis()),
+                        "Could not set last modified for document {0}.",
+                        latestVersion.getName());
+            } finally {
+                lock(lock, read(documentId));
+            }
             return readDraft(lock, documentId);
         } catch (final Throwable t) {
             throw panic(t);
@@ -402,17 +413,7 @@ public final class DocumentModelImpl extends
             throws CannotLockException {
         try {
             final DocumentFileLock lock = new DocumentFileLock();
-            final File draftFile = getDraftFile(document);
-            draftFile.setWritable(true, true);
-            final FileChannel draftFileChannel = new RandomAccessFile(draftFile, "rws").getChannel();
-            final FileLock draftFileLock = draftFileChannel.tryLock();
-            if (null == draftFileLock) {
-            	draftFileChannel.close();
-                throw new CannotLockException(document.getName());
-            }
-            lock.setFile(draftFile);
-            lock.setFileChannel(draftFileChannel);
-            lock.setFileLock(draftFileLock);
+            lock(lock, document);
             return lock;
         } catch (final CannotLockException clx) {
             throw clx;
@@ -428,7 +429,9 @@ public final class DocumentModelImpl extends
     public DocumentFileLock lockVersion(final DocumentVersion version)
             throws CannotLockException {
         try {
-            return lockVersion(version, "rws");
+            final DocumentFileLock lock = new DocumentFileLock();
+            lock(lock, read(version.getArtifactId()), version);
+            return lock;
         } catch (final CannotLockException clx) {
             throw clx;
         } catch (final Throwable t) {
@@ -451,31 +454,13 @@ public final class DocumentModelImpl extends
     }
 
     /**
-	 * Open a document.
-	 * 
-	 * @param documentId
-	 *            The document unique id.
-	 * @throws ParityException
-	 */
+     * @see com.thinkparity.ophelia.model.document.DocumentModel#open(java.lang.Long,
+     *      com.thinkparity.ophelia.model.util.Opener)
+     * 
+     */
     public void open(final Long documentId, final Opener opener) {
-		logger.logApiId();
-        logger.logVariable("documentId", documentId);
-        logger.logVariable("opener", opener);
 		try {
-			final Document document = read(documentId);
-
-			// open the local file
-			final File draftFile = getDraftFile(document);
-            if (!draftFile.exists()) {
-                final DocumentFileLock lock = lock(document);
-                try {
-                    writeVersion(readLatestVersion(documentId), lock);
-                    lock.getFile().setWritable(true, true);
-                } finally {
-                    release(lock);
-                }
-            }
-            opener.open(draftFile);
+            opener.open(getDraftFile(read(documentId)));
 		} catch (final Throwable t) {
             throw panic(t);
 		}
@@ -497,8 +482,8 @@ public final class DocumentModelImpl extends
         } catch (final Throwable t) {
             throw panic(t);
         }
-    }        
-        
+    }
+
     /**
      * @see com.thinkparity.ophelia.model.document.DocumentModel#openVersion(java.lang.Long,
      *      java.lang.Long, com.thinkparity.ophelia.model.util.Opener)
@@ -507,23 +492,13 @@ public final class DocumentModelImpl extends
     public void openVersion(final Long documentId, final Long versionId,
             final Opener opener) {
 		try {
-			final Document document = read(documentId);
-			final DocumentVersion version = readVersion(documentId, versionId);
-			final File versionFile = getVersionFile(document, version);
-            if (!versionFile.exists()) {
-                final DocumentFileLock lock = lockVersion(version);
-                try {
-                    writeVersion(version, lock);
-                } finally {
-                    release(lock);
-                }
-            }
-			opener.open(versionFile);
+			opener.open(getVersionFile(read(documentId),
+                    readVersion(documentId, versionId)));
 		} catch (final Throwable t) {
             throw panic(t);
 		}
-	}
-
+	}        
+        
     /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#openVersion(java.lang.Long,
      *      java.lang.Long, com.thinkparity.codebase.io.StreamOpener)
@@ -627,8 +602,6 @@ public final class DocumentModelImpl extends
         }
     }
 
-    
-
     /**
 	 * Obtain a document with the specified unique id.
 	 * 
@@ -643,6 +616,8 @@ public final class DocumentModelImpl extends
             throw panic(t);
 		}
 	}
+
+    
 
     /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#readDraft(com.thinkparity.ophelia.model.document.DocumentFileLock)
@@ -732,7 +707,7 @@ public final class DocumentModelImpl extends
 		}
 	}
 
-	/**
+    /**
      * Read a document version.
      * 
      * @param documentId
@@ -752,7 +727,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#readVersions(java.lang.Long)
      *
      */
@@ -812,7 +787,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#remove(com.thinkparity.codebase.model.document.DocumentLock,
      *      java.lang.Long)
      * 
@@ -827,7 +802,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.Model#removeListener(com.thinkparity.ophelia.model.util.EventListener)
      */
     @Override
@@ -862,27 +837,34 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#revertDraft(com.thinkparity.codebase.model.document.DocumentLock,
      *      java.lang.Long)
      * 
      */
     public void revertDraft(final DocumentFileLock lock, final Long documentId) {
         try {
-            final DocumentFileLock newLock;
+            final Document document = read(documentId);
+            final DocumentVersion latestVersion = readLatestVersion(documentId);
+            deleteFile(lock);
+            lock(lock, document);
+            writeVersion(latestVersion, lock);
+            lock.getFile().setWritable(true, true);
+            lock.release();
             try {
-                deleteFile(lock);
+                Assert.assertTrue(lock.getFile().setLastModified(
+                        latestVersion.getCreatedOn().getTimeInMillis()),
+                        "Could not set last modified for document {0}.",
+                        latestVersion.getName());
             } finally {
-                newLock = lock(documentId);
+                lock(lock, document);
             }
-            writeVersion(readLatestVersion(documentId), newLock);
-            newLock.getFile().setWritable(true, true);
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#updateDraft(com.thinkparity.ophelia.model.document.DocumentFileLock,
      *      java.lang.Long, java.io.InputStream)
      * 
@@ -890,24 +872,25 @@ public final class DocumentModelImpl extends
     public void updateDraft(final DocumentFileLock lock, final Long documentId,
             final InputStream content) {
         try {
-            final DocumentFileLock newLock;
+            final Document document = read(documentId);
+            deleteFile(lock);
+            lock(lock, document);
+            streamToChannel(content, lock.getFileChannel(0L));
+            lock.release();
             try {
-                deleteFile(lock);
+                Assert.assertTrue(lock.getFile().setLastModified(
+                        currentDateTime().getTimeInMillis()),
+                        "Could not set last modified for document {0}.",
+                        document.getName());
             } finally {
-                newLock = lock(documentId);
-            }
-            try {
-                streamToChannel(content, newLock.getFileChannel(0L));
-                newLock.getFile().setLastModified(currentDateTime().getTimeInMillis());
-            } finally {
-                release(newLock);
+                lock(lock, document);
             }
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.document.DocumentModel#updateDraft(java.lang.Long,
      *      java.io.InputStream)
      * 
@@ -915,7 +898,8 @@ public final class DocumentModelImpl extends
     public void updateDraft(final Long documentId, final InputStream content)
             throws CannotLockException {
         try {
-            final DocumentFileLock lock = lock(documentId);
+            final Document document = read(documentId);
+            final DocumentFileLock lock = lock(document);
             updateDraft(lock, documentId, content);
         } catch (final CannotLockException clx) {
             throw clx;
@@ -924,7 +908,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
@@ -1011,10 +995,12 @@ public final class DocumentModelImpl extends
         final DocumentFileLock lock = lock(document);
         try {
             streamToChannel(content, lock.getFileChannel(0L));
-            lock.getFile().setLastModified(createdOn.getTimeInMillis());
         } finally {
             release(lock);
         }
+        Assert.assertTrue(lock.getFile().setLastModified(
+                createdOn.getTimeInMillis()),
+                "Could not set last modified for document {0}.", name);
         return read(document.getId());
     }
 
@@ -1097,14 +1083,17 @@ public final class DocumentModelImpl extends
                 databaseStream.close();
             }
     		// write local version file
-            final DocumentFileLock versionLock = lockVersion(version, "rws");
+            final DocumentFileLock versionLock = lockVersion(version);
             try {
                 fileToChannel(tempFile, versionLock.getFileChannel(0L));
-                versionLock.getFile().setLastModified(version.getCreatedOn().getTimeInMillis());
-                versionLock.getFile().setReadOnly();
             } finally {
                 release(versionLock);
             }
+            Assert.assertTrue(versionLock.getFile().setLastModified(
+                    version.getCreatedOn().getTimeInMillis()),
+                    "Could not set last modified for document {0} version {1}.",
+                    document.getName(), version.getVersionId());
+            versionLock.getFile().setReadOnly();
     		// update document
     		document.setUpdatedBy(version.getUpdatedBy());
     		document.setUpdatedOn(version.getUpdatedOn());
@@ -1238,43 +1227,64 @@ public final class DocumentModelImpl extends
     }
 
     /**
-     * Obtain a document file lock.
+     * Lock the document and set the appropriate lock members.
      * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @return A <code>DocumentFileLock</code>.
+     * @param lock
+     *            A <code>DocumentFileLock</code>.
+     * @param document
+     *            A <code>Document</code>.
      * @throws CannotLockException
      */
-    private DocumentFileLock lock(final Long documentId) throws CannotLockException {
-        return lock(read(documentId));
+    private void lock(final DocumentFileLock lock, final Document document)
+            throws CannotLockException {
+        final File file = getDraftFile(document);
+        lock(lock, file, document.getName());
     }
 
     /**
-     * Obtain an exclusive lock on a document.
+     * Obtain an exclusive file lock on a document version file.
      * 
+     * @param lock
+     *            A <code>DocumentFileLock</code>.
+     * @param document
+     *            A <code>Document</code>.
      * @param version
      *            A <code>DocumentVersion</code>.
-     * @param mode
-     *            An access mode as defined by <code>RandomAccessFile</code>.
-     * @return A <code>DocumentVersionLock</code>.
-     * @throws CannotLockException
-     *             if an exclusive lock cannot be obtained
      */
-    private DocumentFileLock lockVersion(final DocumentVersion version,
-            final String mode) throws CannotLockException, IOException {
-        final DocumentFileLock lock = new DocumentFileLock();
-        final Document document = read(version.getArtifactId());
-        final File versionFile = getVersionFile(document, version);
-        versionFile.setWritable(true, true);
-        final FileChannel versionFileChannel = new RandomAccessFile(versionFile, mode).getChannel();
-        final FileLock versionFileLock = versionFileChannel.tryLock();
-        if (null == versionFileLock)
-            throw new CannotLockException(new StringBuffer(document.getName())
-                .append(":").append(version.getVersionId()).toString());
-        lock.setFile(versionFile);
-        lock.setFileChannel(versionFileChannel);
-        lock.setFileLock(versionFileLock);
-        return lock;
+    private void lock(final DocumentFileLock lock, final Document document,
+            final DocumentVersion version) throws CannotLockException {
+        final File file = getVersionFile(document, version);
+        lock(lock, file, new StringBuilder(document.getName()).append(':')
+                .append(version.getVersionId()).toString());
+    }
+
+    /**
+     * Obtain an exclusive lock on a file.
+     * 
+     * @param lock
+     *            A <code>DocumentFileLock</code>.
+     * @param file
+     *            A <code>File</code>.
+     * @param name
+     *            A lock name <code>String</code>.
+     * @throws CannotLockException
+     */
+    private void lock(final DocumentFileLock lock, final File file,
+            final String name) throws CannotLockException {
+        try {
+            file.setWritable(true, true);
+            final FileChannel channel = new RandomAccessFile(file, "rws").getChannel();
+            final FileLock fileLock = channel.tryLock();
+            if (null == fileLock) {
+                channel.close();
+                throw new CannotLockException(name);
+            }
+            lock.setFile(file);
+            lock.setFileChannel(channel);
+            lock.setFileLock(fileLock);
+        } catch (final IOException iox) {
+            throw new CannotLockException(name);
+        }
     }
 
     /**
@@ -1343,17 +1353,17 @@ public final class DocumentModelImpl extends
      * Write the contents of the document version to the document file lock's
      * underlying file channel.
      * 
-     * @param documentId
-     *            A document id <code>Long<code>.
-     * @param versionId A version id <code>Long<code>.
-     * @param lock  A <code>DocumentFileLock<code>.
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @param lock
+     *            A <code>DocumentFileLock<code>.
      */
-    private void writeVersion(final DocumentVersion version, final DocumentFileLock lock) {
+    private void writeVersion(final DocumentVersion version,
+            final DocumentFileLock lock) {
         openVersion(version.getArtifactId(), version.getVersionId(), new StreamOpener() {
             public void open(final InputStream stream) throws IOException {
                 streamToChannel(stream, lock.getFileChannel(0L));
             }
         });
-        lock.getFile().setLastModified(version.getCreatedOn().getTimeInMillis());
     }
 }

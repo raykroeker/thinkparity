@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.container.delegate;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,16 +43,27 @@ public final class Delete extends ContainerDelegate {
     public void delete() throws CannotLockException {
         final Container container = read(containerId);
         final List<Document> allDocuments = readAllDocuments(containerId);
-        final Map<Document, DocumentFileLock> allDocumentsLocks = lockDocuments(allDocuments);
-        final Map<DocumentVersion, DocumentFileLock> allDocumentVersionsLocks = lockDocumentVersions(allDocuments);
-        if (isDistributed(container.getId())) {
-            final InternalSessionModel sessionModel = getSessionModel();
-            final Calendar deletedOn = sessionModel.readDateTime();
-            // delete
-            deleteLocal(container.getId(), allDocuments, allDocumentsLocks, allDocumentVersionsLocks);
-            containerService.delete(getAuthToken(), container, deletedOn);
-        } else {
-            deleteLocal(container.getId(), allDocuments, allDocumentsLocks, allDocumentVersionsLocks);
+        final Map<Document, DocumentFileLock> allDocumentsLocks = new HashMap<Document, DocumentFileLock>();
+        final Map<DocumentVersion, DocumentFileLock> allDocumentVersionsLocks = new HashMap<DocumentVersion, DocumentFileLock>();
+        try {
+            allDocumentsLocks.putAll(lockDocuments(allDocuments));
+            allDocumentVersionsLocks.putAll(lockDocumentVersions(allDocuments));
+
+            if (isDistributed(container.getId())) {
+                final InternalSessionModel sessionModel = getSessionModel();
+                final Calendar deletedOn = sessionModel.readDateTime();
+                // delete
+                deleteLocal(container.getId(), allDocuments, allDocumentsLocks, allDocumentVersionsLocks);
+                containerService.delete(getAuthToken(), container, deletedOn);
+            } else {
+                deleteLocal(container.getId(), allDocuments, allDocumentsLocks, allDocumentVersionsLocks);
+            }
+        } finally {
+            try {
+                releaseLocks(allDocumentsLocks.values());
+            } finally {
+                releaseLocks(allDocumentVersionsLocks.values());
+            }
         }
     }
 

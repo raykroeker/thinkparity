@@ -72,15 +72,23 @@ public final class RestoreBackup extends ContainerDelegate {
             final Map<Container, List<Document>> allDocuments = readAllDocuments();
             final Map<Document, DocumentFileLock> allDocumentsLocks = new HashMap<Document, DocumentFileLock>();
             final Map<DocumentVersion, DocumentFileLock> allDocumentsVersionsLocks = new HashMap<DocumentVersion, DocumentFileLock>();
-            for (final List<Document> documents : allDocuments.values()) {
-                for (final Document document : documents) {
-                    allDocumentsLocks.put(document, lockDocument(document));
-                    allDocumentsVersionsLocks.putAll(lockDocumentVersions(document));
+            try {
+                for (final List<Document> documents : allDocuments.values()) {
+                    for (final Document document : documents) {
+                        allDocumentsLocks.put(document, lockDocument(document));
+                        allDocumentsVersionsLocks.putAll(lockDocumentVersions(document));
+                    }
                 }
-            }
-            for (final Container container : containers) {
-                deleteLocal(container.getId(), allDocuments.get(container),
-                        allDocumentsLocks, allDocumentsVersionsLocks);
+                for (final Container container : containers) {
+                    deleteLocal(container.getId(), allDocuments.get(container),
+                            allDocumentsLocks, allDocumentsVersionsLocks);
+                }
+            } finally {
+                try {
+                    releaseLocks(allDocumentsLocks.values());
+                } finally {
+                    releaseLocks(allDocumentsVersionsLocks.values());
+                }
             }
             notifyStepEnd(monitor, RestoreBackupStep.DELETE_LOCAL_CONTAINER);
         }

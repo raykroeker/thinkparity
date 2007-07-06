@@ -7,6 +7,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.document.Document;
 
@@ -48,6 +49,9 @@ public class ContainerDraftMonitor {
     /** A <code>ContainerDraftListener</code>. */
     private final ContainerDraftListener listener;
 
+    /** A log4j wrapper. */
+    private final Log4JWrapper logger;
+
     /** A <code>Timer</code>. */
     private Timer timer;
 
@@ -71,6 +75,7 @@ public class ContainerDraftMonitor {
         this.eventGenerator = eventGenerator;
         this.draft = draft;
         this.listener = listener;
+        this.logger = new Log4JWrapper(getClass());
     }
 
     /**
@@ -93,41 +98,27 @@ public class ContainerDraftMonitor {
             public void run() {
                 for (final Document document : draft.getDocuments()) {
                     final ArtifactState state = draft.getState(document);
-                    final Boolean modified = documentModel.isDraftModified(document.getId());
-                    if (modified) {
-                        switch (state) {
-                        case NONE:
-                            draft = containerModel.readDraft(draft.getContainerId());
-                            if (null != draft) {
-                                listener.stateChanged(eventGenerator.generate(
-                                        containerModel.read(draft.getContainerId()),
-                                        draft, documentModel.read(document.getId())));
-                            }
-                            break;
-                        case MODIFIED:
-                            break;
-                        default:
-                            Assert.assertUnreachable(
-                                    "Illegal state transition from {0} to modified for document {1}.",
-                                    state.name().toLowerCase(), document.getName());
+                    logger.logInfo("Monitoring {0} document {1}.",
+                            state.name().toLowerCase(), document.getName());
+                    switch (state) {
+                    case ADDED:     // cannot go anywhere from added
+                        break;
+                    case NONE:
+                        if (documentModel.isDraftModified(document.getId())) {
+                            notifyStateChanged(document);
                         }
-                    } else {
-                        switch (state) {
-                        case NONE:
-                            break;
-                        case MODIFIED:
-                            draft = containerModel.readDraft(draft.getContainerId());
-                            if (null != draft) {
-                                listener.stateChanged(eventGenerator.generate(
-                                        containerModel.read(draft.getContainerId()),
-                                        draft, documentModel.read(document.getId())));
-                            }
-                            break;
-                        default:
-                            Assert.assertUnreachable(
-                                    "Illegal state transition from {0} to modified for document {1}.",
-                                    state.name().toLowerCase(), document.getName());
-                        }
+                        break;
+                    case MODIFIED:
+                        if (!documentModel.isDraftModified(document.getId())) {
+                            notifyStateChanged(document);
+                        }                        
+                        break;
+                    case REMOVED:   // can only go to non via revert
+                        break;
+                    default:
+                        Assert.assertUnreachable(
+                                "Illegal state transition from {0} to modified for document {1}.",
+                                state.name().toLowerCase(), document.getName());
                     }
                 }
             }
@@ -144,6 +135,23 @@ public class ContainerDraftMonitor {
             timer.cancel();
             timer = null;
             monitorCount--;
+        }
+    }
+    /**
+     * Fire a state changed event for a document.
+     * 
+     * @param document
+     *            A <code>Document</code>.
+     */
+    private void notifyStateChanged(final Document document) {
+        final ContainerDraft currentDraft = containerModel.readDraft(draft.getContainerId());
+        if (null == currentDraft) {
+            logger.logInfo("Draft for {0} was deleted.", document.getName());
+        } else {
+            draft = currentDraft;
+            listener.stateChanged(eventGenerator.generate(
+                    containerModel.read(currentDraft.getContainerId()),
+                    currentDraft, documentModel.read(document.getId())));
         }
     }
 }

@@ -23,6 +23,7 @@ import com.thinkparity.ophelia.model.ModelFactory;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.container.IllegalStateTransitionException;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.session.OfflineException;
@@ -254,6 +255,8 @@ public class ContainerBuilder {
         final Document document = findDocument(name);
         try {
             getContainerModel().removeDocument(id, document.getId());
+        } catch (final IllegalStateTransitionException istx) {
+            throw panic(istx, "Cannot transition document state.");
         } catch (final CannotLockException clx) {
             throw panic(clx, "Cannot lock document {0}", name);
         }

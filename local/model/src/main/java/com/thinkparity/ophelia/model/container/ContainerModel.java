@@ -652,9 +652,11 @@ public interface ContainerModel {
      *            A container id.
      * @param documentId
      *            A document id.
+     * @throws IllegalStateTransitionException
+     *             if the document state machine does not allow a transition
      */
     public void removeDocument(final Long containerId, final Long documentId)
-            throws CannotLockException;
+            throws CannotLockException, IllegalStateTransitionException;
 
     /**
      * Remove the seen flag from the container.
@@ -714,13 +716,20 @@ public interface ContainerModel {
     public void restoreDraft(final Long containerId) throws CannotLockException;
 
     /**
-     * Revert a document to it's pre-draft state.
+     * Revert a document to it's pre-draft state. A document must either be
+     * modified or removed in order to be reverted. If a document has been
+     * modified we simply overwrite the changes made with the content from the
+     * latest version, if it has been removed, we restore it.
      * 
      * @param documentId
-     *            A document id.
+     *            A document id <code>Long</code>.
+     * @throws CannotLockException
+     *             if the document cannot be locked
+     * @throws IllegalStateTransitionException
+     *             if the state of the document cannot be adjusted
      */
     public void revertDocument(final Long containerId, final Long documentId)
-            throws CannotLockException;
+            throws CannotLockException, IllegalStateTransitionException;
 
     /**
      * Save the draft. All "dirty" draft documents are saved to the database.

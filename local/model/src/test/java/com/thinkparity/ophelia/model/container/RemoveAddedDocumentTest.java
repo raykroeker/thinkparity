@@ -39,8 +39,10 @@ public class RemoveAddedDocumentTest extends ContainerTestCase {
     public void testRemoveDocument() {
         try {
             datum.containerModel.removeDocument(datum.container.getId(), datum.document.getId());
+        } catch (final IllegalStateTransitionException istx) {
+            fail(istx, "Could not transition document state.");
         } catch (final CannotLockException clx) {
-            fail(createFailMessage(clx));
+            fail(clx, "Could not lock document.");
         }
         assertTrue(NAME + " [REMOVE DOCUMENT EVENT NOT FIRED]", datum.didNotify);
 

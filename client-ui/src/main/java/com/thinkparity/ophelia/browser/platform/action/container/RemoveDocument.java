@@ -6,11 +6,13 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 
+import com.thinkparity.ophelia.model.container.IllegalStateTransitionException;
+import com.thinkparity.ophelia.model.document.CannotLockException;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.document.CannotLockException;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Remove Document Action<br>
@@ -87,6 +89,8 @@ public class RemoveDocument extends AbstractBrowserAction {
             getContainerModel().removeDocument(container.getId(), document.getId());
         } catch (final CannotLockException clx) {
             browser.retry(this, document.getName());
+        } catch (final IllegalStateTransitionException istx) {
+            throw translateError(istx);
         }
     }
 

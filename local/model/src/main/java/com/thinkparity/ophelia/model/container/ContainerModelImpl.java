@@ -1641,12 +1641,12 @@ public final class ContainerModelImpl extends
      * 
      */
     public void removeDocument(final Long containerId, final Long documentId)
-            throws CannotLockException {
+            throws CannotLockException, IllegalStateTransitionException {
         try {
             assertContainerDraftExists(containerId,
                     "Draft for {0} does not exist.", containerId);
-            assertDraftArtifactStateTransition("INVALID DRAFT DOCUMENT STATE",
-                    containerId, documentId, ContainerDraft.ArtifactState.REMOVED);
+            ensureStateTransition(containerId, documentId,
+                    ContainerDraft.ArtifactState.REMOVED);
             final ContainerDraft draft = readDraft(containerId);
             final Document document = draft.getDocument(documentId);
             final DocumentFileLock lock = lockDocument(document);
@@ -1677,6 +1677,8 @@ public final class ContainerModelImpl extends
                 releaseLock(lock);
                 releaseLocks(versionLocks.values());
             }
+        } catch (final IllegalStateTransitionException istx) {
+            throw istx;
         } catch (final CannotLockException clx) {
             throw clx;
         } catch (final Throwable t) {
@@ -1830,24 +1832,17 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Revert a document to it's pre-draft state. A document must either be
-     * modified or removed in order to be reverted. If a document has been
-     * modified we simply overwrite the changes made with the content from the
-     * latest version, if it has been removed, we restore it.
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#revertDocument(java.lang.Long,
+     *      java.lang.Long)
      * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @throws CannotLockException
-     *             if the document cannot be locked
      */
     public void revertDocument(final Long containerId, final Long documentId)
-            throws CannotLockException {
+            throws CannotLockException, IllegalStateTransitionException {
         try {
             assertContainerDraftExists(containerId,
                     "Draft for {0} does not exist.", containerId);
-            assertDraftArtifactStateTransition("Invalid document state.",
-                    containerId, documentId, ContainerDraft.ArtifactState.NONE);
             assertDoesExistLatestVersion("Latest version does not exist.", containerId);
+            ensureStateTransition(containerId, documentId, ContainerDraft.ArtifactState.NONE);
             final ContainerDraft draft = readDraft(containerId);
             switch (draft.getState(documentId)) {
             case MODIFIED:
@@ -1866,6 +1861,8 @@ public final class ContainerModelImpl extends
             final ContainerDraft postRevertDraft = readDraft(containerId);
             notifyDocumentReverted(postRevertContainer, postRevertDraft,
                     draft.getDocument(documentId), localEventGenerator);
+        } catch (final IllegalStateTransitionException istx) {
+            throw istx;
         } catch (final CannotLockException clx) {
             throw clx;
         } catch (final Throwable t) {
@@ -2618,94 +2615,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Assert the state transition for a draft artifact is valid.
-     * 
-     * @param assertion
-     *            An assertion.
-     * @param containerId
-     *            A container id.
-     * @param artifactId
-     *            An artifact id.
-     * @param targetState
-     *            The target state.
-     */
-    private void assertDraftArtifactStateTransition(final Object assertion,
-            final Long containerId, final Long artifactId,
-            final ContainerDraft.ArtifactState targetState) {
-        final ContainerDraft draft = readDraft(containerId);
-        final Artifact artifact = draft.getArtifact(artifactId);
-        switch (draft.getState(artifact)) {
-        case ADDED:
-            switch (targetState) {
-            case ADDED:
-                Assert.assertUnreachable(assertion);
-                break;
-            case MODIFIED:
-                Assert.assertUnreachable(assertion);
-                break;
-            case REMOVED:   // valid state
-                break;
-            case NONE:
-                Assert.assertUnreachable(assertion);
-                break;
-            default:
-                Assert.assertUnreachable("UNKNOWN STATE");
-            }
-            break;
-        case MODIFIED:
-            switch (targetState) {
-            case ADDED:
-                Assert.assertUnreachable(assertion);
-                break;
-            case MODIFIED:
-                Assert.assertUnreachable(assertion);
-                break;
-            case REMOVED:   // valid state
-                break;
-            case NONE:      // valid state
-                break;
-            default:
-                Assert.assertUnreachable("UNKNOWN STATE");
-            }
-            break;
-        case REMOVED:
-            switch (targetState) {
-            case ADDED:     // valid state
-                break;
-            case MODIFIED:
-                Assert.assertUnreachable(assertion);
-                break;
-            case REMOVED:
-                Assert.assertUnreachable(assertion);
-                break;
-            case NONE:      // valid state
-                break;
-            default:
-                Assert.assertUnreachable("UNKNOWN STATE");
-            }
-            break;
-        case NONE:
-            switch (targetState) {
-            case ADDED:
-                Assert.assertUnreachable(assertion);
-                break;
-            case MODIFIED:  // valid state
-                break;
-            case REMOVED:   // valid state
-                break;
-            case NONE:
-                Assert.assertUnreachable(assertion);
-                break;
-            default:
-                Assert.assertUnreachable("UNKNOWN STATE");
-            }
-            break;
-        default:
-            Assert.assertUnreachable("UNKNOWN STATE");
-        }
-    }
-
-    /**
      * Assert that the container has been distributed.
      * 
      * @param assertion
@@ -2818,6 +2727,87 @@ public final class ContainerModelImpl extends
     private boolean doesExistArtifact(final Long containerId,
             final Long artifactId) {
         return containerIO.doesExistArtifact(containerId, artifactId).booleanValue();
+    }
+
+    /**
+     * Ensure the state transition for a draft artifact is valid.
+     * 
+     * @param containerId
+     *            A container id.
+     * @param artifactId
+     *            An artifact id.
+     * @param to
+     *            The target state.
+     * @throws IllegalStateTransitionException
+     *             if the target state cannot be reached from the source
+     */
+    private void ensureStateTransition(final Long containerId,
+            final Long artifactId, final ContainerDraft.ArtifactState to)
+            throws IllegalStateTransitionException {
+        final ContainerDraft draft = readDraft(containerId);
+        final Artifact artifact = draft.getArtifact(artifactId);
+        final ContainerDraft.ArtifactState from = draft.getState(artifact);
+        final String assertion = "Unexpected artifact state {0}.";
+        switch (from) {
+        case ADDED:
+            switch (to) {
+            case ADDED:
+                throw new IllegalStateTransitionException(artifact, from, to);
+            case MODIFIED:
+                throw new IllegalStateTransitionException(artifact, from, to);
+            case REMOVED:   // valid state
+                break;
+            case NONE:
+                throw new IllegalStateTransitionException(artifact, from, to);
+            default:
+                Assert.assertUnreachable(assertion, to.name().toLowerCase());
+            }
+            break;
+        case MODIFIED:
+            switch (to) {
+            case ADDED:
+                throw new IllegalStateTransitionException(artifact, from, to);
+            case MODIFIED:
+                throw new IllegalStateTransitionException(artifact, from, to);
+            case REMOVED:   // valid state
+                break;
+            case NONE:      // valid state
+                break;
+            default:
+                Assert.assertUnreachable(assertion, to.name().toLowerCase());
+            }
+            break;
+        case REMOVED:
+            switch (to) {
+            case ADDED:     // valid state
+                break;
+            case MODIFIED:
+                throw new IllegalStateTransitionException(artifact, from, to);
+            case REMOVED:
+                throw new IllegalStateTransitionException(artifact, from, to);
+            case NONE:      // valid state
+                break;
+            default:
+                Assert.assertUnreachable(assertion, to.name().toLowerCase());
+            }
+            break;
+        case NONE:
+            switch (to) {
+            case ADDED:
+                throw new IllegalStateTransitionException(artifact, from, to);
+            case MODIFIED:  // valid state
+                break;
+            case REMOVED:   // valid state
+                break;
+            case NONE:
+                throw new IllegalStateTransitionException(artifact, from, to);
+            default:
+                Assert.assertUnreachable(assertion, to.name().toLowerCase());
+            }
+            break;
+        default:
+            Assert.assertUnreachable(assertion, from.name().toLowerCase());
+        }
     }
 
     /**

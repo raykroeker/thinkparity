@@ -46,6 +46,7 @@ import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.container.IllegalStateTransitionException;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentNameGenerator;
@@ -1916,6 +1917,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 document.getName(), container.getName(), removeAs.getSimpleUsername());
         try {
             getContainerModel(removeAs).removeDocument(localContainerId, localDocumentId);
+        } catch (final IllegalStateTransitionException istx) {
+            fail(istx, "Cannot transition document state.");
         } catch (final CannotLockException clx) {
             fail("Cannot lock document {0} for removal from container {1}.",
                     document.getName(), container.getName());
@@ -1942,6 +1945,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                     document.getName(), container.getName(), removeAs.getSimpleUsername());
             try {
                 getContainerModel(removeAs).removeDocument(localContainerId, document.getId());
+            } catch (final IllegalStateTransitionException istx) {
+                fail(istx, "Cannot transition document state.");
             } catch (final CannotLockException clx) {
                 fail("Cannot lock document {0} for removal from container {1}.",
                     document.getName(), container.getName());
@@ -1992,6 +1997,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 document.getName(), container.getName(), revertAs.getSimpleUsername());
         try {
             getContainerModel(revertAs).revertDocument(localContainerId, localDocumentId);
+        } catch (final IllegalStateTransitionException istx) {
+            fail(istx, "Cannot transition document state.");
         } catch (final CannotLockException clx) {
             fail("Cannot revert document {0} for container {1}.", document
                     .getName(), container.getName());

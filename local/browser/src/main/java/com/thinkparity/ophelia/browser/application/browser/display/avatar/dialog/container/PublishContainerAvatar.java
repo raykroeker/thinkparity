@@ -825,14 +825,6 @@ public final class PublishContainerAvatar extends Avatar implements
      */
     private void reloadPublishToLists() {
         final PublishTypeSpecific publishType = getPublishTypeSpecific();
-        final boolean autoSelect = (PublishTypeSpecific.PUBLISH_NOT_FIRST_TIME == publishType);
-        teamMembersJLabel.setVisible(PublishTypeSpecific.PUBLISH_FIRST_TIME != publishType);
-        teamMembersJScrollPane.setVisible(PublishTypeSpecific.PUBLISH_FIRST_TIME != publishType);
-        if (PublishTypeSpecific.PUBLISH_FIRST_TIME == publishType) {
-            contactsJLabel.setText(getString("ContactsFirstPublish"));
-        } else {
-            contactsJLabel.setText(getString("Contacts"));
-        }
         teamMembersListModel.clear();
         contactsListModel.clear();
 
@@ -841,7 +833,7 @@ public final class PublishContainerAvatar extends Avatar implements
         final List<Contact> contacts = readContacts(teamMembers);
 
         // populate team members
-        if (autoSelect) {
+        if (PublishTypeSpecific.PUBLISH_NOT_FIRST_TIME == publishType) {
             final User updatedBy = readLatestVersionUpdatedBy();
             final List<ArtifactReceipt> publishedTo = readLatestVersionPublishedTo();
             final List<PublishedToEMail> publishedToEMails = readLatestVersionPublishedToEMails();
@@ -872,6 +864,19 @@ public final class PublishContainerAvatar extends Avatar implements
         // populate contacts
         for (final Contact contact : contacts) {
             contactsListModel.addElement(new PublishContainerAvatarUser(contact, Boolean.FALSE));
+        }
+
+        // if there are no team members then hide the team member list
+        final boolean showTeamList = (PublishTypeSpecific.PUBLISH_FIRST_TIME != publishType &&
+                teamMembersListModel.size() > 0);
+        teamMembersJLabel.setVisible(showTeamList);
+        teamMembersJScrollPane.setVisible(showTeamList);
+
+        // modify the contacts list label
+        if (PublishTypeSpecific.PUBLISH_FIRST_TIME == publishType) {
+            contactsJLabel.setText(getString("ContactsFirstPublish"));
+        } else {
+            contactsJLabel.setText(getString("Contacts"));
         }
     }
 

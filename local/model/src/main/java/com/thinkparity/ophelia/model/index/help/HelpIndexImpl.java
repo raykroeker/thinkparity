@@ -30,17 +30,11 @@ public final class HelpIndexImpl extends
     /** Help content index field. */
     private static final FieldBuilder IDX_CONTENT;
 
-    /** Help content reverse index field. */
-    private static final FieldBuilder IDX_CONTENT_REV;
-
     /** Artifact id index field. */
     private static final FieldBuilder IDX_TOPIC_ID;
 
     /** Help topic name index field. */
     private static final FieldBuilder IDX_TOPIC_NAME;
-
-    /** Help topic name reverse index field. */
-    private static final FieldBuilder IDX_TOPIC_NAME_REV;
 
     /** Help topic id <code>Comparator</code>. */
     private static final Comparator<Long> TOPIC_ID_COMPARATOR;
@@ -53,34 +47,22 @@ public final class HelpIndexImpl extends
         };
 
         IDX_TOPIC_ID = new FieldBuilder()
-                .setIndex(Field.Index.UN_TOKENIZED)
-                .setName("HELP.TOPIC_ID")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
+            .setIndex(Field.Index.UN_TOKENIZED)
+            .setName("HELP.TOPIC_ID")
+            .setStore(Field.Store.YES)
+            .setTermVector(Field.TermVector.NO);
 
         IDX_TOPIC_NAME = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("HELP.TOPIC_NAME")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
-
-        IDX_TOPIC_NAME_REV = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("HELP.TOPIC_NAME_REV")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
+            .setIndex(Field.Index.TOKENIZED)
+            .setName("HELP.TOPIC_NAME")
+            .setStore(Field.Store.YES)
+            .setTermVector(Field.TermVector.NO);
 
         IDX_CONTENT = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("HELP.TOPIC_CONTENT")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
-
-        IDX_CONTENT_REV = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("HELP.TOPIC_CONTENT_REV")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
+            .setIndex(Field.Index.TOKENIZED)
+            .setName("HELP.TOPIC_CONTENT")
+            .setStore(Field.Store.YES)
+            .setTermVector(Field.TermVector.NO);
     }
 
     /**
@@ -112,9 +94,7 @@ public final class HelpIndexImpl extends
         final DocumentBuilder indexBuilder = new DocumentBuilder(5)
             .append(IDX_TOPIC_ID.setValue(o.getTopic().getId()).toField())
             .append(IDX_TOPIC_NAME.setValue(o.getTopic().getName()).toField())
-            .append(IDX_TOPIC_NAME_REV.setValue(reverse(IDX_TOPIC_NAME)).toField())
-            .append(IDX_CONTENT.setValue(o.getContent().getContent()).toField())
-            .append(IDX_CONTENT_REV.setValue(reverse(IDX_CONTENT)).toField());
+            .append(IDX_CONTENT.setValue(o.getContent().getContent()).toField());
         index(indexBuilder.toDocument());
     }
 
@@ -126,10 +106,7 @@ public final class HelpIndexImpl extends
         final List<Field> fields = new ArrayList<Field>();
         fields.add(IDX_TOPIC_NAME.toSearchField());
         fields.add(IDX_CONTENT.toSearchField());
-        final List<Field> reversedFields = new ArrayList<Field>();
-        reversedFields.add(IDX_TOPIC_NAME_REV.toSearchField());
-        reversedFields.add(IDX_CONTENT_REV.toSearchField());
-        return search(IDX_TOPIC_ID.toSearchField(), fields, reversedFields, expression);
+        return search(IDX_TOPIC_ID.toSearchField(), fields, expression);
     }
 
     /**

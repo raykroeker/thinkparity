@@ -320,7 +320,8 @@ public final class Constants {
     }
 
     public static final class Search {
-        public static final Integer ACTIVATION_DELAY = 500; // Milliseconds
+        // TIMEOUT - Search - 1.5s
+        public static final Integer ACTIVATION_DELAY = 1 * 1500;
     }
 
     public static final class Session {

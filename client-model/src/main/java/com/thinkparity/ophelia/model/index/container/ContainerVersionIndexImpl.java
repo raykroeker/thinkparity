@@ -41,17 +41,11 @@ public final class ContainerVersionIndexImpl extends
     /** Container verison comment index field. */
     private static final FieldBuilder IDX_CONTAINER_VERSION_COMMENT;
 
-    /** Container verison comment index field. */
-    private static final FieldBuilder IDX_CONTAINER_VERSION_COMMENT_REV;
+    /** Composite container version id index field. */
+    private static final FieldBuilder IDX_CONTAINER_VERSION_ID;
 
     /** The version name index field. */
     private static final FieldBuilder IDX_CONTAINER_VERSION_NAME;
-
-    /** The version name index field. */
-    private static final FieldBuilder IDX_CONTAINER_VERSION_NAME_REV;
-
-    /** Composite container version id index field. */
-    private static final FieldBuilder IDX_CONTAINER_VERSION_ID;
 
     static {
         CONTAINER_VERSION_ID_COMPARATOR = new Comparator<Pair<Long, Long>>() {
@@ -79,21 +73,9 @@ public final class ContainerVersionIndexImpl extends
             .setStore(Field.Store.YES)
             .setTermVector(Field.TermVector.NO);
         
-        IDX_CONTAINER_VERSION_COMMENT_REV = new FieldBuilder()
-            .setIndex(Field.Index.TOKENIZED)
-            .setName("CONTAINER_VERSION.COMMENT_REV")
-            .setStore(Field.Store.YES)
-            .setTermVector(Field.TermVector.NO);
-
         IDX_CONTAINER_VERSION_NAME = new FieldBuilder()
             .setIndex(Field.Index.TOKENIZED)
             .setName("CONTAINER_VERSION.NAME")
-            .setStore(Field.Store.YES)
-            .setTermVector(Field.TermVector.NO);
-
-        IDX_CONTAINER_VERSION_NAME_REV = new FieldBuilder()
-            .setIndex(Field.Index.TOKENIZED)
-            .setName("CONTAINER_VERSION.NAME_REV")
             .setStore(Field.Store.YES)
             .setTermVector(Field.TermVector.NO);
     }
@@ -127,12 +109,10 @@ public final class ContainerVersionIndexImpl extends
         final DocumentBuilder indexBuilder = new DocumentBuilder(3)
             .append(IDX_CONTAINER_VERSION_ID.setValue(buildStringId(o)).toField());
         if (o.isSetComment()) {
-            indexBuilder.append(IDX_CONTAINER_VERSION_COMMENT.setValue(o.getComment()).toField())
-                .append(IDX_CONTAINER_VERSION_COMMENT_REV.setValue(reverse(IDX_CONTAINER_VERSION_COMMENT)).toField());
+            indexBuilder.append(IDX_CONTAINER_VERSION_COMMENT.setValue(o.getComment()).toField());
         }
         if (o.isSetName()) {
-            indexBuilder.append(IDX_CONTAINER_VERSION_NAME.setValue(o.getName()).toField())
-                .append(IDX_CONTAINER_VERSION_NAME_REV.setValue(reverse(IDX_CONTAINER_VERSION_NAME)).toField());
+            indexBuilder.append(IDX_CONTAINER_VERSION_NAME.setValue(o.getName()).toField());
         }
         index(indexBuilder.toDocument());
     }
@@ -145,10 +125,7 @@ public final class ContainerVersionIndexImpl extends
         final List<Field> fields = new ArrayList<Field>();
         fields.add(IDX_CONTAINER_VERSION_COMMENT.toSearchField());
         fields.add(IDX_CONTAINER_VERSION_NAME.toSearchField());
-        final List<Field> reversedFields = new ArrayList<Field>();
-        reversedFields.add(IDX_CONTAINER_VERSION_COMMENT_REV.toSearchField());
-        reversedFields.add(IDX_CONTAINER_VERSION_NAME_REV.toSearchField());
-        return search(IDX_CONTAINER_VERSION_ID.toSearchField(), fields, reversedFields, expression);
+        return search(IDX_CONTAINER_VERSION_ID.toSearchField(), fields, expression);
     }
 
     /**

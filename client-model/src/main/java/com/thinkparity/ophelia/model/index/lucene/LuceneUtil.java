@@ -3,10 +3,6 @@
  */
 package com.thinkparity.ophelia.model.index.lucene;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
-
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 /**
@@ -58,19 +54,6 @@ final class LuceneUtil {
     }
 
     /**
-     * If the expression does not end with a wildcard character add one.
-     * 
-     * @param expression
-     *            The search expression <code>String</code>.
-     */
-    String appendWildcard(final String expression) {
-        if ('*' == expression.charAt(expression.length() - 1))
-            return expression;
-        else
-            return expression + '*';
-    }
-
-    /**
      * Parse the expression and replace any special characters.
      * 
      * @param expression
@@ -100,34 +83,5 @@ final class LuceneUtil {
      */
     final <V> V logVariable(final String name, final V value) {
         return LOGGER.logVariable(name, value);
-    }
-
-    /**
-     * If the expression does not start with a wildcard character add one.
-     * 
-     * @param expression
-     *            The search expression <code>String</code>.
-     */
-    String prependWildcard(final String expression) {
-        if ('*' == expression.charAt(0))
-            return expression;
-        else
-            return '*' + expression;
-    }
-
-    /**
-     * Tokenize the expression.
-     * 
-     * @param expression
-     *            An expression.
-     * @return A list of tokens within the expression.
-     */
-    List<String> tokenizeExpression(final String expression) {
-        final StringTokenizer tokenizer = new StringTokenizer(expression, " ");
-        final List<String> tokenized = new ArrayList<String>(tokenizer.countTokens());
-        while (tokenizer.hasMoreTokens()) {
-            tokenized.add(tokenizer.nextToken());
-        }
-        return tokenized;
     }
 }

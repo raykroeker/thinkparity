@@ -32,9 +32,6 @@ public final class OutgoingEMailInvitationIndexImpl extends
     /** Contact name index field. */
     private static final FieldBuilder IDX_INVITATION_EMAIL;
 
-    /** Contact name index field. */
-    private static final FieldBuilder IDX_INVITATION_EMAIL_REV;
-
     /** Contact id index field. */
     private static final FieldBuilder IDX_INVITATION_ID;
 
@@ -57,12 +54,6 @@ public final class OutgoingEMailInvitationIndexImpl extends
         IDX_INVITATION_EMAIL = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
                 .setName("CONTACT_INVITATION_OUTGOING_EMAIL.EMAIL")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
-
-        IDX_INVITATION_EMAIL_REV = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_OUTGOING_EMAIL.EMAIL_REV")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
     }
@@ -95,8 +86,7 @@ public final class OutgoingEMailInvitationIndexImpl extends
     public void index(final OutgoingEMailInvitation o) throws IOException {
         final DocumentBuilder builder = new DocumentBuilder(4)
             .append(IDX_INVITATION_ID.setValue(o.getId()).toField())
-            .append(IDX_INVITATION_EMAIL.setValue(o.getInvitationEMail()).toField())
-            .append(IDX_INVITATION_EMAIL_REV.setValue(reverse(IDX_INVITATION_EMAIL)).toField());
+            .append(IDX_INVITATION_EMAIL.setValue(o.getInvitationEMail()).toField());
         index(builder.toDocument());
     }
 
@@ -106,9 +96,7 @@ public final class OutgoingEMailInvitationIndexImpl extends
     public List<Long> search(final String expression) throws IOException {
         final List<Field> fields = new ArrayList<Field>(1);
         fields.add(IDX_INVITATION_EMAIL.toSearchField());
-        final List<Field> reverseFields = new ArrayList<Field>(1);
-        reverseFields.add(IDX_INVITATION_EMAIL_REV.toSearchField());
-        return search(IDX_INVITATION_ID.toSearchField(), fields, reverseFields, expression);
+        return search(IDX_INVITATION_ID.toSearchField(), fields, expression);
     }
 
     /**

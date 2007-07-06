@@ -11,6 +11,8 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+
 /**
  * <b>Title:</b>thinkParity Internal Index Model<br>
  * <b>Description:</b><br>
@@ -133,7 +135,7 @@ public interface InternalIndexModel extends IndexModel {
      *            An invitation id <code>Long</code>.
      */
     public void indexIncomingEMailInvitation(final Long invitationId);
-    
+
     /**
      * Index an incoming invitation.
      * 
@@ -141,7 +143,7 @@ public interface InternalIndexModel extends IndexModel {
      *            An invitation id <code>Long</code>.
      */
     public void indexIncomingUserInvitation(final Long invitationId);
-
+    
     /**
      * Index an outgoing e-mail invitation.
      * 
@@ -163,6 +165,14 @@ public interface InternalIndexModel extends IndexModel {
      *
      */
     public void indexProfile();
+
+    /**
+     * Rebuild the index.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     */
+    public void rebuild(final ProcessMonitor monitor);
 
     /**
      * Search the index for contacts.

@@ -99,20 +99,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#applySearch(java.lang.String)
-     *
-     */
-    @Override
-    protected void applySearch(final String searchExpression) {
-        this.comparator = new Comparator<TabPanel>() {
-            public int compare(final TabPanel o1, final TabPanel o2) {
-                return 0;
-            }
-        };
-        super.applySearch(searchExpression);
-    }
-
-    /**
      * Apply the sort to the filtered list of panels.
      * 
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySort()
@@ -262,17 +248,8 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#removeSearch()
-     *
-     */
-    @Override
-    protected void removeSearch() {
-        this.comparator =  new ContactTabComparator();
-        super.removeSearch();
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#setExpandedPanelData(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
+     * 
      */
     @Override
     protected void setExpandedPanelData(final TabPanel tabPanel) {

@@ -35,20 +35,11 @@ public final class OutgoingUserInvitationIndexImpl extends
     /** Contact name index field. */
     private static final FieldBuilder IDX_USER_NAME;
 
-    /** Contact name index field. */
-    private static final FieldBuilder IDX_USER_NAME_REV;
-
     /** Contact  index field. */
     private static final FieldBuilder IDX_USER_ORGANIZATION;
 
-    /** Contact  index field. */
-    private static final FieldBuilder IDX_USER_ORGANIZATION_REV;
-
     /** Contact title index field. */
     private static final FieldBuilder IDX_USER_TITLE;
-
-    /** Contact title index field. */
-    private static final FieldBuilder IDX_USER_TITLE_REV;
 
     /** Invitation id comparator. */
     private static final Comparator<Long> INVITATION_ID_COMPARATOR;
@@ -61,46 +52,28 @@ public final class OutgoingUserInvitationIndexImpl extends
         };
 
         IDX_INVITATION_ID = new FieldBuilder()
-                .setIndex(Field.Index.UN_TOKENIZED)
-                .setName("CONTACT_INVITATION_OUTGOING_USER.CONTACT_INVITATION_ID")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
+            .setIndex(Field.Index.UN_TOKENIZED)
+            .setName("CONTACT_INVITATION_OUTGOING_USER.CONTACT_INVITATION_ID")
+            .setStore(Field.Store.YES)
+            .setTermVector(Field.TermVector.NO);
 
         IDX_USER_NAME = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_OUTGOING_USER.PARITY_USER.NAME")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
-
-        IDX_USER_NAME_REV = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_OUTGOING_USER.PARITY_USER.NAME_REV")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
+            .setIndex(Field.Index.TOKENIZED)
+            .setName("CONTACT_INVITATION_OUTGOING_USER.PARITY_USER.NAME")
+            .setStore(Field.Store.YES)
+            .setTermVector(Field.TermVector.NO);
 
         IDX_USER_TITLE = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_OUTGOING_USER.PARITY_USER.TITLE")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
-
-        IDX_USER_TITLE_REV = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_OUTGOING_USER.PARITY_USER.TITLE_REV")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
+            .setIndex(Field.Index.TOKENIZED)
+            .setName("CONTACT_INVITATION_OUTGOING_USER.PARITY_USER.TITLE")
+            .setStore(Field.Store.YES)
+            .setTermVector(Field.TermVector.NO);
 
         IDX_USER_ORGANIZATION = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_OUTGOING_USER.PARITY_USER.ORGANIZATION")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
-
-        IDX_USER_ORGANIZATION_REV = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTACT_INVITATION_OUTGOING_USER.PARITY_USER.ORGANIZATION_REV")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
+            .setIndex(Field.Index.TOKENIZED)
+            .setName("CONTACT_INVITATION_OUTGOING_USER.PARITY_USER.ORGANIZATION")
+            .setStore(Field.Store.YES)
+            .setTermVector(Field.TermVector.NO);
     }
 
     /**
@@ -132,11 +105,8 @@ public final class OutgoingUserInvitationIndexImpl extends
         final DocumentBuilder builder = new DocumentBuilder(4)
             .append(IDX_INVITATION_ID.setValue(o.getId()).toField())
             .append(IDX_USER_NAME.setValue(o.getInvitationUser().getName()).toField())
-            .append(IDX_USER_NAME_REV.setValue(reverse(IDX_USER_NAME)).toField())
             .append(IDX_USER_ORGANIZATION.setValue(o.getInvitationUser().getOrganization()).toField())
-            .append(IDX_USER_ORGANIZATION_REV.setValue(reverse(IDX_USER_ORGANIZATION)).toField())
-            .append(IDX_USER_TITLE.setValue(o.getInvitationUser().getTitle()).toField())
-            .append(IDX_USER_TITLE_REV.setValue(reverse(IDX_USER_TITLE)).toField());
+            .append(IDX_USER_TITLE.setValue(o.getInvitationUser().getTitle()).toField());
         index(builder.toDocument());
     }
 
@@ -148,12 +118,7 @@ public final class OutgoingUserInvitationIndexImpl extends
         fields.add(IDX_USER_NAME.toSearchField());
         fields.add(IDX_USER_ORGANIZATION.toSearchField());
         fields.add(IDX_USER_TITLE.toSearchField());
-        final List<Field> reverseFields = new ArrayList<Field>(1);
-        reverseFields.add(IDX_USER_NAME_REV.toSearchField());
-        reverseFields.add(IDX_USER_ORGANIZATION_REV.toSearchField());
-        reverseFields.add(IDX_USER_TITLE_REV.toSearchField());
-        return search(IDX_INVITATION_ID.toSearchField(), fields, reverseFields,
-                expression);
+        return search(IDX_INVITATION_ID.toSearchField(), fields, expression);
     }
 
     /**

@@ -3,8 +3,11 @@
  */
 package com.thinkparity.ophelia.model.index;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.Pair;
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -20,6 +23,8 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.Model;
+import com.thinkparity.ophelia.model.contact.InternalContactModel;
+import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.help.HelpContent;
 import com.thinkparity.ophelia.model.help.HelpTopic;
 import com.thinkparity.ophelia.model.help.InternalHelpModel;
@@ -36,6 +41,7 @@ import com.thinkparity.ophelia.model.index.help.HelpIndexEntry;
 import com.thinkparity.ophelia.model.index.help.HelpIndexImpl;
 import com.thinkparity.ophelia.model.index.profile.ProfileIndexImpl;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -249,7 +255,7 @@ public final class IndexModelImpl extends Model implements
         }
     }
 
-	/**
+    /**
      * Create an index entry for a document.
      * 
      * @param containerId A container id ,code>Long</code>.
@@ -267,7 +273,7 @@ public final class IndexModelImpl extends Model implements
         }
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.index.InternalIndexModel#indexHelpTopic(java.lang.Long)
      *
      */
@@ -317,7 +323,7 @@ public final class IndexModelImpl extends Model implements
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.index.InternalIndexModel#indexOutgoingEMailInvitation(java.lang.Long)
      *
      */
@@ -332,7 +338,7 @@ public final class IndexModelImpl extends Model implements
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.index.InternalIndexModel#indexOutgoingUserInvitation(java.lang.Long)
      *
      */
@@ -357,6 +363,81 @@ public final class IndexModelImpl extends Model implements
             final Profile profile = profileModel.read();
             profileIndex.delete(profile.getId());
             profileIndex.index(profile);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#rebuild(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     *
+     */
+    public void rebuild(final ProcessMonitor monitor) {
+        try {
+            final File indexDirectory = workspace.getIndexDirectory();
+            FileUtil.deleteTree(indexDirectory);
+
+            final InternalContactModel contactModel = getContactModel();
+            final List<Contact> contacts = contactModel.read();
+            for (final Contact contact : contacts) {
+                contactIndex.index(contact);
+            }
+            final List<IncomingEMailInvitation> incomingEMailInvitations =
+                contactModel.readIncomingEMailInvitations();
+            for (final IncomingEMailInvitation incomingEMailInvitation
+                    : incomingEMailInvitations) {
+                incomingEMailInvitationIndex.index(incomingEMailInvitation);
+            }
+            final List<IncomingUserInvitation> incomingUserInvitations =
+                contactModel.readIncomingUserInvitations();
+            for (final IncomingUserInvitation incomingUserInvitation
+                    : incomingUserInvitations) {
+                incomingUserInvitationIndex.index(incomingUserInvitation);
+            }
+            final List<OutgoingEMailInvitation> outgoingEMailInvitations =
+                contactModel.readOutgoingEMailInvitations();
+            for (final OutgoingEMailInvitation outgoingEMailInvitation
+                    : outgoingEMailInvitations) {
+                outgoingEMailInvitationIndex.index(outgoingEMailInvitation);
+            }
+            final List<OutgoingUserInvitation> outgoingUserInvitations =
+                contactModel.readOutgoingUserInvitations();
+            for (final OutgoingUserInvitation outgoingUserInvitation
+                    : outgoingUserInvitations) {
+                outgoingUserInvitationIndex.index(outgoingUserInvitation);
+            }
+            final InternalContainerModel containerModel = getContainerModel();
+            final List<Container> containers = containerModel.read();
+            final List<ContainerVersion> versions =
+                new ArrayList<ContainerVersion>();
+            final List<Document> documents = new ArrayList<Document>();
+            DocumentIndexEntry documentEntry;
+            for (final Container container : containers) {
+                containerIndex.index(container);
+                versions.clear();
+                versions.addAll(containerModel.readVersions(container.getId()));
+                for (final ContainerVersion version : versions) {
+                    containerVersionIndex.index(version);
+                    documents.clear();
+                    documents.addAll(containerModel.readDocuments(
+                            container.getId(), version.getVersionId()));
+                    for (final Document document : documents) {
+                        documentEntry = new DocumentIndexEntry(
+                                container.getId(), document);
+                        documentIndex.index(documentEntry);
+                    }
+                }
+            }
+            final InternalHelpModel helpModel = getHelpModel();
+            final List<HelpTopic> topics = helpModel.readTopics();
+            HelpIndexEntry helpEntry;
+            for (final HelpTopic topic : topics) {
+                helpEntry = new HelpIndexEntry();
+                helpEntry.setContent(helpModel.readContent(topic.getId()));
+                helpEntry.setTopic(topic);
+                helpIndex.index(helpEntry);
+            }
+            profileIndex.index(getProfileModel().read());
         } catch (final Throwable t) {
             throw panic(t);
         }

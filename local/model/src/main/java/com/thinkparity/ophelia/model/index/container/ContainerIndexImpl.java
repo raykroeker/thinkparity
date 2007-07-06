@@ -39,14 +39,8 @@ public final class ContainerIndexImpl extends
     /** Container name index field. */
     private static final FieldBuilder IDX_CONTAINER_NAME;
 
-    /** Container name reverse index field. */
-    private static final FieldBuilder IDX_CONTAINER_NAME_REV;
-
     /** Container team members index field. */
     private static final FieldBuilder IDX_CONTAINER_TEAM_MEMBERS;
-
-    /** Container team members reverse index field. */
-    private static final FieldBuilder IDX_CONTAINER_TEAM_MEMBERS_REV;
 
     static {
         CONTAINER_ID_COMPARATOR = new Comparator<Long>() {
@@ -67,21 +61,9 @@ public final class ContainerIndexImpl extends
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
 
-        IDX_CONTAINER_NAME_REV = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTAINER.NAME_REV")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
-
         IDX_CONTAINER_TEAM_MEMBERS = new FieldBuilder()
                 .setIndex(Field.Index.TOKENIZED)
                 .setName("CONTAINER.TEAM_MEMBERS")
-                .setStore(Field.Store.YES)
-                .setTermVector(Field.TermVector.NO);
-
-        IDX_CONTAINER_TEAM_MEMBERS_REV = new FieldBuilder()
-                .setIndex(Field.Index.TOKENIZED)
-                .setName("CONTAINER.TEAM_MEMBERS_REV")
                 .setStore(Field.Store.YES)
                 .setTermVector(Field.TermVector.NO);
     }
@@ -115,9 +97,7 @@ public final class ContainerIndexImpl extends
         final DocumentBuilder indexBuilder = new DocumentBuilder(3)
             .append(IDX_CONTAINER_ID.setValue(o.getId()).toField())
             .append(IDX_CONTAINER_NAME.setValue(o.getName()).toField())
-            .append(IDX_CONTAINER_NAME_REV.setValue(reverse(IDX_CONTAINER_NAME)).toField())
-            .append(IDX_CONTAINER_TEAM_MEMBERS.setValue(team).toField())
-            .append(IDX_CONTAINER_TEAM_MEMBERS_REV.setValue(reverse(IDX_CONTAINER_TEAM_MEMBERS)).toField());
+            .append(IDX_CONTAINER_TEAM_MEMBERS.setValue(team).toField());
         index(indexBuilder.toDocument());
     }
 
@@ -129,10 +109,7 @@ public final class ContainerIndexImpl extends
         final List<Field> fields = new ArrayList<Field>();
         fields.add(IDX_CONTAINER_NAME.toSearchField());
         fields.add(IDX_CONTAINER_TEAM_MEMBERS.toSearchField());
-        final List<Field> reversedFields = new ArrayList<Field>();
-        reversedFields.add(IDX_CONTAINER_NAME_REV.toSearchField());
-        reversedFields.add(IDX_CONTAINER_TEAM_MEMBERS_REV.toSearchField());
-        return search(IDX_CONTAINER_ID.toSearchField(), fields, reversedFields, expression);
+        return search(IDX_CONTAINER_ID.toSearchField(), fields, expression);
     }
 
     

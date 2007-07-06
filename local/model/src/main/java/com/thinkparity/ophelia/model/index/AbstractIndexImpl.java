@@ -181,18 +181,13 @@ public abstract class AbstractIndexImpl<T, U> implements IndexImpl<T, U> {
      * @throws IOException
      */
     protected List<U> search(final Field idField, final List<Field> fields,
-            final List<Field> reversedFields, final String expression)
-            throws IOException {
+            final String expression) throws IOException {
         final IndexReader indexReader = openIndexReader();
         try {
             // search the fields
             final Searcher searcher =
                 new Searcher(indexAnalyzer, indexReader, idField, fields);
             final List<Hit> hits = searcher.search(expression);
-            // search the reversed fields
-            final Searcher reverseSearcher =
-                new Searcher(indexAnalyzer, indexReader, idField, reversedFields);
-            hits.addAll(reverseSearcher.search(StringUtil.reverse(expression)));
             Collections.sort(hits, HIT_COMPARATOR);
 
             /* NOTE the list of hits coming back from lucene can contain

@@ -94,18 +94,17 @@ public class Searcher {
 	 *            The search expression.
 	 * @return A list of lucene queries.
 	 */
-	private List<Query> createQueries(String expression) {
+	private List<Query> createQueries(final String expression) {
 		final List<Query> queries = new LinkedList<Query>();
         final List<String> tokenizedExpressions = new ArrayList<String>();
         QueryParser queryParser;
 		for (final Field field : fields) {
             LUCENE_UTIL.logVariable("expression", expression);
             tokenizedExpressions.clear();
-            tokenizedExpressions.addAll(LUCENE_UTIL.tokenizeExpression(expression));
+            tokenizedExpressions.add(expression);
             queryParser = new QueryParser(field.name(), analyzer);
             for (String tokenizedExpression : tokenizedExpressions) {
                 tokenizedExpression = LUCENE_UTIL.escapeSpecialCharacters(tokenizedExpression);
-                tokenizedExpression = LUCENE_UTIL.appendWildcard(tokenizedExpression);
                 LUCENE_UTIL.logVariable("tokenizedExpression", tokenizedExpression);
                 try {
                     queries.add(queryParser.parse(tokenizedExpression));

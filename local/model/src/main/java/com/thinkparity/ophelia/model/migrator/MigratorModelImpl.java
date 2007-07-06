@@ -471,8 +471,12 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             }
         }
 
+        // NOCOMMIT
+        getIndexModel().rebuild(new ProcessAdapter() {});
+
+        // NOCOMMIT
         // delete the index
-        getHelpModel().deleteIndex();
+        // getHelpModel().deleteIndex();
 
         // update remotely
         getProfileModel().updateProductRelease();

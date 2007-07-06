@@ -31,6 +31,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.ContainerConstraints;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -96,6 +97,9 @@ public final class PublishContainerAvatar extends Avatar implements
 
     /** A list of email delimiters. */
     private List<String>emailDelimiters;
+
+    /** The profile email addresses. */
+    private List<String> profileEMailAddresses;
 
     /** The team members list <code>PublishContainerAvatarUserListModel</code>. */
     private final PublishContainerAvatarUserListModel teamMembersListModel;
@@ -304,11 +308,15 @@ public final class PublishContainerAvatar extends Avatar implements
         if (null == text) {
             emails = Collections.emptyList();
         } else {
+            // parse the emails, strip out emails in the profile
             final List<String> emailAddresses = StringUtil.tokenize(text,
                     emailDelimiters, new ArrayList<String>());
             emails = new ArrayList<EMail>(emailAddresses.size());
-            for (final String emailAddress : emailAddresses)
-                emails.add(EMailBuilder.parse(emailAddress.trim()));
+            for (final String emailAddress : emailAddresses) {
+                if (!profileEMailAddresses.contains(emailAddress)) {
+                    emails.add(EMailBuilder.parse(emailAddress.trim()));
+                }
+            }
         }
         return emails;
     }
@@ -737,6 +745,29 @@ public final class PublishContainerAvatar extends Avatar implements
     }
 
     /**
+     * Read the profile email addresses from the content provider.
+     * 
+     * @return A <code>List&lt;String&gt;</code>.
+     */
+    private List<String> readEMailAddresses() {
+        final List<ProfileEMail> emails = readEMails();
+        final List<String> emailAddresses = new ArrayList<String>(emails.size());
+        for (final ProfileEMail email : emails) {
+            emailAddresses.add(email.getEmail().toString());
+        }
+        return emailAddresses;
+    }
+
+    /**
+     * Read the profile emails from the content provider.
+     * 
+     * @return A <code>List&lt;ProfileEMail&gt;</code>.
+     */
+    private List<ProfileEMail> readEMails() {
+        return ((PublishContainerProvider) contentProvider).readEMails();
+    }
+
+    /**
      * Get most recent version id, or null if there is no version.
      */
     private Long readLatestVersionId(final Long containerId) {
@@ -808,6 +839,7 @@ public final class PublishContainerAvatar extends Avatar implements
      *
      */
     private void reloadEMails() {
+        this.profileEMailAddresses = readEMailAddresses();
         emailsJTextField.setText(null);
     }
 

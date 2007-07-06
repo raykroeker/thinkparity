@@ -11,6 +11,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -73,6 +74,15 @@ public class PublishContainerProvider extends ContentProvider {
      */
     public String readContainerName(final Long containerId) {
         return containerModel.read(containerId).getName();
+    }
+
+    /**
+     * Read emails.
+     * 
+     * @return A list of email addresses.
+     */
+    public List<ProfileEMail> readEMails() {
+        return profileModel.readEmails();
     }
 
     /**

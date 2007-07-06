@@ -37,8 +37,9 @@ public class Show extends AbstractBrowserAction {
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final Long versionId = (Long) data.get(DataKey.VERSION_ID);
+
         // Restore the Browser if it is hibernating
-        browser.runPlatformBrowserRestore();
+        invoke(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
 
         // Uniconify and move to front
         browser.iconify(Boolean.FALSE);

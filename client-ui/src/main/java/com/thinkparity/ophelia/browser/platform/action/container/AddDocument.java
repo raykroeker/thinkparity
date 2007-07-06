@@ -18,13 +18,13 @@ import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.container.IllegalStateTransitionException;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
 import com.thinkparity.ophelia.browser.util.DocumentUtil;
 
 /**
@@ -105,13 +105,11 @@ public class AddDocument extends AbstractBrowserAction {
                     if (ContainerDraft.ArtifactState.REMOVED == containerDraft.getState(document)) {
                         try {
                             getContainerModel().revertDocument(containerId, document.getId());
-                        } catch (final IllegalStateTransitionException istx) {
-                            throw translateError(istx);
                         } catch (final CannotLockException clx) {
                             throw translateError(clx);
                         }
                     }
-                    browser.runUpdateDocumentDraft(document.getId(), file);
+                    runUpdateDocumentDraft(document.getId(), file);
                     // allow the cpu to catch-up between documents
                     Thread.yield();
                 }
@@ -155,6 +153,21 @@ public class AddDocument extends AbstractBrowserAction {
         } else {
             return Collections.emptyList();
         }
+    }
+
+    /**
+     * Update a document draft.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @param file
+     *            A <code>File</code>.
+     */
+    private void runUpdateDocumentDraft(final Long documentId, final File file) {
+        final Data data = new Data(2);
+        data.set(UpdateDraft.DataKey.DOCUMENT_ID, documentId);
+        data.set(UpdateDraft.DataKey.FILE, file);
+        invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);
     }
 
 	public enum DataKey { CONTAINER_ID, FILES }

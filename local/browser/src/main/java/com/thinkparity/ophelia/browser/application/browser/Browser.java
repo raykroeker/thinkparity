@@ -63,7 +63,6 @@ import com.thinkparity.ophelia.browser.platform.action.contact.*;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
-import com.thinkparity.ophelia.browser.platform.action.document.UpdateDraft;
 import com.thinkparity.ophelia.browser.platform.action.profile.AddEmail;
 import com.thinkparity.ophelia.browser.platform.action.profile.RemoveEmail;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
@@ -1143,30 +1142,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Run the clear incoming user invitation notifications action.
-     * 
-     * @param invitationId
-     *            A invitation id <code>Long</code>.
-     */
-    public void runClearIncomingEMailInvitationNotifications(final Long invitationId) {
-        final Data data = new Data(1);
-        data.set(ClearIncomingEMailInvitationNotifications.DataKey.INVITATION_ID, invitationId);
-        invoke(ActionId.CONTACT_CLEAR_INCOMING_EMAIL_INVITATION_NOTIFICATIONS, data);
-    }
-
-    /**
-     * Run the clear incoming User invitation notifications action.
-     * 
-     * @param invitationId
-     *            A invitation id <code>Long</code>.
-     */
-    public void runClearIncomingUserInvitationNotifications(final Long invitationId) {
-        final Data data = new Data(1);
-        data.set(ClearIncomingUserInvitationNotifications.DataKey.INVITATION_ID, invitationId);
-        invoke(ActionId.CONTACT_CLEAR_INCOMING_USER_INVITATION_NOTIFICATIONS, data);
-    }
-
-    /**
      * Run the contact us action.
      *
      */
@@ -1355,14 +1330,6 @@ public class Browser extends AbstractApplication {
 	}
 
     /**
-     * Run the platform browser restore action.
-     *
-     */
-    public void runPlatformBrowserRestore() {
-        invoke(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
-    }
-
-    /**
      * Run the profile sign-up action.
      *
      */
@@ -1540,21 +1507,6 @@ public class Browser extends AbstractApplication {
         data.set(RenameDocument.DataKey.DOCUMENT_ID, documentId);
         data.set(RenameDocument.DataKey.DOCUMENT_NAME, documentName);
         invoke(ActionId.CONTAINER_RENAME_DOCUMENT, data);
-    }
-
-    /**
-     * Update a document draft.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @param file
-     *            A <code>File</code>.
-     */
-    public void runUpdateDocumentDraft(final Long documentId, final File file) {
-        final Data data = new Data(2);
-        data.set(UpdateDraft.DataKey.DOCUMENT_ID, documentId);
-        data.set(UpdateDraft.DataKey.FILE, file);
-        invoke(ActionId.DOCUMENT_UPDATE_DRAFT, data);
     }
 
     /**

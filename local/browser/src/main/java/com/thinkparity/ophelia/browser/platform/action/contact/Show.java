@@ -36,6 +36,8 @@ public class Show extends AbstractBrowserAction {
     @Override
     public void invoke(final Data data) {
         final Long invitationId = (Long) data.get(DataKey.INVITATION_ID);
+
+        // Restore the Browser if it is hibernating
         invoke(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
 
         // Uniconify and move to front

@@ -451,6 +451,20 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Select the latest version in a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    void setLatestVersionSelection(final Long containerId) {
+        checkThread();
+        final TabPanel tabPanel = lookupPanel(containerId);
+        if (isExpanded(tabPanel)) {
+            ((ContainerPanel) tabPanel).setLatestVersionSelection();
+        }
+    }
+
+    /**
      * Select a version in a container.
      * 
      * @param containerId

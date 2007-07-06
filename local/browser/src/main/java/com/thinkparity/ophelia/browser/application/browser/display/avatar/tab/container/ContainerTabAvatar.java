@@ -208,7 +208,10 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
         if (e.isRemote()) {
             removeFlagSeen(e);
         }
-        sync(e); 
+        sync(e);
+        if (e.isLocal()) {
+            setLatestVersionSelection(e);
+        }
     }
 
     /**
@@ -356,6 +359,20 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 model.setDraftSelection(e.getContainer().getId());
+            }
+        });
+    }
+
+    /**
+     * Select the latest version for a container.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    private void setLatestVersionSelection(final ContainerEvent e) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.setLatestVersionSelection(e.getContainer().getId());
             }
         });
     }

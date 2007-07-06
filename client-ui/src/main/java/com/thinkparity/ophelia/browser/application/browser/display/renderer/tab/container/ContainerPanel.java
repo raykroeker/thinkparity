@@ -473,6 +473,22 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * Set the selection to be the latest version.
+     *
+     */
+    public void setLatestVersionSelection() {
+        Assert.assertNotNull(latestVersion,
+                "Cannot set latest version selection for container:  {0}",
+                container.getId());
+        westListModel.showFirstPage();
+        if (isLocalDraft()) {
+            westListModel.setSelectedCell(westCells.get(2));
+        } else {
+            westListModel.setSelectedCell(westCells.get(1));
+        }
+    }
+
+    /**
      * Set the panel data.
      * 
      * This version is appropriate (for example) when a flag has changed

@@ -91,7 +91,10 @@ public abstract class AbstractAction implements ActionInvocation {
 
 	/** The action accelerator. */
     private String accelerator;
-    
+
+    /** The action registry. */
+    private final ActionRegistry actionRegistry;
+
     /** The thinkParity application registry. */
     private final ApplicationRegistry applicationRegistry;
     
@@ -119,6 +122,7 @@ public abstract class AbstractAction implements ActionInvocation {
      */
     protected AbstractAction(final ActionExtension extension) {
         super();
+        this.actionRegistry = new ActionRegistry();
         this.applicationRegistry = new ApplicationRegistry();
         this.id = null;
         this.icon = null;
@@ -138,6 +142,7 @@ public abstract class AbstractAction implements ActionInvocation {
      */
     protected AbstractAction(final ActionId id) {
         super();
+        this.actionRegistry = new ActionRegistry();
         this.applicationRegistry = new ApplicationRegistry();
         this.id = id;
         this.icon = null;
@@ -148,7 +153,7 @@ public abstract class AbstractAction implements ActionInvocation {
         this.mnemonic = localization.getString("MNEMONIC").substring(0,1);
         this.accelerator = localization.getString("ACCELERATOR");
     }
-    
+
     /**
      * Obtain the action ACCELERATOR.
      * 
@@ -485,6 +490,19 @@ public abstract class AbstractAction implements ActionInvocation {
 	protected abstract void invoke(final Data data);
 
     /**
+     * Invoke an action.
+     * This method can be used for calling one action from another.
+     * 
+     * @param actionId
+     *            The action id.
+     * @param data
+     *            The action data.
+     */
+    protected void invoke(final ActionId actionId, final Data data) {
+        getAction(actionId).invoke(data);
+    }
+
+    /**
      * Translate an error into a browser runtime exception.
      * 
      * @param t
@@ -528,5 +546,20 @@ public abstract class AbstractAction implements ActionInvocation {
      */
     private void displayErrorDialog(final Throwable error) {
         BrowserPlatform.getInstance().displayErrorDialog(error);
+    }
+
+    /**
+     * Obtain the action.
+     * 
+     * @param id
+     *            An <code>ActionId</code>.
+     * @return The <code>AbstractAction</code>.
+     */
+    private AbstractAction getAction(final ActionId id) {
+        if (actionRegistry.contains(id)) {
+            return actionRegistry.get(id);
+        } else {
+            return ActionFactory.create(id);
+        }
     }
 }

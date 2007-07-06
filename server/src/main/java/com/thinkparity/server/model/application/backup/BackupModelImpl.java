@@ -23,7 +23,6 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.document.CannotLockException;
@@ -35,7 +34,6 @@ import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.model.io.sql.BackupSql;
-import com.thinkparity.desdemona.model.queue.InternalQueueModel;
 
 /**
  * <b>Title:</b>thinkParity Backup Model Implementation<br>
@@ -87,23 +85,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         try {
             if (isBackupEnabledImpl(user)) {
                 deleteImpl(user, uniqueId);
-            } else {
-                logger.logWarning("User {0} has no backup feature.",
-                        user.getId());
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#enqueueBackupEvent(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.jabber.JabberId)
-     *
-     */
-    public void enqueueBackupEvent() {
-        try {
-            if (isBackupEnabledImpl(user)) {
-                enqueueBackupEventImpl(user);
             } else {
                 logger.logWarning("User {0} has no backup feature.",
                         user.getId());
@@ -458,26 +439,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         if (0 == artifactSql.readTeamRelCount(artifact.getId())) {
             artifactSql.delete(artifact.getId());
         }
-        // fire backup event
-        enqueueBackupEventImpl(user);
-    }
-
-    /**
-     * Enqueue a backup statistics updated event for a user.
-     * 
-     * @param user
-     *            A user <code>User</code>.
-     */
-    private void enqueueBackupEventImpl(final User user) {
-        logger.logTrace("Entry");
-        logger.logVariable("user", user);
-        final BackupStatisticsUpdatedEvent bsue = new BackupStatisticsUpdatedEvent();
-        bsue.setStatistics(readStatisticsImpl(user));
-        logger.logVariable("bsue", bsue);
-        final InternalQueueModel queueModel = getQueueModel(user);
-        queueModel.enqueueEvent(bsue);
-        queueModel.flush();
-        logger.logTrace("Exit");
     }
 
     /**

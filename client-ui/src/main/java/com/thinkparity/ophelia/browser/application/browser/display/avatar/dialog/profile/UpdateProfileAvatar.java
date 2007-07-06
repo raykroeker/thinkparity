@@ -17,7 +17,6 @@ import javax.swing.text.AbstractDocument;
 
 import com.thinkparity.codebase.BytesFormat;
 import com.thinkparity.codebase.StringUtil;
-import com.thinkparity.codebase.BytesFormat.Unit;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
@@ -25,12 +24,11 @@ import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextComponentLengthFilter;
 
-import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileConstraints;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
-import com.thinkparity.ophelia.model.events.BackupEvent;
+import com.thinkparity.ophelia.model.profile.Statistics;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
@@ -89,9 +87,6 @@ public class UpdateProfileAvatar extends Avatar {
     private final javax.swing.JTextField titleJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     // End of variables declaration//GEN-END:variables
 
-    /** The unit to use when displaying the backup information. */
-    private final Unit backupUnit;
-
     /** The country <code>DefaultComboBoxModel</code>. */
     private final DefaultComboBoxModel countryModel;
 
@@ -104,9 +99,6 @@ public class UpdateProfileAvatar extends Avatar {
     /** An instance of <code>ProfileConstraints</code>. */
     private final ProfileConstraints profileConstraints;
 
-    /** Backup statistics */
-    private Statistics statistics;
-
     /** Unavailable email. */
     private String unavailableEmail = null;
 
@@ -115,7 +107,6 @@ public class UpdateProfileAvatar extends Avatar {
         super("UpdateProfileAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         this.profileConstraints = ProfileConstraints.getInstance();
         this.countryModel = new DefaultComboBoxModel();
-        this.backupUnit = Unit.AUTO;
         initCountryModel();
         initComponents();
         addPropertyChangeListener("eventDispatcher", new PropertyChangeListener() {
@@ -130,21 +121,6 @@ public class UpdateProfileAvatar extends Avatar {
         });
         addValidationListeners();
         bindEscapeKey();
-    }
-
-    /**
-     * Fire a backup event.
-     * 
-     * This event keeps the backup statistics up to date
-     * so it is not necessary to read the information when the
-     * dialog is opened by the user (other than the first time).
-     * 
-     * @param e
-     *            A <code>BackupEvent</code>.
-     */
-    public void fireBackupEvent(final BackupEvent e) {
-        this.statistics = e.getStatistics();
-        reloadBackupStatistics(statistics);
     }
 
     public AvatarId getId() {
@@ -172,7 +148,7 @@ public class UpdateProfileAvatar extends Avatar {
         reload(emailJTextField, getEMailString(), online);
         reloadProvinceLabel();
         reloadPostalCodeLabel();
-        reloadBackupStatistics();
+        reloadStatistics();
         validateInput();
     }
 
@@ -699,15 +675,6 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     /**
-     * Determine if the backup feature is enabled.
-     * 
-     * @return True if the backup feature is enabled.
-     */
-    private boolean isBackupEnabled() {
-        return ((UpdateProfileProvider) contentProvider).isBackupEnabled().booleanValue();
-    }
-
-    /**
      * Determine if the string changed.
      * 
      * @param current
@@ -846,8 +813,8 @@ public class UpdateProfileAvatar extends Avatar {
      * 
      * @return An instance of <code>Statistics</code>.
      */
-    private Statistics readBackupStatistics() {
-        return ((UpdateProfileProvider) contentProvider).readBackupStatistics();
+    private Statistics readStatistics() {
+        return ((UpdateProfileProvider) contentProvider).readStatistics();
     }
 
     /**
@@ -896,35 +863,12 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     /**
-     * Reload the backup statistics.  If the backup is enabled and the
-     * system is online, the backup statistics are displayed.
-     */
-    private void reloadBackupStatistics() {
-        if (null != statistics) {
-            reloadBackupStatistics(statistics);
-        } else if (isOnline() && isBackupEnabled()) {
-            this.statistics = readBackupStatistics();
-            reloadBackupStatistics(statistics);
-        } else {
-            backupStatisticsJLabel.setText(getString("BackupOffline"));
-        }
-    }
-
-    /**
-     * Reload the backup statistics.  If the backup is enabled and the
-     * system is online, the backup statistics are displayed.
+     * Reload the profile statistics.
      * 
-     * @param statistics
-     *            A <code>Statistics</code>.
      */
-    private void reloadBackupStatistics(final Statistics statistics) {
-        if (null == backupUnit) {
-            backupStatisticsJLabel.setText(BYTES_FORMAT.format(
-                    statistics.getDiskUsage()));
-        } else {
-            backupStatisticsJLabel.setText(BYTES_FORMAT.format(backupUnit,
-                    statistics.getDiskUsage()));
-        }
+    private void reloadStatistics() {
+        backupStatisticsJLabel.setText(BYTES_FORMAT.format(
+                readStatistics().getDiskUsage()));
     }
 
     /**

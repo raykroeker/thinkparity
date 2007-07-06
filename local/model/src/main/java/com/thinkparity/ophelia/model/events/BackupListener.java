@@ -12,13 +12,4 @@ import com.thinkparity.codebase.event.EventListener;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public interface BackupListener extends EventListener {
-
-    /**
-     * The backup statistics have been updated.
-     * 
-     * @param e
-     *            A <code>BackupEvent</code>.
-     */
-    public void statisticsUpdated(final BackupEvent e);
-}
+public interface BackupListener extends EventListener {}

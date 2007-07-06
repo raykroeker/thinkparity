@@ -283,7 +283,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         }
     }
 
-
     /**
      * @see com.thinkparity.ophelia.model.Model#readCredentials()
      * 
@@ -291,6 +290,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     public Credentials readCredentials() {
         return super.readCredentials();
     }
+
 
     /**
      * Read a profile email.
@@ -332,6 +332,20 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     public List<Feature> readFeatures() {
         try {
             return getSessionModel().readMigratorProductFeatures(Constants.Product.NAME);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#readStatistics()
+     *
+     */
+    public Statistics readStatistics() {
+        try {
+            final Statistics statistics = new Statistics();
+            statistics.setDiskUsage(profileIO.readDiskUsage());
+            return statistics;
         } catch (final Throwable t) {
             throw panic(t);
         }

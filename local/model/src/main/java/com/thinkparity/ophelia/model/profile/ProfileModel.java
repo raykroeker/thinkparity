@@ -25,8 +25,9 @@ import com.thinkparity.ophelia.model.events.ProfileListener;
 /**
  * <b>Title:</b>thinkParity Profile Model<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @version 1.1.2.26
  */
 @ThinkParityTransaction(TransactionType.REQUIRED)
 public interface ProfileModel {
@@ -106,19 +107,26 @@ public interface ProfileModel {
      */
     public ProfileEMail readEmail(final Long emailId);
 
-	/**
+    /**
      * Read a list of profile email addresses.
      * 
      * @return A list of email addresses.
      */
     public List<ProfileEMail> readEmails();
 
-    /**
+	/**
      * Read a list of available features.
      * 
      * @return A <code>List</code> of <code>Feature</code>s.
      */
     public List<Feature> readFeatures();
+
+    /**
+     * Read the profile statistics.
+     * 
+     * @return The <code>Statistics</code>.
+     */
+    public Statistics readStatistics();
 
     /**
      * Remove an email.

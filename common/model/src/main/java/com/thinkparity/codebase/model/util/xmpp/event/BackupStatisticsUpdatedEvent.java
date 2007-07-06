@@ -11,7 +11,9 @@ import com.thinkparity.codebase.model.backup.Statistics;
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.2
+ * @deprecated - has been removed
  */
+@Deprecated
 public final class BackupStatisticsUpdatedEvent extends XMPPEvent {
 
     /** The backup <code>Statistics</code>. */

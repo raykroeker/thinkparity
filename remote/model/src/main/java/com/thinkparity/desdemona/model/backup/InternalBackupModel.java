@@ -32,12 +32,6 @@ public interface InternalBackupModel extends BackupModel {
      */
     public void archive(final UUID uniqueId);
 
-    /**
-     * Enqueue a backup event for the model user.
-     *
-     */
-    public void enqueueBackupEvent();
-
     public Boolean isArchived(final Artifact artifact);
 
     public Boolean isBackedUp(final Artifact artifact);

@@ -60,6 +60,13 @@ public interface ProfileIOHandler extends IOHandler {
     public Profile read(final JabberId profileId);
 
     /**
+     * Read the disk usage of the profile.
+     * 
+     * @return A number of bytes <code>Long</code>.
+     */
+    public Long readDiskUsage();
+
+    /**
      * Read a profile email.
      * 
      * @param profileId

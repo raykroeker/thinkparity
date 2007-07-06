@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -22,10 +21,8 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent;
 
 import com.thinkparity.ophelia.model.Model;
-import com.thinkparity.ophelia.model.events.BackupEvent;
 import com.thinkparity.ophelia.model.events.BackupListener;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
@@ -59,9 +56,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     /** A default artifact version filter. */
     private final Filter<ArtifactVersion> defaultVersionFilter;
 
-    /** A remote <code>BackupEventGenerator</code>. */
-    private final BackupEventGenerator remoteEventGenerator;
-
     /**
      * Create BackupModelImpl.
      *
@@ -74,7 +68,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
         this.defaultReceiptFilter = FilterManager.createDefault();
         this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.TRUE);
         this.defaultVersionFilter = FilterManager.createDefault();
-        this.remoteEventGenerator = new BackupEventGenerator(BackupEvent.Source.REMOTE);
     }
 
     /**
@@ -84,14 +77,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     @Override
     public void addListener(final BackupListener l) {
         super.addListener(l);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#handleStatisticsUpdated(com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent)
-     *
-     */
-    public void handleStatisticsUpdated(final BackupStatisticsUpdatedEvent event) {
-        notifyStatisticsUpdated(event.getStatistics(), remoteEventGenerator);
     }
 
     /**
@@ -381,22 +366,4 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     @Override
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {}
-
-    /**
-     * Fire a backup statistics updated event.
-     * 
-     * @param statistics
-     *            A <code>Statistics</code>.
-     * @param beg
-     *            A <code>BackupEventGenerator</code>.
-     */
-    private void notifyStatisticsUpdated(final Statistics statistics,
-            final BackupEventGenerator beg) {
-        notifyListeners(new EventNotifier<BackupListener>() {
-            public void notifyListener(final BackupListener listener) {
-                listener.statisticsUpdated(beg.generate(statistics));
-            }
-        });
-
-    }
 }

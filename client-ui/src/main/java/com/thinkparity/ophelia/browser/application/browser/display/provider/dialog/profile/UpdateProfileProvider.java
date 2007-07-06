@@ -8,12 +8,11 @@ import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
 
-import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
-import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
+import com.thinkparity.ophelia.model.profile.Statistics;
 import com.thinkparity.ophelia.model.session.SessionModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
@@ -23,9 +22,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.Cont
  * @version $Revision$
  */
 public class UpdateProfileProvider extends ContentProvider {
-
-    /** An instance of <code>BackupModel</code>. */
-    private final BackupModel backupModel;
 
     /** An instance of <code>SessionModel</code>. */
     private final SessionModel sessionModel;
@@ -41,20 +37,9 @@ public class UpdateProfileProvider extends ContentProvider {
      *            An instance of <code>SessionModel</code>.
      */
     public UpdateProfileProvider(final ProfileModel profileModel,
-            final BackupModel backupModel,
             final SessionModel sessionModel) {
         super(profileModel);
-        this.backupModel = backupModel;
         this.sessionModel = sessionModel;
-    }
-
-    /**
-     * Determine if the user's backup is enabled.
-     * 
-     * @return True if the user's backup is enabled.
-     */
-    public Boolean isBackupEnabled() {
-        return profileModel.isBackupEnabled();
     }
 
     /**
@@ -67,12 +52,12 @@ public class UpdateProfileProvider extends ContentProvider {
     }
 
     /**
-     * Read the backup statistics.
+     * Read the statistics.
      * 
      * @return The backup <code>Statistics</code>.
      */
-    public Statistics readBackupStatistics() {
-        return backupModel.readStatistics();
+    public Statistics readStatistics() {
+        return profileModel.readStatistics();
     }
 
     /**

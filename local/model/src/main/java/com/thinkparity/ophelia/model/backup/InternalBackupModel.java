@@ -20,7 +20,6 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
-import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEvent;
 
 /**
  * <b>Title:</b>thinkParity Internal Backup Model<br>
@@ -30,14 +29,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.BackupStatisticsUpdatedEve
  */
 @ThinkParityTransaction(TransactionType.REQUIRED)
 public interface InternalBackupModel extends BackupModel {
-
-    /**
-     * Handle the remote statistics updated event.
-     * 
-     * @param event
-     *            A <code>BackupStatisticsUpdatedEvent</code>.
-     */
-    public void handleStatisticsUpdated(final BackupStatisticsUpdatedEvent event);
 
     /**
      * Read a container.

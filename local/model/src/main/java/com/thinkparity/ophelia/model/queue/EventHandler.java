@@ -15,7 +15,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublished
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
-import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
@@ -68,8 +67,7 @@ class EventHandler {
             logger.logInfo("Handling artifact team member removed.");
             getArtifactModel().handleTeamMemberRemoved((ArtifactTeamMemberRemovedEvent) event);
         } else if (event.getClass() == BackupStatisticsUpdatedEvent.class) {
-            logger.logInfo("Handling backup statistics updated.");
-            getBackupModel().handleStatisticsUpdated((BackupStatisticsUpdatedEvent) event);
+            logger.logInfo("Backup statistics event depreacated.");
         } else if (event.getClass() == ContactDeletedEvent.class) {
             logger.logInfo("Handling contact deleted.");
             getContactModel().handleContactDeleted((ContactDeletedEvent) event);
@@ -125,15 +123,6 @@ class EventHandler {
      */
     private InternalArtifactModel getArtifactModel() {
         return modelFactory.getArtifactModel();
-    }
-
-    /**
-     * Obtain an internal backup model.
-     * 
-     * @return An instance of <code>InternalBackupModel</code>.
-     */
-    private InternalBackupModel getBackupModel() {
-        return modelFactory.getBackupModel();
     }
 
     /**

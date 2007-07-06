@@ -143,7 +143,7 @@ public class ProviderFactory {
             provider = new SignupProvider(profileModel);
             break;
         case DIALOG_PROFILE_UPDATE:
-            provider = new UpdateProfileProvider(profileModel, backupModel, sessionModel);
+            provider = new UpdateProfileProvider(profileModel, sessionModel);
             break;
         case DIALOG_PROFILE_UPDATE_PASSWORD:
             provider = new UpdatePasswordProvider(profileModel);

@@ -19,8 +19,9 @@ import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity Ophelia Model Profile IO Implementation<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -29,31 +30,31 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
 
     /** Sql to create a profile. */
     private static final String SQL_CREATE =
-            new StringBuffer("insert into PROFILE ")
-            .append("(PROFILE_ID,PROFILE_VCARD) ")
-            .append("values (?,?)")
-            .toString();
+        new StringBuilder("insert into PROFILE ")
+        .append("(PROFILE_ID,PROFILE_VCARD) ")
+        .append("values (?,?)")
+        .toString();
 
     /** Sql to create an e-mail address. */
     private static final String SQL_CREATE_EMAIL =
-            new StringBuffer("insert into PROFILE_EMAIL_REL ")
-            .append("(PROFILE_ID,EMAIL_ID,VERIFIED) ")
-            .append("values (?,?,?)")
-            .toString();
+        new StringBuilder("insert into PROFILE_EMAIL_REL ")
+        .append("(PROFILE_ID,EMAIL_ID,VERIFIED) ")
+        .append("values (?,?,?)")
+        .toString();
 
     /** Sql to create a profile feature. */
     private static final String SQL_CREATE_FEATURE =
-            new StringBuffer("insert into PROFILE_FEATURE ")
-            .append("(PROFILE_ID,FEATURE_NAME) ")
-            .append("values (?,?)")
-            .toString();
+        new StringBuilder("insert into PROFILE_FEATURE ")
+        .append("(PROFILE_ID,FEATURE_NAME) ")
+        .append("values (?,?)")
+        .toString();
 
     /** Sql to delete an email. */
     private static final String SQL_DELETE_EMAIL =
-            new StringBuffer("delete from ")
-            .append("PROFILE_EMAIL_REL ")
-            .append("where PROFILE_ID=? and EMAIL_ID=?")
-            .toString();
+        new StringBuilder("delete from ")
+        .append("PROFILE_EMAIL_REL ")
+        .append("where PROFILE_ID=? and EMAIL_ID=?")
+        .toString();
 
     /** Sql to read the profile. */
     private static final String SQL_READ =
@@ -64,29 +65,35 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
         .append("order by P.PROFILE_ID desc")
         .toString();
 
+    /** Sql to read the total disk usage. */
+    private static final String SQL_READ_DISK_USAGE =
+        new StringBuilder("select sum(DV.CONTENT_SIZE) \"DISK_USAGE\" ")
+        .append("from DOCUMENT_VERSION DV")
+        .toString();
+
     /** Sql to read a profile email. */
     private static final String SQL_READ_EMAIL =
-            new StringBuffer("select P.PROFILE_ID,E.EMAIL_ID,E.EMAIL,")
-            .append("PER.VERIFIED ")
-            .append("from PROFILE_EMAIL_REL PER ")
-            .append("inner join PROFILE P on PER.PROFILE_ID=P.PROFILE_ID ")
-            .append("inner join EMAIL E ON PER.EMAIL_ID=E.EMAIL_ID ")
-            .append("where P.PROFILE_ID=? AND E.EMAIL_ID=?")
-            .toString();
+        new StringBuilder("select P.PROFILE_ID,E.EMAIL_ID,E.EMAIL,")
+        .append("PER.VERIFIED ")
+        .append("from PROFILE_EMAIL_REL PER ")
+        .append("inner join PROFILE P on PER.PROFILE_ID=P.PROFILE_ID ")
+        .append("inner join EMAIL E ON PER.EMAIL_ID=E.EMAIL_ID ")
+        .append("where P.PROFILE_ID=? AND E.EMAIL_ID=?")
+        .toString();
 
     /** Sql to read the e-mail addresses. */
     private static final String SQL_READ_EMAILS =
-            new StringBuffer("select P.PROFILE_ID,E.EMAIL_ID,E.EMAIL,")
-            .append("PER.VERIFIED ")
-            .append("from PROFILE_EMAIL_REL PER ")
-            .append("inner join PROFILE P on PER.PROFILE_ID=P.PROFILE_ID ")
-            .append("inner join EMAIL E on PER.EMAIL_ID=E.EMAIL_ID ")
-            .append("where P.PROFILE_ID=?")
-            .toString();
+        new StringBuilder("select P.PROFILE_ID,E.EMAIL_ID,E.EMAIL,")
+        .append("PER.VERIFIED ")
+        .append("from PROFILE_EMAIL_REL PER ")
+        .append("inner join PROFILE P on PER.PROFILE_ID=P.PROFILE_ID ")
+        .append("inner join EMAIL E on PER.EMAIL_ID=E.EMAIL_ID ")
+        .append("where P.PROFILE_ID=?")
+        .toString();
 
     /** Sql to read the profile features. */
     private static final String SQL_READ_FEATURES =
-        new StringBuffer("select PF.FEATURE_ID,PF.FEATURE_NAME ")
+        new StringBuilder("select PF.FEATURE_ID,PF.FEATURE_NAME ")
         .append("from PROFILE_FEATURE PF ")
         .append("inner join PROFILE P on PF.PROFILE_ID=P.PROFILE_ID ")
         .append("where P.PROFILE_ID=?")
@@ -94,26 +101,26 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the profile by its unique key. */
     private static final String SQL_READ_UK =
-            new StringBuffer("select P.PROFILE_ID,U.JABBER_ID,U.NAME,")
-            .append("U.ORGANIZATION,U.TITLE,U.FLAGS,P.PROFILE_VCARD ")
-            .append("from PROFILE P ")
-            .append("inner join PARITY_USER U on P.PROFILE_ID=U.USER_ID ")
-            .append("where U.JABBER_ID=?")
-            .toString();
+        new StringBuilder("select P.PROFILE_ID,U.JABBER_ID,U.NAME,")
+        .append("U.ORGANIZATION,U.TITLE,U.FLAGS,P.PROFILE_VCARD ")
+        .append("from PROFILE P ")
+        .append("inner join PARITY_USER U on P.PROFILE_ID=U.USER_ID ")
+        .append("where U.JABBER_ID=?")
+        .toString();
 
     /** Sql to update a profile. */
     private static final String SQL_UPDATE =
-            new StringBuffer("update PROFILE ")
-            .append("set PROFILE_VCARD=? ")
-            .append("where PROFILE_ID=?")
-            .toString();
+        new StringBuilder("update PROFILE ")
+        .append("set PROFILE_VCARD=? ")
+        .append("where PROFILE_ID=?")
+        .toString();
 
     /** Sql to verify a profile email. */
     private static final String SQL_VERIFY_EMAIL =
-            new StringBuffer("update PROFILE_EMAIL_REL ")
-            .append("set VERIFIED=? ")
-            .append("where PROFILE_ID=? and EMAIL_ID=?")
-            .toString();
+        new StringBuilder("update PROFILE_EMAIL_REL ")
+        .append("set VERIFIED=? ")
+        .append("where PROFILE_ID=? and EMAIL_ID=?")
+        .toString();
 
     /** Email db io. */
     private final EmailIOHandler emailIO;
@@ -210,6 +217,25 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
             session.executeQuery();
             if (session.nextResult()) {
                 return extractProfile(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ProfileIOHandler#readDisUsage()
+     *
+     */
+    public Long readDiskUsage() {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_DISK_USAGE);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getLong("DISK_USAGE");
             } else {
                 return null;
             }

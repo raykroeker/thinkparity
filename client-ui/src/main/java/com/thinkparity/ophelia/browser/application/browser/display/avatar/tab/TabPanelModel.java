@@ -18,6 +18,7 @@ import java.util.TimerTask;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -25,6 +26,7 @@ import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
+import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.platform.application.Application;
@@ -627,7 +629,16 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      *            A <code>TabPanel</code>.
      */
     protected void requestFocusInWindow(final TabPanel tabPanel) {
-        ((JComponent)tabPanel).requestFocusInWindow();
+        if (!((JComponent) tabPanel).isFocusOwner()) {
+            // focus is gained more consistently with invokeLater
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    if (!MenuFactory.isPopupMenu()) {
+                        ((JComponent) tabPanel).requestFocusInWindow();
+                    }
+                }
+            });
+        }
     }
 
     /**

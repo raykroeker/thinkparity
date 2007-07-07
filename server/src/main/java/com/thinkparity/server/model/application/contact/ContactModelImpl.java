@@ -101,7 +101,24 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                     outgoingEMailInvitation);
             for (final Attachment attachment : attachments) {
                 invitationSql.deleteAttachment(attachment);
-                send(invitationUser, invitation, attachment);
+                send(invitationUser, user, invitation, attachment);
+            }
+            /* check for an attachments on an outgoing e-mail invitation in the
+             * other direction; if it exists */
+            final List<EMail> invitationUserEMails =
+                getProfileModel().readEMails(user.getId(), invitationUser);
+            for (final EMail invitationUserEMail : invitationUserEMails) {
+                final OutgoingEMailInvitation outgoingPrime =
+                    invitationSql.readOutgoingEMail(user, invitationUserEMail);
+                logger.logDebug("outgoingPrime", outgoingPrime);
+                if (null != outgoingPrime) {
+                    final List<Attachment> attachmentsPrime =
+                        invitationSql.readAttachments(outgoingPrime);
+                    for (final Attachment attachmentPrime : attachmentsPrime) {
+                        invitationSql.deleteAttachment(attachmentPrime);
+                        send(user, invitationUser, outgoingPrime, attachmentPrime);
+                    }
+                }
             }
 
             // delete all invitations
@@ -783,21 +800,23 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     /**
      * Send an invitation attachment to a user.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
+     * @param sendAs
+     *            A <code>User</code> to send as.
+     * @param sendTo
+     *            A <code>User</code> to send to.
      * @param invitation
      *            A <code>ContactInvitation</code>.
      * @param attachment
-     *            A <code>Attachment</code>.
+     *            An <code>Attachment</code>.
      */
-    private void send(final User sendAs, final ContactInvitation invitation,
-            final Attachment attachment) {
+    private void send(final User sendAs, final User sendTo,
+            final ContactInvitation invitation, final Attachment attachment) {
         switch (attachment.getReferenceType()) {
         case CONTAINER_VERSION:
             final ContainerVersionAttachment containerVersionAttachment =
                 new ContainerVersionAttachment();
             containerVersionAttachment.setReferenceId(attachment.getReferenceId());
-            send(sendAs, invitation, containerVersionAttachment);
+            send(sendAs, sendTo, invitation, containerVersionAttachment);
             break;
         default:
             Assert.assertUnreachable("Unknown attachment reference type.");
@@ -808,15 +827,16 @@ public final class ContactModelImpl extends AbstractModelImpl implements
      * Send a container version invitation attachment to a user.
      * 
      * @param sendAs
-     *            A user id <code>JabberId</code>.
+     *            A <code>User</code>.
      * @param sendTo
-     *            A user id <code>JabberId</code>.
+     *            A <code>User</code>.
      * @param invitation
      *            A <code>ContactInvitation</code>.
      * @param attachment
      *            A <code>ContainerVersionAttachment</code>.
      */
-    private void send(final User sendAs, final ContactInvitation invitation,
+    private void send(final User sendAs, final User sendTo,
+            final ContactInvitation invitation,
             final ContainerVersionAttachment attachment) {
         final InternalBackupModel backupModel = getBackupModel(sendAs);
         // grab from backup
@@ -832,7 +852,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
         final Calendar publishedOn = version.getCreatedOn();
         final List<EMail> publishToEMails = Collections.emptyList();
         final List<User> publishToUsers = new ArrayList<User>(1);
-        publishToUsers.add(user);
+        publishToUsers.add(sendTo);
         // publish version
         getContainerModel(sendAs).publishVersion(version, documentVersions,
                 receivedBy, publishedOn, publishToEMails, publishToUsers);

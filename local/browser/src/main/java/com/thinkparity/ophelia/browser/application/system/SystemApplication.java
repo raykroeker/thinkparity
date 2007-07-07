@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.system;
 
-import javax.swing.SwingUtilities;
-
 import com.thinkparity.codebase.swing.AbstractJFrame;
 
 import com.thinkparity.codebase.model.contact.ContactInvitation;
@@ -22,8 +20,11 @@ import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
+import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
 import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.contact.ClearIncomingEMailInvitationNotifications;
+import com.thinkparity.ophelia.browser.platform.action.contact.ClearIncomingUserInvitationNotifications;
 import com.thinkparity.ophelia.browser.platform.action.contact.Show;
 import com.thinkparity.ophelia.browser.platform.action.platform.browser.Iconify;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
@@ -250,7 +251,7 @@ public final class SystemApplication extends AbstractApplication {
     public void runIconify(final Boolean iconify) {
         final Data data = new Data(1);
         data.set(Iconify.DataKey.ICONIFY, iconify);
-        runLater(ActionId.PLATFORM_BROWSER_ICONIFY, data);
+        invoke(ActionId.PLATFORM_BROWSER_ICONIFY, data);
     }
 
     /**
@@ -258,7 +259,7 @@ public final class SystemApplication extends AbstractApplication {
      *
      */
     public void runLogin() {
-        runLater(ActionId.PLATFORM_LOGIN, Data.emptyData());
+        invoke(ActionId.PLATFORM_LOGIN, Data.emptyData());
     }
 
     /**
@@ -266,7 +267,7 @@ public final class SystemApplication extends AbstractApplication {
      *
      */
     public void runMoveBrowserToFront() {
-        runLater(ActionId.PLATFORM_BROWSER_MOVE_TO_FRONT, Data.emptyData());
+        invoke(ActionId.PLATFORM_BROWSER_MOVE_TO_FRONT, Data.emptyData());
     }
 
     /**
@@ -274,7 +275,7 @@ public final class SystemApplication extends AbstractApplication {
      *
      */
     public void runOpenWebsite() {
-        run(ActionId.PLATFORM_OPEN_WEBSITE, Data.emptyData());
+        invoke(ActionId.PLATFORM_OPEN_WEBSITE, Data.emptyData());
     }
 
     /**
@@ -282,7 +283,7 @@ public final class SystemApplication extends AbstractApplication {
      *
      */
     public void runQuitPlatform() {
-        runLater(ActionId.PLATFORM_QUIT, Data.emptyData());
+        invoke(ActionId.PLATFORM_QUIT, Data.emptyData());
     }
 
     /**
@@ -290,7 +291,7 @@ public final class SystemApplication extends AbstractApplication {
      *
      */
     public void runRestartPlatform() {
-        run(ActionId.PLATFORM_RESTART, Data.emptyData());
+        invoke(ActionId.PLATFORM_RESTART, Data.emptyData());
     }
 
     /**
@@ -298,7 +299,7 @@ public final class SystemApplication extends AbstractApplication {
      *
      */
 	public void runRestoreBrowser() {
-        runLater(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
+        invoke(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
     }
 
     /**
@@ -358,7 +359,9 @@ public final class SystemApplication extends AbstractApplication {
      *            A <code>ContactEvent</code>.
      */
     void fireContactIncomingEMailInvitationDeleted(final ContactEvent e) {
-        clearInvitationNotifications(e.getIncomingInvitation().getId());
+        final Data data = new Data(1);
+        data.set(ClearIncomingEMailInvitationNotifications.DataKey.INVITATION_ID, e.getIncomingInvitation().getId());
+        invoke(ActionId.CONTACT_CLEAR_INCOMING_EMAIL_INVITATION_NOTIFICATIONS, data);
     }
 
     /**
@@ -394,7 +397,7 @@ public final class SystemApplication extends AbstractApplication {
             }
             @Override
             public void invokeAction() {
-                run(ActionId.CONTACT_SHOW, data);
+                invoke(ActionId.CONTACT_SHOW, data);
             }
         });
     }
@@ -406,7 +409,9 @@ public final class SystemApplication extends AbstractApplication {
      *            A <code>ContactEvent</code>.
      */
     void fireContactIncomingUserInvitationDeleted(final ContactEvent e) {
-        clearInvitationNotifications(e.getIncomingInvitation().getId());
+        final Data data = new Data(1);
+        data.set(ClearIncomingUserInvitationNotifications.DataKey.INVITATION_ID, e.getIncomingInvitation().getId());
+        invoke(ActionId.CONTACT_CLEAR_INCOMING_USER_INVITATION_NOTIFICATIONS, data);
     }
 
     /**
@@ -453,7 +458,7 @@ public final class SystemApplication extends AbstractApplication {
                 }
                 @Override
                 public void invokeAction() {
-                    run(ActionId.CONTAINER_SHOW, data);
+                    invoke(ActionId.CONTAINER_SHOW, data);
                 }
             });
         } else {
@@ -489,10 +494,40 @@ public final class SystemApplication extends AbstractApplication {
                 }
                 @Override
                 public void invokeAction() {
-                    run(ActionId.CONTAINER_SHOW, data);
+                    invoke(ActionId.CONTAINER_SHOW, data);
                 }
             });
         }
+    }
+
+    /**
+     * Obtain the action from the controller's cache. If the action does not
+     * exist in the cache it is created and stored.
+     * 
+     * @param id
+     *            The action id.
+     * @return The action.
+     * 
+     * @see ActionId
+     */
+    private ActionInvocation getAction(final ActionId id) {
+        if (actionRegistry.contains(id)) {
+            return actionRegistry.get(id);
+        } else {
+            return ActionFactory.create(id);
+        }
+    }
+
+    /**
+     * Invoke an action.
+     * 
+     * @param actionId
+     *            An <code>ActionId</code>.
+     * @param data
+     *            The action <code>Data</code>.
+     */
+    private void invoke(final ActionId actionId, final Data data) {
+        getAction(actionId).invokeAction(this, data);
     }
 
     /**
@@ -506,46 +541,5 @@ public final class SystemApplication extends AbstractApplication {
      */
     private String newNotificationId(final Class<?> type, final Long typeId) {
         return new StringBuilder(type.getName()).append("//").append(typeId).toString();
-    }
-
-    /**
-     * Run an action.
-     * 
-     * @param actionId
-     *            The action id.
-     * @param data
-     *            The action data.
-     */
-    private void run(final ActionId actionId, final Data data) {
-        try {
-            if (actionRegistry.contains(actionId)) {
-                actionRegistry.get(actionId).invokeAction(this, data);
-            } else {
-                ActionFactory.create(actionId).invokeAction(this, data);
-            }
-        } catch(final Throwable t) {
-            logger.logError(t,
-                    "Could not run system application action {0} with data {1}.",
-                    actionId, data);
-            throw new RuntimeException(t);
-        }
-    }
-
-    /**
-     * Run an action that doesn't need to be run imediately.
-     * 
-     * @param actionId
-     *            The action id.
-     * @param data
-     *            The action data.
-     * @see SwingUtilities#invokeLater(java.lang.Runnable)
-     * @see SystemApplication#run(ActionId, Data)
-     */
-    private void runLater(final ActionId actionId, final Data data) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                SystemApplication.this.run(actionId, data);
-            }
-        });
     }
 }

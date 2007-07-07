@@ -107,14 +107,12 @@ public final class ContactModelImpl extends Model<ContactListener>
                         incomingUserInvitation.getId());
             }
 
-            // accept remote
-            final Contact contact = sessionModel.readContact(extendedBy.getId());
-            sessionModel.acceptInvitation(incomingEMailInvitation, acceptedOn);
-
             // delete outgoing e-mail invitations and indicies
+            final Contact contact = sessionModel.readContact(extendedBy.getId());
             final List<OutgoingEMailInvitation> outgoingEMailInvitations =
                 contactIO.readOutgoingEMailInvitations(contact.getEmails());
             for (final OutgoingEMailInvitation oei : outgoingEMailInvitations) {
+                getContainerModel().deletePublishedTo(oei.getInvitationEMail());
                 contactIO.deleteInvitation(oei);
                 indexModel.deleteOutgoingEMailInvitation(oei.getId());
             }
@@ -130,6 +128,9 @@ public final class ContactModelImpl extends Model<ContactListener>
 
             // create contact and index
             final Contact localContact = createLocal(contact);
+
+            // accept remote
+            sessionModel.acceptInvitation(incomingEMailInvitation, acceptedOn);
 
             // fire events
             for (final IncomingEMailInvitation iei : incomingEMailInvitations)

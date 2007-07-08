@@ -100,9 +100,15 @@ public final class HandleVersionPublished extends ContainerDelegate {
                         version.getVersionId(), receivedBy,
                         receipt.getPublishedOn());
             }
-            containerIO.updatePublishedTo(container.getId(),
-                    version.getVersionId(), receipt.getPublishedOn(),
-                    receivedBy.getId(), receipt.getReceivedOn());
+            /* the backup receives many occurances of this event which can
+             * distribute non-received artifact receipts for the same version;
+             * therefore we need to check if received on is set before
+             * updating */
+            if (receipt.isSetReceivedOn()){
+                containerIO.updatePublishedTo(container.getId(),
+                        version.getVersionId(), receipt.getPublishedOn(),
+                        receivedBy.getId(), receipt.getReceivedOn());
+            }
         }
         // resolve the published by user
         final List<TeamMember> localTeam = readTeam(container.getId());

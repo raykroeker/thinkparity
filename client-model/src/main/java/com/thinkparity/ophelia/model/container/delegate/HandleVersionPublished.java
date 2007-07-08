@@ -124,9 +124,13 @@ public final class HandleVersionPublished extends ContainerDelegate {
                         version.getVersionId(), receivedBy,
                         receipt.getPublishedOn());
             }
-            containerIO.updatePublishedTo(container.getId(),
-                    version.getVersionId(), receipt.getPublishedOn(),
-                    receivedBy.getId(), receipt.getReceivedOn());
+            /* the receipt many not include actual received on information; 
+             * therefore care must be taken not to update */
+            if (receipt.isSetReceivedOn()) {
+                containerIO.updatePublishedTo(container.getId(),
+                        version.getVersionId(), receipt.getPublishedOn(),
+                        receivedBy.getId(), receipt.getReceivedOn());
+            }
         }
         // calculate delta information
         final ContainerVersion previous = readPreviousVersion(

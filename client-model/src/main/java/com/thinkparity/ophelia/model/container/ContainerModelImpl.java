@@ -950,8 +950,9 @@ public final class ContainerModelImpl extends
             final ContainerVersion previousVersion = readPreviousVersion(containerId, versionId);
             final ContainerVersion nextVersion = readNextVersion(containerId, versionId);
             final TeamMember localTeamMember = localTeamMember(containerId);
-            notifyContainerPublished(container, version, previousVersion,
-                    nextVersion, localTeamMember, localEventGenerator);
+            notifyContainerPublished(container, null, version, previousVersion,
+                    nextVersion, localTeamMember, delegate.getInvitations(),
+                    localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         } finally {

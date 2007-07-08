@@ -83,24 +83,6 @@ public class ErrorAvatar extends Avatar {
     }//GEN-LAST:event_closeJButtonActionPerformed
 
     /**
-     * Get the input error localized message.
-     * 
-     * @return A string.
-     */
-    private String getInputErrorLocalizedMessage() {
-        if (null == input) {
-            return null;
-        } else {
-            final Throwable t = (Throwable) ((Data) input).get(DataKey.ERROR);
-            if (null == t) {
-                return null;
-            } else {
-                return t.getLocalizedMessage();
-            }
-        }
-    }
-
-    /**
      * Get the error message key from the input.
      * 
      * @return An error message key.
@@ -187,10 +169,7 @@ public class ErrorAvatar extends Avatar {
             }
             errorMessageJLabel.setText(MessageFormat.format("<html>{0}</html>", text));
         } else {
-            final String errorLocalizedMessage = getInputErrorLocalizedMessage();
-            if (null != errorLocalizedMessage) {
-                errorMessageJLabel.setText(errorLocalizedMessage);
-            }
+            errorMessageJLabel.setText(getString("ErrorUnexpected"));
         }
     }
 

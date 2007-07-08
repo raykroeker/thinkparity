@@ -24,19 +24,19 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  * @version 1.1.2.1
  */
 public class ErrorAvatar extends Avatar {
-    
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
+    // End of variables declaration//GEN-END:variables
+
     /**
      * Create ErrorAvatar.
      *
      */
     public ErrorAvatar() {
         super("ErrorAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
-        bindEscapeKey("Cancel", new AbstractAction() {
-            public void actionPerformed(final ActionEvent e) {
-                disposeWindow();
-            }
-        });
         initComponents();
+        bindEscapeKey();
     }
 
     /**
@@ -54,9 +54,13 @@ public class ErrorAvatar extends Avatar {
         }
     }
 
-    public AvatarId getId() { return AvatarId.DIALOG_ERROR; }
+    public AvatarId getId() {
+        return AvatarId.DIALOG_ERROR;
+    }
 
-    public State getState() { return null; }
+    public State getState() {
+        return null;
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
@@ -68,9 +72,46 @@ public class ErrorAvatar extends Avatar {
 
     public void setState(final State state) {}
 
-    private void closeJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
+    /**
+     * Make the escape key behave like cancel.
+     */
+    private void bindEscapeKey() {
+        bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                disposeWindow();
+            }
+        });
+    }
+
+    private void closeJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
         disposeWindow();
     }//GEN-LAST:event_closeJButtonActionPerformed
+
+    /**
+     * Get the error message key from the input.
+     * 
+     * @return An error message key.
+     */
+    private Object[] getInputErrorMessageArguments() {
+        if (null == input) {
+            return null;
+        } else {
+            return (Object[]) ((Data) input).get(DataKey.ERROR_MESSAGE_ARGUMENTS);
+        }
+    }
+
+    /**
+     * Get the error message key from the input.
+     * 
+     * @return An error message key.
+     */
+    private String getInputErrorMessageKey() {
+        if (null == input) {
+            return null;
+        } else {
+            return (String) ((Data) input).get(DataKey.ERROR_MESSAGE_KEY);
+        }
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -108,57 +149,13 @@ public class ErrorAvatar extends Avatar {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(31, 31, 31)
-                .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 20, Short.MAX_VALUE)
+                .add(27, 27, 27)
+                .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 48, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 16, Short.MAX_VALUE)
                 .add(closeJButton)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    /**
-     * Get the input error localized message.
-     * 
-     * @return A string.
-     */
-    private String getInputErrorLocalizedMessage() {
-        if (null == input) {
-            return null;
-        } else {
-            final Throwable t = (Throwable) ((Data) input).get(DataKey.ERROR);
-            if (null == t) {
-                return null;
-            } else {
-                return t.getLocalizedMessage();
-            }
-        }
-    }
-
-    /**
-     * Get the error message key from the input.
-     * 
-     * @return An error message key.
-     */
-    private Object[] getInputErrorMessageArguments() {
-        if (null == input) {
-            return null;
-        } else {
-            return (Object[]) ((Data) input).get(DataKey.ERROR_MESSAGE_ARGUMENTS);
-        }
-    }
-
-    /**
-     * Get the error message key from the input.
-     * 
-     * @return An error message key.
-     */
-    private String getInputErrorMessageKey() {
-        if (null == input) {
-            return null;
-        } else {
-            return (String) ((Data) input).get(DataKey.ERROR_MESSAGE_KEY);
-        }
-    }
 
     /**
      * Reload the error message label.
@@ -177,17 +174,10 @@ public class ErrorAvatar extends Avatar {
             }
             errorMessageJLabel.setText(MessageFormat.format("<html>{0}</html>", text));
         } else {
-            final String errorLocalizedMessage = getInputErrorLocalizedMessage();
-            if (null != errorLocalizedMessage) {
-                errorMessageJLabel.setText(errorLocalizedMessage);
-            }
+            errorMessageJLabel.setText(getString("ErrorUnexpected"));
         }
     }
 
     /** Data keys. */
     public enum DataKey { ERROR, ERROR_MESSAGE_ARGUMENTS, ERROR_MESSAGE_KEY }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
-    // End of variables declaration//GEN-END:variables
 }

@@ -67,7 +67,8 @@ public class PublishVersion extends AbstractBrowserAction {
 		public Runnable getErrorHandler(final Throwable t) {
 			return new Runnable() {
 				public void run() {
-					action.browser.displayErrorDialog(t);
+                    action.browser.displayErrorDialog("PublishVersionError",
+                            new Object[] {}, t);
 				}
 			};
 		}

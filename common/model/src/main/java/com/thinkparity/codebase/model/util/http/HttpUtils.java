@@ -64,11 +64,11 @@ public final class HttpUtils {
     /** <b>Title:</b>Common Http Content Types<br> */
     public static final class ContentTypeNames {
 
-        /** Binary stream */
-        public static final String BINARY_OCTET_STREAM = "binary/octet-stream";
-
         /** Zip */
         public static final String APPLICATION_ZIP = "application/zip";
+
+        /** Binary stream */
+        public static final String BINARY_OCTET_STREAM = "binary/octet-stream";
     }
 
     /** <b>Title:</b>Common Http Header Names<br> */

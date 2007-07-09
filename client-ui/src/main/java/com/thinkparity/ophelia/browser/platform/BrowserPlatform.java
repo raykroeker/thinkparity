@@ -707,10 +707,10 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      */
     void fireProductReleaseInstalled(final MigratorEvent e) {
         try {
-            ThinkParity.setImage(e.getRelease().getName());
+            ThinkParity.setImage(e.getReleaseName());
         } catch (final IOException iox) {
             logger.logFatal(iox, "Cannot upgrade to release {0}.",
-                    e.getRelease().getName());
+                    e.getReleaseName());
         }
     }
 

@@ -580,6 +580,9 @@ public class MainStatusAvatar extends Avatar {
             linkRunnable = new Runnable() {
                 public void run() {
                     link.getTarget().run();
+                    /* NOTE calling reload links after clicking on "Restart"
+                     * thinkParity causes a NPE because the model has shutdown
+                     */ 
                     reloadLinks();
                 }
             };

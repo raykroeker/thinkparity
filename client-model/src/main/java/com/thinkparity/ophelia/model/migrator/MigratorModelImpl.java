@@ -128,8 +128,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
                         event.getRelease().getName());
             } else {
                 // fire event
-                notifyProductReleaseDeployed(event.getProduct(), event.getRelease(),
-                        remoteEventGenerator);
+                notifyProductReleaseDeployed(event.getProduct().getName(),
+                        event.getRelease().getName(), remoteEventGenerator);
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -322,7 +322,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             migratorIO.updateDownloadedProductRelease(Constants.Product.NAME,
                     name);
             // fire event
-            notifyLatestReleaseDownloaded(null, null, localEventGenerator);
+            notifyLatestReleaseDownloaded(Constants.Product.NAME, name,
+                    localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -337,7 +338,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             migratorIO.updateProductRelease(Constants.Product.NAME, name);
             migratorIO.deleteDownloadedProductRelease(Constants.Product.NAME);
             // fire event
-            notifyLatestReleaseInstalled(null, null, localEventGenerator);
+            notifyLatestReleaseInstalled(Constants.Product.NAME, name,
+                    localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -591,11 +593,12 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      * @param meg
      *            The <code>MigratorEventGenerator</code>.
      */
-    private void notifyLatestReleaseDownloaded(final Product product,
-            final Release release, final MigratorEventGenerator meg) {
+    private void notifyLatestReleaseDownloaded(final String productName,
+            final String name, final MigratorEventGenerator meg) {
         notifyListeners(new EventNotifier<MigratorListener>() {
             public void notifyListener(final MigratorListener listener) {
-                listener.productReleaseDownloaded(meg.generate(product, release));
+                listener.productReleaseDownloaded(meg.generate(productName,
+                        name));
             }
         });
     }
@@ -610,11 +613,12 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      * @param meg
      *            The <code>MigratorEventGenerator</code>.
      */
-    private void notifyLatestReleaseInstalled(final String name,
-            final String releaseName, final MigratorEventGenerator meg) {
+    private void notifyLatestReleaseInstalled(final String productName,
+            final String name, final MigratorEventGenerator meg) {
         notifyListeners(new EventNotifier<MigratorListener>() {
             public void notifyListener(final MigratorListener listener) {
-                listener.productReleaseInstalled(meg.generate(null, null));
+                listener.productReleaseInstalled(meg.generate(productName,
+                        name));
             }
         });
     }
@@ -629,11 +633,12 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      * @param eventGenerator
      *            A <code>MigratorEventGenerator</code>.
      */
-    private void notifyProductReleaseDeployed(final Product product,
-            final Release release, final MigratorEventGenerator meg) {
+    private void notifyProductReleaseDeployed(final String productName,
+            final String releaseName, final MigratorEventGenerator meg) {
         notifyListeners(new EventNotifier<MigratorListener>() {
             public void notifyListener(final MigratorListener listener) {
-                listener.productReleaseDeployed(meg.generate(product, release));
+                listener.productReleaseDeployed(meg.generate(productName,
+                        releaseName));
             }
         });
     }

@@ -3,9 +3,6 @@
  */
 package com.thinkparity.ophelia.model.migrator;
 
-import com.thinkparity.codebase.model.migrator.Product;
-import com.thinkparity.codebase.model.migrator.Release;
-
 import com.thinkparity.ophelia.model.events.MigratorEvent;
 
 /**
@@ -37,8 +34,8 @@ final class MigratorEventGenerator {
      *            A <code>Release</code>.
      * @return A <code>MigratorEvent</code>.
      */
-    MigratorEvent generate(final Product product, final Release release) {
-        return new MigratorEvent(source, product, release);
+    MigratorEvent generate(final String productName, final String releaseName) {
+        return new MigratorEvent(source, productName, releaseName);
     }
 
 }

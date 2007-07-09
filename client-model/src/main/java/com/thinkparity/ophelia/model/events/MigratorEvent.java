@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.model.events;
 
-import com.thinkparity.codebase.model.migrator.Product;
-import com.thinkparity.codebase.model.migrator.Release;
 
 
 /**
@@ -17,10 +15,10 @@ import com.thinkparity.codebase.model.migrator.Release;
 public class MigratorEvent {
 
     /** A <code>Product</code>. */
-    private final Product product;
+    private final String productName;
 
     /** A <code>Release</code>. */
-    private final Release release;
+    private final String releaseName;
 
     /** The migrator event <code>Source</code>. */
     private final Source source;
@@ -31,12 +29,12 @@ public class MigratorEvent {
      * @param source
      *            The migrator event <code>Source</code>.
      */
-    public MigratorEvent(final Source source, final Product product,
-            final Release release) {
+    public MigratorEvent(final Source source, final String productName,
+            final String releaseName) {
         super();
         this.source = source;
-        this.product = product;
-        this.release = release;
+        this.productName = productName;
+        this.releaseName = releaseName;
     }
 
     /**
@@ -44,8 +42,8 @@ public class MigratorEvent {
      *
      * @return A Product.
      */
-    public Product getProduct() {
-        return product;
+    public String getProductName() {
+        return productName;
     }
 
     /**
@@ -53,8 +51,8 @@ public class MigratorEvent {
      *
      * @return A Release.
      */
-    public Release getRelease() {
-        return release;
+    public String getReleaseName() {
+        return releaseName;
     }
 
     /**

@@ -482,9 +482,6 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
         // NOCOMMIT
         // delete the index
         // getHelpModel().deleteIndex();
-
-        // update remotely
-        getProfileModel().updateProductRelease();
     }
 
     /**

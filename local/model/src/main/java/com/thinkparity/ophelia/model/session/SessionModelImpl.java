@@ -68,6 +68,9 @@ import com.thinkparity.service.client.ServiceFactory;
 public final class SessionModelImpl extends Model<SessionListener>
         implements SessionModel, InternalSessionModel {
 
+    /** Configuration key for the remote release. */
+    private static final String CFG_KEY_REMOTE_RELEASE;
+
     /** A workspace attribute key for the authentication token. */
     private static final String WS_ATTRIBUTE_KEY_AUTH_TOKEN;
 
@@ -78,6 +81,7 @@ public final class SessionModelImpl extends Model<SessionListener>
     private static final String WS_ATTRIBUTE_KEY_OFFLINE_CODES;
 
     static {
+        CFG_KEY_REMOTE_RELEASE = "SessionModelImpl#remoteRelease";
         WS_ATTRIBUTE_KEY_IS_ONLINE_VALIDATOR = "SessionModelImpl#isOnlineValidator";
         WS_ATTRIBUTE_KEY_OFFLINE_CODES = "SessionModelImpl#offlineCodes";
         WS_ATTRIBUTE_KEY_AUTH_TOKEN = "SessionModelImpl#authToken";
@@ -98,9 +102,9 @@ public final class SessionModelImpl extends Model<SessionListener>
 
     /** A migrator web-service interface. */
     private MigratorService migratorService;
-
     /** A profile web-service interface. */
     private ProfileService profileService;
+
     /** A rule web-service interface. */
     private RuleService ruleService;
 
@@ -256,7 +260,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfileUsernameReservation(java.lang.String)
      * 
      */
@@ -270,7 +274,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#declineInvitation(com.thinkparity.codebase.model.contact.IncomingEMailInvitation,
      *      java.util.Calendar)
      * 
@@ -457,7 +461,6 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isPublishRestricted(com.thinkparity.codebase.jabber.JabberId)
      *
@@ -469,6 +472,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
+
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#logError(com.thinkparity.codebase.model.migrator.Product,
      *      com.thinkparity.codebase.model.migrator.Release,
@@ -504,6 +508,8 @@ public final class SessionModelImpl extends Model<SessionListener>
             setAuthToken(sessionId);
             // save credentials
             createCredentials(credentials);
+            // save release
+            setRelease();
             // fire event
             removeOfflineCodes();
             notifySessionEstablished();
@@ -556,6 +562,8 @@ public final class SessionModelImpl extends Model<SessionListener>
                 final Release latestRelease = readMigratorLatestRelease(
                         Constants.Product.NAME, OSUtil.getOS());
                 if (latestRelease.getName().equals(Constants.Release.NAME)) {
+                    // save release
+                    setRelease();
                     // process queued events
                     getQueueModel().process(monitor);
                     // start notification client
@@ -705,7 +713,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupContainerVersions(java.util.UUID)
      *
@@ -719,7 +727,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupDocuments(java.util.UUID, java.lang.Long)
      *
@@ -967,7 +975,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readProfileEMails()
      * 
      */
@@ -979,7 +987,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readProfileFeatures(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
@@ -1024,7 +1032,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         super.removeListener(listener);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#removeProfileEmail(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.model.profile.ProfileEMail)
      *
      */
@@ -1036,7 +1044,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#updateProfile(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.profile.Profile)
      * 
@@ -1323,5 +1331,20 @@ public final class SessionModelImpl extends Model<SessionListener>
     private Thread setOnlineValidator(final Thread onlineValidator) {
         return (Thread) workspace.setAttribute(
                 WS_ATTRIBUTE_KEY_IS_ONLINE_VALIDATOR, onlineValidator);
+    }
+
+    /**
+     * Set the remote release for the user.
+     *
+     */
+    private void setRelease() {
+        final String release = configurationIO.read(CFG_KEY_REMOTE_RELEASE);
+        if (Constants.Release.NAME.equals(release)) {
+            logger.logInfo("Release info already set.");
+        } else {
+            // update remotely
+            configurationIO.update(CFG_KEY_REMOTE_RELEASE, Constants.Release.NAME);
+            getProfileModel().updateProductRelease();
+        }
     }
 }

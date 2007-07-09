@@ -1343,7 +1343,11 @@ public final class SessionModelImpl extends Model<SessionListener>
             logger.logInfo("Release info already set.");
         } else {
             // update remotely
-            configurationIO.update(CFG_KEY_REMOTE_RELEASE, Constants.Release.NAME);
+            if (null == release) {
+                configurationIO.create(CFG_KEY_REMOTE_RELEASE, Constants.Release.NAME);
+            } else {
+                configurationIO.update(CFG_KEY_REMOTE_RELEASE, Constants.Release.NAME);
+            }
             getProfileModel().updateProductRelease();
         }
     }

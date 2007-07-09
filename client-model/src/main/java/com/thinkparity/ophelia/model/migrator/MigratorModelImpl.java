@@ -42,6 +42,7 @@ import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.handler.MigratorIOHandler;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
+import com.thinkparity.ophelia.model.session.OfflineCode;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -282,7 +283,11 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
         if (isInstallInProgress()) {
             logger.logInfo("Release install in progress.");
         } else {
-            getSessionModel().notifyClientMaintenance();
+            final InternalSessionModel sessionModel = getSessionModel();
+            if (OfflineCode.CLIENT_MAINTENANCE != sessionModel.getOfflineCode()) {
+                getSessionModel().notifyClientMaintenance();
+            }
+
             final String release = migratorIO.readProductRelease(
                     Constants.Product.NAME);
             final String downloadedRelease = migratorIO.readDownloadedProductRelease(

@@ -441,7 +441,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
         final String[] releases = new String[] {
                 "v1_0-20070430-1500", "v1_0-20070516-1300",
                 "v1_0-20070612-2246", "v1_0-20070626-1300",
-                "v1_0-20070703-1030"
+                "v1_0-20070703-1030", "v1_0-20070709-1100"
         };
         int beginIndex = -1;
         for (int i = 0; i < releases.length; i++) {

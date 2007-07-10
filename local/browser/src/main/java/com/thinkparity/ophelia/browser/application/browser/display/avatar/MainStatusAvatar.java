@@ -365,6 +365,15 @@ public class MainStatusAvatar extends Avatar {
         gridBagConstraints.weighty = 1.0;
         add(fillJLabel, gridBagConstraints);
 
+        connectionJLabel.setFont(Fonts.DefaultFont);
+        connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
+        connectionJLabel.setText("Offline");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        add(connectionJLabel, gridBagConstraints);
+
         userJLabel.setFont(Fonts.DefaultFont);
         userJLabel.setText("Dr. Who");
         userJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -374,19 +383,10 @@ public class MainStatusAvatar extends Avatar {
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 2);
-        add(userJLabel, gridBagConstraints);
-
-        connectionJLabel.setFont(Fonts.DefaultFont);
-        connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
-        connectionJLabel.setText("Offline");
-        gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
-        add(connectionJLabel, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        add(userJLabel, gridBagConstraints);
 
         resizeJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserStatus_Resize.png")));
         resizeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {

@@ -142,11 +142,11 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     public void expandPanel(final T panelId, final Boolean animate) {
         checkThread();
         final TabPanel tabPanel = (TabPanel)lookupPanel(panelId);
-        if (!isExpanded(tabPanel)) {
+        if (null != tabPanel && !isExpanded(tabPanel)) {
             toggleExpansion(tabPanel, animate);
         }
     }
-    
+
     /**
      * Sort and filter the ids according to the existing visible order. Visible
      * elements are returned in the order they are currently displayed top to
@@ -224,9 +224,11 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     public void scrollPanelToVisible(final T panelId) {
         checkThread();
         final JComponent panel = (JComponent) lookupPanel(panelId);
-        final Rectangle rectangle = panel.getBounds();
-        rectangle.x = rectangle.y = 0;
-        panel.scrollRectToVisible(rectangle);
+        if (null != panel) {
+            final Rectangle rectangle = panel.getBounds();
+            rectangle.x = rectangle.y = 0;
+            panel.scrollRectToVisible(rectangle);
+        }
     }
 
     /**

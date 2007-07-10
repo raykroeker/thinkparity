@@ -867,8 +867,11 @@ public class UpdateProfileAvatar extends Avatar {
      * 
      */
     private void reloadStatistics() {
-        backupStatisticsJLabel.setText(BYTES_FORMAT.format(
-                readStatistics().getDiskUsage()));
+        Long diskUsage = readStatistics().getDiskUsage();
+        if (null == diskUsage) {
+            diskUsage = 0L;
+        }
+        backupStatisticsJLabel.setText(BYTES_FORMAT.format(diskUsage));
     }
 
     /**

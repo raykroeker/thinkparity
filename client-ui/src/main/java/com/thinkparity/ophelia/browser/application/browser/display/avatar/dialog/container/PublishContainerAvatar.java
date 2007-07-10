@@ -313,7 +313,7 @@ public final class PublishContainerAvatar extends Avatar implements
                     emailDelimiters, new ArrayList<String>());
             emails = new ArrayList<EMail>(emailAddresses.size());
             for (final String emailAddress : emailAddresses) {
-                if (!profileEMailAddresses.contains(emailAddress)) {
+                if (!profileEMailAddresses.contains(emailAddress.toLowerCase())) {
                     emails.add(EMailBuilder.parse(emailAddress.trim()));
                 }
             }
@@ -753,7 +753,7 @@ public final class PublishContainerAvatar extends Avatar implements
         final List<ProfileEMail> emails = readEMails();
         final List<String> emailAddresses = new ArrayList<String>(emails.size());
         for (final ProfileEMail email : emails) {
-            emailAddresses.add(email.getEmail().toString());
+            emailAddresses.add(email.getEmail().toString().toLowerCase());
         }
         return emailAddresses;
     }

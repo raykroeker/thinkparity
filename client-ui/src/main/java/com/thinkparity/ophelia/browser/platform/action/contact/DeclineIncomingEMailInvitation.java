@@ -52,7 +52,7 @@ public final class DeclineIncomingEMailInvitation extends AbstractBrowserAction 
         // clear any displayed notifications
         final Data clearData = new Data(1);
         clearData.set(ClearIncomingEMailInvitationNotifications.DataKey.INVITATION_ID, invitationId);
-        invoke(ActionId.CONTACT_CLEAR_INCOMING_EMAIL_INVITATION_NOTIFICATIONS, data);
+        invoke(ActionId.CONTACT_CLEAR_INCOMING_EMAIL_INVITATION_NOTIFICATIONS, clearData);
 	}
 
 	public enum DataKey { INVITATION_ID }

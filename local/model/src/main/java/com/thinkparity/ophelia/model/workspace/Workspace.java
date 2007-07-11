@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.workspace;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 import javax.sql.DataSource;
 
@@ -21,6 +22,13 @@ import com.thinkparity.ophelia.model.util.ShutdownHook;
  * @version 1.1.2.7
  */
 public interface Workspace {
+
+    /**
+     * Obtain the default character-set for the workspace.
+     * 
+     * @return A <code>Charset</code>.
+     */
+    public Charset getCharset();
 
     /**
      * Add a shutdown hook to the workspace.

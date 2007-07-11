@@ -4,8 +4,11 @@
 package com.thinkparity.ophelia.model.container.export;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -39,9 +42,19 @@ final class PDFXMLWriter {
     /** A localization bundle. */
     private static final ResourceBundle BUNDLE;
 
+    /** A <code>FuzzyDateFormat</code>. */
+    private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
+
     static {
         BUNDLE = ResourceBundle.getBundle("localization/AuditReport_Messages");
     }
+
+    static {
+        FUZZY_DATE_FORMAT = new FuzzyDateFormat();
+    }
+
+    /** The character-set to use when encoding the xml. */
+    private final Charset charset;
 
     /** A <code>Container</code>. */
     private Container container;
@@ -71,9 +84,6 @@ final class PDFXMLWriter {
     /** The first version <code>ContainerVersion</code>. */
     private ContainerVersion firstVersion;
 
-    /** A <code>FuzzyDateFormat</code>. */
-    private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
-
     /** The latest version <code>ContainerVersion</code>. */
     private ContainerVersion latestVersion;
 
@@ -102,18 +112,15 @@ final class PDFXMLWriter {
      */
     private final Map<ContainerVersion, User> versionsPublishedBy;
 
-    static {
-        FUZZY_DATE_FORMAT = new FuzzyDateFormat();
-    }
-
     /**
      * Create XMLWriter.
      * 
      * @param exportFileSystem
      *            An export <code>FileSystem</code>.
      */
-    public PDFXMLWriter(final FileSystem exportFileSystem) {
+    public PDFXMLWriter(final Charset charset, final FileSystem exportFileSystem) {
        super();
+       this.charset = charset;
        this.deltas = new HashMap<ContainerVersion, Map<DocumentVersion, Delta>>();
        this.documents = new HashMap<ContainerVersion, List<DocumentVersion>>();
        this.documentsSize = new HashMap<DocumentVersion, Long>();
@@ -214,11 +221,23 @@ final class PDFXMLWriter {
         xstream.alias("teamMember", PDFXMLTeamMember.class);
         xstream.alias("localization", PDFXMLLocalization.class);
 
-        final FileWriter fileWriter = newFileWriter(path);
+        // locate the file within the file-system
+        final File file;
+        if (null == exportFileSystem.find(path)) {
+            file = exportFileSystem.createFile(path);
+        } else {
+            file = exportFileSystem.findFile(path);
+        }
+        final OutputStream stream = new FileOutputStream(file);
         try {
-            xstream.toXML(createPDFExportXML(xstream), fileWriter);
+            final OutputStreamWriter writer = new OutputStreamWriter(stream, charset);
+            xstream.toXML(createPDFExportXML(xstream), writer);
         } finally {
-            fileWriter.close();
+            try {
+                stream.flush();
+            } finally {
+                stream.close();
+            }
         }
     }
 
@@ -319,19 +338,6 @@ final class PDFXMLWriter {
     }
 
     /**
-     * Create the document summary xml.
-     * 
-     * @param version
-     *            A <code>DocumentVersion</code>.
-     * @return An instance of <code>PDFXMLDocument</code>.
-     */
-    private PDFXMLDocumentSummary createPDFXMLDocumentSummary(final DocumentVersion version) {
-        final PDFXMLDocumentSummary pdfXML = new PDFXMLDocumentSummary();
-        pdfXML.name = version.getArtifactName();
-        return pdfXML;
-    }
-
-    /**
      * Create the document summary list xml for a container.
      * 
      * @param latestVersion
@@ -343,6 +349,19 @@ final class PDFXMLWriter {
         for (final DocumentVersion documentVersion : documents.get(latestVersion)) {
             pdfXML.add(createPDFXMLDocumentSummary(documentVersion));
         }
+        return pdfXML;
+    }
+
+    /**
+     * Create the document summary xml.
+     * 
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @return An instance of <code>PDFXMLDocument</code>.
+     */
+    private PDFXMLDocumentSummary createPDFXMLDocumentSummary(final DocumentVersion version) {
+        final PDFXMLDocumentSummary pdfXML = new PDFXMLDocumentSummary();
+        pdfXML.name = version.getArtifactName();
         return pdfXML;
     }
 
@@ -472,6 +491,19 @@ final class PDFXMLWriter {
     /**
      * Create the container version summary xml.
      * 
+     * @return A <code>List</code> of <code>PDFXMLContainerVersionSummary</code>.
+     */
+    private List<PDFXMLContainerVersionSummary> createPDFXMLVersionSummaries() {
+        final List<PDFXMLContainerVersionSummary> pdfXML = new ArrayList<PDFXMLContainerVersionSummary>(versions.size());
+        for (int i = 0; i < versions.size(); i++) {
+            pdfXML.add(createPDFXMLVersionSummary(versions.get(i), versions.size() - i));
+        }
+        return pdfXML;
+    }
+
+    /**
+     * Create the container version summary xml.
+     * 
      * @param version
      *            A <code>ContainerVersion</code>.
      * @param versionId
@@ -486,19 +518,6 @@ final class PDFXMLWriter {
         pdfXML.publishedBy = versionsPublishedBy.get(version).getName();
         pdfXML.publishedOn = format(version.getCreatedOn());
         pdfXML.versionId = format(versionId);
-        return pdfXML;
-    }
-
-    /**
-     * Create the container version summary xml.
-     * 
-     * @return A <code>List</code> of <code>PDFXMLContainerVersionSummary</code>.
-     */
-    private List<PDFXMLContainerVersionSummary> createPDFXMLVersionSummaries() {
-        final List<PDFXMLContainerVersionSummary> pdfXML = new ArrayList<PDFXMLContainerVersionSummary>(versions.size());
-        for (int i = 0; i < versions.size(); i++) {
-            pdfXML.add(createPDFXMLVersionSummary(versions.get(i), versions.size() - i));
-        }
         return pdfXML;
     }
 
@@ -609,22 +628,6 @@ final class PDFXMLWriter {
             return version.getName();
         } else {
             return MessageFormat.format("{0}", format(version.getCreatedOn()));
-        }
-    }
-
-    /**
-     * Create an xml file writer at the given path.
-     * 
-     * @param path
-     *            A path <code>String</code> within the export file system.
-     * @return A <code>FileWriter</code>.
-     * @throws IOException
-     */
-    private FileWriter newFileWriter(final String path) throws IOException {
-        if (null == exportFileSystem.find(path)) {
-            return new FileWriter(exportFileSystem.createFile(path));
-        } else {
-            return new FileWriter(exportFileSystem.findFile(path));
         }
     }
 

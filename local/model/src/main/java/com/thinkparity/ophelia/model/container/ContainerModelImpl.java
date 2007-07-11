@@ -3485,7 +3485,8 @@ public final class ContainerModelImpl extends
                 "images/PDFFooter.jpg");
 
         // generate a pdf
-        final PDFWriter pdfWriter = new PDFWriter(fileSystem);
+        final PDFWriter pdfWriter = new PDFWriter(workspace.getCharset(),
+                fileSystem);
         pdfWriter.write(path, resources, container,
                 readUser(container.getCreatedBy()),
                 readLatestVersion(container.getId()), versions,

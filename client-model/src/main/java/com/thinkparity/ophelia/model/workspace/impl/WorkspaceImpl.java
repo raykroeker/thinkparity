@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.workspace.impl;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -273,7 +274,7 @@ public final class WorkspaceImpl implements Workspace {
             bufferLock = new Object();
         }
         return bufferLock;
-    }            
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getBufferSize()
@@ -282,6 +283,14 @@ public final class WorkspaceImpl implements Workspace {
     public Integer getBufferSize() {
         // BUFFER - 2MB - WorkspaceImpl#getBufferSize()
         return 1024 * 1024 * 2;
+    }            
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getCharset()
+     *
+     */
+    public Charset getCharset() {
+        return StringUtil.Charset.UTF_8.getCharset();
     }
 
     /**

@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -53,15 +54,15 @@ public final class PDFWriter  {
     /**
      * Create PDFWriter.
      * 
-     * @param impl
-     *            A <code>ContainerModelImpl</code>.
+     * @param charset
+     *            A <code>Charset</code>.
      * @param exportFileSystem
      *            An export <code>FileSystem</code>.
      */
-    public PDFWriter(final FileSystem exportFileSystem) {
+    public PDFWriter(final Charset charset, final FileSystem exportFileSystem) {
         super();
         this.exportFileSystem = exportFileSystem;
-        this.xmlWriter = new PDFXMLWriter(exportFileSystem);
+        this.xmlWriter = new PDFXMLWriter(charset, exportFileSystem);
     }
 
     /**

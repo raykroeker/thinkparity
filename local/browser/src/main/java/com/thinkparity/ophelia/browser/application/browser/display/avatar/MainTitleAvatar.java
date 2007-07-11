@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.GradientPainter;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.Constants.Colors.Browser;
@@ -80,7 +81,11 @@ public final class MainTitleAvatar extends Avatar {
      */
     @Override
     public void reload() {
-        reloadTab();
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                reloadTab();   
+            }
+        });
     }
 
     /**

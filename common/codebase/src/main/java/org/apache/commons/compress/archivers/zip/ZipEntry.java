@@ -190,7 +190,7 @@ public class ZipEntry
     private static void performSetCompressedSize( final ZipEntry entry,
                                                   final long size )
     {
-        final Long[] s = {new Long( size )};
+        final Object[] s = {new Long( size )};
         try
         {
             c_setCompressedSizeMethod.invoke( entry, s );
@@ -268,6 +268,7 @@ public class ZipEntry
      * @param fields The new ExtraFields value
      * @since 1.1
      */
+    @SuppressWarnings("unchecked")
     public void setExtraFields( final ZipExtraField[] fields )
     {
         m_extraFields.clear();
@@ -333,6 +334,7 @@ public class ZipEntry
      * @return The ExtraFields value
      * @since 1.1
      */
+    @SuppressWarnings("unchecked")
     public ZipExtraField[] getExtraFields()
     {
         final ZipExtraField[] result = new ZipExtraField[ m_extraFields.size() ];
@@ -369,6 +371,7 @@ public class ZipEntry
      * @param extraField The feature to be added to the ExtraField attribute
      * @since 1.1
      */
+    @SuppressWarnings("unchecked")
     public void addExtraField( final ZipExtraField extraField )
     {
         final ZipShort type = extraField.getHeaderID();

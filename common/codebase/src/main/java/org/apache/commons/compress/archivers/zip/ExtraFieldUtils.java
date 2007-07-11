@@ -135,6 +135,7 @@ public class ExtraFieldUtils
      * @exception ZipException on error
      * @since 1.1
      */
+    @SuppressWarnings("unchecked")
     public static ZipExtraField[] parse( final byte[] data )
         throws ZipException
     {
@@ -182,6 +183,7 @@ public class ExtraFieldUtils
      * @param clazz The Class for particular implementation
      * @since 1.1
      */
+    @SuppressWarnings("unchecked")
     public static void register( final Class clazz )
     {
         try

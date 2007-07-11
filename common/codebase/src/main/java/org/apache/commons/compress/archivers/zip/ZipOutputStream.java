@@ -404,6 +404,7 @@ class ZipOutputStream
      * @throws IOException if an IO failure causes operation to fail
      * @since 1.1
      */
+    @SuppressWarnings("unchecked")
     public void putNextEntry( final ZipEntry entry )
         throws IOException
     {
@@ -656,6 +657,7 @@ class ZipOutputStream
      * @exception IOException when an IO error causes operation to fail
      * @since 1.1
      */
+    @SuppressWarnings("unchecked")
     protected void writeLocalFileHeader( final ZipEntry entry )
         throws IOException
     {

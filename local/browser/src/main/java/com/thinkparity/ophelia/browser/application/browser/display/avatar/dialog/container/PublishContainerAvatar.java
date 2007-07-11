@@ -945,7 +945,7 @@ public final class PublishContainerAvatar extends Avatar implements
      *            The busy <code>Boolean</code>.
      */
     private void showBusyCursor(final Boolean busy) {
-        final java.awt.Cursor cursor = Cursor.getPredefinedCursor(busy ? Cursor.WAIT_CURSOR : Cursor.DEFAULT_CURSOR);
+        final java.awt.Cursor cursor = busy ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
         SwingUtil.setCursor(this, cursor);
         // NOTE Setting the cursor on the Avatar does not automatically
         // set the cursor on these subcomponents

@@ -237,7 +237,7 @@ public final class WebService extends HttpServlet {
      * @return A <code>Writer</code>.
      */
     private static Writer newStreamWriter(final OutputStream stream) {
-        return new BufferedWriter(new OutputStreamWriter(stream));
+        return new BufferedWriter(new OutputStreamWriter(stream, CHARSET));
     }
 
     /**

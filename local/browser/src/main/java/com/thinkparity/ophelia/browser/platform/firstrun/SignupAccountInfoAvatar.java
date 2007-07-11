@@ -25,7 +25,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.swing.SwingUtil;
-import com.thinkparity.codebase.swing.text.JTextComponentLengthFilter;
+import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.ProfileConstraints;
@@ -479,8 +479,8 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
 
         learnMoreJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.LearnMore"));
         learnMoreJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                learnMoreJLabelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                learnMoreJLabelMousePressed(evt);
             }
         });
 
@@ -494,7 +494,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         emailJTextField.setMaximumSize(new java.awt.Dimension(300, 2147483647));
         emailJTextField.setMinimumSize(new java.awt.Dimension(300, 20));
         emailJTextField.setPreferredSize(new java.awt.Dimension(300, 20));
-        ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getEmail()));
+        ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getEmail()));
 
         usernameJLabel.setFont(Fonts.DialogFont);
         usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.UsernameLabel"));
@@ -503,7 +503,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         usernameJTextField.setMaximumSize(new java.awt.Dimension(300, 2147483647));
         usernameJTextField.setMinimumSize(new java.awt.Dimension(300, 20));
         usernameJTextField.setPreferredSize(new java.awt.Dimension(300, 20));
-        ((AbstractDocument) usernameJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getUsername()));
+        ((AbstractDocument) usernameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getUsername()));
 
         passwordJLabel.setFont(Fonts.DialogFont);
         passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.PasswordLabel"));
@@ -512,7 +512,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         passwordJPasswordField.setMaximumSize(new java.awt.Dimension(300, 2147483647));
         passwordJPasswordField.setMinimumSize(new java.awt.Dimension(300, 20));
         passwordJPasswordField.setPreferredSize(new java.awt.Dimension(300, 20));
-        ((AbstractDocument) passwordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));
+        ((AbstractDocument) passwordJPasswordField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getPassword()));
 
         confirmPasswordJLabel.setFont(Fonts.DialogFont);
         confirmPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.ConfirmPasswordLabel"));
@@ -521,7 +521,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         confirmPasswordJPasswordField.setMaximumSize(new java.awt.Dimension(300, 2147483647));
         confirmPasswordJPasswordField.setMinimumSize(new java.awt.Dimension(300, 20));
         confirmPasswordJPasswordField.setPreferredSize(new java.awt.Dimension(300, 20));
-        ((AbstractDocument) confirmPasswordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));
+        ((AbstractDocument) confirmPasswordJPasswordField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getPassword()));
 
         securityTitleJLabel.setFont(Fonts.DialogFont);
         securityTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.AccountInfo.SecurityTitle"));
@@ -536,7 +536,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         securityQuestionJComboBox.setMinimumSize(new java.awt.Dimension(300, 18));
         securityQuestionJComboBox.setPreferredSize(new java.awt.Dimension(300, 20));
         if (null != getSecurityQuestionDocument()) {
-            ((AbstractDocument) getSecurityQuestionDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getSecurityQuestion()));
+            ((AbstractDocument) getSecurityQuestionDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getSecurityQuestion()));
         }
 
         securityAnswerJLabel.setFont(Fonts.DialogFont);
@@ -546,7 +546,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         securityAnswerJTextField.setMaximumSize(new java.awt.Dimension(300, 2147483647));
         securityAnswerJTextField.setMinimumSize(new java.awt.Dimension(300, 20));
         securityAnswerJTextField.setPreferredSize(new java.awt.Dimension(300, 20));
-        ((AbstractDocument) securityAnswerJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getSecurityAnswer()));
+        ((AbstractDocument) securityAnswerJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getSecurityAnswer()));
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);

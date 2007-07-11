@@ -25,19 +25,19 @@
                       <EmptySpace min="-2" pref="260" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="versionNameJSeparator" pref="362" max="32767" attributes="0"/>
+                      <Component id="versionNameJSeparator" pref="364" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="teamMembersJLabel" pref="362" max="32767" attributes="1"/>
+                      <Component id="teamMembersJLabel" pref="364" max="32767" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="contactsJLabel" pref="362" max="32767" attributes="1"/>
+                      <Component id="contactsJLabel" pref="364" max="32767" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="emailsJLabel" pref="362" max="32767" attributes="1"/>
+                      <Component id="emailsJLabel" pref="364" max="32767" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
@@ -124,7 +124,7 @@
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="((AbstractDocument) versionNameJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(containerConstraints.getVersionName()));"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="((AbstractDocument) versionNameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(containerConstraints.getVersionName()));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -261,7 +261,7 @@
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="((AbstractDocument) emailsJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(containerConstraints.getEMails()));"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="((AbstractDocument) emailsJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(containerConstraints.getEMails()));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -285,7 +285,7 @@
                           <Component id="cancelJButton" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="fillerJLabel" pref="279" max="32767" attributes="0"/>
+                          <Component id="fillerJLabel" pref="283" max="32767" attributes="0"/>
                           <EmptySpace min="-2" pref="71" max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -370,8 +370,8 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="publishJProgressBar" alignment="0" pref="362" max="32767" attributes="0"/>
-              <Component id="statusJLabel" alignment="0" pref="362" max="32767" attributes="0"/>
+              <Component id="publishJProgressBar" alignment="0" pref="364" max="32767" attributes="0"/>
+              <Component id="statusJLabel" alignment="0" pref="364" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">

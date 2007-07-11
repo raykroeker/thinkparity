@@ -13,7 +13,7 @@ import javax.swing.text.AbstractDocument;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
-import com.thinkparity.codebase.swing.text.JTextComponentLengthFilter;
+import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.ProfileConstraints;
@@ -265,7 +265,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
         usernameJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
         usernameJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
         usernameJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
-        ((AbstractDocument) usernameJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getUsername()));
+        ((AbstractDocument) usernameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getUsername()));
 
         passwordJLabel.setFont(Fonts.DialogFont);
         passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Credentials.Password"));
@@ -274,7 +274,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
         passwordJPasswordField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
         passwordJPasswordField.setMinimumSize(new java.awt.Dimension(275, 20));
         passwordJPasswordField.setPreferredSize(new java.awt.Dimension(275, 20));
-        ((AbstractDocument) passwordJPasswordField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getPassword()));
+        ((AbstractDocument) passwordJPasswordField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getPassword()));
 
         forgotPasswordExplanationJLabel.setFont(Fonts.DialogFont);
         forgotPasswordExplanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Credentials.ExplanationForgetPassword"));

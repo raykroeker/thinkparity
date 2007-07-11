@@ -12,7 +12,7 @@ import javax.swing.text.AbstractDocument;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.SwingUtil;
-import com.thinkparity.codebase.swing.text.JTextComponentLengthFilter;
+import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
 import com.thinkparity.codebase.model.profile.ProfileConstraints;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
@@ -152,7 +152,7 @@ public class VerifyEMailAvatar extends Avatar {
         keyJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("VerifyEMailAvatar.VerificationKey"));
 
         keyJTextField.setFont(Fonts.DialogTextEntryFont);
-        ((AbstractDocument) keyJTextField.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(profileConstraints.getVerifyEmailKey()));
+        ((AbstractDocument) keyJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getVerifyEmailKey()));
         keyJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 keyJTextFieldActionPerformed(evt);

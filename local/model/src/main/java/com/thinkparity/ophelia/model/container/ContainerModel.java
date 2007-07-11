@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.container;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.util.Comparator;
 import java.util.List;
@@ -139,12 +140,12 @@ public interface ContainerModel {
     /**
      * Export a container version to a directory.
      * 
-     * @param outputStream
-     *            An <code>OutputStream</code> to export to.
+     * @param exportRoot
+     *            An export root directory <code>File</code>.
      * @param containerId
      *            A container id <code>Long</code>.
      */
-    public void export(final OutputStream outputStream, final Long containerId);
+    public void export(final File exportRoot, final Long containerId);
 
     /**
      * Export an audit report.

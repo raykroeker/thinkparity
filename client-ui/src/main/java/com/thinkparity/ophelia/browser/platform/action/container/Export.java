@@ -6,9 +6,6 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.text.MessageFormat;
 
 import com.thinkparity.codebase.model.container.Container;
@@ -38,8 +35,8 @@ public class Export extends AbstractBrowserAction {
      *            A <code>Container</code>.
      * @return A directory name <code>String</code>.
      */
-    private static String exportFileName(final Container container) {
-        return MessageFormat.format("{0}.zip", container.getName());
+    private static String exportDirectoryName(final Container container) {
+        return MessageFormat.format("{0}", container.getName());
     }
 
     /** The browser application. */
@@ -64,7 +61,7 @@ public class Export extends AbstractBrowserAction {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final ContainerModel containerModel = getContainerModel();
         final Container container = containerModel.read(containerId);
-        final File file = new File(Constants.Directories.USER_DATA, exportFileName(container));
+        final File file = new File(Constants.Directories.USER_DATA, exportDirectoryName(container));
         if (file.exists()) {
             if (browser.confirm("Export.ConfirmOverwrite", new Object[] {file.getName()})) {
                 if (file.delete()) {
@@ -84,29 +81,15 @@ public class Export extends AbstractBrowserAction {
      * 
      * @param containerModel
      *            A <code>ContainerModel</code>.
-     * @param file
-     *            A <code>File</code>.
+     * @param exportRoot
+     *            An export root directory <code>File</code>.
      * @param containerId
      *            A container id <code>Long</code>.
      */
-    private void export(final ContainerModel containerModel, final File file,
-            final Container container) {
-        try {
-            final OutputStream outputStream = new FileOutputStream(file);
-            try {
-                containerModel.export(outputStream, container.getId());
-            } finally {
-                try {
-                    outputStream.flush();
-                } finally {
-                    outputStream.close();
-                }
-            }
-            browser.setStatusLink(new StatusLink(file));
-        } catch (final IOException iox) {
-            browser.displayErrorDialog("Export.CannotExport",
-                    new Object[] {container.getName()});
-        }
+    private void export(final ContainerModel containerModel,
+            final File exportRoot, final Container container) {
+        containerModel.export(exportRoot, container.getId());
+        browser.setStatusLink(new StatusLink(exportRoot));
     }
 
     public enum DataKey { CONTAINER_ID }

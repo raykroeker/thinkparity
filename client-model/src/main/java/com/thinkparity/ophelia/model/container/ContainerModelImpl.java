@@ -17,7 +17,6 @@ import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.Pair;
 import com.thinkparity.codebase.ResourceUtil;
-import com.thinkparity.codebase.ZipUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
@@ -530,16 +529,16 @@ public final class ContainerModelImpl extends
     /**
      * Export a container.
      * 
-     * @param outputStream
-     *            An <code>OutputStream</code> to export to.
+     * @param exportRoot
+     *            An export root directory <code>File</code>.
      * @param containerId
      *            The container id <code>Long</code>.
      */
-    public void export(final OutputStream outputStream, final Long containerId) {
+    public void export(final File exportRoot, final Long containerId) {
         try {
             final Container container = read(containerId);
             final List<ContainerVersion> versions = readVersions(containerId);
-            export(outputStream, container, versions);
+            export(exportRoot, container, versions);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -2814,8 +2813,8 @@ public final class ContainerModelImpl extends
     /**
      * Export a container and a list of versions.
      * 
-     * @param outputStream
-     *            An <code>OutputStream</code>.
+     * @param exportRoot
+     *            An export root directory <code>File</code>.
      * @param container
      *            A <code>Container</code>.
      * @param versions
@@ -2823,28 +2822,16 @@ public final class ContainerModelImpl extends
      * @throws IOException
      * @throws TransformerException
      */
-    private void export(final OutputStream outputStream,
-            final Container container, final List<ContainerVersion> versions)
-            throws IOException, TransformerException {
+    private void export(final File exportRoot, final Container container,
+            final List<ContainerVersion> versions) throws IOException,
+            TransformerException {
         final ContainerNameGenerator nameGenerator = getNameGenerator();
-        final FileSystem exportFileSystem = new FileSystem(
-                workspace.createTempDirectory(
-                        nameGenerator.exportDirectoryName(container)));
-        try {
-            final String reportPath = nameGenerator.pdfFileName(container);
-            writeAuditReport(container, versions, exportFileSystem, reportPath);
-            exportDocuments(container, versions, exportFileSystem, nameGenerator);
-
-            // create an archive
-            final File zipFile = new File(exportFileSystem.getRoot(), container.getName());
-            synchronized (workspace.getBufferLock()) {
-                ZipUtil.createZipFile(zipFile, exportFileSystem.getRoot(),
-                        workspace.getBufferArray());
-            }
-            fileToStream(zipFile, outputStream);
-        } finally {
-            exportFileSystem.deleteTree();
-        }
+        Assert.assertTrue(exportRoot.mkdirs(),
+                "Export root does {0} not exist.", exportRoot);
+        final FileSystem exportFileSystem = new FileSystem(exportRoot);
+        final String reportPath = nameGenerator.pdfFileName(container);
+        writeAuditReport(container, versions, exportFileSystem, reportPath);
+        exportDocuments(container, versions, exportFileSystem, nameGenerator);
     }
 
     /**

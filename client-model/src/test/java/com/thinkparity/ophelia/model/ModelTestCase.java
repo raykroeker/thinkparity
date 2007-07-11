@@ -975,16 +975,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         final Container container = readContainer(exportAs, localContainerId);
         logger.logInfo("Exporting container \"{0}\" as \"{1}\" to \"{2}\".", container.getId(),
                 exportAs.getSimpleUsername(), exportTo);
-        try {
-            final OutputStream exportStream = new FileOutputStream(exportTo);
-            try {
-                getContainerModel(exportAs).export(exportStream, localContainerId);
-            } finally {
-                exportStream.close();
-            }
-        } catch (final IOException iox) {
-            fail("Cannot export {0} as {1}.", exportTo, exportAs.getSimpleUsername());
-        }
+        // HACK - refactor callers
+        getContainerModel(exportAs).export(exportTo.getParentFile(), localContainerId);
     }
 
     /**

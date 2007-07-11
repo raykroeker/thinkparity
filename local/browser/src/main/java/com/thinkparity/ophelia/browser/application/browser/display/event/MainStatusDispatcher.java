@@ -162,6 +162,12 @@ public final class MainStatusDispatcher implements
                 avatar.fireContainerEvent(e);
             }
             @Override
+            public void containerPublished(final ContainerEvent e) {
+                if (e.isRemote()) {
+                    avatar.fireContainerEvent(e);
+                }
+            }
+            @Override
             public void containerReceived(final ContainerEvent e) {
                 avatar.fireContainerEvent(e);
             }

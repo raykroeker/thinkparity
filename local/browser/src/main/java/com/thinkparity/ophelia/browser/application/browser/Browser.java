@@ -35,7 +35,6 @@ import com.thinkparity.ophelia.browser.application.AbstractApplication;
 import com.thinkparity.ophelia.browser.application.browser.display.DisplayId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatarLink;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar.TabId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ConfirmAvatar;
@@ -1632,18 +1631,6 @@ public class Browser extends AbstractApplication {
         final Data data = (Data) ((Data) getMainTitleAvatar().getInput()).clone();
         data.set(MainTitleAvatar.DataKey.TAB_ID, tabId);
         getMainTitleAvatar().setInput(data); 
-    }
-
-    /**
-     * Set a status link.
-     * 
-     * @param link
-     *            A <code>MainStatusAvatarLink</code>.
-     */
-    public void setStatusLink(final MainStatusAvatarLink link) {
-        final Data input = new Data(1);
-        input.set(MainStatusAvatar.DataKey.LINK, link);
-        setInput(AvatarId.MAIN_STATUS, input);
     }
 
     /**

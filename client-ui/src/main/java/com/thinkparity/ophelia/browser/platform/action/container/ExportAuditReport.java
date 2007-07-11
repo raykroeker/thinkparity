@@ -16,7 +16,6 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
 
 import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatarLink;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -72,6 +71,7 @@ public final class ExportAuditReport extends AbstractBrowserAction {
             if (browser.confirm("AuditReport.ConfirmOverwrite", new Object[] {file.getName()})) {
                 if (file.delete()) {
                     exportAuditReport(containerModel, file, container);
+                    openAuditReport(file);
                 } else {
                     browser.displayErrorDialog("AuditReport.CannotDelete",
                             new Object[] {file.getName()});
@@ -105,65 +105,25 @@ public final class ExportAuditReport extends AbstractBrowserAction {
                     outputStream.close();
                 }
             }
-            browser.setStatusLink(new StatusLink(file));
         } catch (final IOException iox) {
             browser.displayErrorDialog("AuditReport.CannotExport",
                     new Object[] {container.getName()});
         }
     }
 
-    public enum DataKey { CONTAINER_ID }
-
     /**
-     * <b>Title:</b>Export Status Link<br>
-     * <b>Description:</b><br>
+     * Open the audit report.
+     * 
+     * @param file
+     *            A <code>File</code>.
      */
-    private class StatusLink implements MainStatusAvatarLink {
-
-        /** The export <code>File</code>. */
-        private final File file;
-
-        /**
-         * Create StatusLink.
-         * 
-         * @param file
-         *            The export <code>File</code>.
-         */
-        private StatusLink(final File file) {
-            super();
-            this.file = file;
-        }
-
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatarLink#getLinkText()
-         *
-         */
-        public String getLinkText() {
-            return file.getName();
-        }
-
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatarLink#getTarget()
-         *
-         */
-        public Runnable getTarget() {
-            return new Runnable() {
-                public void run() {
-                    try {
-                        DesktopUtil.open(file);
-                    } catch (final DesktopException dx) {
-                        logger.logError(dx, "Cannot open file {0}.", file);
-                    }
-                }
-            };
-        }
-
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.MainStatusAvatarLink#getName()
-         *
-         */
-        public String getText() {
-            return getString("StatusLink");
+    private void openAuditReport(final File file) {
+        try {
+            DesktopUtil.open(file);
+        } catch (final DesktopException dx) {
+            logger.logError(dx, "Cannot open file {0}.", file);
         }
     }
+
+    public enum DataKey { CONTAINER_ID }
 }

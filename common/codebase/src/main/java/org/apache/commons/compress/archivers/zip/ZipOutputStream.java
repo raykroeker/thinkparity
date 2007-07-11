@@ -45,7 +45,7 @@ import java.util.zip.ZipException;
  * @author <a href="stefan.bodewig@epost.de">Stefan Bodewig</a>
  * @version $Revision$
  */
-class ZipOutputStream
+public class ZipOutputStream
     extends DeflaterOutputStream
 {
     /**

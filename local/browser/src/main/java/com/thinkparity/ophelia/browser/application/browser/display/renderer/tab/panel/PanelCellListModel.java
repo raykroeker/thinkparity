@@ -155,13 +155,13 @@ public class PanelCellListModel implements PanelSelectionManager{
         listManager.initialize(cells);
         installDataListener();
         if (isSavedSelectedCell()) {
-            setSelectedCell(getSavedSelectedCell());
+            setSelectedCell(getSavedSelectedCell(), Boolean.FALSE);
         } else {
             int initialSelectedIndex = DEFAULT_SELECTED_ROW_START;
             if (initialSelectedIndex >= cells.size()) {
                 initialSelectedIndex = 0;
             }
-            setSelectedIndex(initialSelectedIndex);
+            setSelectedIndex(initialSelectedIndex, Boolean.FALSE);
         }
         tabPanel.panelCellSelectionChanged(getSelectedCell());
     }
@@ -199,29 +199,17 @@ public class PanelCellListModel implements PanelSelectionManager{
      *            A <code>Cell</code>.  
      */
     public void setSelectedCell(final Cell cell) {
-        final int page = listManager.getPageContainingCell(cell);
-        if (0 <= page) {
-            listManager.showPage(page);
-        }
-        setSelectedIndex(listModel.indexOf(cell));
+        setSelectedCell(cell, Boolean.TRUE);
     }
 
     /**
      * Select the cell by index.
-     * NOTE All cell selection goes through this method.
      * 
      * @param selectedIndex
      *            The selected index <code>int</code>.  
      */
     public void setSelectedIndex(final int selectedIndex) {
-        final int oldSelectedIndex = this.selectedIndex;
-        this.selectedIndex = selectedIndex;
-        if (oldSelectedIndex != selectedIndex && !isSelectionEmpty()) {
-            final Cell selectedCell = getSelectedCell();
-            tabPanel.panelCellSelectionChanged(selectedCell);
-            saveSelectedCell(selectedCell);
-        }
-        selectPanel();
+        setSelectedIndex(selectedIndex, Boolean.TRUE);
     }
 
     /**
@@ -280,7 +268,7 @@ public class PanelCellListModel implements PanelSelectionManager{
                  * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
                  */
                 public void intervalRemoved(final ListDataEvent e) {
-                    setSelectedIndex(-1);
+                    setSelectedIndex(-1, Boolean.FALSE);
                 } 
             };
             listModel.addListDataListener(listener);
@@ -298,6 +286,16 @@ public class PanelCellListModel implements PanelSelectionManager{
     }
 
     /**
+     * Remove the data listener.
+     */
+    private void removeDataListener() {
+        final ListDataListener listener = getSavedListDataListener();
+        if (null != listener) {
+            listModel.removeListDataListener(listener);
+        }
+    }
+
+    /**
      * Save the list data listener.
      * 
      * @param listDataListener
@@ -307,16 +305,6 @@ public class PanelCellListModel implements PanelSelectionManager{
         tabPanel.setAttribute(MessageFormat.format(
                 SK_LIST_DATA_LISTENER_PATTERN, tabPanel.getId(), listName),
                 listDataListener);
-    }
-
-    /**
-     * Remove the data listener.
-     */
-    private void removeDataListener() {
-        final ListDataListener listener = getSavedListDataListener();
-        if (null != listener) {
-            listModel.removeListDataListener(listener);
-        }
     }
 
     /**
@@ -352,6 +340,46 @@ public class PanelCellListModel implements PanelSelectionManager{
         if (initialSelectedIndex >= listModel.size()) {
             initialSelectedIndex = 0;
         }
-        setSelectedIndex(initialSelectedIndex);
+        setSelectedIndex(initialSelectedIndex, Boolean.FALSE);
+    }
+
+    /**
+     * Select a cell.
+     * 
+     * @param cell
+     *            A <code>Cell</code>.
+     * @param selectPanel
+     *            A <code>Boolean</code>, true if select the panel too.  
+     */
+    private void setSelectedCell(final Cell cell,
+            final Boolean selectPanel) {
+        final int page = listManager.getPageContainingCell(cell);
+        if (0 <= page) {
+            listManager.showPage(page);
+        }
+        setSelectedIndex(listModel.indexOf(cell), selectPanel);
+    }
+
+    /**
+     * Select the cell by index.
+     * NOTE All cell selection goes through this method.
+     * 
+     * @param selectedIndex
+     *            The selected index <code>int</code>. 
+     * @param selectPanel
+     *            A <code>Boolean</code>, true if select the panel too.  
+     */
+    private void setSelectedIndex(final int selectedIndex,
+            final Boolean selectPanel) {
+        final int oldSelectedIndex = this.selectedIndex;
+        this.selectedIndex = selectedIndex;
+        if (oldSelectedIndex != selectedIndex && !isSelectionEmpty()) {
+            final Cell selectedCell = getSelectedCell();
+            tabPanel.panelCellSelectionChanged(selectedCell);
+            saveSelectedCell(selectedCell);
+        }
+        if (selectPanel) {
+            selectPanel();
+        }
     }
 }

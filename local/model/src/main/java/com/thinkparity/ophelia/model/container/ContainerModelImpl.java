@@ -3484,6 +3484,7 @@ public final class ContainerModelImpl extends
          * closing the stream within its class
          * @see org.apache.fop.image.JpegImage#loadImage() */
         Runtime.getRuntime().gc();
+        Runtime.getRuntime().runFinalization();
 
         // delete the temporary image resources
         FileUtil.deleteTree(fileSystem.findDirectory("images"));

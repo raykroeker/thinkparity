@@ -76,6 +76,7 @@ public class Export extends AbstractBrowserAction {
             }
         } else {
             export(containerModel, file, container);
+            openExportRoot(file);
         }
     }
 

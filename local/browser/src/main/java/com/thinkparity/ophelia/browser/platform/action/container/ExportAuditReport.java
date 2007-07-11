@@ -79,6 +79,7 @@ public final class ExportAuditReport extends AbstractBrowserAction {
             }
         } else {
             exportAuditReport(containerModel, file, container);
+            openAuditReport(file);
         }
     }
 

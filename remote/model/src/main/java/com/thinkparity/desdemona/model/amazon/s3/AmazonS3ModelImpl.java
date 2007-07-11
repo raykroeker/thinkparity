@@ -140,6 +140,7 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
         case DEVELOPMENT_LOCALHOST:
             return "development.thinkparity";
         case DEVELOPMENT_TESTING:
+        case DEVELOPMENT_TESTING_LOCALHOST:
             return "development_testing.thinkparity";
         case PRODUCTION:
             return "thinkparity";

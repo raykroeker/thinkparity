@@ -199,6 +199,7 @@ public abstract class NotificationClient {
     private void connectImpl() throws IOException {
         socket = SOCKET_FACTORY.createSocket(
                 socketAddress.getAddress(), socketAddress.getPort());
+        socket.setKeepAlive(true);
         input = socket.getInputStream();
         output = socket.getOutputStream();
     }

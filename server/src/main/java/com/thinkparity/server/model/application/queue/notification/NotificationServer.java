@@ -116,12 +116,12 @@ final class NotificationServer {
         Assert.assertNotNull("Session id is null.", session.getId());
         Assert.assertNotNull("Session server host is null.", session.getServerHost());
         Assert.assertNotNull("Session server port is null.", session.getServerPort());
-        final String existingSessionId;
+        final String sessionId;
         synchronized (SESSIONS) {
-            existingSessionId = USER_SESSION_LOOKUP.get(user.getId());
+            sessionId = USER_SESSION_LOOKUP.get(user.getLocalId());
         }
-        if (null != existingSessionId) {
-            removeSession(existingSessionId);
+        if (null != sessionId) {
+            removeSession(sessionId);
         }
         synchronized (SESSIONS) {
             SESSIONS.put(session.getId(), session);

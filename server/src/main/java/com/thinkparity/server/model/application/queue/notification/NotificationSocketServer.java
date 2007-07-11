@@ -124,7 +124,7 @@ class NotificationSocketServer implements Runnable {
                 }
                 // start delegate
                 try {
-                    final NotificationSocketDelegate delegate = new NotificationSocketDelegate(server, clientSockets.peek());
+                    final NotificationSocketDelegate delegate = newDelegate();
                     // THREAD - NotificationSocketServer#run()
                     new Thread(delegate, "TPS-DesdemonaModel-NSDelegate-" + delegate.getRemoteAddress()).start();
                 } catch (final Throwable t) {
@@ -199,5 +199,17 @@ class NotificationSocketServer implements Runnable {
             }
         }
         logger.logInfo("Notification socket server stopped.");
+    }
+
+    /**
+     * Create a notification socket delegate.
+     * 
+     * @return A <code>NotificationSocketDelegate</code>.
+     * @throws SocketException
+     */
+    private NotificationSocketDelegate newDelegate() throws SocketException {
+        final Socket clientSocket = clientSockets.peek();
+        clientSocket.setKeepAlive(true);
+        return new NotificationSocketDelegate(server, clientSocket);
     }
 }

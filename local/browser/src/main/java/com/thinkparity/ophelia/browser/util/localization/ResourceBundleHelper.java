@@ -89,7 +89,7 @@ public class ResourceBundleHelper {
 		try {
             return bundle.getString(qualifiedKey);
         } catch (final MissingResourceException mrx) {
-			logger.logWarning("Missing localization key {0} in bundle {1}.",
+			logger.logInfo("Missing localization key {0} in bundle {1}.",
                     qualifiedKey, bundle);
 			return "!" + qualifiedKey + "!";
 		}

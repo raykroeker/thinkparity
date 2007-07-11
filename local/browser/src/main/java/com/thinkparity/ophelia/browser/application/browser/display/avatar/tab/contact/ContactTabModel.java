@@ -713,6 +713,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         panel.setPanelData(contact, locale, availableLocales);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
+        panel.setSelected(isSelected(panel));
         panel.setTabDelegate(this);
         return panel;
     }
@@ -730,6 +731,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         panel.setPanelData(invitation);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
+        panel.setSelected(isSelected(panel));
         panel.setTabDelegate(this);
         return panel;
     }
@@ -747,6 +749,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         panel.setPanelData(invitation);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
+        panel.setSelected(isSelected(panel));
         panel.setTabDelegate(this);
         return panel;
     }
@@ -764,6 +767,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         panel.setPanelData(invitation);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
+        panel.setSelected(isSelected(panel));
         panel.setTabDelegate(this);
         return panel;
     }
@@ -781,6 +785,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         panel.setPanelData(invitation);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
+        panel.setSelected(isSelected(panel));
         panel.setTabDelegate(this);
         return panel;
     }

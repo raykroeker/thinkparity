@@ -8,6 +8,8 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 import java.io.File;
 import java.text.MessageFormat;
 
+import com.thinkparity.codebase.FileUtil;
+
 import com.thinkparity.codebase.model.container.Container;
 
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -64,9 +66,10 @@ public class Export extends AbstractBrowserAction {
         final File file = new File(Constants.Directories.USER_DATA, exportDirectoryName(container));
         if (file.exists()) {
             if (browser.confirm("Export.ConfirmOverwrite", new Object[] {file.getName()})) {
-                if (file.delete()) {
+                try {
+                    FileUtil.deleteTree(file);
                     export(containerModel, file, container);
-                } else {
+                } catch (final Throwable t) {
                     browser.displayErrorDialog("Export.CannotDelete",
                             new Object[] {file.getName()});
                 }

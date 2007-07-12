@@ -35,7 +35,7 @@ class ModelInvocationMetrics {
      * @param context
      *            A <code>Method</code> context.
      */
-    static void begin(final Method context) {
+    static synchronized void begin(final Method context) {
         MEASURES.put(context, captureMeasure());
     }
 
@@ -45,7 +45,7 @@ class ModelInvocationMetrics {
      * @param context
      *            A <code>Method</code> context.
      */
-    static void end(final Method context) {
+    static synchronized void end(final Method context) {
         final Measure begin = MEASURES.remove(context);
         final Measure end = captureMeasure();
         final StringBuffer id = new StringBuffer(context.getDeclaringClass().getSimpleName())

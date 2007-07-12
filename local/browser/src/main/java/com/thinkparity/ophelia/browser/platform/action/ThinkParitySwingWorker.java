@@ -67,6 +67,8 @@ public abstract class ThinkParitySwingWorker<T extends AbstractAction> extends S
 		try {
 			return run();
 		} catch (final Throwable t) {
+            action.logger.logError(t, "An error occured invoking {0}.",
+                    action.getName());
 			getErrorHandler(t).run();
 			return null;
 		}

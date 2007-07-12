@@ -263,8 +263,7 @@ public interface ContainerModel {
      *            A <code>TeamMember</code> <code>List</code>.
      */
     @ThinkParityOnline
-    public void publishVersion(final ProcessMonitor monitor,
-            final Long containerId, final Long versionId,
+    public void publishVersion(final Long containerId, final Long versionId,
             final List<EMail> emails, final List<Contact> contacts,
             final List<TeamMember> teamMembers);
 

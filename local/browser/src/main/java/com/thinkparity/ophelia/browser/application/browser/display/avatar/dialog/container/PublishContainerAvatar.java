@@ -713,10 +713,9 @@ public final class PublishContainerAvatar extends Avatar implements
                     versionName, emails, contacts, teamMembers);
             break;
         case PUBLISH_VERSION:
-            showBusyIndicators(Boolean.TRUE);
-            final Long versionId = getInputVersionId();
-            getController().runPublishContainerVersion(createMonitor(),
-                    containerId, versionId, emails, contacts, teamMembers);
+            disposeWindow();
+            getController().runPublishContainerVersion(containerId,
+                    getInputVersionId(), emails, contacts, teamMembers);
             break;
         default:
             Assert.assertUnreachable("Unknown publish type.");
@@ -1015,7 +1014,6 @@ public final class PublishContainerAvatar extends Avatar implements
             } else {
                 return null;
             }
-                
         }
 
         public User getUser() {

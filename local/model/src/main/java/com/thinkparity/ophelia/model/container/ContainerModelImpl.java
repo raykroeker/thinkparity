@@ -928,8 +928,7 @@ public final class ContainerModelImpl extends
      * @param contacts
      *            A contact <code>List</code>.
      */
-    public void publishVersion(final ProcessMonitor monitor,
-            final Long containerId, final Long versionId,
+    public void publishVersion(final Long containerId, final Long versionId,
             final List<EMail> emails, final List<Contact> contacts,
             final List<TeamMember> teamMembers) {
         try {
@@ -938,7 +937,6 @@ public final class ContainerModelImpl extends
             delegate.setContacts(contacts);
             delegate.setContainerId(containerId);
             delegate.setEmails(emails);
-            delegate.setMonitor(monitor);
             delegate.setTeamMembers(teamMembers);
             delegate.setVersionId(versionId);
             delegate.publishVersion();
@@ -953,8 +951,6 @@ public final class ContainerModelImpl extends
                     localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
-        } finally {
-            notifyProcessEnd(monitor);
         }
     }
 

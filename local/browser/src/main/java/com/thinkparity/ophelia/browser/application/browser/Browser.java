@@ -1377,9 +1377,6 @@ public class Browser extends AbstractApplication {
     /**
      * Run the publish container version action.
      * 
-     * @param monitor
-     *            A <code>ThinkParitySwingMonitor</code> for updating the
-     *            dialogue for the long-running action.
      * @param containerId
      *            A container id <code>Long</code>.
      * @param versionId
@@ -1391,8 +1388,7 @@ public class Browser extends AbstractApplication {
      * @param teamMembers
      *            A <code>List</code> of <code>TeamMember</code>s.
      */
-    public void runPublishContainerVersion(
-            final ThinkParitySwingMonitor monitor, final Long containerId,
+    public void runPublishContainerVersion(final Long containerId,
             final Long versionId, final List<EMail> emails,
             final List<Contact> contacts, final List<TeamMember> teamMembers) {
         final Data data = new Data(7);
@@ -1400,7 +1396,6 @@ public class Browser extends AbstractApplication {
         data.set(PublishVersion.DataKey.CONTACTS, contacts);
         data.set(PublishVersion.DataKey.CONTAINER_ID, containerId);
         data.set(PublishVersion.DataKey.EMAILS, emails);
-        data.set(PublishVersion.DataKey.MONITOR, monitor);
         data.set(PublishVersion.DataKey.TEAM_MEMBERS, teamMembers);
         data.set(PublishVersion.DataKey.VERSION_ID, versionId);
         SwingUtilities.invokeLater(new Runnable() {
@@ -1409,7 +1404,7 @@ public class Browser extends AbstractApplication {
             }
         });
     }
-    
+
     /**
      * Run the open contact action.
      * 

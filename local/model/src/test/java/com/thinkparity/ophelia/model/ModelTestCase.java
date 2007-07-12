@@ -1558,8 +1558,8 @@ public abstract class ModelTestCase extends OpheliaTestCase {
                 fail("Cannot publish to nobody.");
             }
         }
-        getContainerModel(publishAs).publishVersion(PUBLISH_MONITOR,
-                localContainerId, versionId, emails, contacts, teamMembers);
+        getContainerModel(publishAs).publishVersion(localContainerId,
+                versionId, emails, contacts, teamMembers);
     }
 
     /**

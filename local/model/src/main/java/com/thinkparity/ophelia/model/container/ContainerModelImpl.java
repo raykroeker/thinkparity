@@ -1103,27 +1103,31 @@ public final class ContainerModelImpl extends
             // the two versions exist
             final ContainerVersionDelta delta = containerIO.readDelta(
                     containerId, compareVersionId, compareToVersionId);
-            for (final ContainerVersionArtifactVersionDelta artifactDelta :
-                delta.getDeltas()) {
-                /* HACK - ContainerModelImpl#readDocumentVersionDeltas - if
-                 * this is indeed the case the delta information in the db
-                 * should be updated as opposed to modifying the return info */
-                // if a document was removed and then re-added it is considered modified
-                final Delta existingDelta = deltas.get(documentIO.getVersion(artifactDelta.getArtifactId(),
-                        artifactDelta.getArtifactVersionId()));
-                if ((null != existingDelta) &&
-                        ((Delta.REMOVED==existingDelta && Delta.ADDED==artifactDelta.getDelta()) ||
-                        (Delta.ADDED==existingDelta && Delta.REMOVED==artifactDelta.getDelta()))) {
-                    deltas.put(documentIO.getVersion(artifactDelta.getArtifactId(),
-                            artifactDelta.getArtifactVersionId()),
-                            Delta.MODIFIED);
-                } else {
-                    deltas.put(documentIO.getVersion(artifactDelta.getArtifactId(),
-                            artifactDelta.getArtifactVersionId()),
-                            artifactDelta.getDelta());
+            if (null == delta) {
+                return Collections.emptyMap();
+            } else {
+                for (final ContainerVersionArtifactVersionDelta artifactDelta :
+                    delta.getDeltas()) {
+                    /* HACK - ContainerModelImpl#readDocumentVersionDeltas - if
+                     * this is indeed the case the delta information in the db
+                     * should be updated as opposed to modifying the return info */
+                    // if a document was removed and then re-added it is considered modified
+                    final Delta existingDelta = deltas.get(documentIO.getVersion(artifactDelta.getArtifactId(),
+                            artifactDelta.getArtifactVersionId()));
+                    if ((null != existingDelta) &&
+                            ((Delta.REMOVED==existingDelta && Delta.ADDED==artifactDelta.getDelta()) ||
+                            (Delta.ADDED==existingDelta && Delta.REMOVED==artifactDelta.getDelta()))) {
+                        deltas.put(documentIO.getVersion(artifactDelta.getArtifactId(),
+                                artifactDelta.getArtifactVersionId()),
+                                Delta.MODIFIED);
+                    } else {
+                        deltas.put(documentIO.getVersion(artifactDelta.getArtifactId(),
+                                artifactDelta.getArtifactVersionId()),
+                                artifactDelta.getDelta());
+                    }
                 }
+                return deltas;
             }
-            return deltas;
         } catch (final Throwable t) {
             throw panic(t);
         }

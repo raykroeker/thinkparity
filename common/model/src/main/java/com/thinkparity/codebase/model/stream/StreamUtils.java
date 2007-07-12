@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.util.http.HttpUtils;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 
 /**
  * <b>Title:</b><br>
@@ -46,6 +47,7 @@ public final class StreamUtils {
     StreamUtils() {
         super();
         this.httpClient = HttpUtils.newClient();
+        this.httpClient.setHttpConnectionManager(new MultiThreadedHttpConnectionManager());
     }
 
     /**

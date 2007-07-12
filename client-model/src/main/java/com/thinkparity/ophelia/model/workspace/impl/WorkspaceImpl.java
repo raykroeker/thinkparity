@@ -283,7 +283,7 @@ public final class WorkspaceImpl implements Workspace {
     public Integer getBufferSize() {
         // BUFFER - 2MB - WorkspaceImpl#getBufferSize()
         return 1024 * 1024 * 2;
-    }            
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getCharset()
@@ -291,7 +291,7 @@ public final class WorkspaceImpl implements Workspace {
      */
     public Charset getCharset() {
         return StringUtil.Charset.UTF_8.getCharset();
-    }
+    }            
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getDataDirectory()
@@ -314,6 +314,14 @@ public final class WorkspaceImpl implements Workspace {
      */
     public File getDownloadDirectory() {
         return initChild(DirectoryNames.Workspace.DOWNLOAD);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getExportDirectory()
+     *
+     */
+    public File getExportDirectory() {
+        return initChild(DirectoryNames.Workspace.EXPORT);
     }
 
     /**
@@ -448,6 +456,9 @@ public final class WorkspaceImpl implements Workspace {
      * 
      */
     public void open() {
+        // TODO fix the export fop library
+        FileUtil.deleteTree(initChild(DirectoryNames.Workspace.EXPORT));
+
         listenersImpl = new ListenersImpl(this);
         listenersImpl.start();
 

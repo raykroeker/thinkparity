@@ -24,13 +24,6 @@ import com.thinkparity.ophelia.model.util.ShutdownHook;
 public interface Workspace {
 
     /**
-     * Obtain the default character-set for the workspace.
-     * 
-     * @return A <code>Charset</code>.
-     */
-    public Charset getCharset();
-
-    /**
      * Add a shutdown hook to the workspace.
      * 
      * @param shutdownHook
@@ -128,6 +121,13 @@ public interface Workspace {
     public Integer getBufferSize();
 
     /**
+     * Obtain the default character-set for the workspace.
+     * 
+     * @return A <code>Charset</code>.
+     */
+    public Charset getCharset();
+
+    /**
      * Obtain the data directory.
      * 
      * @return The data directory <code>File</code>.
@@ -147,6 +147,13 @@ public interface Workspace {
      * @return The download directory <code>File</code.
      */
     public File getDownloadDirectory();
+
+    /**
+     * Obtain the export directory.
+     * 
+     * @return The export directory <code>File</code>.
+     */
+    public File getExportDirectory();
 
     /**
      * Obtain the index directory.

@@ -33,6 +33,7 @@ public final class Constants {
         public static final String LIB_NATIVE_WIN32 = "win32";
         public static final class Workspace {
             public static final String DATA = "data";
+            public static final String EXPORT = "export";
             public static final String INDEX = "index";
             public static final String LOG = "logs";
             public static final String TEMP = ".temp";

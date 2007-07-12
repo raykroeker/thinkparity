@@ -14,7 +14,6 @@ import java.util.*;
 import javax.xml.transform.TransformerException;
 
 import com.thinkparity.codebase.FileSystem;
-import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.Pair;
 import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.assertion.Assert;
@@ -3468,11 +3467,19 @@ public final class ContainerModelImpl extends
             }
         }
 
-        // copy resources into the export file system
+        /* the export image resources are stored within a specific location
+         * within the workspace that is reused; not to say that the images are
+         * re-used */
+        final File images = new File(workspace.getExportDirectory(), "images");
+        if (!images.exists()) {
+            Assert.assertTrue(images.mkdir(),
+                    "Could not create export images directory {0}.", images);
+        }
+        final FileSystem imagesFS = new FileSystem(images);
         final Map<String, File> resources = new HashMap<String, File>();
-        addExportResource(fileSystem, resources, "header-image",
+        addExportResource(imagesFS, resources, "header-image",
                 "images/PDFHeader.jpg");
-        addExportResource(fileSystem, resources, "footer-image",
+        addExportResource(imagesFS, resources, "footer-image",
                 "images/PDFFooter.jpg");
 
         // generate a pdf
@@ -3484,13 +3491,10 @@ public final class ContainerModelImpl extends
                 versionsPublishedBy, documents, documentsSize, publishedTo,
                 deltas, readTeam(container.getId()));
 
-        /* HACK this is bad; however the jpeg image reader class is not
-         * closing the stream within its class
+        /* HACK the export resources are not being cleaned up because the jpeg
+         * image is not closing the stream used to load the resource; they are
+         * however located within a temp directory and will be delted when
+         * thinkParity is restarted
          * @see org.apache.fop.image.JpegImage#loadImage() */
-        Runtime.getRuntime().gc();
-        Runtime.getRuntime().runFinalization();
-
-        // delete the temporary image resources
-        FileUtil.deleteTree(fileSystem.findDirectory("images"));
     }
 }

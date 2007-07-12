@@ -8,7 +8,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -17,7 +16,6 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.ContainerVersion;
-import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -135,21 +133,15 @@ public final class PublishVersion extends ContainerDelegate {
                 iReceivedBy.remove();
             }
         }
-        // upload
-        final List<DocumentVersion> documentVersions = readDocumentVersions(
+        // publish
+        final List<DocumentVersion> versions = readDocumentVersions(
                 version.getArtifactId(), version.getVersionId(),
                 new ComparatorBuilder().createVersionById(Boolean.TRUE));
-        final ContainerVersion previous = readPreviousVersion(containerId, versionId);
-        final Map<DocumentVersion, Delta> deltas;
-        if (null == previous) {
-            deltas = readDocumentVersionDeltas(containerId, versionId);
-        } else {
-            deltas = readDocumentVersionDeltas(containerId, versionId,
-                    previous.getVersionId());
-        }
-        uploadDocumentVersions(monitor, documentVersions, deltas);
+        // TODO remove when the ui has removed the progress bar
+        // set fixed progress determination
+        notifyDetermine(monitor, 1);
         notifyStepBegin(monitor, PublishStep.PUBLISH);
-        sessionModel.publishVersion(version, documentVersions, receivedBy,
+        sessionModel.publishVersion(version, versions, receivedBy,
                 publishedOn, emails, publishToUsers);
         notifyStepEnd(monitor, PublishStep.PUBLISH);
     }

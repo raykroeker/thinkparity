@@ -133,9 +133,6 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             // create if required
             handleResolution(version);
 
-            // delete draft
-            deleteDraft(version);
-
             // enqueue container published events
             enqueueContainerPublished(version, documentVersions, publishToUsers);
 
@@ -150,6 +147,9 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
 
             // update the latest version
             updateLatestVersion(version);
+
+            // delete draft
+            deleteDraft(version);
 
             // enqueue invitation events
             createInvitations(user.getId(), version, publishToEMails,

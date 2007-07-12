@@ -900,7 +900,11 @@ public final class DocumentModelImpl extends
         try {
             final Document document = read(documentId);
             final DocumentFileLock lock = lock(document);
-            updateDraft(lock, documentId, content);
+            try {
+                updateDraft(lock, documentId, content);
+            } finally {
+                release(lock);
+            }
         } catch (final CannotLockException clx) {
             throw clx;
         } catch (final Throwable t) {

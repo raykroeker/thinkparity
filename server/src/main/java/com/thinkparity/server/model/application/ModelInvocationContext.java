@@ -68,7 +68,7 @@ public final class ModelInvocationContext {
         final StringBuilder buffer =
             new StringBuilder(method.getDeclaringClass().getSimpleName())
             .append("#").append(method.getName());
-        if (0 < arguments.length) {
+        if (null != arguments && 0 < arguments.length) {
             buffer.append('(');
             for (int i = 0; i < arguments.length; i++) {
                 if (0 < i) {
@@ -86,7 +86,7 @@ public final class ModelInvocationContext {
      *
      * @return A Object[].
      */
-    protected final Object[] getArgs() {
+    protected final Object[] getArguments() {
         return arguments;
     }
 

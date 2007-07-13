@@ -270,17 +270,10 @@ public final class ContainerModelImpl extends
      * 
      */
     public void archive(final Long containerId) {
-        try {
-            assertIsDistributed("Container has not been distributed.", containerId);
-
-            if (doesExistDraft(containerId))
-                deleteDraft(containerId);
-            getArtifactModel().applyFlagArchived(containerId);
-            containerService.archive(getAuthToken(), read(containerId));
-
-            notifyContainerArchived(read(containerId), localEventGenerator);
-        } catch (final Throwable t) {
-            throw panic(t);
+        if (true) {
+            Assert.assertUnreachable("Archive has become deprecated.");
+        } else {
+            archiveDeprecated(containerId);
         }
     }
 
@@ -1751,29 +1744,10 @@ public final class ContainerModelImpl extends
      *
      */
     public void restore(final Long containerId) {
-        try {
-            assertIsDistributed("Container has not been distributed.", containerId);
-
-            final InternalArtifactModel artifactModel = getArtifactModel();
-            artifactModel.removeFlagArchived(containerId);
-            // restore the draft if one exists
-            final InternalSessionModel sessionModel = getSessionModel();
-            final JabberId draftOwner = sessionModel.readKeyHolder(
-                    artifactModel.readUniqueId(containerId));
-            if (draftOwner.equals(User.THINKPARITY.getId())) {
-                logger.logInfo("No remote draft exists for {0}.", containerId);
-            } else {
-                final List<TeamMember> team = readTeam(containerId);
-                final ContainerDraft draft = new ContainerDraft();
-                draft.setLocal(Boolean.FALSE);
-                draft.setContainerId(containerId);
-                draft.setOwner(team.get(indexOf(team, draftOwner)));
-                containerIO.createDraft(draft);
-            }
-            containerService.restore(getAuthToken(), read(containerId));
-            notifyContainerRestored(read(containerId), localEventGenerator);
-        } catch (final Throwable t) {
-            throw panic(t);
+        if (true) {
+            Assert.assertUnreachable("Restore has become deprecated.");
+        } else {
+            restoreDeprecated(containerId);
         }
     }
 
@@ -2581,6 +2555,27 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * Archive has become deprecated.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void archiveDeprecated(final Long containerId) {
+        try {
+            assertIsDistributed("Container has not been distributed.", containerId);
+
+            if (doesExistDraft(containerId))
+                deleteDraft(containerId);
+            getArtifactModel().applyFlagArchived(containerId);
+            containerService.archive(getAuthToken(), read(containerId));
+
+            notifyContainerArchived(read(containerId), localEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Assert that a draft exists.
      * 
      * @param containerId
@@ -3351,6 +3346,39 @@ public final class ContainerModelImpl extends
      */
     private User readUser(final JabberId userId) {
         return getUserModel().read(userId);
+    }
+
+    /**
+     * Restore has become deprecated.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void restoreDeprecated(final Long containerId) {
+        try {
+            assertIsDistributed("Container has not been distributed.", containerId);
+
+            final InternalArtifactModel artifactModel = getArtifactModel();
+            artifactModel.removeFlagArchived(containerId);
+            // restore the draft if one exists
+            final InternalSessionModel sessionModel = getSessionModel();
+            final JabberId draftOwner = sessionModel.readKeyHolder(
+                    artifactModel.readUniqueId(containerId));
+            if (draftOwner.equals(User.THINKPARITY.getId())) {
+                logger.logInfo("No remote draft exists for {0}.", containerId);
+            } else {
+                final List<TeamMember> team = readTeam(containerId);
+                final ContainerDraft draft = new ContainerDraft();
+                draft.setLocal(Boolean.FALSE);
+                draft.setContainerId(containerId);
+                draft.setOwner(team.get(indexOf(team, draftOwner)));
+                containerIO.createDraft(draft);
+            }
+            containerService.restore(getAuthToken(), read(containerId));
+            notifyContainerRestored(read(containerId), localEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**

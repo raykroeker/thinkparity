@@ -48,9 +48,9 @@ public class Show extends AbstractBrowserAction {
         // Select the container tab and show the container
         browser.selectTab(MainTitleAvatar.TabId.CONTAINER);
         if (null == versionId) {
-            browser.expandContainer(containerId, Boolean.FALSE);
+            browser.expandContainer(containerId);
         } else {
-            browser.expandContainer(containerId, versionId, Boolean.FALSE);
+            browser.expandContainer(containerId, versionId);
         }
     }
 

@@ -117,7 +117,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         java.awt.GridBagConstraints gridBagConstraints;
 
         containerJLabel = createTab(TabId.CONTAINER, Boolean.TRUE).jLabel;
-        archiveJLabel = createTab(TabId.ARCHIVE, Boolean.FALSE).jLabel;
         contactJLabel = createTab(TabId.CONTACT, Boolean.FALSE).jLabel;
 
         helpJLabel = createTab(TabId.HELP, Boolean.FALSE).jLabel;
@@ -134,23 +133,16 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
         add(containerJLabel, gridBagConstraints);
 
-        archiveJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Tab.png")));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
-        add(archiveJLabel, gridBagConstraints);
-
         contactJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Tab.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
         add(contactJLabel, gridBagConstraints);
 
         helpJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserTitle_Tab.png")));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 1, 0, 0);
@@ -172,7 +164,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
         fillRightJLabel.setMinimumSize(new java.awt.Dimension(100, 18));
         fillRightJLabel.setPreferredSize(new java.awt.Dimension(100, 18));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
@@ -239,7 +231,6 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel archiveJLabel;
     private javax.swing.JLabel contactJLabel;
     private javax.swing.JLabel containerJLabel;
     private javax.swing.JLabel fillRightJLabel;

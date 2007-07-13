@@ -35,10 +35,9 @@ public class Expand extends AbstractBrowserAction {
     @Override
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
-        final Boolean archiveTab = (Boolean) data.get(DataKey.ARCHIVE_TAB);
-        browser.expandContainer(containerId, archiveTab);  
+        browser.expandContainer(containerId);  
     }
 
     /** The data keys. */
-    public enum DataKey { CONTAINER_ID, ARCHIVE_TAB }
+    public enum DataKey { CONTAINER_ID }
 }

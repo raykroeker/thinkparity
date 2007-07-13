@@ -138,9 +138,6 @@ public class ActionFactory extends AbstractFactory {
         case CONTAINER_APPLY_FLAG_SEEN:
             action = new com.thinkparity.ophelia.browser.platform.action.container.ApplyFlagSeen(getBrowser());
             break;
-        case CONTAINER_ARCHIVE:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.Archive(getBrowser());
-            break;
         case CONTAINER_CLEAR_NOTIFICATIONS:
             action = new com.thinkparity.ophelia.browser.platform.action.container.ClearNotifications(getSystem());
             break;
@@ -200,9 +197,6 @@ public class ActionFactory extends AbstractFactory {
             break;
         case CONTAINER_RENAME_DOCUMENT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.RenameDocument(getBrowser());
-            break;
-        case CONTAINER_RESTORE:
-            action = new com.thinkparity.ophelia.browser.platform.action.container.Restore(getBrowser());
             break;
         case CONTAINER_REVERT_DOCUMENT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.RevertDocument(getBrowser());

@@ -134,14 +134,6 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             needSeparator = true;
         }
 
-        // archive
-        if (online && isDistributed(container.getId())) {
-            final Data archiveData = new Data(1);
-            archiveData.set(Archive.DataKey.CONTAINER_ID, container.getId());
-            addWithExpand(ActionId.CONTAINER_ARCHIVE, archiveData, container);
-            needSeparator = true;
-        }
-
         // delete
         // This menu is shown if online, or if it has never been published.
         if (online || !isDistributed(container.getId())) {
@@ -487,13 +479,12 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             final Container container) {
         actionIds.clear();
         dataList.clear();
-        
-        final Data expandData = new Data(2);
+
+        final Data expandData = new Data(1);
         expandData.set(Expand.DataKey.CONTAINER_ID, container.getId());
-        expandData.set(Expand.DataKey.ARCHIVE_TAB, Boolean.FALSE);
         actionIds.add(ActionId.CONTAINER_EXPAND);
         dataList.add(expandData);
-        
+
         actionIds.add(actionId);
         dataList.add(data);
         add(actionIds, dataList, 1);

@@ -50,7 +50,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.archive.ArchiveTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.help.HelpTabAvatar;
@@ -150,13 +149,10 @@ public class Browser extends AbstractApplication {
 	    if (null != expression) {
 	        data.set(TabAvatar.DataKey.SEARCH_EXPRESSION, expression);
         }
-	    setInput(AvatarId.TAB_ARCHIVE, data);
 	    setInput(AvatarId.TAB_CONTACT, data);
 	    setInput(AvatarId.TAB_CONTAINER, data);
         setInput(AvatarId.TAB_HELP, data);
         switch(getMainTitleAvatarTab()) {
-        case ARCHIVE:
-            break;
         case CONTACT:
             break;
         case CONTAINER:
@@ -201,16 +197,10 @@ public class Browser extends AbstractApplication {
      * Collapse the container.
      *
      * @param containerId
-     *            The containerId.
-     * @param archiveTab
-     *            true for archive tab, false for container tab.        
+     *            The containerId.       
      */
-    public void collapseContainer(final Long containerId, final Boolean archiveTab) {
-        if (archiveTab) {
-            getTabArchiveAvatar().collapseContainer(containerId);
-        } else {
-            getTabContainerAvatar().collapseContainer(containerId);
-        }
+    public void collapseContainer(final Long containerId) {
+        getTabContainerAvatar().collapseContainer(containerId);
     }
 
     /**
@@ -279,14 +269,6 @@ public class Browser extends AbstractApplication {
         final Data input = new Data(1);
         input.set(ConfirmAvatar.DataKey.LOCALIZED_MESSAGE, localizedMessage);
         return confirm(input);
-    }
-
-    /**
-     * Display the archive tab avatar.
-     *
-     */
-    public void displayArchiveTabAvatar() {
-        displayTab(AvatarId.TAB_ARCHIVE);
     }
 
     /**
@@ -629,16 +611,10 @@ public class Browser extends AbstractApplication {
      * Expand the container.
      *
      * @param containerId
-     *            The container id.
-     * @param archiveTab
-     *            true for archive tab, false for container tab.        
+     *            The container id.        
      */
-    public void expandContainer(final Long containerId, final Boolean archiveTab) {
-        if (archiveTab) {
-            getTabArchiveAvatar().expandContainer(containerId);
-        } else {
-            getTabContainerAvatar().expandContainer(containerId);
-        }
+    public void expandContainer(final Long containerId) {
+        getTabContainerAvatar().expandContainer(containerId);
     }
 
     /**
@@ -648,16 +624,9 @@ public class Browser extends AbstractApplication {
      *            A container id <code>Long</code>.
      * @param versionId
      *            A version id <code>Long</code>.
-     * @param archiveTab
-     *            true for archive tab, false for container tab.  
      */
-    public void expandContainer(final Long containerId, final Long versionId,
-            final Boolean archiveTab) {
-        if (archiveTab) {
-            getTabArchiveAvatar().expandContainer(containerId, versionId);
-        } else {
-            getTabContainerAvatar().expandContainer(containerId, versionId);
-        }
+    public void expandContainer(final Long containerId, final Long versionId) {
+        getTabContainerAvatar().expandContainer(containerId, versionId);
     }
 
     /**
@@ -2036,15 +2005,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Obtain the archive tab avatar.
-     * 
-     * @return A <code>ArchiveAvatar</code>.
-     */
-    private ArchiveTabAvatar getTabArchiveAvatar() {
-        return (ArchiveTabAvatar) getAvatar(AvatarId.TAB_ARCHIVE);
-    }
-
-    /**
      * Obtain a tab avatar.
      * 
      * @param tabId
@@ -2053,8 +2013,6 @@ public class Browser extends AbstractApplication {
      */
     private TabPanelAvatar getTabAvatar(final MainTitleAvatar.TabId tabId) {
         switch(tabId) {
-        case ARCHIVE:
-            return getTabArchiveAvatar();
         case CONTACT:
             return getTabContactAvatar();
         case CONTAINER:

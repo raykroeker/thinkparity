@@ -179,9 +179,6 @@ public class BrowserKeyboardHelper extends BrowserHelper {
         final TabId tabId = browserApplication.getSelectedTabId();
         switch(tabId) {
         case CONTAINER:
-            browserApplication.selectTab(TabId.ARCHIVE);
-            break;
-        case ARCHIVE:
             browserApplication.selectTab(TabId.CONTACT);
             break;
         case CONTACT:
@@ -212,11 +209,8 @@ public class BrowserKeyboardHelper extends BrowserHelper {
         case CONTAINER:
             browserApplication.selectTab(TabId.HELP);
             break;
-        case ARCHIVE:
-            browserApplication.selectTab(TabId.CONTAINER);
-            break;
         case CONTACT:
-            browserApplication.selectTab(TabId.ARCHIVE);
+            browserApplication.selectTab(TabId.CONTAINER);
             break;
         case HELP:
             browserApplication.selectTab(TabId.CONTACT);

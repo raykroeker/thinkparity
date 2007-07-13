@@ -200,9 +200,6 @@ public final class MainTitleAvatar extends Avatar {
         if (null != tabId) {
             tabPanel.selectTab(tabId);
             switch (tabId) {
-            case ARCHIVE:
-                getController().displayArchiveTabAvatar();
-                break;
             case CONTACT:
                 getController().displayContactTabAvatar();
                 break;
@@ -220,5 +217,5 @@ public final class MainTitleAvatar extends Avatar {
     }
 
     public enum DataKey { PROFILE, TAB_ID }
-    public enum TabId { ARCHIVE, CONTACT, CONTAINER, HELP }
+    public enum TabId { CONTACT, CONTAINER, HELP }
 }

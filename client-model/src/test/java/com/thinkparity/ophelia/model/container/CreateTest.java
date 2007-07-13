@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.model.container;
 
 import java.util.List;
 
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.user.TeamMember;
 
@@ -54,10 +53,6 @@ public class CreateTest extends ContainerTestCase {
         assertEquals(NAME + " [DRAFT OWNER DOES NOT MATCH EXPECTATION]",
                 OpheliaTestUser.JUNIT.getId() , draft.getOwner().getId());
         assertTrue(NAME + " [CONTAINER CREATION EVENT NOT FIRED]", datum.didNotifyDraftCreated);
-
-        assertTrue(
-                NAME + " [FLAG KEY NOT APPLIED]",
-                getArtifactModel(OpheliaTestUser.JUNIT).isFlagApplied(container.getId(), ArtifactFlag.KEY));
 
         final List<TeamMember> team = datum.containerModel.readTeam(container.getId());
         assertEquals(NAME + " [TEAM SIZE DOES NOT MATCH EXPECTATION]", 1, team.size());

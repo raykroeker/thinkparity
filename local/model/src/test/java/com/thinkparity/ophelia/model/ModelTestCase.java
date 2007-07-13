@@ -786,21 +786,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
     }
 
     /**
-     * Archive a container.
-     * 
-     * @param archiveAs
-     *            An <code>OpheliaTestUser</code> to publish as.
-     * @param localContainerId
-     *            A container id <code>Long</code> local to archiveAs.
-     */
-    protected void archive(final OpheliaTestUser archiveAs, final Long localContainerId) {
-        final Container container = getContainerModel(archiveAs).read(localContainerId);
-        logger.logInfo("Archiving container \"{0}\" as \"{1}\".",
-                container.getName(), archiveAs.getSimpleUsername());
-        getContainerModel(archiveAs).archive(localContainerId);
-    }
-
-    /**
      * Create a document.
      * 
      * @param file
@@ -1964,21 +1949,6 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         } catch (final CannotLockException clx) {
             fail("Cannot rename document {0}.", document.getName());
         }
-    }
-
-    /**
-     * Restore a container.
-     * 
-     * @param restoreAs
-     *            An <code>OpheliaTestUser</code> to restore as.
-     * @param uniqueId
-     *            A container unique id <code>UUID</code>.
-     */
-    protected void restore(final OpheliaTestUser restoreAs, final Long localContainerId) {
-        final Container container = readContainer(restoreAs, localContainerId);
-        logger.logInfo("Restoring container \"{0}\" as \"{1}\".",
-                container.getName(), restoreAs.getSimpleUsername());
-        getContainerModel(restoreAs).restore(localContainerId);
     }
 
     protected Document revertDocument(final OpheliaTestUser revertAs,

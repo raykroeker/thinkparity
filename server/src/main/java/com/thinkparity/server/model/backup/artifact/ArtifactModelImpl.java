@@ -370,12 +370,12 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#removeFlagArchived(java.lang.Long)
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#removeFlagLatest(java.lang.Long)
      * 
      */
-    public void removeFlagArchived(final Long artifactId) {
+    public void removeFlagLatest(final Long artifactId) {
         try {
-            removeFlag(artifactId, ArtifactFlag.ARCHIVED);
+            removeFlag(artifactId, ArtifactFlag.LATEST);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -445,7 +445,7 @@ public final class ArtifactModelImpl extends Model implements
 		}
 	}
 
-    /**
+	/**
 	 * Remove a flag from an artifact.
 	 * 
 	 * @param artifactId
@@ -468,16 +468,4 @@ public final class ArtifactModelImpl extends Model implements
                     artifactId, flag);
 		}
 	}
-
-	/**
-     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#removeFlagLatest(java.lang.Long)
-     * 
-     */
-    public void removeFlagLatest(final Long artifactId) {
-        try {
-            removeFlag(artifactId, ArtifactFlag.LATEST);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
 }

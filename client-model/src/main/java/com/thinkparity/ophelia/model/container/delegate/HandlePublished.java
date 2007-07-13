@@ -9,14 +9,12 @@ import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
 
-import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.container.ContainerDelegate;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
@@ -37,25 +35,12 @@ public final class HandlePublished extends ContainerDelegate {
     /** The published by user. */
     private User publishedBy;
 
-    /** Whether or not the package was restored from archive. */
-    private Boolean restore;
-
     /**
      * Create HandlePublishedDelegate.
      *
      */
     public HandlePublished() {
         super();
-    }
-
-    /**
-     * Determine whether or not the package was restored from the archive as
-     * part of the publish.
-     * 
-     * @return True if the package was restored.
-     */
-    public Boolean didRestore() {
-        return restore;
     }
 
     /**
@@ -72,7 +57,6 @@ public final class HandlePublished extends ContainerDelegate {
      *
      */
     public void handlePublished() throws CannotLockException {
-        final InternalArtifactModel artifactModel = getArtifactModel();
         final InternalSessionModel sessionModel = getSessionModel();
         final Container container = handleResolution();
         final ContainerVersion version = createVersion(container.getId(),
@@ -114,12 +98,6 @@ public final class HandlePublished extends ContainerDelegate {
             logger.logInfo("First version of {0}.", container.getName());
         } else {
             containerIO.createDelta(calculateDelta(container, version, previous));
-        }
-        // restore
-        restore = artifactModel.isFlagApplied(container.getId(),
-                ArtifactFlag.ARCHIVED);
-        if (restore.booleanValue()) {
-            artifactModel.removeFlagArchived(container.getId());
         }
         // index
         getIndexModel().indexContainer(container.getId());

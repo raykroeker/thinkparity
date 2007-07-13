@@ -27,7 +27,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublished
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
-import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
@@ -49,19 +48,6 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
      */
     public ContainerModelImpl() {
         super();
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.container.ContainerModel#archive(com.thinkparity.codebase.model.container.Container)
-     *
-     */
-    public void archive(final Container container) {
-        try {
-            getArtifactModel().removeTeamMember(localize(container));
-            getBackupModel().archive(container.getUniqueId());
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
     }
 
     /**
@@ -133,23 +119,20 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             // create if required
             handleResolution(version);
 
+            // delete draft
+            deleteDraft(version);
+
             // enqueue container published events
             enqueueContainerPublished(version, documentVersions, publishToUsers);
 
             // add new team members as required
             handleTeamResolution(version, publishToUsers);
 
-            // restore from backup as required
-            handleBackupResolution(version, publishToUsers);
-
             // enqueue container published notification events
             enqueueContainerPublishedNotification(version);
 
             // update the latest version
             updateLatestVersion(version);
-
-            // delete draft
-            deleteDraft(version);
 
             // enqueue invitation events
             createInvitations(user.getId(), version, publishToEMails,
@@ -177,9 +160,6 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             // add new team members as required
             handleTeamResolution(version, publishToUsers);
 
-            // restore from backup as required
-            handleBackupResolution(version, publishToUsers);
-
             // enqueue container version published notification events
             enqueueContainerVersionPublishedNotification(version, user.getId(),
                     publishedOn, publishToUsers);
@@ -188,19 +168,6 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             createInvitations(user.getId(), version, publishToEMails, publishedOn);
         } catch (final Throwable t) {
             throw translateError(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.container.ContainerModel#restore(com.thinkparity.codebase.model.container.Container)
-     *
-     */
-    public void restore(final Container container) {
-        try {
-            getArtifactModel().addTeamMember(localize(container));
-            getBackupModel().restore(container.getUniqueId());
-        } catch (final Throwable t) {
-            throw panic(t);
         }
     }
 
@@ -428,29 +395,6 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * Restore the package from the backup.
-     * 
-     * @param version
-     *            A <code>ContainerVersion</code>.
-     * @param publishToUsers
-     *            A <code>List<User></code>.
-     */
-    private void handleBackupResolution(final ContainerVersion version,
-            final List<User> publishToUsers) {
-        final Artifact localArtifact = localize(version);
-        InternalBackupModel backupModel;
-        for (final User publishToUser : publishToUsers) {
-            backupModel = getBackupModel(publishToUser);
-            if (backupModel.isBackupEnabled()
-                    && backupModel.isBackedUp(localArtifact)
-                    && backupModel.isArchived(localArtifact)) {
-                getBackupModel(localize(publishToUser)).restore(
-                        version.getArtifactUniqueId());
-            }
-        }
-    }
-
-    /**
      * Handle a container version resolution. If the container does not exist;
      * create it.
      * 
@@ -501,7 +445,6 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         artifactModel.addTeamMembers(localArtifact, newMembers);
     }
 
-    
     /**
      * Convert a list of users to local users.
      * 
@@ -520,6 +463,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         return localUsers;
     }
 
+    
     /**
      * Obtain a local reference for a user.
      * 

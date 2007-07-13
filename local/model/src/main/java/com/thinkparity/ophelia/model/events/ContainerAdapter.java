@@ -21,11 +21,6 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
 public class ContainerAdapter implements ContainerListener {
 
     /**
-     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerArchived(com.thinkparity.ophelia.model.events.ContainerEvent)
-     */
-    public void containerArchived(final ContainerEvent e) {}
-
-    /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerBookmarkAdded(com.thinkparity.ophelia.model.events.ContainerEvent)
      */
     public void containerBookmarkAdded(final ContainerEvent e) {}
@@ -79,11 +74,6 @@ public class ContainerAdapter implements ContainerListener {
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerRenamed(com.thinkparity.ophelia.model.events.ContainerEvent)
      */
     public void containerRenamed(final ContainerEvent e) {}
-
-    /**
-     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerRestored(com.thinkparity.ophelia.model.events.ContainerEvent)
-     */
-    public void containerRestored(final ContainerEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#containerUpdated(com.thinkparity.ophelia.model.events.ContainerEvent)

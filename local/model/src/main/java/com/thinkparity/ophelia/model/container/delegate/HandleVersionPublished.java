@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -40,24 +39,12 @@ public final class HandleVersionPublished extends ContainerDelegate {
     /** The published by user. */
     private User publishedBy;
 
-    /** Whether or not the package was restored from archive. */
-    private Boolean restore;
-
     /**
      * Create HandleVersionPublishedDelegate.
      *
      */
     public HandleVersionPublished() {
         super();
-    }
-
-    /**
-     * Whether or not the package was restored as a result of the operation.
-     * 
-     * @return True if the package was restored.
-     */
-    public Boolean didRestore() {
-        return restore;
     }
 
     /**
@@ -152,13 +139,6 @@ public final class HandleVersionPublished extends ContainerDelegate {
                     version.getVersionId());
             containerIO.createDelta(calculateDelta(container, next,
                     version));
-        }
-        // restore
-        final InternalArtifactModel artifactModel = getArtifactModel();
-        restore = artifactModel.isFlagApplied(container.getId(),
-                ArtifactFlag.ARCHIVED);
-        if (restore.booleanValue()) {
-            artifactModel.removeFlagArchived(container.getId());
         }
         // index
         getIndexModel().indexContainer(container.getId());

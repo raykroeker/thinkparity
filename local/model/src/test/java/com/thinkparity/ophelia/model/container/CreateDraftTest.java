@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.model.container;
 
 import java.util.List;
 
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.DraftExistsException;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -98,9 +97,6 @@ public class CreateDraftTest extends ContainerTestCase {
         assertEquals(
                 "LATEST VERSION DOCUMENT LIST SIZE DOES NOT MATCH DRAFT DOCUMENT LIST SIZE",
                 latestVersionDocuments.size(), draftRead.getDocuments().size());
-        assertTrue(NAME + " [KEY FLAG IS NOT APPLIED]", getArtifactModel(
-                OpheliaTestUser.JUNIT).isFlagApplied(c.getId(),
-                ArtifactFlag.KEY));
         assertTrue(NAME + " [USER IS NOT KEY HOLDER]",
                 getSessionModel(datum.junit).readKeyHolder(c.getUniqueId()).equals(datum.junit.getId()));
         final InternalDocumentModel documentModel = getDocumentModel(datum.junit);

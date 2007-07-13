@@ -45,10 +45,6 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
                 "Listener for avatar {0} already added.", avatar.getId());
         containerListener = new ContainerAdapter() {
             @Override
-            public void containerArchived(final ContainerEvent e) {
-                avatar.fireArchived(e);
-            }
-            @Override
             public void containerBookmarkAdded(final ContainerEvent e) {
                 avatar.fireFlagged(e);
             }
@@ -91,10 +87,6 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
             @Override
             public void containerRenamed(final ContainerEvent e) {
                 avatar.fireRenamed(e);
-            }
-            @Override
-            public void containerRestored(final ContainerEvent e) {
-                avatar.fireRestored(e);
             }
             @Override
             public void containerUpdated(final ContainerEvent e) {

@@ -195,14 +195,6 @@ public interface InternalArtifactModel extends ArtifactModel {
     public UUID readUniqueId(final Long artifactId);
 
     /**
-     * Remove the archived flag.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     */
-    public void removeFlagArchived(final Long artifactId);
-
-    /**
      * Remove the latest flag.
      * 
      * @param artifactId

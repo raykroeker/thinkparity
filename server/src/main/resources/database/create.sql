@@ -245,11 +245,3 @@ create table TPSD_USER_PRODUCT_RELEASE_REL(
     foreign key(PRODUCT_ID) references TPSD_PRODUCT(PRODUCT_ID),
     foreign key(RELEASE_ID) references TPSD_PRODUCT_RELEASE(RELEASE_ID)
 );
-
-create table TPSD_BACKUP_USER_ARCHIVE(
-    USER_ID bigint not null,
-    ARTIFACT_ID bigint not null,
-    primary key(USER_ID,ARTIFACT_ID),
-    foreign key(USER_ID) references TPSD_USER(USER_ID),
-    foreign key(ARTIFACT_ID) references TPSD_ARTIFACT(ARTIFACT_ID)
-);

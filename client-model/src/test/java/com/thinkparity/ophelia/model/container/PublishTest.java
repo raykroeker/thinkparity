@@ -12,7 +12,6 @@ import java.util.Map;
 import com.thinkparity.codebase.io.StreamOpener;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -81,8 +80,6 @@ public class PublishTest extends ContainerTestCase {
         final JabberId keyHolder = getSessionModel(datum.junit).readKeyHolder(c.getUniqueId());
         assertEquals("Local artifact key holder does not match expectation.",
                 User.THINKPARITY.getId(), keyHolder);
-        assertTrue("Local key flag is still mistakenly applied.",
-                !getArtifactModel(datum.junit).isFlagApplied(c.getId(), ArtifactFlag.KEY));
         InternalDocumentModel documentModel;
         Document d_other;
         DocumentVersion dv, dv_x, dv_y;
@@ -327,8 +324,6 @@ public class PublishTest extends ContainerTestCase {
         final JabberId keyHolder = getSessionModel(datum.junit).readKeyHolder(c.getUniqueId());
         assertEquals("Local artifact key holder does not match expectation.",
                 User.THINKPARITY.getId(), keyHolder);
-        assertTrue("Local key flag is still mistakenly applied.",
-                !getArtifactModel(datum.junit).isFlagApplied(c.getId(), ArtifactFlag.KEY));
         InternalDocumentModel documentModel;
         Document d_other;
         for (final Document d : documents) {

@@ -16,7 +16,6 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.io.StreamOpener;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
@@ -28,7 +27,6 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.user.UserFlag;
 
-import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDelegate;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
@@ -110,9 +108,8 @@ public final class Publish extends ContainerDelegate {
                         keyHolder.equals(localUserId()));
             }
             // ensure draft existence
-            final InternalArtifactModel artifactModel = getArtifactModel();
             Assert.assertTrue("User does not own draft.",
-                    artifactModel.isFlagApplied(containerId, ArtifactFlag.KEY));
+                    doesExistDraft(containerId));
             // previous version
             final ContainerVersion previous = readLatestVersion(containerId);
             // create version
@@ -158,8 +155,6 @@ public final class Publish extends ContainerDelegate {
             }
             containerIO.deleteDraftDocuments(containerId);
             containerIO.deleteDraft(containerId);
-            // remove key
-            artifactModel.removeFlagKey(container.getId());
             // create published to list
             containerIO.createPublishedTo(version.getArtifactId(),
                     version.getVersionId(), contacts, publishedOn);

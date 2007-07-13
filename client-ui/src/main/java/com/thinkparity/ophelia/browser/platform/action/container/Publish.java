@@ -245,6 +245,8 @@ public class Publish extends AbstractBrowserAction {
                 latestVersion = containerModel.readLatestVersion(container.getId());
             } catch (final OfflineException ox) {
                 offline = true;
+                action.logger.logError(ox,
+                        "Could not publish {0}.", container.getName());
                 try {
                     containerModel.restoreDraft(container.getId());
                 } catch (final CannotLockException clx2) {
@@ -255,6 +257,8 @@ public class Publish extends AbstractBrowserAction {
                 monitor.reset();
                 return null;
             } catch (final CannotLockException clx) {
+                action.logger.logError(clx,
+                        "Could not publish {0}.", container.getName());
                 try {
                     containerModel.restoreDraft(container.getId());
                 } catch (final CannotLockException clx2) {
@@ -267,6 +271,8 @@ public class Publish extends AbstractBrowserAction {
                 action.browser.retry(action, container.getName());
                 return null;
             } catch (final ThinkParityException tx) {
+                action.logger.logError(tx,
+                        "Could not publish {0}.", container.getName());
                 try {
                     containerModel.restoreDraft(container.getId());
                 } catch (final CannotLockException clx2) {

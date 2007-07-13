@@ -51,8 +51,6 @@ public class Ticket403Test extends TicketTestCase {
         addDocument(datum.junit_z, c_z.getId(), "JUnitTestFramework.odt");
         publishToUsers(datum.junit_z, c_z.getId(), "JUnit.X thinkParity", "JUnit.Y thinkParity");
         datum.waitForEvents();
-        archive(datum.junit_z, c_z.getId());
-        datum.waitForEvents();
 
         final List<ContainerVersion> cv_list_z = getContainerModel(datum.junit_z).readVersions(c_z.getId());
         final ContainerVersion cv_latest_z = cv_list_z.get(0);

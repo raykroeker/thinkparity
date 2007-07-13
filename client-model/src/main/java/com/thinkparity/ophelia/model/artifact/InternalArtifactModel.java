@@ -48,23 +48,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      * @param artifactId
      *            An artifact id.
      */
-    public void applyFlagArchived(final Long artifactId);
-
-    /**
-     * Apply the archived flag.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     */
     public void applyFlagBookmark(final Long artifactId);
-
-    /**
-     * Apply the key flag.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     */
-    public void applyFlagKey(final Long artifactId);
 
     /**
      * Apply the latest flag.
@@ -273,28 +257,12 @@ public interface InternalArtifactModel extends ArtifactModel {
     public UUID readUniqueId(final Long artifactId);
 
     /**
-     * Remove the archived flag.
-     * 
-     * @param artifactId
-     *            An artifact id.
-     */
-    public void removeFlagArchived(final Long artifactId);
-
-    /**
      * Remove the bookmark flag.
      * 
      * @param artifactId
      *            An artifact id.
      */
     public void removeFlagBookmark(final Long artifactId);
-
-    /**
-     * Remove the key flag.
-     * 
-     * @param artifactId
-     *            An artifact id <code>Long</code>.
-     */
-    public void removeFlagKey(final Long artifactId);
 
     /**
      * Remove the latest flag.

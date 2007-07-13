@@ -11,10 +11,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -59,9 +57,6 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     /** An instance of <code>DocumentModel</code>. */
     private final DocumentModel documentModel;
 
-    /** An <code>Artifact</code> <code>Filter</code>. */
-    private final Filter<? super Artifact> filter;
-
     /** An instance of <code>UserModel</code>. */
     private final UserModel userModel;
 
@@ -81,31 +76,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
             final ContactModel contactModel,
             final ContainerModel containerModel,
             final DocumentModel documentModel, final UserModel userModel) {
-        this(new Filter<Artifact>() {
-            public Boolean doFilter(final Artifact o) {
-                return o.isArchived();
-            }
-        }, profileModel, contactModel, containerModel, documentModel, userModel);
-    }
-
-    /**
-     * Create ContainerProvider.
-     * 
-     * @param profileModel
-     *            An instance of <code>ProfileModel</code>.
-     * @param containerModel
-     *            An instance of <code>ContainerModel</code>.
-     * @param documentModel
-     *            An instance of <code>DocumentModel</code>.
-     * @param userModel
-     *            An instance of <code>UserModel</code>.
-     */
-    protected ContainerProvider(final Filter<? super Artifact> filter,
-            final ProfileModel profileModel, final ContactModel contactModel,
-            final ContainerModel containerModel,
-            final DocumentModel documentModel, final UserModel userModel) {
         super(profileModel);
-        this.filter = filter;
         this.contactModel = contactModel;
         this.containerModel = containerModel;
         this.documentModel = documentModel;
@@ -197,7 +168,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	 * @return A list of containers.
 	 */
     public List<Container> read() {
-    	return containerModel.read(filter);
+    	return containerModel.read();
     }
 
     /**
@@ -209,7 +180,7 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
 	 */
     public Container read(final Long containerId) {
     	final Container container = containerModel.read(containerId);
-        if (null == container || filter.doFilter(container).booleanValue()) {
+        if (null == container) {
             return null;
         } else {
             return container;

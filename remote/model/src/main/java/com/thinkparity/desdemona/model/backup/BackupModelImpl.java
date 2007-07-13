@@ -11,7 +11,6 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
@@ -33,7 +32,6 @@ import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
-import com.thinkparity.desdemona.model.io.sql.BackupSql;
 
 /**
  * <b>Title:</b>thinkParity Backup Model Implementation<br>
@@ -48,32 +46,12 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     /** An artifact sql interface */
     private ArtifactSql artifactSql;
 
-    /** A backup sql interface. */
-    private BackupSql backupSql;
-
     /**
      * Create BackupModelImpl.
      * 
      */
     public BackupModelImpl() {
         super();
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.backup.BackupModel#archive(com.thinkparity.codebase.jabber.JabberId, java.util.UUID)
-     *
-     */
-    public void archive(final UUID uniqueId) {
-        try {
-            if (isBackupEnabledImpl(user)) {
-                archiveImpl(user, uniqueId);
-            } else {
-                logger.logWarning("User {0} has no backup feature.",
-                        user.getId());
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
     }
 
     /**
@@ -88,20 +66,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             } else {
                 logger.logWarning("User {0} has no backup feature.",
                         user.getId());
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    public Boolean isArchived(final Artifact artifact) {
-        try {
-            if (isBackupEnabled() && isBackedUp(artifact)) {
-                return backupSql.doesExistArchive(user, artifact);
-            } else {
-                logger.logWarning("User {0} has no backup feature.",
-                        user.getId());
-                return null;
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -347,72 +311,12 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.backup.BackupModel#restore(com.thinkparity.codebase.jabber.JabberId,
-     *      java.util.UUID)
-     * 
-     */
-    public void restore(final UUID uniqueId) {
-        try {
-            if (isBackupEnabledImpl(user)) {
-                restoreImpl(user, uniqueId);
-            } else {
-                logger.logWarning("User {0} has no backup feature.",
-                        user.getId());
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.desdemona.model.AbstractModelImpl#initialize()
      *
      */
     @Override
     protected void initialize() {
         this.artifactSql = new ArtifactSql();
-        this.backupSql = new BackupSql();
-    }
-
-    /**
-     * If the container is archived; apply the flag.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @param container
-     *            A <code>Container</code>.
-     */
-    private void applyFlagArchived(final User user, final Container container) {
-        if (isArchived(user, container.getUniqueId())) {
-            container.add(ArtifactFlag.ARCHIVED);
-        }
-    }
-
-    /**
-     * If a container is archived; apply the archived flag.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @param containers
-     *            A <code>List</code> of <code>Container</code>s.
-     */
-    private void applyFlagArchived(final User user,
-            final List<Container> containers) {
-        for (final Container container : containers)
-            applyFlagArchived(user, container);
-    }
-
-    /**
-     * Achive implementation.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    private void archiveImpl(final User user, final UUID uniqueId) {
-        final Artifact artifact = getArtifactModel().read(uniqueId);
-        backupSql.createArchive(user, artifact);
     }
 
     /**
@@ -426,8 +330,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     private void deleteImpl(final User user, final UUID uniqueId)
             throws CannotLockException {
         final Artifact artifact = getArtifactModel().read(uniqueId);
-        if (isArchived(user, uniqueId))
-            backupSql.deleteArchive(user, artifact);
         if (!isContainerBackedUpImpl(uniqueId)) {
             final com.thinkparity.ophelia.model.container.InternalContainerModel
                     containerModel = getModelFactory(user).getContainerModel();
@@ -442,22 +344,20 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
-     * Obtain the archive's model factory.
+     * Obtain the backup's model factory.
      * 
-     * @param archiveId
-     *            An archive id <code>JabberId</code>.
-     * @return An archive's <code>ClientModelFactory</code>.
+     * @return An <code>InternalModelFactory</code>.
      */
     private InternalModelFactory getModelFactory() {
         return BackupService.getInstance().getModelFactory();
     }
 
     /**
-     * Obtain the archive's model factory.
+     * Obtain a user's model factory.
      * 
-     * @param archiveId
-     *            An archive id <code>JabberId</code>.
-     * @return An archive's <code>ClientModelFactory</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @return An <code>InternalModelFactory</code>.
      */
     private InternalModelFactory getModelFactory(final User user) {
         if (isBackupEnabledImpl(user)) {
@@ -466,32 +366,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             throw new BackupException("User {0} has no backup feature.",
                     user.getId());
         }
-    }
-
-    /**
-     * Determine if the artifact has been archived for the user.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @param artifact
-     *            An <code>Artifact</code>.
-     * @return True if the artifact has been archived by the user.
-     */
-    private boolean isArchived(final User user, final UUID uniqueId) {
-        final Artifact artifact = getArtifactModel().read(uniqueId);
-        return backupSql.doesExistArchive(user, artifact).booleanValue();
-    }
-
-    /**
-     * Determine if the unique id has been archived.
-     * 
-     * @param uniqueId
-     *            An artifact unique <code>UUID</code>.
-     * @return True if the artifact has been archived by any user.
-     */
-    private boolean isArchived(final UUID uniqueId) {
-        final Artifact artifact = getArtifactModel().read(uniqueId);
-        return backupSql.doesExistArchive(artifact).booleanValue();
     }
 
     /**
@@ -515,31 +389,29 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
 
     /**
      * Determine if the user has backed up the container. We check the server
-     * team membership as well as the server archive flag.
+     * team membership.
      * 
      * @param user
      *            A <code>User</code>.
      * @param uniqueId
      *            An artifact unique id <code>UUID</code>.
-     * @return True if the user is either a team member; or has archived the
-     *         artifact.
+     * @return True if the user is either a team member.
      */
     private boolean isContainerBackedUpImpl(final User user, final UUID uniqueId) {
-        return isTeamMember(user, uniqueId) || isArchived(user, uniqueId);
+        return isTeamMember(user, uniqueId);
     }
+
     /**
      * Determine if the container is backed up. We check the server team
-     * membership as well as the server archive flag.
+     * membership.
      * 
      * @param artifact
      *            An <code>Artifact</code>.
-     * @return True if the user is either a team member; or has archived the
-     *         artifact.
+     * @return True if the user is either a team member.
      */
     private boolean isContainerBackedUpImpl(final UUID uniqueId) {
         final Artifact artifact = getArtifactModel().read(uniqueId);
-        return 0 < artifactSql.readTeamRelCount(artifact.getId())
-                || isArchived(uniqueId);
+        return 0 < artifactSql.readTeamRelCount(artifact.getId());
     }
 
     /**
@@ -580,8 +452,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
      * @return A <code>List</code> of container <code>UUID</code>s.
      */
     private List<UUID> readBackedUpContainerIds(final User user) {
-        final List<UUID> backedUpContainerIds = backupSql.readArchive(user);
-        backedUpContainerIds.addAll(getArtifactModel().readTeamArtifactIds(user));
+        final List<UUID> backedUpContainerIds = getArtifactModel().readTeamArtifactIds(user);
         return backedUpContainerIds;
     }
 
@@ -776,7 +647,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
                 }
             }
         }
-        applyFlagArchived(user, backedUpContainers);
         return backedUpContainers;
     }
 
@@ -899,18 +769,5 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
                     uniqueId, user.getId());
             return Collections.emptyList();
         }
-    }
-
-    /**
-     * Restore implementation.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
-     */
-    private void restoreImpl(final User user, final UUID uniqueId) {
-        final Artifact artifact = getArtifactModel().read(uniqueId);
-        backupSql.deleteArchive(user, artifact);
     }
 }

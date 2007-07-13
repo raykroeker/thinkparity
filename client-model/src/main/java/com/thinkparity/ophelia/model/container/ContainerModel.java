@@ -78,16 +78,6 @@ public interface ContainerModel {
     public void applyFlagSeen(final Long containerId);
 
     /**
-     * Archive a container.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    @ThinkParityTransaction(TransactionType.REQUIRES_NEW)
-    @ThinkParityOnline
-    public void archive(final Long containerId);
-
-    /**
      * Create a container.
      * 
      * @param name
@@ -697,15 +687,6 @@ public interface ContainerModel {
      */
     public void renameDocument(final Long containerId, final Long documentId,
             final String name) throws CannotLockException;
-
-    /**
-     * Restore a container from an archive.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    @ThinkParityOnline
-    public void restore(final Long containerId);
 
     /**
      * Restore the draft. The draft that has previously been saved is restored.

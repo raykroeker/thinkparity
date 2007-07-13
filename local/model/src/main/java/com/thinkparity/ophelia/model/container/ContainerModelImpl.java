@@ -80,7 +80,6 @@ import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.util.sort.user.UserComparatorFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
-import com.thinkparity.service.AuthToken;
 import com.thinkparity.service.ContainerService;
 import com.thinkparity.service.client.ServiceFactory;
 
@@ -266,18 +265,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.container.ContainerModel#archive(java.lang.Long)
-     * 
-     */
-    public void archive(final Long containerId) {
-        if (true) {
-            Assert.assertUnreachable("Archive has become deprecated.");
-        } else {
-            archiveDeprecated(containerId);
-        }
-    }
-
-    /**
      * Create a container.
      * 
      * @param name
@@ -300,9 +287,7 @@ public final class ContainerModelImpl extends
             // local create
             containerIO.create(container);
     
-            // local key
             final InternalArtifactModel artifactModel = getArtifactModel();
-            artifactModel.applyFlagKey(container.getId());
             artifactModel.applyFlagLatest(container.getId());
     
             // index
@@ -384,7 +369,6 @@ public final class ContainerModelImpl extends
                             }
                         });
                     }
-                    artifactModel.applyFlagKey(container.getId());
                     // remote create
                     final List<JabberId> team = artifactModel.readTeamIds(containerId);
                     team.remove(localUserId());
@@ -651,9 +635,6 @@ public final class ContainerModelImpl extends
                     containerId, version.getVersionId());
             final ContainerVersion nextVersion = readPreviousVersion(
                     containerId, version.getVersionId());
-            if (delegate.didRestore().booleanValue()) {
-                notifyContainerRestored(container, remoteEventGenerator);
-            }
             notifyContainerPublished(container, previousVersion, version,
                     nextVersion, delegate.getPublishedBy(),
                     remoteEventGenerator);
@@ -1740,18 +1721,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.container.ContainerModel#restore(java.lang.Long)
-     *
-     */
-    public void restore(final Long containerId) {
-        if (true) {
-            Assert.assertUnreachable("Restore has become deprecated.");
-        } else {
-            restoreDeprecated(containerId);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.container.InternalContainerModel#restoreBackup(com.thinkparity.ophelia.model.util.ProcessMonitor)
      * 
      */
@@ -2555,27 +2524,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Archive has become deprecated.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    private void archiveDeprecated(final Long containerId) {
-        try {
-            assertIsDistributed("Container has not been distributed.", containerId);
-
-            if (doesExistDraft(containerId))
-                deleteDraft(containerId);
-            getArtifactModel().applyFlagArchived(containerId);
-            containerService.archive(getAuthToken(), read(containerId));
-
-            notifyContainerArchived(read(containerId), localEventGenerator);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * Assert that a draft exists.
      * 
      * @param containerId
@@ -2891,15 +2839,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Obtain the service authentication token.
-     * 
-     * @return An <code>AuthToken</code>.
-     */
-    private AuthToken getAuthToken() {
-        return getSessionModel().getAuthToken();
-    }
-
-    /**
      * Obtain a container name generator.
      * 
      * @return A <code>ContainerNameGenerator</code>.
@@ -2922,23 +2861,6 @@ public final class ContainerModelImpl extends
      */
     private Boolean isFirstDraft(final Long containerId) {
         return 0 == readVersions(containerId).size();
-    }
-
-    /**
-     * Fire a container archived notification.
-     * 
-     * @param container
-     *            A container.
-     * @param eventGenerator
-     *            A container event generator.
-     */
-    private void notifyContainerArchived(final Container container,
-            final ContainerEventGenerator eventGenerator) {
-        notifyListeners(new EventNotifier<ContainerListener>() {
-            public void notifyListener(final ContainerListener listener) {
-                listener.containerArchived(eventGenerator.generate(container));
-            }
-        });
     }
 
     /**
@@ -3163,23 +3085,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Fire a container restored notification.
-     * 
-     * @param container
-     *            A container.
-     * @param eventGenerator
-     *            A container event generator.
-     */
-    private void notifyContainerRestored(final Container container,
-            final ContainerEventGenerator eventGenerator) {
-        notifyListeners(new EventNotifier<ContainerListener>() {
-            public void notifyListener(final ContainerListener listener) {
-                listener.containerRestored(eventGenerator.generate(container));
-            }
-        });
-    }
-
-    /**
      * Fire a document added notification.
      * 
      * @param container
@@ -3346,39 +3251,6 @@ public final class ContainerModelImpl extends
      */
     private User readUser(final JabberId userId) {
         return getUserModel().read(userId);
-    }
-
-    /**
-     * Restore has become deprecated.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    private void restoreDeprecated(final Long containerId) {
-        try {
-            assertIsDistributed("Container has not been distributed.", containerId);
-
-            final InternalArtifactModel artifactModel = getArtifactModel();
-            artifactModel.removeFlagArchived(containerId);
-            // restore the draft if one exists
-            final InternalSessionModel sessionModel = getSessionModel();
-            final JabberId draftOwner = sessionModel.readKeyHolder(
-                    artifactModel.readUniqueId(containerId));
-            if (draftOwner.equals(User.THINKPARITY.getId())) {
-                logger.logInfo("No remote draft exists for {0}.", containerId);
-            } else {
-                final List<TeamMember> team = readTeam(containerId);
-                final ContainerDraft draft = new ContainerDraft();
-                draft.setLocal(Boolean.FALSE);
-                draft.setContainerId(containerId);
-                draft.setOwner(team.get(indexOf(team, draftOwner)));
-                containerIO.createDraft(draft);
-            }
-            containerService.restore(getAuthToken(), read(containerId));
-            notifyContainerRestored(read(containerId), localEventGenerator);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
     }
 
     /**

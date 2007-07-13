@@ -22,14 +22,6 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
 public interface ContainerListener extends EventListener {
 
     /**
-     * A container was archived.
-     * 
-     * @param e
-     *            The container event.
-     */
-    public void containerArchived(final ContainerEvent e);
-
-    /**
      * A container bookmark has been added.
      * 
      * @param e
@@ -116,14 +108,6 @@ public interface ContainerListener extends EventListener {
      *            A <code>ContainerEvent</code>.
      */
     public void containerRenamed(final ContainerEvent e);
-
-    /**
-     * A container was restored.
-     * 
-     * @param e
-     *            The container event.
-     */
-    public void containerRestored(final ContainerEvent e);
 
     /**
      * A container was updated.

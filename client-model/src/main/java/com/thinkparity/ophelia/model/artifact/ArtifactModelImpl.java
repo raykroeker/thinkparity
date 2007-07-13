@@ -70,18 +70,6 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagArchived(java.lang.Long)
-     * 
-     */
-    public void applyFlagArchived(final Long artifactId) {
-        try {
-            applyFlag(artifactId, ArtifactFlag.ARCHIVED);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagBookmark(java.lang.Long)
      * 
      */
@@ -92,18 +80,6 @@ public final class ArtifactModelImpl extends Model implements
             throw panic(t);
         }
     }
-
-	/**
-     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagKey(java.lang.Long)
-     * 
-     */
-    public void applyFlagKey(final Long artifactId) {
-        try {
-            applyFlag(artifactId, ArtifactFlag.KEY);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-	}
 
     /**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagLatest(java.lang.Long)
@@ -501,18 +477,6 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#removeFlagArchived(java.lang.Long)
-     * 
-     */
-    public void removeFlagArchived(final Long artifactId) {
-        try {
-            removeFlag(artifactId, ArtifactFlag.ARCHIVED);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#removeFlagBookmark(java.lang.Long)
      * 
      */
@@ -523,18 +487,6 @@ public final class ArtifactModelImpl extends Model implements
             throw panic(t);
         }
     }
-
-    /**
-     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#removeFlagKey(java.lang.Long)
-     * 
-     */
-    public void removeFlagKey(final Long artifactId) {
-		try {
-		    removeFlag(artifactId, ArtifactFlag.KEY);   
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-	}
 
     /**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#removeFlagLatest(java.lang.Long)

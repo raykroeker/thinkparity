@@ -28,17 +28,6 @@ import com.thinkparity.codebase.model.user.User;
 public interface ContainerService {
 
     /**
-     * Archive the container.
-     * 
-     * @param authToken
-     *            An <code>AuthToken</code>.
-     * @param container
-     *            A <code>Container</code>.
-     */
-    @WebMethod
-    void archive(AuthToken authToken, Container container);
-
-    /**
      * Confirm receipt of a container version.
      * 
      * @param authToken
@@ -105,15 +94,4 @@ public interface ContainerService {
             List<DocumentVersion> documentVersions,
             List<ArtifactReceipt> receivedBy, Calendar publishedOn,
             List<EMail> publishToEMails, List<User> publishToUsers);
-
-    /**
-     * Restore the container from the archive.
-     * 
-     * @param authToken
-     *            An <code>AuthToken</code>.
-     * @param container
-     *            A <code>Container</code>.
-     */
-    @WebMethod
-    void restore(AuthToken authToken, Container container);
 }

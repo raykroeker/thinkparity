@@ -27,14 +27,6 @@ import com.thinkparity.desdemona.util.AuthenticationType;
 public interface ContainerModel {
 
     /**
-     * Archive the container.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     */
-    public void archive(final Container container);
-
-    /**
      * Confirm receipt of a container version.
      * 
      * @param container
@@ -97,13 +89,5 @@ public interface ContainerModel {
             final List<DocumentVersion> documentVersions,
             final List<ArtifactReceipt> receivedBy, final Calendar publishedOn,
             final List<EMail> publishToEMails, final List<User> publishToUsers);
-
-    /**
-     * Restore the container.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     */
-    public void restore(final Container container);
 }
 

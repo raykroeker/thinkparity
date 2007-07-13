@@ -40,14 +40,6 @@ public class ContainerSEI extends ServiceSEI implements ContainerService {
     }
 
     /**
-     * @see com.thinkparity.service.ContainerService#archive(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.container.Container)
-     *
-     */
-    public void archive(final AuthToken authToken, final Container container) {
-        getModel(authToken).archive(container);
-    }
-
-    /**
      * @see com.thinkparity.service.ContainerService#confirmReceipt(AuthToken,
      *      ContainerVersion, Calendar, Calendar)
      * 
@@ -96,14 +88,6 @@ public class ContainerSEI extends ServiceSEI implements ContainerService {
             final List<EMail> publishToEMails, final List<User> publishToUsers) {
         getModel(authToken).publishVersion(version, documentVersions,
                 receivedBy, publishedOn, publishToEMails, publishToUsers);
-    }
-
-    /**
-     * @see com.thinkparity.service.ContainerService#restore(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.container.Container)
-     *
-     */
-    public void restore(final AuthToken authToken, final Container container) {
-        getModel(authToken).restore(container);
     }
 
     /**

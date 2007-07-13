@@ -22,18 +22,6 @@ import com.thinkparity.codebase.model.user.TeamMember;
  */
 public interface InternalBackupModel extends BackupModel {
 
-    /**
-     * Archive an artifact.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            A unique id <code>UUID</code>.
-     */
-    public void archive(final UUID uniqueId);
-
-    public Boolean isArchived(final Artifact artifact);
-
     public Boolean isBackedUp(final Artifact artifact);
 
     public Boolean isBackupEnabled();
@@ -52,15 +40,4 @@ public interface InternalBackupModel extends BackupModel {
 
     public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
             final Long versionId);
-
-    /**
-     * Restore an artifact. This will simply remove the archived flag within the
-     * backup.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>Long</code>.
-     */
-    public void restore(final UUID containerUniqueId);
 }

@@ -89,16 +89,6 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     }
 
     /**
-     * Notify the avatar that a container has been archived.
-     * 
-     * @param e
-     *            A <code>ContainerEvent</code>.
-     */
-    public void fireArchived(final ContainerEvent e) {
-        sync(e);
-    }
-
-    /**
      * Notify the avatar that a container has been created.
      * 
      * @param e
@@ -251,19 +241,6 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
                 model.syncRenamed(e.getContainer());
             }
         }); 
-    }
-
-    /**
-     * Notify the avatar that a container has been restored.
-     * 
-     * @param e
-     *            A <code>ContainerEvent</code>.
-     */
-    public void fireRestored(final ContainerEvent e) {
-        if (e.isRemote()) {
-            removeFlagSeen(e);
-        }
-        sync(e);
     }
 
     /**

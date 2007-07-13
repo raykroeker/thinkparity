@@ -20,7 +20,27 @@ import com.thinkparity.codebase.assertion.Assert;
  */
 public enum ArtifactFlag {
 
-	ARCHIVED(1), BOOKMARK(2), KEY(4), LATEST(8), SEEN(16);
+	BOOKMARK(1), LATEST(2), SEEN(4);
+
+    /**
+	 * Obtain an artifact flag from its id.
+	 * 
+	 * @param id
+	 *            The artifact flag id.
+	 * @return The artifact flag.
+	 */
+	public static ArtifactFlag fromId(final Integer id) {
+		switch (id) {
+        case 1:
+            return BOOKMARK;
+        case 2:
+            return LATEST;
+		case 4:
+            return SEEN;
+		default:
+			throw Assert.createUnreachable("Unknown artifact flag id:  " + id);
+		}
+	}
 
     /**
      * Extract the flags from an id sum.
@@ -37,7 +57,7 @@ public enum ArtifactFlag {
         return values;
     }
 
-    /**
+	/**
      * Extract the flags from an id sum.
      * 
      * @param idSum
@@ -52,30 +72,6 @@ public enum ArtifactFlag {
     }
 
 	/**
-	 * Obtain an artifact type from its id.
-	 * 
-	 * @param id
-	 *            The artifact type id.
-	 * @return The artifact type.
-	 */
-	public static ArtifactFlag fromId(final Integer id) {
-		switch(id) {
-		case 1:
-            return ARCHIVED;
-        case 2:
-            return BOOKMARK;
-        case 4:
-            return KEY;
-        case 8:
-            return LATEST;
-		case 16:
-            return SEEN;
-		default:
-			throw Assert.createUnreachable("Unknown artifact flag id:  " + id);
-		}
-	}
-
-	/**
 	 * The artifact type id.
 	 * 
 	 */
@@ -87,12 +83,16 @@ public enum ArtifactFlag {
 	 * @param id
 	 *            The artifact flag id.
 	 */
-	private ArtifactFlag(final Integer id) { this.id = id; }
+	private ArtifactFlag(final Integer id) {
+        this.id = id;
+	}
 
 	/**
 	 * Obtain the artifact flag id.
 	 * 
 	 * @return The artifact flag id.
 	 */
-	public Integer getId() { return id; }
+	public Integer getId() {
+        return id;
+	}
 }

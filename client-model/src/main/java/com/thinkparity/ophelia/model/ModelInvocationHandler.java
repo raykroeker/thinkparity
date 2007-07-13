@@ -93,35 +93,37 @@ final class ModelInvocationHandler implements InvocationHandler {
             for (int i = 0; i < args.length; i++)
                 LOGGER.logDebug("args[{0}]:{1}", i, args[i]);
         }
-        final Transaction transaction = workspace.getTransaction();
-        final TransactionContext transactionContext = newXAContext(method);
-        beginXA(transaction, transactionContext);
-        try {
-            /* if the method is annotated as online, ensure that we are
-             * online */
-            if (isOnline(method))
-                model.ensureOnline();
-            model.setInvocationContext(new ModelInvocationContext() {
-                public Object[] getArguments() {
-                    return null == args ? NO_ARGS : args;
-                }
-                public Method getMethod() {
-                    return method;
-                }
-            });
-            ModelInvocationMetrics.begin(method);
-            final Object result = method.invoke(model, args);
-            ModelInvocationMetrics.end(method);
-            model.notifyListeners();
-            return LOGGER.logVariable("result", result);
-        } catch (final InvocationTargetException itx) {
-            rollbackXA(transaction, transactionContext);
-            throw itx.getTargetException();
-        } catch (final Throwable t) {
-            rollbackXA(transaction, transactionContext);
-            throw t;
-        } finally {
-            completeXA(transaction, transactionContext);
+        synchronized (workspace) {
+            final Transaction transaction = workspace.getTransaction();
+            final TransactionContext transactionContext = newXAContext(method);
+            beginXA(transaction, transactionContext);
+            try {
+                /* if the method is annotated as online, ensure that we are
+                 * online */
+                if (isOnline(method))
+                    model.ensureOnline();
+                model.setInvocationContext(new ModelInvocationContext() {
+                    public Object[] getArguments() {
+                        return null == args ? NO_ARGS : args;
+                    }
+                    public Method getMethod() {
+                        return method;
+                    }
+                });
+                ModelInvocationMetrics.begin(method);
+                final Object result = method.invoke(model, args);
+                ModelInvocationMetrics.end(method);
+                model.notifyListeners();
+                return LOGGER.logVariable("result", result);
+            } catch (final InvocationTargetException itx) {
+                rollbackXA(transaction, transactionContext);
+                throw itx.getTargetException();
+            } catch (final Throwable t) {
+                rollbackXA(transaction, transactionContext);
+                throw t;
+            } finally {
+                completeXA(transaction, transactionContext);
+            }
         }
     }
 

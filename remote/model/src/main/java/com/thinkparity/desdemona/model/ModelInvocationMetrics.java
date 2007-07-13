@@ -3,7 +3,6 @@
  */
 package com.thinkparity.desdemona.model;
 
-import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -33,11 +32,9 @@ class ModelInvocationMetrics {
      * Begin the metrics for the context.
      * 
      * @param context
-     *            A <code>Method</code> context.
+     *            A <code>ModelInvocationContext</code> context.
      */
-    static void begin(final Method context) {
-        if (MEASURES.containsKey(context))
-            MEASURES.remove(context);
+    static void begin(final ModelInvocationContext context) {
         MEASURES.put(context, captureMeasure());
     }
 
@@ -45,21 +42,20 @@ class ModelInvocationMetrics {
      * End the metrics for the context.
      * 
      * @param context
-     *            A <code>Method</code> context.
+     *            A <code>ModelInvocationContext</code> context.
      */
-    static void end(final Method context) {
-        final Measure begin = MEASURES.get(context);
+    static void end(final ModelInvocationContext context) {
+        final Measure begin = MEASURES.remove(context);
         final Measure end = captureMeasure();
-        final StringBuffer id = new StringBuffer(context.getDeclaringClass().getSimpleName())
-            .append("#")
-            .append(context.getName());
-        for (int i = id.length(); i < 45; i++)
-            id.append(" ");
-        LOGGER.logDebug("{0} {1} ms{2}{3} free{2}{4} max{2}{5} total",
-                id, end.currentTimeMillis - begin.currentTimeMillis,
-                ",", end.freeMemory - begin.freeMemory,
-                end.maxMemory - begin.maxMemory,
-                end.totalMemory - begin.totalMemory);
+        LOGGER.logDebug("{0};{1};{2};{3};{4};{5};{6};{7}",
+                context.toString(),                                 // id
+                end.currentTimeMillis - begin.currentTimeMillis,    // duration
+                end.freeMemory,                                     // free
+                end.maxMemory,                                      // max
+                end.totalMemory,                                    // total
+                end.freeMemory - begin.freeMemory,                  // free mem delta
+                end.maxMemory - begin.maxMemory,                    // max mem delta
+                end.totalMemory - begin.totalMemory);               // total mem delta
     }
 
     private static Measure captureMeasure() {

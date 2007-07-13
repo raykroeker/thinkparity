@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 /**
@@ -25,6 +26,26 @@ final class ModelInvocationHandler implements InvocationHandler {
 
     static {
         LOGGER = new Log4JWrapper(ModelInvocationHandler.class);
+    }
+
+    /**
+     * Create a new model invocation context.
+     * 
+     * @param proxy
+     *            A proxy <code>Object</code>.
+     * @param method
+     *            A <code>Method</code>.
+     * @param args
+     *            The method argument <code>Object[]</code>.
+     * @return A <code>ModelInvocationContext</code>.
+     */
+    private static ModelInvocationContext newContext(final Object proxy,
+            final Method method, final Object[] args) {
+        final ModelInvocationContext context = new ModelInvocationContext();
+        context.setArguments(args);
+        context.setId(JVMUniqueId.nextId());
+        context.setMethod(method);
+        return context;
     }
 
     /** The target <code>AbstractModelImpl</code>. */
@@ -51,7 +72,8 @@ final class ModelInvocationHandler implements InvocationHandler {
             for (int i = 0; i < args.length; i++)
                 LOGGER.logDebug("args[{0}]:{1}", i, args[i]);
         }
-        ModelInvocationMetrics.begin(method);
+        final ModelInvocationContext context = newContext(proxy, method, args);
+        ModelInvocationMetrics.begin(context);
         try {
             return LOGGER.logVariable("result", method.invoke(model, args));
         } catch (final InvocationTargetException itx) {
@@ -59,7 +81,7 @@ final class ModelInvocationHandler implements InvocationHandler {
         } catch (final Throwable t) {
             throw t;
         } finally {
-            ModelInvocationMetrics.end(method);
+            ModelInvocationMetrics.end(context);
         }
     }
 }

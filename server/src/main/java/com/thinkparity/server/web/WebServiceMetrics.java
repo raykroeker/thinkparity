@@ -49,17 +49,20 @@ class WebServiceMetrics {
     static void end(final HttpServletRequest context) {
         final Measure begin = MEASURES.remove(context);
         final Measure end = captureMeasure();
-        final StringBuilder id = new StringBuilder(64)
-            .append(context.getAttribute("serviceId"))
-            .append(':')
-            .append(context.getAttribute("operationId"));
-        for (int i = id.length(); i < 45; i++)
-            id.append(" ");
-        LOGGER.logDebug("{0} {1} ms{2}{3} free{2}{4} max{2}{5} total",
-                id, end.currentTimeMillis - begin.currentTimeMillis,
-                ",", end.freeMemory - begin.freeMemory,
-                end.maxMemory - begin.maxMemory,
-                end.totalMemory - begin.totalMemory);
+        final String id = new StringBuilder(64)
+            .append(context.getHeader("serviceId"))
+            .append('#')
+            .append(context.getHeader("operationId"))
+            .toString();
+        LOGGER.logDebug("{0};{1};{2};{3};{4};{5};{6};{7}",
+                id,                                                 // id
+                end.currentTimeMillis - begin.currentTimeMillis,    // duration
+                end.freeMemory,                                     // free
+                end.maxMemory,                                      // max
+                end.totalMemory,                                    // total
+                end.freeMemory - begin.freeMemory,                  // free mem delta
+                end.maxMemory - begin.maxMemory,                    // max mem delta
+                end.totalMemory - begin.totalMemory);               // total mem delta
     }
 
     private static Measure captureMeasure() {

@@ -11,7 +11,7 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ophelia"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.library.path=&quot;${THINKPARITY_HOME}/vendor/i686/win32\jdic\0.9.1;${THINKPARITY_HOME}\ophelia\target\i686\win32&quot; -Dthinkparity-directory=&quot;${resource_path:/ophelia/target/classes}&quot; -Dthinkparity-executable=&quot;${env_var:JAVA_HOME}\jre\bin\javaw.exe&quot; -Dthinkparity.image-executable=&quot;${env_var:JAVA_HOME}\jre\bin\javaw.exe&quot; -Dthinkparity.mode=DEVELOPMENT -Dthinkparity.environment=DEVELOPMENT_TESTING -Dthinkparity.product-name=OpheliaProduct -Dthinkparity.release-name=v1_0-20070703-1030  -XX:+PrintConcurrentLocks"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.library.path=&quot;${THINKPARITY_HOME}/vendor/i686/win32\jdic\0.9.1;${THINKPARITY_HOME}\ophelia\target\i686\win32&quot; -Dthinkparity-directory=&quot;${resource_path:/ophelia/target/classes}&quot; -Dthinkparity-executable=&quot;${env_var:JAVA_HOME}\jre\bin\javaw.exe&quot; -Dthinkparity.image-executable=&quot;${env_var:JAVA_HOME}\jre\bin\javaw.exe&quot; -Dthinkparity.mode=DEVELOPMENT -Dthinkparity.environment=DEVELOPMENT_TESTING -Dthinkparity.product-name=OpheliaProduct -Dthinkparity.release-name=v1_0-20070713-1515  -XX:+PrintConcurrentLocks"/>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>

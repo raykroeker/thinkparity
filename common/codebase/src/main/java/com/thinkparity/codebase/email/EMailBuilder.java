@@ -63,6 +63,8 @@ public class EMailBuilder {
         final int lastIndexOfDot = s.lastIndexOf('.');
         if (indexOfDot != lastIndexOfDot)
             throw new EMailFormatException("EMail contains an extra '.'", s);
+        if (indexOfAt + 1 == indexOfDot)
+            throw new EMailFormatException("Email does not contain sld.", s);
 		final String username = s.substring(0, indexOfAt);
 		final String domain = s.substring(indexOfAt + 1);
 		if (0 == domain.length())

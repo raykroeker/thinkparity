@@ -329,6 +329,8 @@ public class BrowserWindow extends AbstractJFrame {
         SwingUtil.setCursor(this, Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         // remove the intercept pane
         removeInterceptPane();
+        // put focus in the tab
+        browser.requestFocusInTab();
     }
 
     /**

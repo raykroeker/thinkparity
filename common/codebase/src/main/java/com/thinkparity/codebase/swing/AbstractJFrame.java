@@ -85,6 +85,8 @@ public abstract class AbstractJFrame extends JFrame {
         }
         setGlassPane(interceptPane);
         interceptPane.setVisible(true);
+        // request focus so key bindings on other components won't work
+        interceptPane.requestFocus();
         repaint();
     }
 

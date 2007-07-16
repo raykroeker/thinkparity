@@ -104,7 +104,11 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
                 logger.logApiId();
                 logger.logVariable("comp", comp);
                 logger.logVariable("transferFlavors", transferFlavors);
-                return model.canImportData((TabPanel) comp, transferFlavors);
+                if (getController().isBusy()) {
+                    return false;
+                } else {
+                    return model.canImportData((TabPanel) comp, transferFlavors);
+                }
             }
             @Override
             public boolean importData(final JComponent comp,
@@ -136,7 +140,11 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
                 logger.logApiId();
                 logger.logVariable("comp", comp);
                 logger.logVariable("transferFlavors", transferFlavors);
-                return model.canImportData(transferFlavors);
+                if (getController().isBusy()) {
+                    return false;
+                } else {
+                    return model.canImportData(transferFlavors);
+                }
             }
             @Override
             public boolean importData(final JComponent comp,

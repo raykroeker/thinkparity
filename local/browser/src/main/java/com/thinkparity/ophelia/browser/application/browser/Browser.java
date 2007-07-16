@@ -851,6 +851,15 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Determine whether or not the browser is busy.
+     * 
+     * @return True if the browser is busy.
+     */
+    public Boolean isBusy() {
+        return mainWindow.isBusyIndicatorApplied();
+    }
+
+    /**
      * Determine if the browser window is maximized.
      * 
      * @return true if the browser window is maximized; false otherwise.

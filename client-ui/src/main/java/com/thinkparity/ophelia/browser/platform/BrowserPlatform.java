@@ -29,6 +29,7 @@ import com.thinkparity.ophelia.model.events.MigratorEvent;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
+import com.thinkparity.ophelia.model.workspace.CannotLockException;
 import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
@@ -96,9 +97,12 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      *            The platform <code>Profile</code> to open.
      * 
      * @return The platform.
+     * @throws CannotLockException
+     *             if the profile cannot be exclusively locked
      */
     public static Platform create(final Mode mode,
-            final Environment environment, final Profile profile) {
+            final Environment environment, final Profile profile)
+            throws CannotLockException {
         Assert.assertIsNull("The platform has already been created.", SINGLETON);
         SINGLETON = new BrowserPlatform(mode, environment, profile);
         return BrowserPlatform.getInstance();
@@ -175,7 +179,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      *            A profile to open.
      */
 	private BrowserPlatform(final Mode mode, final Environment environment,
-            final Profile profile) {
+            final Profile profile) throws CannotLockException {
         super();
         this.environment = environment;
         this.mode = mode;

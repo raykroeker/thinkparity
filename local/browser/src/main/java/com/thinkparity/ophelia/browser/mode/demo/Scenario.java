@@ -25,6 +25,7 @@ import com.thinkparity.ophelia.model.script.Script;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
+import com.thinkparity.ophelia.model.workspace.CannotLockException;
 import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
@@ -121,6 +122,9 @@ public final class Scenario {
             initializeProfile(script);
             try {
                 initializeWorkspace(script);
+            } catch (final CannotLockException clx) {
+                monitor.notifyScriptError(script, clx);
+                break;
             } catch (final InvalidCredentialsException icx) {
                 monitor.notifyScriptError(script, icx);
                 break;
@@ -291,7 +295,8 @@ public final class Scenario {
      *            A <code>Script</code>.
      */
     private void initializeWorkspace(final Script script)
-            throws InvalidCredentialsException, InvalidLocationException {
+            throws CannotLockException, InvalidCredentialsException,
+            InvalidLocationException {
         final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
         final Workspace workspace = workspaceModel.getWorkspace(profiles.get(script));
         workspaceModel.initialize(INITIALIZE_MONITOR, INITIALIZE_MEDIATOR,

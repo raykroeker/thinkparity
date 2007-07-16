@@ -21,9 +21,11 @@ import com.thinkparity.codebase.model.util.xapool.XADataSourcePool;
 import com.thinkparity.codebase.model.util.xapool.XADataSourceConfiguration.Key;
 
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
+import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaDataType;
+import com.thinkparity.ophelia.model.workspace.CannotLockException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
 
@@ -169,7 +171,7 @@ class PersistenceManagerImpl {
      * Start the persistence manager.
      *
      */
-    void start() {
+    void start() throws CannotLockException {
         try {
             // create the data source
             final XADataSourceConfiguration xaDataSourceConfiguration;
@@ -195,6 +197,13 @@ class PersistenceManagerImpl {
             // bind the transaction manager to the data source
             transactionManager.bind((XADataSourcePool) dataSource);
             sessionManager = new SessionManager(dataSource);
+
+            // check to ensure the database is not locked
+            if (isLocked()) {
+                throw new CannotLockException(url.toString());
+            }
+        } catch (final CannotLockException clx) {
+            throw clx;
         } catch (final Throwable t) {
             throw new WorkspaceException("Cannot start persistence manager.", t);
         }
@@ -235,5 +244,28 @@ class PersistenceManagerImpl {
         final Transaction transaction = getTransaction();
         transaction.begin();
         return transaction;
+    }
+
+    /**
+     * Determine whether or not the database is locked.
+     * 
+     * @return True if the database is locked.
+     */
+    private boolean isLocked() {
+        Session session = null;
+        try {
+            session = sessionManager.openSession();
+            return false;
+        } catch (final HypersonicException hx) {
+            /* if the db is locked merely opening a session (connection) will
+             * throw an error
+             * 
+             * NOTE the xapool data-source prints the exception stack */
+            return true;
+        } finally {
+            if (null != session) {
+                session.close();
+            }
+        }
     }
 }

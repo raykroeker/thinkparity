@@ -214,7 +214,7 @@ public class WorkspaceModel {
      * 
      * @return The workspace.
      */
-    public Workspace getWorkspace(final File workspace) {
+    public Workspace getWorkspace(final File workspace) throws CannotLockException {
         synchronized (WORKSPACES) {
             if (WORKSPACES.containsKey(workspace)) {
                 return WORKSPACES.get(workspace);

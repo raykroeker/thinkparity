@@ -9,6 +9,7 @@ import java.util.List;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
+import com.thinkparity.codebase.junitx.TestException;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.Context;
@@ -24,6 +25,7 @@ import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
+import com.thinkparity.ophelia.model.workspace.CannotLockException;
 import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
@@ -121,7 +123,7 @@ public class OpheliaTestUser extends User {
     private final Environment environment;
 
     /** The test user's workspace. */
-    private final Workspace workspace;
+    private Workspace workspace;
 
 	/**
      * Create OpheliaTestUser.
@@ -139,10 +141,15 @@ public class OpheliaTestUser extends User {
 		this.credentials.setUsername(username);
         this.environment = environment;
         final WorkspaceModel workspaceModel = WorkspaceModel.getInstance(environment);
-        this.workspace =
-            workspaceModel.getWorkspace(
-                    new File(OpheliaTestCase.SESSION.getOutputDirectory(),
-                            "TEST." + username));
+        try {
+            this.workspace =
+                workspaceModel.getWorkspace(
+                        new File(OpheliaTestCase.SESSION.getOutputDirectory(),
+                                "TEST." + username));
+        } catch (final CannotLockException clx) {
+            this.workspace = null;
+            throw new TestException(clx);
+        }
         try {
             processOfflineQueue();
         } catch (final InvalidCredentialsException icx) {

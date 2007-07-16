@@ -8,6 +8,8 @@ import com.thinkparity.codebase.Mode;
 
 import com.thinkparity.codebase.model.session.Environment;
 
+import com.thinkparity.ophelia.model.workspace.CannotLockException;
+
 import com.thinkparity.ophelia.browser.environment.EnvironmentManager;
 import com.thinkparity.ophelia.browser.mode.ModeManager;
 import com.thinkparity.ophelia.browser.mode.demo.DemoManager;
@@ -39,12 +41,20 @@ public class Browser {
             final Environment environment = new EnvironmentManager().select();
             final Profile profile = new ProfileManager(mode, environment).select();
             if (null != mode && null != environment && null != profile) {
-                BrowserPlatform.create(mode, environment, profile).start();
+                try {
+                    BrowserPlatform.create(mode, environment, profile).start();
+                } catch (final CannotLockException clx) {
+                    clx.printStackTrace(System.err);
+                    System.exit(1);
+                }
             }
         }
     }
 
-    /** Create Browser. */
+    /**
+     * Create Browser.
+     * 
+     */
     private Browser() {
         super();
     }

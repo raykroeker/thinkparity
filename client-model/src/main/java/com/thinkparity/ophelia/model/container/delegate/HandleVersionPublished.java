@@ -14,10 +14,10 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedEvent;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.container.ContainerDelegate;
+import com.thinkparity.ophelia.model.container.event.LocalVersionPublishedEvent;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 
@@ -34,7 +34,7 @@ public final class HandleVersionPublished extends ContainerDelegate {
     private Long containerId;
 
     /** A version published event. */
-    private VersionPublishedEvent event;
+    private LocalVersionPublishedEvent event;
 
     /** The published by user. */
     private User publishedBy;
@@ -76,7 +76,8 @@ public final class HandleVersionPublished extends ContainerDelegate {
         }
         // update documents
         handleDocumentVersionsResolution(version, event.getDocumentVersions(),
-                event.getPublishedBy(), event.getPublishedOn());
+                event.getDocumentVersionFiles(), event.getPublishedBy(),
+                event.getPublishedOn());
         // update the local user published to
         final ArtifactReceipt localUserReceipt =
             containerIO.readPublishedToReceipt(container.getId(),
@@ -151,9 +152,9 @@ public final class HandleVersionPublished extends ContainerDelegate {
      * Set event.
      * 
      * @param event
-     *            A <code>VersionPublishedEvent</code>.
+     *            A <code>LocalVersionPublishedEvent</code>.
      */
-    public void setEvent(final VersionPublishedEvent event) {
+    public void setEvent(final LocalVersionPublishedEvent event) {
         this.event = event;
     }
 

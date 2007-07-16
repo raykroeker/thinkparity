@@ -5,6 +5,8 @@ package com.thinkparity.codebase.model.queue.notification;
 
 import java.nio.charset.Charset;
 
+import com.thinkparity.codebase.StringUtil;
+
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
@@ -108,5 +110,16 @@ public final class NotificationSession {
      */
     public void setServerPort(final Integer port) {
         this.serverPort = port;
+    }
+
+    /**
+     * @see java.lang.Object#toString()
+     *
+     */
+    @Override
+    public String toString() {
+        return StringUtil.toString(NotificationSession.class, "id", id,
+                "serverHost", serverHost, "serverPort", serverPort,
+                "charset", charset);
     }
 }

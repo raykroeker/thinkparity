@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.container;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
@@ -157,15 +158,16 @@ public abstract class ContainerDelegate extends
 
     /**
      * @see ContainerModelImpl#handleDocumentVersionsResolution(ContainerVersion,
-     *      Map, JabberId, Calendar)
+     *      List, Map, JabberId, Calendar)
      * 
      */
     protected final void handleDocumentVersionsResolution(
             final ContainerVersion containerVersion,
-            final List<DocumentVersion> documentVersions,
+            final List<DocumentVersion> versions,
+            final Map<DocumentVersion, File> versionFiles,
             final JabberId publishedBy, final Calendar publishedOn) {
         modelImplementation.handleDocumentVersionsResolution(containerVersion,
-                documentVersions, publishedBy, publishedOn);
+                versions, versionFiles, publishedBy, publishedOn);
     }
 
     /**

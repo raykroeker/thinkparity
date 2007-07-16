@@ -26,6 +26,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
@@ -270,14 +271,16 @@ public final class DocumentModelImpl extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#handleDocumentPublished(java.lang.Long,
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#handleDocumentPublished(com.thinkparity.codebase.model.container.ContainerVersion,
      *      com.thinkparity.codebase.model.document.DocumentVersion,
-     *      com.thinkparity.codebase.jabber.JabberId, java.util.Calendar)
+     *      java.io.File, com.thinkparity.codebase.jabber.JabberId,
+     *      java.util.Calendar)
      * 
      */
-    public DocumentVersion handleDocumentPublished(final Long containerId,
-            final DocumentVersion version, final JabberId publishedBy,
-            final Calendar publishedOn) {
+    public DocumentVersion handleDocumentPublished(
+            final ContainerVersion containerVersion,
+            final DocumentVersion version, final File versionFile,
+            final JabberId publishedBy, final Calendar publishedOn) {
         try {
             final InternalArtifactModel artifactModel  = getArtifactModel();
             final Document document;
@@ -293,44 +296,35 @@ public final class DocumentModelImpl extends
                             version.getArtifactUniqueId(), version.getVersionId());
                     localVersion = readVersion(document.getId(), version.getVersionId());
                 } else {
-                    final DownloadHelper downloadHelper = newDownloadHelper(version);
-                    final File tempFile = workspace.createTempFile();
+                    Assert.assertNotNull(versionFile,
+                            "Version file {0} cannot be null for version {1}.",
+                            version);
+                    final InputStream input = new FileInputStream(versionFile);
                     try {
-                        downloadHelper.download(tempFile);
-                        final InputStream input = new FileInputStream(tempFile);
-                        try {
-                            localVersion = createVersion(document.getId(),
-                                    version.getVersionId(), input, publishedBy,
-                                    publishedOn);
-                        } finally {
-                            input.close();
-                        }
+                        localVersion = createVersion(document.getId(),
+                                version.getVersionId(), input, publishedBy,
+                                publishedOn);
                     } finally {
-                        // no need to assert; it's temp
-                        tempFile.delete();
+                        input.close();
                     }
                 }
             }
             else {
+                Assert.assertNotNull(versionFile,
+                        "Version file {0} cannot be null for version {1}.",
+                        version);
                 document = create(version.getArtifactUniqueId(),
                         version.getArtifactName(), publishedBy, publishedOn);
-                final DownloadHelper downloadHelper = newDownloadHelper(version);
-                final File tempFile = workspace.createTempFile();
+                final InputStream stream = new FileInputStream(versionFile);
                 try {
-                    downloadHelper.download(tempFile);
-                    final InputStream stream = new FileInputStream(tempFile);
-                    try {
-                        localVersion = createVersion(document.getId(),
-                                version.getVersionId(), stream,
-                                publishedBy, publishedOn);
-                    } finally {
-                        stream.close();
-                    }
+                    localVersion = createVersion(document.getId(),
+                            version.getVersionId(), stream,
+                            publishedBy, publishedOn);
                 } finally {
-                    // no need to assert; it's temp
-                    tempFile.delete();
+                    stream.close();
                 }
-                getIndexModel().indexDocument(containerId, document.getId());
+                getIndexModel().indexDocument(containerVersion.getArtifactId(),
+                        document.getId());
             }
             return localVersion;
         } catch (final Throwable t) {

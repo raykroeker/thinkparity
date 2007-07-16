@@ -13,9 +13,9 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
 
 import com.thinkparity.ophelia.model.container.ContainerDelegate;
+import com.thinkparity.ophelia.model.container.event.LocalPublishedEvent;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
@@ -29,8 +29,8 @@ import com.thinkparity.ophelia.model.user.InternalUserModel;
  */
 public final class HandlePublished extends ContainerDelegate {
 
-    /** A published event. */
-    private PublishedEvent event;
+    /** A local published event. */
+    private LocalPublishedEvent event;
 
     /** The published by user. */
     private User publishedBy;
@@ -67,7 +67,8 @@ public final class HandlePublished extends ContainerDelegate {
         final Calendar receivedOn = sessionModel.readDateTime();
         // update documents
         handleDocumentVersionsResolution(version, event.getDocumentVersions(),
-                event.getPublishedBy(), event.getPublishedOn());
+                event.getDocumentVersionFiles(), event.getPublishedBy(),
+                event.getPublishedOn());
         // build published to list
         final InternalUserModel userModel = getUserModel();
         final List<JabberId> publishedToIds = new ArrayList<JabberId>(event.getPublishedTo().size());
@@ -110,9 +111,9 @@ public final class HandlePublished extends ContainerDelegate {
      * Set event.
      *
      * @param event
-     *		A ContainerPublishedEvent.
+     *		A LocalContainerPublishedEvent.
      */
-    public void setEvent(final PublishedEvent event) {
+    public void setEvent(final LocalPublishedEvent event) {
         this.event = event;
     }
 

@@ -8,7 +8,7 @@ import java.text.MessageFormat;
 import com.thinkparity.codebase.assertion.Assert;
 
 /**
- * <b>Title:</b>thinkParity Size Format<br>
+ * <b>Title:</b>thinkParity Bytes Format<br>
  * <b>Description:</b>A size format has the ability to format a given number of
  * bytes into a string for display.<br>
  * 
@@ -29,7 +29,7 @@ public class BytesFormat {
     }
 
     /**
-     * Create SizeFormat.
+     * Create BytesFormat.
      *
      */
     public BytesFormat() {
@@ -37,11 +37,22 @@ public class BytesFormat {
     }
 
     /**
-     * Format a number of bytes into a string.
+     * Format a number of bytes into an appropriate unit string.
      * 
      * @param bytes
-     *            A number of bytes.
-     * @return A display string.
+     *            An <code>Integer</code> number of bytes.
+     * @return A display <code>String</code>.
+     */
+    public String format(final Integer bytes) {
+        return format(Long.valueOf(bytes.longValue()));
+    }
+
+    /**
+     * Format a number of bytes into an appropriate string.
+     * 
+     * @param bytes
+     *            A <code>Long</code> number of bytes.
+     * @return A display <code>String</code>.
      */
     public String format(final Long bytes) {
         return format(Unit.AUTO, bytes);
@@ -53,8 +64,21 @@ public class BytesFormat {
      * @param unit
      *            A byte <code>Unit</code>.
      * @param bytes
-     *            A number of bytes.
-     * @return A display string.
+     *            An <code.Integer</code> number of bytes.
+     * @return A display <code>String</code>.
+     */
+    public String format(final Unit unit, final Integer bytes) {
+        return format(unit, Long.valueOf(bytes.longValue()));
+    }
+
+    /**
+     * Format a number of bytes into a string at a given unit.
+     * 
+     * @param unit
+     *            A byte <code>Unit</code>.
+     * @param bytes
+     *            A <code>Long</code> number of bytes.
+     * @return A display <code>String</code>.
      */
     public String format(final Unit unit, final Long bytes) {
         final MessageFormat format;

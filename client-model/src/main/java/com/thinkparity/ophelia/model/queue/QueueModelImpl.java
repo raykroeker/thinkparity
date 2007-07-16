@@ -3,23 +3,20 @@
  */
 package com.thinkparity.ophelia.model.queue;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
-import com.thinkparity.codebase.model.queue.notification.NotificationException;
-import com.thinkparity.codebase.model.queue.notification.NotificationMonitor;
 import com.thinkparity.codebase.model.queue.notification.NotificationSession;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.ophelia.model.Model;
-import com.thinkparity.ophelia.model.queue.monitor.ProcessStep;
-import com.thinkparity.ophelia.model.queue.notification.NotificationReaderRunnable;
+import com.thinkparity.ophelia.model.queue.notification.NotificationClient;
+import com.thinkparity.ophelia.model.queue.notification.NotificationClient.ObservableEvent;
 import com.thinkparity.ophelia.model.session.OfflineCode;
-import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -37,23 +34,18 @@ import com.thinkparity.service.client.ServiceFactory;
 public final class QueueModelImpl extends Model implements QueueModel,
         InternalQueueModel {
 
-    /** A headless monitor for process queue. */
-    private static final ProcessMonitor HEADLESS_MONITOR;
-
-    /** A synchronization lock used to process the event queue. */
-    private static final Object QUEUE_LOCK;
-
     /** A workspace attribute key for the notification client. */
     private static final String WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT;
 
     static {
-        HEADLESS_MONITOR = new ProcessAdapter() {};
         WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT = "QueueModelImpl#notificationClient";
-        QUEUE_LOCK = new Object();
     }
 
     /** A queue web-service interface. */
     private QueueService queueService;
+
+    /** An executors thread factory. */
+    private ThreadFactory threadFactory;
 
     /**
      * Create QueueModelImpl.
@@ -64,26 +56,32 @@ public final class QueueModelImpl extends Model implements QueueModel,
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.queue.InternalQueueModel#deleteEvent(com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent)
+     *
+     */
+    public void deleteEvent(final XMPPEvent event) {
+        try {
+            queueService.deleteEvent(getAuthToken(), event);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.queue.InternalQueueModel#process(com.thinkparity.ophelia.model.util.ProcessMonitor)
      *
      */
     public void process(final ProcessMonitor monitor) {
+        newQueueProcessor().run();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.queue.InternalQueueModel#readEvents()
+     *
+     */
+    public List<XMPPEvent> readEvents() {
         try {
-            final Integer size = queueService.readSize(getAuthToken());
-            notifyDetermine(monitor, size);
-            final EventHandler handler = new EventHandler(modelFactory);
-            synchronized (QUEUE_LOCK) {
-                notifyStepBegin(monitor, ProcessStep.HANDLE_EVENT);
-                final List<XMPPEvent> events = queueService.readEvents(getAuthToken());
-                for (final XMPPEvent event : events) {
-                    try {
-                        handler.handleEvent(event);
-                    } finally {
-                        queueService.deleteEvent(getAuthToken(), event);
-                    }
-                }
-                notifyStepEnd(monitor, ProcessStep.HANDLE_EVENT);
-            }
+            return queueService.readEvents(getAuthToken());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -106,56 +104,22 @@ public final class QueueModelImpl extends Model implements QueueModel,
      * 
      */
     public void startNotificationClient() {
-        try {
-            // stop the client if running
-            if (isSetNotificationClient()) {
-                try {
-                    removeNotificationClient().closeReader();
-                } catch (final Exception x) {
-                    logger.logError(x, "An error occured closing notification client.");
-                } finally {
-                    if (getSessionModel().isOnline()) {
-                        getSessionModel().pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
-                        getSessionModel().notifySessionTerminated();
-                    }
+        // stop the client if running
+        if (isSetNotificationClient()) {
+            try {
+                removeNotificationClient().disconnect();
+            } catch (final Throwable t) {
+                logger.logWarning(t, "An error occured disconnecting notification client.");
+            } finally {
+                if (getSessionModel().isOnline()) {
+                    getSessionModel().pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                    getSessionModel().notifySessionTerminated();
                 }
             }
-            // start the client
-            final NotificationMonitor monitor = new NotificationMonitor() {
-                public void chunkReceived(final int chunkSize) {}
-                public void chunkSent(final int chunkSize) {}
-                public void headerReceived(final String header) {}
-                public void headerSent(final String header) {}
-                public void streamError(final NotificationException error) {
-                    logger.logWarning("Notification client offline.");
-                    if (isSetNotificationClient()) {
-                        try {
-                            removeNotificationClient().closeReader();
-                        } catch (final Exception x) {
-                            logger.logError(x, "An error occured closing notification client.");
-                        } finally {
-                            if (getSessionModel().isOnline()) {
-                                getSessionModel().pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
-                                getSessionModel().notifySessionTerminated();
-                            }
-                        }
-                    }
-                }
-            };
-            final NotificationSession session =
-                queueService.createNotificationSession(getAuthToken());
-            final NotificationReaderRunnable notificationClient =
-                newNotificationClient(monitor, session);
-            setNotificationClient(notificationClient);
-            // THREAD - QueueModelImpl#startNotificationClient
-            final Thread thread =
-                Executors.defaultThreadFactory().newThread(notificationClient);
-            thread.setDaemon(true);
-            thread.setName("TPS-OpheliaModel-NotificationClient");
-            thread.start();
-        } catch (final IOException iox) {
-            throw panic(iox);
         }
+        setNotificationClient(newNotificationClient(
+                queueService.createNotificationSession(getAuthToken())));
+        newThread(getNotificationClient()).start();
     }
 
     /**
@@ -165,8 +129,11 @@ public final class QueueModelImpl extends Model implements QueueModel,
     @Override
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
+        // web-services
         final ServiceFactory serviceFactory = ServiceFactory.getInstance();
-        queueService = serviceFactory.getQueueService();
+        this.queueService = serviceFactory.getQueueService();
+        // thread factory
+        this.threadFactory = Executors.defaultThreadFactory();
     }
 
     /**
@@ -183,8 +150,8 @@ public final class QueueModelImpl extends Model implements QueueModel,
      * 
      * @return A notification client <code>NotificationReaderRunnable</code>.
      */
-    private NotificationReaderRunnable getNotificationClient() {
-        return (NotificationReaderRunnable) workspace.getAttribute(
+    private NotificationClient getNotificationClient() {
+        return (NotificationClient) workspace.getAttribute(
                 WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT);
     }
 
@@ -203,24 +170,58 @@ public final class QueueModelImpl extends Model implements QueueModel,
      * 
      * @param session
      *            A <code>NotificationSession</code>.
-     * @return A <code>NotificationReaderRunnable</code>.
+     * @return A <code>NotificationClient</code>.
      */
-    private NotificationReaderRunnable newNotificationClient(final NotificationMonitor monitor,
-            final NotificationSession session) throws IOException {
-        final NotificationReaderRunnable notificationClient =
-            new NotificationReaderRunnable(monitor, session);
+    private NotificationClient newNotificationClient(final NotificationSession session) {
+        final NotificationClient notificationClient = new NotificationClient();
         notificationClient.addObserver(new Observer() {
             public void update(final Observable o, final Object arg) {
-                final boolean didNotify = ((Boolean) arg).booleanValue();
-                if (didNotify) {
-                    getQueueModel().process(HEADLESS_MONITOR);
-                } else {
-                    // TODO - QueueModelImpl#newNotificationClient - add more complete notification protocol
-                    logger.logWarning("Illegal notification protocol.");
+                final ObservableEvent observableEvent = (ObservableEvent) arg;
+                switch (observableEvent) {
+                case PENDING_EVENTS:
+                    newQueueProcessor().run();
+                    break;
+                case CLIENT_OFFLINE:
+                    if (getSessionModel().isOnline()) {
+                        getSessionModel().pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                        getSessionModel().notifySessionTerminated();
+                    }
+                    break;
+                default:
+                    logger.logWarning("Illegal observable event {0}.",
+                            observableEvent);
                 }
             }
         });
+        notificationClient.setSession(session);
         return notificationClient;
+    }
+
+    /**
+     * Create a new queue processor.
+     * 
+     * @return An instance of <code>QueueProcessor</code>.
+     */
+    private QueueProcessor newQueueProcessor() {
+        final QueueProcessor queueProcessor = new QueueProcessor();
+        queueProcessor.setModelFactory(modelFactory);
+        queueProcessor.setWorkspace(workspace);
+        return queueProcessor;
+    }
+
+    /**
+     * Create a new thread for a notification client.
+     * 
+     * @param notificationClient
+     *            A <code>NotificationClient</code>.
+     * @return A <code>Thread</code>.
+     */
+    private Thread newThread(final NotificationClient notificationClient) {
+        // THREAD - QueueModelImpl#newThread()
+        final Thread thread = threadFactory.newThread(notificationClient);
+        thread.setDaemon(true);
+        thread.setName("TPS-OpheliaModel-NotificationClient");
+        return thread;
     }
 
     /**
@@ -228,8 +229,8 @@ public final class QueueModelImpl extends Model implements QueueModel,
      * 
      * @return The <code>NotificationReaderRunnable</code>.
      */
-    private NotificationReaderRunnable removeNotificationClient() {
-        final NotificationReaderRunnable notificationClient = getNotificationClient();
+    private NotificationClient removeNotificationClient() {
+        final NotificationClient notificationClient = getNotificationClient();
         if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT)) {
             workspace.removeAttribute(WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT);
         }
@@ -242,7 +243,7 @@ public final class QueueModelImpl extends Model implements QueueModel,
      * @param notificationClient
      *            A notification client <code>Thread</code>.
      */
-    private void setNotificationClient(final NotificationReaderRunnable notificationClient) {
+    private void setNotificationClient(final NotificationClient notificationClient) {
         workspace.setAttribute(WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT, notificationClient);
     }
 }

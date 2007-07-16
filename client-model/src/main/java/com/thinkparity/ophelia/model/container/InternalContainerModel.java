@@ -16,11 +16,11 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedNotificationEvent;
 
+import com.thinkparity.ophelia.model.container.event.LocalPublishedEvent;
+import com.thinkparity.ophelia.model.container.event.LocalVersionPublishedEvent;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
 /**
@@ -79,9 +79,17 @@ public interface InternalContainerModel extends ContainerModel {
      * Handle the remote container published event.
      * 
      * @param event
-     *            A <code>PublishedEvent</code>.
+     *            A <code>LocalPublishedEvent</code>.
      */
-    public void handleEvent(final PublishedEvent event);
+    public void handleEvent(final LocalPublishedEvent event);
+
+    /**
+     * Handle the remote container version published event.
+     * 
+     * @param event
+     *            A <code>LocalVersionPublishedEvent</code>.
+     */
+    public void handleEvent(final LocalVersionPublishedEvent event);
 
     /**
      * Handle the remote container published notification event.
@@ -90,14 +98,6 @@ public interface InternalContainerModel extends ContainerModel {
      *            A <code>PublishedNotificationEvent</code>.
      */
     public void handleEvent(final PublishedNotificationEvent event);
-
-    /**
-     * Handle the remote container version published event.
-     * 
-     * @param event
-     *            A <code>VersionPublishedEvent</code>.
-     */
-    public void handleEvent(final VersionPublishedEvent event);
     
     /**
      * Handle the remote container version published notification event.

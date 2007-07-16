@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.document;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -14,6 +15,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
@@ -118,10 +120,26 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public DocumentNameGenerator getNameGenerator();
 
-    // TODO-javadoc InternalDocumentModel#handleDocumentPublished
-    public DocumentVersion handleDocumentPublished(final Long documentId,
-            final DocumentVersion version, final JabberId publishedBy,
-            final Calendar publishedOn);
+    /**
+     * Handle a document published event.
+     * 
+     * @param containerVersion
+     *            A <code>ContainerVersion</code>.
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @param versionFile
+     *            The version's <code>File</code>.  If the document version
+     *            already exists locally; file is null.
+     * @param publishedBy
+     *            A published by user id <code>JabberId</code>.
+     * @param publishedOn
+     *            A published on date/time <code>Calendar</code>.
+     * @return A <code>DocumentVersion</code>.
+     */
+    public DocumentVersion handleDocumentPublished(
+            final ContainerVersion containerVersion,
+            final DocumentVersion version, final File versionFile,
+            final JabberId publishedBy, final Calendar publishedOn);
 
     /**
      * Determine whether or not the draft of the document has been modified by

@@ -160,6 +160,15 @@ public abstract class NotificationClient {
     }
 
     /**
+     * Determine if the client is connected.
+     * 
+     * @return True if the client is connected.
+     */
+    protected final Boolean isConnected() {
+        return Boolean.valueOf(null != socket && socket.isConnected());
+    }
+
+    /**
      * Read from the socket input into the buffer.
      * 
      * @param buffer
@@ -248,15 +257,6 @@ public abstract class NotificationClient {
         LOGGER.logError(t, "Stream monitor error:  {0}", session);
     }
    }
-
-    /**
-     * Determine if the client is connected.
-     * 
-     * @return True if the client is connected.
-     */
-    private boolean isConnected() {
-        return null != socket && socket.isConnected();
-    }
 
     /**
      * Panic. Check if the error is one that can be recovered from; and create

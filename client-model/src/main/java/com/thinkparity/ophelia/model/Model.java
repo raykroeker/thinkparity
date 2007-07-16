@@ -1028,7 +1028,6 @@ public abstract class Model<T extends EventListener> extends
      */
     protected final DownloadHelper newDownloadHelper(final StreamSession session) {
         final BytesFormat bytesFormat = new BytesFormat();
-
         return new DownloadHelper() {
 
             /**
@@ -1103,7 +1102,7 @@ public abstract class Model<T extends EventListener> extends
                 } else if (!target.isFile()) {
                     error = "Target {0} must be a file.";
                 } else if (session == null) {
-                    error = "Stream ession must exist.";
+                    error = "Stream session must exist.";
                 } else {
                     error = null;
                 }

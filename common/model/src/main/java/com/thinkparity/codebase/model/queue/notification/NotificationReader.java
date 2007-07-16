@@ -54,6 +54,15 @@ public final class NotificationReader extends NotificationClient {
     }
 
     /**
+     * Determine whether or not the notification reader is still open.
+     * 
+     * @return True if the notification reader is open.
+     */
+    public Boolean isOpen() {
+        return isConnected();
+    }
+
+    /**
      * Open the reader.
      * 
      * @throws IOException

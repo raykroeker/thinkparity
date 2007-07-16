@@ -47,15 +47,15 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent;
-import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedNotificationEvent;
 
 import com.thinkparity.ophelia.model.Delegate;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.container.delegate.*;
+import com.thinkparity.ophelia.model.container.event.LocalPublishedEvent;
+import com.thinkparity.ophelia.model.container.event.LocalVersionPublishedEvent;
 import com.thinkparity.ophelia.model.container.export.PDFWriter;
 import com.thinkparity.ophelia.model.container.monitor.PublishStep;
 import com.thinkparity.ophelia.model.document.CannotLockException;
@@ -615,10 +615,10 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent)
-     * 
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handleEvent(com.thinkparity.ophelia.model.container.event.LocalPublishedEvent)
+     *
      */
-    public void handleEvent(final PublishedEvent event) {
+    public void handleEvent(final LocalPublishedEvent event) {
         try {
             // handle publish
             final HandlePublished delegate = createDelegate(
@@ -668,10 +668,10 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedEvent)
-     *
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handleEvent(com.thinkparity.ophelia.model.container.event.LocalVersionPublishedEvent)
+     * 
      */
-    public void handleEvent(final VersionPublishedEvent event) {
+    public void handleEvent(final LocalVersionPublishedEvent event) {
         try {
             final HandleVersionPublished delegate = createDelegate(HandleVersionPublished.class);
             delegate.setEvent(event);
@@ -2134,6 +2134,10 @@ public final class ContainerModelImpl extends
      *            A <code>ContainerVersion</code>.
      * @param versions
      *            A <code>List</code> of <code>DocumentVersion</code>s.
+     * @param versionFiles
+     *            A <code>Map<DocumentVersion, File> of pre-downloaded files. 
+     *            Note that only non-existant document versions have
+     *            pre-downloaded files.
      * @param publishedBy
      *            A published by user id <code>JabberId</code>.
      * @param publishedOn
@@ -2141,24 +2145,25 @@ public final class ContainerModelImpl extends
      */
     void handleDocumentVersionsResolution(
             final ContainerVersion containerVersion,
-            final List<DocumentVersion> documentVersions,
+            final List<DocumentVersion> versions,
+            final Map<DocumentVersion, File> versionFiles,
             final JabberId publishedBy, final Calendar publishedOn) {
-        for (final DocumentVersion documentVersion : documentVersions) {
-            final ArtifactVersion artifactVersion =
-                modelFactory.getDocumentModel().handleDocumentPublished(
-                        containerVersion.getArtifactId(), documentVersion,
-                        publishedBy, publishedOn);
-            final Long artifactId = modelFactory.getArtifactModel().readId(
-                    documentVersion.getArtifactUniqueId());
-            logger.logVariable("artifactId", artifactId);
-            if (!containerIO.doesExistVersion(containerVersion.getArtifactId(),
-                    containerVersion.getVersionId(), artifactId,
-                    documentVersion.getVersionId()).booleanValue()) {
+        for (final DocumentVersion version : versions) {
+            final DocumentVersion localVersion =
+                getDocumentModel().handleDocumentPublished(containerVersion,
+                        version, versionFiles.get(version), publishedBy,
+                        publishedOn);
+            final boolean doesExist = containerIO.doesExistVersion(
+                    containerVersion.getArtifactId(),
+                    containerVersion.getVersionId(),
+                    localVersion.getArtifactId(),
+                    localVersion.getVersionId()).booleanValue();
+            if (!doesExist) {
                 containerIO.addVersion(containerVersion.getArtifactId(),
                         containerVersion.getVersionId(),
-                        artifactVersion.getArtifactId(),
-                        artifactVersion.getVersionId(),
-                        artifactVersion.getArtifactType());
+                        localVersion.getArtifactId(),
+                        localVersion.getVersionId(),
+                        localVersion.getArtifactType());
             }
         }
     }

@@ -3,14 +3,10 @@
  */
 package com.thinkparity.ophelia.model.migrator;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.StringWriter;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -63,6 +59,9 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     /** An empty process monitory for the installation thread. */
     private static final ProcessMonitor INSTALL_MONITOR;
 
+    /** A list of all release names. */
+    private static final String[] RELEASE_NAMES;
+
     /** A workspace attribute key for the download thread. */
     private static final String WS_ATTRIBUTE_KEY_DOWNLOAD;
 
@@ -75,6 +74,12 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     static {
         DOWNLOAD_MONITOR = new ProcessAdapter() {};
         INSTALL_MONITOR = DOWNLOAD_MONITOR;
+        RELEASE_NAMES = new String[] {
+                "v1_0-20070430-1500", "v1_0-20070516-1300",
+                "v1_0-20070612-2246", "v1_0-20070626-1300",
+                "v1_0-20070703-1030", "v1_0-20070709-1100",
+                "v1_0-20070712-0900"
+        };
         WS_ATTRIBUTE_KEY_DOWNLOAD = "MigratorModelImpl#download";
         WS_ATTRIBUTE_KEY_INSTALL = "MigratorModelImpl#install";
         WS_ATTRIBUTE_KEY_LISTENER = "MigratorModelImpl#listener";
@@ -335,7 +340,6 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      */
     public void updateInstalledRelease(final String name) {
         try {
-            migratorIO.updateProductRelease(Constants.Product.NAME, name);
             migratorIO.deleteDownloadedProductRelease(Constants.Product.NAME);
             // fire event
             notifyLatestReleaseInstalled(Constants.Product.NAME, name,
@@ -445,37 +449,35 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      * 
      */
     private void initializeRelease() throws IOException {
-        final String[] releases = new String[] {
-                "v1_0-20070430-1500", "v1_0-20070516-1300",
-                "v1_0-20070612-2246", "v1_0-20070626-1300",
-                "v1_0-20070703-1030", "v1_0-20070709-1100",
-                "v1_0-20070712-0900"
-        };
-        int beginIndex = -1;
-        for (int i = 0; i < releases.length; i++) {
-            if (Constants.Release.NAME.equals(releases[i])) {
-                beginIndex = i + 1;
+        // migrate the schema through the various releases
+        final String release = migratorIO.readProductRelease(Constants.Product.NAME);
+        int index = -1;
+        for (int i = 0; i < RELEASE_NAMES.length; i++) {
+            if (RELEASE_NAMES[i].equals(release)) {
+                index = i;
                 break;
             }
         }
-        if (-1 < beginIndex && releases.length > beginIndex) {
-            for (int i = beginIndex; i < releases.length; i++) {
-                final File releaseInstall = new File(installDirectory, releases[i]);
-                // a release will only not exist in a test/dev environment
-                if (releaseInstall.exists()) {
-                    logger.logInfo("Deleting release {0}.", releases[i]);
-                    FileUtil.deleteTree(releaseInstall);
-                }
-        
+        if (-1 < index && RELEASE_NAMES.length > index) {
+            for (int i = index; i < RELEASE_NAMES.length; i++) {
                 // migrate the schema
                 logger.logInfo("Migrating schema to {0}.", Constants.Release.NAME);
-                final String sql = loadSql(releases[i]);
+                final String sql = loadSql(RELEASE_NAMES[i]);
                 logger.logVariable("sql", sql);
                 filterSqlComments(sql);
                 logger.logVariable("sql", sql);
                 final List<String> sqlStatements = tokenizeSqlStatements(sql);
                 logger.logVariable("sqlStatements", sqlStatements);
                 migratorIO.execute(sqlStatements);
+            }
+        }
+        // delete any old releases
+        File releaseInstall;
+        for (int i = 0; i < RELEASE_NAMES.length - 1; i++) {
+            releaseInstall = new File(installDirectory, RELEASE_NAMES[i]);
+            if (releaseInstall.exists()) {
+                logger.logInfo("Deleting release {0}.", RELEASE_NAMES[i]);
+                FileUtil.deleteTree(releaseInstall);
             }
         }
 
@@ -569,8 +571,13 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      */
     private String loadSql(final String name) throws IOException {
         // load the content of the sql file into a buffer
-        final Reader reader = new InputStreamReader(
-                ResourceUtil.getInputStream("database/" + name + ".sql"),
+        final String resourcePath = MessageFormat.format("database/{0}.sql", name);
+        final InputStream stream = ResourceUtil.getInputStream(resourcePath);
+        if (null == stream) {
+            throw new NullPointerException(MessageFormat.format(
+                    "Could not locate sql resource:  {0}.", resourcePath));
+        }
+        final Reader reader = new InputStreamReader(stream,
                 StringUtil.Charset.ISO_8859_1.getCharset());
         try {
             final StringBuilder buffer = new StringBuilder(2048);

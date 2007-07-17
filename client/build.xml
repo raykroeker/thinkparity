@@ -99,7 +99,7 @@ Local Configuration:            ${localconfig}
         <pathelement location="${env.GROOVY_HOME}/lib/antlr-2.7.5.jar"/>
         <pathelement location="${env.GROOVY_HOME}/lib/asm-2.2.jar"/>
         <pathelement location="${basedir}/local/browser/src/main/groovy"/>
-        <path refid="runtime.classpath"/>
+        <path refid="run.classpath"/>
     </path>
 
     <!-- launch4j configuration -->
@@ -116,6 +116,7 @@ Local Configuration:            ${localconfig}
     <property name="target.analyze-report.dir" value="${basedir}/target/analyze-report"/>   
     <property name="target.package.dir" value="${target.dir}/package"/>
     <property name="target.classes.dir" value="${target.dir}/classes"/>
+    <property name="target.generate-classes.dir" value="${target.dir}/classes"/>   
     <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
     <property name="target.native.dir" value="${target.dir}/i686/${thinkparity.os-platform}"/>
     <property name="target.test-javadoc.dir" value="${target.dir}/test-docs/api"/>
@@ -160,23 +161,23 @@ Local Configuration:            ${localconfig}
         version="2.3" path="xpp3/1.1.3.4.O/xpp3.jar"/>
 
     <!-- runtime dependencies -->
-    <antx:dependency type="java" scope="runtime" provider="apache.org" version="10.2.2.0"
+    <antx:dependency type="java" scope="run" provider="apache.org" version="10.2.2.0"
         path="apache.org/derby/10.2.2.0/derby.jar"/>
-    <antx:dependency type="java" scope="compile" provider="apache.org" version="0.20.5"
+    <antx:dependency type="java" scope="run" provider="apache.org" version="0.20.5"
         path="fop/0.20.5/batik.jar"/>
-    <antx:dependency type="java" scope="runtime" provider="jivesoftware.org" version="2.0.10"
+    <antx:dependency type="java" scope="run" provider="jivesoftware.org" version="2.0.10"
         path="smackx/2.2.1/smackx.jar"/>
-    <antx:dependency type="java" scope="runtime" provider="objectweb.org" version="2.0.10"
+    <antx:dependency type="java" scope="run" provider="objectweb.org" version="2.0.10"
         path="jotm/2.0.10/jotm_jrmp_stubs.jar"/>
-    <antx:dependency type="java" scope="runtime" provider="objectweb.org" version="2.0.10"
+    <antx:dependency type="java" scope="run" provider="objectweb.org" version="2.0.10"
         path="jotm/2.0.10/commons-logging.jar"/>
-    <antx:dependency type="java" scope="runtime" provider="objectweb.org" version="2.0.10"
+    <antx:dependency type="java" scope="run" provider="objectweb.org" version="2.0.10"
         path="jotm/2.0.10/connector-1_5.jar"/>
-    <antx:dependency type="java" scope="runtime" provider="objectweb.org" version="2.0.10"
+    <antx:dependency type="java" scope="run" provider="objectweb.org" version="2.0.10"
         path="jotm/2.0.10/howl.jar"/>
     <!-- runtime native dependencies -->
-    <antx:dependency type="native" scope="runtime" provider="java.net" version="0.9.1"
-        path="i686/${thinkparity.os-platform}/jdic/0.9.1"/><!-- Sun JDIC (GLGPL) -->
+    <antx:dependency type="native" scope="run" provider="java.net" version="0.9.1"
+        path="i686/${thinkparity.os-platform}/jdic/20061102"/><!-- Sun JDIC (GLGPL) -->
 
     <!-- test dependencies -->
     <antx:dependency type="java" scope="test" provider="junit.org" version="3.8.1"
@@ -256,19 +257,19 @@ Local Configuration:            ${localconfig}
 
     <!-- run -->
     <target name="run" depends="compile">
-        <pathconvert property="runtime.librarypath" refid="runtime.librarypath"/>
+        <pathconvert property="run.librarypath" refid="run.librarypath"/>
         <java classname="com.thinkparity.ophelia.browser.Browser" fork="true">
-            <classpath refid="runtime.classpath"/>
-            <jvmarg line="-Djava.library.path=&quot;${runtime.librarypath}&quot; -Dthinkparity-dir=&quot;${target.classes.dir}&quot; -Dthinkparity.mode=${thinkparity.mode} -Dthinkparity.environment=${thinkparity.environment}"/>
+            <classpath refid="run.classpath"/>
+            <jvmarg line="-Djava.library.path=&quot;${run.librarypath}&quot; -Dthinkparity-dir=&quot;${target.classes.dir}&quot; -Dthinkparity.mode=${thinkparity.mode} -Dthinkparity.environment=${thinkparity.environment}"/>
         </java>
     </target>
 
     <!-- debug -->
     <target name="debug" depends="compile">
-        <pathconvert property="runtime.librarypath" refid="runtime.librarypath"/>
+        <pathconvert property="run.librarypath" refid="run.librarypath"/>
         <java classname="com.thinkparity.ophelia.browser.Browser" fork="true">
-            <classpath refid="runtime.classpath"/>
-            <jvmarg line="${java.jvmarg-debug} -Djava.library.path=&quot;${runtime.librarypath}&quot; -Dthinkparity-dir=&quot;${target.classes.dir}&quot; -Dthinkparity.mode=${thinkparity.mode} -Dthinkparity.environment=${thinkparity.environment}"/>
+            <classpath refid="run.classpath"/>
+            <jvmarg line="${java.jvmarg-debug} -Djava.library.path=&quot;${run.librarypath}&quot; -Dthinkparity-dir=&quot;${target.classes.dir}&quot; -Dthinkparity.mode=${thinkparity.mode} -Dthinkparity.environment=${thinkparity.environment}"/>
         </java>
     </target>
 
@@ -569,6 +570,10 @@ Examples:
         <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath"/>
         <groovy src="${basedir}/local/browser/src/main/groovy/PackageTask.groovy"/>
         <groovy src="${basedir}/local/browser/src/main/groovy/PackageImageTask.groovy"/>
+    </target>
+
+    <!-- package-win32 -->
+    <target name="package-win32">
         <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpathref="launch4j.classpath"/>
         <launch4j>
             <config dontWrapJar="true" headerType="0" jarPath="thinkParity.jar"
@@ -592,6 +597,18 @@ Examples:
         </launch4j>
     </target>
 
+    <!-- package-linux -->
+    <target name="package-linux">
+        <copy tofile="${target.package.dir}/thinkParity.sh"
+            file="${target.classes.dir}/thinkParity-${thinkparity.environment}.sh"/>
+        <chmod perm="550">
+            <fileset dir="${target.package.dir}">
+                <include name="thinkParity.sh"/>
+                <include name="jre1.6.0_01/bin/java"/>
+            </fileset>
+        </chmod>
+    </target>
+   
     <!-- package-installer -->
     <target name="package-installer"
             description="compile a null-soft installer for the package">
@@ -616,17 +633,17 @@ ${tmp.cc}
 Test Classpath:
 ${tmp.tc}
         </echo>
-        <pathconvert refid="runtime.classpath" property="tmp.rc"/>
+        <pathconvert refid="run.classpath" property="tmp.rc"/>
         <echo>
 Runtime Classpath:
 ${tmp.rc}
         </echo>
-        <pathconvert refid="runtime.dependencies-java" property="tmp.rdj"/>
+        <pathconvert refid="run.dependencies-java" property="tmp.rdj"/>
         <echo>
 Runtime Dependencies (Java):
 ${tmp.rdj}
         </echo>
-        <pathconvert refid="runtime.dependencies-native" property="tmp.rdn"/>
+        <pathconvert refid="run.dependencies-native" property="tmp.rdn"/>
         <echo>
 Runtime Dependencies (Native):
 ${tmp.rdn}

@@ -81,7 +81,7 @@ class PackageTask {
         }
 
         // $/thinkParity.properties
-        def dependencies = new DependencyTracker().getDependencies(Dependency.Scope.RUNTIME)
+        def dependencies = new DependencyTracker().getDependencies(Dependency.Scope.RUN)
         def properties = new File(packageDir,"thinkParity.properties")
         ant.delete(file:properties)
         properties.withWriterAppend(configuration["thinkparity.charset-name"], { writer ->

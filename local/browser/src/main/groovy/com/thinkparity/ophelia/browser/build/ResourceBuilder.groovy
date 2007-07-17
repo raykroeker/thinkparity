@@ -63,7 +63,7 @@ class ResourceBuilder {
         def resources = []
         def imageDirFileSystem = new FileSystem(imageDir)
         // add resources for all runtime dependencies
-        def dependencies = new DependencyTracker().getDependencies(Dependency.Scope.RUNTIME)
+        def dependencies = new DependencyTracker().getDependencies(Dependency.Scope.RUN)
         for (dependency in dependencies) {
             resources.add(create(dependency,lookup(imageDirFileSystem, dependency)))
         }

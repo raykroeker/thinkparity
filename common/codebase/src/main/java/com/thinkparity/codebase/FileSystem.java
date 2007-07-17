@@ -10,10 +10,12 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.channels.WritableByteChannel;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.nio.ChannelUtil;
 
@@ -41,9 +43,24 @@ public class FileSystem {
      *            The file system root.
      */
     public FileSystem(final File root) {
-        if(null == root) throw new NullPointerException();
-        if(!root.canRead()) throw new IllegalArgumentException();
-        if(!root.isDirectory()) throw new IllegalArgumentException();
+        if (null == root) {
+            throw new NullPointerException();
+        }
+        if (!root.exists()) {
+            throw new IllegalArgumentException(MessageFormat.format(
+                    "File system root does not exist.{0}{1}.",
+                    Separator.SystemNewLine, root));
+        }
+        if (!root.canRead()) {
+            throw new IllegalArgumentException(MessageFormat.format(
+                    "File system root cannot be read.{0}{1}.",
+                    Separator.SystemNewLine, root));
+        }
+        if (!root.isDirectory()) {
+            throw new IllegalArgumentException(MessageFormat.format(
+                    "File system root is not a directory.{0}{1}.",
+                    Separator.SystemNewLine, root));
+        }
         this.root = root;
     }
 

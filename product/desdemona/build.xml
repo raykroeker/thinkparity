@@ -101,7 +101,7 @@ Local Configuration:                ${localconfig}
         <pathelement location="${env.GROOVY_HOME}/lib/antlr-2.7.5.jar"/>
         <pathelement location="${env.GROOVY_HOME}/lib/asm-2.2.jar"/>
         <pathelement location="${basedir}/remote/model/src/main/groovy"/>
-        <path refid="runtime.classpath"/>
+        <path refid="run.classpath"/>
     </path>
 
     <!-- input directories -->
@@ -119,6 +119,86 @@ Local Configuration:                ${localconfig}
     <property name="target.test-javadoc.dir" value="${target.dir}/test-docs/api"/>   
     <property name="target.test-report.dir" value="${target.dir}/test-report"/>
     <property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
+
+    <!-- generate dependencies -->
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/commons-beanutils-1.7.0.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/commons-collections-3.1.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/commons-jelly-20050813.225330.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/commons-jelly-tags-define-1.0.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/commons-jelly-tags-jsl-1.0.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/commons-jelly-tags-xml-20050823.222913.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/commons-jexl-1.0.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/commons-logging-1.0.4.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/dom4j-1.6.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/generama-1.2.1.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/jaxen-1.1-beta-4.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/nanocontainer-1.0-beta-3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/nanocontainer-ant-1.0-beta-3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/picocontainer-1.0.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/qdox-1.6.1.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/saxpath-1.0-FCS.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/velocity-1.4.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/xdoclet-2.0.4.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/xerces-2.4.0.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-actionscript-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-beaninfo-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-castor-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-ejb-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-externalizer-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-hibernate-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-interfaceextractor-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-jdo-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-jmx-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-junit-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-plugin-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-portlet-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-qtags-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-struts-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-tapestry-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-web-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-webwork-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-xtags-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="codehaus.org"
+        version="1.0.3" path="xdoclet/1.0.3/plugins/xdoclet-plugin-xwork-1.0.3.jar"/>
+    <antx:dependency type="java" scope="generate" provider="apache.org"
+        version="1.2.8" path="apache.org/logging/log4j/1.2.8/log4j.jar"/>   
 
     <!-- compile dependencies -->
     <antx:dependency type="java" scope="compile" provider="apache.org"
@@ -150,67 +230,22 @@ Local Configuration:                ${localconfig}
         version="2.3" path="sun.com/servlet/2.3/servlet.zip"/>
 
     <!-- runtime dependencies -->
-    <antx:dependency type="java" scope="runtime" provider="apache.org" version="10.2.2.0"
+    <antx:dependency type="java" scope="run" provider="apache.org" version="10.2.2.0"
         path="apache.org/derby/10.2.2.0/derby.jar"/>
-    <antx:dependency type="java" scope="runtime" provider="apache.org" version="10.2.2.0"
+    <antx:dependency type="java" scope="run" provider="apache.org" version="10.2.2.0"
         path="apache.org/derby/10.2.2.0/derbyclient.jar"/>
-    <antx:dependency type="java" scope="runtime" provider="objectweb.org" version="2.0.10"
+    <antx:dependency type="java" scope="run" provider="objectweb.org" version="2.0.10"
         path="jotm/2.0.10/jotm_jrmp_stubs.jar"/>
-    <antx:dependency type="java" scope="runtime" provider="objectweb.org" version="2.0.10"
+    <antx:dependency type="java" scope="run" provider="objectweb.org" version="2.0.10"
         path="jotm/2.0.10/commons-logging.jar"/>
-    <antx:dependency type="java" scope="runtime" provider="objectweb.org" version="2.0.10"
+    <antx:dependency type="java" scope="run" provider="objectweb.org" version="2.0.10"
         path="jotm/2.0.10/connector-1_5.jar"/>
-    <antx:dependency type="java" scope="runtime" provider="objectweb.org" version="2.0.10"
+    <antx:dependency type="java" scope="run" provider="objectweb.org" version="2.0.10"
         path="jotm/2.0.10/howl.jar"/>
 
     <!-- test dependencies -->
     <antx:dependency type="java" scope="test" provider="junit.org" version="3.8.1"
         path="junit/3.8.1/junit.jar"/>
-
-    <!-- xdoclet configuration -->
-    <path id="xdoclet.classpath">
-        <pathelement location="${target.generate-classes.dir}"/>
-
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-beanutils-1.7.0.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-collections-3.1.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-jelly-20050813.225330.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-jelly-tags-define-1.0.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-jelly-tags-jsl-1.0.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-jelly-tags-xml-20050823.222913.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-jexl-1.0.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/commons-logging-1.0.4.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/dom4j-1.6.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/generama-1.2.1.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/jaxen-1.1-beta-4.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/log4j-1.2.8.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/nanocontainer-1.0-beta-3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/nanocontainer-ant-1.0-beta-3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/picocontainer-1.0.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/qdox-20051211.114207.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/saxpath-1.0-FCS.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/velocity-1.4.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/xdoclet-2.0.4.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/xerces-2.4.0.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-actionscript-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-beaninfo-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-castor-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-ejb-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-externalizer-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-hibernate-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-interfaceextractor-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-jdo-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-jmx-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-junit-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-plugin-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-portlet-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-qtags-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-struts-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-tapestry-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-web-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-webwork-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-xtags-1.0.3.jar"/>
-        <pathelement location="${ant.library.dir}/vendor/codehaus/xdoclet2/plugins/xdoclet-plugin-xwork-1.0.3.jar"/>
-    </path>
 
     <!-- checkout -->
     <target name="checkout">
@@ -266,7 +301,7 @@ Local Configuration:                ${localconfig}
         <javac srcdir="${thinkparity.common.home}/xdoclet/src/main/java"
                 destdir="${target.generate-classes.dir}" debug="${javac.debug}"
                 debuglevel="${javac.debug-level}">
-            <classpath refid="xdoclet.classpath"/>
+            <classpath refid="generate.classpath"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
     </target>
@@ -280,7 +315,7 @@ Local Configuration:                ${localconfig}
 
     <target name="generate" depends="generate-process-resources,generate-compile">
         <taskdef name="xdoclet" classname="org.xdoclet.ant.XDocletTask"
-                classpathref="xdoclet.classpath"/>
+                classpathref="generate.classpath"/>
         <xdoclet>
             <fileset dir="${basedir}/remote/model/src/main/java">
                 <include name="**/*.java"/>
@@ -516,6 +551,11 @@ Please configure ${thinkparity.environment} before install-package.
 
     <!-- pathinfo -->
     <target name="pathinfo">
+        <pathconvert refid="generate.classpath" property="tmp.gc"/>
+        <echo>
+Generate Classpath:
+${tmp.gc}
+        </echo>   
         <pathconvert refid="compile.classpath" property="tmp.cc"/>
         <echo>
 Compile Classpath:
@@ -526,12 +566,12 @@ ${tmp.cc}
 Test Classpath:
 ${tmp.tc}
         </echo>
-        <pathconvert refid="runtime.classpath" property="tmp.rc"/>
+        <pathconvert refid="run.classpath" property="tmp.rc"/>
         <echo>
 Runtime Classpath:
 ${tmp.rc}
         </echo>
-        <pathconvert refid="runtime.dependencies-java" property="tmp.rdj"/>
+        <pathconvert refid="run.dependencies-java" property="tmp.rdj"/>
         <echo>
 Runtime Dependencies (Java):
 ${tmp.rdj}

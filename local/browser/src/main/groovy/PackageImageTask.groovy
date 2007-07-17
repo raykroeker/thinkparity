@@ -99,12 +99,12 @@ class PackageImageTask {
             }
             // /lib/*.jar
             copy(todir:imageLibDir) {
-                fileset(refid:"runtime.dependencies-java")
+                fileset(refid:"run.dependencies-java")
                 mapper(type:"flatten")
             }
             // /lib/${native}/*
             copy(todir:imageLibNativeDir) {
-                fileset(refid:"runtime.dependencies-native")
+                fileset(refid:"run.dependencies-native")
                 mapper(type:"flatten")
             }
             // /lib/${native}/*
@@ -117,7 +117,7 @@ class PackageImageTask {
             }
         }
         // /thinkParityImage.properties
-        def dependencies = new DependencyTracker().getDependencies(Dependency.Scope.RUNTIME)
+        def dependencies = new DependencyTracker().getDependencies(Dependency.Scope.RUN)
         def imageProperties = new File(imageDir,"thinkParityImage.properties")
         ant.delete(file:imageProperties)
         imageProperties.withWriterAppend(configuration["thinkparity.charset-name"], { writer ->

@@ -177,7 +177,7 @@ Local Configuration:            ${localconfig}
         path="jotm/2.0.10/howl.jar"/>
     <!-- runtime native dependencies -->
     <antx:dependency type="native" scope="run" provider="java.net" version="0.9.1"
-        path="i686/${thinkparity.os-platform}/jdic/20061102"/><!-- Sun JDIC (GLGPL) -->
+        path="i686/${thinkparity.os-platform}/jdic/0.9.1"/><!-- Sun JDIC (GLGPL) -->
 
     <!-- test dependencies -->
     <antx:dependency type="java" scope="test" provider="junit.org" version="3.8.1"

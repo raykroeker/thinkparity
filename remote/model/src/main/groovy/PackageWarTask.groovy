@@ -52,7 +52,7 @@ class PackageWarTask {
             }
             // copy libs
             copy(todir:warLibDir) {
-                fileset(refid:"runtime.dependencies-java")
+                fileset(refid:"run.dependencies-java")
                 mapper(type:"flatten")
             }
             // delete container libs

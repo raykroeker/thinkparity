@@ -208,7 +208,8 @@ public abstract class NotificationClient {
     private void connectImpl() throws IOException {
         socket = SOCKET_FACTORY.createSocket(
                 socketAddress.getAddress(), socketAddress.getPort());
-        socket.setKeepAlive(true);
+        // TIMEOUT NotificationClient#connectImpl() - 3s
+        socket.setSoTimeout(3 * 1000);
         input = socket.getInputStream();
         output = socket.getOutputStream();
     }

@@ -209,7 +209,6 @@ class NotificationSocketServer implements Runnable {
      */
     private NotificationSocketDelegate newDelegate() throws SocketException {
         final Socket clientSocket = clientSockets.peek();
-        clientSocket.setKeepAlive(true);
         return new NotificationSocketDelegate(server, clientSocket);
     }
 }

@@ -24,11 +24,16 @@ final class NotificationSocketDelegate implements Runnable {
     /** A log4j wrapper. */
     private final Log4JWrapper logger;
 
-    /** A client socket. */
-    private final Socket socket;
+    /** Whether to send a notification or to send the current date/time. */
+    private boolean notify;
 
     /** The notification server. */
     private final NotificationServer server;
+
+    private byte[] sessionIdBytes;
+
+    /** A client socket. */
+    private final Socket socket;
 
     /**
      * Create NotificationSocketDelegate.
@@ -59,6 +64,7 @@ final class NotificationSocketDelegate implements Runnable {
                 logger.logWarning("Missing session id header.");
             } else {
                 server.getSession(sessionId.getValue()).setDelegate(this);
+                sessionIdBytes = sessionId.getValue().getBytes(server.getCharset());
             }
         } catch (final IOException iox) {
             throw new NotificationException(iox);
@@ -66,7 +72,8 @@ final class NotificationSocketDelegate implements Runnable {
         while (true) {
             try {
                 synchronized (this) {
-                    wait();
+                    // TIMEOUT - NotificationSocketDelegate#run() - 2.5s
+                    wait(2500);
                 }
             } catch (final InterruptedException ix) {
                 logger.logWarning("Waking up notification delegate {0}.", sessionId.getValue());
@@ -74,10 +81,7 @@ final class NotificationSocketDelegate implements Runnable {
             logger.logInfo("Waking up notification delegate {0}.", sessionId.getValue());
             if (isWritable()) {
                 try {
-                    final byte[] bytes = sessionId.getValue().getBytes(server.getCharset());
-                    logger.logVariable("bytes", bytes);
-                    socket.getOutputStream().write(sessionId.getValue().getBytes(
-                            server.getCharset()));
+                    socket.getOutputStream().write(getWriteBytes());
                 } catch (final IOException iox) {
                     logger.logError(iox,
                             "Could not write to notification delegate {0}.",
@@ -89,16 +93,6 @@ final class NotificationSocketDelegate implements Runnable {
             }
         }
         server.removeSession(sessionId.getValue());
-    }
-
-    /**
-     * Determine if the socket is writable.
-     * 
-     * @return True if the socket is writable.
-     */
-    private boolean isWritable() {
-        return socket.isBound() && socket.isConnected() && !socket.isClosed()
-                && !socket.isOutputShutdown() && !socket.isInputShutdown();
     }
 
     /**
@@ -115,9 +109,35 @@ final class NotificationSocketDelegate implements Runnable {
      *
      */
     void sendNotify() {
+        notify = true;
         synchronized (this) {
             notify();
         }
+    }
+
+    /**
+     * Obtain the bytes to write to the socket. If notify is set; write the
+     * session id otherwise write the current date/time.
+     * 
+     * @return A <code>byte[]</code>.
+     */
+    private byte[] getWriteBytes() {
+        if (notify) {
+            notify = false;
+            return sessionIdBytes;
+        } else {
+            return String.valueOf(System.currentTimeMillis()).getBytes(server.getCharset());
+        }
+    }
+
+    /**
+     * Determine if the socket is writable.
+     * 
+     * @return True if the socket is writable.
+     */
+    private boolean isWritable() {
+        return socket.isBound() && socket.isConnected() && !socket.isClosed()
+                && !socket.isOutputShutdown() && !socket.isInputShutdown();
     }
 
      /**

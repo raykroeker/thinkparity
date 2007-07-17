@@ -41,6 +41,8 @@ public class DependencyTask extends AntXTask {
 
     private static final String PROPERTY_NAME_VENDOR_DIR;
 
+    private static final String PROPERTY_NAME_VENDOR_EXCLUDE_SOURCE;
+
     static {
         PROPERTY_NAME_CVS_BRANCH = "cvs.branch";
         PROPERTY_NAME_CVS_COMPRESSION_LEVEL = "cvs.compressionlevel";
@@ -49,6 +51,7 @@ public class DependencyTask extends AntXTask {
         PROPERTY_NAME_TARGET_GENERATE_CLASSES_DIR = "target.generate-classes.dir";
         PROPERTY_NAME_TARGET_TEST_CLASSES_DIR = "target.test-classes.dir";
         PROPERTY_NAME_VENDOR_DIR = "antx.vendor-dir";
+        PROPERTY_NAME_VENDOR_EXCLUDE_SOURCE = "antx.vendor.exclude-source";
     }
 
     /**
@@ -531,6 +534,21 @@ public class DependencyTask extends AntXTask {
     }
 
     /**
+     * Determine whether or not to exclude the source when locating the vendor
+     * library.
+     * 
+     * @return True if the source should be excluded.
+     */
+    private boolean excludeSource() {
+        if (doesExistProperty(getProject(), PROPERTY_NAME_VENDOR_EXCLUDE_SOURCE)) {
+            final String excludeSource = getProperty(getProject(), PROPERTY_NAME_VENDOR_EXCLUDE_SOURCE);
+            return Boolean.parseBoolean(excludeSource);
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    /**
      * Obtain the vendor root directory.
      * 
      * @return A directory <code>File</code>.
@@ -567,6 +585,6 @@ public class DependencyTask extends AntXTask {
                     getProperty(project, PROPERTY_NAME_CVS_BRANCH),
                     getVendorDirectory().getParentFile());
         }
-        cvsLocator.locate(dependencyPath);
+        cvsLocator.locate(dependencyPath, Boolean.valueOf(!excludeSource()));
     }
 }

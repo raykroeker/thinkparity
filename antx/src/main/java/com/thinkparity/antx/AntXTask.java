@@ -30,6 +30,25 @@ public abstract class AntXTask extends Task {
     }
 
     /**
+     * Determine whether or not a property exists.
+     * 
+     * @param project
+     *            A <code>Project</code>.
+     * @param propertyName
+     *            A property name <code>String</code>.
+     * @return True if the property exists.
+     */
+    protected static final Boolean doesExistProperty(final Project project,
+            final String propertyName) {
+        final String value = project.getProperty(propertyName);
+        if (null == value) {
+            return Boolean.FALSE;
+        } else {
+            return Boolean.TRUE;
+        }
+    }
+
+    /**
      * Obtain a file property from the project.
      * 
      * @param project

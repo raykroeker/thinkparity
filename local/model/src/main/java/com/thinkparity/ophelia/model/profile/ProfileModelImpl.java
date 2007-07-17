@@ -320,6 +320,8 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      */
     public BackupStatistics readBackupStatistics() {
         try {
+            Assert.assertTrue(isBackupEnabled(), "Backup is not enabled.");
+
             final BackupStatistics backupStatistics = new BackupStatistics();
             // NOCOMMIT - ProfileModelImpl#readBackupStatistics - Move to server.
             backupStatistics.setDiskUsageAllotment(DU_BACKUP_ALLOTMENT);

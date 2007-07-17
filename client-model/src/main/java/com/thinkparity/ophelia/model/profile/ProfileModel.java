@@ -17,6 +17,7 @@ import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.annotation.ThinkParityOnline;
@@ -89,7 +90,7 @@ public interface ProfileModel {
      * 
      * @return True if the invite user interface is enabled.
      */
-    public Boolean isInviteUserAvailable();
+    public Boolean isInviteAvailable(final User user);
 
     /**
      * Determine if sign up is available.

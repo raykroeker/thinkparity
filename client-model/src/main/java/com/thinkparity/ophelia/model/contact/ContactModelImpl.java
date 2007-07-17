@@ -292,12 +292,12 @@ public final class ContactModelImpl extends Model<ContactListener>
      */
     public OutgoingUserInvitation createOutgoingUserInvitation(final Long userId) {
         try {
-            Assert.assertTrue(getProfileModel().isInviteUserAvailable(),
+            final User invitationUser = getUserModel().read(userId);
+            Assert.assertTrue(getProfileModel().isInviteAvailable(invitationUser),
                     "User cannot invoke create outgoing user invitation.");
 
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar createdOn = sessionModel.readDateTime();
-            final User invitationUser = getUserModel().read(userId);
 
             // create outgoing user invitation
             final OutgoingUserInvitation outgoingUserInvitation = new OutgoingUserInvitation();

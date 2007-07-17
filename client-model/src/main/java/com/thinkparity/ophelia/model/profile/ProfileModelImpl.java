@@ -28,6 +28,7 @@ import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.Constants;
 import com.thinkparity.ophelia.model.Model;
@@ -267,10 +268,10 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.profile.ProfileModel#isInviteUserAvailable()
-     *
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#isInviteAvailable(User)
+     * 
      */
-    public Boolean isInviteUserAvailable() {
+    public Boolean isInviteAvailable(final User user) {
         try {
             // NOCOMMIT - ProfileModelImpl#isInviteUserAvailable
             isInviteUserEnabled++;

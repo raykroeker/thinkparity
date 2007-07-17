@@ -237,7 +237,7 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
             if (session.nextResult()) {
                 return session.getLong("DISK_USAGE");
             } else {
-                return null;
+                return 0L;
             }
         } finally {
             session.close();

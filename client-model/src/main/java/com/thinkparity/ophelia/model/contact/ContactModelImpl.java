@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.filter.Filter;
@@ -291,6 +292,9 @@ public final class ContactModelImpl extends Model<ContactListener>
      */
     public OutgoingUserInvitation createOutgoingUserInvitation(final Long userId) {
         try {
+            Assert.assertTrue(getProfileModel().isInviteUserAvailable(),
+                    "User cannot invoke create outgoing user invitation.");
+
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar createdOn = sessionModel.readDateTime();
             final User invitationUser = getUserModel().read(userId);

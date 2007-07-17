@@ -85,6 +85,13 @@ public interface ProfileModel {
     public Boolean isCoreEnabled();
 
     /**
+     * Determine whether or not the invite user interface is enabled.
+     * 
+     * @return True if the invite user interface is enabled.
+     */
+    public Boolean isInviteUserAvailable();
+
+    /**
      * Determine if sign up is available.
      * 
      * @return True if sign up is available.
@@ -99,6 +106,13 @@ public interface ProfileModel {
     public Profile read();
 
     /**
+     * Read the profile backup statistics.
+     * 
+     * @return The <code>BackupStatistics</code>.
+     */
+    public BackupStatistics readBackupStatistics();
+
+	/**
      * Read a profile email.
      * 
      * @param emailId
@@ -114,7 +128,7 @@ public interface ProfileModel {
      */
     public List<ProfileEMail> readEmails();
 
-	/**
+    /**
      * Read a list of available features.
      * 
      * @return A <code>List</code> of <code>Feature</code>s.

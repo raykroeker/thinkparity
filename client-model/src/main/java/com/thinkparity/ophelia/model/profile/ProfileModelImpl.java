@@ -52,6 +52,17 @@ import com.thinkparity.service.client.ServiceFactory;
 public final class ProfileModelImpl extends Model<ProfileListener> implements
         ProfileModel, InternalProfileModel {
 
+    /** A temporary user's backup disk-usage allotment. */
+    private static final Long DU_BACKUP_ALLOTMENT;
+
+    /** A temporary variable that counts the is invite enabled invocations. */
+    private static int isInviteUserEnabled;
+
+    static {
+        DU_BACKUP_ALLOTMENT =
+            Long.valueOf(Integer.valueOf(1024 * 1024 * 1024 * 10).longValue());
+    }
+
     /** A <code>ProfileEventGenerator</code> for local events. */
     private final ProfileEventGenerator localEventGenerator;
 
@@ -256,6 +267,24 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#isInviteUserAvailable()
+     *
+     */
+    public Boolean isInviteUserAvailable() {
+        try {
+            // NOCOMMIT - ProfileModelImpl#isInviteUserAvailable
+            isInviteUserEnabled++;
+            if (0 == isInviteUserEnabled % 3) {
+                return Boolean.FALSE;
+            } else {
+                return Boolean.TRUE;
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#isSignUpAvailable()
      * 
      */
@@ -283,6 +312,23 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         }
     }
 
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#readBackupStatistics()
+     *
+     */
+    public BackupStatistics readBackupStatistics() {
+        try {
+            final BackupStatistics backupStatistics = new BackupStatistics();
+            // NOCOMMIT - ProfileModelImpl#readBackupStatistics - Move to server.
+            backupStatistics.setDiskUsageAllotment(DU_BACKUP_ALLOTMENT);
+            backupStatistics.setDiskUsage(profileIO.readDiskUsage());
+            return backupStatistics;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
     /**
      * @see com.thinkparity.ophelia.model.Model#readCredentials()
      * 
@@ -290,7 +336,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     public Credentials readCredentials() {
         return super.readCredentials();
     }
-
 
     /**
      * Read a profile email.

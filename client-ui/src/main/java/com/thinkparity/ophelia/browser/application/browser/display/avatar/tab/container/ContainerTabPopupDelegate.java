@@ -108,6 +108,14 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             needSeparator = true;
         }
 
+        // delete draft
+        if (isLocalDraft(draft) && (online || !isDistributed(container.getId()))) {
+            final Data deleteData = new Data(1);
+            deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
+            add(ActionId.CONTAINER_DELETE_DRAFT, deleteData);
+            needSeparator = true;
+        }
+
         // separator
         if (needSeparator) {
             addSeparator();

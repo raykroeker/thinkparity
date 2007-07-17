@@ -3,11 +3,7 @@
  */
 package com.thinkparity.codebase.swing;
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
+import java.awt.event.*;
 
 import javax.swing.JComponent;
 
@@ -19,7 +15,7 @@ import javax.swing.JComponent;
  * @version 1.1.2.1
  */
 final class JFrameInterceptPane extends JComponent implements
-        MouseListener, MouseMotionListener, MouseWheelListener {
+        KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
     /**
      * Create JFrameInterceptPane.
@@ -27,10 +23,30 @@ final class JFrameInterceptPane extends JComponent implements
      */
     JFrameInterceptPane() {
         super();
+        addKeyListener(this);
         addMouseListener(this);
         addMouseMotionListener(this);
         addMouseWheelListener(this);
     }
+
+    /**
+     * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
+     */
+    public void keyPressed(final KeyEvent e) {
+        e.consume();
+    }
+
+    /**
+     * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+     */
+    public void keyReleased(final KeyEvent e) {
+        e.consume();
+    }
+
+    /**
+     * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
+     */
+    public void keyTyped(final KeyEvent e) {}
 
     /**
      * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)

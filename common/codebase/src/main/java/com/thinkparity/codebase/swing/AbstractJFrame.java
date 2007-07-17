@@ -9,6 +9,8 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -49,6 +51,9 @@ public abstract class AbstractJFrame extends JFrame {
     /** A helper class for requesting focus. */
     private JComponentRequestFocusHelper requestFocusHelper;
 
+    /** A <code>WindowAdapter</code>. */
+    private WindowAdapter windowAdapter;
+
     /**
 	 * Create a AbstractJFrame.
 	 * 
@@ -86,7 +91,16 @@ public abstract class AbstractJFrame extends JFrame {
         setGlassPane(interceptPane);
         interceptPane.setVisible(true);
         // request focus so key bindings on other components won't work
-        interceptPane.requestFocus();
+        interceptPane.requestFocusInWindow();
+        if (null == windowAdapter) {
+            windowAdapter = new WindowAdapter() {
+                @Override
+                public void windowGainedFocus(final WindowEvent e) {
+                    interceptPane.requestFocusInWindow();
+                }
+            };
+        }
+        addWindowFocusListener(windowAdapter);
         repaint();
     }
 
@@ -151,6 +165,7 @@ public abstract class AbstractJFrame extends JFrame {
     public final void removeInterceptPane() {
         Assert.assertTrue(isInterceptPaneApplied(),
                 "Intercept pane has not been applied.");
+        removeWindowFocusListener(windowAdapter);
         getGlassPane().setVisible(false);
         repaint();
     }

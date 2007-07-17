@@ -635,7 +635,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
             // focus is gained more consistently with invokeLater
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    if (!MenuFactory.isPopupMenu()) {
+                    if (!MenuFactory.isPopupMenu() && !browser.isBusy()) {
                         ((JComponent) tabPanel).requestFocusInWindow();
                     }
                 }

@@ -94,13 +94,8 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             final InternalArtifactModel artifactModel = getArtifactModel();
             if (artifactModel.isDraftOwner(artifact)) {
                 artifactModel.deleteDraft(artifact, deletedOn);
-            } else {
-                /* this is the case if a user has archived their container; they
-                 * are no longer part of the team */
-                if (artifactModel.isTeamMember(artifact)) {
-                    artifactModel.removeTeamMember(artifact);
-                }
             }
+            artifactModel.removeTeamMember(artifact);
             getBackupModel().delete(artifact.getUniqueId());
         } catch (final Throwable t) {
             throw panic(t);

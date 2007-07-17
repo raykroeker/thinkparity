@@ -3,9 +3,14 @@
  */
 package com.thinkparity.desdemona.web.service;
 
+import java.util.List;
+
 import javax.jws.WebService;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.rules.RuleModel;
 
@@ -37,6 +42,15 @@ public class RuleSEI extends ServiceSEI implements RuleService {
     public Boolean isPublishRestricted(final AuthToken authToken,
             final JabberId publishTo) {
         return getModel(authToken).isPublishRestrictedTo(publishTo);
+    }
+
+    /**
+     * @see com.thinkparity.service.RuleService#isPublishRestricted(com.thinkparity.service.AuthToken, java.util.List, java.util.List)
+     *
+     */
+    public Boolean isPublishRestricted(final AuthToken authToken,
+            final List<EMail> emails, final List<User> users) {
+        return getModel(authToken).isPublishRestrictedTo(emails, users);
     }
 
     /**

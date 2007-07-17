@@ -5,6 +5,7 @@ package com.thinkparity.desdemona.model.rules;
 
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.migrator.Feature;
@@ -12,6 +13,7 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants.Product.Ophelia;
+import com.thinkparity.desdemona.model.user.InternalUserModel;
 
 /**
  * <b>Title:</b>thinkParity Desdemona Rules Model Implementation<br>
@@ -71,6 +73,36 @@ public final class RuleModelImpl extends AbstractModelImpl implements
         try {
             final User to = getUserModel().read(publishTo);
             return isPublishRestricted(user, to);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.rules.RuleModel#isPublishRestrictedTo(java.util.List, java.util.List)
+     *
+     */
+    public Boolean isPublishRestrictedTo(final List<EMail> emails,
+            final List<User> users) {
+        try {
+            User user;
+            final InternalUserModel userModel = getUserModel();
+            for (final EMail email : emails) {
+                user = userModel.read(email);
+                if (null == user) {
+                    return Boolean.TRUE;
+                } else {
+                    if (isPublishRestricted(this.user, user)) {
+                        return Boolean.TRUE;
+                    }
+                }
+            }
+            for (final User user2 : users) {
+                if (isPublishRestricted(this.user, user2)) {
+                    return Boolean.TRUE;
+                }
+            }
+            return Boolean.FALSE;
         } catch (final Throwable t) {
             throw panic(t);
         }

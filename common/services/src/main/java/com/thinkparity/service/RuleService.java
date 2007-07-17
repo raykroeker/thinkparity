@@ -3,10 +3,15 @@
  */
 package com.thinkparity.service;
 
+import java.util.List;
+
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.codebase.model.user.User;
 
 /**
  * <b>Title:</b>thinkParity Rule Service<br>
@@ -21,4 +26,8 @@ public interface RuleService {
     @WebMethod
     Boolean isPublishRestricted(AuthToken authToken,
             JabberId publishTo);
+
+    @WebMethod
+    Boolean isPublishRestricted(AuthToken authToken, List<EMail> emails,
+            List<User> users);
 }

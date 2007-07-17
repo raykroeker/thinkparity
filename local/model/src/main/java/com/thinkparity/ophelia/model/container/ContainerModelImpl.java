@@ -793,6 +793,18 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#isPublishRestricted(java.util.List, java.util.List, java.util.List)
+     *
+     */
+    public Boolean isPublishRestricted(final List<EMail> emails,
+            final List<Contact> contacts, final List<TeamMember> teamMembers) {
+        final List<User> users = new ArrayList<User>(contacts.size() + teamMembers.size());
+        users.addAll(contacts);
+        users.addAll(teamMembers);
+        return getSessionModel().isPublishRestricted(emails, users);
+    }
+
+    /**
      * Print a container draft.
      * 
      * @param containerId

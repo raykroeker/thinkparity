@@ -99,29 +99,33 @@ public class Publish extends AbstractBrowserAction {
         if (containerModel.isLocalDraftModified(containerId)) {
             final ContainerDraft draft = containerModel.readDraft(containerId);
             // make sure there is at least one document, excluding removed documents.
-            boolean isPublishable = false;
+            boolean isDraftPublishable = false;
             for (final Artifact artifact : draft.getArtifacts()) {
                 switch (draft.getState(artifact)) {
                 case ADDED:
                 case MODIFIED:
                 case NONE:
-                    isPublishable = true;
+                    isDraftPublishable = true;
                     break;
                 }
-                if (isPublishable)
+                if (isDraftPublishable)
                     break;
             }
-            if (isPublishable) {
+            if (isDraftPublishable) {
                 if (displayAvatar) {
                     browser.displayPublishContainerDialog(containerId);
                 } else {
-                    final String versionName = (String) data.get(DataKey.VERSION_NAME);
                     final List<EMail> emails = data.getList(DataKey.EMAILS);
                     final List<Contact> contacts = data.getList(DataKey.CONTACTS);
                     final List<TeamMember> teamMembers = data.getList(DataKey.TEAM_MEMBERS);
-                    final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
-                    invoke(monitor, container, versionName, emails, contacts,
-                            teamMembers);
+                    if (containerModel.isPublishRestricted(emails, contacts, teamMembers)) {
+                        browser.displayErrorDialog("Publish.NoUsersToPublish", new Object[] {container});
+                    } else {
+                        final String versionName = (String) data.get(DataKey.VERSION_NAME);
+                        final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
+                        invoke(monitor, container, versionName, emails, contacts,
+                                teamMembers);
+                    }
                 }
             } else {
                 browser.displayErrorDialog("Publish.NoDocumentToPublish",

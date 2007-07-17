@@ -7,9 +7,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -35,6 +37,15 @@ import com.thinkparity.ophelia.model.util.Step;
  *            A type of model implementation.
  */
 public class DefaultDelegate<T extends Model> implements Delegate<T> {
+
+    /**
+     * @see com.thinkparity.ophelia.model.Model#contains(List, List)
+     * 
+     */
+    protected static final Boolean contains(
+            final List<ProfileEMail> profileEMails, final List<EMail> emails) {
+        return Model.contains(profileEMails, emails);
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.Model#contains(List, JabberId)

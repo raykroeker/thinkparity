@@ -5,10 +5,7 @@ package com.thinkparity.ophelia.model.session;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.UUID;
-import java.util.concurrent.Executors;
 
 import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.OSUtil;
@@ -16,7 +13,6 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.net.online.ValidationService;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.DraftExistsException;
@@ -74,15 +70,11 @@ public final class SessionModelImpl extends Model<SessionListener>
     /** A workspace attribute key for the authentication token. */
     private static final String WS_ATTRIBUTE_KEY_AUTH_TOKEN;
 
-    /** A workspace attribute key for the online validator. */
-    private static final String WS_ATTRIBUTE_KEY_IS_ONLINE_VALIDATOR;
-
     /** A workspace attribute key defining an <code>OfflineCode</code>. */
     private static final String WS_ATTRIBUTE_KEY_OFFLINE_CODES;
 
     static {
         CFG_KEY_REMOTE_RELEASE = "SessionModelImpl#remoteRelease";
-        WS_ATTRIBUTE_KEY_IS_ONLINE_VALIDATOR = "SessionModelImpl#isOnlineValidator";
         WS_ATTRIBUTE_KEY_OFFLINE_CODES = "SessionModelImpl#offlineCodes";
         WS_ATTRIBUTE_KEY_AUTH_TOKEN = "SessionModelImpl#authToken";
     }
@@ -461,13 +453,15 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
+
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isPublishRestricted(com.thinkparity.codebase.jabber.JabberId)
      *
      */
-    public Boolean isPublishRestricted(final JabberId publishTo) {
+    public Boolean isPublishRestricted(final List<EMail> emails,
+            final List<User> users) {
         try {
-            return ruleService.isPublishRestricted(getAuthToken(), publishTo);
+            return ruleService.isPublishRestricted(getAuthToken(), emails, users);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1093,7 +1087,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     @Override
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
-        initializeOnlineValidator();
         serviceFactory = ServiceFactory.getInstance();
         artifactService = serviceFactory.getArtifactService();
         backupService = serviceFactory.getBackupService();
@@ -1115,21 +1108,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     private OfflineCodes getOfflineCodes() {
         return (OfflineCodes) workspace.getAttribute(
                 WS_ATTRIBUTE_KEY_OFFLINE_CODES);
-    }
-
-    /**
-     * Initialize the isOnline thread.  If the thread is already attached to the
-     * workspace do nothing.
-     *
-     */
-    private void initializeOnlineValidator() {
-        if (isSetOnlineValidator()) {
-            logger.logInfo("Online validator has been set.");
-        } else {
-            final Thread onlineValidator = newOnlineValidator();
-            setOnlineValidator(onlineValidator);
-            onlineValidator.start();
-        }
     }
 
     /**
@@ -1195,16 +1173,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Determine if the online validator has been set as a workspace attribute.
-     * 
-     * @return True if the online validator has been set.
-     */
-    private boolean isSetOnlineValidator() {
-        return workspace.isSetAttribute(
-                WS_ATTRIBUTE_KEY_IS_ONLINE_VALIDATOR).booleanValue();
-    }
-
-    /**
      * Create an instance of an authentication token.
      * 
      * @param sessionId
@@ -1225,33 +1193,6 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     private AuthToken newEmptyAuthToken() {
         return new AuthToken();
-    }
-
-    /**
-     * Create a new instance of an online validator.
-     * 
-     * @return An online validator <code>Thread</code>.
-     */
-    private Thread newOnlineValidator() {
-        final ValidationService socketService = ValidationService.createInstance("socket");
-        socketService.addObserver(new Observer() {
-            public void update(final Observable o, final Object arg) {
-                final boolean online = ((Boolean) arg).booleanValue();
-                if (online) {
-                    logger.logInfo("Network available.");
-                } else {
-                    logger.logWarning("Network unavailable.");
-                    pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
-                    getSessionModel().notifySessionTerminated();
-                }
-            }
-        });
-        // THREAD - SessionModelImpl#initializeModel() - IsOnline - Daemon
-        final Thread isOnlineValidator =
-            Executors.defaultThreadFactory().newThread(socketService);
-        isOnlineValidator.setDaemon(true);
-        isOnlineValidator.setName("TPS-OpheliaModel-IsOnline");
-        return isOnlineValidator;
     }
 
     /**
@@ -1318,19 +1259,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     private OfflineCodes setOfflineCodes(final OfflineCodes offlineCodes) {
         return (OfflineCodes) workspace.setAttribute(
                 WS_ATTRIBUTE_KEY_OFFLINE_CODES, offlineCodes);
-    }
-
-    /**
-     * Set the online validator as a workspace attribute.
-     * 
-     * @param onlineValidator
-     *            An online validator <code>Thread</code>.
-     * @return The previous online validator <code>Thread</code> or null if
-     *         none existed.
-     */
-    private Thread setOnlineValidator(final Thread onlineValidator) {
-        return (Thread) workspace.setAttribute(
-                WS_ATTRIBUTE_KEY_IS_ONLINE_VALIDATOR, onlineValidator);
     }
 
     /**

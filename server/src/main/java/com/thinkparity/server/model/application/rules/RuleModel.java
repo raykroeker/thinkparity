@@ -3,7 +3,12 @@
  */
 package com.thinkparity.desdemona.model.rules;
 
+import java.util.List;
+
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.codebase.model.user.User;
 
 /**
  * <b>Title:</b>thinkParity Desdemona Rule Model<br>
@@ -22,9 +27,8 @@ public interface RuleModel {
      *            A publish from user id <code>JabberId</code>.
      * @return True if publish to the user is restricted.
      */
-    public Boolean isPublishRestrictedFrom(final JabberId publishFrom);
+    Boolean isPublishRestrictedFrom(JabberId publishFrom);
 
-    
     /**
      * Determine if the model user is restricted from publishing to a user.
      * 
@@ -32,5 +36,18 @@ public interface RuleModel {
      *            A publish to user id <code>JabberId</code>.
      * @return True if publish to the user is restricted.
      */
-    public Boolean isPublishRestrictedTo(final JabberId publishTo);
+    Boolean isPublishRestrictedTo(JabberId publishTo);
+
+    /**
+     * Determine if the model user is restricted from publishing to any of the
+     * e-mail addresses OR users.
+     * 
+     * @param emails
+     *            A <code>List<EMail></code>.
+     * @param users
+     *            A <code>List<User></code>.
+     * @return True if the user is restricted from publishing to any of the
+     *         targets.
+     */
+    Boolean isPublishRestrictedTo(List<EMail> emails, List<User> users);
 }

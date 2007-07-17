@@ -23,9 +23,9 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.user.UserFlag;
 
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDelegate;
@@ -35,7 +35,6 @@ import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentFileLock;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
-import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 
@@ -66,6 +65,9 @@ public final class Publish extends ContainerDelegate {
     /** A list of team members to publish to. */
     private List<TeamMember> teamMembers;
 
+    /** The publish to user list. */
+    private final List<User> users;
+
     /** The version name <code>String</code>. */
     private String versionName;
 
@@ -76,6 +78,7 @@ public final class Publish extends ContainerDelegate {
     public Publish() {
         super();
         this.invitations = new ArrayList<OutgoingEMailInvitation>();
+        this.users = new ArrayList<User>();
     }
 
     /**
@@ -191,10 +194,7 @@ public final class Publish extends ContainerDelegate {
             // publish
             notifyStepBegin(monitor, PublishStep.PUBLISH);
             // build published to list
-            final List<User> publishTo = new ArrayList<User>();
-            publishTo.addAll(contacts);
-            publishTo.addAll(teamMembers);
-            sessionModel.publish(version, documentVersions, emails, publishTo);
+            sessionModel.publish(version, documentVersions, emails, users);
             notifyStepEnd(monitor, PublishStep.PUBLISH);
         } finally {
             releaseLocks(locks.values());
@@ -207,8 +207,9 @@ public final class Publish extends ContainerDelegate {
      * @param contacts
      *            A <code>List</code> of <code>Contact<code>s.
      */
-    public void setContacts(List<Contact> contacts) {
+    public void setContacts(final List<Contact> contacts) {
         this.contacts = contacts;
+        this.users.addAll(contacts);
     }
 
     /**
@@ -247,8 +248,9 @@ public final class Publish extends ContainerDelegate {
      * @param teamMembers
      *		A List<TeamMember>.
      */
-    public void setTeamMembers(List<TeamMember> teamMembers) {
+    public void setTeamMembers(final List<TeamMember> teamMembers) {
         this.teamMembers = teamMembers;
+        this.users.addAll(teamMembers);
     }
 
     /**
@@ -276,21 +278,6 @@ public final class Publish extends ContainerDelegate {
     }
 
     /**
-     * Ensure that the users can be published to.
-     * 
-     * @param users
-     *            A <code>List</code> of <code>User</code>s.
-     */
-    private void assertIsNotRestricted(final List<? extends User> users) {
-        final InternalUserModel userModel = getUserModel();
-        for (final User user : users) {
-            Assert.assertNotTrue(userModel.readFlags(user).contains(
-                    UserFlag.CONTAINER_PUBLISH_RESTRICTED),
-                    "Cannot publish to user {0}.", user.getName());
-        }
-    }
-
-    /**
      * Ensure that publish can proceed. A check is made for the following
      * criteria:
      * <ol>
@@ -299,19 +286,20 @@ public final class Publish extends ContainerDelegate {
      * <li>The local draft has been saved.
      * <li>The local draft differs from the most recent version.
      * <li>None of the e-mail addresses are contacts.
-     * <li>None of the contacts have been restricted publish.
-     * <li>None of the team members have been restricted publish.
+     * <li>None of the emails/contacts/team members have been restricted
+     * publish.
      * </ol>
      */
     private void assertIsPublishable() {
+        final List<ProfileEMail> profileEMails = getProfileModel().readEmails();
+        Assert.assertNotTrue(contains(profileEMails, emails), "The local user cannot be published to.");
         Assert.assertNotTrue(contains(teamMembers, localUser()), "The local user cannot be published to.");
         Assert.assertTrue(doesExistLocalDraft(containerId), "A local draft does not exist.");
         Assert.assertTrue(isLocalDraftSaved(containerId), "The local draft has not been saved.");
         Assert.assertTrue(isLocalDraftModified(containerId), "The local draft has not been modified.");
         getContainerConstraints().getVersionName().validate(versionName);
         assertIsNotContact(emails);
-        assertIsNotRestricted(contacts);
-        assertIsNotRestricted(teamMembers);
+        Assert.assertNotTrue(isPublishRestricted(), "The user cannot publish to the specified e-mails/users.");
     }
 
     /**
@@ -347,6 +335,15 @@ public final class Publish extends ContainerDelegate {
         /* NOTE a potential synchronization issue; however as long as we
          * synchronize on the workspace this will return the correct result */
         return documentModel.readLatestVersion(document.getId());
+    }
+
+    /**
+     * Determine if the user is restricted from publishing.
+     * 
+     * @return True if the user is restricted.
+     */
+    private Boolean isPublishRestricted() {
+        return getSessionModel().isPublishRestricted(emails, users);
     }
 
     /**

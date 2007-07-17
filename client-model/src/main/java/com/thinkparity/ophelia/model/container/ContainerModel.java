@@ -179,6 +179,21 @@ public interface ContainerModel {
     public Boolean isDistributed(final Long containerId);
 
     /**
+     * Determine whether or not publish is restricted to any of the e-mail
+     * addresses/contacts/team members.
+     * 
+     * @param emails
+     *            A <code>List<EMail></code>.
+     * @param contacts
+     *            A <code>List<Contact></code>.
+     * @param teamMembers
+     *            A <code>List<TeamMember></code>.
+     * @return True if publish is restricted.
+     */
+    public Boolean isPublishRestricted(final List<EMail> emails,
+            final List<Contact> contacts, final List<TeamMember> teamMembers);
+
+    /**
      * Determine whether or not a draft is modified.
      * 
      * @param containerId

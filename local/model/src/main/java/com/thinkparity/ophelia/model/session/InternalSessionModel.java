@@ -197,11 +197,14 @@ public interface InternalSessionModel extends SessionModel {
     /**
      * Determine if publish is restricted to the publish to user.
      * 
-     * @param publishTo
-     *            A publish to user id <code>JabberId</code>.
+     * @param emails
+     *            A <code>List<EMail></code>.
+     * @param users
+     *            A <code>List<User></code>.
      * @return True if publish to the user is restricted.
      */
-    public Boolean isPublishRestricted(final JabberId publishTo);
+    public Boolean isPublishRestricted(final List<EMail> emails,
+            final List<User> users);
 
     /**
      * Log an error.

@@ -31,6 +31,7 @@ import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -42,6 +43,7 @@ import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
@@ -106,6 +108,27 @@ public abstract class Model<T extends EventListener> extends
     static {
         ARTIFACT_UTIL = ArtifactUtil.getInstance();
         USER_UTILS = UserUtils.getInstance();
+    }
+
+    /**
+     * Determine if the list of profile e-mails contains any of the e-mails.
+     * 
+     * @param profileEMails
+     *            A <code>List<ProfileEMail></code>.
+     * @param emails
+     *            A <code>List<EMail></code>.
+     * @return True if the profile e-mails contains any one of the e-mails.
+     */
+    protected static final Boolean contains(
+            final List<ProfileEMail> profileEMails, final List<EMail> emails) {
+        for (final ProfileEMail profileEMail : profileEMails) {
+            for (final EMail email : emails) {
+                if (profileEMail.getEmail().equals(email)) {
+                    return Boolean.TRUE;
+                }
+            }
+        }
+        return Boolean.FALSE;
     }
 
     /**

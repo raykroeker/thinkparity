@@ -60,7 +60,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     private static int isInviteUserEnabled;
 
     static {
-        DU_BACKUP_ALLOTMENT = Long.valueOf(1024 * 1024 * 1024 * 10);
+        DU_BACKUP_ALLOTMENT = Long.valueOf(1024L * 1024L * 1024L * 10L);
     }
 
     /** A <code>ProfileEventGenerator</code> for local events. */

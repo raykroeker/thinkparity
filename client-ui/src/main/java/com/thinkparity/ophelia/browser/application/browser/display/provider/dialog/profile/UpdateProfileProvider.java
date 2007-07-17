@@ -11,6 +11,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
+import com.thinkparity.ophelia.model.profile.BackupStatistics;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.profile.Statistics;
 import com.thinkparity.ophelia.model.session.SessionModel;
@@ -43,6 +44,15 @@ public class UpdateProfileProvider extends ContentProvider {
     }
 
     /**
+     * Determine if the backup feature is available.
+     * 
+     * @return True if backup is available for the profile.
+     */
+    public Boolean isBackupEnabled() {
+        return profileModel.isBackupEnabled();
+    }
+
+    /**
      * Determine if the user's backup is online.
      * 
      * @return True if the user's backup is online.
@@ -52,9 +62,18 @@ public class UpdateProfileProvider extends ContentProvider {
     }
 
     /**
+     * Read the backup statistics.
+     * 
+     * @return The <code>BackupStatistics</code>.
+     */
+    public BackupStatistics readBackupStatistics() {
+        return profileModel.readBackupStatistics();
+    }
+
+    /**
      * Read the statistics.
      * 
-     * @return The backup <code>Statistics</code>.
+     * @return The <code>Statistics</code>.
      */
     public Statistics readStatistics() {
         return profileModel.readStatistics();

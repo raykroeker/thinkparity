@@ -28,6 +28,7 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileConstraints;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
+import com.thinkparity.ophelia.model.profile.BackupStatistics;
 import com.thinkparity.ophelia.model.profile.Statistics;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -355,7 +356,6 @@ public class UpdateProfileAvatar extends Avatar {
         final javax.swing.JLabel mobilePhoneJLabel = new javax.swing.JLabel();
         final javax.swing.JSeparator profileJSeparator = new javax.swing.JSeparator();
         final javax.swing.JLabel backupExplanationJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel backupJLabel = new javax.swing.JLabel();
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
         profileExplanationJLabel.setFont(Fonts.DialogFont);
@@ -495,11 +495,8 @@ public class UpdateProfileAvatar extends Avatar {
         backupExplanationJLabel.setFont(Fonts.DialogFont);
         backupExplanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateProfileAvatar.BackupExplanation"));
 
-        backupJLabel.setFont(Fonts.DialogFont);
-        backupJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateProfileAvatar.Backup"));
-
         backupStatisticsJLabel.setFont(Fonts.DialogFont);
-        backupStatisticsJLabel.setText("1 MB");
+        backupStatisticsJLabel.setText("!Total size of documents 500 MB!");
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
@@ -537,20 +534,16 @@ public class UpdateProfileAvatar extends Avatar {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(profileJSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 501, Short.MAX_VALUE)
+                        .addComponent(profileJSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
                         .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(16, 16, 16)
-                        .addComponent(backupJLabel)
-                        .addContainerGap(436, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 485, Short.MAX_VALUE)
+                                .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE)
                                 .addGap(14, 14, 14))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addComponent(changePasswordJButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 244, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 198, Short.MAX_VALUE)
                                 .addComponent(saveJButton)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(cancelJButton)))
@@ -573,7 +566,7 @@ public class UpdateProfileAvatar extends Avatar {
                                             .addComponent(countryJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                             .addComponent(postalCodeJLabel)
                                             .addComponent(emailJLabel))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 70, Short.MAX_VALUE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                             .addComponent(countryJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                             .addComponent(emailJTextField)
@@ -586,16 +579,16 @@ public class UpdateProfileAvatar extends Avatar {
                                             .addComponent(organizationJTextField, javax.swing.GroupLayout.Alignment.TRAILING)
                                             .addComponent(titleJTextField, javax.swing.GroupLayout.Alignment.TRAILING)
                                             .addComponent(nameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE)))
-                                    .addComponent(backupExplanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 485, Short.MAX_VALUE)
-                                    .addComponent(backupStatisticsJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 313, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(backupExplanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(16, 16, 16)
+                                        .addComponent(backupStatisticsJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)))
                                 .addGap(16, 16, 16))
-                            .addComponent(profileExplanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 501, Short.MAX_VALUE))
+                            .addComponent(profileExplanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
                         .addContainerGap())))
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cancelJButton, saveJButton});
-
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {backupStatisticsJLabel, nameJTextField});
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -651,9 +644,7 @@ public class UpdateProfileAvatar extends Avatar {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(backupExplanationJLabel)
                 .addGap(15, 15, 15)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(backupJLabel)
-                    .addComponent(backupStatisticsJLabel))
+                .addComponent(backupStatisticsJLabel)
                 .addGap(22, 22, 22)
                 .addComponent(errorMessageJLabel)
                 .addGap(14, 14, 14)
@@ -672,6 +663,15 @@ public class UpdateProfileAvatar extends Avatar {
         for (final Locale locale : getController().getAvailableLocales()) {
             this.countryModel.addElement(locale);
         }
+    }
+
+    /**
+     * Determine if the backup feature is available.
+     * 
+     * @return True if backup is available for the profile.
+     */
+    private Boolean isBackupEnabled() {
+        return ((UpdateProfileProvider) contentProvider).isBackupEnabled();
     }
 
     /**
@@ -811,6 +811,15 @@ public class UpdateProfileAvatar extends Avatar {
     /**
      * Read the backup statistics.
      * 
+     * @return The <code>BackupStatistics</code>.
+     */
+    private BackupStatistics readBackupStatistics() {
+        return ((UpdateProfileProvider) contentProvider).readBackupStatistics();
+    }
+
+    /**
+     * Read the statistics.
+     * 
      * @return An instance of <code>Statistics</code>.
      */
     private Statistics readStatistics() {
@@ -871,7 +880,24 @@ public class UpdateProfileAvatar extends Avatar {
         if (null == diskUsage) {
             diskUsage = 0L;
         }
-        backupStatisticsJLabel.setText(BYTES_FORMAT.format(diskUsage));
+        if (isBackupEnabled()) {
+            final Long allotment = readBackupStatistics().getDiskUsageAllotment();
+            final Long percent = allotment <= 0 ? 100L : 100L * diskUsage / allotment;
+            if (percent == 0 && diskUsage > 0) {
+                backupStatisticsJLabel.setText(getString(
+                        "BackupSupportedOnePercent", new Object[] {
+                                BYTES_FORMAT.format(diskUsage),
+                                BYTES_FORMAT.format(allotment) }));
+            } else {
+                backupStatisticsJLabel.setText(getString(
+                        "BackupSupported", new Object[] {
+                                BYTES_FORMAT.format(diskUsage), percent,
+                                BYTES_FORMAT.format(allotment) }));
+            }
+        } else {
+            backupStatisticsJLabel.setText(getString("BackupNotSupported",
+                    new Object[] { BYTES_FORMAT.format(diskUsage) }));
+        }
     }
 
     /**

@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 
 /**
  * <b>Title:</b>thinkParity Contact Service<br>
@@ -78,6 +79,10 @@ public interface ContactService {
     @WebMethod
     List<OutgoingEMailInvitation> readOutgoingEMailInvitations(
             AuthToken authToken);
+
+    @WebMethod
+    List<OutgoingEMailInvitation> readOutgoingEMailInvitations(
+            AuthToken authToken, ContainerVersion version);
 
     @WebMethod
     List<OutgoingUserInvitation> readOutgoingUserInvitations(

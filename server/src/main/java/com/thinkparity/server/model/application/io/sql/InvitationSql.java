@@ -194,6 +194,20 @@ public class InvitationSql extends AbstractSql {
         .append("where E.EMAIL=?")
         .toString();
 
+    /** Sql to read an outgoing e-mail invitations. */
+    private static final String SQL_READ_OUTGOING_EMAIL_FK =
+        new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
+        .append("CIOE.CONTACT_INVITATION_ID,CIOE.USER_ID,IE.EMAIL ")
+        .append("from TPSD_CONTACT_INVITATION_OUTGOING_EMAIL CIOE ")
+        .append("inner join TPSD_CONTACT_INVITATION CI ")
+        .append("on CI.CONTACT_INVITATION_ID=CIOE.CONTACT_INVITATION_ID ")
+        .append("inner join TPSD_CONTACT_INVITATION_ATTACHMENT CIA ")
+        .append("on CIA.CONTACT_INVITATION_ID=CIOE.CONTACT_INVITATION_ID ")
+        .append("inner join TPSD_EMAIL IE on IE.EMAIL_ID=CIOE.INVITATION_EMAIL_ID ")
+        .append("where CIOE.USER_ID=? and CIA.ATTACHMENT_REFERENCE_TYPE_ID=? ")
+        .append("and CIA.ATTACHMENT_REFERENCE_ID=?")
+        .toString();
+
     /** Sql to read an outgoing e-mail invitation by its unique key. */
     private static final String SQL_READ_OUTGOING_EMAIL_UK =
         new StringBuilder("select CI.CREATED_BY,CI.CREATED_ON,")
@@ -680,6 +694,38 @@ public class InvitationSql extends AbstractSql {
         } finally {
             session.close();
         }        
+    }
+
+    /**
+     * Read the outgoing e-mail invitations created by a user; with the
+     * specified attachment.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param attachment
+     *            An <code>Attachment</code>.
+     * @return A <code>List<OutgoingEMailInvitation</code>.
+     */
+    public List<OutgoingEMailInvitation> readOutgoingEMail(final User user,
+            final Attachment attachment) {
+        final HypersonicSession session = openSession();
+        try {
+            // read invitations
+            session.prepareStatement(SQL_READ_OUTGOING_EMAIL_FK);
+            session.setLong(1, user.getLocalId());
+            session.setInt(2, attachment.getReferenceType().getId());
+            session.setString(3, attachment.getReferenceId());
+            session.executeQuery();
+            final List<OutgoingEMailInvitation> invitations = new ArrayList<OutgoingEMailInvitation>();
+            while (session.nextResult()) {
+                invitations.add(extractOutgoingEMail(session));
+            }
+            return invitations;
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
     }
 
     public OutgoingEMailInvitation readOutgoingEMail(final User user,

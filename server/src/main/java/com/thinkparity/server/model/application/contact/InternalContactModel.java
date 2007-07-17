@@ -14,7 +14,7 @@ import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 
 import com.thinkparity.desdemona.model.annotation.ThinkParityAuthenticate;
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
-import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
+import com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.util.AuthenticationType;
 
 /**
@@ -44,6 +44,14 @@ public interface InternalContactModel extends ContactModel {
     @ThinkParityAuthenticate(AuthenticationType.USER)
     public void createInvitationAttachment(final JabberId userId,
             final Attachment attachment);
+
+    /**
+     * Delete an invitation attachment.
+     * 
+     * @param attachment
+     *            An <code>Attachment</code>.
+     */
+    public void deleteInvitationAttachment(final Attachment attachment);
 
     @ThinkParityAuthenticate(AuthenticationType.USER)
     public List<ContainerVersionAttachment> readContainerVersionInvitationAttachments(

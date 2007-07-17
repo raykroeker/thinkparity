@@ -5,6 +5,7 @@ package com.thinkparity.desdemona.model.container;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
@@ -13,6 +14,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.contact.ContactInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -29,7 +31,7 @@ import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
-import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
+import com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
 
 /**
@@ -91,12 +93,17 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     public void delete(final Container container, final Calendar deletedOn) {
         try {
             final Artifact artifact = localize(container);
+            // delete draft
             final InternalArtifactModel artifactModel = getArtifactModel();
             if (artifactModel.isDraftOwner(artifact)) {
                 artifactModel.deleteDraft(artifact, deletedOn);
             }
+            // remove team member
             artifactModel.removeTeamMember(artifact);
+            // delete from backup
             getBackupModel().delete(artifact.getUniqueId());
+            // delete invitations
+            deleteAttachments(container, deletedOn);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -253,6 +260,40 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             // create attachment
             if (!attachments.contains(attachment)) {
                 getContactModel().createInvitationAttachment(userId, attachment);
+            }
+        }
+    }
+
+    /**
+     * Delete the invitation attachments associated with the container created
+     * by the user. As well any invitations without any attachments are deleted
+     * as well.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param deletedOn
+     *            A deleted on <code>Calendar</code>.
+     */
+    private void deleteAttachments(final Container container, final Calendar deletedOn) {
+        final InternalContactModel contactModel = getContactModel();
+        final List<OutgoingEMailInvitation> emailInvitations =
+            contactModel.readOutgoingEMailInvitations();
+        final List<ContainerVersionAttachment> attachments =
+            new ArrayList<ContainerVersionAttachment>();
+        ContainerVersionAttachment attachment;
+        for (final OutgoingEMailInvitation invitation : emailInvitations) {
+            attachments.clear();
+            attachments.addAll(readContainerVersionAttachments(invitation));
+            for (final Iterator<ContainerVersionAttachment> iAttachments =
+                    attachments.iterator(); iAttachments.hasNext();) {
+                attachment = iAttachments.next();
+                if (attachment.getUniqueId().equals(container.getUniqueId())) {
+                    contactModel.deleteInvitationAttachment(attachment);
+                    iAttachments.remove();
+                }
+            }
+            if (attachments.isEmpty()) {
+                contactModel.deleteInvitation(invitation, deletedOn);
             }
         }
     }
@@ -458,7 +499,6 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         return localUsers;
     }
 
-    
     /**
      * Obtain a local reference for a user.
      * 
@@ -472,6 +512,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         return getUserModel().read(user.getId());
     }
 
+    
     /**
      * Obtain a local reference for an artifact.
      * 
@@ -496,6 +537,19 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
      */
     private <T extends ArtifactVersion> Artifact localize(final T version) {
         return getArtifactModel().read(version.getArtifactUniqueId());
+    }
+
+    /**
+     * Read all container versions attached to the invitation.
+     * 
+     * @param invitation
+     *            A <code>ContactInvitation</code>.
+     * @return A <code>List<ContainerVersionAttachment></code>.
+     */
+    private List<ContainerVersionAttachment> readContainerVersionAttachments(
+            final ContactInvitation invitation) {
+        return getContactModel().readContainerVersionInvitationAttachments(
+                user.getId(), invitation);
     }
 
     /**

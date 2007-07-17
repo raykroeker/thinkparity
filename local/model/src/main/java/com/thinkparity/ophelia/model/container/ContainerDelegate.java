@@ -362,6 +362,15 @@ public abstract class ContainerDelegate extends
     }
 
     /**
+     * @see ContainerModelImpl#readVersions(Long)
+     * 
+     */
+    protected final List<ContainerVersion> readVersions(
+            final Container container) {
+        return modelImplementation.readVersions(container.getId());
+    }
+
+    /**
      * @see ContainerModelImpl#releaseLock(DocumentFileLock)
      * 
      */

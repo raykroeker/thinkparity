@@ -13,6 +13,7 @@ import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 
 import com.thinkparity.desdemona.model.annotation.ThinkParityAuthenticate;
 import com.thinkparity.desdemona.util.AuthenticationType;
@@ -162,6 +163,10 @@ public interface ContactModel {
     public List<IncomingUserInvitation> readIncomingUserInvitations();
 
     public List<OutgoingEMailInvitation> readOutgoingEMailInvitations();
+
+    // TODO change to a filter
+    public List<OutgoingEMailInvitation> readOutgoingEMailInvitations(
+            final ContainerVersion version);
 
 	public List<OutgoingUserInvitation> readOutgoingUserInvitations();
 }

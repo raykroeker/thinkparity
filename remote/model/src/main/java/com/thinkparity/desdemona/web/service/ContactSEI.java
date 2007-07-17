@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 
 import com.thinkparity.desdemona.model.contact.ContactModel;
 
@@ -175,6 +176,15 @@ public class ContactSEI extends ServiceSEI implements ContactService {
     public List<OutgoingEMailInvitation> readOutgoingEMailInvitations(
             final AuthToken authToken) {
         return getModel(authToken).readOutgoingEMailInvitations();
+    }
+
+    /**
+     * @see com.thinkparity.service.ContactService#readOutgoingEMailInvitations(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.container.ContainerVersion)
+     *
+     */
+    public List<OutgoingEMailInvitation> readOutgoingEMailInvitations(
+            final AuthToken authToken, final ContainerVersion version) {
+        return getModel(authToken).readOutgoingEMailInvitations(version);
     }
 
     /**

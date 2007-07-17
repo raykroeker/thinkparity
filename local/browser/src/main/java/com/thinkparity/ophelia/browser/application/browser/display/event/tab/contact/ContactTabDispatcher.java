@@ -5,6 +5,8 @@ package com.thinkparity.ophelia.browser.application.browser.display.event.tab.co
 
 import com.thinkparity.codebase.assertion.Assert;
 
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.events.ContainerAdapter;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
@@ -60,6 +62,15 @@ public final class ContactTabDispatcher implements
             @Override
             public void containerPublished(final ContainerEvent e) {
                 avatar.firePublished(e);
+            }
+            @Override
+            public void containerDeleted(final ContainerEvent e) {
+                if (!e.getOutgoingEMailInvitations().isEmpty()) {
+                    for (final OutgoingEMailInvitation invitation : e.getOutgoingEMailInvitations()) {
+                        avatar.syncOutgoingEMailInvitation(invitation.getId(),
+                                e.isRemote());
+                    }
+                }
             }
         };
         containerModel.addListener(containerListener);

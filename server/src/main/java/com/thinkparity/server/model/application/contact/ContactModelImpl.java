@@ -36,7 +36,7 @@ import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants;
 import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
-import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
+import com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.InvitationSql;
 import com.thinkparity.desdemona.model.profile.InternalProfileModel;
@@ -446,6 +446,18 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.contact.InternalContactModel#deleteInvitationAttachment(com.thinkparity.desdemona.model.contact.invitation.Attachment)
+     *
+     */
+    public void deleteInvitationAttachment(final Attachment attachment) {
+        try {
+            invitationSql.deleteAttachment(attachment);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.contact.ContactModel#read(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
@@ -550,6 +562,22 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     public List<OutgoingEMailInvitation> readOutgoingEMailInvitations() {
         try {
             return readOutgoingEMailInvitations(user);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.contact.ContactModel#readOutgoingEMailInvitations(com.thinkparity.codebase.model.container.ContainerVersion)
+     *
+     */
+    public List<OutgoingEMailInvitation> readOutgoingEMailInvitations(
+            final ContainerVersion version) {
+        try {
+            final ContainerVersionAttachment attachment = new ContainerVersionAttachment();
+            attachment.setUniqueId(version.getArtifactUniqueId());
+            attachment.setVersionId(version.getVersionId());
+            return invitationSql.readOutgoingEMail(user, attachment);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -776,6 +804,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     private List<Attachment> readInvitationAttachments(final JabberId userId,
             final ContactInvitation invitation, final Filter<Attachment> filter) {
         try {
+            // TODO - Add createdBy criteria
             final List<Attachment> attachments = invitationSql.readAttachments(
                     invitation);
             FilterManager.filter(attachments, filter);

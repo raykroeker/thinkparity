@@ -402,7 +402,8 @@ public final class ContainerModelImpl extends
             delegate.setContainerId(containerId);
             delegate.delete();
             // fire event
-            notifyContainerDeleted(container, localEventGenerator);
+            notifyContainerDeleted(container, delegate.getInvitations(),
+                    localEventGenerator);
         } catch (final CannotLockException clx) {
             throw clx;
         } catch (final Throwable t) {
@@ -644,30 +645,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent)
-     * 
-     */
-    public void handleEvent(final PublishedNotificationEvent event) {
-        try {
-            final HandlePublishedNotification delegate =
-                createDelegate(HandlePublishedNotification.class);
-            delegate.setEvent(event);
-            delegate.handlePublishedNotification();
-            // fire event
-            final Long containerId = getArtifactModel().readId(
-                    event.getVersion().getArtifactUniqueId());
-            final Container container = read(containerId);
-            if (delegate.didFlagLatest()) {
-                notifyContainerFlagLatestAdded(container, remoteEventGenerator);
-            } else {
-                notifyContainerFlagLatestRemoved(container, remoteEventGenerator);
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handleEvent(com.thinkparity.ophelia.model.container.event.LocalVersionPublishedEvent)
      * 
      */
@@ -689,6 +666,30 @@ public final class ContainerModelImpl extends
             notifyContainerPublished(container, previousVersion, version,
                     nextVersion, delegate.getPublishedBy(),
                     remoteEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent)
+     * 
+     */
+    public void handleEvent(final PublishedNotificationEvent event) {
+        try {
+            final HandlePublishedNotification delegate =
+                createDelegate(HandlePublishedNotification.class);
+            delegate.setEvent(event);
+            delegate.handlePublishedNotification();
+            // fire event
+            final Long containerId = getArtifactModel().readId(
+                    event.getVersion().getArtifactUniqueId());
+            final Container container = read(containerId);
+            if (delegate.didFlagLatest()) {
+                notifyContainerFlagLatestAdded(container, remoteEventGenerator);
+            } else {
+                notifyContainerFlagLatestRemoved(container, remoteEventGenerator);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -2924,14 +2925,18 @@ public final class ContainerModelImpl extends
      * 
      * @param container
      *            A container.
+     * @param invitations
+     *            A <code>List<OutgoingEMailInvitation></code>.
      * @param eventGenerator
      *            An event generator.
      */
     private void notifyContainerDeleted(final Container container,
+            final List<OutgoingEMailInvitation> invitations,
             final ContainerEventGenerator eventGenerator) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
-                listener.containerDeleted(eventGenerator.generate(container));
+                listener.containerDeleted(eventGenerator.generate(container,
+                        null, null, null, null, null, invitations));
             }
         });
     }

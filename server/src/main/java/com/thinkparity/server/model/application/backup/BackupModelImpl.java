@@ -30,7 +30,7 @@ import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants.Product.Ophelia;
 import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
-import com.thinkparity.desdemona.model.container.contact.invitation.ContainerVersionAttachment;
+import com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 
 /**

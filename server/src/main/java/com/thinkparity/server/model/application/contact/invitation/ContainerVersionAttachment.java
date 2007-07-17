@@ -1,7 +1,7 @@
 /*
  * Created On:  4-Apr-07 1:49:17 PM
  */
-package com.thinkparity.desdemona.model.container.contact.invitation;
+package com.thinkparity.desdemona.model.contact.invitation;
 
 import java.text.MessageFormat;
 import java.util.UUID;

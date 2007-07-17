@@ -21,6 +21,7 @@ import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.*;
@@ -40,6 +41,10 @@ import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.util.sort.contact.NameComparator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
+import com.thinkparity.service.AuthToken;
+import com.thinkparity.service.ContactService;
+import com.thinkparity.service.client.ServiceFactory;
+
 /**
  * <b>Title:</b>thinkParity Contact Model Implementation<br>
  * <b>Description:</b><br>
@@ -49,9 +54,12 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 public final class ContactModelImpl extends Model<ContactListener>
         implements ContactModel, InternalContactModel {
-    
+
     /** The contact db io. */
     private ContactIOHandler contactIO;
+
+    /** A contact web-service interface. */
+    private ContactService contactService;
 
     /** The default contact comparator. */
     private final Comparator<Contact> defaultComparator;
@@ -395,6 +403,23 @@ public final class ContactModelImpl extends Model<ContactListener>
 
             // fire event
             notifyContactDeleted(contact, localEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#deleteLocalOutgoingEMailInvitation(com.thinkparity.codebase.email.EMail)
+     * 
+     */
+    public OutgoingEMailInvitation deleteLocalOutgoingEMailInvitation(
+            final EMail email) {
+        try {
+            final OutgoingEMailInvitation invitation =
+                contactIO.readOutgoingEMailInvitation(email);
+            contactIO.deleteInvitation(invitation);
+            getIndexModel().deleteOutgoingEMailInvitation(invitation.getId());
+            return invitation;
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1037,6 +1062,20 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#readOutgoingEMailInvitations(com.thinkparity.codebase.model.container.ContainerVersion)
+     * 
+     */
+    public List<OutgoingEMailInvitation> readOutgoingEMailInvitations(
+            final ContainerVersion version) {
+        try {
+            return contactService.readOutgoingEMailInvitations(getAuthToken(),
+                    version);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.contact.ContactModel#readOutgoingEMailInvitation(java.lang.Long)
      * 
      */
@@ -1141,6 +1180,9 @@ public final class ContactModelImpl extends Model<ContactListener>
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
         this.contactIO = IOFactory.getDefault(workspace).createContactHandler();
+
+        final ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        this.contactService = serviceFactory.getContactService();
     }
 
     /**
@@ -1273,6 +1315,15 @@ public final class ContactModelImpl extends Model<ContactListener>
 
         // delete index
         getIndexModel().deleteContact(contact.getId());
+    }
+
+    /**
+     * Obtain the web-service authentication token.
+     * 
+     * @return An <code>AuthToken</code>.
+     */
+    private AuthToken getAuthToken() {
+        return getSessionModel().getAuthToken();
     }
 
     private void notifyContactCreated(final Contact contact,

@@ -5,11 +5,13 @@
 package com.thinkparity.ophelia.model.contact;
 
 import java.util.Calendar;
+import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.*;
 
@@ -34,6 +36,16 @@ public interface InternalContactModel extends ContactModel {
      */
     public OutgoingEMailInvitation createLocalOutgoingEMailInvitation(
             final EMail email, final Calendar createdOn);
+
+    /**
+     * Delete the local outgoing e-mail invitation.
+     * 
+     * @param email
+     *            An <code>EMail</code> address.
+     * @return An <code>OutgoingEMailInvitation</code>.
+     */
+    public OutgoingEMailInvitation deleteLocalOutgoingEMailInvitation(
+            final EMail email);
 
     /**
      * Determine whether or not an outgoing e-mail invitation exists.
@@ -143,4 +155,14 @@ public interface InternalContactModel extends ContactModel {
      * @return An <code>OutgoingEMailInvitation</code>.
      */
     public OutgoingEMailInvitation readOutgoingEMailInvitation(final EMail email);
+
+    /**
+     * Read the outgoing e-mail invitations for a contiainer version attachment.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @return A <code>List<OutgoingEMailInvitation</code>.
+     */
+    public List<OutgoingEMailInvitation> readOutgoingEMailInvitations(
+            final ContainerVersion version);
 }

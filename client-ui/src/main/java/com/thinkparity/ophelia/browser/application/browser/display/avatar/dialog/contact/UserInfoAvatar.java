@@ -218,6 +218,17 @@ public class UserInfoAvatar extends Avatar {
     }//GEN-LAST:event_inviteJLabelMousePressed
 
     /**
+     * Determine whether or not the invite user interface is enabled.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if the invite user interface is enabled.
+     */
+    public Boolean isInviteAvailable(final User user) {
+        return ((UserInfoProvider)contentProvider).readIsInviteAvailable(user);
+    }
+
+    /**
      * Determine if the specified user is the local user.
      * 
      * @param user
@@ -244,7 +255,9 @@ public class UserInfoAvatar extends Avatar {
      *            The <code>User</code>.
      */
     private void reloadInvite(final User user) {
-        inviteJLabel.setVisible(!isLocalUser(user) && !doesExistContact(user) && !doesExistOutgoingUserInvitation(user));
+        inviteJLabel.setVisible(!isLocalUser(user) && !doesExistContact(user)
+                && !doesExistOutgoingUserInvitation(user)
+                && isInviteAvailable(user));
     }
 
     public enum DataKey { USER_ID }

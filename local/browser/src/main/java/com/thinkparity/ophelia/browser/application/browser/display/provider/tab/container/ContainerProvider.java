@@ -150,7 +150,18 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     public Boolean isDraftDocumentModified(final Long documentId) {
         return documentModel.isDraftModified(documentId);
     }
-    
+
+    /**
+     * Determine whether or not the invite user interface is enabled.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if the invite user interface is enabled.
+     */
+    public Boolean isInviteAvailable(final User user) {
+        return profileModel.isInviteAvailable(user);
+    }
+
     /**
      * Determine if the local draft is modified, ie. at least one document changed.
      * 

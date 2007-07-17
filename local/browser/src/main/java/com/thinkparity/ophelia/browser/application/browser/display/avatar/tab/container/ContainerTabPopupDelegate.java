@@ -379,7 +379,9 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
 
         // invite
         if (online) {
-            if (!isLocalUser(user) && !doesExistContact(user) && !doesExistOutgoingUserInvitation(user)) {
+            if (!isLocalUser(user) && !doesExistContact(user)
+                    && !doesExistOutgoingUserInvitation(user)
+                    && isInviteAvailable(user)) {
                 final Data data = new Data(1);
                 data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, user.getLocalId());
                 add(ActionId.CONTACT_CREATE_OUTGOING_USER_INVITATION, data);
@@ -563,6 +565,17 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
      */
     private boolean isDistributed(final Long containerId) {
         return model.readIsDistributed(containerId);
+    }
+
+    /**
+     * Determine whether or not the invite user interface is enabled.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if the invite user interface is enabled.
+     */
+    private Boolean isInviteAvailable(final User user) {
+        return model.readIsInviteAvailable(user);
     }
 
     /**

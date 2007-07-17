@@ -67,6 +67,17 @@ public class UserInfoProvider extends ContentProvider {
     }
 
     /**
+     * Determine whether or not the invite user interface is enabled.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if the invite user interface is enabled.
+     */
+    public Boolean readIsInviteAvailable(final User user) {
+        return profileModel.isInviteAvailable(user);
+    }
+
+    /**
      * Determine if the specified user is the local user.
      * 
      * @param user

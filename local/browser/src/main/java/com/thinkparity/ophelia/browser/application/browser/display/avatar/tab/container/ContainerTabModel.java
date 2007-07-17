@@ -390,6 +390,17 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Determine whether or not the invite user interface is enabled.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if the invite user interface is enabled.
+     */
+    Boolean readIsInviteAvailable(final User user) {
+        return ((ContainerProvider) contentProvider).isInviteAvailable(user).booleanValue();
+    }
+
+    /**
      * Determine if the local draft is modified, ie. at least one document changed.
      * 
      * @param containerId

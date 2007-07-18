@@ -14,7 +14,10 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
+import com.thinkparity.ophelia.model.events.ContainerAdapter;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
+import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.ophelia.model.events.ContainerListener;
 
 /**
  * <b>Title:</b>thinkParity Document Monitor<br>
@@ -52,6 +55,9 @@ public class ContainerDraftMonitor {
     /** A log4j wrapper. */
     private final Log4JWrapper logger;
 
+    /** A container listener. */
+    private final ContainerListener containerListener;
+
     /** A <code>Timer</code>. */
     private Timer timer;
 
@@ -70,6 +76,23 @@ public class ContainerDraftMonitor {
             final ContainerEventGenerator eventGenerator,
             final ContainerDraftListener listener) {
         super();
+        this.containerListener = new ContainerAdapter() {
+            @Override
+            public void documentAdded(final ContainerEvent e) {
+                if (e.getContainer().getId().equals(getContainerId()))
+                    notifyStateChanged(e.getDocument());
+            }
+            @Override
+            public void documentRemoved(final ContainerEvent e) {
+                if (e.getContainer().getId().equals(getContainerId()))
+                    notifyStateChanged(e.getDocument());
+            }
+            @Override
+            public void documentReverted(final ContainerEvent e) {
+                if (e.getContainer().getId().equals(getContainerId()))
+                    notifyStateChanged(e.getDocument());
+            }
+        };
         this.containerModel = internalModelFactory.getContainerModel();
         this.documentModel = internalModelFactory.getDocumentModel();
         this.eventGenerator = eventGenerator;
@@ -92,6 +115,7 @@ public class ContainerDraftMonitor {
      *
      */
     public void start() {
+        containerModel.addListener(containerListener);
         timer = new Timer("TPS-OpheliaModel-CDMonitor", true);
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -132,6 +156,8 @@ public class ContainerDraftMonitor {
      */
     public void stop() {
         if (null != timer) {
+            containerModel.removeListener(containerListener);
+
             timer.cancel();
             timer = null;
             monitorCount--;

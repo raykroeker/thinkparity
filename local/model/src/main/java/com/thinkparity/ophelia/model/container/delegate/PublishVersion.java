@@ -9,14 +9,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
-import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -34,9 +35,6 @@ import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
  */
 public final class PublishVersion extends ContainerDelegate {
 
-    /** A list of contacts to publish to. */
-    private List<Contact> contacts;
-
     /** The container id of the container to publish. */
     private Long containerId;
 
@@ -49,6 +47,9 @@ public final class PublishVersion extends ContainerDelegate {
     /** A list of team members to publish to. */
     private List<TeamMember> teamMembers;
 
+    /** The publish to user list. */
+    private final List<User> users;
+
     /** The container version id of the container to publish. */
     private Long versionId;
 
@@ -59,6 +60,7 @@ public final class PublishVersion extends ContainerDelegate {
     public PublishVersion() {
         super();
         this.invitations = new ArrayList<OutgoingEMailInvitation>();
+        this.users = new ArrayList<User>();
     }
 
     /**
@@ -69,37 +71,24 @@ public final class PublishVersion extends ContainerDelegate {
     public List<OutgoingEMailInvitation> getInvitations() {
         return Collections.unmodifiableList(invitations);
     }
-
+    
     /**
      * Publish version.
      *
      */
     public void publishVersion() {
+        assertIsPublishable();
         final InternalSessionModel sessionModel = getSessionModel();
         final Calendar publishedOn = sessionModel.readDateTime();
         final ContainerVersion version = readVersion(containerId, versionId);
-        final List<User> publishToUsers = new ArrayList<User>();
-        // build the team ids and the publish to list
-        final List<JabberId> teamMemberIds =
-            getArtifactModel().readTeamIds(containerId);
-        for (final Contact contact : contacts) {
-            publishToUsers.add(contact);
-            teamMemberIds.add(contact.getId());
-        }
-        for (final TeamMember teamMember : teamMembers) {
-            if (!contains(publishToUsers, teamMember)) {
-                publishToUsers.add(teamMember);
-                
-            }
-        }
         // only create a published to reference if one for the user does not
         // already exist
         final List<User> publishedTo = containerIO.readPublishedTo(containerId,
                 versionId);
-        for (final User publishToUser : publishToUsers) {
-            if (!contains(publishedTo, publishToUser)) {
-                containerIO.createPublishedTo(containerId, versionId,
-                        publishToUser, publishedOn);
+        for (final User user : users) {
+            if (!contains(publishedTo, user)) {
+                containerIO.createPublishedTo(containerId, versionId, user,
+                        publishedOn);
             }
         }
         /* the remote publish-version invocation will potentially generate new
@@ -131,7 +120,7 @@ public final class PublishVersion extends ContainerDelegate {
                 version.getArtifactId(), version.getVersionId(),
                 new ComparatorBuilder().createVersionById(Boolean.TRUE));
         sessionModel.publishVersion(version, versions, receivedBy,
-                publishedOn, emails, publishToUsers);
+                publishedOn, emails, users);
     }
 
     /**
@@ -140,8 +129,8 @@ public final class PublishVersion extends ContainerDelegate {
      * @param contacts
      *            A <code>List</code> of <code>Contact<code>s.
      */
-    public void setContacts(List<Contact> contacts) {
-        this.contacts = contacts;
+    public void setContacts(final List<Contact> contacts) {
+        this.users.addAll(contacts);
     }
 
     /**
@@ -170,8 +159,9 @@ public final class PublishVersion extends ContainerDelegate {
      * @param teamMembers
      *		A List<TeamMember>.
      */
-    public void setTeamMembers(List<TeamMember> teamMembers) {
+    public void setTeamMembers(final List<TeamMember> teamMembers) {
         this.teamMembers = teamMembers;
+        this.users.addAll(teamMembers);
     }
 
     /**
@@ -182,5 +172,52 @@ public final class PublishVersion extends ContainerDelegate {
      */
     public void setVersionId(final Long versionId) {
         this.versionId = versionId;
+    }
+
+    /**
+     * Ensure the e-mail address is not already tied to a contact.
+     * 
+     * @param emails
+     *            An <code>EMail</code> address.
+     */
+    private void assertIsNotContact(final List<EMail> emails) {
+        final InternalContactModel contactModel = getContactModel();
+        for (final EMail email : emails) {
+            Assert.assertNotTrue(contactModel.doesExist(email),
+                    "A contact for {0} already exists.", email);
+        }
+    }
+
+    /**
+     * Ensure that publish can proceed. A check is made for the following
+     * criteria:
+     * <ol>
+     * <li>The local user is not in the team member list.
+     * <li>There exists a local draft.
+     * <li>The local draft has been saved.
+     * <li>The local draft differs from the most recent version.
+     * <li>None of the e-mail addresses are contacts.
+     * <li>None of the emails/contacts/team members have been restricted
+     * publish.
+     * </ol>
+     */
+    private void assertIsPublishable() {
+        final List<ProfileEMail> profileEMails = getProfileModel().readEmails();
+        Assert.assertNotTrue(contains(profileEMails, emails), "The local user cannot be published to.");
+        Assert.assertNotTrue(contains(teamMembers, localUser()), "The local user cannot be published to.");
+        Assert.assertTrue(doesExistLocalDraft(containerId), "A local draft does not exist.");
+        Assert.assertTrue(isLocalDraftSaved(containerId), "The local draft has not been saved.");
+        Assert.assertTrue(isLocalDraftModified(containerId), "The local draft has not been modified.");
+        assertIsNotContact(emails);
+        Assert.assertNotTrue(isPublishRestricted(), "The user cannot publish to the specified e-mails/users.");
+    }
+
+    /**
+     * Determine if the user is restricted from publishing.
+     * 
+     * @return True if the user is restricted.
+     */
+    private Boolean isPublishRestricted() {
+        return getSessionModel().isPublishRestricted(emails, users);
     }
 }

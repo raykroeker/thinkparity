@@ -98,7 +98,8 @@ public final class RuleModelImpl extends AbstractModelImpl implements
                 }
             }
             for (final User user2 : users) {
-                if (isPublishRestricted(this.user, user2)) {
+                if (isPublishRestricted(this.user,
+                        userModel.read(user2.getId()))) {
                     return Boolean.TRUE;
                 }
             }

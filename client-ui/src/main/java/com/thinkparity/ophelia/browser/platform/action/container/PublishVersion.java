@@ -14,6 +14,7 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.session.OfflineException;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -97,12 +98,17 @@ public class PublishVersion extends AbstractBrowserAction {
                 }
             }
 
-            try {
-                getContainerModel().publishVersion(version.getArtifactId(),
-                        version.getVersionId(), emails, contacts, teamMembers);
-                getContainerModel().applyFlagSeen(version.getArtifactId());
-            } catch (final OfflineException ox) {
-                browser.displayErrorDialog("ErrorOffline");
+            final ContainerModel containerModel = getContainerModel();
+            if (containerModel.isPublishRestricted(emails, contacts, teamMembers)) {
+                browser.displayErrorDialog("PublishVersion.NoUsersToPublish", new Object[] {version.getArtifactName()});
+            } else {
+                try {
+                    getContainerModel().publishVersion(version.getArtifactId(),
+                            version.getVersionId(), emails, contacts, teamMembers);
+                    getContainerModel().applyFlagSeen(version.getArtifactId());
+                } catch (final OfflineException ox) {
+                    browser.displayErrorDialog("ErrorOffline");
+                }
             }
         }
     }

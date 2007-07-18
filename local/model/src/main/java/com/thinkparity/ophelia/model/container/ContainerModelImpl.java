@@ -978,11 +978,11 @@ public final class ContainerModelImpl extends
             delegate.publishVersion();
             // fire event
             final Container container = read(containerId);
-            final ContainerVersion version = readVersion(containerId, versionId);
             final ContainerVersion previousVersion = readPreviousVersion(containerId, versionId);
+            final ContainerVersion version = readVersion(containerId, versionId);
             final ContainerVersion nextVersion = readNextVersion(containerId, versionId);
             final TeamMember localTeamMember = localTeamMember(containerId);
-            notifyContainerPublished(container, null, version, previousVersion,
+            notifyContainerPublished(container, null, previousVersion, version,
                     nextVersion, localTeamMember, delegate.getInvitations(),
                     localEventGenerator);
         } catch (final Throwable t) {

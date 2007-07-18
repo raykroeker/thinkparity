@@ -107,19 +107,34 @@ public final class ContainerModelImpl extends
     /**
      * Count the steps required to publish.
      * 
-     * @param documentVersions
-     *            A <code>List</code> of <code>DocumentVersion</code>s.
+     * @param versions
+     *            A <code>List<DocumentVersion></code>.
+     * @param deltas
+     *            A <code>Map<DocumentVersion, Delta></code>.
      */
-    static Integer countSteps(final List<DocumentVersion> documentVersions) {
+    static Integer countSteps(final List<DocumentVersion> versions,
+            final Map<DocumentVersion, Delta> versionDeltas) {
+        int totalCount = 0;
         long totalSize = 0;
-        for (final DocumentVersion documentVersion : documentVersions) {
-            totalSize += documentVersion.getSize();
+        Delta versionDelta;
+        for (final DocumentVersion version : versions) {
+            versionDelta = versionDeltas.get(version);
+            switch (versionDelta) {
+            case ADDED:
+            case REMOVED:
+                totalCount++;
+                totalSize += version.getSize();
+                break;
+            case NONE:
+                break;
+            default:
+                /* NOTE removed documents are not in the document version
+                 * and therefore are not considered here */
+                Assert.assertUnreachable("Unsupported delta {0}.", versionDelta);
+            }
         }
-        // a step per k of size
-        long steps = totalSize / STEP_SIZE;
-        // add 5% for the last step
-        steps = (long) (steps * 1.05);
-        return Integer.valueOf((int) steps);
+        // step per doc + per 1K + 1
+        return Integer.valueOf(1 + totalCount + (int) (totalSize / STEP_SIZE));
     }
 
     /** The artifact io layer. */
@@ -2471,7 +2486,7 @@ public final class ContainerModelImpl extends
             final List<DocumentVersion> versions,
             final Map<DocumentVersion, Delta> deltas) {
         // set fixed progress determination
-        notifyDetermine(monitor, countSteps(versions));
+        notifyDetermine(monitor, countSteps(versions, deltas));
         // upload versions
         final InternalDocumentModel documentModel = modelFactory.getDocumentModel();
         StreamSession session;
@@ -2507,8 +2522,8 @@ public final class ContainerModelImpl extends
                         totalChunks += chunkSize;
                         while (totalChunks >= STEP_SIZE) {
                             totalChunks -= STEP_SIZE;
-                            ContainerModelImpl.notifyStepEnd(monitor,
-                                    PublishStep.UPLOAD_STREAM);
+                            notifyStepBegin(monitor, PublishStep.UPLOAD_STREAM, version.getArtifactName());
+                            notifyStepEnd(monitor, PublishStep.UPLOAD_STREAM);
                         }
                     }
     
@@ -2521,11 +2536,12 @@ public final class ContainerModelImpl extends
                     }
     
                 }, session);
-                documentModel.openVersion(version.getArtifactId(), version.getVersionId(), new StreamOpener() {
-                    public void open(final InputStream stream) throws IOException {
-                        writer.write(stream, version.getSize());
-                    }
-                });
+                documentModel.openVersion(version.getArtifactId(),
+                        version.getVersionId(), new StreamOpener() {
+                            public void open(final InputStream stream) throws IOException {
+                                writer.write(stream, version.getSize());
+                            }});
+                notifyStepEnd(monitor, PublishStep.UPLOAD_STREAM);
                 break;
             case NONE:
                 logger.logInfo("Document {0} is unchanged.  No upload required.",
@@ -2536,7 +2552,6 @@ public final class ContainerModelImpl extends
                  * and therefore are not considered here */
                 Assert.assertUnreachable("Unsupported delta {0}.", delta);
             }
-            notifyStepEnd(monitor, PublishStep.UPLOAD_STREAM);
         }
     }
 

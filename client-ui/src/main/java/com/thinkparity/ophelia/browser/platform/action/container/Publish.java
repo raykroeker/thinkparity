@@ -324,9 +324,7 @@ public class Publish extends AbstractBrowserAction {
                 public void determineSteps(final Integer steps) {
                     this.stepIndex = 0;
                     this.steps = steps;
-                    // allow an extra step for PublishStep.PUBLISH
-                    this.steps++;
-                    monitor.setSteps(this.steps);
+                    monitor.setSteps(steps);
                     monitor.setStep(stepIndex);
                 }
                 @Override
@@ -339,7 +337,6 @@ public class Publish extends AbstractBrowserAction {
                 @Override
                 public void endStep(final Step step) {
                     if (PublishStep.PUBLISH == step) {
-                        // we're done
                         stepIndex = steps;
                         monitor.setStep(stepIndex);
                     } else if (null != steps && steps.intValue() > 0) {

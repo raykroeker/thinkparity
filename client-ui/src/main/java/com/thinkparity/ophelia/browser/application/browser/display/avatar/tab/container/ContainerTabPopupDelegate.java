@@ -375,10 +375,8 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForUser(com.thinkparity.codebase.model.user.User)
      */
     public void showForUser(final User user) {
-        final boolean online = isOnline();
-
         // invite
-        if (online) {
+        if (isOnline()) {
             if (!isLocalUser(user) && !doesExistContact(user)
                     && !doesExistOutgoingUserInvitation(user)
                     && isInviteAvailable(user)) {

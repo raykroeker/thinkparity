@@ -195,7 +195,7 @@ public interface InternalSessionModel extends SessionModel {
     public Boolean isFirstLogin();
 
     /**
-     * Determine if publish is restricted to the publish to user.
+     * Determine if publish is restricted to the emails/users.
      * 
      * @param emails
      *            A <code>List<EMail></code>.
@@ -205,6 +205,15 @@ public interface InternalSessionModel extends SessionModel {
      */
     public Boolean isPublishRestricted(final List<EMail> emails,
             final List<User> users);
+
+    /**
+     * Determine if invite is restricted to the user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if invite is restircted.
+     */
+    public Boolean isInviteRestricted(final User user);
 
     /**
      * Log an error.

@@ -24,6 +24,9 @@ import com.thinkparity.codebase.model.user.User;
 public interface RuleService {
 
     @WebMethod
+    Boolean isInviteRestricted(AuthToken authToken, User user);
+
+    @WebMethod
     Boolean isPublishRestricted(AuthToken authToken,
             JabberId publishTo);
 

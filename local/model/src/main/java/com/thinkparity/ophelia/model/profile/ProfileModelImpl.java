@@ -56,9 +56,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     /** A temporary user's backup disk-usage allotment. */
     private static final Long DU_BACKUP_ALLOTMENT;
 
-    /** A temporary variable that counts the is invite enabled invocations. */
-    private static int isInviteUserEnabled;
-
     static {
         DU_BACKUP_ALLOTMENT = Long.valueOf(1024L * 1024L * 1024L * 10L);
     }
@@ -272,13 +269,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      */
     public Boolean isInviteAvailable(final User user) {
         try {
-            // NOCOMMIT - ProfileModelImpl#isInviteUserAvailable
-            isInviteUserEnabled++;
-            if (0 == isInviteUserEnabled % 3) {
-                return Boolean.FALSE;
-            } else {
-                return Boolean.TRUE;
-            }
+            return !getSessionModel().isInviteRestricted(user).booleanValue();
         } catch (final Throwable t) {
             throw panic(t);
         }

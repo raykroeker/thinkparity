@@ -468,6 +468,18 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isInviteRestricted(com.thinkparity.codebase.model.user.User)
+     *
+     */
+    public Boolean isInviteRestricted(User user) {
+        try {
+            return ruleService.isInviteRestricted(getAuthToken(), user);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#logError(com.thinkparity.codebase.model.migrator.Product,
      *      com.thinkparity.codebase.model.migrator.Release,
      *      com.thinkparity.codebase.model.migrator.Error)

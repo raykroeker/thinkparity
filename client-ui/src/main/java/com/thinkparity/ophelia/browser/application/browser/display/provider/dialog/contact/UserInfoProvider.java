@@ -78,17 +78,6 @@ public class UserInfoProvider extends ContentProvider {
     }
 
     /**
-     * Determine if the specified user is the local user.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @return True if this is the local user; false otherwise.
-     */
-    public Boolean readIsLocalUser(final User user) {
-        return user.getId().equals(profileModel.read().getId());
-    }
-
-    /**
      * Read the user.
      * 
      * @param userId

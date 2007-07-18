@@ -20,6 +20,15 @@ import com.thinkparity.codebase.model.user.User;
 public interface RuleModel {
 
     /**
+     * Determine if the model is restricted from inviting a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if the user is restricted.
+     */
+    Boolean isInviteRestricted(User user);
+
+    /**
      * Determine if the model user is restricted from being published to by a
      * user.
      * 

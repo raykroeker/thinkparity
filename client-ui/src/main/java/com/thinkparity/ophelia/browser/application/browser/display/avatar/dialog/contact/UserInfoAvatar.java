@@ -25,13 +25,13 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
- *
- * @author  Administrator
+ * <b>Title:</b>thinkParity Ophelia UI User Info Avatar<br>
+ * <b>Description:</b>Display user information.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class UserInfoAvatar extends Avatar {
-
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
+public final class UserInfoAvatar extends Avatar {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel companyJLabel = new javax.swing.JLabel();
@@ -40,7 +40,10 @@ public class UserInfoAvatar extends Avatar {
     private final javax.swing.JLabel titleJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
-    /** Creates new form UserInfoAvatar */
+    /**
+     * Create UserInfoAvatar.
+     * 
+     */
     public UserInfoAvatar() {
         super("UserInfoAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
@@ -53,6 +56,17 @@ public class UserInfoAvatar extends Avatar {
 
     public State getState() {
         return null;
+    }
+
+    /**
+     * Determine whether or not the invite user interface is enabled.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if the invite user interface is enabled.
+     */
+    public Boolean isInviteAvailable(final User user) {
+        return ((UserInfoProvider)contentProvider).readIsInviteAvailable(user);
     }
 
     public void reload() {
@@ -218,25 +232,12 @@ public class UserInfoAvatar extends Avatar {
     }//GEN-LAST:event_inviteJLabelMousePressed
 
     /**
-     * Determine whether or not the invite user interface is enabled.
+     * Determine if we are online.
      * 
-     * @param user
-     *            A <code>User</code>.
-     * @return True if the invite user interface is enabled.
+     * @return True if we are online.
      */
-    public Boolean isInviteAvailable(final User user) {
-        return ((UserInfoProvider)contentProvider).readIsInviteAvailable(user);
-    }
-
-    /**
-     * Determine if the specified user is the local user.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @return True if this is the local user; false otherwise.
-     */
-    private boolean isLocalUser(final User user) {
-        return ((UserInfoProvider)contentProvider).readIsLocalUser(user).booleanValue();
+    private boolean isOnline() {
+        return getController().isOnline().booleanValue();
     }
 
     /**
@@ -255,7 +256,7 @@ public class UserInfoAvatar extends Avatar {
      *            The <code>User</code>.
      */
     private void reloadInvite(final User user) {
-        inviteJLabel.setVisible(!isLocalUser(user) && !doesExistContact(user)
+        inviteJLabel.setVisible(isOnline() && !doesExistContact(user)
                 && !doesExistOutgoingUserInvitation(user)
                 && isInviteAvailable(user));
     }

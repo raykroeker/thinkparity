@@ -34,6 +34,32 @@ public final class RuleModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.rules.RuleModel#isInviteRestricted(com.thinkparity.codebase.model.user.User)
+     *
+     */
+    public Boolean isInviteRestricted(final User user) {
+        try {
+            final InternalUserModel userModel = getUserModel();
+            final List<Feature> modelUserFeatures = readFeatures(this.user);
+            final List<Feature> userFeatures = readFeatures(userModel.read(user.getId()));
+
+            for (final Feature feature : modelUserFeatures) {
+                if (Ophelia.Feature.CORE.equals(feature.getName())) {
+                    return Boolean.FALSE;
+                }
+            }
+            for (final Feature feature : userFeatures) {
+                if (Ophelia.Feature.CORE.equals(feature.getName())) {
+                    return Boolean.FALSE;
+                }
+            }
+            return Boolean.TRUE;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.rules.InternalRuleModel#isPublishRestricted()
      *
      */
@@ -124,27 +150,33 @@ public final class RuleModelImpl extends AbstractModelImpl implements
      * @return True if publish to the user is restricted.
      */
     private Boolean isPublishRestricted(final User from, final User to) {
-        try {
-            /* NOTE the product id/name should be read from the interface once the
-             * migrator code is complete */
-            final Long productId = Ophelia.PRODUCT_ID;
+        final List<Feature> fromFeatures = readFeatures(from);
+        final List<Feature> toFeatures = readFeatures(to);
 
-            final List<Feature> fromFeatures = getUserModel(from).readFeatures(productId);
-            final List<Feature> toFeatures = getUserModel(to).readFeatures(productId);
-
-            for (final Feature feature : fromFeatures) {
-                if (Ophelia.Feature.CORE.equals(feature.getName())) {
-                    return Boolean.FALSE;
-                }
+        for (final Feature feature : fromFeatures) {
+            if (Ophelia.Feature.CORE.equals(feature.getName())) {
+                return Boolean.FALSE;
             }
-            for (final Feature feature : toFeatures) {
-                if (Ophelia.Feature.CORE.equals(feature.getName())) {
-                    return Boolean.FALSE;
-                }
-            }
-            return Boolean.TRUE;
-        } catch (final Throwable t) {
-            throw panic(t);
         }
+        for (final Feature feature : toFeatures) {
+            if (Ophelia.Feature.CORE.equals(feature.getName())) {
+                return Boolean.FALSE;
+            }
+        }
+        return Boolean.TRUE;
+    }
+
+    /**
+     * Read the features for a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return A <code>List<Feature></code>.
+     */
+    private List<Feature> readFeatures(final User user) {
+        /* NOTE the product id/name should be read from the interface once the
+         * migrator code is complete */
+        final Long productId = Ophelia.PRODUCT_ID;
+        return getUserModel(user).readFeatures(productId);
     }
 }

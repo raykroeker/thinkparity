@@ -4,12 +4,14 @@
 package com.thinkparity.ophelia.browser.platform.action;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 import javax.swing.Icon;
+import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -206,12 +208,26 @@ public abstract class AbstractAction implements ActionInvocation {
         run(new Runnable() {
             public void run() {
                 try {
-                    application.applyBusyIndicator();
+                    SwingUtilities.invokeAndWait(new Runnable() {
+                        public void run() {
+                            application.applyBusyIndicator();
+                        }
+                    });
                     invoke(data);
                 } catch (final Throwable t) {
                     displayErrorDialog(application.getId(), t);
                 } finally {
-                    application.removeBusyIndicator();
+                    try {
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            public void run() {
+                                application.removeBusyIndicator();
+                            }
+                        });
+                    } catch (final InvocationTargetException itx) {
+                        logger.logWarning(itx, "Could not remove busy indicator.");
+                    } catch (final InterruptedException ix) {
+                        logger.logWarning(ix, "Could not remove busy indicator.");
+                    }
                 }
             }
         });

@@ -23,6 +23,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
 import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
 import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.UpdateDraftComment;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
@@ -44,6 +45,9 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
 
     /** The container's add bookmark <code>AbstractAction</code>. */
     private final ActionInvocation containerRemoveBookmark;
+
+    /** The container update draft comment <code>AbstractAction</code>. */
+    private final ActionInvocation containerUpdateDraftComment;
 
     /** The draft document <code>AbstractAction</code>. */
     private final ActionInvocation documentOpenDraft;
@@ -73,6 +77,7 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
         this.containerAddBookmark = ActionFactory.create(ActionId.CONTAINER_ADD_BOOKMARK);
         this.containerCreate = ActionFactory.create(ActionId.CONTAINER_CREATE);
         this.containerRemoveBookmark = ActionFactory.create(ActionId.CONTAINER_REMOVE_BOOKMARK);
+        this.containerUpdateDraftComment = getInstance(ActionId.CONTAINER_UPDATE_DRAFT_COMMENT);
         this.documentOpenDraft = getInstance(ActionId.DOCUMENT_OPEN);
         this.documentOpenVersion = getInstance(ActionId.DOCUMENT_OPEN_VERSION);
         this.profileUpdate = getInstance(ActionId.PROFILE_UPDATE);
@@ -117,6 +122,16 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
         data.set(OpenVersion.DataKey.DOCUMENT_ID, version.getArtifactId());
         data.set(OpenVersion.DataKey.VERSION_ID, version.getVersionId());
         invoke(documentOpenVersion, getApplication(), data);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ActionDelegate#invokeForDraft(com.thinkparity.ophelia.model.container.ContainerDraft)
+     */
+    public void invokeForDraft(final ContainerDraft draft) {
+        final Data data = new Data(2);
+        data.set(UpdateDraftComment.DataKey.CONTAINER_ID, draft.getContainerId());
+        data.set(UpdateDraftComment.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+        invoke(containerUpdateDraftComment, getApplication(), data);
     }
 
     /**

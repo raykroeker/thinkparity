@@ -1615,6 +1615,14 @@ public class ContainerPanel extends DefaultTabPanel {
             }
         }
         @Override
+        public void invokeAction() {
+            actionDelegate.invokeForDraft(getDraft());
+        }
+        @Override
+        public Boolean isActionAvailable() {
+            return Boolean.TRUE;
+        }
+        @Override
         public void showPopup() {
             popupDelegate.showForDraft(container, getDraft());
         }

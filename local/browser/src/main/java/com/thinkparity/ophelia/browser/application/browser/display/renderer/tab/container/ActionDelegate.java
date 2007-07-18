@@ -51,6 +51,14 @@ public interface ActionDelegate {
             final Delta delta);
 
     /**
+     * Invoke the action for a draft.
+     * 
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     */
+    public void invokeForDraft(final ContainerDraft draft);
+
+    /**
      * Invoke the action for a user.
      * 
      * @param user

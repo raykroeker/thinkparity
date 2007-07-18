@@ -14,6 +14,7 @@ import java.util.Locale;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
@@ -39,6 +40,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEven
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.Constants;
 import com.thinkparity.desdemona.model.DownloadHelper;
 import com.thinkparity.desdemona.model.io.sql.MigratorSql;
 import com.thinkparity.desdemona.util.smtp.SMTPService;
@@ -156,6 +158,11 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                     for (final String ccRecipient : ccRecipients)
                         addRecipient(mimeMessage, MimeMessage.RecipientType.CC,
                                 EMailBuilder.parse(ccRecipient));
+
+                    final InternetAddress fromInternetAddress = new InternetAddress();
+                    fromInternetAddress.setAddress(Constants.Internet.Mail.FROM_ADDRESS);
+                    fromInternetAddress.setPersonal(Constants.Internet.Mail.FROM_PERSONAL);
+                    mimeMessage.setFrom(fromInternetAddress);
                     smtpService.deliver(mimeMessage);
                 }
             } finally {

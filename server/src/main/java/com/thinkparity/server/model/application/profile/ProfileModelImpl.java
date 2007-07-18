@@ -12,6 +12,7 @@ import java.util.TimeZone;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
@@ -38,6 +39,7 @@ import com.thinkparity.codebase.model.util.codec.MD5Util;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.Constants;
 import com.thinkparity.desdemona.model.Constants.Product.Ophelia;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
@@ -92,6 +94,10 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             final MimeMessage mimeMessage = smtpService.createMessage();
             createVerification(mimeMessage, email, key);
             addRecipient(mimeMessage, email);
+            final InternetAddress fromInternetAddress = new InternetAddress();
+            fromInternetAddress.setAddress(Constants.Internet.Mail.FROM_ADDRESS);
+            fromInternetAddress.setPersonal(Constants.Internet.Mail.FROM_PERSONAL);
+            mimeMessage.setFrom(fromInternetAddress);
             smtpService.deliver(mimeMessage);
         } catch (final Throwable t) {
             throw translateError(t);
@@ -169,6 +175,10 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             final MimeMessage mimeMessage = smtpService.createMessage();
             createFirstVerification(mimeMessage, email, key);
             addRecipient(mimeMessage, email);
+            final InternetAddress fromInternetAddress = new InternetAddress();
+            fromInternetAddress.setAddress(Constants.Internet.Mail.FROM_ADDRESS);
+            fromInternetAddress.setPersonal(Constants.Internet.Mail.FROM_PERSONAL);
+            mimeMessage.setFrom(fromInternetAddress);
             smtpService.deliver(mimeMessage);
         } catch (final Throwable t) {
             throw panic(t);

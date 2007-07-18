@@ -77,7 +77,7 @@ public final class SMTPService {
     }
 
     /**
-     * Deliver an internet mime message via the jive e-mail service.
+     * Deliver an internet mime message via the localhost mail service.
      * 
      * @param mimeMessage
      *            An internet mime message.

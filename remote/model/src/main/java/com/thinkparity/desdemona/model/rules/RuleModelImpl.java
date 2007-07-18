@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.model.rules;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
@@ -39,21 +40,13 @@ public final class RuleModelImpl extends AbstractModelImpl implements
      */
     public Boolean isInviteRestricted(final User user) {
         try {
-            final InternalUserModel userModel = getUserModel();
-            final List<Feature> modelUserFeatures = readFeatures(this.user);
-            final List<Feature> userFeatures = readFeatures(userModel.read(user.getId()));
-
-            for (final Feature feature : modelUserFeatures) {
-                if (Ophelia.Feature.CORE.equals(feature.getName())) {
-                    return Boolean.FALSE;
-                }
+            if (isCoreEnabled(this.user)) {
+                return Boolean.FALSE;
+            } else if (isCoreEnabled(user)) {
+                return Boolean.FALSE;
+            } else {
+                return Boolean.TRUE;
             }
-            for (final Feature feature : userFeatures) {
-                if (Ophelia.Feature.CORE.equals(feature.getName())) {
-                    return Boolean.FALSE;
-                }
-            }
-            return Boolean.TRUE;
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -65,14 +58,11 @@ public final class RuleModelImpl extends AbstractModelImpl implements
      */
     public Boolean isPublishRestricted() {
         try {
-            final Long productId = Ophelia.PRODUCT_ID;
-            final List<Feature> features = getUserModel().readFeatures(productId);
-            for (final Feature feature : features) {
-                if (Ophelia.Feature.CORE.equals(feature.getName())) {
-                    return Boolean.FALSE;
-                }
+            if (isCoreEnabled(user)) {
+                return Boolean.FALSE;
+            } else {
+                return Boolean.TRUE;
             }
-            return Boolean.TRUE;
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -97,8 +87,7 @@ public final class RuleModelImpl extends AbstractModelImpl implements
      */
     public Boolean isPublishRestrictedTo(final JabberId publishTo) {
         try {
-            final User to = getUserModel().read(publishTo);
-            return isPublishRestricted(user, to);
+            return isPublishRestricted(user, getUserModel().read(publishTo));
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -111,28 +100,64 @@ public final class RuleModelImpl extends AbstractModelImpl implements
     public Boolean isPublishRestrictedTo(final List<EMail> emails,
             final List<User> users) {
         try {
-            User user;
-            final InternalUserModel userModel = getUserModel();
-            for (final EMail email : emails) {
-                user = userModel.read(email);
-                if (null == user) {
-                    return Boolean.TRUE;
-                } else {
-                    if (isPublishRestricted(this.user, user)) {
+            if (isCoreEnabled(user)) {
+                return Boolean.FALSE;
+            } else {
+                User user;
+                final InternalUserModel userModel = getUserModel();
+                for (final EMail email : emails) {
+                    user = userModel.read(email);
+                    if (null == user) {
+                        return Boolean.TRUE;
+                    } else {
+                        if (isPublishRestricted(this.user, user)) {
+                            return Boolean.TRUE;
+                        }
+                    }
+                }
+                final List<User> localUsers = localize(users);
+                for (final User localUser : localUsers) {
+                    if (isPublishRestricted(this.user, localUser)) {
                         return Boolean.TRUE;
                     }
                 }
+                return Boolean.FALSE;
             }
-            for (final User user2 : users) {
-                if (isPublishRestricted(this.user,
-                        userModel.read(user2.getId()))) {
-                    return Boolean.TRUE;
-                }
-            }
-            return Boolean.FALSE;
         } catch (final Throwable t) {
             throw panic(t);
         }
+    }
+
+    /**
+     * Determine whether or not the "CORE" feature is enabled for a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param name
+     *            A feature name <code>String</code>.
+     * @return True if the feature is enabled.
+     */
+    private boolean isCoreEnabled(final User user) {
+        return isFeatureEnabled(user, Ophelia.Feature.CORE);
+    }
+
+    /**
+     * Determine whether or not a feature is enabled for a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param name
+     *            A feature name <code>String</code>.
+     * @return True if the feature is enabled.
+     */
+    private boolean isFeatureEnabled(final User user, final String name) {
+        final List<Feature> features = readFeatures(user);
+        for (final Feature feature : features) {
+            if (feature.getName().equals(name)) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
     }
 
     /**
@@ -141,29 +166,46 @@ public final class RuleModelImpl extends AbstractModelImpl implements
      * not restricted. Another view is that it is only restricted when both
      * users do not have the core feature.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param publishFrom
+     * @param from
      *            A publish from user id <code>JabberId</code>.
-     * @param publishTo
+     * @param to
      *            A publish to user id <code>JabberId</code>.
      * @return True if publish to the user is restricted.
      */
     private Boolean isPublishRestricted(final User from, final User to) {
-        final List<Feature> fromFeatures = readFeatures(from);
-        final List<Feature> toFeatures = readFeatures(to);
+        if (isCoreEnabled(from)) {
+            return Boolean.FALSE;
+        } else if (isCoreEnabled(to)) {
+            return Boolean.FALSE;
+        } else {
+            return Boolean.TRUE;
+        }
+    }
 
-        for (final Feature feature : fromFeatures) {
-            if (Ophelia.Feature.CORE.equals(feature.getName())) {
-                return Boolean.FALSE;
-            }
+    /**
+     * Localize a list of users.
+     * 
+     * @param user
+     *            A <code>List<User></code>.
+     * @return A <code>List<User></code>.
+     */
+    private List<User> localize(final List<User> users) {
+        final List<User> localUsers = new ArrayList<User>(users.size());
+        for (final User user : users) {
+            localUsers.add(localize(user));
         }
-        for (final Feature feature : toFeatures) {
-            if (Ophelia.Feature.CORE.equals(feature.getName())) {
-                return Boolean.FALSE;
-            }
-        }
-        return Boolean.TRUE;
+        return localUsers;
+    }
+
+    /**
+     * Localize a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return A <code>User</code>.
+     */
+    private User localize(final User user) {
+        return getUserModel().read(user.getId());
     }
 
     /**

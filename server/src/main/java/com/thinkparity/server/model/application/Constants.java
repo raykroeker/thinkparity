@@ -18,6 +18,7 @@ public interface Constants {
         /** <b>Title:</b>Mail Constants:  From address<br> */
         public static final class Mail {
             public static final String FROM_ADDRESS = "thinkparity.noreply@thinkparity.com";
+            public static final String FROM_PERSONAL = "thinkParity Team";
         }
     }
 

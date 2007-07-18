@@ -72,8 +72,8 @@ final class NotificationSocketDelegate implements Runnable {
         while (true) {
             try {
                 synchronized (this) {
-                    // TIMEOUT - NotificationSocketDelegate#run() - 2.5s
-                    wait(2500);
+                    // TIMEOUT - NotificationSocketDelegate#run() - 30s
+                    wait(30 * 1000);
                 }
             } catch (final InterruptedException ix) {}
             logger.logInfo("Waking up notification delegate {0}.", sessionId.getValue());
@@ -90,7 +90,6 @@ final class NotificationSocketDelegate implements Runnable {
                 break;
             }
         }
-        server.removeSession(sessionId.getValue());
     }
 
     /**

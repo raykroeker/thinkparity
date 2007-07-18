@@ -61,13 +61,19 @@ public final class HandleVersionPublished extends ContainerDelegate {
      *
      */
     public void handleVersionPublished() {
+        /* order here is imporant; the team data is linked to the container; and
+         * must be in place before the version is created because in the case
+         * of a version published event; the version creator/publisher need not
+         * be the same user, and resolving the team before resolving the version
+         * will ensure the "created by" user is downloaded before the link to
+         * the version is made */
         final Container container = handleResolution();
+        handleTeamResolution(container, event.getTeam());
         final ContainerVersion version = handleVersionResolution(
                 container.getUniqueId(), event.getVersion().getVersionId(),
                 event.getVersion().getName(), event.getVersion().getComment(),
                 event.getVersion().getCreatedBy(),
                 event.getVersion().getCreatedOn());
-        handleTeamResolution(container, event.getTeam());
         final InternalSessionModel sessionModel = getSessionModel();
         final Calendar receivedOn = sessionModel.readDateTime();
         // apply the latest flag

@@ -98,15 +98,19 @@ public final class NotificationClient extends Observable implements Runnable {
         this.reader = new NotificationReader(newMonitor(), session);
         while (run) {
             int openAttempt = 0;
-            while (!reader.isOpen().booleanValue()
-                    && openAttempt < MAX_OPEN_ATTEMPTS) {
-                try {
-                    reader.open();
-                } catch (final Throwable t) {
-                    openAttempt++;
-                    logger.logWarning(t,
-                            "Could not open notification reader {0}/{1}.",
-                            openAttempt, MAX_OPEN_ATTEMPTS);
+            while (!reader.isOpen().booleanValue()) {
+                if (openAttempt < MAX_OPEN_ATTEMPTS) {
+                    try {
+                        reader.open();
+                    } catch (final Throwable t) {
+                        openAttempt++;
+                        logger.logWarning(t,
+                                "Could not open notification reader {0}/{1}.",
+                                openAttempt, MAX_OPEN_ATTEMPTS);
+                    }
+                } else {
+                    run = false;
+                    break;
                 }
             }
             if (reader.isOpen().booleanValue()) {
@@ -186,6 +190,11 @@ public final class NotificationClient extends Observable implements Runnable {
             public void streamError(final NotificationException error) {
                 logger.logWarning(error, "A notification client stream error has occured.{0}    {1}",
                         Separator.SystemNewLine, session);
+                try {
+                    reader.close(Boolean.TRUE);
+                } catch (final IOException iox) {
+                    logger.logWarning(iox, "An error occured closing notification client reader.");
+                }
             }
         };
     }

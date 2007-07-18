@@ -245,19 +245,19 @@ public abstract class NotificationClient {
     }
 
     /**
-    * Notify the client monitor that a stream error has occured.
-    * 
-    * @param error
-    *            The <code>StreamException</code>.
-    */
-   private void fireStreamError(final NotificationException error) {
-    try {
-        monitor.streamError(error);
-    } catch (final Throwable t) {
-        // do nothing; this is a client monitor issue
-        LOGGER.logError(t, "Stream monitor error:  {0}", session);
+     * Notify the client monitor that a stream error has occured.
+     * 
+     * @param error
+     *            The <code>StreamException</code>.
+     */
+    private void fireStreamError(final NotificationException error) {
+        try {
+            monitor.streamError(error);
+        } catch (final Throwable t) {
+            // do nothing; this is a client monitor issue
+            LOGGER.logError(t, "Stream monitor error:  {0}", session);
+        }
     }
-   }
 
     /**
      * Panic. Check if the error is one that can be recovered from; and create

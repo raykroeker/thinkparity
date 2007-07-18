@@ -250,7 +250,11 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.
      */
     public void fireTeamMemberAdded(final ContainerEvent e) {
-        sync(e);
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncTeamMemberAdded(e.getContainer(), e.getTeamMember());
+            }
+        }); 
     }
 
     /**
@@ -260,7 +264,11 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.
      */
     public void fireTeamMemberRemoved(final ContainerEvent e) {
-        sync(e);
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncTeamMemberRemoved(e.getContainer(), e.getTeamMember());
+            }
+        }); 
     }
 
     /**

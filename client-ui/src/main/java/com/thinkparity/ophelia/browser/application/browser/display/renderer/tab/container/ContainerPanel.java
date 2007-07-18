@@ -349,6 +349,15 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * Obtain the team.
+     * 
+     * @return A list of <code>TeamMember</code>.
+     */
+    public List<TeamMember> getTeam() {
+        return team;
+    }
+
+    /**
      * Determine if the container has been distributed.
      * 
      * @return True if the container has been distributed, false otherwise.
@@ -539,6 +548,34 @@ public class ContainerPanel extends DefaultTabPanel {
     /**
      * Set the panel data.
      * 
+     * This version is appropriate when the team has changed.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param team
+     *            A <code>List</code> of <code>TeamMember</code>s.
+     */
+    public void setPanelData(final Container container,
+            final List<TeamMember> team) {
+        this.container = container;
+        this.team.clear();
+        this.team.addAll(team);
+        if (isSetExpandedData()) {
+            // set the container cell.
+            westCells.set(0, new ContainerCell(
+                    draft, latestVersion, versions, documentViews, team));
+            // re-initialize
+            westListModel.initialize(westCells);
+        }
+        iconJLabel.setIcon(container.isBookmarked() 
+                ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK) 
+                : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
+        reloadText();
+    }
+
+    /**
+     * Set the panel data.
+     * 
      * This version is appropriate for initializing collapsed panels.
      * 
      * @param container
@@ -577,7 +614,7 @@ public class ContainerPanel extends DefaultTabPanel {
      *            A <code>Map</code> of <code>ContainerVersion</code> to <code>PublishedToView</code>.
      * @param publishedBy
      *            A <code>Map</code> of <code>ContainerVersion</code> to <code>User</code>.
-     * @param versions
+     * @param team
      *            A <code>List</code> of <code>TeamMember</code>s.
      */
     public void setPanelData(

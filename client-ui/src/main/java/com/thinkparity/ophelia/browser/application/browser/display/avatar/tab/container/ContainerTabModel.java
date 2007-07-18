@@ -601,6 +601,46 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Synchronize when a team member has been added.
+     * Performance is a concern so unnecessary steps are avoided.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    void syncTeamMemberAdded(final Container container, final TeamMember teamMember) {
+        if (isPanel(container.getId())) {
+            final ContainerPanel containerPanel = lookupContainerPanel(container.getId());
+            final List<TeamMember> team = new ArrayList<TeamMember>();
+            team.addAll(containerPanel.getTeam());
+            if (!team.contains(teamMember)) {
+                team.add(teamMember);
+                containerPanel.setPanelData(container, team);
+                synchronize();
+            }
+        }
+    }
+
+    /**
+     * Synchronize when a team member has been removed.
+     * Performance is a concern so unnecessary steps are avoided.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    void syncTeamMemberRemoved(final Container container, final TeamMember teamMember) {
+        if (isPanel(container.getId())) {
+            final ContainerPanel containerPanel = lookupContainerPanel(container.getId());
+            final List<TeamMember> team = new ArrayList<TeamMember>();
+            team.addAll(containerPanel.getTeam());
+            if (team.contains(teamMember)) {
+                team.remove(teamMember);
+                containerPanel.setPanelData(container, team);
+                synchronize();
+            }
+        }
+    }
+
+    /**
      * Add an application listener. The session draft monitor is
      * stopped before the application ends.
      */

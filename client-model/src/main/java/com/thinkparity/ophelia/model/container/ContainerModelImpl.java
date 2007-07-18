@@ -827,7 +827,7 @@ public final class ContainerModelImpl extends
         try {
             notifyListeners(new EventNotifier<ContainerListener>() {
                 public void notifyListener(final ContainerListener listener) {
-                    listener.teamMemberRemoved(localEventGenerator.generate(
+                    listener.teamMemberAdded(localEventGenerator.generate(
                             read(teamMember.getArtifactId()), teamMember));
                 }
             });

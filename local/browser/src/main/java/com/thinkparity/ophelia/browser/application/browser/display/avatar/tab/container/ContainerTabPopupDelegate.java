@@ -334,12 +334,10 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
 
         // update draft comment
-        if (online) {
-            final Data data = new Data(2);
-            data.set(UpdateDraftComment.DataKey.CONTAINER_ID, draft.getContainerId());
-            data.set(UpdateDraftComment.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            add(ActionId.CONTAINER_UPDATE_DRAFT_COMMENT, data);
-        }
+        final Data data = new Data(2);
+        data.set(UpdateDraftComment.DataKey.CONTAINER_ID, draft.getContainerId());
+        data.set(UpdateDraftComment.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+        add(ActionId.CONTAINER_UPDATE_DRAFT_COMMENT, data);
 
         // delete draft
         // This menu is shown if online, or if it has never been published.

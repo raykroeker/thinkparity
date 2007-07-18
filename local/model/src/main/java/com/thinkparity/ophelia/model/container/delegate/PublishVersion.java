@@ -205,9 +205,6 @@ public final class PublishVersion extends ContainerDelegate {
         final List<ProfileEMail> profileEMails = getProfileModel().readEmails();
         Assert.assertNotTrue(contains(profileEMails, emails), "The local user cannot be published to.");
         Assert.assertNotTrue(contains(teamMembers, localUser()), "The local user cannot be published to.");
-        Assert.assertTrue(doesExistLocalDraft(containerId), "A local draft does not exist.");
-        Assert.assertTrue(isLocalDraftSaved(containerId), "The local draft has not been saved.");
-        Assert.assertTrue(isLocalDraftModified(containerId), "The local draft has not been modified.");
         assertIsNotContact(emails);
         Assert.assertNotTrue(isPublishRestricted(), "The user cannot publish to the specified e-mails/users.");
     }

@@ -253,6 +253,22 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#readPublishedToAuth(java.util.UUID, java.lang.Long)
+     *
+     */
+    public List<ArtifactReceipt> readPublishedToAuth(final UUID uniqueId, final Long versionId) {
+        try {
+            /* note that we do not explicity check if backup is enabled here
+             * because the "server" needs to know this in order to correctly
+             * formulate the artifact receipt events; as well as delayed forward
+             * as a result of accepting invitations */
+            return readContainerPublishedToImplAuth(user, uniqueId, versionId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.backup.BackupModel#readPublishedToEMails(java.util.UUID,
      *      java.lang.Long)
      * 
@@ -614,6 +630,25 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             return Collections.emptyList();
         }
 
+    }
+
+    /**
+     * Read the container version published to implementation. If the user is a
+     * member of the team read the published to list from the backup.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param uniqueId
+     *            A container unique id <code>UUID</code>.
+     * @param versionId
+     *            A container version id <code>Long</code>.
+     * @return A <code>List</code> of <code>ArtifactReceipt</code>s.
+     */
+    private List<ArtifactReceipt> readContainerPublishedToImplAuth(final User user,
+            final UUID uniqueId, final Long versionId) {
+        final InternalModelFactory modelFactory = getModelFactory();
+        final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
+        return modelFactory.getContainerModel().readPublishedTo(containerId, versionId);
     }
 
     /**

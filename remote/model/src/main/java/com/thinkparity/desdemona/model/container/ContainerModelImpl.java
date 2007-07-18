@@ -67,8 +67,10 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             event.setReceivedBy(user.getId());
             event.setReceivedOn(receivedOn);
 
+            /* we don't want to tell everyone who has received the version; only
+             * those who have been sent the version */
             final List<ArtifactReceipt> publishedToReceipts =
-                getBackupModel().readPublishedTo(version.getArtifactUniqueId(),
+                getBackupModel().readPublishedToAuth(version.getArtifactUniqueId(),
                         version.getVersionId());
             final List<JabberId> userIds = new ArrayList<JabberId>();
             for (final ArtifactReceipt publishedToReceipt : publishedToReceipts) {

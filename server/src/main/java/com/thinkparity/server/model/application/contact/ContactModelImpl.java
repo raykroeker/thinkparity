@@ -876,7 +876,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
         final List<DocumentVersion> documentVersions =
             backupModel.readContainerDocumentVersions(container.getUniqueId(),
                     version.getVersionId());
-        final List<ArtifactReceipt> receivedBy = backupModel.readPublishedTo(
+        final List<ArtifactReceipt> receivedBy = backupModel.readPublishedToAuth(
                 container.getUniqueId(), version.getVersionId());
         final Calendar publishedOn = version.getCreatedOn();
         final List<EMail> publishToEMails = Collections.emptyList();

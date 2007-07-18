@@ -38,6 +38,6 @@ public interface InternalBackupModel extends BackupModel {
     public ContainerVersion readContainerVersion(final UUID uniqueId,
             final Long versionId);
 
-    public List<ArtifactReceipt> readPublishedTo(final UUID uniqueId,
+    public List<ArtifactReceipt> readPublishedToAuth(final UUID uniqueId,
             final Long versionId);
 }

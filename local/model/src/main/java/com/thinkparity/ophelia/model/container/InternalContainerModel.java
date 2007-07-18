@@ -12,6 +12,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
@@ -98,7 +99,7 @@ public interface InternalContainerModel extends ContainerModel {
      *            A <code>PublishedNotificationEvent</code>.
      */
     public void handleEvent(final PublishedNotificationEvent event);
-    
+
     /**
      * Handle the remote container version published notification event.
      * 
@@ -114,6 +115,28 @@ public interface InternalContainerModel extends ContainerModel {
      *            An <code>ArtifactReceivedEvent</code>.
      */
     public void handleReceived(final ArtifactReceivedEvent event);
+    
+    /**
+     * Notify the container listenter a team member has been added.
+     * 
+     * @param teamMember
+     *            A <code>TeamMember</code>.
+     * @deprecated the event should really be tied to the container
+     */
+    @Deprecated
+    @ThinkParityTransaction(TransactionType.SUPPORTED)
+    public void notifyTeamMemberAdded(final TeamMember teamMember);
+
+    /**
+     * Notify the container listenter a team member has been removed.
+     * 
+     * @param teamMember
+     *            A <code>TeamMember</code>.
+     * @deprecated the event should really be tied to the container
+     */
+    @Deprecated
+    @ThinkParityTransaction(TransactionType.SUPPORTED)
+    public void notifyTeamMemberRemoved(final TeamMember teamMember);
 
     /**
      * Read a list of of documents for a container version.

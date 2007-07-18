@@ -285,7 +285,9 @@ public final class ArtifactModelImpl extends Model implements
                             event);
                 } else {
                     final User user = getUserModel().readLazyCreate(event.getJabberId());
-                    addTeamMember(artifactId, user);
+                    final TeamMember teamMember = addTeamMember(artifactId, user);
+                    // HACK assuming container
+                    getContainerModel().notifyTeamMemberAdded(teamMember);
                 }
             }
         } catch(final Throwable t) {
@@ -305,7 +307,10 @@ public final class ArtifactModelImpl extends Model implements
                         event);
             } else {
                 final User user = getUserModel().read(event.getJabberId());
+                final TeamMember teamMember = artifactIO.readTeamRel(artifactId, user.getLocalId());
                 artifactIO.deleteTeamRel(artifactId, user.getLocalId());
+                // HACK assuming container
+                getContainerModel().notifyTeamMemberRemoved(teamMember);
             }
         } catch(final Throwable t) {
             throw panic(t);

@@ -805,6 +805,40 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#notifyTeamMemberAdded(com.thinkparity.codebase.model.user.TeamMember)
+     *
+     */
+    public void notifyTeamMemberAdded(final TeamMember teamMember) {
+        try {
+            notifyListeners(new EventNotifier<ContainerListener>() {
+                public void notifyListener(final ContainerListener listener) {
+                    listener.teamMemberRemoved(localEventGenerator.generate(
+                            read(teamMember.getArtifactId()), teamMember));
+                }
+            });
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#notifyTeamMemberRemoved(com.thinkparity.codebase.model.user.TeamMember)
+     *
+     */
+    public void notifyTeamMemberRemoved(final TeamMember teamMember) {
+        try {
+            notifyListeners(new EventNotifier<ContainerListener>() {
+                public void notifyListener(final ContainerListener listener) {
+                    listener.teamMemberRemoved(localEventGenerator.generate(
+                            read(teamMember.getArtifactId()), teamMember));
+                }
+            });
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Print a container draft.
      * 
      * @param containerId

@@ -121,7 +121,7 @@ public final class ContainerModelImpl extends
             versionDelta = versionDeltas.get(version);
             switch (versionDelta) {
             case ADDED:
-            case REMOVED:
+            case MODIFIED:
                 totalCount++;
                 totalSize += version.getSize();
                 break;

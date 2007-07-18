@@ -233,46 +233,61 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
 
     /**
      * Select the first panel.
+     * Scroll so the panel is visible and request focus.
      */
     public void selectFirstPanel() {
+        selectFirstPanel(Boolean.TRUE);
+    }
+
+    /**
+     * Select the first panel.
+     * Scroll so the panel is visible.
+     * 
+     * @param requestFocus
+     *            A <code>Boolean</code>, true if request focus in window. 
+     */
+    public void selectFirstPanel(final Boolean requestFocus) {
         checkThread();
         if (visiblePanels.size() > 0) {
-            selectPanel(visiblePanels.get(0), Boolean.TRUE);
+            selectPanel(visiblePanels.get(0), Boolean.TRUE, requestFocus);
         }
     }
 
     /**
      * Select the last panel.
+     * Scroll so the panel is visible and request focus.
      */
     public void selectLastPanel() {
         checkThread();
         if (visiblePanels.size() > 0) {
-            selectPanel(visiblePanels.get(visiblePanels.size()-1), Boolean.TRUE);
+            selectPanel(visiblePanels.get(visiblePanels.size() - 1),
+                    Boolean.TRUE, Boolean.TRUE);
         }
     }
 
     /**
      * Select the next panel, or the first panel if none are selected.
+     * Scroll so the panel is visible and request focus.
      */
     public void selectNextPanel() {
         checkThread();
         if (visiblePanels.size() > 0) {
             final TabPanel oldSelectedPanel = getSelectedPanel();
             if (null == oldSelectedPanel) {
-                selectPanel(visiblePanels.get(0), Boolean.TRUE);
+                selectPanel(visiblePanels.get(0), Boolean.TRUE, Boolean.TRUE);
             } else {
                 final int visibleIndex = visiblePanels.indexOf(oldSelectedPanel);
                 if (visibleIndex < 0) {
-                    selectPanel(visiblePanels.get(0), Boolean.TRUE);
+                    selectPanel(visiblePanels.get(0), Boolean.TRUE, Boolean.TRUE);
                 } else if (visibleIndex < visiblePanels.size()-1) {
-                    selectPanel(visiblePanels.get(visibleIndex+1), Boolean.TRUE);
+                    selectPanel(visiblePanels.get(visibleIndex+1), Boolean.TRUE, Boolean.TRUE);
                 }
             }
         }
     }
 
     /**
-     * Select the panel.
+     * Select the panel and request focus.
      * 
      * @param panelId
      *            A panel id <code>T</code>.    
@@ -283,15 +298,17 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         // Panel can be null in some cases, for example if a notification refers
         // to an invitation which has already been accepted.
         if (null != panel) {
-            selectPanel(panel);
+            selectPanel(panel, Boolean.FALSE, Boolean.TRUE);
         }
     }
 
     /**
+     * Select the panel and request focus.
+     * 
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate#selectPanel(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
      */
     public void selectPanel(final TabPanel tabPanel) {
-        selectPanel(tabPanel, Boolean.FALSE);
+        selectPanel(tabPanel, Boolean.FALSE, Boolean.TRUE);
     }
 
     /**
@@ -300,11 +317,16 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * @param tabPanel
      *            A <code>TabPanel</code>. 
      * @param scrollPanelToVisible
-     *            A <code>Boolean</code>, scroll the panel so it is visible or not. 
+     *            A <code>Boolean</code>, true if scroll the panel so it is visible.
+     * @param requestFocus
+     *            A <code>Boolean</code>, true if request focus in window. 
      */
-    public void selectPanel(final TabPanel tabPanel, final Boolean scrollPanelToVisible) {
+    public void selectPanel(final TabPanel tabPanel,
+            final Boolean scrollPanelToVisible, final Boolean requestFocus) {
         checkThread();
-        requestFocusInWindow(tabPanel);
+        if (requestFocus) {
+            requestFocusInWindow(tabPanel);
+        }
         if (isSelected(tabPanel)) {
             return;
         }
@@ -321,19 +343,20 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
 
     /**
      * Select the previous panel, or the first panel if none are selected.
+     * Scroll so the panel is visible and request focus.
      */
     public void selectPreviousPanel() {
         checkThread();
         if (visiblePanels.size() > 0) {
             final TabPanel oldSelectedPanel = getSelectedPanel();
             if (null == oldSelectedPanel) {
-                selectPanel(visiblePanels.get(0), Boolean.TRUE);
+                selectPanel(visiblePanels.get(0), Boolean.TRUE, Boolean.TRUE);
             } else {
                 final int visibleIndex = visiblePanels.indexOf(oldSelectedPanel);
                 if (visibleIndex < 0) {
-                    selectPanel(visiblePanels.get(0), Boolean.TRUE);
+                    selectPanel(visiblePanels.get(0), Boolean.TRUE, Boolean.TRUE);
                 } else if (visibleIndex > 0) {
-                    selectPanel(visiblePanels.get(visibleIndex-1), Boolean.TRUE);
+                    selectPanel(visiblePanels.get(visibleIndex-1), Boolean.TRUE, Boolean.TRUE);
                 }
             }
         }
@@ -650,14 +673,14 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      *            A <code>TabPanel</code>.
      */
     protected abstract void setExpandedPanelData(final TabPanel tabPanel);
-    
+
     /**
      * Create a final list of panels. Apply the
      * search results to the list.
      */
     @Override
     protected void synchronizeImpl() {
-        final TabPanel focusedPanel = getFocusedPanel();
+        final Boolean requestFocus = isFocusedPanel();
         checkThread();
         debug();
         applySearchFilter();
@@ -697,9 +720,11 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
         // select the first panel.
         if (!isSelectedPanel() ||
                 (isSelectedPanel() && !visiblePanels.contains(getSelectedPanel()))) {
-            selectFirstPanel();
-        } else if (null != focusedPanel && visiblePanels.contains(focusedPanel)) {
-            ((Component)focusedPanel).requestFocusInWindow();
+            selectFirstPanel(Boolean.FALSE);
+        }
+        // if there was a panel with focus at the start, request focus again
+        if (requestFocus) {
+            requestFocusInWindow(getSelectedPanel());
         }
         debug();
     }
@@ -785,6 +810,15 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
             }
         };
         scheduleTaskPastMidnight(timerTask);
+    }
+
+    /**
+     * Determine if there is a focused panel.
+     * 
+     * @return true if there is a focused panel.
+     */
+    private Boolean isFocusedPanel() {
+        return (null != getFocusedPanel());
     }
 
     /**

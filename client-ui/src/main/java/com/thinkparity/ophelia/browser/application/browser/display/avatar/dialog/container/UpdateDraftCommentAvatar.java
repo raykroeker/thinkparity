@@ -130,8 +130,15 @@ public class UpdateDraftCommentAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JButton cancelJButton = ButtonFactory.create();
         final javax.swing.JScrollPane commentJScrollPane = new javax.swing.JScrollPane();
+        final javax.swing.JButton cancelJButton = ButtonFactory.create();
+
+        commentJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        commentJTextArea.setFont(Fonts.DialogTextEntryFont);
+        commentJTextArea.setLineWrap(true);
+        commentJTextArea.setWrapStyleWord(true);
+        ((AbstractDocument) commentJTextArea.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(containerConstraints.getDraftComment()));
+        commentJScrollPane.setViewportView(commentJTextArea);
 
         okJButton.setFont(Fonts.DialogButtonFont);
         okJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateDraftCommentAvatar.OK"));
@@ -149,24 +156,15 @@ public class UpdateDraftCommentAvatar extends Avatar {
             }
         });
 
-        commentJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        commentJTextArea.setColumns(20);
-        commentJTextArea.setFont(Fonts.DialogTextEntryFont);
-        commentJTextArea.setLineWrap(true);
-        commentJTextArea.setRows(4);
-        commentJTextArea.setWrapStyleWord(true);
-        ((AbstractDocument) commentJTextArea.getDocument()).setDocumentFilter(new JTextComponentLengthFilter(containerConstraints.getDraftComment()));
-        commentJScrollPane.setViewportView(commentJTextArea);
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(commentJScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(commentJScrollPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
                         .addComponent(okJButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cancelJButton)))
@@ -177,14 +175,14 @@ public class UpdateDraftCommentAvatar extends Avatar {
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addComponent(commentJScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(21, 21, 21)
+                .addComponent(commentJScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cancelJButton)
                     .addComponent(okJButton))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 

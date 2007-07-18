@@ -102,8 +102,17 @@ public class ContainerVersionCommentAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JButton okJButton = ButtonFactory.create();
         final javax.swing.JScrollPane commentJScrollPane = new javax.swing.JScrollPane();
+        final javax.swing.JButton okJButton = ButtonFactory.create();
+
+        commentJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        commentJScrollPane.setFocusable(false);
+        commentJTextArea.setEditable(false);
+        commentJTextArea.setFont(Fonts.DialogTextEntryFont);
+        commentJTextArea.setLineWrap(true);
+        commentJTextArea.setWrapStyleWord(true);
+        commentJTextArea.setFocusable(false);
+        commentJScrollPane.setViewportView(commentJTextArea);
 
         okJButton.setFont(Fonts.DialogButtonFont);
         okJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerVersionCommentAvatar.Ok"));
@@ -115,16 +124,6 @@ public class ContainerVersionCommentAvatar extends Avatar {
                 okJButtonActionPerformed(evt);
             }
         });
-
-        commentJScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        commentJScrollPane.setFocusable(false);
-        commentJTextArea.setEditable(false);
-        commentJTextArea.setFont(Fonts.DialogTextEntryFont);
-        commentJTextArea.setLineWrap(true);
-        commentJTextArea.setWrapStyleWord(true);
-        commentJTextArea.setFocusable(false);
-        commentJTextArea.setPreferredSize(new java.awt.Dimension(164, 76));
-        commentJScrollPane.setViewportView(commentJTextArea);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -141,7 +140,7 @@ public class ContainerVersionCommentAvatar extends Avatar {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .add(24, 24, 24)
-                .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(commentJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 78, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 21, Short.MAX_VALUE)
                 .add(okJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())

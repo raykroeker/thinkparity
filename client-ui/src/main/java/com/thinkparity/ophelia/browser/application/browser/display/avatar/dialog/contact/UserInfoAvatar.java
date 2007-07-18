@@ -58,17 +58,6 @@ public final class UserInfoAvatar extends Avatar {
         return null;
     }
 
-    /**
-     * Determine whether or not the invite user interface is enabled.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @return True if the invite user interface is enabled.
-     */
-    public Boolean isInviteAvailable(final User user) {
-        return ((UserInfoProvider)contentProvider).readIsInviteAvailable(user);
-    }
-
     public void reload() {
         if (input!=null) {
             final User user = readUser(getInputUserId());
@@ -230,6 +219,17 @@ public final class UserInfoAvatar extends Avatar {
         disposeWindow();
         getController().runCreateOutgoingUserInvitation(readUser(getInputUserId()).getLocalId());
     }//GEN-LAST:event_inviteJLabelMousePressed
+
+    /**
+     * Determine whether or not the invite user interface is enabled.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if the invite user interface is enabled.
+     */
+    private Boolean isInviteAvailable(final User user) {
+        return ((UserInfoProvider)contentProvider).readIsInviteAvailable(user);
+    }
 
     /**
      * Determine if we are online.

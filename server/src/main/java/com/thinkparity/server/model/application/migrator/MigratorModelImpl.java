@@ -35,7 +35,6 @@ import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
@@ -361,11 +360,8 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
         event.setProduct(product);
         event.setRelease(release);
         event.setResources(resources);
-
-        final List<User> users = getUserModel().read();
-        final List<JabberId> userIds = new ArrayList<JabberId>(users.size());
-            userIds.add(user.getId());
-        enqueuePriorityEvents(userIds, event);
+        enqueuePriorityEvents(getIds(getUserModel().read(),
+                new ArrayList<JabberId>()), event);
     }
 
     /**

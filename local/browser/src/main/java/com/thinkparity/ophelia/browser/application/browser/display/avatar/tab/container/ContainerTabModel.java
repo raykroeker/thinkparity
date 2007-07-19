@@ -354,6 +354,17 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Lookup a containerId given a draft documentId.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return A <code>Long</code> containerId
+     */
+    Long lookupId(final Long documentId) {
+        return containerIdLookup.get(documentId);
+    }
+
+    /**
      * Determine if the specified user is the local user.
      * 
      * @param user
@@ -425,6 +436,22 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Select the draft document in a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param documentId
+     *            A document id <code>Long</code>.
+     */
+    void setDraftDocumentSelection(final Long containerId, final Long documentId) {
+        checkThread();
+        final TabPanel tabPanel = lookupPanel(containerId);
+        if (isExpanded(tabPanel)) {
+            ((ContainerPanel) tabPanel).setDraftDocumentSelection(documentId);
+        }
+    }
+
+    /**
      * Select the draft in a container.
      * 
      * @param containerId
@@ -478,13 +505,14 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      * This method is called (for example) when a document is renamed
      * or updated (eg. drag and drop to replace it).
      * 
+     * @param containerId
+     *            A container id <code>Long</code>.
      * @param documentId
      *            A document id <code>Long</code>.
      * @param remote
      *            A remote event <code>Boolean</code> indicator.
      */
-    void syncDocument(final Long documentId, final Boolean remote) {
-        final Long containerId = lookupId(documentId);
+    void syncDocument(final Long containerId, final Long documentId, final Boolean remote) {
         final ContainerPanel containerPanel = lookupContainerPanel(containerId);
         final Container container = containerPanel.getContainer();
         final DraftView draftView = readDraftView(containerId);
@@ -606,6 +634,8 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      * 
      * @param container
      *            A <code>Container</code>.
+     * @param teamMember
+     *            A <code>TeamMember</code>.
      */
     void syncTeamMemberAdded(final Container container, final TeamMember teamMember) {
         if (isPanel(container.getId())) {
@@ -626,6 +656,8 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      * 
      * @param container
      *            A <code>Container</code>.
+     * @param teamMember
+     *            A <code>TeamMember</code>.
      */
     void syncTeamMemberRemoved(final Container container, final TeamMember teamMember) {
         if (isPanel(container.getId())) {
@@ -832,17 +864,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     private boolean isSetSessionDraftMonitor(final Long containerId) {
         final ContainerDraftMonitor monitor = getSessionDraftMonitor();
         return null != monitor && monitor.getContainerId().equals(containerId);
-    }
-
-    /**
-     * Lookup a containerId given a draft documentId.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @return A <code>Long</code> containerId
-     */
-    private Long lookupId(final Long documentId) {
-        return containerIdLookup.get(documentId);
     }
     
     /**

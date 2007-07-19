@@ -101,7 +101,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
         } else {
             sync(e);
             showPanel(e.getContainer().getId(), Boolean.FALSE);
-            setDraftSelection(e);
+            setDraftSelection(e.getContainer().getId());
         }
     }
 
@@ -127,6 +127,9 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
                 model.syncDocumentAdded(e.getContainer(), e.getDraft(), e.getDocument());
             }
         });
+        if (e.isLocal()) {
+            setDraftDocumentSelection(e.getContainer().getId(), e.getDocument().getId());
+        }
     }
 
     /**
@@ -170,7 +173,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
             }
         });
         if (e.isLocal())
-            setDraftSelection(e);
+            setDraftSelection(e.getContainer().getId());
     }
 
     /**
@@ -319,9 +322,12 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     public void syncDocument(final Long documentId, final Boolean remote) {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
-                model.syncDocument(documentId, remote);
+                model.syncDocument(model.lookupId(documentId), documentId, remote);
             }
         });
+        if (!remote) {
+            setDraftDocumentSelection(model.lookupId(documentId), documentId);
+        }
     }
 
     /**
@@ -335,15 +341,31 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     }
 
     /**
-     * Select the draft for a container.
+     * Select the draft document in a container.
      * 
-     * @param e
-     *            A <code>ContainerEvent</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param documentId
+     *            A document id <code>Long</code>.
      */
-    private void setDraftSelection(final ContainerEvent e) {
+    private void setDraftDocumentSelection(final Long containerId, final Long documentId) {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
-                model.setDraftSelection(e.getContainer().getId());
+                model.setDraftDocumentSelection(containerId, documentId);
+            }
+        });
+    }
+
+    /**
+     * Select the draft for a container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void setDraftSelection(final Long containerId) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.setDraftSelection(containerId);
             }
         });
     }

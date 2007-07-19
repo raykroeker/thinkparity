@@ -470,6 +470,28 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * Select a draft document.
+     * This method has no effect if the draft is not selected.
+     * 
+     * @param documentId
+     *            The document id <code>Long</code>.
+     */
+    public void setDraftDocumentSelection(final Long documentId) {
+        final Cell westCell = westListModel.getSelectedCell();
+        if (westCell instanceof DraftCell) {
+            final List<EastCell> eastCells = ((WestCell)westCell).getEastCells();
+            for (final Cell cell : eastCells) {
+                if (cell instanceof DraftDocumentCell) {
+                    if (((DraftDocumentCell)cell).getDocumentId().equals(documentId)) {
+                        eastListModel.setSelectedCell(cell);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Set the selection to be the draft.
      *
      */
@@ -1685,6 +1707,9 @@ public class ContainerPanel extends DefaultTabPanel {
                 throw Assert.createUnreachable("UNKNOWN DOCUMENT STATE");
             }
             setText(document.getName());
+        }
+        public Long getDocumentId() {
+            return document.getId();
         }
         @Override
         public String getId() {

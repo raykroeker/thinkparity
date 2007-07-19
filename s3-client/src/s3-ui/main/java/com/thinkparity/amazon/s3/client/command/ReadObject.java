@@ -3,9 +3,6 @@
  */
 package com.thinkparity.amazon.s3.client.command;
 
-import java.text.MessageFormat;
-
-import com.thinkparity.codebase.BytesFormat;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.amazon.s3.client.S3ClientConsole;
@@ -80,14 +77,7 @@ public class ReadObject implements S3Command {
         final S3Key key = new S3Key();
         key.setResource(objectKey);
         final S3Object object = objectService.read(authentication, bucket, key);
-        // display object
-        final BytesFormat bytesFormat = new BytesFormat();
-        String message = MessageFormat.format(
-                    "{0}, {1,date,yyyy-MM-dd HH:mm:ss.SSS Z}, {2}, {3}",
-                    object.getKey().getResource(), object.getLastModified(),
-                    bytesFormat.format(object.getSize()), object.getETag());
-        console.println(message);
-        logger.logInfo(message);
+        S3ClientConsoleUtil.print(console, object);
         logger.logTraceId();
     }
 }

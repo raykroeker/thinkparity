@@ -39,10 +39,4 @@ public interface InternalUserModel extends UserModel {
      * @return A <code>User</code>.
      */
     public User readLazyCreate(final JabberId userId);
-
-    /**
-     * Initialize for release v1_0-20070718-1615.
-     *
-     */
-    public void initialize();
 }

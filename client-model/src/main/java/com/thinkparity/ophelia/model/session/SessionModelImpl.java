@@ -582,8 +582,6 @@ public final class SessionModelImpl extends Model<SessionListener>
                 if (latestRelease.getName().equals(Constants.Release.NAME)) {
                     // save release
                     setRelease();
-// NOCOMMIT - SessionModelImpl#login(ProcessMonitor) - Re-build user info
-getUserModel().initialize();
                     // process queued events
                     getQueueModel().process(monitor);
                     // start notification client

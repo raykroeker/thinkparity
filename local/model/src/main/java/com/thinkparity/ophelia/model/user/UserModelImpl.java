@@ -39,24 +39,6 @@ public final class UserModelImpl extends Model implements UserModel,
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.user.InternalUserModel#initialize()
-     *
-     */
-    public void initialize() {
-        try {
-            final List<User> users = userIO.read();
-            final InternalSessionModel sessionModel = getSessionModel();
-            for (final User user : users) {
-                if (sessionModel.isPublishRestricted(user.getId())) {
-                    applyFlagContainerPublishRestricted(user.getLocalId());
-                }
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.user.UserModel#read(com.thinkparity.codebase.jabber.JabberId)
      * 
      */

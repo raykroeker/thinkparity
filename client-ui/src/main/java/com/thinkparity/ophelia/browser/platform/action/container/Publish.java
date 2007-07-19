@@ -118,14 +118,10 @@ public class Publish extends AbstractBrowserAction {
                     final List<EMail> emails = data.getList(DataKey.EMAILS);
                     final List<Contact> contacts = data.getList(DataKey.CONTACTS);
                     final List<TeamMember> teamMembers = data.getList(DataKey.TEAM_MEMBERS);
-                    if (containerModel.isPublishRestricted(emails, contacts, teamMembers)) {
-                        browser.displayErrorDialog("Publish.NoUsersToPublish", new Object[] {container});
-                    } else {
-                        final String versionName = (String) data.get(DataKey.VERSION_NAME);
-                        final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
-                        invoke(monitor, container, versionName, emails, contacts,
-                                teamMembers);
-                    }
+                    final String versionName = (String) data.get(DataKey.VERSION_NAME);
+                    final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
+                    invoke(monitor, container, versionName, emails, contacts,
+                            teamMembers);
                 }
             } else {
                 browser.displayErrorDialog("Publish.NoDocumentToPublish",
@@ -219,81 +215,88 @@ public class Publish extends AbstractBrowserAction {
 		}
         @Override
         public Object run() {
-            /* if any e-mail addresses are contact e-mails, convert them to
-             * contact references */
-            Contact contact;
-            ContainerVersion latestVersion = null;
-            final EMail[] duplicateEmails = (EMail[])emails.toArray(new EMail[0]);
-            for (final EMail email : duplicateEmails) {
-                if (contactModel.doesExist(email)) {
-                    contact = contactModel.read(email);
-                    if (!contacts.contains(contact)) {
-                        contacts.add(contact);
-                        emails.remove(email);
+            if (containerModel.isPublishRestricted(emails, contacts, teamMembers)) {
+                monitor.reset();
+                action.browser.displayErrorDialog("Publish.NoUsersToPublish",
+                        new Object[] {container.getName()});
+                return null;
+            } else {
+                /* if any e-mail addresses are contact e-mails, convert them to
+                 * contact references */
+                Contact contact;
+                ContainerVersion latestVersion = null;
+                final EMail[] duplicateEmails = (EMail[])emails.toArray(new EMail[0]);
+                for (final EMail email : duplicateEmails) {
+                    if (contactModel.doesExist(email)) {
+                        contact = contactModel.read(email);
+                        if (!contacts.contains(contact)) {
+                            contacts.add(contact);
+                            emails.remove(email);
+                        }
                     }
                 }
-            }
-            try {
-                containerModel.saveDraft(container.getId());
-            } catch (final CannotLockException clx) {
-                monitor.reset();
-                publishMonitor = newPublishMonitor();
-                action.browser.retry(action, container.getName());
-                return null;
-            }
-            boolean offline = false;
-            try {
-                containerModel.publish(publishMonitor, container.getId(),
-                        versionName, emails, contacts, teamMembers);
-                containerModel.applyFlagSeen(container.getId());
-                latestVersion = containerModel.readLatestVersion(container.getId());
-            } catch (final OfflineException ox) {
-                offline = true;
-                action.logger.logError(ox,
-                        "Could not publish {0}.", container.getName());
                 try {
-                    containerModel.restoreDraft(container.getId());
-                } catch (final CannotLockException clx2) {
-                    // not a whole lot that can be done here
-                    action.logger.logFatal(clx2,
-                            "Could not restore draft for {0}.", container);
+                    containerModel.saveDraft(container.getId());
+                } catch (final CannotLockException clx) {
+                    monitor.reset();
+                    publishMonitor = newPublishMonitor();
+                    action.browser.retry(action, container.getName());
+                    return null;
                 }
-                monitor.reset();
-                return null;
-            } catch (final CannotLockException clx) {
-                action.logger.logError(clx,
-                        "Could not publish {0}.", container.getName());
+                boolean offline = false;
                 try {
-                    containerModel.restoreDraft(container.getId());
-                } catch (final CannotLockException clx2) {
-                	// not a whole lot that can be done here
-                	action.logger.logFatal(clx2,
-                			"Could not restore draft for {0}.", container);
+                    containerModel.publish(publishMonitor, container.getId(),
+                            versionName, emails, contacts, teamMembers);
+                    containerModel.applyFlagSeen(container.getId());
+                    latestVersion = containerModel.readLatestVersion(container.getId());
+                } catch (final OfflineException ox) {
+                    offline = true;
+                    action.logger.logError(ox,
+                            "Could not publish {0}.", container.getName());
+                    try {
+                        containerModel.restoreDraft(container.getId());
+                    } catch (final CannotLockException clx2) {
+                        // not a whole lot that can be done here
+                        action.logger.logFatal(clx2,
+                                "Could not restore draft for {0}.", container);
+                    }
+                    monitor.reset();
+                    return null;
+                } catch (final CannotLockException clx) {
+                    action.logger.logError(clx,
+                            "Could not publish {0}.", container.getName());
+                    try {
+                        containerModel.restoreDraft(container.getId());
+                    } catch (final CannotLockException clx2) {
+                    	// not a whole lot that can be done here
+                    	action.logger.logFatal(clx2,
+                    			"Could not restore draft for {0}.", container);
+                    }
+                    monitor.reset();
+                    publishMonitor = newPublishMonitor();
+                    action.browser.retry(action, container.getName());
+                    return null;
+                } catch (final ThinkParityException tx) {
+                    action.logger.logError(tx,
+                            "Could not publish {0}.", container.getName());
+                    try {
+                        containerModel.restoreDraft(container.getId());
+                    } catch (final CannotLockException clx2) {
+                        // not a whole lot that can be done here
+                        action.logger.logFatal(clx2,
+                                "Could not restore draft for {0}.", container);
+                    }
+                    monitor.reset();
+                    throw tx;
+                } finally {
+                    // notify the avatar that the publish is complete at the last possible moment
+                    monitor.complete();
+                    if (offline) {
+                        action.browser.displayErrorDialog("ErrorOffline");
+                    }
                 }
-                monitor.reset();
-                publishMonitor = newPublishMonitor();
-                action.browser.retry(action, container.getName());
-                return null;
-            } catch (final ThinkParityException tx) {
-                action.logger.logError(tx,
-                        "Could not publish {0}.", container.getName());
-                try {
-                    containerModel.restoreDraft(container.getId());
-                } catch (final CannotLockException clx2) {
-                    // not a whole lot that can be done here
-                    action.logger.logFatal(clx2,
-                            "Could not restore draft for {0}.", container);
-                }
-                monitor.reset();
-                throw tx;
-            } finally {
-                // notify the avatar that the publish is complete at the last possible moment
-                monitor.complete();
-                if (offline) {
-                    action.browser.displayErrorDialog("ErrorOffline");
-                }
+                return latestVersion;
             }
-            return latestVersion;
         }
 
 		/**

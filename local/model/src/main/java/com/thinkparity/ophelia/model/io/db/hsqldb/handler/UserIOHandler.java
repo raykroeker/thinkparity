@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb.handler;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,6 +32,14 @@ public final class UserIOHandler extends AbstractIOHandler implements
         new StringBuilder("insert into PARITY_USER ")
         .append("(JABBER_ID,NAME,ORGANIZATION,TITLE,FLAGS) ")
         .append("values (?,?,?,?,?)")
+        .toString();
+
+    /** Sql to read all users. */
+    private static final String SQL_READ =
+        new StringBuilder("select U.USER_ID,U.JABBER_ID,U.NAME,")
+        .append("U.ORGANIZATION,U.TITLE,U.FLAGS ")
+        .append("from PARITY_USER U ")
+        .append("order by U.USER_ID asc")
         .toString();
 
     /** Sql to read a user by their jabber id. */
@@ -117,6 +126,25 @@ public final class UserIOHandler extends AbstractIOHandler implements
         final Session session = openSession();
         try {
             create(session, user);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.UserIOHandler#read()
+     *
+     */
+    public List<User> read() {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ);
+            session.executeQuery();
+            final List<User> users = new ArrayList<User>();
+            while (session.nextResult()) {
+                users.add(extractUser(session));
+            }
+            return users;
         } finally {
             session.close();
         }

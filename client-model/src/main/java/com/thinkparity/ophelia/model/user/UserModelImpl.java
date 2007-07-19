@@ -39,6 +39,24 @@ public final class UserModelImpl extends Model implements UserModel,
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.user.InternalUserModel#initialize()
+     *
+     */
+    public void initialize() {
+        try {
+            final List<User> users = userIO.read();
+            final InternalSessionModel sessionModel = getSessionModel();
+            for (final User user : users) {
+                if (sessionModel.isPublishRestricted(user.getId())) {
+                    applyFlagContainerPublishRestricted(user.getLocalId());
+                }
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.user.UserModel#read(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
@@ -102,6 +120,36 @@ public final class UserModelImpl extends Model implements UserModel,
     }
 
     /**
+     * Apply a flag to a user.
+     * 
+     * @param userId
+     *            A user id <code>Long</code>.
+     * @param flag
+     *            The <code>UserFlag</code>.
+     */
+    private void applyFlag(final Long userId, final UserFlag flag) {
+        final List<UserFlag> flags = userIO.readFlags(userId);
+        if (flags.contains(flag)) {
+            logger.logWarning("User {0} is already flagged as {1}.", userId,
+                    flag);
+        }
+        else {
+            flags.add(flag);
+            userIO.applyFlags(userId, flags);
+        }
+    }
+
+    /**
+     * Apply the bookmark flag.
+     * 
+     * @param artifactId
+     *            An artifact id.
+     */
+    private void applyFlagContainerPublishRestricted(final Long userId) {
+        applyFlag(userId, UserFlag.CONTAINER_PUBLISH_RESTRICTED);
+    }
+
+    /**
      * Create a user. All of the user information will be downloaded remotely
      * then created locally.
      * 
@@ -112,7 +160,10 @@ public final class UserModelImpl extends Model implements UserModel,
     private User create(final JabberId userId) {
         final InternalSessionModel sessionModel = getSessionModel();
         final User user = sessionModel.readUser(userId);
+        final Boolean isRestricted = sessionModel.isPublishRestricted(userId);
         userIO.create(user);
+        if (isRestricted.booleanValue())
+            applyFlagContainerPublishRestricted(user.getLocalId());
         return read(userId);
     }
 

@@ -37,6 +37,13 @@ public interface UserIOHandler {
     public void create(final User user);
 
     /**
+     * Read all users.
+     * 
+     * @return A <code>List<User></code>.
+     */
+    public List<User> read();
+
+    /**
      * Read a user.
      * 
      * @param jabberId

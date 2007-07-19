@@ -94,9 +94,9 @@ public final class SessionModelImpl extends Model<SessionListener>
 
     /** A migrator web-service interface. */
     private MigratorService migratorService;
+
     /** A profile web-service interface. */
     private ProfileService profileService;
-
     /** A rule web-service interface. */
     private RuleService ruleService;
 
@@ -252,7 +252,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfileUsernameReservation(java.lang.String)
      * 
      */
@@ -266,7 +266,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#declineInvitation(com.thinkparity.codebase.model.contact.IncomingEMailInvitation,
      *      java.util.Calendar)
      * 
@@ -423,6 +423,18 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isInviteRestricted(com.thinkparity.codebase.model.user.User)
+     *
+     */
+    public Boolean isInviteRestricted(User user) {
+        try {
+            return ruleService.isInviteRestricted(getAuthToken(), user);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.session.SessionModel#isLoggedIn()
      *
      */
@@ -458,22 +470,22 @@ public final class SessionModelImpl extends Model<SessionListener>
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isPublishRestricted(com.thinkparity.codebase.jabber.JabberId)
      *
      */
-    public Boolean isPublishRestricted(final List<EMail> emails,
-            final List<User> users) {
+    public Boolean isPublishRestricted(final JabberId publishTo) {
         try {
-            return ruleService.isPublishRestricted(getAuthToken(), emails, users);
+            return ruleService.isPublishRestricted(getAuthToken(), publishTo);
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isInviteRestricted(com.thinkparity.codebase.model.user.User)
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isPublishRestricted(com.thinkparity.codebase.jabber.JabberId)
      *
      */
-    public Boolean isInviteRestricted(User user) {
+    public Boolean isPublishRestricted(final List<EMail> emails,
+            final List<User> users) {
         try {
-            return ruleService.isInviteRestricted(getAuthToken(), user);
+            return ruleService.isPublishRestricted(getAuthToken(), emails, users);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -570,6 +582,8 @@ public final class SessionModelImpl extends Model<SessionListener>
                 if (latestRelease.getName().equals(Constants.Release.NAME)) {
                     // save release
                     setRelease();
+// NOCOMMIT - SessionModelImpl#login(ProcessMonitor) - Re-build user info
+getUserModel().initialize();
                     // process queued events
                     getQueueModel().process(monitor);
                     // start notification client

@@ -187,12 +187,30 @@ public interface InternalSessionModel extends SessionModel {
      */
     public Boolean isEmailAvailable(final JabberId userId, final EMail email);
 
-	/**
+    /**
      * Determine whether or not this is the first login.
      * 
      * @return True if this is the first login.
      */
     public Boolean isFirstLogin();
+
+	/**
+     * Determine if invite is restricted to the user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if invite is restircted.
+     */
+    public Boolean isInviteRestricted(final User user);
+
+    /**
+     * Determine if publish is restricted to the publish to user.
+     * 
+     * @param publishTo
+     *            A publish to user id <code>JabberId</code>.
+     * @return True if publish to the user is restricted.
+     */
+    public Boolean isPublishRestricted(final JabberId publishTo);
 
     /**
      * Determine if publish is restricted to the emails/users.
@@ -205,15 +223,6 @@ public interface InternalSessionModel extends SessionModel {
      */
     public Boolean isPublishRestricted(final List<EMail> emails,
             final List<User> users);
-
-    /**
-     * Determine if invite is restricted to the user.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @return True if invite is restircted.
-     */
-    public Boolean isInviteRestricted(final User user);
 
     /**
      * Log an error.

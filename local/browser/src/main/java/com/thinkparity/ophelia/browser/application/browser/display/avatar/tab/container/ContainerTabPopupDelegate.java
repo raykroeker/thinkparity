@@ -40,7 +40,6 @@ import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
-import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
 
 /**
@@ -390,10 +389,6 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             final Data data = new Data(1);
             data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
             add(ActionId.PROFILE_UPDATE, data);
-
-            final Data updatePasswordData = new Data(1);
-            updatePasswordData.set(UpdatePassword.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            add(ActionId.PROFILE_UPDATE_PASSWORD, updatePasswordData);
         } else {
             final Data data = new Data(1);
             data.set(Read.DataKey.CONTACT_ID, user.getId());

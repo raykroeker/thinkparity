@@ -241,6 +241,9 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     /** A tab definition. */
     private final class Tab {
 
+        /** The action available <code>Boolean</code>. */
+        private Boolean actionAvailable;
+
         /** The active <code>Rectangle</code>. */
         private final Rectangle activeRectangle;
 
@@ -296,7 +299,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             this.jLabel.addMouseMotionListener(new MouseAdapter() {
                 @Override
                 public void mouseMoved(final MouseEvent e) {
-                    if (isActionAvailable()) {
+                    if (actionAvailable) {
                         applyHandCursor(isInActiveRectangle(e.getPoint()));
                     }
                 }
@@ -326,7 +329,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             if (enable) {
                 SwingUtil.setCursor(jLabel, java.awt.Cursor.HAND_CURSOR);
             } else {
-                SwingUtil.setCursor(jLabel, java.awt.Cursor.DEFAULT_CURSOR);
+                SwingUtil.setCursor(jLabel, null);
             }
         }
 
@@ -345,10 +348,11 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             final int textHeight = fm.getHeight();
             final int x = labelLocation.x + (labelSize.width - textWidth) / 2;
             final int y = labelLocation.y + (labelSize.height - textHeight) / 2 + 13;
-            g2.setColor(isActionAvailable() ? Colors.Browser.Link.LINK_FOREGROUND : Color.BLACK);
+            final Boolean actionAvailable = isActionAvailable();
+            g2.setColor(actionAvailable ? Colors.Browser.Link.LINK_FOREGROUND : Color.BLACK);
             g2.drawString(jLabelText, x, y);
             // underline
-            if (isActionAvailable()) {
+            if (actionAvailable) {
                 g2.drawLine(x, y + 2, x + fm.stringWidth(jLabelText), y + 2);
             }
             // set the active rectangle
@@ -361,7 +365,8 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
          * @return true if an action is available.
          */
         private Boolean isActionAvailable() {
-            return isSelectedTab() && tabButtonActionDelegate.isTabButtonActionAvailable();
+            actionAvailable = isSelectedTab() && tabButtonActionDelegate.isTabButtonActionAvailable();
+            return actionAvailable;
         }
 
         /**

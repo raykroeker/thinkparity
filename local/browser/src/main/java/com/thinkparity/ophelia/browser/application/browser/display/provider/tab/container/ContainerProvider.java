@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.container.Container;
@@ -19,6 +20,7 @@ import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionD
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -325,6 +327,23 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
      */
     public List<TeamMember> readTeam(final Long containerId) {
         return containerModel.readTeam(containerId);
+    }
+
+    /**
+     * Read a list of <code>EMail</code> addresses that have not yet been
+     * verified.
+     * 
+     * @return A <code>List</code> of <code>EMail</code> addresses.
+     */
+    public List<EMail> readUnverifiedEMails() {
+        // TODO use a filter
+        final List<ProfileEMail> emails = profileModel.readEmails();
+        final List<EMail> unverified = new ArrayList<EMail>(emails.size());
+        for (final ProfileEMail email : emails) {
+            if (!email.isVerified().booleanValue())
+                unverified.add(email.getEmail());
+        }
+        return unverified;
     }
 
     /**

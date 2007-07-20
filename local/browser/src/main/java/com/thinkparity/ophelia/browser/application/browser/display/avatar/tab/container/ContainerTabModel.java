@@ -16,6 +16,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -433,6 +434,16 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         checkThread();
         final Profile profile = readProfile();
         return user.getId().equals(profile.getId());
+    }
+
+    /**
+     * Read a list of <code>EMail</code> addresses that have not yet been
+     * verified.
+     * 
+     * @return A <code>List</code> of <code>EMail</code> addresses.
+     */
+    List<EMail> readUnverifiedEMails() {
+        return ((ContainerProvider) contentProvider).readUnverifiedEMails();
     }
 
     /**

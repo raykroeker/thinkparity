@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.List;
 
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
@@ -42,7 +43,9 @@ public class Create extends AbstractBrowserAction {
         final String containerName = (String) data.get(DataKey.NAME);
         final List<File> files = getDataFiles(data, DataKey.FILES);
 
-        if (null == containerName) {
+        if (isUnverifiedEMails()) {
+            browser.displayErrorDialog("CreateContainer.UnverifiedEMails");
+        } else if (null == containerName) {
             // Launch the NewContainerDialog to get the container name.
             // If the user presses OK, it will call back into this action
             // with the name provided.
@@ -51,8 +54,7 @@ public class Create extends AbstractBrowserAction {
             } else {
                 browser.displayCreateContainerDialog();
             }
-        }
-        else {
+        } else {
             // Create the container
             final Container container = getContainerModel().create(containerName);
             getContainerModel().applyFlagSeen(container.getId());
@@ -65,6 +67,20 @@ public class Create extends AbstractBrowserAction {
                 browser.runAddContainerDocuments(container.getId());
             }
         }                   
+    }
+
+    /**
+     * Determine if there are unverified emails.
+     * 
+     * @return A <code>Boolean</code>, true if there are unverified emails.
+     */
+    private Boolean isUnverifiedEMails() {
+        final List<ProfileEMail> emails = getProfileModel().readEmails();
+        for (final ProfileEMail email : emails) {
+            if (!email.isVerified().booleanValue())
+                return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
     }
 
     public enum DataKey { NAME, FILES }

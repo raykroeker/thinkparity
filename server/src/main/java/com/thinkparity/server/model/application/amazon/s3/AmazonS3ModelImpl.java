@@ -137,6 +137,7 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
      */
     private static String getBucketName(final Environment environment) {
         switch (environment) {
+        case DEVELOPMENT:
         case DEVELOPMENT_LOCALHOST:
             return "development.thinkparity";
         case DEVELOPMENT_TESTING:

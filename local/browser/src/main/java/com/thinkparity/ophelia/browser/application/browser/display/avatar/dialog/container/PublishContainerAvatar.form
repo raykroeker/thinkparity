@@ -21,23 +21,23 @@
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="versionNameJLabel" pref="114" max="32767" attributes="0"/>
+                      <Component id="versionNameJLabel" pref="110" max="32767" attributes="0"/>
                       <EmptySpace min="-2" pref="260" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="versionNameJSeparator" pref="364" max="32767" attributes="0"/>
+                      <Component id="versionNameJSeparator" pref="360" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="teamMembersJLabel" pref="364" max="32767" attributes="1"/>
+                      <Component id="teamMembersJLabel" pref="360" max="32767" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="contactsJLabel" pref="364" max="32767" attributes="1"/>
+                      <Component id="contactsJLabel" pref="360" max="32767" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="emailsJLabel" pref="364" max="32767" attributes="1"/>
+                      <Component id="emailsJLabel" pref="360" max="32767" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
@@ -46,22 +46,22 @@
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-                      <Component id="teamMembersJScrollPane" pref="332" max="32767" attributes="0"/>
+                      <Component id="teamMembersJScrollPane" pref="328" max="32767" attributes="0"/>
                       <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-                      <Component id="versionNameJTextField" pref="332" max="32767" attributes="0"/>
+                      <Component id="versionNameJTextField" pref="328" max="32767" attributes="0"/>
                       <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-                      <Component id="contactsJScrollPane" pref="332" max="32767" attributes="1"/>
+                      <Component id="contactsJScrollPane" pref="328" max="32767" attributes="1"/>
                       <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-                      <Component id="emailsJTextField" pref="332" max="32767" attributes="1"/>
+                      <Component id="emailsJTextField" pref="328" max="32767" attributes="1"/>
                       <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -285,7 +285,7 @@
                           <Component id="cancelJButton" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="fillerJLabel" pref="283" max="32767" attributes="0"/>
+                          <Component id="fillerJLabel" pref="279" max="32767" attributes="0"/>
                           <EmptySpace min="-2" pref="71" max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -370,8 +370,8 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="publishJProgressBar" alignment="0" pref="364" max="32767" attributes="0"/>
-              <Component id="statusJLabel" alignment="0" pref="364" max="32767" attributes="0"/>
+              <Component id="publishJProgressBar" alignment="0" pref="360" max="32767" attributes="0"/>
+              <Component id="statusJLabel" alignment="0" pref="360" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">

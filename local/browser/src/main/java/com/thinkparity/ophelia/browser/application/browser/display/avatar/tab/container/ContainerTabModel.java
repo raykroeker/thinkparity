@@ -609,7 +609,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      *            A <code>Container</code>.
      */
     void syncFlagged(final Container container) {
-        // check the panel exists, it might be on the archive tab
         if (isPanel(container.getId())) {
             lookupContainerPanel(container.getId()).setPanelData(container);
             synchronize();
@@ -624,8 +623,10 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      *            A <code>Container</code>.
      */
     void syncRenamed(final Container container) {
-        lookupContainerPanel(container.getId()).setPanelData(container);
-        synchronize();
+        if (isPanel(container.getId())) {
+            lookupContainerPanel(container.getId()).setPanelData(container);
+            synchronize();
+        }
     }
 
     /**

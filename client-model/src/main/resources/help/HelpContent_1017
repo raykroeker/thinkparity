@@ -1,1 +1,2 @@
-To change your password, click on the contacts tab, find your name, right-click on it and select 'Change Password'. 
+To create an Audit Report for a package, right-click the package and select Audit Report. thinkParity will create a pdf-format summary of the package and save it to your local file system. This report includes information about all versions of the package, its documents and participants and will be located in your 'My Documents\thinkParity' directory. The name of the report corresponds to the name of the package.
+ 

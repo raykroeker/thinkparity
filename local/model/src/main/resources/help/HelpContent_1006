@@ -1,5 +1,5 @@
 You can create a new package in two different ways:
 
-1 - Right-click anywhere on the application and select 'New package'. In the dialog that appears, name your new package. In the next dialog, select the documents that you like to include in the package.
+1 - Click the link on the "Package" tab. In the dialog that appears, name your new package. In the next dialog, select the documents that you like to include in the package.
 
 2 - Drag your documents from Windows Explorer(TM) into the package tab. In this case thinkParity will create the package for you and simply ask you to name it.

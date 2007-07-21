@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.platform;
 
+import com.thinkparity.ophelia.model.session.SessionModel;
+
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -33,6 +35,10 @@ public class Quit extends AbstractAction {
      * 
      */
     public void invoke(final Data data) {
+        final SessionModel sessionModel = getSessionModel();
+        if (sessionModel.isOnline()) {
+            sessionModel.logout();
+        }
         platform.end();
     }
 }

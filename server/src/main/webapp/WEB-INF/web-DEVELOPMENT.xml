@@ -22,7 +22,7 @@
     </context-param>
     <context-param>
         <param-name>thinkparity.datasource-url</param-name>
-        <param-value>jdbc:derby://localhost:9004/desdemona</param-value>
+        <param-value>jdbc:derby://localhost:9001/desdemona</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.datasource-user</param-name>

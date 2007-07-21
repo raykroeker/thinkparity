@@ -14,9 +14,24 @@ package com.thinkparity.codebase.email;
  */
 public class EMailBuilder {
 
+    /** Allowed sub level domain characters */
+    private static final String ALLOWED_SUB_DOMAIN_CHARACTERS;
+
+    /** Allowed top level domain characters */
+    private static final String ALLOWED_TOP_DOMAIN_CHARACTERS;
+
+    /** Alllowed username characters (before the @) */
+    private static final String ALLOWED_USERNAME_CHARACTERS;
+
 	protected static final EMailBuilder SINGLETON;
 
-	static { SINGLETON = new EMailBuilder(); }
+	static {
+        ALLOWED_SUB_DOMAIN_CHARACTERS = "abcdefghijklmnopqrstuvwxyz0123456789-.";
+        ALLOWED_TOP_DOMAIN_CHARACTERS = "abcdefghijklmnopqrstuvwxyz0123456789";
+        ALLOWED_USERNAME_CHARACTERS =  "abcdefghijklmnopqrstuvwxyz0123456789-._+";
+
+        SINGLETON = new EMailBuilder();
+    }
 
 	/**
      * Parses the string as an e-mail address.
@@ -47,6 +62,22 @@ public class EMailBuilder {
 	protected EMail doParse(final String s) throws EMailFormatException {
 		if (null == s)
             throw new EMailFormatException("EMail is null.");
+
+        // handle emails of the form Joe(joe@abc.com)
+        int startIndex = s.indexOf('(');
+        int endIndex = s.indexOf(')');
+        if (startIndex >= 0 && endIndex > startIndex+1) {
+            return doParse(s.substring(startIndex+1, endIndex));
+        }
+
+        // handle emails of the form Joe[joe@abc.com]
+        startIndex = s.indexOf('[');
+        endIndex = s.indexOf(']');
+        if (startIndex >= 0 && endIndex > startIndex+1) {
+            return doParse(s.substring(startIndex+1, endIndex));
+        }
+
+        // check the username up to the @
 		final int indexOfAt = s.indexOf('@');
 		if (-1 == indexOfAt)
             throw new EMailFormatException("EMail does not contain '@'", s);
@@ -55,25 +86,54 @@ public class EMailBuilder {
         final int lastIndexOfAt = s.lastIndexOf('@');
         if (indexOfAt != lastIndexOfAt)
             throw new EMailFormatException("EMail contains an extra '@'.", s);
-		final int indexOfDot = s.indexOf('.', indexOfAt);
-		if (-1 == indexOfDot)
-            throw new EMailFormatException("EMail does not contain '.'", s);
-        if (s.length() - 1 == indexOfDot)
-            throw new EMailFormatException("EMail does not contain tld.", s);
-        final int lastIndexOfDot = s.lastIndexOf('.');
-        if (indexOfDot != lastIndexOfDot)
-            throw new EMailFormatException("EMail contains an extra '.'", s);
-        if (indexOfAt + 1 == indexOfDot)
-            throw new EMailFormatException("Email does not contain sld.", s);
-		final String username = s.substring(0, indexOfAt);
-		final String domain = s.substring(indexOfAt + 1);
-		if (0 == domain.length())
-            throw new EMailFormatException("EMail does not contain domain.", s);
+        final String username = s.substring(0, indexOfAt).toLowerCase();
+        if (!validString(username, ALLOWED_USERNAME_CHARACTERS))
+            throw new EMailFormatException("EMail contains invalid characters in the username.", s);
 
+        // check the domain
+        if (indexOfAt + 1 == s.length())
+            throw new EMailFormatException("EMail does not contain domain.", s);
+        final String domain = s.substring(indexOfAt + 1).toLowerCase();
+        final int indexOfDot = domain.indexOf('.');
+        if (-1 == indexOfDot)
+            throw new EMailFormatException("EMail domain does not contain '.'", s);
+        if (0 == indexOfDot || -1 != domain.indexOf(".."))
+            throw new EMailFormatException("EMail contains a zero length sub level domain.", s);
+        final int lastIndexOfDot = domain.lastIndexOf('.');
+        if (lastIndexOfDot + 1 == domain.length())
+            throw new EMailFormatException("EMail does not contain top level domain.", s);
+        final String subDomain = domain.substring(0, lastIndexOfDot);
+        final String topDomain = domain.substring(lastIndexOfDot + 1);
+        if (topDomain.length() < 2 || topDomain.length() > 4)
+            throw new EMailFormatException("EMail top level domain must be between 2 and 4 characters.", s);
+        if (!validString(subDomain, ALLOWED_SUB_DOMAIN_CHARACTERS))
+            throw new EMailFormatException("EMail contains invalid characters in the sub level domain.", s);
+        if (!validString(topDomain, ALLOWED_TOP_DOMAIN_CHARACTERS))
+            throw new EMailFormatException("EMail contains invalid characters in the top level domain.", s);
+
+        // build the email
 		final EMail email = new EMail();
         // NOTE e-mail addresses are all lower case
         email.setDomain(domain.toLowerCase());
         email.setUsername(username.toLowerCase());
 		return email;
 	}
+
+    /**
+     * Determines if the provided text string contains only the allowed characters.
+     * 
+     * @param text
+     *            A text <code>String</code>.
+     * @param allowedCharacters
+     *            A list of allowed characters <code>String</code>.
+     * @return A <code>boolean</code>, true if the text string contains only the allowed characters.
+     */
+    private boolean validString(final String text, final String allowedCharacters) {
+        for (int index = 0; index < text.length(); index++) {
+            if (-1 == allowedCharacters.indexOf(text.charAt(index))) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

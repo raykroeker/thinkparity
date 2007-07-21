@@ -3,9 +3,6 @@
  */
 package com.thinkparity.ophelia.model.io.db.hsqldb;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.sql.DataSource;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -22,9 +19,6 @@ import com.thinkparity.ophelia.OpheliaTestUser;
  * @version 1.1.2.1
  */
 public final class OpenCloseTest extends ModelTestCase {
-
-    /** Number of iterations to open/close the session. */
-    private static final int ITERATIONS = 10000;
 
     /** Test name. */
     private static final String NAME = "Open close test.";
@@ -51,26 +45,26 @@ public final class OpenCloseTest extends ModelTestCase {
     public void testOpenCloseSession() {
         logger.logApiId();
         logger.logTrace("Entry");
-        long now;
 
-        now = System.currentTimeMillis();
-        final Session session = datum.sessionManager.openSession();
-        datum.baseline.openDuration = System.currentTimeMillis() - now;
+        Metrics.begin("OpenClose#openBaseline");
+        final Session baseline = datum.sessionManager.openSession();
+        Metrics.end("OpenClose#openBaseline");
 
-        now = System.currentTimeMillis();
-        session.close();
-        datum.baseline.closeDuration = System.currentTimeMillis() - now;
+        Metrics.begin("OpenClose#closeBaseline");
+        baseline.close();
+        Metrics.end("OpenClose#closeBaseline");
 
-        for (int i = 0; i < ITERATIONS; i++) {
-            now = System.currentTimeMillis();
-            final Session session2 = datum.sessionManager.openSession();
-            datum.metrics.get(i).openDuration = System.currentTimeMillis() - now;
+        final String openContext = "OpenClose#openIteration()";
+        final String closeContext = "OpenClose#closeIteration()";
+        for (int i = 0; i < Constants.ITERATIONS; i++) {
+            Metrics.begin(openContext);
+            final Session iteration = datum.sessionManager.openSession();
+            Metrics.end(openContext);
 
-            now = System.currentTimeMillis();
-            session2.close();
-            datum.metrics.get(i).closeDuration = System.currentTimeMillis() - now;
+            Metrics.begin(closeContext);
+            iteration.close();
+            Metrics.end(closeContext);
         }
-        logMetrics("OpenClose");
         logger.logTrace("Exit");
     }
 
@@ -81,32 +75,32 @@ public final class OpenCloseTest extends ModelTestCase {
     public void testOpenQueryCloseSession() {
         logger.logApiId();
         logger.logTrace("Entry");
-        long now;
 
-        now = System.currentTimeMillis();
-        final Session session = datum.sessionManager.openSession();
-        datum.baseline.openDuration = System.currentTimeMillis() - now;
+        Metrics.begin("OpenQueryClose#openBaseline");
+        final Session baseline = datum.sessionManager.openSession();
+        Metrics.end("OpenQueryClose#openBaseline");
         try {
-            runQuery(session);
+            runQuery(baseline);
         } finally {
-            now = System.currentTimeMillis();
-            session.close();
-            datum.baseline.closeDuration = System.currentTimeMillis() - now;
+            Metrics.begin("OpenQueryClose#closeBaseline");
+            baseline.close();
+            Metrics.end("OpenQueryClose#closeBaseline");
         }
 
-        for (int i = 0; i < ITERATIONS; i++) {
-            now = System.currentTimeMillis();
-            final Session session2 = datum.sessionManager.openSession();
-            datum.metrics.get(i).openDuration = System.currentTimeMillis() - now;
+        final String openContext = "OpenQueryClose#openIteration()";
+        final String closeContext = "OpenQueryClose#closeIteration()";
+        for (int i = 0; i < Constants.ITERATIONS; i++) {
+            Metrics.begin(openContext);
+            final Session iteration = datum.sessionManager.openSession();
+            Metrics.end(openContext);
             try {
-                runQuery(session2);
+                runQuery(iteration);
             } finally {
-                now = System.currentTimeMillis();
-                session2.close();
-                datum.metrics.get(i).closeDuration = System.currentTimeMillis() - now;
+                Metrics.begin(closeContext);
+                iteration.close();
+                Metrics.end(closeContext);
             }
         }
-        logMetrics("OpenQueryClose");
         logger.logTrace("Exit");
     }
 
@@ -133,21 +127,6 @@ public final class OpenCloseTest extends ModelTestCase {
     }
 
     /**
-     * Log the collected metrics.
-     * 
-     * @param name
-     *            A log name.
-     */
-    private void logMetrics(final String name) {
-        logger.logDebug("{0};Baseline;Open:{1}ms;Close:{2}ms",
-                name, datum.baseline.openDuration, datum.baseline.closeDuration);
-        for (int i = 0; i < ITERATIONS; i++) {
-            logger.logDebug("{0};Iteration_{1};Open:{2}ms;Close:{3}ms", name, i,
-                    datum.metrics.get(i).openDuration, datum.metrics.get(i).closeDuration);
-        }
-    }
-
-    /**
      * Run a query on the session.
      * 
      * @param session
@@ -162,12 +141,6 @@ public final class OpenCloseTest extends ModelTestCase {
     /** <b>Title:</b>Open/Close Test Fixture<br> */
     private class Fixture {
 
-        /** A baseline metric. */
-        private final Metric baseline;
-
-        /** The iteration metrics. */
-        private final List<Metric> metrics;
-
         /** A session manager. */
         private final SessionManager sessionManager;
 
@@ -181,22 +154,6 @@ public final class OpenCloseTest extends ModelTestCase {
             super();
             final DataSource dataSource = testUser.getWorkspace().getDataSource();
             this.sessionManager = new SessionManager(dataSource);
-
-            this.baseline = new Metric();
-            this.metrics = new ArrayList<Metric>(ITERATIONS);
-            for (int i = 0; i < ITERATIONS; i++) {
-                metrics.add(new Metric());
-            }
         }
-    }
-
-    /** <b>Title:</b>Open/Close Test Metric<br> */
-    private class Metric {
-
-        /** Duration of close session. */
-        private long closeDuration;
-
-        /** Duration of open session. */
-        private long openDuration;
     }
 }

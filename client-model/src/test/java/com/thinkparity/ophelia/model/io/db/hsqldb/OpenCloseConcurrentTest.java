@@ -24,12 +24,6 @@ import com.thinkparity.ophelia.OpheliaTestUser;
  */
 public final class OpenCloseConcurrentTest extends ModelTestCase {
 
-    /** Maximum number of concurrent sessions - 1. */
-    private static final int CONCURRENT = 4;    // the max size of the pool is 5
-
-    /** Number of times to open/close. */
-    private static final int ITERATIONS = 10000;
-
     /** Test name. */
     private static final String NAME = "Open close concurrent test.";
 
@@ -56,31 +50,31 @@ public final class OpenCloseConcurrentTest extends ModelTestCase {
     public void testOpenCloseSession() {
         logger.logApiId();
         logger.logTrace("Entry");
-        long now;
 
-        now = System.currentTimeMillis();
+        Metrics.begin("OpenClose#openBaseline");
         final Session session = datum.sessionManager.openSession();
-        datum.baseline.openDuration = System.currentTimeMillis() - now;
+        Metrics.end("OpenClose#openBaseline");
 
-        now = System.currentTimeMillis();
+        Metrics.begin("OpenClose#closeBaseline");
         session.close();
-        datum.baseline.closeDuration = System.currentTimeMillis() - now;
+        Metrics.end("OpenClose#closeBaseline");
 
         openConcurrent();
         try {
-            for (int i = 0; i < ITERATIONS; i++) {
-                now = System.currentTimeMillis();
-                final Session session2 = datum.sessionManager.openSession();
-                datum.metrics.get(i).openDuration = System.currentTimeMillis() - now;
+            final String openContext = "OpenClose#openIteration()";
+            final String closeContext = "OpenClose#closeIteration()";
+            for (int i = 0; i < Constants.ITERATIONS; i++) {
+                Metrics.begin(openContext);
+                final Session iteration = datum.sessionManager.openSession();
+                Metrics.end(openContext);
     
-                now = System.currentTimeMillis();
-                session2.close();
-                datum.metrics.get(i).closeDuration = System.currentTimeMillis() - now;
+                Metrics.begin(closeContext);
+                iteration.close();
+                Metrics.end(closeContext);
             }
         } finally {
             closeConcurrent();
         }
-        logMetrics("OpenClose");
         logger.logTrace("Exit");
     }
 
@@ -91,37 +85,37 @@ public final class OpenCloseConcurrentTest extends ModelTestCase {
     public void testOpenQueryCloseSession() {
         logger.logApiId();
         logger.logTrace("Entry");
-        long now;
 
-        now = System.currentTimeMillis();
-        final Session session = datum.sessionManager.openSession();
-        datum.baseline.openDuration = System.currentTimeMillis() - now;
+        Metrics.begin("OpenQueryClose#openBaseline");
+        final Session baseline = datum.sessionManager.openSession();
+        Metrics.end("OpenQueryClose#openBaseline");
         try {
-            runQuery(session);
+            runQuery(baseline);
         } finally {
-            now = System.currentTimeMillis();
-            session.close();
-            datum.baseline.closeDuration = System.currentTimeMillis() - now;
+            Metrics.begin("OpenQueryClose#closeBaseline");
+            baseline.close();
+            Metrics.end("OpenQueryClose#closeBaseline");
         }
 
         openConcurrent();
         try {
-            for (int i = 0; i < ITERATIONS; i++) {
-                now = System.currentTimeMillis();
-                final Session session2 = datum.sessionManager.openSession();
-                datum.metrics.get(i).openDuration = System.currentTimeMillis() - now;
+            final String openContext = "OpenQueryClose#openIteration()";
+            final String closeContext = "OpenQueryClose#closeIteration()";
+            for (int i = 0; i < Constants.ITERATIONS; i++) {
+                Metrics.begin(openContext);
+                final Session iteration = datum.sessionManager.openSession();
+                Metrics.end(openContext);
                 try {
-                    runQuery(session2);
+                    runQuery(iteration);
                 } finally {
-                    now = System.currentTimeMillis();
-                    session2.close();
-                    datum.metrics.get(i).closeDuration = System.currentTimeMillis() - now;
+                    Metrics.begin(closeContext);
+                    iteration.close();
+                    Metrics.end(closeContext);
                 }
             }
         } finally {
             closeConcurrent();
         }
-        logMetrics("OpenQueryClose");
         logger.logTrace("Exit");
     }
 
@@ -152,23 +146,8 @@ public final class OpenCloseConcurrentTest extends ModelTestCase {
      *
      */
     private void closeConcurrent() {
-        for (int i = 0; i < CONCURRENT; i++) {
+        for (int i = 0; i < Constants.CONCURRENT; i++) {
             datum.concurrent.get(i).close();
-        }
-    }
-
-    /**
-     * Log the collected metrics.
-     * 
-     * @param name
-     *            A log name.
-     */
-    private void logMetrics(final String name) {
-        logger.logDebug("{0};Baseline;Open:{1}ms;Close:{2}ms",
-                name, datum.baseline.openDuration, datum.baseline.closeDuration);
-        for (int i = 0; i < ITERATIONS; i++) {
-            logger.logDebug("{0};Iteration_{1};Open:{2}ms;Close:{3}ms", name, i,
-                    datum.metrics.get(i).openDuration, datum.metrics.get(i).closeDuration);
         }
     }
 
@@ -177,7 +156,7 @@ public final class OpenCloseConcurrentTest extends ModelTestCase {
      *
      */
     private void openConcurrent() {
-        for (int i = 0; i < CONCURRENT; i++) {
+        for (int i = 0; i < Constants.CONCURRENT; i++) {
             datum.concurrent.add(datum.sessionManager.openSession());
         }
         logger.logDebug("{0} open connections.", datum.concurrent.size());
@@ -198,14 +177,8 @@ public final class OpenCloseConcurrentTest extends ModelTestCase {
     /** <b>Title:</b>Open/Close Concurrent Fixture<br> */
     private class Fixture {
 
-        /** A baseline metric. */
-        private final Metric baseline;
-
         /** A list of open/concurrent sessions. */
         private final List<Session> concurrent;
-
-        /** The iteration metrics. */
-        private final List<Metric> metrics;
 
         /** A session manager. */
         private final SessionManager sessionManager;
@@ -221,22 +194,7 @@ public final class OpenCloseConcurrentTest extends ModelTestCase {
             final DataSource dataSource = testUser.getWorkspace().getDataSource();
             this.sessionManager = new SessionManager(dataSource);
 
-            this.baseline = new Metric();
-            this.metrics = new ArrayList<Metric>(ITERATIONS);
-            for (int i = 0; i < ITERATIONS; i++) {
-                metrics.add(new Metric());
-            }
-            this.concurrent = new ArrayList<Session>(CONCURRENT);
+            this.concurrent = new ArrayList<Session>(Constants.CONCURRENT);
         }
-    }
-
-    /** <b>Title:</b>Open/Close Concurrent Test Metric<br> */
-    private class Metric {
-
-        /** The close duration (ms). */
-        private long closeDuration;
-
-        /** The open duration (ms). */
-        private long openDuration;
     }
 }

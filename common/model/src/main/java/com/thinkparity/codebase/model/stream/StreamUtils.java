@@ -28,16 +28,18 @@ public final class StreamUtils {
     /** A bytes format. */
     private static final BytesFormat BYTES_FORMAT;
 
+    /** A http client. */
+    private static final HttpClient HTTP_CLIENT;
+
     /** A log4j wrapper. */
     private static final Log4JWrapper LOGGER;
 
     static {
         BYTES_FORMAT = new BytesFormat();
+        HTTP_CLIENT = HttpUtils.newClient();
+        HTTP_CLIENT.getHttpConnectionManager().getParams().setMaxTotalConnections(3);
         LOGGER = new Log4JWrapper(StreamUtils.class);
     }
-
-    /** An http client. */
-    private final HttpClient httpClient;
 
     /**
      * Create StreamUtils.
@@ -45,7 +47,6 @@ public final class StreamUtils {
      */
     StreamUtils() {
         super();
-        this.httpClient = HttpUtils.newClient();
     }
 
     /**
@@ -56,7 +57,7 @@ public final class StreamUtils {
      * @return An http status code.
      */
     int execute(final HttpMethod method) throws IOException {
-        httpClient.executeMethod(method);
+        HTTP_CLIENT.executeMethod(method);
         return method.getStatusCode();
     }
 

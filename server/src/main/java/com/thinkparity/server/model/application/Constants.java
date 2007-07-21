@@ -65,6 +65,15 @@ public interface Constants {
         }
     }
 
+    /**
+     * <b>Title:</b>Stream Constants: UPSTREAM_RETRY_ATTEMPTS,
+     * DOWNSTREAM_RETRY_ATTEMPTS<br>
+     */
+    public static final class Stream {
+        public static final Integer DOWNSTREAM_RETRY_ATTEMPTS = 3;
+        public static final Integer UPSTREAM_RETRY_ATTEMPTS = 3;
+    }
+
 	public static final class VCardFields {
         public static final String TITLE = "TITLE";
     }

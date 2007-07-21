@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
+import java.text.MessageFormat;
 import java.util.*;
 
 import javax.xml.transform.TransformerException;
@@ -41,8 +42,6 @@ import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
-import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.stream.StreamWriter;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
@@ -2489,63 +2488,22 @@ public final class ContainerModelImpl extends
         notifyDetermine(monitor, countSteps(versions, deltas));
         // upload versions
         final InternalDocumentModel documentModel = modelFactory.getDocumentModel();
-        StreamSession session;
         Delta delta;
+        String streamName;
         for (final DocumentVersion version : versions) {
             delta = deltas.get(version);
+            streamName = version.getArtifactName();
             switch (delta) {
             case ADDED:
             case MODIFIED:
-                logger.logInfo("Document {0} has been {1}.  Uploading.",
-                        version.getArtifactName(), delta.name().toLowerCase());
-                session = getStreamModel().newUpstreamSession(version);
-                notifyStepBegin(monitor, PublishStep.UPLOAD_STREAM, version.getArtifactName());
-                final StreamWriter writer = new StreamWriter(new StreamMonitor() {
-    
-                    /** A running count of the chunks uploaded. */
-                    private long totalChunks = 0;
-    
-                    /**
-                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkReceived(int)
-                     * 
-                     */
-                    public void chunkReceived(final int chunkSize) {
-                        // not possible for upload
-                        Assert.assertUnreachable("");
-                    }
-    
-                    /**
-                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkSent(int)
-                     *
-                     */
-                    public void chunkSent(final int chunkSize) {
-                        totalChunks += chunkSize;
-                        while (totalChunks >= STEP_SIZE) {
-                            totalChunks -= STEP_SIZE;
-                            notifyStepBegin(monitor, PublishStep.UPLOAD_STREAM, version.getArtifactName());
-                            notifyStepEnd(monitor, PublishStep.UPLOAD_STREAM);
-                        }
-                    }
-    
-                    /**
-                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#getName()
-                     *
-                     */
-                    public String getName() {
-                        return "ContainerModelImpl#uploadDocumentVersions";
-                    }
-    
-                }, session);
-                documentModel.openVersion(version.getArtifactId(),
-                        version.getVersionId(), new StreamOpener() {
-                            public void open(final InputStream stream) throws IOException {
-                                writer.write(stream, version.getSize());
-                            }});
+                notifyStepBegin(monitor, PublishStep.UPLOAD_STREAM, streamName);
+                documentModel.uploadStream(newUploadStreamMonitor(monitor,
+                        streamName), version);
                 notifyStepEnd(monitor, PublishStep.UPLOAD_STREAM);
                 break;
             case NONE:
                 logger.logInfo("Document {0} is unchanged.  No upload required.",
-                        version.getArtifactName());
+                        streamName);
                 break;
             default:
                 /* NOTE removed documents are not in the document version
@@ -2928,6 +2886,56 @@ public final class ContainerModelImpl extends
      */
     private Boolean isFirstDraft(final Long containerId) {
         return 0 == readVersions(containerId).size();
+    }
+
+    /**
+     * Create an upload stream monitor. The stream events are transitioned to
+     * publish events on the process monitor.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param streamName
+     *            A stream name <code>String</code>.
+     * @return A <code>StreamMonitor</code>.
+     */
+    private StreamMonitor newUploadStreamMonitor(final ProcessMonitor monitor,
+            final String streamName) {
+        return new StreamMonitor() {
+            /** A running count of the chunks uploaded. */
+            private long totalChunks = 0;
+
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkReceived(int)
+             * 
+             */
+            public void chunkReceived(final int chunkSize) {
+                // not possible for upload
+                Assert.assertUnreachable("");
+            }
+
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkSent(int)
+             *
+             */
+            public void chunkSent(final int chunkSize) {
+                totalChunks += chunkSize;
+                while (totalChunks >= STEP_SIZE) {
+                    totalChunks -= STEP_SIZE;
+                    notifyStepBegin(monitor, PublishStep.UPLOAD_STREAM, streamName);
+                    notifyStepEnd(monitor, PublishStep.UPLOAD_STREAM);
+                }
+            }
+
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#getName()
+             *
+             */
+            public String getName() {
+                return MessageFormat.format(
+                        "ContainerModelImpl#uploadStreamMonitor({0})",
+                        streamName);
+            }
+        };
     }
 
     /**

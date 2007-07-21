@@ -35,12 +35,12 @@ import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.stream.download.DownloadFile;
 import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants;
-import com.thinkparity.desdemona.model.DownloadHelper;
 import com.thinkparity.desdemona.model.io.sql.MigratorSql;
 import com.thinkparity.desdemona.util.smtp.SMTPService;
 
@@ -90,8 +90,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
             final StreamSession session = getStreamModel().newDownstreamSession(product, release);
             final File tempFile = createTempFile();
             try {
-                final DownloadHelper downloadHelper = newDownloadHelper(session);
-                downloadHelper.download(tempFile);
+                new DownloadFile(session).download(tempFile);
                 final FileSystem tempFileSystem = new FileSystem(createTempDirectory());
                 try {
                     // extract the release

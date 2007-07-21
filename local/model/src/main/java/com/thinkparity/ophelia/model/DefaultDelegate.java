@@ -22,6 +22,7 @@ import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.index.InternalIndexModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
+import com.thinkparity.ophelia.model.stream.InternalStreamModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
@@ -239,6 +240,15 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
      */
     protected final InternalSessionModel getSessionModel() {
         return modelImplementation.getSessionModel();
+    }
+
+    /**
+     * Obtain an internal stream model.
+     * 
+     * @return An instance of <code>InternalStreamModel</code>.
+     */
+    protected final InternalStreamModel getStreamModel() {
+        return modelImplementation.getStreamModel();
     }
 
     /**

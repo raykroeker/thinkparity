@@ -9,6 +9,7 @@ import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.Constants;
 import com.thinkparity.desdemona.model.amazon.s3.InternalAmazonS3Model;
 
 /**
@@ -37,6 +38,7 @@ public final class StreamModelImpl extends AbstractModelImpl implements
         try {
             final StreamSession session = new StreamSession();
             session.setBufferSize(getBufferSize("stream-session"));
+            session.setRetryAttempts(Constants.Stream.DOWNSTREAM_RETRY_ATTEMPTS);
             final InternalAmazonS3Model amazonS3Model = getAmazonS3Model();
             session.setHeaders(amazonS3Model.newDownstreamHeaders(version));
             session.setURI(amazonS3Model.newDownstreamURI(version));
@@ -55,6 +57,7 @@ public final class StreamModelImpl extends AbstractModelImpl implements
         try {
             final StreamSession session = new StreamSession();
             session.setBufferSize(getBufferSize("stream-session"));
+            session.setRetryAttempts(Constants.Stream.DOWNSTREAM_RETRY_ATTEMPTS);
             final InternalAmazonS3Model amazonS3Model = getAmazonS3Model();
             session.setHeaders(amazonS3Model.newDownstreamHeaders(product, release));
             session.setURI(amazonS3Model.newDownstreamURI(product, release));
@@ -72,6 +75,7 @@ public final class StreamModelImpl extends AbstractModelImpl implements
         try {
             final StreamSession session = new StreamSession();
             session.setBufferSize(getBufferSize("stream-session"));
+            session.setRetryAttempts(Constants.Stream.UPSTREAM_RETRY_ATTEMPTS);
             final InternalAmazonS3Model amazonS3Model = getAmazonS3Model();
             session.setHeaders(amazonS3Model.newUpstreamHeaders(version));
             session.setURI(amazonS3Model.newUpstreamURI(version));
@@ -93,6 +97,7 @@ public final class StreamModelImpl extends AbstractModelImpl implements
         try {
             final StreamSession session = new StreamSession();
             session.setBufferSize(getBufferSize("stream-session"));
+            session.setRetryAttempts(Constants.Stream.UPSTREAM_RETRY_ATTEMPTS);
             final InternalAmazonS3Model amazonS3Model = getAmazonS3Model();
             session.setHeaders(amazonS3Model.newUpstreamHeaders(product,
                     release, contentLength, contentMD5, contentType));

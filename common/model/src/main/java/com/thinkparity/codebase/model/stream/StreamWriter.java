@@ -119,10 +119,15 @@ public final class StreamWriter implements RequestEntity {
             try {
                 utils.setHeaders(method, session.getHeaders());
                 method.setRequestEntity(this);
-
                 switch (utils.execute(method)) {
                 case 200:
                     break;
+                case 500:
+                    utils.writeError(method);
+                    throw new StreamException(Boolean.TRUE,
+                            "Could not upload stream.  {0}:{1}{2}{3}",
+                            method.getStatusCode(), method.getStatusLine(),
+                            "\n\t", method.getStatusText());
                 default:
                     utils.writeError(method);
                     throw new StreamException(
@@ -134,7 +139,7 @@ public final class StreamWriter implements RequestEntity {
                 method.releaseConnection();
             }
         } finally {
-            StreamClientMetrics.end(session);
+            StreamClientMetrics.end("PUT", session);
         }
     }
 

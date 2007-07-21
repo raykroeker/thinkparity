@@ -23,6 +23,7 @@ import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.io.StreamOpener;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
@@ -31,12 +32,16 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.stream.download.DownloadFile;
 
+import com.thinkparity.ophelia.model.Delegate;
 import com.thinkparity.ophelia.model.DownloadHelper;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
+import com.thinkparity.ophelia.model.document.delegate.UploadStream;
 import com.thinkparity.ophelia.model.events.DocumentEvent;
 import com.thinkparity.ophelia.model.events.DocumentListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
@@ -441,7 +446,12 @@ public final class DocumentModelImpl extends
         try {
             final StreamSession session = getStreamModel().newDownstreamSession(
                     version);
-            return newDownloadHelper(session);
+            final DownloadFile downloadFile = new DownloadFile(session);
+            return new DownloadHelper() {
+                public void download(final File target) throws IOException {
+                    downloadFile.download(target);
+                }
+            };
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -491,8 +501,8 @@ public final class DocumentModelImpl extends
 		} catch (final Throwable t) {
             throw panic(t);
 		}
-	}        
-        
+	}
+
     /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#openVersion(java.lang.Long,
      *      java.lang.Long, com.thinkparity.codebase.io.StreamOpener)
@@ -533,8 +543,8 @@ public final class DocumentModelImpl extends
         } catch (final Throwable t) {
             throw panic(t);
         }
-    }
-
+    }        
+        
     /**
      * Print a document version.
      * 
@@ -611,8 +621,6 @@ public final class DocumentModelImpl extends
 		}
 	}
 
-    
-
     /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#readDraft(com.thinkparity.ophelia.model.document.DocumentFileLock)
      * 
@@ -657,6 +665,8 @@ public final class DocumentModelImpl extends
             throw panic(t);
         }
     }
+
+    
 
     /**
      * Obtain the first available version.
@@ -721,7 +731,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#readVersions(java.lang.Long)
      *
      */
@@ -749,7 +759,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * Read the version size.
      * 
      * @param documentId
@@ -796,7 +806,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.Model#removeListener(com.thinkparity.ophelia.model.util.EventListener)
      */
     @Override
@@ -831,7 +841,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#revertDraft(com.thinkparity.codebase.model.document.DocumentLock,
      *      java.lang.Long)
      * 
@@ -858,7 +868,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#updateDraft(com.thinkparity.ophelia.model.document.DocumentFileLock,
      *      java.lang.Long, java.io.InputStream)
      * 
@@ -907,6 +917,23 @@ public final class DocumentModelImpl extends
     }
 
 	/**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#uploadStream(com.thinkparity.codebase.model.stream.StreamMonitor,
+     *      com.thinkparity.codebase.model.document.DocumentVersion)
+     * 
+     */
+    public void uploadStream(final StreamMonitor monitor,
+            final DocumentVersion version) {
+        try {
+            final UploadStream delegate = newDelegate(UploadStream.class);
+            delegate.setMonitor(monitor);
+            delegate.setVersion(version);
+            delegate.uploadStream();
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
@@ -921,6 +948,15 @@ public final class DocumentModelImpl extends
     }
 
     /**
+     * Obtain the document persistence io.
+     * 
+     * @return A <code>DocumentIOHandler</code>.
+     */
+    DocumentIOHandler getDocumentIO() {
+        return documentIO;
+    }
+
+	/**
      * Assert that the document's draft exists.
      * 
      * @param documentId
@@ -1282,6 +1318,28 @@ public final class DocumentModelImpl extends
             lock.setFileLock(fileLock);
         } catch (final IOException iox) {
             throw new CannotLockException(name);
+        }
+    }
+
+    /**
+     * Create an instance of a delegate.
+     * 
+     * @param <D>
+     *            A delegate type.
+     * @param type
+     *            The delegate type <code>Class</code>.
+     * @return An instance of <code>D</code>.
+     */
+    private <D extends Delegate<DocumentModelImpl>> D newDelegate(
+            final Class<D> type) {
+        try {
+            final D instance = type.newInstance();
+            instance.initialize(this);
+            return instance;
+        } catch (final IllegalAccessException iax) {
+            throw new ThinkParityException("Could not create delegate.", iax);
+        } catch (final InstantiationException ix) {
+            throw new ThinkParityException("Could not create delegate.", ix);
         }
     }
 

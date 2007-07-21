@@ -25,6 +25,9 @@ public final class StreamSession {
     /** The http port. */
     private Integer port;
 
+    /** Number of times to retry upon failure. */
+    private Integer retryAttempts;
+
     /** The http uri. */
     private String uri;
 
@@ -65,6 +68,15 @@ public final class StreamSession {
     }
 
     /**
+     * Obtain retryAttempts.
+     *
+     * @return A Integer.
+     */
+    public Integer getRetryAttempts() {
+        return retryAttempts;
+    }
+
+    /**
      * Obtain the http uri.
      * 
      * @return A uri <code>String</code>.
@@ -102,6 +114,16 @@ public final class StreamSession {
      */
     public void setPort(final Integer port) {
         this.port = port;
+    }
+
+    /**
+     * Set retryAttempts.
+     *
+     * @param retryAttempts
+     *		A Integer.
+     */
+    public void setRetryAttempts(final Integer retryAttempts) {
+        this.retryAttempts = retryAttempts;
     }
 
     /**

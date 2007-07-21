@@ -4,14 +4,12 @@
 package com.thinkparity.desdemona.model;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
@@ -21,7 +19,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import com.thinkparity.codebase.BytesFormat;
 import com.thinkparity.codebase.Constants;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileSystem;
@@ -36,9 +33,6 @@ import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamMonitor;
-import com.thinkparity.codebase.model.stream.StreamReader;
-import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
@@ -811,102 +805,6 @@ public abstract class AbstractModelImpl
     protected final void logWarning(final String warningPattern,
             final Object... warningArguments) {
         logger.logWarning(warningPattern, warningArguments);
-    }
-
-    /**
-     * Create a new download helper.
-     * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     * @return A <code>DownloadHelper</code>.
-     */
-    protected final DownloadHelper newDownloadHelper(final StreamSession session) {
-        final BytesFormat bytesFormat = new BytesFormat();
-
-        return new DownloadHelper() {
-
-            /**
-             * @see com.thinkparity.ophelia.model.DownloadHelper#download(java.io.File)
-             * 
-             */
-            public void download(final File target) throws IOException {
-                ensureDownload(target);
-                attemptDownload(target);
-            }
-        
-            /**
-             * Attempt a download of the version. Create a new stream reader using the
-             * session; and download the version to the temp file, then return the temp
-             * file.
-             * 
-             * @param target
-             *            A <code>File</code> to download to.
-             * @throws IOException
-             */
-            private void attemptDownload(final File target) throws IOException {
-                final StreamReader reader = new StreamReader(new StreamMonitor () {
-
-                    /**
-                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkReceived(int)
-                     *
-                     */
-                    public void chunkReceived(final int chunkSize) {
-                        logger.logDebug("Downloaded {0}.",
-                                bytesFormat.format(new Long(chunkSize)));
-                    }
-        
-                    /**
-                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkSent(int)
-                     *
-                     */
-                    public void chunkSent(final int chunkSize) {
-                        // not possbile in download
-                        Assert.assertUnreachable("");
-                    }
-        
-                    /**
-                     * @see com.thinkparity.codebase.model.stream.StreamMonitor#getName()
-                     *
-                     */
-                    public String getName() {
-                        return "Model#newDownloadHelper";
-                    }
-
-                }, session);
-                final OutputStream output = new FileOutputStream(target);
-                try {
-                    reader.read(output);
-                } finally {
-                    output.close();
-                }
-            }
-
-            /**
-             * Ensure a download is possible by checking the target file for validity as
-             * well as the session.
-             * 
-             * @param target
-             *            A <code>File</code>.
-             */
-            private void ensureDownload(final File target) {
-                final String error;
-                if (null == target) {
-                    error = "Target must not be null.";
-                } else if (!target.exists()) {
-                    error = "Target {0} must exist.";
-                } else if (!target.isFile()) {
-                    error = "Target {0} must be a file.";
-                } else if (session == null) {
-                    error = "Stream ession must exist.";
-                } else {
-                    error = null;
-                }
-                if (null != error) {
-                    throw new IllegalArgumentException(MessageFormat.format(error,
-                            target, session));
-                }
-            }
-        };
     }
 
     /**

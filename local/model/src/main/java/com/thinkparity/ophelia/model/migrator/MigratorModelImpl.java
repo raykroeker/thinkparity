@@ -27,6 +27,7 @@ import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.stream.download.DownloadFile;
 import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEvent;
 
 import com.thinkparity.ophelia.model.Constants;
@@ -389,7 +390,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             final List<Resource> resources) throws IOException {
         final StreamSession session = getStreamModel().newDownstreamSession(product, release);
         final File tempFile = workspace.createTempFile();
-        newDownloadHelper(session).download(tempFile);
+        new DownloadFile(session).download(tempFile);
         return tempFile;
     }
 

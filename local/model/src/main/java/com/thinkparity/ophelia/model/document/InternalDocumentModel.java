@@ -19,6 +19,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.DownloadHelper;
@@ -242,7 +243,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public DocumentDraft readDraft(final Long documentId);
 
-	/**
+    /**
      * Read a list of document versions.
      * 
      * @param documentId
@@ -251,7 +252,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public List<DocumentVersion> readVersions(final Long documentId);
 
-    /**
+	/**
      * Read a list of document versions.
      * 
      * @param documentId
@@ -272,7 +273,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public Long readVersionSize(final Long documentId, final Long versionId);
 
-	/**
+    /**
      * Remove a document.
      * 
      * @param lock
@@ -282,7 +283,7 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public void remove(final DocumentFileLock lock, final Long documentId);
 
-    /**
+	/**
      * Rename a document.
      * 
      * @param documentId
@@ -315,4 +316,15 @@ public interface InternalDocumentModel extends DocumentModel {
      */
     public void updateDraft(final DocumentFileLock lock, final Long documentId,
             final InputStream content);
+
+    /**
+     * Upload a document version to the streaming server.
+     * 
+     * @param monitor
+     *            A <code>StreamMonitor</code>.
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     */
+    public void uploadStream(final StreamMonitor monitor,
+            final DocumentVersion version);
 }

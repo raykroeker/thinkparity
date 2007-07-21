@@ -44,18 +44,18 @@ class StreamClientMetrics {
      * @param context
      *            A <code>Method</code> context.
      */
-    static void end(final StreamSession context) {
+    static void end(final String httpMethod, final StreamSession context) {
         final Measure begin = MEASURES.remove(context);
         final Measure end = captureMeasure();
-        final StringBuffer id = new StringBuffer()
-            .append(context.hashCode());
-        for (int i = id.length(); i < 45; i++)
-            id.append(" ");
-        LOGGER.logDebug("{0} {1} ms{2}{3} free{2}{4} max{2}{5} total",
-                id, end.currentTimeMillis - begin.currentTimeMillis,
-                ",", end.freeMemory - begin.freeMemory,
-                end.maxMemory - begin.maxMemory,
-                end.totalMemory - begin.totalMemory);
+        LOGGER.logDebug("{0};{1};{2};{3};{4};{5};{6};{7}",
+                httpMethod,                                         // id
+                end.currentTimeMillis - begin.currentTimeMillis,    // duration
+                end.freeMemory,                                     // free
+                end.maxMemory,                                      // max
+                end.totalMemory,                                    // total
+                end.freeMemory - begin.freeMemory,                  // free mem delta
+                end.maxMemory - begin.maxMemory,                    // max mem delta
+                end.totalMemory - begin.totalMemory);               // total mem delta
     }
 
     private static Measure captureMeasure() {

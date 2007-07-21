@@ -24,6 +24,8 @@ public final class StreamReader {
     /** A stream session. */
     private final StreamSession session;
 
+    private OutputStream stream;
+
     /** A set of stream utilities. */
     private final StreamUtils utils;
 
@@ -41,8 +43,6 @@ public final class StreamReader {
         this.session = session;
         this.utils = new StreamUtils();
     }
-
-    private OutputStream stream;
 
     /**
      * Read a stream.
@@ -89,6 +89,12 @@ public final class StreamReader {
                         input.close();
                     }
                     break;
+                case 500:
+                    utils.writeError(method);
+                    throw new StreamException(Boolean.TRUE,
+                            "Could not download stream.  {0}:{1}{2}{3}",
+                            method.getStatusCode(), method.getStatusLine(),
+                            "\n\t", method.getStatusText());
                 default:
                     utils.writeError(method);
                     throw new StreamException(
@@ -100,7 +106,7 @@ public final class StreamReader {
                 method.releaseConnection();
             }
         } finally {
-            StreamClientMetrics.end(session);
+            StreamClientMetrics.end("GET", session);
         }
     }
 

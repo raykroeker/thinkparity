@@ -27,6 +27,18 @@ public final class StreamException extends RuntimeException {
      * @param cause
      *            The cause of the error.
      */
+    StreamException(final Boolean recoverable, final String messagePattern,
+            final Object... messageArguments) {
+        super(MessageFormat.format(messagePattern, messageArguments));
+        this.recoverable = recoverable;
+    }
+
+    /**
+     * Create StreamException.
+     * 
+     * @param cause
+     *            The cause of the error.
+     */
     StreamException(final Boolean recoverable, final Throwable cause) {
         super(cause);
         this.recoverable = recoverable;

@@ -20,8 +20,11 @@ public class EMailBuilder {
     /** Allowed top level domain characters */
     private static final String ALLOWED_TOP_DOMAIN_CHARACTERS;
 
-    /** Alllowed username characters (before the @) */
+    /** Allowed username characters (before the @) */
     private static final String ALLOWED_USERNAME_CHARACTERS;
+
+    /** Maximum length for a domain */
+    private static final int MAX_LENGTH_DOMAIN;
 
 	protected static final EMailBuilder SINGLETON;
 
@@ -29,6 +32,7 @@ public class EMailBuilder {
         ALLOWED_SUB_DOMAIN_CHARACTERS = "abcdefghijklmnopqrstuvwxyz0123456789-.";
         ALLOWED_TOP_DOMAIN_CHARACTERS = "abcdefghijklmnopqrstuvwxyz0123456789";
         ALLOWED_USERNAME_CHARACTERS =  "abcdefghijklmnopqrstuvwxyz0123456789-._+";
+        MAX_LENGTH_DOMAIN = 255;
 
         SINGLETON = new EMailBuilder();
     }
@@ -106,6 +110,8 @@ public class EMailBuilder {
         final String topDomain = domain.substring(lastIndexOfDot + 1);
         if (topDomain.length() < 2 || topDomain.length() > 4)
             throw new EMailFormatException("EMail top level domain must be between 2 and 4 characters.", s);
+        if (isLongDomain(subDomain))
+            throw new EMailFormatException("EMail contains a domain that is too long.");
         if (!validString(subDomain, ALLOWED_SUB_DOMAIN_CHARACTERS))
             throw new EMailFormatException("EMail contains invalid characters in the sub level domain.", s);
         if (!validString(topDomain, ALLOWED_TOP_DOMAIN_CHARACTERS))
@@ -118,6 +124,25 @@ public class EMailBuilder {
         email.setUsername(username.toLowerCase());
 		return email;
 	}
+
+    /**
+     * Determine if any of the domains in the string are too long.
+     * 
+     * @param domains
+     *            A domains <code>String</code>.
+     */
+    private boolean isLongDomain(final String domains) {
+        int fromIndex = 0;
+        while (true) {
+            final int indexOfDot = domains.indexOf('.', fromIndex);
+            if (-1 == indexOfDot) {
+                return (domains.length() - fromIndex > MAX_LENGTH_DOMAIN);
+            } else if (indexOfDot - fromIndex > MAX_LENGTH_DOMAIN) {
+                return true;
+            }
+            fromIndex = indexOfDot + 1;
+        }
+    }
 
     /**
      * Determines if the provided text string contains only the allowed characters.

@@ -643,8 +643,9 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     public void logout() {
 		try {
-            // logout
+		    // logout
             sessionService.logout(getAuthToken());
+            removeAuthToken();
             // fire event
             notifySessionTerminated();
 		} catch (final Throwable t) {

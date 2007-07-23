@@ -964,7 +964,7 @@ public class UpdateProfileAvatar extends Avatar {
                 errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel
                         .getWidth(), errorMessageJLabel.getHeight());
                 emailAvailable = isInputEmailAvailable();
-                SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+                SwingUtil.setCursor(this, null);
             }
             if (emailAvailable) {
                 disposeWindow();

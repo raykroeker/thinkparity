@@ -134,7 +134,7 @@ public abstract class DefaultSignupPage extends Avatar
     protected void checkOnline() {
         SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
         isOnline();
-        SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+        SwingUtil.setCursor(this, null);
     }
 
     /**

@@ -372,7 +372,7 @@ public class UpdatePasswordAvatar extends Avatar {
             errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel
                     .getWidth(), errorMessageJLabel.getHeight());
             final Boolean passwordValid = isPasswordValid();
-            SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+            SwingUtil.setCursor(this, null);
             if (passwordValid) {
                 disposeWindow();
                 updatePassword();

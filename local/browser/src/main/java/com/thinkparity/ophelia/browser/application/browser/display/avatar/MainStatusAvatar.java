@@ -716,7 +716,7 @@ public class MainStatusAvatar extends Avatar {
 
     private void resizeJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_resizeJLabelMouseExited
         if (!isResizeDragging()) {
-            SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
+            SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), null);
         }
     }//GEN-LAST:event_resizeJLabelMouseExited
 

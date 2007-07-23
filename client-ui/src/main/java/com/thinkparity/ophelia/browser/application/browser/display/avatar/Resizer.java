@@ -224,7 +224,7 @@ public class Resizer {
                 || cursorType == Cursor.E_RESIZE_CURSOR
                 || cursorType == Cursor.N_RESIZE_CURSOR
                 || cursorType == Cursor.S_RESIZE_CURSOR) {
-            setCursor(component, Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            setCursor(component, null);
         }
     }
 

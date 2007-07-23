@@ -491,7 +491,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     }//GEN-LAST:event_collapseIconJLabelMouseEntered
 
     private void collapseIconJLabelMouseExited(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapseIconJLabelMouseExited
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), null);
     }//GEN-LAST:event_collapseIconJLabelMouseExited
 
     private void collapseIconJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapseIconJLabelMousePressed
@@ -546,7 +546,7 @@ public class ContactTabPanel extends DefaultTabPanel {
 
     private void expandIconJLabelMouseExited(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMouseExited
         if (isExpandable()) {
-            SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
+            SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), null);
         }
     }//GEN-LAST:event_expandIconJLabelMouseExited
 

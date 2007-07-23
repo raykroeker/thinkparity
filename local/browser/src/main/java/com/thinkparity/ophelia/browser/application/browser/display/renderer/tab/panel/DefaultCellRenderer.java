@@ -126,7 +126,7 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
             }
             public void mouseExited(final java.awt.event.MouseEvent e) {
                 if (cell.isActionAvailable()) {
-                    SwingUtil.setCursor(DefaultCellRenderer.this, java.awt.Cursor.DEFAULT_CURSOR);
+                    SwingUtil.setCursor(DefaultCellRenderer.this, null);
                 }
             }
         });

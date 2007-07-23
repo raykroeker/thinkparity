@@ -399,7 +399,7 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
         if (containsInputErrors()) {
             errorMessageJLabel.setText(getInputErrors().get(0));
         }
-        SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+        SwingUtil.setCursor(this, null);
     }
 
     /**

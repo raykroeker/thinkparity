@@ -287,7 +287,7 @@ public class BrowserMenuBar extends JMenuBar {
     }
 
     private void signUpJButtonMouseExited(final java.awt.event.MouseEvent e) {
-        SwingUtil.setCursor((javax.swing.JButton) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
+        SwingUtil.setCursor((javax.swing.JButton) e.getSource(), null);
         ((javax.swing.JButton) e.getSource()).setIcon(SIGNUP_ICON);
     }
 

@@ -420,7 +420,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      * Apply a busy indicator.
      */
     protected void removeBusyIndicator() {
-        SwingUtil.setCursor(browser.getMainWindow(), java.awt.Cursor.DEFAULT_CURSOR);
+        SwingUtil.setCursor(browser.getMainWindow(), null);
     }
 
     /**

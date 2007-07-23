@@ -67,7 +67,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
     public Boolean confirmRestore(final List<Feature> features) {
         setFeatures(features);
         saveData();
-        SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+        SwingUtil.setCursor(this, null);
         resetProgressBar();
         signupDelegate.setNextPage();
         synchronized (signupDelegate) {
@@ -166,7 +166,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
      */
     public void setValidCredentials(final Boolean validCredentials) {
         if (!validCredentials) {
-            SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+            SwingUtil.setCursor(this, null);
             errorMessageJLabel.setText(getString("ErrorInvalidCredentials"));
         }
     }

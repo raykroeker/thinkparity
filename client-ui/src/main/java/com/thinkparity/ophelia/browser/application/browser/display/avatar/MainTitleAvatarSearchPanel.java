@@ -294,7 +294,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     private void searchJTextFieldMouseExited(final java.awt.event.MouseEvent e) {// GEN-FIRST:event_searchJTextFieldMouseExited
         Window window = SwingUtilities.getWindowAncestor(this);
         if (null!=window) {
-            window.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            window.setCursor(null);
         }
     }// GEN-LAST:event_searchJTextFieldMouseExited
 

@@ -285,7 +285,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
                 usernameReservation = createUsernameReservation(username);
                 emailReservation = createEMailReservation(email);
             } finally {
-                SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+                SwingUtil.setCursor(this, null);
             }
 
             if (null == usernameReservation) {
@@ -750,7 +750,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         if (containsInputErrors()) {
             errorMessageJLabel.setText(getInputErrors().get(0));
         }
-        SwingUtil.setCursor(this, java.awt.Cursor.DEFAULT_CURSOR);
+        SwingUtil.setCursor(this, null);
     }
     */
 

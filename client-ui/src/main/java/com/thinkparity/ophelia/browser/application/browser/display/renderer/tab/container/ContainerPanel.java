@@ -976,13 +976,13 @@ public class ContainerPanel extends DefaultTabPanel {
     }//GEN-LAST:event_expandIconJLabelMouseEntered
 
     private void expandIconJLabelMouseExited(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMouseExited
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), null);
     }//GEN-LAST:event_expandIconJLabelMouseExited
 
     private void expandIconJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMousePressed
         SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.WAIT_CURSOR);
         expandIconMousePressed(e);
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), null);
     }//GEN-LAST:event_expandIconJLabelMousePressed
 
     /**
@@ -1077,7 +1077,7 @@ public class ContainerPanel extends DefaultTabPanel {
     }//GEN-LAST:event_iconJLabelMouseEntered
 
     private void iconJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseExited
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.DEFAULT_CURSOR);
+        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), null);
     }//GEN-LAST:event_iconJLabelMouseExited
 
     private void iconJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMousePressed

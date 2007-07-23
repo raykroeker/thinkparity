@@ -482,13 +482,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
                 FileUtil.deleteTree(releaseInstall);
             }
         }
-
-        // NOCOMMIT
-        getIndexModel().rebuild(new ProcessAdapter() {});
-
-        // NOCOMMIT
-        // delete the index
-        // getHelpModel().deleteIndex();
+        // delete the help index
+        getHelpModel().deleteIndex();
     }
 
     /**

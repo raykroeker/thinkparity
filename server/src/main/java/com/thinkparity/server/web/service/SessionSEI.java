@@ -36,7 +36,7 @@ public class SessionSEI extends ServiceSEI implements SessionService {
      * @see com.thinkparity.service.SessionService#login(com.thinkparity.codebase.model.session.Credentials)
      * 
      */
-    public String login(final Credentials credentials)
+    public AuthToken login(final Credentials credentials)
             throws InvalidCredentialsException {
         try {
             return getModel().login(credentials);

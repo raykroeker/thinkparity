@@ -3,6 +3,8 @@
  */
 package com.thinkparity.service;
 
+import java.util.Date;
+
 /**
  * <b>Title:</b>thinkParity Services Authentication Token<br>
  * <b>Description:</b><br>
@@ -14,6 +16,9 @@ public final class AuthToken {
 
     /** A service client id <code>String</code>. */
     private String clientId;
+
+    /** An expiry date. */
+    private Date expiresOn;
 
     /** A user sesion id <code>String</code>. */
     private String sessionId;
@@ -36,6 +41,15 @@ public final class AuthToken {
     }
 
     /**
+     * Obtain expires on.
+     *
+     * @return A <code>Date</code>.
+     */
+    public Date getExpiresOn() {
+        return expiresOn;
+    }
+
+    /**
      * Obtain sessionId.
      *
      * @return A String.
@@ -52,6 +66,16 @@ public final class AuthToken {
      */
     public void setClientId(final String clientId) {
         this.clientId = clientId;
+    }
+
+    /**
+     * Set expires on.
+     *
+     * @param expiresOn
+     *		A <code>Date</code>.
+     */
+    public void setExpiresOn(final Date expiresOn) {
+        this.expiresOn = expiresOn;
     }
 
     /**

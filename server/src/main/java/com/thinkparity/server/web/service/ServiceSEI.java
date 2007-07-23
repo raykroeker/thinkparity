@@ -3,8 +3,6 @@
  */
 package com.thinkparity.desdemona.web.service;
 
-import java.text.MessageFormat;
-
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.user.User;
@@ -71,9 +69,8 @@ public abstract class ServiceSEI {
      *            An <code>AuthToken</code>.
      * @return A <code>ServiceException</code>.
      */
-    private ServiceException newAuthException(final AuthToken authToken) {
-        return new ServiceException(MessageFormat.format(
-                "Invalid authentication token {0}.", authToken));
+    private AuthException newAuthException(final AuthToken authToken) {
+        return new AuthException(authToken);
     }
 
     /**

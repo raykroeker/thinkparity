@@ -64,6 +64,12 @@ import com.thinkparity.service.client.ServiceFactory;
 public final class SessionModelImpl extends Model<SessionListener>
         implements SessionModel, InternalSessionModel {
 
+    /**
+     * The authentication token's expiry fudge factor. Used when determining
+     * whether or not to re-authenticate.
+     */
+    private static final int AUTH_TOKEN_EXPIRY_FUDGE;
+
     /** Configuration key for the remote release. */
     private static final String CFG_KEY_REMOTE_RELEASE;
 
@@ -74,6 +80,7 @@ public final class SessionModelImpl extends Model<SessionListener>
     private static final String WS_ATTRIBUTE_KEY_OFFLINE_CODES;
 
     static {
+        AUTH_TOKEN_EXPIRY_FUDGE = 3 * 1000;
         CFG_KEY_REMOTE_RELEASE = "SessionModelImpl#remoteRelease";
         WS_ATTRIBUTE_KEY_OFFLINE_CODES = "SessionModelImpl#offlineCodes";
         WS_ATTRIBUTE_KEY_AUTH_TOKEN = "SessionModelImpl#authToken";
@@ -361,7 +368,26 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     public AuthToken getAuthToken() {
         if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_AUTH_TOKEN)) {
-            return (AuthToken) workspace.getAttribute(WS_ATTRIBUTE_KEY_AUTH_TOKEN);
+            /* determine whether or not the authentication token has expired; if
+             * so, re-login and set a new authentication token */
+            final AuthToken authToken =
+                (AuthToken) workspace.getAttribute(WS_ATTRIBUTE_KEY_AUTH_TOKEN);
+            final long localDateTime =
+                currentDateTime().getTime().getTime() - AUTH_TOKEN_EXPIRY_FUDGE;
+            if (localDateTime > authToken.getExpiresOn().getTime()) {
+                logger.logInfo("User session has expired.");
+                logger.logVariable("localDateTime", localDateTime);
+                logger.logVariable("authToken", authToken);
+                try {
+                    setAuthToken(sessionService.login(readCredentials()));
+                    return getAuthToken();
+                } catch (final InvalidCredentialsException icx) {
+                    logger.logFatal(icx, "User credentials have changed.");
+                    return null;
+                }
+            } else {
+                return authToken;
+            }
         } else {
             logger.logError("User session is null.");
             return null;
@@ -520,10 +546,8 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return;
             }
 
-            // login
-            final String sessionId = sessionService.login(credentials);
-            // save auth token
-            setAuthToken(sessionId);
+            // login and save auth token
+            setAuthToken(sessionService.login(credentials));
             // save credentials
             createCredentials(credentials);
             // save release
@@ -564,10 +588,9 @@ public final class SessionModelImpl extends Model<SessionListener>
                     localCredentials.getPassword().equals(credentials.getPassword()),
                     "Credentials {0} do not match local credentials {1}.",
                     credentials, localCredentials);
-            // login
+            // login and set auth token
             try {
-                final String sessionId = sessionService.login(credentials);
-                setAuthToken(sessionId);
+                setAuthToken(sessionService.login(credentials));
             } catch (final InvalidCredentialsException icx) {
                 throw icx;
             }
@@ -1197,20 +1220,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Create an instance of an authentication token.
-     * 
-     * @param sessionId
-     *            A session id <code>String</code>.
-     * @return A client id <code>String</code>.
-     */
-    private AuthToken newAuthToken(final String sessionId) {
-        final AuthToken authToken = new AuthToken();
-        authToken.setClientId("");
-        authToken.setSessionId(sessionId);
-        return authToken;
-    }
-
-    /**
      * Create an empty authentication token.
      * 
      * @return An <code>AuthToken</code>.
@@ -1269,8 +1278,8 @@ public final class SessionModelImpl extends Model<SessionListener>
         return offlineCodes;
     }
 
-    private void setAuthToken(final String sessionId) {
-        workspace.setAttribute(WS_ATTRIBUTE_KEY_AUTH_TOKEN, newAuthToken(sessionId));
+    private void setAuthToken(final AuthToken authToken) {
+        workspace.setAttribute(WS_ATTRIBUTE_KEY_AUTH_TOKEN, authToken);
     }
 
     /**

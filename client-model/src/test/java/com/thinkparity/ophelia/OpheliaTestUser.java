@@ -261,10 +261,7 @@ public class OpheliaTestUser extends User {
         assertIsReachable(environment);
         final ServiceFactory factory = ServiceFactory.getInstance();
         final SessionService sessionService = factory.getSessionService();
-        final String sessionId = sessionService.login(credentials);
-        final AuthToken authToken = new AuthToken();
-        authToken.setSessionId(sessionId);
-        authToken.setClientId("");
+        final AuthToken authToken = sessionService.login(credentials);
         final QueueService queueService = factory.getQueueService();
         final List<XMPPEvent> events = queueService.readEvents(authToken);
         for (final XMPPEvent event : events) {

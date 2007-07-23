@@ -414,6 +414,8 @@ public final class WebService extends HttpServlet {
     public ServiceResponse service(final ServiceRequest request) {
         try {
             return request.invoke();
+        } catch (final AuthException ax) {
+            throw ax;
         } catch (final ServiceException sx) {
             return newErrorResponse(sx);
         } catch (final Throwable throwable) {
@@ -452,9 +454,10 @@ public final class WebService extends HttpServlet {
                 } else {
                     writeResponse(resp.getOutputStream(), request, response);
                 }
+            } catch (final AuthException ax) {
+                resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             } catch (final Throwable t) {
                 resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                throw new ServletException(t);
             }
         } finally {
             WebServiceMetrics.end(req);

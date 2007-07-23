@@ -341,12 +341,20 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
                             return null;
                         }
                     }
+                case 401:
+                    throw new ServiceException("Service {0}:{1}.  User unauthorized.",
+                            serviceRequest.getService().getId(),
+                            serviceRequest.getOperation().getId());
                 case 404:
-                    throw new ServiceException("Service {0}:{1} does not exist.",
+                    throw new ServiceException("Service {0}:{1}.  Service not found.",
+                            serviceRequest.getService().getId(),
+                            serviceRequest.getOperation().getId());
+                case 500:
+                    throw new ServiceException("Service {0}:{1}.  Internal error.",
                             serviceRequest.getService().getId(),
                             serviceRequest.getOperation().getId());
                 default:
-                    throw new ServiceException("Service {0}:{1} generated an unknown status code {2}.",
+                    throw new ServiceException("Service {0}:{1}.  Unknown status code {2}.",
                             serviceRequest.getService().getId(),
                             serviceRequest.getOperation().getId(),
                             postMethod.getStatusCode());

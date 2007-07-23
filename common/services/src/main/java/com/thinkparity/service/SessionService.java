@@ -24,10 +24,10 @@ public interface SessionService {
      * 
      * @param credentials
      *            The user's <code>Credentials</code>.
-     * @return A session id <code>String</code>.
+     * @return An <code>AuthToken</code>.
      */
     @WebMethod
-    String login(Credentials credentials) throws InvalidCredentialsException;
+    AuthToken login(Credentials credentials) throws InvalidCredentialsException;
 
     /**
      * Logout.

@@ -48,11 +48,12 @@ public final class Operation {
             return newResult(method.invoke(serviceSEI, newArgs(parameters)));
         } catch (final InvocationTargetException itx) {
             final Throwable targetException = itx.getTargetException();
-            if (isDeclared(targetException)) {
+            if (isAuth(targetException) || isDeclared(targetException)) {
                 throw targetException;
             } else {
-                throw new ServiceException(itx.getTargetException(), "Could not invoke operation {0}:{1}.",
-                    service.getId(), id);
+                throw new ServiceException(itx.getTargetException(),
+                        "Could not invoke operation {0}:{1}.", service.getId(),
+                        id);
             }
         } catch (final Exception x) {
             throw new ServiceException(x, "Could not invoke operation {0}:{1}.",
@@ -78,6 +79,17 @@ public final class Operation {
      */
     public void setMethod(final Method method) {
         this.method = method;
+    }
+
+    /**
+     * Determine whether or not the throwable is an authentication exception.
+     * 
+     * @param throwable
+     *            A <code>Throwable</code>.
+     * @return True if throwable is a service authentication exception.
+     */
+    private boolean isAuth(final Throwable throwable) {
+        return throwable.getClass().isAssignableFrom(AuthException.class);
     }
 
     /**

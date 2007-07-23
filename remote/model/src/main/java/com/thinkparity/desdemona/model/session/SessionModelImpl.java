@@ -16,6 +16,8 @@ import com.thinkparity.desdemona.model.io.sql.SessionSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.util.DateTimeProvider;
 
+import com.thinkparity.service.AuthToken;
+
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
@@ -53,7 +55,7 @@ public final class SessionModelImpl extends AbstractModelImpl implements
      * @see com.thinkparity.desdemona.model.session.SessionModel#login(com.thinkparity.codebase.model.session.Credentials)
      * 
      */
-    public String login(final Credentials credentials)
+    public AuthToken login(final Credentials credentials)
             throws InvalidCredentialsException {
         try {
             final User user = userSql.read(credentials);
@@ -64,7 +66,7 @@ public final class SessionModelImpl extends AbstractModelImpl implements
                 final String sessionId = newSessionId();
                 final Session session = newSession(sessionId, user);
                 sessionSql.create(user.getLocalId(), sessionId, session);
-                return sessionId;
+                return newAuthToken(session);
             }
         } catch (final InvalidCredentialsException icx) {
             throw icx;
@@ -163,6 +165,21 @@ public final class SessionModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * Create a new authentication token for a session.
+     * 
+     * @param session
+     *            A <code>Session</code>.
+     * @return An <code>AuthToken</code>.
+     */
+    private AuthToken newAuthToken(final Session session) {
+        final AuthToken authToken = new AuthToken();
+        authToken.setClientId(null);
+        authToken.setExpiresOn(session.getExpiresOn().getTime());
+        authToken.setSessionId(session.getId());
+        return authToken;
+    }
+
+    /**
      * Create a session.
      * 
      * @param createdOn
@@ -219,7 +236,9 @@ public final class SessionModelImpl extends AbstractModelImpl implements
      */
     private Calendar newSessionExpiry(final Calendar reference) {
         final Calendar expiresOn = (Calendar) reference.clone();
-        expiresOn.set(Calendar.HOUR, expiresOn.get(Calendar.MINUTE) + 25);
+        long expiresOnMillis = expiresOn.getTimeInMillis();
+        expiresOnMillis += 25 * 1000 * 60;
+        expiresOn.setTimeInMillis(expiresOnMillis);
         return expiresOn;
     }
 

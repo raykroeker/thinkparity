@@ -7,9 +7,12 @@ import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.service.AuthToken;
+
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity Desdemona Model Session Model<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -20,10 +23,10 @@ public interface SessionModel {
      * 
      * @param credentials
      *            A user's <code>Credentials</code>.
-     * @return A session id <code>String</code>.
+     * @return An <code>AuthToken</code>.
      * @throws InvalidCredentialsException
      */
-    public String login(final Credentials credentials)
+    public AuthToken login(final Credentials credentials)
             throws InvalidCredentialsException;
 
     /**

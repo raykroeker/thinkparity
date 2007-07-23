@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:fo="http://www.w3.org/1999/XSL/Format" exclude-result-prefixes="fo">
   <xsl:output method="xml" version="1.0" omit-xml-declaration="no" indent="yes"/>
-  <xsl:variable name="bodyTextSize">10pt</xsl:variable>
+  <xsl:variable name="fontFamily">Arial</xsl:variable>
+  <xsl:variable name="bodyTextSize">12pt</xsl:variable>
   <xsl:variable name="tableSpaceAfter">0.2cm</xsl:variable>
-  <xsl:variable name="tableWidthColumn1">3.5cm</xsl:variable>
+  <xsl:variable name="tableWidthColumn1">4cm</xsl:variable>
   <xsl:variable name="tableWidthColumn2">12cm</xsl:variable>
 
   <!-- resources -->
@@ -32,16 +33,16 @@
     <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
       <fo:layout-master-set>
         <fo:simple-page-master master-name="simpleA4" page-height="29.7cm" page-width="21cm" margin-top="0cm" margin-bottom="0cm" margin-left="0cm" margin-right="0cm">
-          <fo:region-body margin-top="4cm" margin-bottom="2cm" margin-left="3cm" margin-right="3cm"/>
+          <fo:region-body margin-top="4cm" margin-bottom="2cm" margin-left="2cm" margin-right="3cm"/>
           <fo:region-before extent="4cm"/>
-          <fo:region-after extent="0.75cm"/>
+          <fo:region-after extent="1.1cm"/>
         </fo:simple-page-master>
       </fo:layout-master-set>
       <fo:page-sequence master-reference="simpleA4">
         <xsl:apply-templates select="../resources/resource/name"/>
         <fo:flow flow-name="xsl-region-body">
-          <fo:block font-size="16pt" font-weight="bold" space-after="3mm"><xsl:value-of select="name"/></fo:block>
-          <fo:block font-size="{$bodyTextSize}">
+          <fo:block font-size="50pt" font-family="{$fontFamily}" font-weight="bold" space-after="3mm"><xsl:value-of select="name"/></fo:block>
+          <fo:block font-size="{$bodyTextSize}" font-family="{$fontFamily}" margin-left="1cm">
             <xsl:call-template name="displayValue">
               <xsl:with-param name="itemLeft"><xsl:value-of select="localization/firstPublished"/>:</xsl:with-param>
               <xsl:with-param name="itemRight"><xsl:value-of select="firstPublished"/></xsl:with-param>
@@ -74,11 +75,11 @@
     <xsl:param name="versionPublishedTo"></xsl:param>
     <xsl:param name="versionDocuments"></xsl:param>
     <xsl:param name="versionNote"></xsl:param>
-    <fo:block space-before="5mm" border-top-style="solid" border-top-color="rgb(89,108,167)" border-top-width="medium" padding-top="2mm"/>
-    <fo:block space-before="3mm" font-size="12pt" font-weight="bold" space-after="3mm">
+    <fo:block space-before="5mm" border-top-style="solid" border-top-color="rgb(0,0,0)" border-top-width="medium" padding-top="2mm" margin-left="1cm"/>
+    <fo:block space-before="3mm" font-size="14pt" font-family="{$fontFamily}" font-weight="bold" margin-left="1cm" space-after="3mm">
       <fo:block><xsl:value-of select="name"/></fo:block>
     </fo:block>
-    <fo:block space-before="3mm" font-size="{$bodyTextSize}">
+    <fo:block space-before="3mm" font-size="{$bodyTextSize}" font-family="{$fontFamily}" margin-left="1cm">
       <xsl:call-template name="displayValue">
         <xsl:with-param name="itemLeft"><xsl:value-of select="$versionPublishedOn"/>:</xsl:with-param>
         <xsl:with-param name="itemRight"><xsl:value-of select="publishedOn"/></xsl:with-param>
@@ -166,7 +167,7 @@
       <fo:table-body>
         <fo:table-row>
           <fo:table-cell>
-            <fo:block><xsl:value-of select="$itemLeft"/></fo:block>
+            <fo:block font-weight="bold"><xsl:value-of select="$itemLeft"/></fo:block>
           </fo:table-cell>
           <fo:table-cell>
             <fo:block><xsl:value-of select="$itemRight"/></fo:block>
@@ -195,7 +196,7 @@
     <xsl:param name="heading"></xsl:param>
     <fo:table-row>
       <fo:table-cell>
-        <fo:block><xsl:value-of select="$heading"/>:</fo:block>
+        <fo:block font-weight="bold"><xsl:value-of select="$heading"/>:</fo:block>
       </fo:table-cell>
       <xsl:call-template name="documentPrint"/>
     </fo:table-row>
@@ -220,7 +221,7 @@
     <xsl:param name="documentSum"></xsl:param>
     <fo:table-row>
       <fo:table-cell>
-        <fo:block><xsl:value-of select="$heading"/> (<xsl:value-of select="$documentSum"/>):</fo:block>
+        <fo:block font-weight="bold"><xsl:value-of select="$heading"/> (<xsl:value-of select="$documentSum"/>):</fo:block>
       </fo:table-cell>
       <xsl:call-template name="documentVersionPrint"/>
     </fo:table-row>
@@ -245,7 +246,7 @@
     <xsl:param name="teamMemberSum"></xsl:param>
     <fo:table-row>
       <fo:table-cell>
-        <fo:block><xsl:value-of select="$heading"/> (<xsl:value-of select="$teamMemberSum"/>):</fo:block>
+        <fo:block font-weight="bold"><xsl:value-of select="$heading"/> (<xsl:value-of select="$teamMemberSum"/>):</fo:block>
       </fo:table-cell>
       <xsl:call-template name="teamMemberPrint"/>
     </fo:table-row>
@@ -269,7 +270,7 @@
     <xsl:param name="heading"></xsl:param>
     <fo:table-row>
       <fo:table-cell>
-        <fo:block><xsl:value-of select="$heading"/>:</fo:block>
+        <fo:block font-weight="bold"><xsl:value-of select="$heading"/>:</fo:block>
       </fo:table-cell>
       <xsl:call-template name="userPrint"/>
     </fo:table-row>
@@ -294,7 +295,7 @@
     <xsl:param name="versionSum"></xsl:param>
     <fo:table-row>
       <fo:table-cell>
-        <fo:block><xsl:value-of select="$heading"/> (<xsl:value-of select="$versionSum"/>):</fo:block>
+        <fo:block font-weight="bold"><xsl:value-of select="$heading"/> (<xsl:value-of select="$versionSum"/>):</fo:block>
       </fo:table-cell>
       <xsl:call-template name="versionSummaryPrint"/>
     </fo:table-row>

@@ -96,12 +96,17 @@ public class PublishVersion extends AbstractBrowserAction {
              * contact references */
             Contact contact;
             final EMail[] duplicateEmails = (EMail[])emails.toArray(new EMail[0]);
+            final List<TeamMember> fullTeam = getContainerModel().readPublishToTeam(containerId);
             for (final EMail email : duplicateEmails) {
                 if (getContactModel().doesExist(email)) {
                     contact = getContactModel().read(email);
                     if (!contacts.contains(contact)
                             && !USER_UTIL.contains(teamMembers, contact)) {
-                        contacts.add(contact);
+                        if (USER_UTIL.contains(fullTeam, contact)) {
+                            teamMembers.add(fullTeam.get(USER_UTIL.indexOf(fullTeam, contact)));
+                        } else {
+                            contacts.add(contact);
+                        }
                     }
                     emails.remove(email);
                 }

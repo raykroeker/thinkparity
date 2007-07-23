@@ -151,7 +151,7 @@ public class PanelCellListModel implements PanelSelectionManager{
      *            A List of <code>? extends Cell</code>.  
      */
     public void initialize(final List<? extends Cell> cells) {
-        removeDataListener();
+        uninstallDataListener();
         listManager.initialize(cells);
         installDataListener();
         if (isSavedSelectedCell()) {
@@ -286,13 +286,11 @@ public class PanelCellListModel implements PanelSelectionManager{
     }
 
     /**
-     * Remove the data listener.
+     * Remove the saved list data listener.
      */
-    private void removeDataListener() {
-        final ListDataListener listener = getSavedListDataListener();
-        if (null != listener) {
-            listModel.removeListDataListener(listener);
-        }
+    private void removeSavedListDataListener() {
+        tabPanel.removeAttribute(MessageFormat.format(
+                SK_LIST_DATA_LISTENER_PATTERN, tabPanel.getId(), listName));
     }
 
     /**
@@ -380,6 +378,17 @@ public class PanelCellListModel implements PanelSelectionManager{
         }
         if (selectPanel) {
             selectPanel();
+        }
+    }
+
+    /**
+     * Uninstall the data listener.
+     */
+    private void uninstallDataListener() {
+        final ListDataListener listener = getSavedListDataListener();
+        if (null != listener) {
+            listModel.removeListDataListener(listener);
+            removeSavedListDataListener();
         }
     }
 }

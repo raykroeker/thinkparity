@@ -292,8 +292,10 @@ public class PanelCellListManager {
             goFirst();
         } else if (e.getSource().equals(previousJLabel)) {
             goPrevious();
+            selectTopRow();
         } else if (e.getSource().equals(nextJLabel)) {
             goNext();
+            selectTopRow();
         } else if (e.getSource().equals(lastJLabel)) {
             goLast();
         }

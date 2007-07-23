@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.1" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:fo="http://www.w3.org/1999/XSL/Format" exclude-result-prefixes="fo">
   <xsl:output method="xml" version="1.0" omit-xml-declaration="no" indent="yes"/>
-  <xsl:variable name="fontFamily">Arial</xsl:variable>
+  <xsl:variable name="fontFamily">Times</xsl:variable>
   <xsl:variable name="bodyTextSize">12pt</xsl:variable>
   <xsl:variable name="tableSpaceAfter">0.2cm</xsl:variable>
   <xsl:variable name="tableWidthColumn1">4cm</xsl:variable>
@@ -41,7 +41,7 @@
       <fo:page-sequence master-reference="simpleA4">
         <xsl:apply-templates select="../resources/resource/name"/>
         <fo:flow flow-name="xsl-region-body">
-          <fo:block font-size="50pt" font-family="{$fontFamily}" font-weight="bold" space-after="3mm"><xsl:value-of select="name"/></fo:block>
+          <fo:block font-size="50pt" font-family="{$fontFamily}" space-after="3mm"><xsl:value-of select="name"/></fo:block>
           <fo:block font-size="{$bodyTextSize}" font-family="{$fontFamily}" margin-left="1cm">
             <xsl:call-template name="displayValue">
               <xsl:with-param name="itemLeft"><xsl:value-of select="localization/firstPublished"/>:</xsl:with-param>
@@ -75,7 +75,7 @@
     <xsl:param name="versionPublishedTo"></xsl:param>
     <xsl:param name="versionDocuments"></xsl:param>
     <xsl:param name="versionNote"></xsl:param>
-    <fo:block space-before="5mm" border-top-style="solid" border-top-color="rgb(0,0,0)" border-top-width="medium" padding-top="2mm" margin-left="1cm"/>
+    <fo:block space-before="5mm" border-top-style="solid" border-top-color="rgb(0,0,0)" border-top-width="thin" padding-top="2mm" margin-left="1cm"/>
     <fo:block space-before="3mm" font-size="14pt" font-family="{$fontFamily}" font-weight="bold" margin-left="1cm" space-after="3mm">
       <fo:block><xsl:value-of select="name"/></fo:block>
     </fo:block>

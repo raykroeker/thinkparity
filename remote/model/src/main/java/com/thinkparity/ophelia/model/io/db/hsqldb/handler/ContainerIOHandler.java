@@ -295,9 +295,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         new StringBuilder("select A.ARTIFACT_ID,A.ARTIFACT_NAME,")
         .append("A.ARTIFACT_STATE_ID,A.ARTIFACT_TYPE_ID,")
         .append("A.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,AV.CREATED_ON,")
-        .append("AV.COMMENT,AV.NAME,UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON,")
-        .append("D.DOCUMENT_ID,DV.CONTENT_CHECKSUM,DV.CHECKSUM_ALGORITHM,")
-        .append("DV.CONTENT_SIZE,DV.DOCUMENT_VERSION_ID ")
+        .append("AV.COMMENT,AV.FLAGS,AV.NAME,UU.JABBER_ID UPDATED_BY,")
+        .append("AV.UPDATED_ON,D.DOCUMENT_ID,DV.CONTENT_CHECKSUM,")
+        .append("DV.CHECKSUM_ALGORITHM,DV.CONTENT_SIZE,DV.DOCUMENT_VERSION_ID ")
         .append("from CONTAINER_VERSION_ARTIFACT_VERSION_REL CVAVR ")
         .append("inner join ARTIFACT A on CVAVR.ARTIFACT_ID=A.ARTIFACT_ID ")
         .append("inner join DOCUMENT D on A.ARTIFACT_ID=D.DOCUMENT_ID ")
@@ -448,7 +448,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_VERSION =
         new StringBuilder("select CV.CONTAINER_ID,CV.CONTAINER_VERSION_ID,")
         .append("A.ARTIFACT_TYPE_ID,AV.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,")
-        .append("AV.CREATED_ON,AV.ARTIFACT_NAME,AV.NAME,AV.COMMENT,")
+        .append("AV.CREATED_ON,AV.ARTIFACT_NAME,AV.NAME,AV.FLAGS,AV.COMMENT,")
         .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
         .append("from CONTAINER_VERSION CV ")
         .append("inner join ARTIFACT_VERSION AV on CV.CONTAINER_ID=AV.ARTIFACT_ID ")
@@ -463,7 +463,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_VERSIONS =
         new StringBuilder("select CV.CONTAINER_ID,CV.CONTAINER_VERSION_ID,")
         .append("A.ARTIFACT_TYPE_ID,AV.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,")
-        .append("AV.CREATED_ON,AV.ARTIFACT_NAME,AV.NAME,AV.COMMENT,")
+        .append("AV.CREATED_ON,AV.ARTIFACT_NAME,AV.NAME,AV.FLAGS,AV.COMMENT,")
         .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
         .append("from CONTAINER_VERSION CV ")
         .append("inner join ARTIFACT_VERSION AV on CV.CONTAINER_ID=AV.ARTIFACT_ID ")
@@ -478,7 +478,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_VERSIONS_BY_DOCUMENT_ID =
         new StringBuilder("select CV.CONTAINER_ID,CV.CONTAINER_VERSION_ID,")
         .append("A.ARTIFACT_TYPE_ID,AV.ARTIFACT_UNIQUE_ID,UC.JABBER_ID CREATED_BY,")
-        .append("AV.CREATED_ON,AV.ARTIFACT_NAME,AV.NAME,AV.COMMENT,")
+        .append("AV.CREATED_ON,AV.ARTIFACT_NAME,AV.NAME,AV.FLAGS,AV.COMMENT,")
         .append("UU.JABBER_ID UPDATED_BY,AV.UPDATED_ON ")
         .append("from CONTAINER_VERSION CV ")
         .append("inner join ARTIFACT A on A.ARTIFACT_ID=CV.CONTAINER_ID ")
@@ -1614,6 +1614,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
        version.setComment(session.getString("COMMENT"));
        version.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
        version.setCreatedOn(session.getCalendar("CREATED_ON"));
+       version.setFlags(session.getArtifactVersionFlags("FLAGS"));
        version.setName(session.getString("NAME"));
        version.setUpdatedBy(session.getQualifiedUsername("UPDATED_BY"));
        version.setUpdatedOn(session.getCalendar("UPDATED_ON"));
@@ -1704,6 +1705,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         dv.setComment(session.getString("COMMENT"));
         dv.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
         dv.setCreatedOn(session.getCalendar("CREATED_ON"));
+        dv.setFlags(session.getArtifactVersionFlags("FLAGS"));
         dv.setName(session.getString("NAME"));
         dv.setSize(session.getLong("CONTENT_SIZE"));
         dv.setUpdatedBy(session.getQualifiedUsername("UPDATED_BY"));

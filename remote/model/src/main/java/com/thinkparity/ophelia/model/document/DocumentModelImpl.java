@@ -23,6 +23,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.artifact.ArtifactVersionFlag;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
@@ -477,6 +478,7 @@ public final class DocumentModelImpl extends
         version.setComment(null);
 		version.setCreatedBy(createdBy);
 		version.setCreatedOn(createdOn);
+        version.setFlags(Collections.<ArtifactVersionFlag>emptyList());
         version.setName(null);
 		version.setUpdatedBy(version.getCreatedBy());
 		version.setUpdatedOn(version.getCreatedOn());

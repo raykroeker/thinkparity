@@ -25,6 +25,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.artifact.ArtifactVersionFlag;
 import com.thinkparity.codebase.model.user.UserFlag;
 import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
@@ -215,6 +216,25 @@ public final class Session {
             } else {
                 logColumnExtraction(columnName, value);
                 return ArtifactFlag.fromIdSum(value);
+            }
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        } catch (final IllegalArgumentException iax) {
+            throw new HypersonicException(iax);
+        }
+    }
+
+    public List<ArtifactVersionFlag> getArtifactVersionFlags(final String columnName) {
+        assertConnectionIsOpen();
+        assertResultSetIsSet();
+        try {
+            final Integer value = resultSet.getInt(columnName);
+            if (resultSet.wasNull()) {
+                logColumnExtraction(columnName, null);
+                return Collections.emptyList();
+            } else {
+                logColumnExtraction(columnName, value);
+                return ArtifactVersionFlag.fromIdSum(value);
             }
         } catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
@@ -620,12 +640,24 @@ public final class Session {
 		}
 	}
 
-	public void setArtifactFlags(final Integer index, final List<ArtifactFlag> value) {
+    public void setArtifactFlags(final Integer index, final List<ArtifactFlag> value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
         try {
             preparedStatement.setInt(index, ArtifactFlag.toIdSum(value));
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
+
+    public void setArtifactVersionFlags(final Integer index,
+            final List<ArtifactVersionFlag> value) {
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
+        logColumnInjection(index, value);
+        try {
+            preparedStatement.setInt(index, ArtifactVersionFlag.toIdSum(value));
         } catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
         }

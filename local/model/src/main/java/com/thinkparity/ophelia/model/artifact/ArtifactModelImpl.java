@@ -18,6 +18,8 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.artifact.ArtifactVersionFlag;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -88,6 +90,18 @@ public final class ArtifactModelImpl extends Model implements
     public void applyFlagLatest(final Long artifactId) {
         try {
             applyFlag(artifactId, ArtifactFlag.LATEST);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagSeen(com.thinkparity.codebase.model.artifact.ArtifactVersion)
+     *
+     */
+    public void applyFlagSeen(final ArtifactVersion version) {
+        try {
+            applyFlag(version, ArtifactVersionFlag.SEEN);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -318,32 +332,6 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.artifact.ArtifactModel#hasBeenSeen(java.lang.Long)
-     *
-     */
-    public Boolean hasBeenSeen(final Long artifactId) {
-        try {
-            return isFlagApplied(artifactId, ArtifactFlag.SEEN);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-	}
-
-    /**
-     * @see com.thinkparity.ophelia.model.artifact.ArtifactModel#isFlagApplied(java.lang.Long,
-     *      com.thinkparity.codebase.model.artifact.ArtifactFlag)
-     * 
-     */
-    public Boolean isFlagApplied(final Long artifactId, final ArtifactFlag flag) {
-        try {
-            final List<ArtifactFlag> flags = artifactIO.readFlags(artifactId);
-            return flags.contains(flag);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-	}
-
-    /**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#readEarliestVersionId(java.lang.Long)
      * 
      */
@@ -506,6 +494,18 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#removeFlagSeen(com.thinkparity.codebase.model.artifact.ArtifactVersion)
+     *
+     */
+    public void removeFlagSeen(final ArtifactVersion version) {
+        try {
+            removeFlag(version, ArtifactVersionFlag.SEEN);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.artifact.ArtifactModel#removeFlagSeen(java.lang.Long)
      * 
      */
@@ -561,24 +561,66 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
-	 * Apply a flag to an artifact.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @param flag
-	 *            The flag.
-	 */
-	private void applyFlag(final Long artifactId, final ArtifactFlag flag) {
-		final List<ArtifactFlag> flags = artifactIO.readFlags(artifactId);
-		if(flags.contains(flag)) {
-			logger.logWarning("Artifact {0} is already flagged as {1}.",
+     * Apply a flag to an artifact version.
+     * 
+     * @param version
+     *            The <code>ArtifactVersion</code>.
+     * @param flag
+     *            The flag.
+     */
+    private void applyFlag(final ArtifactVersion version, final ArtifactVersionFlag flag) {
+        final List<ArtifactVersionFlag> flags = artifactIO.readFlags(version);
+        if (flags.contains(flag)) {
+            logger.logWarning("Artifact version {0} is already flagged as {1}.",
+                    version, flag);
+        }
+        else {
+            flags.add(flag);
+            version.setFlags(flags);
+            artifactIO.updateFlags(version, flags);
+        }
+    }
+
+    /**
+     * Apply a flag to an artifact.
+     * 
+     * @param artifactId
+     *            The artifact id.
+     * @param flag
+     *            The flag.
+     */
+    private void applyFlag(final Long artifactId, final ArtifactFlag flag) {
+        final List<ArtifactFlag> flags = artifactIO.readFlags(artifactId);
+        if(flags.contains(flag)) {
+            logger.logWarning("Artifact {0} is already flagged as {1}.",
                     artifactId, flag);
-		}
-		else {
-			flags.add(flag);
-			artifactIO.updateFlags(artifactId, flags);
-		}
-	}
+        }
+        else {
+            flags.add(flag);
+            artifactIO.updateFlags(artifactId, flags);
+        }
+    }
+
+    /**
+     * Remove a flag from an artifact version.
+     * 
+     * @param version
+     *            The <code>ArtifactVersion</code>.
+     * @param flag
+     *            The flag.
+     */
+    private void removeFlag(final ArtifactVersion version, final ArtifactVersionFlag flag) {
+        final List<ArtifactVersionFlag> flags = artifactIO.readFlags(version);
+        if (flags.contains(flag)) {
+            flags.remove(flag);
+            version.setFlags(flags);
+            artifactIO.updateFlags(version, flags);
+        }
+        else {
+            logger.logWarning("Artifact version {0} is not flagged as {1}.",
+                    version, flag);
+        }
+    }
 
 	/**
 	 * Remove a flag from an artifact.

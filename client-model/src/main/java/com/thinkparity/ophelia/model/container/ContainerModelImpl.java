@@ -265,11 +265,25 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#applyFlagSeen(com.thinkparity.codebase.model.container.ContainerVersion)
+     *
+     */
+    public void applyFlagSeen(final ContainerVersion version) {
+        try {
+            getArtifactModel().applyFlagSeen(version);
+            notifyContainerVersionFlagSeenApplied(readVersion(
+                    version.getArtifactId(), version.getVersionId()),
+                    localEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.container.ContainerModel#applyFlagSeen(java.lang.Long)
+     * 
      */
     public void applyFlagSeen(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
         try {
             getArtifactModel().applyFlagSeen(containerId);
             notifyContainerFlagSeenAdded(read(containerId), localEventGenerator);
@@ -735,19 +749,6 @@ public final class ContainerModelImpl extends
             delegate.handleReceived();
             // fire event
             notifyContainerReceived(delegate.getContainer(), remoteEventGenerator);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.container.ContainerModel#hasBeenSeen(java.lang.Long)
-     */
-    public Boolean hasBeenSeen(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
-        try {
-            return getArtifactModel().hasBeenSeen(containerId);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1717,11 +1718,25 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#removeFlagSeen(com.thinkparity.codebase.model.container.ContainerVersion)
+     *
+     */
+    public void removeFlagSeen(final ContainerVersion version) {
+        try {
+            getArtifactModel().removeFlagSeen(version);
+            notifyContainerVersionFlagSeenRemoved(readVersion(
+                    version.getArtifactId(), version.getVersionId()),
+                    localEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.container.ContainerModel#removeFlagSeen(java.lang.Long)
+     * 
      */
     public void removeFlagSeen(final Long containerId) {
-        logger.logApiId();
-        logger.logVariable("containerId", containerId);
         try {
             getArtifactModel().removeFlagSeen(containerId);
             notifyContainerFlagSeenRemoved(read(containerId), localEventGenerator);
@@ -2088,6 +2103,7 @@ public final class ContainerModelImpl extends
         version.setComment(comment);
         version.setCreatedBy(createdBy);
         version.setCreatedOn(createdOn);
+        version.setFlags(Collections.<ArtifactVersionFlag>emptyList());
         version.setName(name);
         version.setUpdatedBy(version.getCreatedBy());
         version.setUpdatedOn(version.getCreatedOn());
@@ -3048,7 +3064,7 @@ public final class ContainerModelImpl extends
      * Fire a container seen flag added notification.
      * 
      * @param container
-     *            A container.
+     *            A <code>Container</code>.
      * @param eventGenerator
      *            A container event generator.
      */
@@ -3159,6 +3175,42 @@ public final class ContainerModelImpl extends
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
                 listener.containerRenamed(eventGenerator.generate(container));
+            }
+        });
+    }
+
+    /**
+     * Fire a container version seen flag applied notification.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param eventGenerator
+     *            A container event generator.
+     */
+    private void notifyContainerVersionFlagSeenApplied(
+            final ContainerVersion version,
+            final ContainerEventGenerator ceg) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerVersionFlagSeenApplied(ceg.generate(version));
+            }
+        });
+    }
+
+    /**
+     * Fire a container version seen flag removed notification.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param eventGenerator
+     *            A container event generator.
+     */
+    private void notifyContainerVersionFlagSeenRemoved(
+            final ContainerVersion version,
+            final ContainerEventGenerator ceg) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerVersionFlagSeenRemoved(ceg.generate(version));
             }
         });
     }

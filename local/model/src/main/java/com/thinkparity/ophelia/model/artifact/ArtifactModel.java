@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.model.artifact;
 import java.util.Set;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
-import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
@@ -20,17 +19,6 @@ import com.thinkparity.codebase.model.util.jta.TransactionType;
  */
 @ThinkParityTransaction(TransactionType.REQUIRED)
 public interface ArtifactModel {
-
-	/**
-	 * Determine whether or not an artifact has a flag applied.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @param flag
-	 *            The artifact flag.
-	 * @return True if the flag is applied; false otherwise.
-	 */
-	public Boolean isFlagApplied(final Long artifactId, final ArtifactFlag flag);
 
     /**
      * Read the team for the artifact.

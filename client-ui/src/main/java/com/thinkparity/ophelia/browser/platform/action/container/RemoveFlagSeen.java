@@ -4,6 +4,10 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.container;
 
+import com.thinkparity.codebase.model.container.Container;
+
+import com.thinkparity.ophelia.model.container.ContainerModel;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -31,8 +35,10 @@ public class RemoveFlagSeen extends AbstractBrowserAction {
      */
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
-        if (getContainerModel().hasBeenSeen(containerId)) {
-            getContainerModel().removeFlagSeen(containerId);
+        final ContainerModel containerModel = getContainerModel();
+        final Container container = containerModel.read(containerId);
+        if (container.isSeen()) {
+            containerModel.removeFlagSeen(containerId);
         }
     }
 

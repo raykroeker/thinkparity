@@ -111,26 +111,6 @@ public class ContainerEvent {
      * Create ContainerEvent.
      * 
      * @param source
-     *            The event source
-     * @param container
-     *            A container.
-     * @param draft
-     *            A container draft.
-     * @param version
-     *            A container version.
-     */
-    public ContainerEvent(final Source source, final Container container,
-            final ContainerVersion previousVersion,
-            final ContainerVersion version, final ContainerVersion nextVersion,
-            final User user) {
-        this(source, container, null, previousVersion, version, nextVersion,
-                null, null, EMPTY_OUTGOING_EMAIL_INVITATIONS, user);
-    }
-
-    /**
-     * Create ContainerEvent.
-     * 
-     * @param source
      *            The event source.
      * @param container
      *            The container.
@@ -159,6 +139,26 @@ public class ContainerEvent {
             final ContainerVersion version) {
         this(source, container, null, null, version, null, null,
                 EMPTY_OUTGOING_EMAIL_INVITATIONS);
+    }
+
+    /**
+     * Create ContainerEvent.
+     * 
+     * @param source
+     *            The event source
+     * @param container
+     *            A container.
+     * @param draft
+     *            A container draft.
+     * @param version
+     *            A container version.
+     */
+    public ContainerEvent(final Source source, final Container container,
+            final ContainerVersion previousVersion,
+            final ContainerVersion version, final ContainerVersion nextVersion,
+            final User user) {
+        this(source, container, null, previousVersion, version, nextVersion,
+                null, null, EMPTY_OUTGOING_EMAIL_INVITATIONS, user);
     }
 
     /**
@@ -206,6 +206,19 @@ public class ContainerEvent {
     public ContainerEvent(final Source source, final ContainerDraft draft) {
         this(source, null, draft, null, null, null, null,
                 EMPTY_OUTGOING_EMAIL_INVITATIONS);
+    }
+
+    /**
+     * Create ContainerEvent.
+     * 
+     * @param source
+     *            The event <code>Source</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     */
+    public ContainerEvent(final Source source, final ContainerVersion version) {
+        this(source, null, null, null, version, null, null, null,
+                EMPTY_OUTGOING_EMAIL_INVITATIONS, null);
     }
 
     /**

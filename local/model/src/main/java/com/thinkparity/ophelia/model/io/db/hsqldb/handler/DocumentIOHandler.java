@@ -60,7 +60,7 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 		.append("ARTIFACT_NAME,ARTIFACT_TYPE,ARTIFACT_UNIQUE_ID,")
 		.append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM,CONTENT_SIZE,")
         .append("UC.JABBER_ID CREATED_BY,CREATED_ON,UU.JABBER_ID UPDATED_BY,UPDATED_ON,")
-        .append("AV.COMMENT,AV.NAME ")
+        .append("AV.COMMENT,AV.FLAGS,AV.NAME ")
 		.append("from DOCUMENT_VERSION DV ")
         .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID = AV.ARTIFACT_ID ")
         .append("and DV.DOCUMENT_VERSION_ID = AV.ARTIFACT_VERSION_ID ")
@@ -74,7 +74,7 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 		.append("ARTIFACT_NAME,ARTIFACT_TYPE,ARTIFACT_UNIQUE_ID,")
 		.append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM,CONTENT_SIZE,")
         .append("UC.JABBER_ID CREATED_BY,CREATED_ON,UU.JABBER_ID UPDATED_BY,")
-        .append("UPDATED_ON,AV.COMMENT,AV.NAME ")
+        .append("UPDATED_ON,AV.COMMENT,AV.FLAGS,AV.NAME ")
 		.append("from DOCUMENT_VERSION DV ")
         .append("inner join ARTIFACT_VERSION AV on DV.DOCUMENT_ID=AV.ARTIFACT_ID ")
         .append("and DV.DOCUMENT_VERSION_ID=AV.ARTIFACT_VERSION_ID ")
@@ -467,6 +467,7 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
         dv.setComment(session.getString("COMMENT"));
 		dv.setCreatedBy(session.getQualifiedUsername("CREATED_BY"));
 		dv.setCreatedOn(session.getCalendar("CREATED_ON"));
+        dv.setFlags(session.getArtifactVersionFlags("FLAGS"));
         dv.setName(session.getString("NAME"));
         dv.setSize(session.getLong("CONTENT_SIZE"));
 		dv.setUpdatedBy(session.getQualifiedUsername("UPDATED_BY"));

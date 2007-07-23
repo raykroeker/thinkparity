@@ -72,25 +72,6 @@ class ContainerEventGenerator {
      * @return A container event.
      */
     ContainerEvent generate(final Container container,
-            final ContainerVersion previousVersion,
-            final ContainerVersion version, final ContainerVersion nextVersion,
-            final User user) {
-        return new ContainerEvent(source, container, previousVersion, version,
-                nextVersion, user);
-    }
-
-    /**
-     * Generate a container event for a container; draft and version.
-     * 
-     * @param container
-     *            A container.
-     * @param draft
-     *            A container draft.
-     * @param version
-     *            A container version.
-     * @return A container event.
-     */
-    ContainerEvent generate(final Container container,
             final ContainerDraft draft, final ContainerVersion previousVersion,
             final ContainerVersion version, final ContainerVersion nextVersion,
             final TeamMember teamMember,
@@ -127,6 +108,25 @@ class ContainerEventGenerator {
     ContainerEvent generate(final Container container,
             final ContainerVersion version) {
         return new ContainerEvent(source, container, version);
+    }
+
+    /**
+     * Generate a container event for a container; draft and version.
+     * 
+     * @param container
+     *            A container.
+     * @param draft
+     *            A container draft.
+     * @param version
+     *            A container version.
+     * @return A container event.
+     */
+    ContainerEvent generate(final Container container,
+            final ContainerVersion previousVersion,
+            final ContainerVersion version, final ContainerVersion nextVersion,
+            final User user) {
+        return new ContainerEvent(source, container, previousVersion, version,
+                nextVersion, user);
     }
 
     /**
@@ -168,5 +168,16 @@ class ContainerEventGenerator {
      */
     ContainerEvent generate(final ContainerDraft draft) {
         return new ContainerEvent(source, draft);
+    }
+
+    /**
+     * Generate a container event for a version.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @return A <code>ContainerEvent</code>.
+     */
+    ContainerEvent generate(final ContainerVersion version) {
+        return new ContainerEvent(source, version);
     }
 }

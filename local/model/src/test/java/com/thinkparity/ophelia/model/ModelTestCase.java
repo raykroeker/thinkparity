@@ -1214,7 +1214,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
      * @return True if it is.
      */
     protected Boolean isLoggedIn(final OpheliaTestUser testUser) {
-        return getSessionModel(testUser).isOnline();
+        return getSessionModel(testUser).isLoggedIn();
     }
 
     /**
@@ -2153,7 +2153,7 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         private void waitForEvents() {
             final InternalQueueModel queueModel = getQueueModel(testUser);
             final InternalSessionModel sessionModel = getSessionModel(testUser);
-            if (sessionModel.isOnline()) {
+            if (sessionModel.isLoggedIn()) {
                 while (0 < queueModel.readSize()) {
                     logger.logTrace("Waiting for events for user \"{0}.\"", testUser.getSimpleUsername());
                     synchronized (this) {

@@ -118,6 +118,22 @@ public interface ContainerListener extends EventListener {
     public void containerUpdated(final ContainerEvent e);
 
     /**
+     * A container version seen flag has been added.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void containerVersionFlagSeenApplied(final ContainerEvent e);
+
+    /**
+     * A container version seen flag has been removed.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void containerVersionFlagSeenRemoved(final ContainerEvent e);
+
+    /**
      * A document was added to a container.
      * 
      * @param e

@@ -70,6 +70,14 @@ public interface ContainerModel {
     public void addListener(final ContainerListener listener);
 
     /**
+     * Apply the seen flag to the container version.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     */
+    public void applyFlagSeen(final ContainerVersion version);
+
+    /**
      * Apply the seen flag to the container.
      * 
      * @param containerId
@@ -161,15 +169,6 @@ public interface ContainerModel {
             final ContainerDraftListener listener);
 
     /**
-     * Determine whether or not the container has been seen.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @return True if the container has been seen; false otherwise.
-     */
-    public Boolean hasBeenSeen(final Long containerId);
-
-    /**
      * Determine whether or not the container has been distributed.
      * 
      * @param containerId
@@ -177,6 +176,15 @@ public interface ContainerModel {
      * @return True if the container has been distributed.
      */
     public Boolean isDistributed(final Long containerId);
+
+    /**
+     * Determine whether or not a draft is modified.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if the draft is modified.
+     */
+    public Boolean isLocalDraftModified(final Long containerId);
 
     /**
      * Determine whether or not publish is restricted to any of the e-mail
@@ -194,15 +202,6 @@ public interface ContainerModel {
             final List<Contact> contacts, final List<TeamMember> teamMembers);
 
     /**
-     * Determine whether or not a draft is modified.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @return True if the draft is modified.
-     */
-    public Boolean isLocalDraftModified(final Long containerId);
-
-    /**
      * Print a container draft.
      * 
      * @param containerId
@@ -212,7 +211,7 @@ public interface ContainerModel {
      */
     public void printDraft(final Long containerId, final ContainerDraftPrinter printer);
 
-	/**
+    /**
      * Print a container version.
      * 
      * @param containerId
@@ -253,7 +252,7 @@ public interface ContainerModel {
             final List<Contact> contacts, final List<TeamMember> teamMembers)
             throws CannotLockException;
 
-    /**
+	/**
      * Publish the container version.
      * 
      * @param containerId
@@ -602,7 +601,7 @@ public interface ContainerModel {
      */
     public List<ContainerVersion> readVersions(final Long containerId);
 
-	/**
+    /**
      * Read a list of versions for the container.
      * 
      * @param containerId
@@ -614,7 +613,7 @@ public interface ContainerModel {
     public List<ContainerVersion> readVersions(final Long containerId,
             final Comparator<ArtifactVersion> comparator);
 
-    /**
+	/**
      * Read a list of versions for the container.
      * 
      * @param containerId
@@ -662,6 +661,14 @@ public interface ContainerModel {
      */
     public void removeDocument(final Long containerId, final Long documentId)
             throws CannotLockException, IllegalStateTransitionException;
+
+    /**
+     * Remove the seen flag from a container version.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     */
+    public void removeFlagSeen(final ContainerVersion version);
 
     /**
      * Remove the seen flag from the container.

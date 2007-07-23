@@ -12,6 +12,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
@@ -59,6 +60,14 @@ public interface InternalArtifactModel extends ArtifactModel {
     public void applyFlagLatest(final Long artifactId);
 
     /**
+     * Apply the seen flag to an artifact version.
+     * 
+     * @param version
+     *            An <code>ArtifactVersion</code>.
+     */
+    public void applyFlagSeen(final ArtifactVersion version);
+
+    /**
      * Apply the seen flag.
      * 
      * @param artifactId
@@ -94,7 +103,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      */
     public Boolean doesExist(final Long artifactId);
 
-	/**
+    /**
      * Determine if an artifact exists.
      * 
      * @param uniqueId
@@ -103,7 +112,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      */
     public Boolean doesExist(final UUID uniqueId);
 
-    /**
+	/**
      * Determine if an artifact version exists.
      * 
      * @param artifactId
@@ -180,15 +189,6 @@ public interface InternalArtifactModel extends ArtifactModel {
     public void handleTeamMemberRemoved(
             final ArtifactTeamMemberRemovedEvent event);
 
-    /**
-     * Determine whether or not the artifact has been seen.
-     * 
-     * @param artifactId
-     *            The artifact id.
-     * @return True if the artifact has been seen; false otherwise.
-     */
-    public Boolean hasBeenSeen(final Long artifactId);
-    
     /**
      * Read the earliest version id for an artifact.
      * 
@@ -271,6 +271,14 @@ public interface InternalArtifactModel extends ArtifactModel {
      *            The artifact id.
      */
     public void removeFlagLatest(final Long artifactId);
+
+    /**
+     * Remove the seen flag from an artifact version.
+     * 
+     * @param version
+     *            An <code>ArtifactVersion</code>.
+     */
+    public void removeFlagSeen(final ArtifactVersion version);
 
     /**
      * Remove the seen flag.

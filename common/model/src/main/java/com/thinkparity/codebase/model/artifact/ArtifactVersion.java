@@ -3,7 +3,10 @@
  */
 package com.thinkparity.codebase.model.artifact;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -27,11 +30,14 @@ public abstract class ArtifactVersion {
     /** A comment applied to a version. */
 	private String comment;
 
-	/** The created by user id <code>JabberId</code>. */
+    /** The created by user id <code>JabberId</code>. */
 	private JabberId createdBy;
 
-	/** The creation date <code>Calendar</code>. */
+    /** The creation date <code>Calendar</code>. */
 	private Calendar createdOn;
+
+    /** A list of artifact version flags. */
+    private final List<ArtifactVersionFlag> flags;
 
 	/** The id <code>Long</code>. */
 	private transient Long id;
@@ -39,7 +45,7 @@ public abstract class ArtifactVersion {
 	/** The meta data <code>Properties</code>. */
 	private final Properties metaData;
 
-	/** The version name <code>String</code>. */
+    /** The version name <code>String</code>. */
     private String name;
 
 	/** The type <code>ArtifactType</code>. */
@@ -63,6 +69,7 @@ public abstract class ArtifactVersion {
 	 */
 	public ArtifactVersion() {
 		super();
+        this.flags = new ArrayList<ArtifactVersionFlag>();
 		this.metaData = new Properties();
 	}
 
@@ -128,7 +135,7 @@ public abstract class ArtifactVersion {
         return uniqueId;
 	}
 
-    /**
+	/**
      * Obtain the comment applient to the version.
      * 
      * @return A version comment <code>String</code>.
@@ -137,7 +144,7 @@ public abstract class ArtifactVersion {
         return comment;
     }
 
-    /**
+	/**
 	 * Obtain the aritfact creator.
 	 * 
 	 * @return The aritfact creator.
@@ -146,12 +153,21 @@ public abstract class ArtifactVersion {
         return createdBy;
     }
 
-    /**
+	/**
 	 * Obtain the artifact creation date.
 	 * 
 	 * @return The aritfact creation date.
 	 */
 	public Calendar getCreatedOn() { return createdOn; }
+
+    /**
+     * Obtain the artifact version flags.
+     * 
+     * @return A <code>List<ArtifactVersionFlag></code>.
+     */
+    public List<ArtifactVersionFlag> getFlags() {
+        return Collections.unmodifiableList(flags);
+    }
 
     /**
 	 * Obtain the artifact version meta data.
@@ -160,7 +176,7 @@ public abstract class ArtifactVersion {
 	 */
 	public Properties getMetaData() { return metaData; }
 
-	/**
+    /**
 	 * Obtain a meta data item.
 	 * 
 	 * @param key
@@ -171,7 +187,7 @@ public abstract class ArtifactVersion {
 		return metaData.getProperty(key);
 	}
 
-	/**
+    /**
 	 * Obtain a meta data item.
 	 * 
 	 * @param key
@@ -209,7 +225,7 @@ public abstract class ArtifactVersion {
 	 */
 	public Calendar getUpdatedOn() { return updatedOn; }
 
-    /**
+	/**
 	 * Obtain the version id.
 	 * 
 	 * @return The version id.
@@ -218,7 +234,7 @@ public abstract class ArtifactVersion {
         return versionId;
 	}
 
-    /**
+	/**
      * @see java.lang.Object#hashCode()
      *
 	 */
@@ -231,7 +247,16 @@ public abstract class ArtifactVersion {
         return result;
     }
 
-	/**
+    /**
+     * Determine whether or not the version has been seen.
+     * 
+     * @return True if it has been seen.
+     */
+    public Boolean isSeen() {
+        return flags.contains(ArtifactVersionFlag.SEEN);
+    }
+
+    /**
      * Determine whether or not the comment is set for the version.
      * 
      * @return True if the comment is set.
@@ -240,7 +265,7 @@ public abstract class ArtifactVersion {
         return null != comment;
     }
 
-    /**
+	/**
      * Determine whether or not the name is set for the version.
      * 
      * @return True if the name is set for the version.
@@ -259,7 +284,7 @@ public abstract class ArtifactVersion {
 		this.id = id;
 	}
 
-	/**
+    /**
 	 * Set the artifact name.
 	 * 
 	 * @param name
@@ -269,7 +294,7 @@ public abstract class ArtifactVersion {
         this.artifactName = artifactName;
 	}
 
-    /**
+	/**
 	 * Set the artifact type.
 	 * @param artifactType The artifact type.
 	 */
@@ -277,7 +302,7 @@ public abstract class ArtifactVersion {
 		this.type = type;
 	}
 
-	/**
+    /**
      * Set the unique id.
      * 
      * @param uniqueId
@@ -316,6 +341,17 @@ public abstract class ArtifactVersion {
 	public void setCreatedOn(final Calendar createdOn) {
 		this.createdOn = createdOn;
 	}
+
+	/**
+     * Set the artifact flags.
+     * 
+     * @param flags
+     *            The artifact flags.
+     */
+    public void setFlags(final List<ArtifactVersionFlag> flags) {
+        this.flags.clear();
+        this.flags.addAll(flags);
+    }
 
 	/**
 	 * Set the artifact version meta data.

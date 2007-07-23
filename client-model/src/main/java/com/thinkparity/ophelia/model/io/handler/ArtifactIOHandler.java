@@ -10,14 +10,19 @@ import java.util.UUID;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
+import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.artifact.ArtifactVersionFlag;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Ophelia Model Artifact IO Interface<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
 public interface ArtifactIOHandler {
 
@@ -52,7 +57,7 @@ public interface ArtifactIOHandler {
     public void deleteTeamRel(final Long artifactId, final Long userId)
             throws HypersonicException;
 
-	/**
+    /**
      * Determine if the artifact exists.
      * 
      * @param artifactId
@@ -70,7 +75,7 @@ public interface ArtifactIOHandler {
      */
     public Boolean doesExist(final UUID uniqueId);
 
-    /**
+	/**
      * Determine if a version exists.
      * 
      * @param artifactId
@@ -90,15 +95,6 @@ public interface ArtifactIOHandler {
      */
 	public Boolean doesVersionExist(final Long artifactId, final Long versionId);
 
-	/**
-	 * Obtain a list of all flags for an artifact.
-	 * 
-	 * @param artifactId
-	 *            The artifact id.
-	 * @return A list of all flags for the artifact.
-	 */
-	public List<ArtifactFlag> readFlags(final Long artifactId);
-
     /**
      * Read the earliest version id.
      * 
@@ -107,6 +103,24 @@ public interface ArtifactIOHandler {
      * @return A version id.
      */
     public Long readEarliestVersionId(final Long artifactId);
+
+    /**
+     * Read the artifact version flags.
+     * 
+     * @param version
+     *            An <code>ArtifactVersion</code>.
+     * @return A <code>List<ArtifactVersionFlag</code>.
+     */
+    public List<ArtifactVersionFlag> readFlags(final ArtifactVersion version);
+
+	/**
+	 * Obtain a list of all flags for an artifact.
+	 * 
+	 * @param artifactId
+	 *            The artifact id.
+	 * @return A list of all flags for the artifact.
+	 */
+	public List<ArtifactFlag> readFlags(final Long artifactId);
 
     /**
      * Read the artifact id.
@@ -208,6 +222,17 @@ public interface ArtifactIOHandler {
      * @return The artifact unique id.
      */
     public UUID readUniqueId(final Long artifactId);
+
+    /**
+     * Update the artifact version flags.
+     * 
+     * @param version
+     *            An <code>ArtifactVersion</code>.
+     * @param A
+     *            <code>List<ArtifactVersionFlag></code>.
+     */
+    public void updateFlags(final ArtifactVersion version,
+            final List<ArtifactVersionFlag> flags);
 
 	/**
 	 * Set the flags for the artifact.

@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.session.OfflineException;
+import com.thinkparity.ophelia.model.user.UserUtils;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
@@ -27,6 +28,13 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @version 1.1.2.1
  */
 public class PublishVersion extends AbstractBrowserAction {
+
+    /** An instance of <code>UserUtils</code>. */
+    private static final UserUtils USER_UTIL;
+
+    static {
+        USER_UTIL = UserUtils.getInstance();
+    }
 
     /** A thinkParity browser application. */
     private final Browser browser;
@@ -91,10 +99,11 @@ public class PublishVersion extends AbstractBrowserAction {
             for (final EMail email : duplicateEmails) {
                 if (getContactModel().doesExist(email)) {
                     contact = getContactModel().read(email);
-                    if (!contacts.contains(contact)) {
+                    if (!contacts.contains(contact)
+                            && !USER_UTIL.contains(teamMembers, contact)) {
                         contacts.add(contact);
-                        emails.remove(email);
                     }
+                    emails.remove(email);
                 }
             }
 

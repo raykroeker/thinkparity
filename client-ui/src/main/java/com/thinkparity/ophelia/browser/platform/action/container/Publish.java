@@ -20,6 +20,7 @@ import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.container.monitor.PublishStep;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.session.OfflineException;
+import com.thinkparity.ophelia.model.user.UserUtils;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
@@ -39,6 +40,13 @@ import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
  * @version 1.1
  */
 public class Publish extends AbstractBrowserAction {
+
+    /** An instance of <code>UserUtils</code>. */
+    private static final UserUtils USER_UTIL;
+
+    static {
+        USER_UTIL = UserUtils.getInstance();
+    }
 
     /** The <code>Browser</code> application. */
     private final Browser browser;
@@ -229,10 +237,11 @@ public class Publish extends AbstractBrowserAction {
                 for (final EMail email : duplicateEmails) {
                     if (contactModel.doesExist(email)) {
                         contact = contactModel.read(email);
-                        if (!contacts.contains(contact)) {
+                        if (!contacts.contains(contact)
+                                && !USER_UTIL.contains(teamMembers, contact)) {
                             contacts.add(contact);
-                            emails.remove(email);
                         }
+                        emails.remove(email);
                     }
                 }
                 try {

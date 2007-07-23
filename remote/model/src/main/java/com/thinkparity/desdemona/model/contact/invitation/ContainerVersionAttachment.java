@@ -6,8 +6,6 @@ package com.thinkparity.desdemona.model.contact.invitation;
 import java.text.MessageFormat;
 import java.util.UUID;
 
-import com.thinkparity.desdemona.model.contact.invitation.Attachment;
-
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Container Version Contact Invitation
  * Attachment<br>
@@ -61,15 +59,7 @@ public final class ContainerVersionAttachment extends Attachment {
      */
     public ContainerVersionAttachment() {
         super();
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.contact.invitation.Attachment#getReferenceType()
-     *
-     */
-    @Override
-    public ReferenceType getReferenceType() {
-        return ReferenceType.CONTAINER_VERSION;
+        setReferenceType(ReferenceType.CONTAINER_VERSION);
     }
 
     /**

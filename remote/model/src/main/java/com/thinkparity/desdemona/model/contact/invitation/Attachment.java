@@ -40,11 +40,11 @@ public class Attachment {
      */
     @Override
     public boolean equals(final Object obj) {
+        /* get class is deliberately omitted here because when reading back
+         * the attachments they will not match */
         if (this == obj)
             return true;
         if (null == obj)
-            return false;
-        if (getClass() != obj.getClass())
             return false;
         final Attachment attachment = (Attachment) obj;
         return attachment.invitationId.equals(invitationId)

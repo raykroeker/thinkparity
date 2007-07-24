@@ -199,6 +199,15 @@ public interface InternalArtifactModel extends ArtifactModel {
     public Boolean isVersionFlagSeenApplied(final Artifact artifact);
 
     /**
+     * Determine whether or not the seen flag is applied to all versions.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if all versions are flagged as seen.
+     */
+    public Boolean isVersionFlagSeenAppliedAll(final Artifact artifact);
+
+    /**
      * Read the earliest version id for an artifact.
      * 
      * @param artifactId

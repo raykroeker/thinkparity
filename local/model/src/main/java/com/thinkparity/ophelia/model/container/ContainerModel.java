@@ -212,6 +212,16 @@ public interface ContainerModel {
     public Boolean isVersionFlagSeenApplied(final Long containerId);
 
     /**
+     * Determine whether or not the seen flag is applied to all container
+     * versions.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if all versions are flagged as seen.
+     */
+    public Boolean isVersionFlagSeenAppliedAll(final Long containerId);
+
+    /**
      * Print a container draft.
      * 
      * @param containerId

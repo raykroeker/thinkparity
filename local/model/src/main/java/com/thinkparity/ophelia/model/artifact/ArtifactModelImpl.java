@@ -71,7 +71,7 @@ public final class ArtifactModelImpl extends Model implements
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagBookmark(java.lang.Long)
      * 
      */
@@ -83,7 +83,7 @@ public final class ArtifactModelImpl extends Model implements
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagLatest(java.lang.Long)
      * 
      */
@@ -336,6 +336,18 @@ public final class ArtifactModelImpl extends Model implements
      *
      */
     public Boolean isVersionFlagSeenApplied(final Artifact artifact) {
+        try {
+            return artifactIO.isVersionSeenFlagApplied(artifact);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#isVersionFlagSeenAppliedAll(com.thinkparity.codebase.model.artifact.Artifact)
+     *
+     */
+    public Boolean isVersionFlagSeenAppliedAll(final Artifact artifact) {
         try {
             return artifactIO.isVersionSeenFlagApplied(artifact);
         } catch (final Throwable t) {

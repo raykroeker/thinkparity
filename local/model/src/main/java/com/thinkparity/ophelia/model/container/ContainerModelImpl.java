@@ -832,6 +832,18 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#isVersionFlagSeenAppliedAll(java.lang.Long)
+     *
+     */
+    public Boolean isVersionFlagSeenAppliedAll(final Long containerId) {
+        try {
+            return getArtifactModel().isVersionFlagSeenAppliedAll(read(containerId));
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.container.InternalContainerModel#notifyTeamMemberAdded(com.thinkparity.codebase.model.user.TeamMember)
      *
      */

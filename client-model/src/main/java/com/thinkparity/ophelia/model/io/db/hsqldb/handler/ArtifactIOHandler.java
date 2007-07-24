@@ -260,6 +260,13 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             .append("Where A.ARTIFACT_ID=?")
             .toString();
 
+    /** Sql to read an artifact version count. */
+    private static final String SQL_READ_VERSION_COUNT =
+        new StringBuilder("select count(AV.VERSION_ID) \"VERSION_COUNT\" ")
+        .append("from ARTIFACT_VERSION AV ")
+        .append("where AV.ARTIFACT_ID=?")
+        .toString();
+
     /** Sql to read artifact version flags. */
     private static final String SQL_READ_VERSION_FLAGS =
         new StringBuilder("select FLAGS ")
@@ -271,7 +278,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
     private static final String SQL_READ_VERSION_SEEN_FLAG_COUNT =
         new StringBuilder("select count(ARTIFACT_ID) \"SEEN_COUNT\" ")
         .append("from ARTIFACT_VERSION AV ")
-        .append("where AV.FLAGS>=?")
+        .append("where AV.ARTIFACT_ID=? and AV.FLAGS>=?")
         .toString();
 
     /** Sql to restore an artifact. */
@@ -295,7 +302,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
-    /** Update the artifact version flags. */
+	/** Update the artifact version flags. */
     private static final String SQL_UPDATE_VERSION_FLAGS =
         new StringBuilder("update ARTIFACT_VERSION ")
         .append("set FLAGS=? where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
@@ -333,7 +340,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#deleteTeamRel(java.lang.Long)
      * 
      */
@@ -370,7 +377,8 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    /**
+    
+	/**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#doesExist(java.lang.Long)
      *
      */
@@ -393,8 +401,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#doesExist(java.util.UUID)
      *
      */
@@ -471,7 +478,8 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_READ_VERSION_SEEN_FLAG_COUNT);
-            session.setInt(1, ArtifactVersionFlag.SEEN.getId());
+            session.setLong(1, artifact.getId());
+            session.setInt(2, ArtifactVersionFlag.SEEN.getId());
             session.executeQuery();
             if (session.nextResult()) {
                 final int seenCount = session.getInteger("SEEN_COUNT");
@@ -491,7 +499,39 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#isVersionSeenFlagAppliedAll(com.thinkparity.codebase.model.artifact.Artifact)
+     *
+     */
+    public Boolean isVersionSeenFlagAppliedAll(final Artifact artifact) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_VERSION_SEEN_FLAG_COUNT);
+            session.setLong(1, artifact.getId());
+            session.setInt(2, ArtifactVersionFlag.SEEN.getId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int seenCount = session.getInteger("SEEN_COUNT");
+
+                session.prepareStatement(SQL_READ_VERSION_COUNT);
+                session.setLong(1, artifact.getId());
+                session.executeQuery();
+                if (session.nextResult()) {
+                    final int versionCount = session.getInteger("VERSION_COUNT"); 
+                    return seenCount == versionCount;
+                } else {
+                    throw new HypersonicException("Could not determine seen flag application.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine seen flag application.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readLatestVersionId(java.lang.Long)
+     * 
      */
     public Long readEarliestVersionId(final Long artifactId) {
         final Session session = openSession();

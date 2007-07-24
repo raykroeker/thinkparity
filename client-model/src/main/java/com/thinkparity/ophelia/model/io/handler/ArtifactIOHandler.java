@@ -106,6 +106,15 @@ public interface ArtifactIOHandler {
     public Boolean isVersionSeenFlagApplied(final Artifact artifact);
 
     /**
+     * Determine whether or not the seen flag is applied to all versions.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if all versions are flagged as seen.
+     */
+    public Boolean isVersionSeenFlagAppliedAll(final Artifact artifact);
+
+    /**
      * Read the earliest version id.
      * 
      * @param artifactId

@@ -56,17 +56,17 @@
                                       </Group>
                                       <EmptySpace pref="24" max="32767" attributes="0"/>
                                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                          <Component id="countryJPanel" max="32767" attributes="1"/>
-                                          <Component id="emailJTextField" alignment="0" max="32767" attributes="1"/>
-                                          <Component id="postalCodeJTextField" alignment="1" max="32767" attributes="1"/>
-                                          <Component id="provinceJTextField" alignment="1" max="32767" attributes="1"/>
-                                          <Component id="cityJTextField" alignment="1" max="32767" attributes="1"/>
-                                          <Component id="addressJTextField" alignment="1" max="32767" attributes="1"/>
-                                          <Component id="mobilePhoneJTextField" alignment="1" max="32767" attributes="1"/>
-                                          <Component id="phoneJTextField" alignment="1" max="32767" attributes="1"/>
-                                          <Component id="organizationJTextField" alignment="1" max="32767" attributes="3"/>
-                                          <Component id="titleJTextField" alignment="1" max="32767" attributes="3"/>
-                                          <Component id="nameJTextField" alignment="0" pref="321" max="32767" attributes="3"/>
+                                          <Component id="countryJPanel" min="-2" pref="321" max="-2" attributes="1"/>
+                                          <Component id="emailJTextField" alignment="0" min="-2" pref="321" max="-2" attributes="1"/>
+                                          <Component id="postalCodeJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
+                                          <Component id="provinceJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
+                                          <Component id="cityJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
+                                          <Component id="addressJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
+                                          <Component id="mobilePhoneJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
+                                          <Component id="phoneJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
+                                          <Component id="organizationJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="3"/>
+                                          <Component id="titleJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="3"/>
+                                          <Component id="nameJTextField" alignment="0" min="-2" pref="321" max="-2" attributes="3"/>
                                       </Group>
                                   </Group>
                                   <Component id="backupExplanationJLabel" alignment="0" pref="439" max="32767" attributes="0"/>

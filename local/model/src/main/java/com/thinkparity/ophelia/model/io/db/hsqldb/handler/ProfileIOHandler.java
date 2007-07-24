@@ -67,8 +67,9 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the total disk usage. */
     private static final String SQL_READ_DISK_USAGE =
-        new StringBuilder("select sum(DV.CONTENT_SIZE) \"DISK_USAGE\" ")
-        .append("from DOCUMENT_VERSION DV")
+        new StringBuilder("select DV.CONTENT_SIZE ")
+        .append("from DOCUMENT_VERSION DV ")
+        .append("order by DV.DOCUMENT_ID asc, DV.DOCUMENT_VERSION_ID asc")
         .toString();
 
     /** Sql to read a profile email. */
@@ -234,11 +235,11 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
         try {
             session.prepareStatement(SQL_READ_DISK_USAGE);
             session.executeQuery();
-            if (session.nextResult()) {
-                return session.getLong("DISK_USAGE");
-            } else {
-                return 0L;
+            long diskUsage = 0;
+            while (session.nextResult()) {
+                diskUsage += session.getLong("CONTENT_SIZE").longValue();
             }
+            return Long.valueOf(diskUsage);
         } finally {
             session.close();
         }

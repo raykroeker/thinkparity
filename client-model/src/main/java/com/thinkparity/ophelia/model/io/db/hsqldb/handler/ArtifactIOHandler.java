@@ -485,7 +485,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
                 final int seenCount = session.getInteger("SEEN_COUNT");
                 if (0 == seenCount) {
                     return Boolean.FALSE;
-                } else if (1 < seenCount) {
+                } else if (0 < seenCount) {
                     return Boolean.TRUE;
                 } else {
                     throw new HypersonicException("Could not determine seen flag application.");

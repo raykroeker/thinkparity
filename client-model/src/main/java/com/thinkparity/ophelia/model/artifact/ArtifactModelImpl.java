@@ -349,7 +349,7 @@ public final class ArtifactModelImpl extends Model implements
      */
     public Boolean isVersionFlagSeenAppliedAll(final Artifact artifact) {
         try {
-            return artifactIO.isVersionSeenFlagApplied(artifact);
+            return artifactIO.isVersionSeenFlagAppliedAll(artifact);
         } catch (final Throwable t) {
             throw panic(t);
         }

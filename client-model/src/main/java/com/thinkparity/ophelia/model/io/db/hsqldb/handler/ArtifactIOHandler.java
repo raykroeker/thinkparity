@@ -262,7 +262,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 
     /** Sql to read an artifact version count. */
     private static final String SQL_READ_VERSION_COUNT =
-        new StringBuilder("select count(AV.VERSION_ID) \"VERSION_COUNT\" ")
+        new StringBuilder("select count(AV.ARTIFACT_VERSION_ID) \"VERSION_COUNT\" ")
         .append("from ARTIFACT_VERSION AV ")
         .append("where AV.ARTIFACT_ID=?")
         .toString();

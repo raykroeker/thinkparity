@@ -202,6 +202,16 @@ public interface ContainerModel {
             final List<Contact> contacts, final List<TeamMember> teamMembers);
 
     /**
+     * Determine whether or not the seen flag is applied to any container
+     * version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if any version is flagged as seen.
+     */
+    public Boolean isVersionFlagSeenApplied(final Long containerId);
+
+    /**
      * Print a container draft.
      * 
      * @param containerId

@@ -58,7 +58,7 @@ public final class ArtifactModelImpl extends Model implements
         super();
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#addTeamMember(com.thinkparity.codebase.model.artifact.Artifact,
      *      com.thinkparity.codebase.model.user.User)
      * 
@@ -71,7 +71,7 @@ public final class ArtifactModelImpl extends Model implements
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#applyFlagBookmark(java.lang.Long)
      * 
      */
@@ -327,6 +327,18 @@ public final class ArtifactModelImpl extends Model implements
                 getContainerModel().notifyTeamMemberRemoved(teamMember);
             }
         } catch(final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#isVersionSeenFlagApplied(com.thinkparity.codebase.model.artifact.Artifact)
+     *
+     */
+    public Boolean isVersionFlagSeenApplied(final Artifact artifact) {
+        try {
+            return artifactIO.isVersionSeenFlagApplied(artifact);
+        } catch (final Throwable t) {
             throw panic(t);
         }
     }

@@ -98,7 +98,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
 		.toString();
 
-	/** Sql to create an artifact. */
+    /** Sql to create an artifact. */
     private static final String SQL_CREATE =
         new StringBuffer("insert into ARTIFACT ")
         .append("(ARTIFACT_NAME,ARTIFACT_STATE_ID,ARTIFACT_TYPE_ID,")
@@ -114,19 +114,19 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("values (?,?)")
         .toString();
 
-    /** Sql to delete a team member relationship. */
+	/** Sql to delete a team member relationship. */
     private static final String SQL_DELETE_TEAM_REL_BY_ARTIFACT =
         new StringBuffer("delete from ARTIFACT_TEAM_REL ")
         .append("where ARTIFACT_ID=?")
         .toString();
 
-	/** Sql to delete a team member relationship. */
+    /** Sql to delete a team member relationship. */
     private static final String SQL_DELETE_TEAM_REL_BY_ARTIFACT_BY_USER =
         new StringBuffer("delete from ARTIFACT_TEAM_REL ")
         .append("where ARTIFACT_ID=? and USER_ID=?")
         .toString();
 
-	/** Sql to determine if any artifact version exists. */
+    /** Sql to determine if any artifact version exists. */
     private static final String SQL_DOES_ANY_VERSION_EXIST =
             new StringBuffer("select COUNT(*) \"COUNT\" ")
             .append("from ARTIFACT A ")
@@ -148,7 +148,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
 
-    /** Sql to determine if an artifact version exists. */
+	/** Sql to determine if an artifact version exists. */
     private static final String SQL_DOES_VERSION_EXIST =
             new StringBuffer("select COUNT(*) \"COUNT\" ")
             .append("from ARTIFACT A ")
@@ -156,7 +156,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             .append("where AV.ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
             .toString();
 
-    /** Sql to read the earliest version id. */
+	/** Sql to read the earliest version id. */
     private static final String SQL_READ_EARLIEST_VERSION_ID =
             new StringBuffer("select min(ARTIFACT_VERSION_ID) EARLIEST_VERSION_ID ")
             .append("from ARTIFACT A ")
@@ -177,7 +177,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
 
-	/** Sql to read the latest version id. */
+    /** Sql to read the latest version id. */
     private static final String SQL_READ_LATEST_VERSION_ID =
             new StringBuffer("select max(ARTIFACT_VERSION_ID) LATEST_VERSION_ID ")
             .append("from ARTIFACT A ")
@@ -193,8 +193,8 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             .append("where A.ARTIFACT_ID=? and AV.ARTIFACT_VERSION_ID>? ")
             .append("order by AV.ARTIFACT_VERSION_ID asc")
             .toString();
-    
-    /** Sql to read the previous version id. */
+
+	/** Sql to read the previous version id. */
     private static final String SQL_READ_PREVIOUS_VERSION_ID =
             new StringBuffer("select ARTIFACT_VERSION_ID PREVIOUS_VERSION_ID ")
             .append("from ARTIFACT A ")
@@ -202,7 +202,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             .append("where A.ARTIFACT_ID=? and AV.ARTIFACT_VERSION_ID<? ")
             .append("order by AV.ARTIFACT_VERSION_ID desc")
             .toString();
-    
+
     /** Sql to read the artifact state. */
     private static final String SQL_READ_STATE =
             new StringBuffer("select A.ARTIFACT_STATE_ID ")
@@ -224,7 +224,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("order by U.JABBER_ID asc")
         .toString();
     
-	/**
+    /**
      * Sql to read the team relationship.
      * 
      * @see ArtifactIOHandler#SQL_READ_TEAM_REL
@@ -238,15 +238,15 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("and ATR.USER_ID=?")
         .append("order by U.JABBER_ID asc")
         .toString();
-
+    
     /** Sql to count the team relationship rows for an artifact. */
     private static final String SQL_READ_TEAM_REL_COUNT =
             new StringBuffer("select count(USER_ID) TEAM_SIZE ")
             .append("from ARTIFACT_TEAM_REL ")
             .append("where ARTIFACT_ID=?")
             .toString();
-
-    /** Sql to read the artifact type. */
+    
+	/** Sql to read the artifact type. */
     private static final String SQL_READ_TYPE =
             new StringBuffer("select A.ARTIFACT_TYPE_ID ")
             .append("from ARTIFACT A ")
@@ -265,6 +265,13 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         new StringBuilder("select FLAGS ")
         .append("from ARTIFACT_VERSION AV ")
         .append("where AV.ARTIFACT_ID=? and AV.ARTIFACT_VERSION_ID=?")
+        .toString();
+
+    /** Sql to read all artifact version seen flags count. */
+    private static final String SQL_READ_VERSION_SEEN_FLAG_COUNT =
+        new StringBuilder("select count(ARTIFACT_ID) \"SEEN_COUNT\" ")
+        .append("from ARTIFACT_VERSION AV ")
+        .append("where AV.FLAGS>=?")
         .toString();
 
     /** Sql to restore an artifact. */
@@ -288,7 +295,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 		.append("where ARTIFACT_ID=?")
 		.toString();
 
-	/** Update the artifact version flags. */
+    /** Update the artifact version flags. */
     private static final String SQL_UPDATE_VERSION_FLAGS =
         new StringBuilder("update ARTIFACT_VERSION ")
         .append("set FLAGS=? where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
@@ -326,7 +333,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#deleteTeamRel(java.lang.Long)
      * 
      */
@@ -363,8 +370,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#doesExist(java.lang.Long)
      *
      */
@@ -387,7 +393,8 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    /**
+    
+	/**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#doesExist(java.util.UUID)
      *
      */
@@ -450,6 +457,33 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
                 return Boolean.FALSE;
             } else {
                 return Boolean.TRUE;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#isVersionSeenFlagApplied(com.thinkparity.codebase.model.artifact.Artifact)
+     *
+     */
+    public Boolean isVersionSeenFlagApplied(final Artifact artifact) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_VERSION_SEEN_FLAG_COUNT);
+            session.setInt(1, ArtifactVersionFlag.SEEN.getId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int seenCount = session.getInteger("SEEN_COUNT");
+                if (0 == seenCount) {
+                    return Boolean.FALSE;
+                } else if (1 < seenCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine seen flag application.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine seen flag application.");
             }
         } finally {
             session.close();

@@ -112,7 +112,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      */
     public Boolean doesExist(final UUID uniqueId);
 
-	/**
+    /**
      * Determine if an artifact version exists.
      * 
      * @param artifactId
@@ -121,7 +121,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      */
     public Boolean doesVersionExist(final Long artifactId);
 
-    /**
+	/**
      * Determine if the artifact version exists.
      * 
      * @param artifactId
@@ -188,6 +188,15 @@ public interface InternalArtifactModel extends ArtifactModel {
      */
     public void handleTeamMemberRemoved(
             final ArtifactTeamMemberRemovedEvent event);
+
+    /**
+     * Determine whether or not the seen flag is applied to any version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if any version is flagged as seen.
+     */
+    public Boolean isVersionFlagSeenApplied(final Artifact artifact);
 
     /**
      * Read the earliest version id for an artifact.

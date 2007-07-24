@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactState;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -75,7 +76,7 @@ public interface ArtifactIOHandler {
      */
     public Boolean doesExist(final UUID uniqueId);
 
-	/**
+    /**
      * Determine if a version exists.
      * 
      * @param artifactId
@@ -84,7 +85,7 @@ public interface ArtifactIOHandler {
      */
     public Boolean doesVersionExist(final Long artifactId);
 
-    /**
+	/**
      * Determine if the artifact version exists.
      * 
      * @param artifactId
@@ -94,6 +95,15 @@ public interface ArtifactIOHandler {
      * @return True if the artifact version exists.
      */
 	public Boolean doesVersionExist(final Long artifactId, final Long versionId);
+
+    /**
+     * Determine whether or not the seen flag is applied to any version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return True if any version is flagged as seen.
+     */
+    public Boolean isVersionSeenFlagApplied(final Artifact artifact);
 
     /**
      * Read the earliest version id.

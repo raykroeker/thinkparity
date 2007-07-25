@@ -82,6 +82,17 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     }
 
     /**
+     * Determine if the specified tab is selected.
+     * 
+     * @param tabId
+     *            A tab.
+     */
+    boolean isTabSelected(final TabId tabId) {
+        return (null != selectedTab &&
+                selectedTab.equals(allTabs.get(tabId)));
+    }
+
+    /**
      * Select a tab.
      * 
      * @param tabId

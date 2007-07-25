@@ -87,6 +87,17 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     }
 
     /**
+     * Clear the search.
+     */
+    public void clearSearch() {
+        searchJTextField.setText(null);
+        if (searchActivationTimer != null) {
+            searchActivationTimer.stop();
+        }
+        applySearch();
+    }
+
+    /**
      * Determine if the search control has focus.
      * 
      * @return true if the search control has focus.
@@ -151,9 +162,12 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
      * 
      */
     private void applySearch() {
+        final boolean searchIsFocusOwner = searchJTextField.isFocusOwner();
         mainTitleAvatar.getController().applySearch(
                 SwingUtil.extract(searchJTextField));
-        requestFocus();
+        if (searchIsFocusOwner) {
+            requestFocus();
+        }
     }
 
     /**

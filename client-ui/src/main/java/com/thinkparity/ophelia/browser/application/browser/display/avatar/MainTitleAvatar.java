@@ -197,7 +197,7 @@ public final class MainTitleAvatar extends Avatar {
      */
     private void reloadTab() {
         final TabId tabId = getInputTabId();
-        if (null != tabId) {
+        if (null != tabId && !tabPanel.isTabSelected(tabId)) {
             tabPanel.selectTab(tabId);
             switch (tabId) {
             case CONTACT:
@@ -212,6 +212,7 @@ public final class MainTitleAvatar extends Avatar {
             default:
                 Assert.assertUnreachable("UNKNOWN TAB");
             }
+            searchPanel.clearSearch();
             searchPanel.reloadTabFilter(tabId);
         }
     }

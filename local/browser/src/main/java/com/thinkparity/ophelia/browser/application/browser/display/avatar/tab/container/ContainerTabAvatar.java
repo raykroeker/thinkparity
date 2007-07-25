@@ -12,6 +12,9 @@ import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
+
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
@@ -303,6 +306,23 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      */
     public void fireUpdated(final ContainerEvent e) {
         sync(e);
+    }
+
+    /**
+     * Show the topmost visible unread container version.
+     * 
+     * The panel is expanded (without animation), scrolled so it is visible,
+     * and the container and version are selected.
+     */
+    public void showTopVisibleUnreadContainerVersion() {
+        final Container container = model.getTopVisibleUnreadContainer();
+        if (null != container) {
+            showPanel(container.getId());
+            final ContainerVersion version = model.getTopUnreadContainerVersion(container.getId());
+            if (null != version) {
+                setVersionSelection(version.getArtifactId(), version.getVersionId());
+            }
+        }
     }
 
     /**

@@ -626,8 +626,7 @@ public class MainStatusAvatar extends Avatar {
                         linkRunnable = new Runnable() {
                             public void run() {
                                 getController().selectTab(MainTitleAvatar.TabId.CONTAINER);
-                                final ContainerVersion version = unseenContainerVersions.get(0);
-                                getController().expandContainer(version.getArtifactId(), version.getVersionId());
+                                getController().showTopVisibleUnreadContainerVersion();
                             }
                         };
                         // display invitation info/link
@@ -656,8 +655,7 @@ public class MainStatusAvatar extends Avatar {
                         linkRunnable = new Runnable() {
                             public void run() {
                                 getController().selectTab(MainTitleAvatar.TabId.CONTAINER);
-                                final ContainerVersion version = unseenContainerVersions.get(0);
-                                getController().expandContainer(version.getArtifactId(), version.getVersionId());
+                                getController().showTopVisibleUnreadContainerVersion();
                             }
                         };
                     }

@@ -1648,6 +1648,16 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Show the topmost visible unread container version.
+     * 
+     * The panel is expanded (without animation), scrolled so it is visible,
+     * and the container and version are selected.
+     */
+    public void showTopVisibleUnreadContainerVersion() {
+        getTabContainerAvatar().showTopVisibleUnreadContainerVersion();
+    }
+
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#start()
 	 * 
 	 */

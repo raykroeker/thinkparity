@@ -127,6 +127,40 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Get the topmost unread container version for the container.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return The topmost unread <code>ContainerVersion</code>.
+     */
+    public ContainerVersion getTopUnreadContainerVersion(final Long containerId) {
+        if (isPanel(containerId)) {
+            final ContainerPanel containerPanel = lookupContainerPanel(containerId);
+            final List<ContainerVersion> versions = containerPanel.getVersions();
+            for (final ContainerVersion version : versions) {
+                if (!version.isSeen()) {
+                    return version;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get the topmost visible unread container.
+     * 
+     * @return The topmost unread <code>Container</code>.
+     */
+    public Container getTopVisibleUnreadContainer() {
+        for (final TabPanel visiblePanel : visiblePanels) {
+            if (!((ContainerPanel)visiblePanel).getContainer().isSeen()) {
+                return ((ContainerPanel)visiblePanel).getContainer();
+            }
+        }
+        return null;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#isFilterApplied()
      */
     public Boolean isFilterApplied() {

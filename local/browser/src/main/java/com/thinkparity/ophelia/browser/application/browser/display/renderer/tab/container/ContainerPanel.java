@@ -362,6 +362,15 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * Obtain the versions.
+     * 
+     * @return A list of <code>ContainerVersion</code>.
+     */
+    public List<ContainerVersion> getVersions() {
+        return versions;
+    }
+
+    /**
      * Determine if the container has been distributed.
      * 
      * @return True if the container has been distributed, false otherwise.

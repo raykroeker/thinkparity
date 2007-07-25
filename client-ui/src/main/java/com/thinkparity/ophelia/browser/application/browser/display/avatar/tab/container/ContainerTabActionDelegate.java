@@ -25,6 +25,7 @@ import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.AddBookmark;
+import com.thinkparity.ophelia.browser.platform.action.container.ApplyFlagSeen;
 import com.thinkparity.ophelia.browser.platform.action.container.ReadVersion;
 import com.thinkparity.ophelia.browser.platform.action.container.RemoveBookmark;
 import com.thinkparity.ophelia.browser.platform.action.container.UpdateDraftComment;
@@ -43,6 +44,9 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
 
     /** The container's add bookmark <code>AbstractAction</code>. */
     private final ActionInvocation containerAddBookmark;
+
+    /** The container's apply flag seen <code>AbstractAction</code>. */
+    private final ActionInvocation containerApplyFlagSeen;
 
     /** The create container <code>AbstractAction</code>. */
     private final ActionInvocation containerCreate;
@@ -79,6 +83,7 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
         super();
         this.model = model;
         this.containerAddBookmark = ActionFactory.create(ActionId.CONTAINER_ADD_BOOKMARK);
+        this.containerApplyFlagSeen = ActionFactory.create(ActionId.CONTAINER_APPLY_FLAG_SEEN);
         this.containerCreate = ActionFactory.create(ActionId.CONTAINER_CREATE);
         this.containerRemoveBookmark = ActionFactory.create(ActionId.CONTAINER_REMOVE_BOOKMARK);
         this.containerUpdateDraftComment = getInstance(ActionId.CONTAINER_UPDATE_DRAFT_COMMENT);
@@ -162,11 +167,18 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerTabActionDelegate#invokeForVersion(com.thinkparity.codebase.model.container.ContainerVersion)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerTabActionDelegate#invokeForVersion(com.thinkparity.codebase.model.container.ContainerVersion, java.lang.Boolean)
      * 
      */
-    public void invokeForVersion(final ContainerVersion version) {
-        if (version.isSetComment()) {
+    public void invokeForVersion(final ContainerVersion version,
+            final Boolean showComment) {
+        if (!version.isSeen()) {
+            final Data applyFlagSeenData = new Data(2);
+            applyFlagSeenData.set(ApplyFlagSeen.DataKey.CONTAINER_ID, version.getArtifactId());
+            applyFlagSeenData.set(ApplyFlagSeen.DataKey.VERSION_ID, version.getVersionId());
+            invoke(containerApplyFlagSeen, getApplication(), applyFlagSeenData);
+        }
+        if (showComment && version.isSetComment()) {
             final Data data = new Data(2);
             data.set(ReadVersion.DataKey.CONTAINER_ID, version.getArtifactId());
             data.set(ReadVersion.DataKey.VERSION_ID, version.getVersionId());

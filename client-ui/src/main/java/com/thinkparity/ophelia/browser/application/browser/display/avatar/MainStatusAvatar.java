@@ -25,7 +25,7 @@ import com.thinkparity.codebase.swing.border.TopBorder;
 
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
-import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.model.events.ContactEvent;
@@ -532,12 +532,12 @@ public class MainStatusAvatar extends Avatar {
     }
 
     /**
-     * Read the unseen container count.
+     * Get the list of unseen container versions.
      * 
-     * @return A count of the number of unseen containers.
+     * @return A <code>List</code> of <code>ContainerVersion</code>s.
      */
-    private List<Container> readUnseenContainers() {
-        return ((MainStatusProvider) contentProvider).readUnseenContainers();
+    private List<ContainerVersion> readUnseenContainerVersions() {
+        return ((MainStatusProvider) contentProvider).readUnseenContainerVersions();
     }
 
     /**
@@ -599,7 +599,7 @@ public class MainStatusAvatar extends Avatar {
             clearJLabels();
             linkRunnable = optionalLinkRunnable = null;
             final List<EMail> unVerifiedEMails = readUnverifiedEMails();
-            final List<Container> unseenContainers = readUnseenContainers();
+            final List<ContainerVersion> unseenContainerVersions = readUnseenContainerVersions();
             final List<IncomingEMailInvitation> incomingEMail = readIncomingEMailInvitations();
             final List<IncomingUserInvitation> incomingUser = readIncomingUserInvitations();
             if (0 < unVerifiedEMails.size()) {
@@ -618,15 +618,16 @@ public class MainStatusAvatar extends Avatar {
                     textJLabel.setText(getString("Text.VerifyEMailOffline"));
                 }
             } else {
-                if (0 < unseenContainers.size()) {
+                if (0 < unseenContainerVersions.size()) {
                     if (0 < incomingEMail.size() || 0 < incomingUser.size()) {
                         // display container info/link
                         textJLabel.setText(getString("Text") + Separator.Space);
-                        linkJLabel.setText(getString("ContainerLink", new Object[] {unseenContainers.size()}));
+                        linkJLabel.setText(getString("ContainerLink", new Object[] {unseenContainerVersions.size()}));
                         linkRunnable = new Runnable() {
                             public void run() {
                                 getController().selectTab(MainTitleAvatar.TabId.CONTAINER);
-                                getController().showContainer(unseenContainers.get(0));
+                                final ContainerVersion version = unseenContainerVersions.get(0);
+                                getController().expandContainer(version.getArtifactId(), version.getVersionId());
                             }
                         };
                         // display invitation info/link
@@ -651,11 +652,12 @@ public class MainStatusAvatar extends Avatar {
                     } else {
                         // display container info/link
                         textJLabel.setText(getString("Text") + Separator.Space);
-                        linkJLabel.setText(getString("ContainerLink", new Object[] {unseenContainers.size()}));
+                        linkJLabel.setText(getString("ContainerLink", new Object[] {unseenContainerVersions.size()}));
                         linkRunnable = new Runnable() {
                             public void run() {
                                 getController().selectTab(MainTitleAvatar.TabId.CONTAINER);
-                                getController().showContainer(unseenContainers.get(0));
+                                final ContainerVersion version = unseenContainerVersions.get(0);
+                                getController().expandContainer(version.getArtifactId(), version.getVersionId());
                             }
                         };
                     }

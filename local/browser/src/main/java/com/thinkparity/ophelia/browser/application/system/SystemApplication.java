@@ -76,10 +76,13 @@ public final class SystemApplication extends AbstractApplication {
      * 
      * @param containerId
      *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
      */
-    public void clearContainerNotifications(final Long containerId) {
+    public void clearContainerNotifications(final Long containerId,
+            final Long versionId) {
         impl.fireClearNotifications(newNotificationId(Container.class,
-                containerId));
+                containerId, versionId));
     }
 
     /**
@@ -422,9 +425,10 @@ public final class SystemApplication extends AbstractApplication {
      */
     void fireContainerPublished(final ContainerEvent e) {
         final Data data = new Data(2);
-        final Long id = e.getContainer().getId();
-        data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.CONTAINER_ID, id);
-        data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.VERSION_ID, e.getVersion().getVersionId());
+        final Long containerId = e.getContainer().getId();
+        final Long versionId = e.getVersion().getVersionId();
+        data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.CONTAINER_ID, containerId);
+        data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.VERSION_ID, versionId);
         if (null == e.getPreviousVersion() && null == e.getNextVersion()) {
             // this is the first publish event
             impl.fireNotification(new DefaultNotification() {
@@ -446,7 +450,7 @@ public final class SystemApplication extends AbstractApplication {
                 }
                 @Override
                 public String getId() {
-                    return newNotificationId(Container.class, id);
+                    return newNotificationId(Container.class, containerId, versionId);
                 }
                 @Override
                 public String getLinkTitle() {
@@ -482,7 +486,7 @@ public final class SystemApplication extends AbstractApplication {
                 }
                 @Override
                 public String getId() {
-                    return newNotificationId(Container.class, id);
+                    return newNotificationId(Container.class, containerId, versionId);
                 }
                 @Override
                 public String getLinkTitle() {
@@ -541,5 +545,20 @@ public final class SystemApplication extends AbstractApplication {
      */
     private String newNotificationId(final Class<?> type, final Long typeId) {
         return new StringBuilder(type.getName()).append("//").append(typeId).toString();
+    }
+
+    /**
+     * Create a notification id for a type/type+type id pair.
+     * 
+     * @param type
+     *            A <code>Class<?></code>.
+     * @param typeId1
+     *            A type id <code>Long</code>.
+     * @param typeId2
+     *            A type id <code>Long</code>.
+     * @return A notification id <code>String</code>.
+     */
+    private String newNotificationId(final Class<?> type, final Long typeId1, final Long typeId2) {
+        return new StringBuilder(type.getName()).append("//").append(typeId1).append("//").append(typeId2).toString();
     }
 }

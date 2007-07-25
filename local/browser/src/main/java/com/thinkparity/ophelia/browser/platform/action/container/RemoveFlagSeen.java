@@ -5,6 +5,7 @@
 package com.thinkparity.ophelia.browser.platform.action.container;
 
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 
 import com.thinkparity.ophelia.model.container.ContainerModel;
 
@@ -35,13 +36,19 @@ public class RemoveFlagSeen extends AbstractBrowserAction {
      */
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
+        final Long versionId = (Long) data.get(DataKey.VERSION_ID);
         final ContainerModel containerModel = getContainerModel();
+        final ContainerVersion containerVersion = containerModel.readVersion(containerId, versionId);
+        if (containerVersion.isSeen().booleanValue()) {
+            containerModel.removeFlagSeen(containerVersion);
+        }
+        // ensure the container seen flag is in sync with the version seen flags
         final Container container = containerModel.read(containerId);
-        if (container.isSeen()) {
+        if (container.isSeen().booleanValue()) {
             containerModel.removeFlagSeen(containerId);
         }
     }
 
     /** The data key. */
-    public enum DataKey { CONTAINER_ID }
+    public enum DataKey { CONTAINER_ID, VERSION_ID }
 }

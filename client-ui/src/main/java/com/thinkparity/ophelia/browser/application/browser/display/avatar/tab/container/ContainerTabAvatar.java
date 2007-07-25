@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
 
+import java.awt.EventQueue;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.InvocationTargetException;
@@ -10,8 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.swing.SwingUtil;
-
-import com.thinkparity.codebase.model.container.Container;
 
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
@@ -65,6 +64,9 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
 
     /**
      * Expand the container.
+     * 
+     * The panel is expanded (without animation), scrolled so it is visible,
+     * and the container is selected.
      * This method waits for completion.
      * 
      * @param containerId
@@ -75,7 +77,10 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     }
 
     /**
-     * Expand the container with version selected.
+     * Expand the container.
+     * 
+     * The panel is expanded (without animation), scrolled so it is visible,
+     * and the container and version are selected.
      * This method waits for completion.
      * 
      * @param containerId
@@ -95,11 +100,8 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A <code>ContainerEvent</code>.
      */
     public void fireCreated(final ContainerEvent e) {
-        if (e.isRemote()) {
-            removeFlagSeen(e);
-            sync(e);
-        } else {
-            sync(e);
+        sync(e);
+        if (!e.isRemote()) {
             showPanel(e.getContainer().getId(), Boolean.FALSE);
             setDraftSelection(e.getContainer().getId());
         }
@@ -199,7 +201,11 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      */
     public void fireContainerPublished(final ContainerEvent e) {
         if (e.isRemote()) {
-            removeFlagSeen(e);
+            // synchronize the container seen flag with the version flag,
+            // in the case somebody forwards a version you already have do nothing
+            if (!e.getVersion().isSeen()) {
+                removeFlagSeen(e);
+            }
         }
         sync(e);
         if (e.isLocal()) {
@@ -218,6 +224,21 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 model.syncFlagged(e.getContainer());
+            }
+        });
+    }
+
+    /**
+     * Notify the avatar that a container version has been flagged.
+     * (eg. seen flag)
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.       
+     */
+    public void fireFlaggedVersion(final ContainerEvent e) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.syncFlaggedVersion(e.getVersion());
             }
         });
     }
@@ -285,21 +306,6 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     }
 
     /**
-     * Show the container (expand the panel and scroll so it
-     * is visible).
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     */
-    public void showContainer(final Container container) {
-        SwingUtil.ensureDispatchThread(new Runnable() {
-            public void run() {
-                showPanel(container.getId(), Boolean.FALSE);
-            }
-        });
-    }
-
-    /**
      * Synchronize a container in the avatar.
      * 
      * @param containerId
@@ -331,13 +337,14 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     }
 
     /**
-     * Remove the seen flag from a container within the event.
+     * Remove the seen flag from a container version within the event.
      * 
      * @param e
      *            A <code>ContainerEvent</code>.
      */
     private void removeFlagSeen(final ContainerEvent e) {
-        getController().runRemoveContainerFlagSeen(e.getContainer().getId());
+        getController().runRemoveContainerFlagSeen(e.getContainer().getId(),
+                e.getVersion().getVersionId());
     }
 
     /**
@@ -409,7 +416,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A wait <code>Boolean</code>, if true wait for completion.
      */
     private void showPanel(final Long containerId, final Boolean wait) {
-        if (wait) {
+        if (wait && !EventQueue.isDispatchThread()) {
             try {
                 SwingUtilities.invokeAndWait(new Runnable() {
                     public void run() {

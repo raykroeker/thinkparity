@@ -26,6 +26,7 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -176,6 +177,9 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /** A <code>List</code> of all <code>TeamMember</code>s. */
     private final List<TeamMember> team;
+
+    /** The user id <code>JabberId</code>. */
+    private JabberId userId;
 
     /** The <code>List</code> of <code>ContainerVersion</code>s. */
     private final List<ContainerVersion> versions;
@@ -442,6 +446,9 @@ public class ContainerPanel extends DefaultTabPanel {
             } else {
                 eastListModel.initialize(((WestCell)cell).getEastCells());
             }
+            if (cell instanceof VersionCell) {
+                ((VersionCell)cell).invokeSelectAction();
+            }
             repaint();
         } else if (cell instanceof EastCell) {
             repaint();
@@ -570,6 +577,59 @@ public class ContainerPanel extends DefaultTabPanel {
     /**
      * Set the panel data.
      * 
+     * This version is appropriate (for example) when a flag has
+     * changed on a version.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param containerVersion
+     *            A <code>ContainerVersion</code>.
+     */
+    public void setPanelData(final Container container,
+            final ContainerVersion containerVersion) {
+        this.container = container;
+        if (containerVersion.equals(earliestVersion)) {
+            earliestVersion = containerVersion;
+        }
+        if (containerVersion.equals(latestVersion)) {
+            latestVersion = containerVersion;
+        }
+        for (final ContainerVersion existingVersion : versions) {
+            if (containerVersion.equals(existingVersion)) {
+                versions.set(versions.indexOf(existingVersion), containerVersion);
+                break;
+            }
+        }
+        if (isSetExpandedData()) {
+            // set the container cell.
+            westCells.set(0, new ContainerCell(
+                    draft, latestVersion, versions, documentViews, team));
+            // set the version cell
+            for (final Cell cell : westCells) {
+                if (cell instanceof VersionCell) {
+                    if (((VersionCell) cell).getVersionId() == containerVersion
+                            .getVersionId()) {
+                        final Cell newCell = new VersionCell(containerVersion,
+                                documentViews.get(containerVersion),
+                                publishedTo.get(containerVersion),
+                                publishedBy.get(containerVersion));
+                        westCells.set(westCells.indexOf(cell), newCell);
+                        break;
+                    }
+                }
+            }
+            // re-initialize
+            westListModel.initialize(westCells);
+        }
+        iconJLabel.setIcon(container.isBookmarked() 
+                ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK) 
+                : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
+        reloadText();
+    }
+
+    /**
+     * Set the panel data.
+     * 
      * This version is appropriate when the team has changed.
      * 
      * @param container
@@ -608,14 +668,18 @@ public class ContainerPanel extends DefaultTabPanel {
      *            The earliest <code>ContainerVersion</code>.
      * @param latestVersion
      *            The latest <code>ContainerVersion</code>.
+     * @param userId
+     *            The user id <code>JabberId</code>.     
      */
     public void setPanelData(final Container container,
             final DraftView draftView, final ContainerVersion earliestVersion,
-            final ContainerVersion latestVersion) {
+            final ContainerVersion latestVersion,
+            final JabberId userId) {
         this.container = container;
         this.draft = draftView;
         this.earliestVersion = earliestVersion;
         this.latestVersion = latestVersion;
+        this.userId = userId;
         iconJLabel.setIcon(container.isBookmarked()
                 ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK)
                 : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
@@ -1047,7 +1111,7 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return A <code>Font</code>.
      */
     private Font getContainerTextFont() {
-        if (!isExpanded() && !container.isSeen().booleanValue()) {
+        if (!container.isSeen().booleanValue()) {
             return Fonts.DefaultFontBold;
         } else {
             return Fonts.DefaultFont;
@@ -1484,6 +1548,17 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * Determine if the specified user is the local user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if the specified user is the local user.
+     */
+    private boolean isLocalUser(final User user) {
+        return user.getId().equals(userId);
+    }
+
+    /**
      * Paint text on the panel.
      * 
      * @param g2
@@ -1904,6 +1979,8 @@ public class ContainerPanel extends DefaultTabPanel {
     private final class VersionCell extends AbstractWestCell {
         /** The <code>DocumentView</code>s. */ 
         private final List<DocumentView> documentViews;
+        /** The published by <code>User</code>. */
+        private final User publishedBy;
         /** A <code>ContainerVersion</code>. */
         private final ContainerVersion version;
         /**
@@ -1925,6 +2002,7 @@ public class ContainerPanel extends DefaultTabPanel {
             super(Boolean.FALSE);
             this.documentViews = documentViews;
             this.version = version;
+            this.publishedBy = publishedBy;
             for (final DocumentView documentView : documentViews) {
                 add(new VersionDocumentCell(this, documentView.getVersion(),
                         documentView.getDelta()));
@@ -1962,11 +2040,20 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public void invokeAction() {
-            actionDelegate.invokeForVersion(version);
+            actionDelegate.invokeForVersion(version, Boolean.TRUE);
+        }
+        public void invokeSelectAction() {
+            actionDelegate.invokeForVersion(version, Boolean.FALSE);
         }
         @Override
         public Boolean isActionAvailable() {
             return version.isSetComment();
+        }
+        @Override
+        public Boolean isEmphasized() {
+            // checking local user prevents flicker as events arrive
+            // during a local publish
+            return !version.isSeen() && !isLocalUser(publishedBy);
         }
         @Override
         public void showPopup() {

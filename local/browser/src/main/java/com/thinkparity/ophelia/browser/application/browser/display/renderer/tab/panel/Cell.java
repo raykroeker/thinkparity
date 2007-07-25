@@ -48,20 +48,20 @@ public interface Cell {
      * 
      */
     public void invokeAction();
-    
+ 
     /**
      * Determine whether or not an action is available for the cell.
      * 
      * @return True if an action is available.
      */
     public Boolean isActionAvailable();
-    
+
     /**
-     * Determine whether or not a popup is available for the cell.
+     * Determine whether or not a cell should be emphasized (eg bold).
      * 
-     * @return True if a popup is available.
+     * @return True if it should be emphasized (eg. bold).
      */
-    public Boolean isPopupAvailable();
+    public Boolean isEmphasized();
 
     /**
      * Determine whether or not a cell is enabled.
@@ -69,6 +69,13 @@ public interface Cell {
      * @return True if it is enabled.
      */
     public Boolean isEnabled();
+
+    /**
+     * Determine whether or not a popup is available for the cell.
+     * 
+     * @return True if a popup is available.
+     */
+    public Boolean isPopupAvailable();
 
     /**
      * Determine whether or not additional text is set.

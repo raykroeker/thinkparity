@@ -12,6 +12,7 @@ import com.thinkparity.codebase.swing.AbstractJPanel;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 
 /**
@@ -89,6 +90,11 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
             textJLabel.setForeground(Colors.Browser.Panel.PANEL_CONTAINER_TEXT_FG);
         } else {
             textJLabel.setForeground(Colors.Browser.Panel.PANEL_DISABLED_TEXT_FG);
+        }
+        if (cell.isEmphasized()) {
+            textJLabel.setFont(Fonts.DefaultFontBold);
+        } else {
+            textJLabel.setFont(Fonts.DefaultFont);
         }
         if (cell.isSetAdditionalText()) {
             additionalTextJLabel.setText(cell.getAdditionalText());

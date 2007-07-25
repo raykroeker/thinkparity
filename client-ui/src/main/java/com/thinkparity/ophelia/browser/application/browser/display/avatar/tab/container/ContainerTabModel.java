@@ -141,24 +141,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#toggleExpansion(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel, java.lang.Boolean)
-     */
-    @Override
-    public void toggleExpansion(final TabPanel tabPanel, final Boolean animate) {
-        checkThread();
-        final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
-        final Container container = containerPanel.getContainer();
-
-        browser.runClearContainerNotifications(container.getId());
-
-        if (!container.isSeen()) { 
-            browser.runApplyContainerFlagSeen(container.getId());
-        }
-
-        super.toggleExpansion(containerPanel, animate);
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applyFilter()
      */
     @Override
@@ -613,7 +595,7 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
-     * Synchronize when a flag has changed.
+     * Synchronize when a container flag has changed.
      * Performance is a concern so unnecessary steps are avoided.
      * 
      * @param container
@@ -622,6 +604,22 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     void syncFlagged(final Container container) {
         if (isPanel(container.getId())) {
             lookupContainerPanel(container.getId()).setPanelData(container);
+            synchronize();
+        }
+    }
+
+    /**
+     * Synchronize when a version flag has changed.
+     * Performance is a concern so unnecessary steps are avoided.
+     * 
+     * @param containerVersion
+     *            A <code>ContainerVersion</code>.
+     */
+    void syncFlaggedVersion(final ContainerVersion containerVersion) {
+        final Long containerId = containerVersion.getArtifactId();
+        if (isPanel(containerId)) {
+            lookupContainerPanel(containerId).setPanelData(read(containerId),
+                    containerVersion);
             synchronize();
         }
     }
@@ -733,7 +731,9 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
                 addContainerIdLookup(document.getId(), container.getId());
             }
         }
-        final TabPanel tabPanel = toDisplay(container, draftView, earliestVersion, latestVersion);
+        final JabberId userId = readProfile().getId();
+        final TabPanel tabPanel = toDisplay(container, draftView,
+                earliestVersion, latestVersion, userId);
         panels.add(tabPanel);
         if (isExpanded(tabPanel)) {
             setExpandedPanelData(tabPanel);
@@ -1183,23 +1183,23 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      *            The earliest <code>ContainerVersion</code>.
      * @param latestVersion
      *            The latest <code>ContainerVersion</code>.
+     * @param userId
+     *            The user id <code>JabberId</code>.   
      * @return A <code>TabPanel</code>.
      */
     private TabPanel toDisplay(
             final Container container,
             final DraftView draftView,
             final ContainerVersion earliestVersion,
-            final ContainerVersion latestVersion) {
+            final ContainerVersion latestVersion,
+            final JabberId userId) {
         final ContainerPanel panel = new ContainerPanel(session);
         panel.setActionDelegate(actionDelegate);
         panel.setPopupDelegate(popupDelegate);
-        panel.setPanelData(container, draftView, earliestVersion, latestVersion);
+        panel.setPanelData(container, draftView, earliestVersion, latestVersion, userId);
         panel.setExpanded(isExpanded(panel));
         panel.setSelected(isSelected(panel));
         panel.setTabDelegate(this);
-        if (isExpanded(panel)) {
-            browser.runApplyContainerFlagSeen(panel.getContainer().getId());
-        }
         // the session will maintain the single draft monitor for the tab
         if (draftView.isSetDraft() && draftView.isLocal()) {
             initSessionDraftMonitor(panel);

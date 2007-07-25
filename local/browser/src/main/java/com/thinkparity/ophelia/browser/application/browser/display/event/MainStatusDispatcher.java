@@ -171,6 +171,15 @@ public final class MainStatusDispatcher implements
             public void containerReceived(final ContainerEvent e) {
                 avatar.fireContainerEvent(e);
             }
+            @Override
+            public void containerVersionFlagSeenApplied(final ContainerEvent e) {
+                avatar.fireContainerEvent(e);
+            }
+            @Override
+            public void containerVersionFlagSeenRemoved(final ContainerEvent e) {
+                avatar.fireContainerEvent(e);
+            }
+            
         };
         containerModel.addListener(containerListener);
         sessionListener = new SessionAdapter() {

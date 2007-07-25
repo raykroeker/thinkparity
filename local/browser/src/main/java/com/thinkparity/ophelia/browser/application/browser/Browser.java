@@ -26,7 +26,6 @@ import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
-import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.TeamMember;
 
@@ -609,6 +608,9 @@ public class Browser extends AbstractApplication {
 
     /**
      * Expand the container.
+     * 
+     * The panel is expanded (without animation), scrolled so it is visible,
+     * and the container is selected.
      *
      * @param containerId
      *            The container id.        
@@ -618,7 +620,10 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Expand the container with a version selected.
+     * Expand the container.
+     * 
+     * The panel is expanded (without animation), scrolled so it is visible,
+     * and the container and version are selected.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
@@ -940,14 +945,6 @@ public class Browser extends AbstractApplication {
     public void moveToFront() { mainWindow.toFront(); }
 
     /**
-     * Reload the status avatar.
-     *
-     */
-    public void reloadStatusAvatar() {
-        getStatusAvatar().reload();
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#removeBusyIndicator()
      *
      */
@@ -1092,30 +1089,6 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(AddEmail.DataKey.EMAIL, email);
         invoke(ActionId.PROFILE_ADD_EMAIL, data);
-    }
-
-    /**
-     * Run the apply flag seen action.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    public void runApplyContainerFlagSeen(final Long containerId) {
-        final Data data = new Data(1);
-        data.set(ApplyFlagSeen.DataKey.CONTAINER_ID, containerId);
-        invoke(ActionId.CONTAINER_APPLY_FLAG_SEEN, data);               
-    }
-
-    /**
-     * Run the clear container notifications action.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     */
-    public void runClearContainerNotifications(final Long containerId) {
-        final Data data = new Data(1);
-        data.set(ClearNotifications.DataKey.CONTAINER_ID, containerId);
-        invoke(ActionId.CONTAINER_CLEAR_NOTIFICATIONS, data);
     }
 
     /**
@@ -1427,15 +1400,19 @@ public class Browser extends AbstractApplication {
     /**
      * Run the remove flag seen action.
      * 
-     * @param documentId
-     *            A document id <code>Long</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
      */
-    public void runRemoveContainerFlagSeen(final Long containerId) {
-        final Data data = new Data(1);
+    public void runRemoveContainerFlagSeen(final Long containerId,
+            final Long versionId) {
+        final Data data = new Data(2);
         data.set(RemoveFlagSeen.DataKey.CONTAINER_ID, containerId);
+        data.set(RemoveFlagSeen.DataKey.VERSION_ID, versionId);
         invoke(ActionId.CONTAINER_REMOVE_FLAG_SEEN, data);         
     }
-    
+
     /**
      * Run the profile's remove email action.
      *
@@ -1666,21 +1643,6 @@ public class Browser extends AbstractApplication {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 getTabContactAvatar().showContactInvitation(invitationId);
-            }
-        });   
-    }
-
-    /**
-     * Show a container. This expands the container without animation, and
-     * scrolls so it is visible.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     */
-    public void showContainer(final Container container) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContainerAvatar().showContainer(container);
             }
         });   
     }
@@ -2002,15 +1964,6 @@ public class Browser extends AbstractApplication {
     private BrowserSession getSession(final BrowserContext context,
             final Boolean create) {
         return sessionImpl.getSession(context, create);
-    }
-
-	/**
-     * Obtain the status avatar.
-     * 
-     * @return A <code>MainStatusAvatar</code>.
-     */
-    private MainStatusAvatar getStatusAvatar() {
-        return (MainStatusAvatar) getAvatar(AvatarId.MAIN_STATUS);
     }
 
     /**

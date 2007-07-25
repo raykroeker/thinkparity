@@ -72,5 +72,6 @@ public interface ActionDelegate {
      * @param version
      *            A <code>ContainerVersion</code>.
      */
-    public void invokeForVersion(final ContainerVersion version);
+    public void invokeForVersion(final ContainerVersion version,
+            final Boolean showComment);
 }

@@ -40,13 +40,14 @@ public final class ClearNotifications extends AbstractAction {
     @Override
     protected void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
+        final Long versionId = (Long) data.get(DataKey.VERSION_ID);
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
-                system.clearContainerNotifications(containerId);
+                system.clearContainerNotifications(containerId, versionId);
             }
         });
     }
 
     /** <b>Title:</b>Data Keys<br> */
-    public enum DataKey { CONTAINER_ID }
+    public enum DataKey { CONTAINER_ID, VERSION_ID }
 }

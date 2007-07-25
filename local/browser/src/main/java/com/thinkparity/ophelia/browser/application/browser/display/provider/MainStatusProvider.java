@@ -10,9 +10,11 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.filter.Filter;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
@@ -108,16 +110,26 @@ public final class MainStatusProvider extends ContentProvider {
     }
 
     /**
-     * Determine the unseen container count.
+     * Get the list of unseen container versions.
      * 
-     * @return The number of unseen containers.
+     * @return A <code>List</code> of <code>ContainerVersion</code>s.
      */
-    public List<Container> readUnseenContainers() {
-        return containerModel.read(new Filter<Artifact>() {
+    public List<ContainerVersion> readUnseenContainerVersions() {
+        final List<Container> unseenContainers = containerModel.read(new Filter<Artifact>() {
             public Boolean doFilter(final Artifact o) {
                 return Boolean.valueOf(o.isSeen().booleanValue());
             }
         });
+        final List<ContainerVersion> unseenContainerVersions = new ArrayList<ContainerVersion>();
+        for (final Container container : unseenContainers) {
+            unseenContainerVersions.addAll(containerModel.readVersions(
+                    container.getId(), new Filter<ArtifactVersion>() {
+                        public Boolean doFilter(final ArtifactVersion o) {
+                            return Boolean.valueOf(o.isSeen().booleanValue());
+                        }
+                    }));
+        }
+        return unseenContainerVersions;
     }
 
     /**

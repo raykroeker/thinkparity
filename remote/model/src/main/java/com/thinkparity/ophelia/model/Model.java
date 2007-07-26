@@ -9,9 +9,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Vector;
+
+import javax.crypto.spec.SecretKeySpec;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StreamUtil;
@@ -155,7 +158,7 @@ public abstract class Model<T extends EventListener> extends
         monitor.endProcess();
     }
 
-	/**
+    /**
      * Notify a process monitor that a given step will begin.
      * 
      * @param monitor
@@ -168,7 +171,7 @@ public abstract class Model<T extends EventListener> extends
         notifyStepBegin(monitor, step, null);
     }
 
-	/**
+    /**
      * Notify a process monitor that a given step will begin.
      * 
      * @param monitor
@@ -196,19 +199,19 @@ public abstract class Model<T extends EventListener> extends
         monitor.endStep(step);
     }
 
-    /** The configuration io. */
+	/** The configuration io. */
     protected ConfigurationIOHandler configurationIO;
 
-    /** A thinkParity <code>Environment</code>. */
+	/** A thinkParity <code>Environment</code>. */
     protected Environment environment;
 
-	/** A thinkParity <code>InternalModelFactory</code>. */
+    /** A thinkParity <code>InternalModelFactory</code>. */
     protected InternalModelFactory modelFactory;
 
     /** A thinkParity <code>Workspace</code>. */
 	protected Workspace workspace;
 
-    /** A list of all pending <code>EventNotifier</code>s of <code>T</code>. */
+	/** A list of all pending <code>EventNotifier</code>s of <code>T</code>. */
     private final List<EventNotifier<T>> notifiers;
 
     /**
@@ -412,23 +415,23 @@ public abstract class Model<T extends EventListener> extends
         return workspace.getBufferSize();
     }
 
-        /**
-         * Obtain an internal container model.
-         * 
-         * @return An instance of <code>InternalContainerModel</code>.
-         */
-        protected final InternalContainerModel getContainerModel() {
-            return modelFactory.getContainerModel();
-        }
+    /**
+     * Obtain an internal container model.
+     * 
+     * @return An instance of <code>InternalContainerModel</code>.
+     */
+    protected final InternalContainerModel getContainerModel() {
+        return modelFactory.getContainerModel();
+    }
 
     /**
      * Obtain an internal document model.
      * 
      * @return An instance of <code>InternalDocumentModel</code>.
      */
-	protected final InternalDocumentModel getDocumentModel() {
-		return modelFactory.getDocumentModel();
-	}
+    protected final InternalDocumentModel getDocumentModel() {
+        return modelFactory.getDocumentModel();
+    }
 
     /**
      * Obtain an internal index model.
@@ -668,5 +671,15 @@ public abstract class Model<T extends EventListener> extends
         synchronized (workspace.getBufferLock()) {
             StreamUtil.copy(stream, channel, workspace.getBuffer());
         }
+    }
+
+    /**
+     * @see com.thinkparity.codebase.model.AbstractModelImpl#getSecretKeySpec()
+     *
+     */
+    @Override
+    protected final SecretKeySpec getSecretKeySpec() throws IOException,
+            NoSuchAlgorithmException {
+        throw Assert.createUnreachable("Encryption not enabled.");
     }
 }

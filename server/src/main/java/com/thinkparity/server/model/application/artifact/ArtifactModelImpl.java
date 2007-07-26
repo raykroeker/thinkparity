@@ -12,7 +12,9 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.artifact.DraftExistsException;
+import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
@@ -22,7 +24,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedE
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.ParityServerModelException;
-import com.thinkparity.desdemona.model.Constants.Versioning;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.sql.ArtifactSql;
 import com.thinkparity.desdemona.util.DateTimeProvider;
@@ -88,15 +89,14 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.artifact.ArtifactModel#create(java.util.UUID,
-     *      java.util.Calendar)
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#create(com.thinkparity.codebase.model.artifact.Artifact,
+     *      com.thinkparity.codebase.model.artifact.ArtifactVersion)
      * 
      */
-    public Artifact create(final UUID uniqueId, final Calendar createdOn) {
+    public Artifact create(final Artifact artifact, final ArtifactVersion latestVersion) {
 		try {
-			artifactSql.create(uniqueId, user.getId(), Versioning.START,
-                    user.getId(), createdOn);
-			return read(uniqueId);
+            artifactSql.create(artifact, latestVersion, user, user);
+			return read(artifact.getUniqueId());
 		} catch (final Throwable t) {
 		    throw translateError(t);
         }
@@ -134,6 +134,31 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
             throw dex;
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#createSecret(com.thinkparity.codebase.model.artifact.ArtifactVersion,
+     *      com.thinkparity.codebase.model.crypto.Secret)
+     * 
+     */
+    public void createSecret(final ArtifactVersion version, final Secret secret) {
+        try {
+            artifactSql.createSecret(version, secret);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#createVersion(com.thinkparity.codebase.model.artifact.ArtifactVersion)
+     *
+     */
+    public void createVersion(final ArtifactVersion version) {
+        try {
+            artifactSql.createVersion(version);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 
@@ -219,6 +244,31 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#doesExistSecret(com.thinkparity.codebase.model.artifact.ArtifactVersion)
+     *
+     */
+    public Boolean doesExistSecret(final ArtifactVersion version) {
+        try {
+            return artifactSql.doesExistSecret(version);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#doesExistVersion(com.thinkparity.codebase.model.artifact.Artifact,
+     *      java.lang.Long)
+     * 
+     */
+    public Boolean doesExistVersion(final Artifact artifact, final Long versionId) {
+        try {
+            return artifactSql.doesExistVersion(artifact, versionId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#isDraftOwner(com.thinkparity.codebase.model.artifact.Artifact)
      *
      */
@@ -298,6 +348,18 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#readSecretKey(com.thinkparity.codebase.model.artifact.ArtifactVersion)
+     *
+     */
+    public Secret readSecret(final ArtifactVersion version) {
+        try {
+            return artifactSql.readSecret(version);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#readTeam(com.thinkparity.codebase.jabber.JabberId,
      *      java.lang.Long)
      * 
@@ -317,6 +379,18 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
     public List<UUID> readTeamArtifactIds(final User user) {
         try {
             return artifactSql.readTeamArtifactUniqueIds(user.getLocalId());
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#readVersion(com.thinkparity.codebase.model.artifact.Artifact, java.lang.Long)
+     *
+     */
+    public ArtifactVersion readVersion(final Artifact artifact, final Long versionId) {
+        try {
+            return artifactSql.readVersion(artifact, versionId);
         } catch (final Throwable t) {
             throw panic(t);
         }

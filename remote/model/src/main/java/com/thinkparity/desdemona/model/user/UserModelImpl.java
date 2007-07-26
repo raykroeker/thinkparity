@@ -3,6 +3,12 @@
  */
 package com.thinkparity.desdemona.model.user;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +19,8 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.VCardReader;
+import com.thinkparity.codebase.model.util.VCardWriter;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
@@ -166,7 +174,18 @@ public class UserModelImpl extends AbstractModelImpl implements UserModel,
     public void updateVCard(
             final com.thinkparity.codebase.model.user.UserVCard vcard) {
         try {
-            userSql.updateVCard(user.getLocalId(), vcard);
+            userSql.updateVCard(user.getLocalId(), vcard, new VCardWriter<com.thinkparity.codebase.model.user.UserVCard>() {
+                public void write(final com.thinkparity.codebase.model.user.UserVCard vcard, final Writer writer) throws IOException {
+                    final StringWriter stringWriter = new StringWriter();
+                    XSTREAM_UTIL.toXML(vcard, writer);
+                    try {
+                        writer.write(encrypt(stringWriter.toString()));
+                    } catch (final GeneralSecurityException gsx) {
+                        logger.logError(gsx, "Could not encrypt vcard.");
+                        throw new IOException(gsx);
+                    }
+                }
+            });
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -211,7 +230,26 @@ public class UserModelImpl extends AbstractModelImpl implements UserModel,
     private <T extends com.thinkparity.codebase.model.user.UserVCard> T readVCard(
             final User user, final T vcard) {
         try {
-            return userSql.readVCard(user.getLocalId(), vcard);
+            return userSql.readVCard(user.getLocalId(), vcard, new VCardReader<T> () {
+                public void read(final T vcard, final Reader reader) throws IOException {
+                    try {
+                        final StringBuilder encrypted = new StringBuilder();
+                        final char[] buffer = new char[1024];
+                        int charsRead;
+                        while (true) {
+                            charsRead = reader.read(buffer);
+                            if (-1 == charsRead) {
+                                break;
+                            }
+                            encrypted.append(buffer);
+                        }
+                        XSTREAM_UTIL.fromXML(new StringReader(decrypt(
+                                encrypted.toString())), vcard);
+                    } catch (final GeneralSecurityException gsx) {
+                        throw new IOException(gsx);
+                    }
+                }
+            });
         } catch (final Throwable t) {
             throw translateError(t);
         }

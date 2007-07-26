@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.model.io.sql;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -17,6 +18,7 @@ import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.session.Credentials;
@@ -24,6 +26,8 @@ import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.Token;
+import com.thinkparity.codebase.model.util.VCardReader;
+import com.thinkparity.codebase.model.util.VCardWriter;
 
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
@@ -337,17 +341,17 @@ public final class UserSql extends AbstractSql {
      *            The vcard <code>T</code>.
      */
     public <T extends UserVCard> Long create(final Credentials credentials,
-            final String securityQuestion, final String securityAnswer,
-            final T vcard, final Calendar createdOn) {
+            final SecurityCredentials securityCredentials, final T vcard,
+            final VCardWriter<T> vcardWriter, final Calendar createdOn) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_CREATE);
             session.setString(1, credentials.getUsername());
             session.setString(2, credentials.getPassword());
-            session.setString(3, securityQuestion);
-            session.setString(4, securityAnswer);
+            session.setString(3, securityCredentials.getQuestion());
+            session.setString(4, securityCredentials.getAnswer());
             session.setBoolean(5, Boolean.FALSE);
-            session.setVCard(6, vcard);
+            session.setVCard(6, vcard, vcardWriter);
             session.setCalendar(7, createdOn);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create user.");
@@ -1058,14 +1062,15 @@ public final class UserSql extends AbstractSql {
      * @param vcard
      *            An instance of <code>T</code>.
      */
-    public <T extends UserVCard> T readVCard(final Long userId, final T vcard) {
+    public <T extends UserVCard> T readVCard(final Long userId, final T vcard,
+            final VCardReader<T> reader) throws IOException {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_VCARD);
             session.setLong(1, userId);
             session.executeQuery();
             if (session.nextResult()) {
-                return session.getVCard("VCARD", vcard);
+                return session.getVCard("VCARD", vcard, reader);
             } else {
                 return null;
             }
@@ -1159,11 +1164,11 @@ public final class UserSql extends AbstractSql {
      *            The vcard <code>T</code>.
      */
     public <T extends UserVCard> void updateVCard(final Long userId,
-            final T vcard) {
+            final T vcard, final VCardWriter<T> vcardWriter) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_UPDATE_VCARD);
-            session.setVCard(1, vcard);
+            session.setVCard(1, vcard, vcardWriter);
             session.setLong(2, userId);
             if (1 != session.executeUpdate())
                 throw panic("Could not update profile vcard.");

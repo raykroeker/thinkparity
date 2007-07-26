@@ -12,10 +12,13 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.artifact.RemoteArtifact;
+import com.thinkparity.desdemona.model.artifact.RemoteArtifactVersion;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 
@@ -31,10 +34,10 @@ public class ArtifactSql extends AbstractSql {
     /** Sql to create an artifact. */
     private static final String SQL_CREATE =
         new StringBuilder("insert into TPSD_ARTIFACT ")
-        .append("(ARTIFACT_UNIQUE_ID,ARTIFACT_DRAFT_OWNER,")
+        .append("(ARTIFACT_TYPE_ID,ARTIFACT_UNIQUE_ID,ARTIFACT_DRAFT_OWNER,")
         .append("ARTIFACT_LATEST_VERSION_ID,CREATED_BY,CREATED_ON,UPDATED_BY,")
         .append("UPDATED_ON) ")
-		.append("values (?,?,?,?,?,?,?)")
+		.append("values (?,?,?,?,?,?,?,?)")
 		.toString();
 
     /** Sql to create a team member relationship. */
@@ -42,6 +45,21 @@ public class ArtifactSql extends AbstractSql {
         new StringBuilder("insert into TPSD_ARTIFACT_TEAM_REL ")
         .append("(ARTIFACT_ID,USER_ID) ")
         .append("values (?,?)")
+        .toString();
+
+    /** Sql to create a version. */
+    private static final String SQL_CREATE_VERSION =
+        new StringBuilder("insert into TPSD_ARTIFACT_VERSION ")
+        .append("(ARTIFACT_ID,ARTIFACT_VERSION_ID,ARTIFACT_UNIQUE_ID) ")
+        .append("values(?,?,?)")
+        .toString();
+
+    /** Sql to create a version secret. */
+    private static final String SQL_CREATE_VERSION_SECRET =
+        new StringBuilder("insert into TPSD_ARTIFACT_VERSION_SECRET ")
+        .append("(ARTIFACT_ID,ARTIFACT_VERSION_ID,SECRET,SECRET_ALGORITHM,")
+        .append("SECRET_FORMAT) ")
+        .append("values (?,?,?,?,?)")
         .toString();
 
     /** Sql to delete an artifact. */
@@ -54,6 +72,30 @@ public class ArtifactSql extends AbstractSql {
     private static final String SQL_DELETE_TEAM_REL =
         new StringBuilder("delete from TPSD_ARTIFACT_TEAM_REL ")
         .append("where ARTIFACT_ID=? and USER_ID=?")
+        .toString();
+
+    /** Sql to delete an artifact version. */
+    private static final String SQL_DELETE_VERSION =
+        new StringBuilder("delete from TPSD_ARTIFACT_VERSION ")
+        .append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
+        .toString();
+
+    /** Sql to delete a version secret. */
+    private static final String SQL_DELETE_VERSION_SECRET =
+        new StringBuilder("delete from TPSD_ARTIFACT_VERSION_SECRET ")
+        .append("where ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
+        .toString();
+
+    /** Sql to delete all artifact version secrets. */
+    private static final String SQL_DELETE_VERSION_SECRETS =
+        new StringBuilder("delete from TPSD_ARTIFACT_VERSION_SECRET ")
+        .append("where ARTIFACT_ID=?")
+        .toString();
+
+    /** Sql to delete all artifact versions. */
+    private static final String SQL_DELETE_VERSIONS =
+        new StringBuilder("delete from TPSD_ARTIFACT_VERSION ")
+        .append("where ARTIFACT_ID=?")
         .toString();
 
     /** Sql to determine team membership existence. */
@@ -78,14 +120,14 @@ public class ArtifactSql extends AbstractSql {
         .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
 
-	/** Sql to read the artifact id. */
+    /** Sql to read the artifact id. */
     private static final String SQL_READ_ARTIFACT_ID =
         new StringBuilder("select A.ARTIFACT_ID ")
         .append("from TPSD_ARTIFACT A ")
         .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
 
-	/** Sql to read the artifact draft owner. */
+    /** Sql to read the artifact draft owner. */
     private static final String SQL_READ_DRAFT_OWNER =
         new StringBuilder("select U.USERNAME \"ARTIFACT_DRAFT_OWNER\" ")
         .append("from TPSD_ARTIFACT A ")
@@ -116,7 +158,7 @@ public class ArtifactSql extends AbstractSql {
         .append("where ATR.USER_ID=?")
         .toString();
 
-    /** Sql to read the team member relationship. */
+	/** Sql to read the team member relationship. */
     private static final String SQL_READ_TEAM_REL_BY_ARTIFACT_BY_USER =
         new StringBuilder("select U.USERNAME,U.USER_ID,ATR.ARTIFACT_ID ")
         .append("from TPSD_ARTIFACT_TEAM_REL ATR ")
@@ -141,6 +183,43 @@ public class ArtifactSql extends AbstractSql {
         .append("from TPSD_ARTIFACT_TEAM_REL ATR ")
         .append("inner join TPSD_USER U on ATR.USER_ID=U.USER_ID ")
         .append("where ATR.ARTIFACT_ID=?")
+        .toString();
+
+	/** Sql to read an artifact version. */
+    private static final String SQL_READ_VERSION =
+        new StringBuilder("select AV.ARTIFACT_ID,AV.ARTIFACT_VERSION_ID,")
+        .append("AV.ARTIFACT_UNIQUE_ID ")
+        .append("from TPSD_ARTIFACT_VERSION AV ")
+        .append("where AV.ARTIFACT_ID=? and AV.ARTIFACT_VERSION_ID=?")
+        .toString();
+
+    /** Sql to read artifact version count by primary key. */
+    private static final String SQL_READ_VERSION_COUNT_PK =
+        new StringBuilder("select count(AV.ARTIFACT_ID) \"VERSION_COUNT\" ")
+        .append("from TPSD_ARTIFACT_VERSION AV ")
+        .append("where AV.ARTIFACT_ID=? and AV.ARTIFACT_VERSION_ID=?")
+        .toString();
+
+    /** Sql to read the version secret. */
+    private static final String SQL_READ_VERSION_SECRET =
+        new StringBuilder("select AVS.SECRET,AVS.SECRET_ALGORITHM,")
+        .append("AVS.SECRET_FORMAT ")
+        .append("from TPSD_ARTIFACT_VERSION_SECRET AVS ")
+        .append("where AVS.ARTIFACT_ID=? and AVS.ARTIFACT_VERSION_ID=?")
+        .toString();
+
+    /** Sql to read the secret count by artifact foreign key. */
+    private static final String SQL_READ_VERSION_SECRET_COUNT_FK =
+        new StringBuilder("select count(AVS.ARTIFACT_ID) \"SECRET_COUNT\" ")
+        .append("from TPSD_ARTIFACT_VERSION_SECRET AVS ")
+        .append("where AVS.ARTIFACT_ID=?")
+        .toString();
+
+    /** Sql to read the secret count by primary key. */
+    private static final String SQL_READ_VERSION_SECRET_COUNT_PK =
+        new StringBuilder("select count(AVS.ARTIFACT_ID) \"SECRET_COUNT\" ")
+        .append("from TPSD_ARTIFACT_VERSION_SECRET AVS ")
+        .append("where AVS.ARTIFACT_ID=? and AVS.ARTIFACT_VERSION_ID=?")
         .toString();
 
 	/** Sql to update the draft owner. */
@@ -168,45 +247,72 @@ public class ArtifactSql extends AbstractSql {
         super();
         this.userSql = new UserSql();
 	}
+
     /**
      * Create an artifact.
      * 
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
+     * @param artifact
+     *            An artifact.
+     * @param latestVersion
+     *            An <code>ArtifactVersion</code>.
      * @param draftOwner
-     *            A draft owner user id <code>JabberId</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
+     *            A <code>User</code>.
      * @param createdBy
-     *            The creation user id <code>JabberId</code>.
-     * @param createdOn
-     *            The creation date <code>Calendar</code>.
+     *            A <code>User</code>.
      * @return The artifact id <code>Long</code>.
      */
-	public Long create(final UUID uniqueId, final JabberId draftOwner,
-            final Long versionId, final JabberId createdBy,
-            final Calendar createdOn) {
+	public Long create(final Artifact artifact,
+            final ArtifactVersion latestVersion, final User draftOwner,
+            final User createdBy) {
 		final HypersonicSession session = openSession();
 		try {
 			session.prepareStatement(SQL_CREATE);
-			session.setUniqueId(1, uniqueId);
-			session.setLong(2, readLocalUserId(draftOwner));
-            session.setLong(3, versionId);
-            session.setLong(4, readLocalUserId(createdBy));
-            session.setCalendar(5, createdOn);
-            session.setLong(6, readLocalUserId(createdBy));
-            session.setCalendar(7, createdOn);
+            session.setInt(1, artifact.getType().getId());
+			session.setUniqueId(2, artifact.getUniqueId());
+			session.setLong(3, draftOwner.getLocalId());
+            session.setLong(4, latestVersion.getVersionId());
+            session.setLong(5, createdBy.getLocalId());
+            session.setCalendar(6, artifact.getCreatedOn());
+            session.setLong(7, createdBy.getLocalId());
+            session.setCalendar(8, artifact.getCreatedOn());
             if (1 != session.executeUpdate())
-                throw panic("Could not create artifact {0}.", uniqueId);
+                throw panic("Could not create artifact {0}.", artifact.getUniqueId());
             session.commit();
 
-			return session.getIdentity("TPSD_ARTIFACT");
+            artifact.setId(session.getIdentity("TPSD_ARTIFACT"));
+			return artifact.getId();
         } catch (final Throwable t) {
             throw translateError(session, t);
 		} finally {
             session.close();
 		}
 	}
+    /**
+     * Create an artifact version secret.
+     * 
+     * @param version
+     *            An <code>ArtifactVersion</code>.
+     * @return A <code>VersionSecret</code>.
+     */
+    public void createSecret(final ArtifactVersion version, final Secret secret) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_VERSION_SECRET);
+            session.setLong(1, version.getArtifactId());
+            session.setLong(2, version.getVersionId());
+            session.setBytes(3, secret.getKey());
+            session.setString(4, secret.getAlgorithm());
+            session.setString(5, secret.getFormat());
+            if (1 != session.executeUpdate())
+                throw panic("Could not create version secret.");
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
 
     /**
      * Create a team relationship.
@@ -251,7 +357,30 @@ public class ArtifactSql extends AbstractSql {
         createTeamRel(artifactId, userIds);
     }
 
-	/**
+    /**
+     * Create an artifact version.
+     * 
+     * @param version
+     *            An <code>ArtifactVersion</code>.
+     */
+    public void createVersion(final ArtifactVersion version) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_VERSION);
+            session.setLong(1, version.getArtifactId());
+            session.setLong(2, version.getVersionId());
+            session.setUniqueId(3, version.getArtifactUniqueId());
+            if (1 != session.executeUpdate())
+                throw panic("Could not create .");
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Delete an artifact.
      * 
      * @param artifactId
@@ -260,6 +389,8 @@ public class ArtifactSql extends AbstractSql {
 	public void delete(final Long artifactId) {
 	    final HypersonicSession session = openSession();
         try {
+            deleteVersions(session, artifactId);
+
 			session.prepareStatement(SQL_DELETE);
 			session.setLong(1, artifactId);
             if (1 != session.executeUpdate())
@@ -272,6 +403,28 @@ public class ArtifactSql extends AbstractSql {
             session.close();
 		}
 	}
+
+    /**
+     * Delete a version's secret.
+     * 
+     * @param version
+     *            An <code>ArtifactVersion</code>.
+     */
+    public void deleteSecret(final ArtifactVersion version) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_VERSION_SECRET);
+            session.setLong(1, version.getArtifactId());
+            session.setLong(2, version.getVersionId());
+            if (1 != session.executeUpdate())
+                throw panic("Could not delete version secret.");
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
 
     /**
      * Delete an artifact team relationship.
@@ -291,6 +444,29 @@ public class ArtifactSql extends AbstractSql {
                 throw new HypersonicException(
                         "Could not delete team relationship for {0}:{1}.",
                         artifactId, userId);
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Delete an artifact version.
+     * 
+     * @param version
+     *            An <code>ArtifactVersion</code>.
+     */
+    public void deleteVersion(final ArtifactVersion version) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_DELETE_VERSION);
+            session.setLong(1, version.getArtifactId());
+            session.setLong(2, version.getVersionId());
+            if (1 != session.executeUpdate())
+                throw panic("Could not delete version.");
 
             session.commit();
         } catch (final Throwable t) {
@@ -330,6 +506,37 @@ public class ArtifactSql extends AbstractSql {
         }
     }
 
+	/**
+     * Determine whether or not a secret exists for an artifact version.
+     * 
+     * @param version
+     *            An <code>ArtifactVersion</code>.
+     * @return True if the secret exists.
+     */
+    public Boolean doesExistSecret(final ArtifactVersion version) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_VERSION_SECRET_COUNT_PK);
+            session.setLong(1, version.getArtifactId());
+            session.setLong(2, version.getVersionId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int secretCount = session.getInteger("SECRET_COUNT");
+                if (0 == secretCount) {
+                    return Boolean.FALSE;
+                } else if (1 == secretCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine secret count.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine secret count.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
     /**
      * Determine whether or not a team relationship exists.
      * 
@@ -357,6 +564,39 @@ public class ArtifactSql extends AbstractSql {
                 }
             } else {
                 throw new HypersonicException("Could not determine team relationship existence.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Determine an artifact's existence.
+     * 
+     * @param artifact
+     *            An <code>Artifact</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return True if the artifact version exists.
+     */
+    public Boolean doesExistVersion(final Artifact artifact, final Long versionId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_VERSION_COUNT_PK);
+            session.setLong(1, artifact.getId());
+            session.setLong(2, versionId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int versionCount = session.getInteger("VERSION_COUNT");
+                if (0 == versionCount) {
+                    return Boolean.FALSE;
+                } else if (1 == versionCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine version existence.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine version existence.");
             }
         } finally {
             session.close();
@@ -482,6 +722,32 @@ public class ArtifactSql extends AbstractSql {
     }
 
     /**
+     * Read an artifact version secret key.
+     * 
+     * @param version
+     *            An <code>ArtifactVersion</code>.
+     * @return A <code>VersionSecretKey</code>.
+     */
+    public Secret readSecret(final ArtifactVersion version) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_VERSION_SECRET);
+            session.setLong(1, version.getArtifactId());
+            session.setLong(2, version.getVersionId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractSecret(session);
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Read a team artifact unique ids.
      * 
      * @param userId
@@ -579,6 +845,34 @@ public class ArtifactSql extends AbstractSql {
     }
 
     /**
+     * Read an artifact version.
+     * 
+     * @param artifact
+     *            An <code>Artifact</code>.
+     * @param versionId
+     *            A verison id <code>Long</code>.
+     * @return An <code>ArtifactVersion</code>.
+     */
+    public ArtifactVersion readVersion(final Artifact artifact, final Long versionId) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_VERSION);
+            session.setLong(1, artifact.getId());
+            session.setLong(2, versionId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractVersion(session);
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Update an artifact draft owner.
      * 
      * @param artifactId
@@ -633,7 +927,6 @@ public class ArtifactSql extends AbstractSql {
             session.close();
         }
     }
-
     /**
      * Extract an artifact from a database session.
      * 
@@ -666,6 +959,61 @@ public class ArtifactSql extends AbstractSql {
     }
 
     /**
+     * Delete an artifact's versions. This includes deleting the secrets.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     */
+    private void deleteVersions(final HypersonicSession session,
+            final Long artifactId) {
+        final int secretCount = readVersionSecretCount(session, artifactId);
+        session.prepareStatement(SQL_DELETE_VERSION_SECRETS);
+        session.setLong(1, artifactId);
+        if (secretCount != session.executeUpdate()) {
+            throw panic("Cannot delete artifact version secrets.");
+        }
+
+        final int versionCount = readVersionCount(session, artifactId);
+        session.prepareStatement(SQL_DELETE_VERSIONS);
+        session.setLong(1, artifactId);
+        if (versionCount != session.executeUpdate()) {
+            throw panic("Cannot delete artifact versions.");
+        }
+    }
+
+    /**
+     * Extract a version secret from the session.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @return A <code>VersionSecret</code>.
+     */
+    private Secret extractSecret(final HypersonicSession session) {
+        final Secret secret = new Secret();
+        secret.setAlgorithm(session.getString("SECRET_ALGORITHM"));
+        secret.setFormat(session.getString("SECRET_FORMAT"));
+        secret.setKey(session.getBytes("SECRET"));
+        return secret;
+    }
+
+    /**
+     * Extract the artifact version.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @return An <code>ArtifactVersion</code>.
+     */
+    private ArtifactVersion extractVersion(final HypersonicSession session) {
+        final ArtifactVersion version = new RemoteArtifactVersion();
+        version.setArtifactId(session.getLong("ARTIFACT_ID"));
+        version.setArtifactUniqueId(session.getUniqueId("ARTIFACT_UNIQUE_ID"));
+        version.setVersionId(session.getLong("ARTIFACT_VERSION_ID"));
+        return version;
+    }
+
+    /**
      * Read the local user id for the user id.
      * 
      * @param userId
@@ -674,5 +1022,47 @@ public class ArtifactSql extends AbstractSql {
      */
     private Long readLocalUserId(final JabberId userId) {
         return userSql.readLocalUserId(userId);
+    }
+
+    /**
+     * Read the version count for an artifact.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @return A version count <code>Integer</code>.
+     */
+    private Integer readVersionCount(final HypersonicSession session,
+            final Long artifactId) {
+        session.prepareStatement(SQL_READ_VERSION_COUNT_PK);
+        session.setLong(1, artifactId);
+        session.executeQuery();
+        if (session.nextResult()) {
+            return session.getInteger("VERSION_COUNT");
+        } else {
+            throw panic("Could not determine version count.");
+        }
+    }
+
+    /**
+     * Read the version secret count for an artifact.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @return A version secret count <code>Integer</code>.
+     */
+    private Integer readVersionSecretCount(final HypersonicSession session,
+            final Long artifactId) {
+        session.prepareStatement(SQL_READ_VERSION_SECRET_COUNT_FK);
+        session.setLong(1, artifactId);
+        session.executeQuery();
+        if (session.nextResult()) {
+            return session.getInteger("SECRET_COUNT");
+        } else {
+            throw panic("Could not determine version secret count.");
+        }
     }
 }

@@ -10,10 +10,16 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
@@ -32,6 +38,7 @@ import com.thinkparity.codebase.nio.ChannelUtil;
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
@@ -46,6 +53,7 @@ import com.thinkparity.desdemona.model.backup.BackupService;
 import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.container.InternalContainerModel;
+import com.thinkparity.desdemona.model.crypto.InternalCryptoModel;
 import com.thinkparity.desdemona.model.io.sql.ConfigurationSql;
 import com.thinkparity.desdemona.model.migrator.InternalMigratorModel;
 import com.thinkparity.desdemona.model.profile.InternalProfileModel;
@@ -79,12 +87,15 @@ public abstract class AbstractModelImpl
 
     /** A thinkParity configuration sql interface. */
     private ConfigurationSql configurationSql;
-    
+
     /** A <code>ModelConfiguration</code>. */
     private ModelConfiguration modelConfiguration;
 
     /** An instance of the desdmona properties. */
     private DesdemonaProperties properties;
+
+    /** An encryption secret key spec. */
+    private transient SecretKeySpec secretKeySpec;
 
     /** The model user's temporary file system. */
     private FileSystem tempFileSystem;
@@ -264,6 +275,21 @@ public abstract class AbstractModelImpl
     protected Long currentTimeMillis() {
         // TIME This is a global timestamp
         return System.currentTimeMillis();
+    }
+
+    /**
+     * Encrypt the password within the credentials.
+     * 
+     * @param credentials
+     *            The <code>Credentials</code>.
+     * @return A <code>Credentials</code>.
+     */
+    protected final Credentials encryptPassword(final Credentials credentials)
+            throws BadPaddingException, IOException, IllegalBlockSizeException,
+            InvalidKeyException, NoSuchAlgorithmException,
+            NoSuchPaddingException {
+        credentials.setPassword(encrypt(credentials.getPassword()));
+        return credentials;
     }
 
     /**
@@ -477,6 +503,7 @@ public abstract class AbstractModelImpl
     protected final Object getBufferLock() {
         return new Object();
     }
+
     /**
      * Obtain the default buffer size.
      * 
@@ -497,6 +524,15 @@ public abstract class AbstractModelImpl
         } else {
             return getBufferSize();
         }
+    }
+
+    /**
+     * Obtain the cipher key used to encrypt configuration information.
+     * 
+     * @return A cipher key <code>String</code>.
+     */
+    protected final String getCipherKey() {
+        return "18273-4897-12-53974-816523-49-81623-95-4-91-8723-56974812-63498-612395-498-7125-349871265-47892-1539784-1523954-19-287356-4";
     }
 
     /**
@@ -544,6 +580,15 @@ public abstract class AbstractModelImpl
      */
     protected final InternalContainerModel getContainerModel(final User user) {
         return InternalModelFactory.getInstance(getContext(), user).getContainerModel();
+    }
+
+    /**
+     * Obtain an internal crypto model.
+     * 
+     * @return An instance of <code>InternalCryptoModel</code>.
+     */
+    protected final InternalCryptoModel getCryptoModel() {
+        return InternalModelFactory.getInstance(getContext(), user).getCryptoModel();
     }
 
     /**
@@ -636,7 +681,20 @@ public abstract class AbstractModelImpl
         return InternalModelFactory.getInstance(getContext(), user).getRuleModel();
     }
 
-	protected final InternalSessionModel getSessionModel() {
+    /**
+     * @see com.thinkparity.codebase.model.AbstractModelImpl#getSecretKeySpec()
+     *
+     */
+    @Override
+    protected SecretKeySpec getSecretKeySpec() throws IOException, NoSuchAlgorithmException {
+        if (null == secretKeySpec) {
+            final byte[] rawKey = MD5Util.md5("010932671-023769081237450981735098127-1280397-181-2387-6581972689-1728-9671-8276-892173-5971283-751-239875-182735-98712-85971-2897-867-9823-56823165-8365-89236-987-214981265-9-9-65623-5896-35-3296-289-65893-983-932-5928734-302894719825-99181-28497612-8375".getBytes());
+            secretKeySpec = new SecretKeySpec(rawKey, "AES");
+        }
+        return secretKeySpec;
+    }
+
+    protected final InternalSessionModel getSessionModel() {
         return InternalModelFactory.getInstance(getContext(), user).getSessionModel();
     }
 
@@ -648,7 +706,7 @@ public abstract class AbstractModelImpl
         return InternalModelFactory.getInstance(getContext(), user).getStreamModel();
     }
 
-	/**
+    /**
      * Obtain the temp file system for the model user.
      * 
      * @return A <code>FileSystem</code>.
@@ -666,15 +724,15 @@ public abstract class AbstractModelImpl
         return tempFileSystem;
     }
 
-    protected final InternalUserModel getUserModel() {
+	protected final InternalUserModel getUserModel() {
         return InternalModelFactory.getInstance(getContext(), user).getUserModel();
     }
 
-    protected final InternalUserModel getUserModel(final User user) {
+	protected final InternalUserModel getUserModel(final User user) {
         return InternalModelFactory.getInstance(getContext(), user).getUserModel();
     }
 
-	/**
+    /**
      * Obtain the index of a user in the list.
      * 
      * @param <U>
@@ -712,13 +770,13 @@ public abstract class AbstractModelImpl
         return -1;
     }
 
-    /**
+	/**
      * Intialize the model.
      * 
      */
     protected void initialize() {}
 
-	/**
+    /**
      * Inject the fields of a user into a user type object.
      * 
      * @param <T>
@@ -738,7 +796,7 @@ public abstract class AbstractModelImpl
         return logger.logVariable("type", type);
     }
 
-	/**
+    /**
      * Determine if the user id is a system user.
      * 
      * @param userId
@@ -749,12 +807,12 @@ public abstract class AbstractModelImpl
         return userId.equals(User.THINKPARITY.getId());
     }
 
-    /** Log an api id. */
+	/** Log an api id. */
     protected final void logApiId() {
         logger.logApiId();
     }
 
-    /**
+	/**
      * Log an api id with a message.
      * 
      * @param message
@@ -764,7 +822,7 @@ public abstract class AbstractModelImpl
         logger.logApiId();
     }
 
-	/**
+    /**
      * Log an info message.
      * 
      * @param infoPattern
@@ -777,12 +835,12 @@ public abstract class AbstractModelImpl
         logger.logInfo(infoPattern, infoArguments);
     }
 
-	/** Log a trace id. */
+    /** Log a trace id. */
     protected final void logTraceId() {
         logger.logApiId();
     }
 
-    /**
+	/**
      * Log a named variable. Note that the logging renderer will be used only
      * for the value.
      * 
@@ -796,7 +854,7 @@ public abstract class AbstractModelImpl
         return logger.logVariable(name, value);
     }
 
-    /**
+	/**
      * Log a warning.
      * 
      * @param warning

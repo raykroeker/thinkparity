@@ -56,7 +56,15 @@ public interface Constants {
         }
     }
 
+    /**
+     * <b>Title:</b>Security Constants: Encryption Algorithm, Keystore Paths<br>
+     * 
+     */
     public static final class Security {
+        public static final class Encryption {
+            public static final String ALGORITHM = "AES";
+            public static final Integer KEY_SIZE = 256;
+        }
         public static final class KeyStore {
             public static final char[] CLIENT_PASS = "password".toCharArray();
             public static final String CLIENT_PATH = "security/client_keystore";

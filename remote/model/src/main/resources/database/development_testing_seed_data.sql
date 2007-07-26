@@ -1,13 +1,4 @@
 
-insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD,CREATED_ON)
-    values('thinkparity','parity','What is my username?','thinkparity','0','<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>thinkParity Services Inc.</name><organization>Company Name</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>',current_timestamp);
-insert into TPSD_EMAIL(EMAIL)
-    values('thinkparity@thinkparity.com');
-insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
-    values(7000,5000,'1');
-insert into TPSD_USER_PRODUCT_RELEASE_REL(PRODUCT_ID,USER_ID,RELEASE_ID)
-    values(1000,7000,3000);
-
 insert into TPSD_PRODUCT(PRODUCT_NAME) values('OpheliaProduct');
 insert into TPSD_PRODUCT(PRODUCT_NAME) values('DesdemonaProduct');
 insert into TPSD_PRODUCT_RELEASE(PRODUCT_ID,RELEASE_NAME,RELEASE_OS,RELEASE_DATE)
@@ -18,16 +9,21 @@ insert into TPSD_PRODUCT_FEATURE(PRODUCT_ID,FEATURE_NAME) values(1000,'CORE');
 insert into TPSD_PRODUCT_FEATURE(PRODUCT_ID,FEATURE_NAME) values(1000,'BACKUP');
 
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD,CREATED_ON)
-    values('thinkparity-backup','parity','What is my username?','thinkparity-backup','0','<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>thinkParity Software</name><organization>thinkParity Solutions Inc.</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>',current_timestamp);
+    values('thinkparity','DMnBhTS/KlVqMZTwRqwTNw==','What is the city where you were born?','p0B7MKs7hs21lMFBgHe/+g==','0','iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/WxzZsAmPDs3j3Pmg21I07RI9ubyF63bmfCQM2bt1ThCX6qNR2T713kQqFDXx4GaMcUXux7ARX4FEAcs2XfkR4zqro7orioIW8NRIJayAxL+lPY/htSHicuiOjMxTOnXBaJLJVAPQGRkP1Jb7YaW0nzFXSeAjnSao2T3LELL5ZTNaOLWb6UN69yyeWyCUR8657ehR8bWKlPIqmimRhNklWskK81Tjwlu3qGkknJ/VHPPqR6HvQitZNpbxRbwFQDWvel1pAOd9822NjbWN6JjqJzfRi+vy6yqY3LVZwy2RGZ9DWuzMeaSDVu9hszdH1NfLZcqOpNQFALTpUYPYKb8PEdikr2Q2iebbCJCcVXdlFQlLGye33qZubt7RLyBYqd6ZEB',current_timestamp);
+insert into TPSD_EMAIL(EMAIL)
+    values('thinkparity@thinkparity.com');
+insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
+    values(7000,5000,'1');
+
+insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD,CREATED_ON)
+    values('thinkparity-backup','DMnBhTS/KlVqMZTwRqwTNw==','What is the city where you were born?','p0B7MKs7hs21lMFBgHe/+g==','0','iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/WxzZsAmPDs3j3Pmg21I07RI9ubyF63bmfCQM2bt1ThCX6qNR2T713kQqFDXx4GaMcUXux7ARX4FEAcs2XfkR4zqmyt5TQ6aLpbBAtgvyTwEXLE5mfCB3jF86asppABKQvQR2MpIGUOKmmGGXmUAOKWFegfceYI3MUZJRKS2ML2f+xbFsO6DJmQjyIwcUCz4W4p+SxhLOG2BPci7ctnlVEmnjns0bfBV1yYeGpK2YAjKsr/PpE5V+JwQsPcADt2lHs1qf45xWhrxBEfQfM3s7GMtW0pj7n8EodmbTECmkAt/MKyXqKw6A/yeWeHwjR0y+Z+2dB9zozhmURhQYugiEoEBSVFLS4ZJIadb+K5VBw3WaWcLYXFssyDTWuWjmG0xQu6',current_timestamp);
 insert into TPSD_EMAIL(EMAIL)
     values('thinkparity+backup@thinkparity.com');
 insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
     values(7001,5001,'1');
-insert into TPSD_USER_PRODUCT_RELEASE_REL(PRODUCT_ID,USER_ID,RELEASE_ID)
-    values(1000,7001,3000);
 
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD,CREATED_ON)
-    values('thinkparity-support','parity','What is my username?','thinkparity-support','0','<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>thinkParity Software</name><organization>thinkParity Solutions Inc.</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>',current_timestamp);
+    values('thinkparity-support','DMnBhTS/KlVqMZTwRqwTNw==','What is the city where you were born?','p0B7MKs7hs21lMFBgHe/+g==','0',' iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/WxzZsAmPDs3j3Pmg21I07RI9ubyF63bmfCQM2bt1ThCX6qNR2T713kQqFDXx4GaMcUXux7ARX4FEAcs2XfkR4zqmyt5TQ6aLpbBAtgvyTwEXLE5mfCB3jF86asppABKQvQR2MpIGUOKmmGGXmUAOKWFegfceYI3MUZJRKS2ML2f+xbFsO6DJmQjyIwcUCz4W4p+SxhLOG2BPci7ctnlVEmnjns0bfBV1yYeGpK2YAjKsr/PpE5V+JwQsPcADt2lHs1qf45xWhrxBEfQfM3s7GMtW0pj7n8EodmbTECmkAt/MKyXqKw6A/yeWeHwjR0y+Z+2dB9zozhmURhQYugiEoEBSVFLS4ZJIadb+K5VBw3WaWcLYXFssyDTWuWjmG0xQu6',current_timestamp);
 insert into TPSD_EMAIL(EMAIL)
     values('thinkparity+support@thinkparity.com');
 insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
@@ -36,73 +32,53 @@ insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID)
     values(7002,6000);
 insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID)
     values(7002,6001);
-insert into TPSD_USER_PRODUCT_RELEASE_REL(PRODUCT_ID,USER_ID,RELEASE_ID)
-    values(1000,7002,3000);
 
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD,CREATED_ON)
-    values('junit','parity','What is my username?','junit','0','<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>thinkParity Software</name><organization>thinkParity Solutions Inc.</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>',current_timestamp);
+    values('junit','pWzSbOSXbDAeKK2N20BskQ==','What is my username?','etnNzBdB15n1RAGrb3/AuA==','0','iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/WxzZsAmPDs3j3Pmg21I07RI9ubyF63bmfCQM2bt1ThCX6qNR2T713kQqFDXx4GaMcUMxfT2penjvQSkGx22aGnB7XJAb2OJgecNb7wSvfufZvVmeN54Sxb1tOTzHKErFkiA+boyUcJVI9MBGCuLomq4qQpwNPTCDll5EZdWhuCmMYx893X6++L82DOqOi5dvjt3FVN8QEzxkte9oYnSL78z+Bhxo4+aZw9iaQ36MDp5BrXlJYpEclwZzopdiFRqvZqjkN/J0fsaZe1GW4bLAGTxSbS0QkVJ/sbldL2QBY/J8QB8mvwUptrdCrP78wzutbPssIFig2lhRJnc7PS9/JMoioGRi6RykvRc2PqzO6Ptso=',current_timestamp);
 insert into TPSD_EMAIL(EMAIL)
-    values('raymond+junit@thinkparity.com');
+    values('junit@thinkparity.com');
 insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
     values(7003,5003,'1');
 insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID)
     values(7003,6000);
-insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7003,6001);
-insert into TPSD_USER_PRODUCT_RELEASE_REL(PRODUCT_ID,USER_ID,RELEASE_ID)
-    values(1000,7003,3000);
 
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD,CREATED_ON)
-    values('junit.w','parity','What is my username?','junit.w','0','<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>thinkParity Software</name><organization>thinkParity Solutions Inc.</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>',current_timestamp);
+    values('junit.w','XIzFL0yKC4yl/IyJvGyZJw==','What is my username?','4yTKRRhSdnsGZQGHfQF5CA==','0','iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/WxzZsAmPDs3j3Pmg21I07RI9ubyF63bmfCQM2bt1ThCX6qNR2T713kQqFDXx4GaMcU9CDzUneQ+CrTlJmtT0qLxauJg2/ClOYSfOtR7jnOZ1UVhKW/5XybEDTh70qVjCb8Br+9RfsbqGqsXATyyuYyc6iFB3c45ue6/0OvBWXD+1niqR0z0W9kj245V/AmGLc9qX1Wtmp58EYGqMndbVhPf757qRoTO+1Zi/uPFUJkjC7fdRpdMk8BsKHa8JqZahZjUbwTI/z1qVZaFQu/3qDEogec9H2W8dL0Uyu3LJmTokGGfhUn7unDeVfZt3I0jJe0FMLGUcGjCd7rfq2K/iZUi2WKWkfYWrQVNk7X8+ITgNY=',current_timestamp);
 insert into TPSD_EMAIL(EMAIL)
-    values('raymond+junit.w@thinkparity.com');
+    values('junit.w@thinkparity.com');
 insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
     values(7004,5004,'1');
 insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID)
     values(7004,6000);
-insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7004,6001);
-insert into TPSD_USER_PRODUCT_RELEASE_REL(PRODUCT_ID,USER_ID,RELEASE_ID)
-    values(1000,7004,3000);
 
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD,CREATED_ON)
-    values('junit.x','parity','What is my username?','junit.x','0','<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>thinkParity Software</name><organization>thinkParity Solutions Inc.</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>',current_timestamp);
+    values('junit.x','XIzFL0yKC4yl/IyJvGyZJw==','What is my username?','zZ/EVyqyRndnXuR7nu4TiA==','0','iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/WxzZsAmPDs3j3Pmg21I07RI9ubyF63bmfCQM2bt1ThCX6qNR2T713kQqFDXx4GaMcUhqInGn+H4QFIw8r+P3xp9KuJg2/ClOYSfOtR7jnOZ1UVhKW/5XybEDTh70qVjCb8Br+9RfsbqGqsXATyyuYyc6iFB3c45ue6/0OvBWXD+1niqR0z0W9kj245V/AmGLc9qX1Wtmp58EYGqMndbVhPf757qRoTO+1Zi/uPFUJkjC7fdRpdMk8BsKHa8JqZahZjUbwTI/z1qVZaFQu/3qDEogec9H2W8dL0Uyu3LJmTokGGfhUn7unDeVfZt3I0jJe0FMLGUcGjCd7rfq2K/iZUi2WKWkfYWrQVNk7X8+ITgNY=',current_timestamp);
 insert into TPSD_EMAIL(EMAIL)
-    values('raymond+junit.x@thinkparity.com');
+    values('junit.x@thinkparity.com');
 insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
     values(7005,5005,'1');
 insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID)
     values(7005,6000);
-insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7005,6001);
-insert into TPSD_USER_PRODUCT_RELEASE_REL(PRODUCT_ID,USER_ID,RELEASE_ID)
-    values(1000,7005,3000);
 
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD,CREATED_ON)
-    values('junit.y','parity','What is my username?','junit.y','0','<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>thinkParity Software</name><organization>thinkParity Solutions Inc.</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>',current_timestamp);
+    values('junit.y','XIzFL0yKC4yl/IyJvGyZJw==','What is my username?','bhQd8ChtEVNz2PN8hDjmvw==','0',' iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/WxzZsAmPDs3j3Pmg21I07RI9ubyF63bmfCQM2bt1ThCX6qNR2T713kQqFDXx4GaMcUEyc0Dg8GA3GYayUUAbyIPKuJg2/ClOYSfOtR7jnOZ1UVhKW/5XybEDTh70qVjCb8Br+9RfsbqGqsXATyyuYyc6iFB3c45ue6/0OvBWXD+1niqR0z0W9kj245V/AmGLc9qX1Wtmp58EYGqMndbVhPf757qRoTO+1Zi/uPFUJkjC7fdRpdMk8BsKHa8JqZahZjUbwTI/z1qVZaFQu/3qDEogec9H2W8dL0Uyu3LJmTokGGfhUn7unDeVfZt3I0jJe0FMLGUcGjCd7rfq2K/iZUi2WKWkfYWrQVNk7X8+ITgNY=',current_timestamp);
 insert into TPSD_EMAIL(EMAIL)
-    values('raymond+junit.y@thinkparity.com');
+    values('junit.y@thinkparity.com');
 insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
     values(7006,5006,'1');
 insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID)
     values(7006,6000);
-insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID)
-    values(7006,6001);
-insert into TPSD_USER_PRODUCT_RELEASE_REL(PRODUCT_ID,USER_ID,RELEASE_ID)
-    values(1000,7006,3000);
 
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD,CREATED_ON)
-    values('junit.z','parity','What is my username?','junit.z','0','<com.thinkparity.codebase.model.user.UserVCard><country>CAN</country><language>eng</language><name>thinkParity Software</name><organization>thinkParity Solutions Inc.</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>Title</title></com.thinkparity.codebase.model.user.UserVCard>',current_timestamp);
+    values('junit.z','XIzFL0yKC4yl/IyJvGyZJw==','What is my username?','SUUCWXnav7SRcZSI1MSFBw==','0','iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/WxzZsAmPDs3j3Pmg21I07RI9ubyF63bmfCQM2bt1ThCX6qNR2T713kQqFDXx4GaMcU+DsyVl8a6mGCnz0cKrwXvauJg2/ClOYSfOtR7jnOZ1UVhKW/5XybEDTh70qVjCb8Br+9RfsbqGqsXATyyuYyc6iFB3c45ue6/0OvBWXD+1niqR0z0W9kj245V/AmGLc9qX1Wtmp58EYGqMndbVhPf757qRoTO+1Zi/uPFUJkjC7fdRpdMk8BsKHa8JqZahZjUbwTI/z1qVZaFQu/3qDEogec9H2W8dL0Uyu3LJmTokGGfhUn7unDeVfZt3I0jJe0FMLGUcGjCd7rfq2K/iZUi2WKWkfYWrQVNk7X8+ITgNY=',current_timestamp);
 insert into TPSD_EMAIL(EMAIL)
-    values('raymond+junit.z@thinkparity.com');
+    values('junit.z@thinkparity.com');
 insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
     values(7007,5007,'1');
 insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID)
     values(7007,6000);
 insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID)
     values(7007,6001);
-insert into TPSD_USER_PRODUCT_RELEASE_REL(PRODUCT_ID,USER_ID,RELEASE_ID)
-    values(1000,7007,3000);
 
 insert into TPSD_CONTACT(USER_ID,CONTACT_ID,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON)
     values(7003,7005,7000,current_timestamp,7000,current_timestamp);

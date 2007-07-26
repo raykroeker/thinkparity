@@ -10,6 +10,8 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -43,12 +45,31 @@ public interface InternalArtifactModel extends ArtifactModel {
     /**
      * Create an artifact.
      * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param uniqueId
-     *            An artifact unique id <code>UUID</code>.
+     * @param artifact
+     *            An <code>Artifact</code>.
+     * @param latestVersion
+     *            An <code>ArtifactVersion</code>.
      */
-    public Artifact create(final UUID uniqueId, final Calendar createdOn);
+    public Artifact create(final Artifact artifact,
+            final ArtifactVersion latestVersion);
+
+    /**
+     * Create a secret for an artifact version.
+     * 
+     * @param version
+     *            An <code>ArtifactVersion</code>.
+     * @param secret
+     *            A <code>Secret</code>.
+     */
+    public void createSecret(final ArtifactVersion version, final Secret secret);
+
+    /**
+     * Create an artifact version.
+     * 
+     * @param version
+     *            An <code>ArtifactVersion</code>.
+     */
+    public void createVersion(final ArtifactVersion version);
 
     /**
      * Delete a draft.  The draft ownership is reverted back to the system user;
@@ -75,6 +96,27 @@ public interface InternalArtifactModel extends ArtifactModel {
      * @return True if the artifact exists.
      */
     public Boolean doesExist(final UUID uniqueId);
+
+    /**
+     * Determine whether or not a secret exists for an artifact version.
+     * 
+     * @param version
+     *            An <code>ArtifactVersion</code>.
+     * @return True if a secret exists.
+     */
+    public Boolean doesExistSecret(final ArtifactVersion version);
+
+    /**
+     * Determine whether or not an artifact version exists.
+     * 
+     * @param artifact
+     *            An <code>Artifact</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return True if the version exists.
+     */
+    public Boolean doesExistVersion(final Artifact artifact,
+            final Long versionId);
 
     /**
      * Determine whether or not the model user is the draft owner.
@@ -112,9 +154,30 @@ public interface InternalArtifactModel extends ArtifactModel {
      */
     public Long readLatestVersionId(final Artifact artifact);
 
+    /**
+     * Read the secret for an artifact version.
+     * 
+     * @param version
+     *            An <code>ArtifactVersion</code>.
+     * @return A <code>Secret</code>.
+     */
+    public Secret readSecret(final ArtifactVersion version);
+
     public List<TeamMember> readTeam(final Long artifactId);
 
     public List<UUID> readTeamArtifactIds(final User user);
+
+    /**
+     * Read an artifact version.
+     * 
+     * @param artifact
+     *            An <code>Artifact</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return An <code>ArtifactVersion</code>.
+     */
+    public ArtifactVersion readVersion(final Artifact artifact,
+            final Long versionId);
 
     /**
      * Remove the model user from the team.

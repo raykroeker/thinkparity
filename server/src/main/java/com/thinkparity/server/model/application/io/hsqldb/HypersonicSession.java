@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.model.io.hsqldb;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -22,13 +23,16 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.user.UserVCard;
+import com.thinkparity.codebase.model.util.VCardReader;
+import com.thinkparity.codebase.model.util.VCardWriter;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
-import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
-
-/** 
- * @author raykroeker@gmail.com
+/**
+ * <b>Title:</b>thinkParity Desdemona Hypersonic Session<br>
+ * <b>Description:</b>A database connection/query/result abstraction layer.<br>
+ * 
+ * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public final class HypersonicSession {
@@ -57,8 +61,11 @@ public final class HypersonicSession {
     /** A <code>Connection</code>. */
 	private Connection connection;
 
-	/** A session unique id <code>JVMUniqueId</code>. */
+    /** A session unique id <code>JVMUniqueId</code>. */
 	private final JVMUniqueId id;
+
+    /** The connection meta data. */
+    private DatabaseMetaData metaData;
 
     /** A <code>PreparedStatement</code>. */
 	private PreparedStatement preparedStatement;
@@ -126,7 +133,7 @@ public final class HypersonicSession {
 		return false;
 	}
 
-    /**
+	/**
      * Execute sql.
      * 
      * @param sql
@@ -166,7 +173,7 @@ public final class HypersonicSession {
 		finally { close(statement); }
 	}
 
-	/**
+    /**
      * Execute the SQL query in the session's prepared statement and set the
      * result set.
      * 
@@ -227,7 +234,7 @@ public final class HypersonicSession {
         catch(final SQLException sqlx) { throw panic(sqlx); }
     }
 
-    public byte[] getBytes(final String columnName) {
+	public byte[] getBytes(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -297,7 +304,7 @@ public final class HypersonicSession {
         }
     }
 
-	public XMPPEvent getEvent(final String columnName) {
+    public XMPPEvent getEvent(final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
         try {
@@ -316,7 +323,7 @@ public final class HypersonicSession {
         }
     }
 
-	/**
+    /**
 	 * Obtain the session id.
 	 * 
 	 * @return The session id.
@@ -325,7 +332,7 @@ public final class HypersonicSession {
         return id;
 	}
 
-	/**
+    /**
      * Execute a query to obtain the identity created.
      * 
      * @return The identity value.
@@ -363,7 +370,7 @@ public final class HypersonicSession {
         }
     }
 
-    public Integer getInteger(final String columnName) {
+	public Integer getInteger(final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
         try {
@@ -387,7 +394,31 @@ public final class HypersonicSession {
         }
 	}
 
-	public JabberId getQualifiedUsername(final String columnName) {
+	/**
+     * Load the meta data tables into the result set.
+     *
+     */
+    public void getMetaDataTables() {
+        getMetaDataTables(null);
+    }
+
+    /**
+     * Load the meta data tables for a specific table.
+     * 
+     * @param tableName
+     *            A table name <code>String</code>.
+     */
+    public void getMetaDataTables(final String tableName) {
+        assertConnectionIsOpen();
+        assertMetaDataIsSet();
+        try {
+            resultSet = metaData.getTables(null, "SA", tableName, new String[] { "TABLE" });
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
+
+    public JabberId getQualifiedUsername(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -442,7 +473,7 @@ public final class HypersonicSession {
 		}
 	}
 
-    public UUID getUniqueId(final String columnName) {
+	public UUID getUniqueId(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
         try {
@@ -454,26 +485,24 @@ public final class HypersonicSession {
         }
 	}
 
-    public <T extends UserVCard> T getVCard(final String columnName,
-            final T vcard) {
+	public <T extends UserVCard> T getVCard(final String columnName,
+            final T vcard, final VCardReader<T> reader) throws IOException {
         assertConnectionIsOpen();
         assertResultSetIsSet();
         try {
-            final String vcardXML = resultSet.getString(columnName);
+            final String vcardString = resultSet.getString(columnName);
             if (resultSet.wasNull()) {
                 logColumnExtraction(columnName, null);
                 return null;
             }
             else {
-                logColumnExtraction(columnName, vcardXML);
-                final StringReader vcardXMLReader = new StringReader(vcardXML);
-                XSTREAM_UTIL.fromXML(vcardXMLReader, vcard);
+                logColumnExtraction(columnName, vcardString);
+                reader.read(vcard, new StringReader(vcardString));
                 return vcard;
             }
         } catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
         }
-
     }
 
     /**
@@ -498,6 +527,21 @@ public final class HypersonicSession {
             throw panic(sqlx);
 		}
 	}
+
+    /**
+     * Obtain the database metadata.
+     * 
+     * @return The database metadata.
+     * @throws HypersonicException
+     */
+    public void openMetaData() {
+        assertConnectionIsOpen();
+        try {
+            metaData = connection.getMetaData();
+        } catch (final SQLException sqlx) {
+            throw new HypersonicException(sqlx);
+        }
+    }
 
     /**
      * Prepare a statement.
@@ -551,7 +595,7 @@ public final class HypersonicSession {
         }
     }
 
-	/**
+    /**
      * Set a blob column value.
      * 
      * @param index
@@ -614,7 +658,7 @@ public final class HypersonicSession {
 		}
 	}
 
-    public void setEMail(final Integer index, final EMail value) {
+	public void setEMail(final Integer index, final EMail value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -629,7 +673,7 @@ public final class HypersonicSession {
         }
     }
 
-	public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
+    public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -665,7 +709,7 @@ public final class HypersonicSession {
 		}
 	}
 
-    public void setLong(final Integer index, final Long value) {
+	public void setLong(final Integer index, final Long value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -746,15 +790,15 @@ public final class HypersonicSession {
         }
 	}
 
-	public <T extends UserVCard> void setVCard(final Integer index,
-            final T value) {
+    public <T extends UserVCard> void setVCard(final Integer index,
+            final T value, final VCardWriter<T> valueWriter) throws IOException {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
         try {
-            final StringWriter valueWriter = new StringWriter();
-            XSTREAM_UTIL.toXML(value, valueWriter);
-            preparedStatement.setString(index, valueWriter.toString());
+            final StringWriter stringWriter = new StringWriter();
+            valueWriter.write(value, stringWriter);
+            preparedStatement.setString(index, stringWriter.toString());
         } catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
         }
@@ -789,6 +833,15 @@ public final class HypersonicSession {
             panic(sqlx);
         }
 	}
+
+	/**
+     * Assert the meta data is set.
+     *
+     */
+    private void assertMetaDataIsSet() {
+        if (null == metaData)
+            throw new HypersonicException("Meta data is null.");
+    }
 
     /**
      * Assert the prepared statement is set.

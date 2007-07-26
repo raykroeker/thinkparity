@@ -85,6 +85,15 @@ public final class ServiceFactory {
     }
 
     /**
+     * Obtain a crypto service.
+     * 
+     * @return An instance of <code>CryptoService</code>.
+     */
+    public CryptoService getCryptoService() {
+        return (CryptoService) create(CryptoService.class);
+    }
+
+    /**
      * Obtain a migrator service.
      * 
      * @return An instance of <code>SessionService</code>.

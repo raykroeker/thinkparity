@@ -16,6 +16,8 @@ import com.thinkparity.desdemona.model.contact.ContactModelImpl;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.container.ContainerModelImpl;
 import com.thinkparity.desdemona.model.container.InternalContainerModel;
+import com.thinkparity.desdemona.model.crypto.CryptoModelImpl;
+import com.thinkparity.desdemona.model.crypto.InternalCryptoModel;
 import com.thinkparity.desdemona.model.migrator.InternalMigratorModel;
 import com.thinkparity.desdemona.model.migrator.MigratorModelImpl;
 import com.thinkparity.desdemona.model.profile.InternalProfileModel;
@@ -126,6 +128,16 @@ public final class InternalModelFactory {
     public final InternalContainerModel getContainerModel() {
         return (InternalContainerModel) newModelProxy(
                 InternalContainerModel.class, ContainerModelImpl.class);
+    }
+
+    /**
+     * Obtain an internal crypto model.
+     * 
+     * @return An instance of <code>InternalCryptoModel</code>.
+     */
+    public final InternalCryptoModel getCryptoModel() {
+        return (InternalCryptoModel) newModelProxy(
+                InternalCryptoModel.class, CryptoModelImpl.class);
     }
 
     /**

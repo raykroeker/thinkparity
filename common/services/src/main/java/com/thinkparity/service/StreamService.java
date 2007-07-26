@@ -9,6 +9,7 @@ import javax.jws.WebService;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.stream.StreamInfo;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 /**
@@ -31,10 +32,9 @@ public interface StreamService {
 
     @WebMethod
     StreamSession newUpstreamSession(AuthToken authToken,
-            DocumentVersion version);
+            StreamInfo streamInfo, DocumentVersion version);
 
     @WebMethod
-    StreamSession newUpstreamSession(AuthToken authToken, Product product,
-            Release release, Long contentLength, String contentMD5,
-            String contentType);
+    StreamSession newUpstreamSession(AuthToken authToken,
+            StreamInfo streamInfo, Product product, Release release);
 }

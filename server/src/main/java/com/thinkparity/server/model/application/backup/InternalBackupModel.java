@@ -10,6 +10,7 @@ import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 
@@ -35,8 +36,13 @@ public interface InternalBackupModel extends BackupModel {
 
     public ContainerVersion readContainerLatestVersion(final UUID uniqueId);
 
+    public List<Container> readContainersForDocumentAuth(
+            final Document document);
+
     public ContainerVersion readContainerVersion(final UUID uniqueId,
             final Long versionId);
+
+    public Document readDocumentAuth(final UUID uniqueId);
 
     public List<ArtifactReceipt> readPublishedToAuth(final UUID uniqueId,
             final Long versionId);

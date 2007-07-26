@@ -5,6 +5,9 @@ package com.thinkparity.ophelia.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 import java.util.List;
 
 import com.thinkparity.codebase.email.EMail;
@@ -18,6 +21,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
+import com.thinkparity.ophelia.model.crypto.InternalCryptoModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.index.InternalIndexModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
@@ -163,11 +167,36 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
     }
 
     /**
+     * @see Model#checksum(File)
+     * 
+     */
+    protected final String checksum(final File file) throws IOException {
+        return modelImplementation.checksum(file);
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.Model#createTempFile()
      * 
      */
     protected final File createTempFile() throws IOException {
         return modelImplementation.createTempFile();
+    }
+
+    /**
+     * @see Model#createTempFile(String)
+     * 
+     */
+    protected final File createTempFile(final String suffix) throws IOException {
+        return modelImplementation.createTempFile(suffix);
+    }
+
+    /**
+     * @see Model#fileToChannel(File, WritableByteChannel)
+     * 
+     */
+    protected final void fileToChannel(final File file,
+            final WritableByteChannel channel) throws IOException {
+        modelImplementation.fileToChannel(file, channel);
     }
 
     /**
@@ -189,6 +218,28 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
     }
 
     /**
+     * Obtain the buffer.
+     * 
+     * @return An <code>ByteBuffer</code>.
+     */
+    protected final ByteBuffer getBuffer() {
+        return modelImplementation.getBuffer();
+    }
+
+    protected final byte[] getBufferArray() {
+        return modelImplementation.getBufferArray();
+    }
+
+    /**
+     * Obtain the buffer lock.
+     * 
+     * @return An <code>Object</code>.
+     */
+    protected final Object getBufferLock() {
+        return modelImplementation.getBufferLock();
+    }
+
+    /**
      * Obtain the default buffer size.
      * 
      * @return An <code>Integer</code> buffer size.
@@ -204,6 +255,15 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
      */
     protected final InternalContactModel getContactModel() {
         return modelImplementation.getContactModel();
+    }
+
+    /**
+     * Obtain an internal crypto model.
+     * 
+     * @return An instance of <code>InternalCryptoModel</code>.
+     */
+    protected final InternalCryptoModel getCryptoModel() {
+        return modelImplementation.getCryptoModel();
     }
 
     /**
@@ -295,5 +355,14 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
      */
     protected final Long readNextVersionId(final Long artifactId) {
         return modelImplementation.readNextVersionId(artifactId);
+    }
+
+    /**
+     * @see Model#streamToChannel(InputStream, WritableByteChannel)
+     * 
+     */
+    protected final void streamToChannel(final InputStream stream,
+            final WritableByteChannel channel) throws IOException {
+        modelImplementation.streamToChannel(stream, channel);
     }
 }

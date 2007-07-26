@@ -26,7 +26,7 @@ public interface InternalAmazonS3Model extends AmazonS3Model {
      *            A <code>DocumentVersion</code>.
      * @return A downstream header <code>Map<String, String></code>.
      */
-    public Map<String, String> newDownstreamHeaders(final DocumentVersion version);
+    Map<String, String> newDownstreamHeaders(DocumentVersion version);
 
     /**
      * Create an instance of downstream headers used to download a product
@@ -38,7 +38,7 @@ public interface InternalAmazonS3Model extends AmazonS3Model {
      *            A <code>Release</code>.
      * @return A downstream header <code>Map<String, String></code>.
      */
-    public Map<String, String> newDownstreamHeaders(final Product product, final Release release);
+    Map<String, String> newDownstreamHeaders(Product product, Release release);
 
     /**
      * Create an instance of a downstream uri used to download an artifact
@@ -48,7 +48,7 @@ public interface InternalAmazonS3Model extends AmazonS3Model {
      *            A <code>DocumentVersion</code>.
      * @return A download uri <code>String</code>.
      */
-    public String newDownstreamURI(final DocumentVersion version);
+    String newDownstreamURI(final DocumentVersion version);
 
     /**
      * Create an instance of a downstream uri used to download a product
@@ -60,36 +60,34 @@ public interface InternalAmazonS3Model extends AmazonS3Model {
      *            A <code>Release</code>.
      * @return A download uri <code>String</code>.
      */
-    public String newDownstreamURI(final Product product, final Release release);
+    String newDownstreamURI(final Product product, final Release release);
 
     /**
      * Create an instance of upstream headers used to upload an artifact
      * version.
      * 
+     * @param streamInfo
+     *            An <code>AmazonS3StreamInfo<code>.
      * @param version
      *            A <code>DocumentVersion</code>.
      * @return An upstream header <code>Map<String, String></code>.
      */
-    public Map<String, String> newUpstreamHeaders(final DocumentVersion version);
+    Map<String, String> newUpstreamHeaders(AmazonS3StreamInfo streamInfo,
+            DocumentVersion version);
 
     /**
      * Create an instance of upstream headers used to upload a product release.
      * 
+     * @param streamInfo
+     *            An <code>AmazonS3StreamInfo</code>.
      * @param product
      *            A <code>Product</code>.
      * @param release
      *            A <code>Release</code>.
-     * @param contentLength
-     *            The content length.
-     * @param contentMD5
-     *            The content MD5 checksum.
-     * @param contentType
-     *            The content type.
      * @return An upstream header <code>Map<String, String></code>.
      */
-    public Map<String, String> newUpstreamHeaders(final Product product,
-            final Release release, final Long contentLength,
-            final String contentMD5, final String contentType);
+    Map<String, String> newUpstreamHeaders(AmazonS3StreamInfo streamInfo,
+            Product product, Release release);
 
     /**
      * Create an instance of a upstream uri used to upload an artifact
@@ -99,7 +97,7 @@ public interface InternalAmazonS3Model extends AmazonS3Model {
      *            A <code>DocumentVersion</code>.
      * @return An upload uri <code>String</code>.
      */
-    public String newUpstreamURI(final DocumentVersion version);
+    String newUpstreamURI(DocumentVersion version);
 
     /**
      * Create an instance of a upstream uri used to upload a product release.
@@ -110,5 +108,5 @@ public interface InternalAmazonS3Model extends AmazonS3Model {
      *            A <code>Release</code>.
      * @return An upload uri <code>String</code>.
      */
-    public String newUpstreamURI(final Product product, final Release release);
+    String newUpstreamURI(Product product, Release release);
 }

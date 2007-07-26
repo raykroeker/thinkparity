@@ -58,7 +58,7 @@ public final class SessionModelImpl extends AbstractModelImpl implements
     public AuthToken login(final Credentials credentials)
             throws InvalidCredentialsException {
         try {
-            final User user = userSql.read(credentials);
+            final User user = userSql.read(encryptPassword(credentials));
             if (null == user) {
                 throw new InvalidCredentialsException();
             } else {

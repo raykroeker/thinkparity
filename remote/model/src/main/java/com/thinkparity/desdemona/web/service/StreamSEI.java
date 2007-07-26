@@ -8,6 +8,7 @@ import javax.jws.WebService;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.stream.StreamInfo;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 import com.thinkparity.desdemona.model.stream.StreamModel;
@@ -56,26 +57,27 @@ public class StreamSEI extends ServiceSEI implements StreamService {
 
     /**
      * @see com.thinkparity.service.StreamService#newUpstreamSession(com.thinkparity.service.AuthToken,
+     *      com.thinkparity.codebase.model.stream.StreamInfo,
      *      com.thinkparity.codebase.model.document.DocumentVersion)
      * 
      */
     public StreamSession newUpstreamSession(final AuthToken authToken,
-            final DocumentVersion version) {
-        return getModel(authToken).newUpstreamSession(version);
+            final StreamInfo streamInfo, final DocumentVersion version) {
+        return getModel(authToken).newUpstreamSession(streamInfo, version);
     }
 
     /**
      * @see com.thinkparity.service.StreamService#newUpstreamSession(com.thinkparity.service.AuthToken,
+     *      com.thinkparity.codebase.model.stream.StreamInfo,
      *      com.thinkparity.codebase.model.migrator.Product,
      *      com.thinkparity.codebase.model.migrator.Release)
      * 
      */
     public StreamSession newUpstreamSession(final AuthToken authToken,
-            final Product product, final Release release,
-            final Long contentLength, final String contentMD5,
-            final String contentType) {
-        return getModel(authToken).newUpstreamSession(product, release,
-                contentLength, contentMD5, contentType);
+            final StreamInfo streamInfo, final Product product,
+            final Release release) {
+        return getModel(authToken).newUpstreamSession(streamInfo, product,
+                release);
     }
 
     /**

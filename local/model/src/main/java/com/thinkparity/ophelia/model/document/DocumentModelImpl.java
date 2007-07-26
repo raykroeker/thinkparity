@@ -927,6 +927,7 @@ public final class DocumentModelImpl extends
         try {
             final UploadStream delegate = newDelegate(UploadStream.class);
             delegate.setMonitor(monitor);
+            
             delegate.setVersion(version);
             delegate.uploadStream();
         } catch (final Throwable t) {

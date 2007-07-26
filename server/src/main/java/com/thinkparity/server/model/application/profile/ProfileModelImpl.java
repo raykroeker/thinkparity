@@ -3,6 +3,12 @@
  */
 package com.thinkparity.desdemona.model.profile;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -10,6 +16,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.internet.InternetAddress;
@@ -20,10 +29,7 @@ import javax.mail.internet.MimeMultipart;
 import com.thinkparity.codebase.LocaleUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
-import com.thinkparity.codebase.email.EMailBuilder;
-import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
@@ -32,9 +38,9 @@ import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.*;
 import com.thinkparity.codebase.model.session.Credentials;
-import com.thinkparity.codebase.model.session.TemporaryCredentials;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.Token;
+import com.thinkparity.codebase.model.util.VCardWriter;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 
@@ -137,9 +143,20 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                     "E-mail address reservation {0} expired on {1}.",
                     emailReservation.getToken(), emailReservation.getExpiresOn());
 
-            profile.setLocalId(userSql.create(credentials,
-                    securityCredentials.getQuestion(),
-                    securityCredentials.getAnswer(), profile.getVCard(), now));
+            profile.setLocalId(userSql.create(encryptPassword(credentials),
+                    encryptAnswer(securityCredentials), profile.getVCard(),
+                    new VCardWriter<ProfileVCard>() {
+                        public void write(final ProfileVCard vcard, final Writer writer) throws IOException {
+                            final StringWriter stringWriter = new StringWriter();
+                            XSTREAM_UTIL.toXML(vcard, stringWriter);
+                            try {
+                                writer.write(encrypt(stringWriter.toString()));
+                            } catch (final GeneralSecurityException gsx) {
+                                logger.logError(gsx, "Could not encrypt vcard.");
+                                throw new IOException(gsx);
+                            }
+                        }
+                    }, now));
 
             // add e-mail address
             final VerificationKey key = VerificationKey.generate(email);
@@ -180,46 +197,6 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             fromInternetAddress.setPersonal(Constants.Internet.Mail.FROM_PERSONAL);
             mimeMessage.setFrom(fromInternetAddress);
             smtpService.deliver(mimeMessage);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.profile.ProfileModel#createCredentials(java.lang.String, java.lang.String)
-     *
-     */
-    public TemporaryCredentials createCredentials(final String profileKey,
-            final String securityAnswer, final Calendar createdOn) {
-        try {
-            userSql.deleteTemporaryCredentials(currentDateTime());
-
-            // expire in an hour
-            final Calendar expiresOn = (Calendar) createdOn.clone();
-            expiresOn.set(Calendar.HOUR, expiresOn.get(Calendar.HOUR) + 1);
-
-            // try to find a profile by either by username or by e-mail address
-            final User user = read(profileKey);
-            if (null == user) {
-                return null;
-            } else {
-                final String localSecurityAnswer = userSql.readProfileSecurityAnswer(user.getId());
-                if (localSecurityAnswer.equals(securityAnswer)) {
-                    /* temporary credentials are single-use only therefore must
-                     * be deleted before new ones are issued */
-                    userSql.deleteTemporaryCredentials(user);
-                    
-                    final TemporaryCredentials credentials = new TemporaryCredentials();
-                    credentials.setCreatedOn(createdOn);
-                    credentials.setExpiresOn(expiresOn);
-                    credentials.setToken(newToken());
-                    credentials.setUsername(user.getSimpleUsername());
-                    userSql.createTemporaryCredentials(user, credentials);
-                    return credentials;
-                } else {
-                    return null;
-                }
-            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -410,23 +387,6 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.profile.ProfileModel#readSecurityQuestion(java.lang.String)
-     *
-     */
-    public String readSecurityQuestion(final String profileKey) {
-        try {
-            final User user = read(profileKey);
-            if (null == user) {
-                return null;
-            } else {
-                return userSql.readProfileSecurityQuestion(user.getId());
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#readToken(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
@@ -451,7 +411,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             throw translateError(t);
         }
     }
-    
+
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#update(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.profile.ProfileVCard)
@@ -486,50 +446,13 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             Assert.assertTrue(credentials.getUsername().equals(
                     localCredentials.getUsername()),
                     "User password cannot be updated.");
-            userSql.updatePassword(user.getId(), credentials, newPassword);
+            userSql.updatePassword(user.getId(), encryptPassword(credentials),
+                    encrypt(newPassword));
         } catch (final Throwable t) {
             throw translateError(t);
         }
     }
-
-    /**
-     * @see com.thinkparity.desdemona.model.profile.ProfileModel#updatePassword(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.model.session.TemporaryCredentials, java.lang.String)
-     *
-     */
-    public void updatePassword(final JabberId userId,
-            final TemporaryCredentials credentials, final String newPassword) {
-        try {
-            try {
-                final User user = getUserModel().read(userId);
-
-                // delete expired credentials
-                userSql.deleteTemporaryCredentials(currentDateTime());
     
-                // ensure the credentials exist
-                Assert.assertTrue(userSql.doesExistTemporaryCredentials(user,
-                        credentials.getToken()),
-                        "Password temporary credentials {0} expired on {1}.",
-                        credentials.getToken(), credentials.getExpiresOn());
-    
-                // ensure the credentials match
-                final Credentials localCredentials = userSql.readCredentials(
-                        user.getLocalId());
-                Assert.assertTrue(credentials.getUsername().equals(
-                        localCredentials.getUsername()),
-                        "User password cannot be updated.");
-    
-                // update the password
-                userSql.updatePassword(userId, localCredentials, newPassword);
-            } finally {
-                /* delete the temporary credentials whether or not the update
-                 * succeeded */
-                userSql.deleteTemporaryCredentials(credentials);
-            }
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#updateProductRelease(com.thinkparity.codebase.model.migrator.Product, com.thinkparity.codebase.model.migrator.Release)
      *
@@ -711,6 +634,21 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * Encrypt the security answer within the credentials.
+     * 
+     * @param credentials
+     *            The <code>Credentials</code>.
+     * @return The <code>Credentials</code>.
+     */
+    private SecurityCredentials encryptAnswer(
+            final SecurityCredentials credentials) throws BadPaddingException,
+            IOException, IllegalBlockSizeException, InvalidKeyException,
+            NoSuchAlgorithmException, NoSuchPaddingException {
+        credentials.setAnswer(encrypt(credentials.getAnswer()));
+        return credentials;
+    }
+
+    /**
      * Create a new token.
      * 
      * @return A <code>Token</code>.
@@ -736,30 +674,5 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         contactUpdated.setContactId(user.getId());
         contactUpdated.setUpdatedOn(currentDateTime());
         enqueueEvents(contactIds, contactUpdated);
-    }
-
-    /**
-     * Read a profile by a profile key. A profile key can be one of either a
-     * username or an e-mail address. If a profile can be found it is returned
-     * otherwise null is returned.
-     * 
-     * @param profileKey
-     *            A profile key <code>String</code>.
-     * @return A <code>Profile</code>.
-     */
-    private User read(final String profileKey) {
-        // try to find a profile by e-mail
-        try {
-            final EMail email = EMailBuilder.parse(profileKey);
-            return userSql.read(email);
-        } catch (final EMailFormatException efx) {}
-
-        // try to find a profile by user id
-        try {
-            final JabberId userId = JabberIdBuilder.parseUsername(profileKey);
-            return getUserModel().read(userId);
-        } catch (final IllegalArgumentException iax) {}
-
-        return null;
     }
 }

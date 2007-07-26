@@ -16,6 +16,8 @@ import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.model.contact.ContactModelImpl;
 import com.thinkparity.desdemona.model.container.ContainerModel;
 import com.thinkparity.desdemona.model.container.ContainerModelImpl;
+import com.thinkparity.desdemona.model.crypto.CryptoModel;
+import com.thinkparity.desdemona.model.crypto.CryptoModelImpl;
 import com.thinkparity.desdemona.model.migrator.MigratorModel;
 import com.thinkparity.desdemona.model.migrator.MigratorModelImpl;
 import com.thinkparity.desdemona.model.profile.ProfileModel;
@@ -160,6 +162,16 @@ public final class ModelFactory {
     public final ContainerModel getContainerModel() {
         return (ContainerModel) newModelProxy(
                 ContainerModel.class, ContainerModelImpl.class);
+    }
+
+    /**
+     * Obtain a crypto model.
+     * 
+     * @return An instance of <code>CryptoModel</code>.
+     */
+    public final CryptoModel getCryptoModel() {
+        return (CryptoModel) newModelProxy(
+                CryptoModel.class, CryptoModelImpl.class);
     }
 
     /**

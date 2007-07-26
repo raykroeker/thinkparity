@@ -74,27 +74,6 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * Encrypt the canonical string.
-     * 
-     * @param canonical
-     *            A canonical <code>String</code>.
-     * @return An encrypted <code>byte[]</code>.
-     */
-    private static byte[] encrypt(final String canonical) {
-        final SecretKeySpec secretKeySpec = newSecretKeySpec();
-        final Mac mac;
-        try {
-            mac = Mac.getInstance(HMAC_SHA1_ALGORITHM_NAME);
-            mac.init(secretKeySpec);
-            return mac.doFinal(canonical.getBytes(CHARSET));
-        } catch (final NoSuchAlgorithmException nsax) {
-            throw new ThinkParityException(nsax);
-        } catch (final InvalidKeyException ikx) {
-            throw new ThinkParityException(ikx);
-        }
-    }
-
-    /**
      * Obtain the amazon access key id.
      * 
      * @return An access key id <code>String</code>.
@@ -302,11 +281,12 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
      * @return The amazon s3 canonical <code>String</code>.
      */
     private static String newUpstreamCanonical(final Environment environment,
-            final DocumentVersion version, final String date) {
+            final AmazonS3StreamInfo streamInfo, final DocumentVersion version,
+            final String date) {
         return new StringBuilder(64)
             .append(HttpUtils.MethodNames.PUT).append('\n')
-            .append(version.getChecksum()).append('\n')
-            .append(HttpUtils.ContentTypeNames.BINARY_OCTET_STREAM).append('\n')
+            .append(streamInfo.getMD5()).append('\n')
+            .append(streamInfo.getType()).append('\n')
             .append(date).append('\n')
             .append('/')
             .append(getBucketName(environment))
@@ -326,12 +306,12 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
      * @return The amazon s3 canonical <code>String</code>.
      */
     private static String newUpstreamCanonical(final Environment environment,
-            final Product product, final Release release, final String date,
-            final String contentMD5, final String contentType) {
+            final AmazonS3StreamInfo streamInfo, final Product product,
+            final Release release, final String date) {
         return new StringBuilder(64)
             .append(HttpUtils.MethodNames.PUT).append('\n')
-            .append(contentMD5).append('\n')
-            .append(contentType).append('\n')
+            .append(streamInfo.getMD5()).append('\n')
+            .append(streamInfo.getType()).append('\n')
             .append(date).append('\n')
             .append('/')
             .append(getBucketName(environment))
@@ -380,6 +360,27 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
             .append(getBucketName(environment));
     }
 
+    /**
+     * Encrypt the canonical string.
+     * 
+     * @param canonical
+     *            A canonical <code>String</code>.
+     * @return An encrypted <code>byte[]</code>.
+     */
+    private static byte[] s3Encrypt(final String canonical) {
+        final SecretKeySpec secretKeySpec = newSecretKeySpec();
+        final Mac mac;
+        try {
+            mac = Mac.getInstance(HMAC_SHA1_ALGORITHM_NAME);
+            mac.init(secretKeySpec);
+            return mac.doFinal(canonical.getBytes(CHARSET));
+        } catch (final NoSuchAlgorithmException nsax) {
+            throw new ThinkParityException(nsax);
+        } catch (final InvalidKeyException ikx) {
+            throw new ThinkParityException(ikx);
+        }
+    }
+
     /** The local <code>Environment</code>. */
     private Environment environment;
 
@@ -399,7 +400,7 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
         final String date = newDateString();
         final String canonical = newDownstreamCanonical(environment, version, date);
         logger.logVariable("canonical", canonical);
-        final byte[] encrypted = encrypt(canonical);
+        final byte[] encrypted = s3Encrypt(canonical);
         final byte[] signature = encode(encrypted);
         final String authorization = newAuthorization(signature);
         final Map<String, String> headers = newHeaderMap();
@@ -417,7 +418,7 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
         final String date = newDateString();
         final String canonical = newDownstreamCanonical(environment, product, release, date);
         logger.logVariable("canonical", canonical);
-        final byte[] encrypted = encrypt(canonical);
+        final byte[] encrypted = s3Encrypt(canonical);
         final byte[] signature = encode(encrypted);
         final String authorization = newAuthorization(signature);
         final Map<String, String> headers = newHeaderMap();
@@ -446,41 +447,44 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
      * @see com.thinkparity.desdemona.model.amazon.s3.InternalAmazonS3Model#newUpstreamHeaders(com.thinkparity.codebase.model.document.DocumentVersion)
      * 
      */
-    public Map<String, String> newUpstreamHeaders(final DocumentVersion version) {
+    public Map<String, String> newUpstreamHeaders(
+            final AmazonS3StreamInfo streamInfo, final DocumentVersion version) {
         final String date = newDateString();
-        final String canonical = newUpstreamCanonical(environment, version, date);
+        final String canonical = newUpstreamCanonical(environment, streamInfo, version, date);
         logger.logVariable("canonical", canonical);
-        final byte[] encrypted = encrypt(canonical);
+        final byte[] encrypted = s3Encrypt(canonical);
         final byte[] signature = encode(encrypted);
         final String authorization = newAuthorization(signature);
         final Map<String, String> headers = newHeaderMap();
         headers.put(HttpUtils.HeaderNames.AUTHORIZATION, authorization);
-        headers.put(HttpUtils.HeaderNames.CONTENT_LENGTH, String.valueOf(version.getSize()));
-        headers.put(HttpUtils.HeaderNames.CONTENT_MD5, version.getChecksum());
-        headers.put(HttpUtils.HeaderNames.CONTENT_TYPE, HttpUtils.ContentTypeNames.BINARY_OCTET_STREAM);
+        headers.put(HttpUtils.HeaderNames.CONTENT_LENGTH, streamInfo.getLength());
+        headers.put(HttpUtils.HeaderNames.CONTENT_MD5, streamInfo.getMD5());
+        headers.put(HttpUtils.HeaderNames.CONTENT_TYPE, streamInfo.getType());
         headers.put(HttpUtils.HeaderNames.DATE, date);
         return headers;
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.amazon.s3.InternalAmazonS3Model#newUpstreamHeaders(com.thinkparity.codebase.model.migrator.Product, com.thinkparity.codebase.model.migrator.Release)
-     *
+     * @see com.thinkparity.desdemona.model.amazon.s3.InternalAmazonS3Model#newUpstreamHeaders(com.thinkparity.desdemona.model.amazon.s3.AmazonS3StreamInfo,
+     *      com.thinkparity.codebase.model.migrator.Product,
+     *      com.thinkparity.codebase.model.migrator.Release)
+     * 
      */
-    public Map<String, String> newUpstreamHeaders(final Product product,
-            final Release release, final Long contentLength,
-            final String contentMD5, final String contentType) {
+    public Map<String, String> newUpstreamHeaders(
+            final AmazonS3StreamInfo streamInfo, final Product product,
+            final Release release) {
         final String date = newDateString();
-        final String canonical = newUpstreamCanonical(environment, product,
-                release, date, contentMD5, contentType);
+        final String canonical = newUpstreamCanonical(environment, streamInfo,
+                product, release, date);
         logger.logVariable("canonical", canonical);
-        final byte[] encrypted = encrypt(canonical);
+        final byte[] encrypted = s3Encrypt(canonical);
         final byte[] signature = encode(encrypted);
         final String authorization = newAuthorization(signature);
         final Map<String, String> headers = newHeaderMap();
         headers.put(HttpUtils.HeaderNames.AUTHORIZATION, authorization);
-        headers.put(HttpUtils.HeaderNames.CONTENT_LENGTH, String.valueOf(contentLength));
-        headers.put(HttpUtils.HeaderNames.CONTENT_MD5, contentMD5);
-        headers.put(HttpUtils.HeaderNames.CONTENT_TYPE, contentType);
+        headers.put(HttpUtils.HeaderNames.CONTENT_LENGTH, streamInfo.getLength());
+        headers.put(HttpUtils.HeaderNames.CONTENT_MD5, streamInfo.getMD5());
+        headers.put(HttpUtils.HeaderNames.CONTENT_TYPE, streamInfo.getType());
         headers.put(HttpUtils.HeaderNames.DATE, date);
         return headers;
     }

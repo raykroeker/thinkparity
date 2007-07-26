@@ -16,14 +16,14 @@ import com.thinkparity.codebase.JVMUniqueId;
  */
 public final class ModelInvocationContext {
 
-    /** The method arguments. */
-    private Object[] arguments;
-
     /** The unique id . */
     private JVMUniqueId id;
 
     /** The method to invoke. */
     private Method method;
+
+    /** The method parameter types. */
+    private Class<?>[] parameterTypes;
 
     /**
      * Create ModelInvocationContext.
@@ -67,27 +67,16 @@ public final class ModelInvocationContext {
     public String toString() {
         final StringBuilder buffer =
             new StringBuilder(method.getDeclaringClass().getSimpleName())
-            .append("#").append(method.getName());
-        if (null != arguments && 0 < arguments.length) {
-            buffer.append('(');
-            for (int i = 0; i < arguments.length; i++) {
-                if (0 < i) {
-                    buffer.append(',');
-                }
-                buffer.append(arguments[i].getClass().getSimpleName());
+            .append('#').append(method.getName())
+            .append('(');
+        for (int i = 0; i < parameterTypes.length; i++) {
+            if (0 < i) {
+                buffer.append(',');
             }
-            buffer.append(')');
+            buffer.append(parameterTypes[i].getSimpleName());
         }
+        buffer.append(')');
         return buffer.toString();
-    }
-
-    /**
-     * Obtain args.
-     *
-     * @return A Object[].
-     */
-    protected final Object[] getArguments() {
-        return arguments;
     }
 
     /**
@@ -109,13 +98,12 @@ public final class ModelInvocationContext {
     }
 
     /**
-     * Set args.
+     * Obtain args.
      *
-     * @param args
-     *		A Object[].
+     * @return A Object[].
      */
-    protected final void setArguments(final Object[] arguments) {
-        this.arguments = arguments;
+    protected final Class<?>[] getParameterTypes() {
+        return parameterTypes;
     }
 
     /**
@@ -136,5 +124,15 @@ public final class ModelInvocationContext {
      */
     protected final void setMethod(final Method method) {
         this.method = method;
+    }
+
+    /**
+     * Set args.
+     *
+     * @param args
+     *		A Object[].
+     */
+    protected final void setParameterTypes(final Class<?>[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
     }
 }

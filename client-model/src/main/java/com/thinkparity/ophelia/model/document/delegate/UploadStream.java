@@ -3,17 +3,28 @@
  */
 package com.thinkparity.ophelia.model.document.delegate;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
+
+import com.thinkparity.codebase.bzip2.CompressStream;
+import com.thinkparity.codebase.crypto.EncryptFile;
 import com.thinkparity.codebase.io.StreamOpener;
 
+import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.stream.StreamException;
+import com.thinkparity.codebase.model.stream.StreamInfo;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.stream.StreamWriter;
+import com.thinkparity.codebase.model.stream.upload.UploadFile;
 
+import com.thinkparity.ophelia.model.crypto.InternalCryptoModel;
 import com.thinkparity.ophelia.model.document.DocumentDelegate;
 
 /**
@@ -25,14 +36,11 @@ import com.thinkparity.ophelia.model.document.DocumentDelegate;
  */
 public final class UploadStream extends DocumentDelegate {
 
-    /** A boolean indicating whether or not the upload is complete. */
-    private boolean complete;
-
     /** The stream monitor. */
     private StreamMonitor monitor;
 
-    /** The number of times to retry the upload. */
-    private int retryAttempts;
+    /** The document name. */
+    private String name;
 
     /** The document version. */
     private DocumentVersion version;
@@ -62,93 +70,114 @@ public final class UploadStream extends DocumentDelegate {
      *            A <code>DocumentVersion</code>.
      */
     public void setVersion(final DocumentVersion version) {
+        this.name = version.getArtifactName();
         this.version = version;
     }
 
     /**
-     * Upload the stream.
-     *
+     * Upload a document version to the streaming server.
+     * 
+     * @throws IOException
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
      */
-    public void uploadStream() {
-        final StreamSession session = newUpstreamSession();
-        final StreamWriter writer = newStreamWriter(session);
-        complete = false;
-        if (null == session.getRetryAttempts() || 1 > session.getRetryAttempts()) {
-            retryAttempts = 1;
-        } else {
-            retryAttempts = session.getRetryAttempts();
-        }
-        for (int i = 0; i < retryAttempts; i++) {
-            if (complete) {
-                break;
-            } else {
-                logger.logInfo("Upload attempt {0}/{1}.", i, retryAttempts);
-                openVersion(newOpener(writer));
+    public void uploadStream() throws IOException, NoSuchPaddingException,
+            NoSuchAlgorithmException, InvalidKeyException {
+        final File compressed = createTempFile(name);
+        try {
+            compress(compressed);
+            final File encrypted = createTempFile(name);
+            try {
+                encrypt(resolveSecret(), compressed, encrypted);
+                upload(encrypted);
+            } finally {
+                // TEMPFILE - UploadStream#uploadStream()
+                encrypted.delete();
             }
+        } finally {
+            // TEMPFILE - UploadStream#uploadStream()
+            compressed.delete();
         }
     }
 
     /**
-     * Create a new stream opener that will upload the version's content.
+     * Compress the version content using a BZip2 compression algorithm.
      * 
-     * @param writer
-     *            A <code>StreamWriter</code>.
-     * @return A <code>StreamOpener</code>.
+     * @param target
+     *            A <code>File</code>.
+     * @throws IOException
      */
-    private StreamOpener newOpener(final StreamWriter writer) {
-        return new StreamOpener() {
+    private void compress(final File target) throws IOException {
+        documentIO.openStream(version.getArtifactId(), version.getVersionId(), new StreamOpener() {
             public void open(final InputStream stream) throws IOException {
-                try {
-                    writer.write(stream, version.getSize());
-                    setComplete();
-                } catch (final StreamException sx) {
-                    if (sx.isRecoverable()) {
-                        logger.logWarning("Could not upload stream for {0}.",
-                                version.getArtifactName());
-                        
-                    } else {
-                        throw sx;
-                    }
+                synchronized (getBufferLock()) {
+                    new CompressStream().compress(stream, target, getBuffer());
                 }
             }
-        };
+        });
     }
 
     /**
-     * Create a new stream writer.
+     * Encrypt a file.
      * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     * @return A <code>StreamWriter</code>.
+     * @param secret
+     *            A <code>Secret</code>.
+     * @param source
+     *            A <code>File</code>.
+     * @param target
+     *            A <code>File</code>.
+     * @throws IOException
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
      */
-    private StreamWriter newStreamWriter(final StreamSession session) {
-        return new StreamWriter(monitor, session);
+    private void encrypt(final Secret secret, final File source,
+            final File target) throws IOException, NoSuchPaddingException,
+            NoSuchAlgorithmException, InvalidKeyException {
+        final Key key = new SecretKeySpec(secret.getKey(), secret.getAlgorithm());
+        synchronized (getBufferLock()) {
+            new EncryptFile(secret.getAlgorithm()).encrypt(key, source, target,
+                    getBufferArray());
+        }
     }
 
     /**
-     * Create a new stream session for the version.
+     * Create a new stream session for a version and file.
      * 
+     * @param file
+     *            A <code>File</code>.
      * @return A <code>StreamSession</code>.
      */
-    private StreamSession newUpstreamSession() {
-        return getStreamModel().newUpstreamSession(version);
+    private StreamSession newUpstreamSession(final File file) throws IOException {
+        final StreamInfo streamInfo = new StreamInfo();
+        streamInfo.setMD5(checksum(file));
+        streamInfo.setSize(Long.valueOf(file.length()));
+        return getStreamModel().newUpstreamSession(streamInfo, version);
     }
 
     /**
-     * Open a document version.
+     * If the secret for the document version already exists; download it;
+     * otherwise create a new secret.
      * 
-     * @param opener
-     *            A <code>StreamOpener</code>.
+     * @return A <code>Secret</code>.
      */
-    private void openVersion(final StreamOpener opener) {
-        openVersion(version, opener);
+    private Secret resolveSecret() {
+        final InternalCryptoModel cryptoModel = getCryptoModel();
+        if (cryptoModel.doesExistSecret(version)) {
+            return cryptoModel.readSecret(version);
+        } else {
+            return cryptoModel.createSecret(version);
+        }
     }
 
     /**
-     * Set the upload completion.
-     *
+     * Upload a file.
+     * 
+     * @param file
+     *            A <code>File</code>.
      */
-    private void setComplete() {
-        complete = true;
+    private void upload(final File file) throws IOException {
+        new UploadFile(monitor, newUpstreamSession(file)).upload(file);
     }
 }

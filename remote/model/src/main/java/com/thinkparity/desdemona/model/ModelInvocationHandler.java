@@ -42,7 +42,7 @@ final class ModelInvocationHandler implements InvocationHandler {
     private static ModelInvocationContext newContext(final Object proxy,
             final Method method, final Object[] args) {
         final ModelInvocationContext context = new ModelInvocationContext();
-        context.setArguments(args);
+        context.setParameterTypes(method.getParameterTypes());
         context.setId(JVMUniqueId.nextId());
         context.setMethod(method);
         return context;

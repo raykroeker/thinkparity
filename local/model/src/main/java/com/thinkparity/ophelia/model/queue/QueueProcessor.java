@@ -5,11 +5,21 @@ package com.thinkparity.ophelia.model.queue;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.List;
 
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
+
+import com.thinkparity.codebase.bzip2.InflateFile;
+import com.thinkparity.codebase.crypto.DecryptFile;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.util.xmpp.event.*;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
@@ -17,7 +27,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotific
 import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedNotificationEvent;
 
-import com.thinkparity.ophelia.model.DownloadHelper;
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.LocalContentEvent;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -25,6 +34,7 @@ import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.container.event.LocalPublishedEvent;
 import com.thinkparity.ophelia.model.container.event.LocalVersionPublishedEvent;
+import com.thinkparity.ophelia.model.crypto.InternalCryptoModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -106,18 +116,46 @@ public final class QueueProcessor implements Runnable {
             final LocalContentEvent<?, File> localEvent) {
         final List<File> localContent = localEvent.getAllLocalContent();
         for (final File versionFile : localContent) {
-            // TEMPFILE QueueProcessor#cleanUpContent(LocalContentEvent)
+            // TEMPFILE - QueueProcessor#cleanUpContent(LocalContentEvent)
             versionFile.delete();
         }
     }
 
     /**
-     * Create a temporary file.
+     * Create a temporary file within the workspace. The workspace will attempt
+     * to create a temporary file represents the artifact.
      * 
+     * @param suffix
+     *            The suffix string to be used in generating the file's name.
      * @return A <code>File</code>.
+     * @throws IOException
      */
-    private File createTempFile() throws IOException {
-        return workspace.createTempFile();
+    private File createTempFile(final String suffix) throws IOException {
+        return workspace.createTempFile(suffix);
+    }
+
+    /**
+     * Decrypt a file.
+     * 
+     * @param secret
+     *            A <code>Secret</code>.
+     * @param source
+     *            A <code>File</code>.
+     * @param target
+     *            A <code>File</code>.
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     * @throws IOException
+     */
+    private void decrypt(final Secret secret, final File source,
+            final File target) throws NoSuchPaddingException,
+            NoSuchAlgorithmException, InvalidKeyException, IOException {
+        final Key key = new SecretKeySpec(secret.getKey(), secret.getAlgorithm());
+        synchronized (workspace.getBufferLock()) {
+            new DecryptFile(secret.getAlgorithm()).decrypt(key, source, target,
+                    workspace.getBufferArray());
+        }
     }
 
     /**
@@ -138,15 +176,45 @@ public final class QueueProcessor implements Runnable {
      * @return A <code>File</code>.
      */
     private File download(final DocumentVersion version) {
-        final DownloadHelper helper = getDocumentModel().newDownloadHelper(version);
         try {
-            final File versionFile = createTempFile();
-            helper.download(versionFile);
-            return versionFile;
+            final String suffix = MessageFormat.format("-{0}", version.getArtifactName());
+            final File downloadFile = createTempFile(suffix);
+            try {
+                download(version, downloadFile);
+                final File decryptFile = createTempFile(suffix);
+                try {
+                    decrypt(readSecret(version), downloadFile, decryptFile);
+                    final File inflateFile = createTempFile(suffix);
+                    inflate(decryptFile, inflateFile);
+                    return inflateFile;
+                } finally {
+                    // TEMPFILE - QueueProcessor#download(DocumentVersion)
+                    decryptFile.delete();
+                }
+            } finally {
+                // TEMPFILE - QueueProcessor#download(DocumentVersion)
+                downloadFile.delete();
+            }
+        } catch (final GeneralSecurityException gsx) {
+            logger.logError(gsx, "Could not decrypt file for {0}.", version);
+            return null;
         } catch (final IOException iox) {
             logger.logError(iox, "Could not download file for {0}.", version);
             return null;
         }
+    }
+
+    /**
+     * Download the document version to the target.
+     * 
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @param target
+     *            A target <code>File</code>.
+     */
+    private void download(final DocumentVersion version, final File target)
+            throws IOException {
+        getDocumentModel().newDownloadHelper(version).download(target);
     }
 
     /**
@@ -174,6 +242,15 @@ public final class QueueProcessor implements Runnable {
      */
     private InternalContainerModel getContainerModel() {
         return getModelFactory().getContainerModel();
+    }
+
+    /**
+     * Obtain an internal crypto model.
+     * 
+     * @return An instance of <code>InternalCryptoModel</code>.
+     */
+    private InternalCryptoModel getCryptoModel() {
+        return getModelFactory().getCryptoModel();
     }
 
     /**
@@ -210,6 +287,24 @@ public final class QueueProcessor implements Runnable {
      */
     private InternalQueueModel getQueueModel() {
         return getModelFactory().getQueueModel();
+    }
+
+    /**
+     * Inflate a dopcument version file.
+     * 
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @param source
+     *            A <code>File</code>.
+     * @param taret
+     *            A <code>File</code>.
+     * @throws IOException
+     */
+    private void inflate(final File source, final File target)
+            throws IOException {
+        synchronized (workspace.getBufferLock()) {
+            new InflateFile().inflate(source, target, workspace.getBuffer());
+        }
     }
 
     /**
@@ -356,5 +451,16 @@ public final class QueueProcessor implements Runnable {
      */
     private List<XMPPEvent> readEvents() {
         return getQueueModel().readEvents();
+    }
+
+    /**
+     * Read the decryption secret for a document version.
+     * 
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @return A <code>Secret</code>.
+     */
+    private Secret readSecret(final DocumentVersion version) {
+        return getCryptoModel().readSecret(version);
     }
 }

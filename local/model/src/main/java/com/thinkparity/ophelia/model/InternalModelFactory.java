@@ -16,6 +16,8 @@ import com.thinkparity.ophelia.model.contact.ContactModelImpl;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModelImpl;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
+import com.thinkparity.ophelia.model.crypto.CryptoModelImpl;
+import com.thinkparity.ophelia.model.crypto.InternalCryptoModel;
 import com.thinkparity.ophelia.model.document.DocumentModelImpl;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.help.HelpModelImpl;
@@ -140,6 +142,16 @@ public final class InternalModelFactory {
     public final InternalContainerModel getContainerModel() {
         return (InternalContainerModel) newModelProxy(
                 InternalContainerModel.class, ContainerModelImpl.class);
+    }
+
+    /**
+     * Obtain an internal crypto model.
+     * 
+     * @return An instance of <code>InternalCryptoModel</code>.
+     */
+    public final InternalCryptoModel getCryptoModel() {
+        return (InternalCryptoModel) newModelProxy(
+                InternalCryptoModel.class, CryptoModelImpl.class);
     }
 
     /**

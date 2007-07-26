@@ -154,6 +154,7 @@ create table TPSD_NOTIFICATION_SESSION(
 
 create table TPSD_ARTIFACT(
     ARTIFACT_ID bigint generated always as identity(start with 2000),
+    ARTIFACT_TYPE_ID smallint not null,
     ARTIFACT_UNIQUE_ID varchar(256) not null,
     ARTIFACT_DRAFT_OWNER bigint not null,
     ARTIFACT_LATEST_VERSION_ID bigint not null,
@@ -166,6 +167,23 @@ create table TPSD_ARTIFACT(
     foreign key(ARTIFACT_DRAFT_OWNER) references TPSD_USER(USER_ID),
     foreign key(CREATED_BY) references TPSD_USER(USER_ID),
     foreign key(UPDATED_BY) references TPSD_USER(USER_ID)
+);
+create table TPSD_ARTIFACT_VERSION(
+	ARTIFACT_ID bigint not null,
+	ARTIFACT_VERSION_ID bigint not null,
+	ARTIFACT_UNIQUE_ID varchar(256) not null,
+	primary key(ARTIFACT_ID, ARTIFACT_VERSION_ID),
+	foreign key(ARTIFACT_ID) references TPSD_ARTIFACT(ARTIFACT_ID),
+	foreign key(ARTIFACT_UNIQUE_ID) references TPSD_ARTIFACT(ARTIFACT_UNIQUE_ID)
+);
+create table TPSD_ARTIFACT_VERSION_SECRET(
+    ARTIFACT_ID bigint not null,
+    ARTIFACT_VERSION_ID bigint not null,
+    SECRET blob not null,
+    SECRET_ALGORITHM varchar(8) not null,
+    SECRET_FORMAT varchar(8) not null,
+	primary key(ARTIFACT_ID, ARTIFACT_VERSION_ID),
+	foreign key(ARTIFACT_ID, ARTIFACT_VERSION_ID) references TPSD_ARTIFACT_VERSION(ARTIFACT_ID,ARTIFACT_VERSION_ID)
 );
 create table TPSD_ARTIFACT_TEAM_REL(
     ARTIFACT_ID bigint not null,

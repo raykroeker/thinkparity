@@ -7,9 +7,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.List;
@@ -17,10 +17,6 @@ import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.Vector;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.thinkparity.codebase.DateUtil;
@@ -55,6 +51,7 @@ import com.thinkparity.ophelia.model.audit.InternalAuditModel;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.InternalContainerModel;
+import com.thinkparity.ophelia.model.crypto.InternalCryptoModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.help.InternalHelpModel;
 import com.thinkparity.ophelia.model.index.InternalIndexModel;
@@ -68,7 +65,6 @@ import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.stream.InternalStreamModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.user.UserUtils;
-import com.thinkparity.ophelia.model.util.Base64;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
@@ -225,7 +221,7 @@ public abstract class Model<T extends EventListener> extends
         monitor.determineSteps(steps);
     }
 
-	/**
+    /**
      * Notify a process monitor that a given process will begin.
      * 
      * @param monitor
@@ -237,7 +233,7 @@ public abstract class Model<T extends EventListener> extends
         monitor.beginProcess();
     }
 
-	/**
+    /**
      * Notify a process monitor that a given process will end.
      * 
      * @param monitor
@@ -262,7 +258,7 @@ public abstract class Model<T extends EventListener> extends
         notifyStepBegin(monitor, step, null);
     }
 
-    /**
+	/**
      * Notify a process monitor that a given step will begin.
      * 
      * @param monitor
@@ -277,7 +273,7 @@ public abstract class Model<T extends EventListener> extends
         monitor.beginStep(step, data);
     }
 
-    /**
+	/**
      * Notify a process monitor that a given step will end.
      * 
      * @param monitor
@@ -302,19 +298,13 @@ public abstract class Model<T extends EventListener> extends
     /** A thinkParity <code>Workspace</code>. */
 	protected Workspace workspace;
 
-	/** The decryption cipher. */
-    private transient Cipher decryptionCipher;
-
-    /** The encryption cipher. */
-    private transient Cipher encryptionCipher;
-
     /** The <code>ModelInvocationContext</code>. */
     private ModelInvocationContext invocationContext;
 
     /** A list of all pending <code>EventNotifier</code>s of <code>T</code>. */
     private final List<EventNotifier<T>> notifiers;
 
-    /** The secret key spec. */
+    /** The encryption secret key. */
     private transient SecretKeySpec secretKeySpec;
 
     /**
@@ -326,7 +316,7 @@ public abstract class Model<T extends EventListener> extends
         this.notifiers = new Vector<EventNotifier<T>>(3);
 	}
 
-	/**
+    /**
      * Add a thinkParity event listener.
      * 
      * @param listener
@@ -340,7 +330,7 @@ public abstract class Model<T extends EventListener> extends
                 workspace, this, listener);
     }
 
-    /**
+	/**
      * Assert that the artifact does not exist.
      * 
      * @param uniqueId
@@ -356,7 +346,7 @@ public abstract class Model<T extends EventListener> extends
                 assertArguments);
     }
 
-	/**
+    /**
      * Assert that a container draft does not exist.
      * 
      * @param containerId
@@ -372,7 +362,7 @@ public abstract class Model<T extends EventListener> extends
                 assertion, assertionArguments);
     }
 
-    /**
+	/**
      * Assert that a container draft exists.
      * 
      * @param containerId
@@ -613,10 +603,9 @@ public abstract class Model<T extends EventListener> extends
      * @return The user's <code>Credentials</code>.
      */
     protected Credentials createCredentials(final Credentials credentials) {
-        final String cipherKey = getCipherKey();
         try {
-            configurationIO.create(ConfigurationKeys.Credentials.PASSWORD, encrypt(cipherKey, credentials.getPassword()));
-            configurationIO.create(ConfigurationKeys.Credentials.USERNAME, encrypt(cipherKey, credentials.getUsername()));
+            configurationIO.create(ConfigurationKeys.Credentials.PASSWORD, encrypt(credentials.getPassword()));
+            configurationIO.create(ConfigurationKeys.Credentials.USERNAME, encrypt(credentials.getUsername()));
             return readCredentials();
         } catch (final Throwable t) {
             throw panic(t);
@@ -633,6 +622,19 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
+     * Create a temporary file within the workspace. The workspace will attempt
+     * to create a temporary file represents the artifact.
+     * 
+     * @param suffix
+     *            The suffix string to be used in generating the file's name.
+     * @return A <code>File</code>.
+     * @throws IOException
+     */
+    protected final File createTempFile(final String suffix) throws IOException {
+        return workspace.createTempFile(suffix);
+    }
+
+    /**
      * Create the user's token.
      * 
      * @param token
@@ -641,7 +643,7 @@ public abstract class Model<T extends EventListener> extends
      */
     protected Token createToken(final Token token) {
         try {
-            configurationIO.create(ConfigurationKeys.TOKEN, encrypt(getCipherKey(), token.getValue()));
+            configurationIO.create(ConfigurationKeys.TOKEN, encrypt(token.getValue()));
             return readToken();
         } catch (final Throwable t) {
             throw panic(t);
@@ -695,7 +697,7 @@ public abstract class Model<T extends EventListener> extends
         return getArtifactModel().doesVersionExist(artifactId);
     }
 
-	/**
+    /**
      * Determine whether or not a version exists.
      * 
      * @param artifactId
@@ -708,7 +710,7 @@ public abstract class Model<T extends EventListener> extends
         return getArtifactModel().doesVersionExist(artifactId, versionId);
     }
 
-    /**
+	/**
      * Assert the session is online. We are throwing a specific error here in
      * order to allow a client of the model an opportunity to display an
      * appropriate message.
@@ -820,11 +822,33 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
+     * Obtain the workspace buffer.
+     * 
+     * @return A <code>ByteBuffer</code>.
+     */
+    protected final ByteBuffer getBuffer() {
+        return workspace.getBuffer();
+    }
+
+    protected final byte[] getBufferArray() {
+        return workspace.getBufferArray();
+    }
+
+    /**
+     * Obtain the workspace buffer lock.
+     * 
+     * @return An <code>Object</code>.
+     */
+    protected final Object getBufferLock() {
+        return workspace.getBufferLock();
+    }
+
+    /**
      * Obtain the workspace buffer size.
      * 
      * @return An <code>Integer</code> default buffer size.
      */
-    protected Integer getBufferSize() {
+    protected final Integer getBufferSize() {
         return workspace.getBufferSize();
     }
 
@@ -848,6 +872,15 @@ public abstract class Model<T extends EventListener> extends
      */
     protected final InternalContainerModel getContainerModel() {
         return modelFactory.getContainerModel();
+    }
+
+    /**
+     * Obtain an internal crypto model.
+     * 
+     * @return An instance of <code>InternalCryptoModel</code>.
+     */
+    protected final InternalCryptoModel getCryptoModel() {
+        return modelFactory.getCryptoModel();
     }
 
     /**
@@ -902,6 +935,20 @@ public abstract class Model<T extends EventListener> extends
      */
     protected InternalQueueModel getQueueModel() {
         return modelFactory.getQueueModel();
+    }
+
+    /**
+     * @see com.thinkparity.codebase.model.AbstractModelImpl#getSecretKeySpec()
+     *
+     */
+    @Override
+    protected SecretKeySpec getSecretKeySpec() throws IOException,
+            NoSuchAlgorithmException {
+        if (null == secretKeySpec) {
+            final byte[] rawKey = MD5Util.md5("010932671-023769081237450981735098127-1280397-181-2387-6581972689-1728-9671-8276-892173-5971283-751-239875-182735-98712-85971-2897-867-9823-56823165-8365-89236-987-214981265-9-9-65623-5896-35-3296-289-65893-983-932-5928734-302894719825-99181-28497612-8375".getBytes());
+            secretKeySpec = new SecretKeySpec(rawKey, "AES");
+        }
+        return secretKeySpec;
     }
 
     /**
@@ -1108,7 +1155,6 @@ public abstract class Model<T extends EventListener> extends
      * @return The user's credentials.
      */
     protected Credentials readCredentials() {
-        final String cipherKey = getCipherKey();
         final String password = configurationIO.read(ConfigurationKeys.Credentials.PASSWORD);
         final String username = configurationIO.read(ConfigurationKeys.Credentials.USERNAME);
 
@@ -1117,8 +1163,8 @@ public abstract class Model<T extends EventListener> extends
         } else {
             final Credentials credentials = new Credentials();
             try {
-                credentials.setPassword(decrypt(cipherKey, password));
-                credentials.setUsername(decrypt(cipherKey, username));
+                credentials.setPassword(decrypt(password));
+                credentials.setUsername(decrypt(username));
                 return credentials;
             } catch (final Throwable t) {
                 throw panic(t);
@@ -1150,7 +1196,7 @@ public abstract class Model<T extends EventListener> extends
         } else {
             try {
                 final Token token = new Token();
-                token.setValue(decrypt(getCipherKey(), tokenValue));
+                token.setValue(decrypt(tokenValue));
                 return token;
             } catch (final Throwable t) {
                 throw panic(t);
@@ -1230,10 +1276,9 @@ public abstract class Model<T extends EventListener> extends
      *            The user's credentials.
      */
     protected void updateCredentials(final Credentials credentials) {
-        final String cipherKey = "18273-4897-12-53974-816523-49-81623-95-4-91-8723-56974812-63498-612395-498-7125-349871265-47892-1539784-1523954-19-287356-4";
         try {
-            configurationIO.update(ConfigurationKeys.Credentials.PASSWORD, encrypt(cipherKey, credentials.getPassword()));
-            configurationIO.update(ConfigurationKeys.Credentials.USERNAME, encrypt(cipherKey, credentials.getUsername()));
+            configurationIO.update(ConfigurationKeys.Credentials.PASSWORD, encrypt(credentials.getPassword()));
+            configurationIO.update(ConfigurationKeys.Credentials.USERNAME, encrypt(credentials.getUsername()));
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1297,51 +1342,6 @@ public abstract class Model<T extends EventListener> extends
         }
     }
 
-    /**
-     * Decrypt the cipher text into clear text using the cipher key.
-     * 
-     * @param cipherKey
-     *            The cipher key.
-     * @param cipherText
-     *            The cipher text.
-     * @return The clear text.
-     * @throws BadPaddingException
-     * @throws IOException
-     * @throws IllegalBlockSizeException
-     * @throws InvalidKeyException
-     * @throws NoSuchAlgorithmException
-     * @throws NoSuchPaddingException
-     */
-    private String decrypt(final String cipherKey, final String cipherText)
-            throws BadPaddingException, IOException, IllegalBlockSizeException,
-            InvalidKeyException, NoSuchAlgorithmException,
-            NoSuchPaddingException {
-        final Cipher cipher = getDecryptionCipher();
-        return new String(cipher.doFinal(Base64.decodeBytes(cipherText)));
-    }
-
-    /**
-     * Encrypt clear text into a base 64 encoded cipher text.
-     * 
-     * @param cipherKey
-     *            The cipher key
-     * @param clearText
-     *            The clean text to encrypt.
-     * @return The cipher text.
-     * @throws BadPaddingException
-     * @throws IllegalBlockSizeException
-     * @throws InvalidKeyException
-     * @throws NoSuchAlgorithmException
-     * @throws NoSuchPaddingException
-     */
-    private String encrypt(final String cipherKey, final String clearText)
-            throws BadPaddingException, IOException, IllegalBlockSizeException,
-            InvalidKeyException, NoSuchAlgorithmException,
-            NoSuchPaddingException {
-        final Cipher cipher = getEncryptionCipher();
-        return Base64.encodeBytes(cipher.doFinal(clearText.getBytes()));
-    }
-
     private String formatAssertion(final ArtifactState currentState,
 			final ArtifactState intendedState,
 			final ArtifactState[] allowedStates) {
@@ -1357,68 +1357,6 @@ public abstract class Model<T extends EventListener> extends
 		}
 		return assertion.toString();
 	}
-
-    /**
-     * Obtain the cipher key used to encrypt configuration information.
-     * 
-     * @return A cipher key <code>String</code>.
-     */
-    private String getCipherKey() {
-        return "18273-4897-12-53974-816523-49-81623-95-4-91-8723-56974812-63498-612395-498-7125-349871265-47892-1539784-1523954-19-287356-4";
-    }
-
-    /**
-     * Obtain the decryption cipher; creating it if necessary.
-     * 
-     * @return A decryption cipher.
-     * @throws IOException
-     * @throws InvalidKeyException
-     * @throws NoSuchAlgorithmException
-     * @throws NoSuchPaddingException
-     */
-    private Cipher getDecryptionCipher() throws IOException,
-            InvalidKeyException, NoSuchAlgorithmException,
-            NoSuchPaddingException {
-        if(null == decryptionCipher) {
-            decryptionCipher = Cipher.getInstance("AES");
-            decryptionCipher.init(Cipher.DECRYPT_MODE, getSecretKeySpec());
-        }
-        return decryptionCipher;
-    }
-
-    /**
-     * Obtain the encryption cipher; creating it if need be.
-     * 
-     * @return The encryption cipher.
-     * @throws InvalidKeyException
-     * @throws NoSuchAlgorithmException
-     * @throws NoSuchPaddingException
-     */
-    private Cipher getEncryptionCipher() throws IOException,
-            InvalidKeyException, NoSuchAlgorithmException,
-            NoSuchPaddingException {
-        if(null == encryptionCipher) {
-            encryptionCipher = Cipher.getInstance("AES");
-            encryptionCipher.init(Cipher.ENCRYPT_MODE, getSecretKeySpec());
-        }
-        return encryptionCipher;
-    }
-
-    /**
-     * Obtain the secret key; creating it if necessary.
-     * 
-     * @return The secret key.
-     * @throws IOException
-     * @throws NoSuchAlgorithmException
-     */
-    private SecretKeySpec getSecretKeySpec() throws IOException,
-            NoSuchAlgorithmException {
-        if(null == secretKeySpec) {
-            final byte[] rawKey = MD5Util.md5("010932671-023769081237450981735098127-1280397-181-2387-6581972689-1728-9671-8276-892173-5971283-751-239875-182735-98712-85971-2897-867-9823-56823165-8365-89236-987-214981265-9-9-65623-5896-35-3296-289-65893-983-932-5928734-302894719825-99181-28497612-8375".getBytes());
-            secretKeySpec = new SecretKeySpec(rawKey, "AES");
-        }
-        return secretKeySpec;
-    }
 
     /**
      * Determine whether or not the user's credentials have been set.

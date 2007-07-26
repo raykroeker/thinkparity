@@ -29,6 +29,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublished
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
+import com.thinkparity.desdemona.model.artifact.RemoteArtifact;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttachment;
@@ -444,8 +445,11 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         if (artifactModel.doesExist(version.getArtifactUniqueId())) {
             logger.logInfo("Artifact {0} exists.", version.getArtifactName());
         } else {
-            artifactModel.create(version.getArtifactUniqueId(),
-                    version.getCreatedOn());
+            final Artifact artifact = new RemoteArtifact();
+            artifact.setCreatedOn(version.getCreatedOn());
+            artifact.setType(version.getArtifactType());
+            artifact.setUniqueId(version.getArtifactUniqueId());
+            artifactModel.create(artifact, version);
         }
     }
 

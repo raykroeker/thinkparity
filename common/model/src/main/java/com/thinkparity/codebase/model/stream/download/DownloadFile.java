@@ -32,79 +32,15 @@ public final class DownloadFile {
     /** A bytes format. */
     private static final BytesFormat BYTES_FORMAT;
 
+    /** A default stream monitor. */
+    private static final StreamMonitor DEFAULT_MONITOR;
+
     /** A log4j wrapper. */
     private static final Log4JWrapper LOGGER;
 
     static {
         BYTES_FORMAT = new BytesFormat();
-        LOGGER = new Log4JWrapper(DownloadFile.class);
-    }
-
-    /** The interpreted number of retry attempts. */
-    private final int retryAttempts;
-
-    /** The stream session. */
-    private final StreamSession session;
-
-    /** The target file. */
-    private File target;
-
-    /**
-     * Create DownloadFile.
-     * 
-     * @param session
-     *            A <code>StreamSession</code>.
-     */
-    public DownloadFile(final StreamSession session) {
-        super();
-        this.session = session;
-        if (null == session.getRetryAttempts() || 1 > session.getRetryAttempts()) {
-            this.retryAttempts = 1;
-        } else {
-            this.retryAttempts = session.getRetryAttempts();
-        }
-    }
-
-    /**
-     * Download the stream represented by the session to the target file.
-     * 
-     * @param target
-     *            A <code>File</code> to download to. The target must not be
-     *            null; the file must exist and must be a file.
-     */
-    public void download(final File target) throws IOException {
-        this.target = target;
-        for (int i = 0; i < retryAttempts; i++) {
-            ensureDownload();
-            try {
-                LOGGER.logInfo("Download attempt {0}/{1}.", i, retryAttempts);
-                attemptDownload(target);
-                break;
-            } catch (final StreamException sx) {
-                if (sx.isRecoverable()) {
-                    LOGGER.logWarning("Could not download target.");
-                    Assert.assertTrue(target.delete(),
-                            "Could not delete download target {0}.", target);
-                    Assert.assertTrue(target.createNewFile(),
-                            "Could not delete download target {0}.", target);
-                } else {
-                    throw sx;
-                }
-            }
-        }
-    }
-        
-    /**
-     * Attempt a download of the version. Create a new stream reader using the
-     * session; and download the version to the temp file, then return the temp
-     * file.
-     * 
-     * @param target
-     *            A <code>File</code> to download to.
-     * @throws IOException
-     */
-    private void attemptDownload(final File target) throws IOException {
-        final StreamReader reader = new StreamReader(new StreamMonitor () {
+        DEFAULT_MONITOR = new StreamMonitor () {
             /**
              * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkReceived(int)
              *
@@ -126,9 +62,91 @@ public final class DownloadFile {
              *
              */
             public String getName() {
-                return MessageFormat.format("DownloadToFile#{0}", target.getName());
+                return "DownloadFile#defaultMonitor";
             }
-        }, session);
+        };
+        LOGGER = new Log4JWrapper(DownloadFile.class);
+    }
+
+    /** The stream monitor. */
+    private final StreamMonitor monitor;
+
+    /** The interpreted number of retry attempts. */
+    private final int retryAttempts;
+
+    /** The stream session. */
+    private final StreamSession session;
+
+    /** The target file. */
+    private File target;
+
+    /**
+     * Create DownloadFile.
+     * 
+     * @param monitor
+     *            A <code>StreamMonitor</code>.
+     * @param session
+     *            A <code>StreamSession</code>.
+     */
+    public DownloadFile(final StreamMonitor monitor, final StreamSession session) {
+        super();
+        this.monitor = monitor;
+        this.session = session;
+        if (null == session.getRetryAttempts() || 1 > session.getRetryAttempts()) {
+            this.retryAttempts = 1;
+        } else {
+            this.retryAttempts = session.getRetryAttempts();
+        }
+    }
+
+    /**
+     * Create DownloadFile.
+     * 
+     * @param session
+     *            A <code>StreamSession</code>.
+     */
+    public DownloadFile(final StreamSession session) {
+        this(DEFAULT_MONITOR, session);
+    }
+
+    /**
+     * Download the stream represented by the session to the target file.
+     * 
+     * @param target
+     *            A <code>File</code> to download to. The target must not be
+     *            null; the file must exist and must be a file.
+     */
+    public void download(final File target) throws IOException {
+        this.target = target;
+        for (int i = 0; i < retryAttempts; i++) {
+            ensureDownload();
+            try {
+                LOGGER.logInfo("Download attempt {0}/{1}.", i, retryAttempts);
+                attemptDownload();
+                break;
+            } catch (final StreamException sx) {
+                if (sx.isRecoverable()) {
+                    LOGGER.logWarning("Could not download target.");
+                    Assert.assertTrue(target.delete(),
+                            "Could not delete download target {0}.", target);
+                    Assert.assertTrue(target.createNewFile(),
+                            "Could not delete download target {0}.", target);
+                } else {
+                    throw sx;
+                }
+            }
+        }
+    }
+        
+    /**
+     * Attempt a download of the version. Create a new stream reader using the
+     * session; and download the version to the temp file, then return the temp
+     * file.
+     * 
+     * @throws IOException
+     */
+    private void attemptDownload() throws IOException {
+        final StreamReader reader = new StreamReader(monitor, session);
         final OutputStream output = new FileOutputStream(target);
         try {
             reader.read(output);

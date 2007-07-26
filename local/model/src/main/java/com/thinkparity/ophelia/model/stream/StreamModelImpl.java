@@ -7,6 +7,7 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamInfo;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 import com.thinkparity.ophelia.model.Model;
@@ -63,29 +64,31 @@ public final class StreamModelImpl extends Model implements StreamModel,
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.stream.InternalStreamModel#newUpstreamSession(com.thinkparity.codebase.model.document.DocumentVersion)
-     *
+     * @see com.thinkparity.ophelia.model.stream.InternalStreamModel#newUpstreamSession(com.thinkparity.codebase.model.stream.StreamInfo,
+     *      com.thinkparity.codebase.model.document.DocumentVersion)
+     * 
      */
-    public StreamSession newUpstreamSession(DocumentVersion version) {
+    public StreamSession newUpstreamSession(final StreamInfo streamInfo,
+            final DocumentVersion version) {
         try {
-            return streamService.newUpstreamSession(getAuthToken(), version);
+            return streamService.newUpstreamSession(getAuthToken(), streamInfo,
+                    version);
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.stream.InternalStreamModel#newUpstreamSession(com.thinkparity.codebase.model.migrator.Product,
-     *      com.thinkparity.codebase.model.migrator.Release, java.lang.Long,
-     *      java.lang.String, java.lang.String)
+     * @see com.thinkparity.ophelia.model.stream.InternalStreamModel#newUpstreamSession(com.thinkparity.codebase.model.stream.StreamInfo,
+     *      com.thinkparity.codebase.model.migrator.Product,
+     *      com.thinkparity.codebase.model.migrator.Release)
      * 
      */
-    public StreamSession newUpstreamSession(final Product product,
-            final Release release, final Long contentLength,
-            final String contentMD5, final String contentType) {
+    public StreamSession newUpstreamSession(final StreamInfo streamInfo,
+            final Product product, final Release release) {
         try {
-            return streamService.newUpstreamSession(getAuthToken(), product,
-                    release, contentLength, contentMD5, contentType);
+            return streamService.newUpstreamSession(getAuthToken(), streamInfo,
+                    product, release);
         } catch (final Throwable t) {
             throw panic(t);
         }

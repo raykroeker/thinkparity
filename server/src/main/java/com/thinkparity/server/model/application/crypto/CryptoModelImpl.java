@@ -244,6 +244,7 @@ public final class CryptoModelImpl extends AbstractModelImpl implements
             artifactModel.create(localArtifact, localVersion);
             localVersion.setArtifactId(localArtifact.getId());
             artifactModel.createVersion(localVersion);
+            artifactModel.deleteDraft(localArtifact, localArtifact.getCreatedOn());
             return localizeArtifactVersion(version);
         }
     }

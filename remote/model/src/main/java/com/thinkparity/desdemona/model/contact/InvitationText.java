@@ -42,16 +42,6 @@ public class InvitationText {
     }
 
     /**
-     * Obtain the personal portion (name) of the from address.
-     * 
-     * @return A from personal <code>String</code>.
-     */
-    public String getFromPersonal() {
-        return MessageFormat.format(resourceBundle.getString("from"),
-                invitedBy.getName());
-    }
-
-    /**
      * Obtain the invitation body.
      * 
      * @param inviter
@@ -72,6 +62,16 @@ public class InvitationText {
      */
     public String getBodyType() {
         return "text/plain";
+    }
+
+    /**
+     * Obtain the personal portion (name) of the from address.
+     * 
+     * @return A from personal <code>String</code>.
+     */
+    public String getFromPersonal() {
+        return MessageFormat.format(resourceBundle.getString("from"),
+                invitedBy.getName());
     }
 
     /**

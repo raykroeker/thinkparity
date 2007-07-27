@@ -89,5 +89,11 @@ public interface ContainerModel {
             final List<DocumentVersion> documentVersions,
             final List<ArtifactReceipt> receivedBy, final Calendar publishedOn,
             final List<EMail> publishToEMails, final List<User> publishToUsers);
+
+    /**
+     * Publish a welcome container to the model user.
+     * 
+     */
+    public void publishWelcome();
 }
 

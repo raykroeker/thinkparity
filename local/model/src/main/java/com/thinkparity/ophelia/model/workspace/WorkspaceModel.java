@@ -257,7 +257,8 @@ public class WorkspaceModel {
             notifyDetermine(monitor, 2);
             notifyStepBegin(monitor, InitializeStep.SESSION_LOGIN);
             sessionModel.login(credentials);
-            if (sessionModel.isFirstLogin()
+            final Boolean firstLogin = sessionModel.isFirstLogin();
+            if (firstLogin
                     || mediator.confirmRestore(sessionModel.readProfileFeatures())) {
                 sessionModel.initializeToken();
             } else {
@@ -291,6 +292,12 @@ public class WorkspaceModel {
                 queueModel.startNotificationClient();
             } else {
                 migratorModel.startDownloadRelease();
+            }
+            // publish a welcome package
+            if (firstLogin) {
+                notifyStepBegin(monitor, InitializeStep.PUBLISH_WELCOME);
+                modelFactory.getContainerModel().publishWelcome();
+                notifyStepEnd(monitor, InitializeStep.PUBLISH_WELCOME);
             }
             // finish initialization
             workspaceImpl.finishInitialize();

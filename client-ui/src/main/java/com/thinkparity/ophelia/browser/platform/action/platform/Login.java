@@ -60,7 +60,7 @@ public class Login extends AbstractAction {
         final Credentials credentials = new Credentials();
         credentials.setPassword(password);
         credentials.setUsername(username);
-        final ThinkParitySwingWorker worker = new LoginWorker(this, platform, localization, credentials, initializeMediator);
+        final ThinkParitySwingWorker<Login> worker = new LoginWorker(this, platform, localization, credentials, initializeMediator);
         worker.setMonitor(monitor);
         worker.start();
     }
@@ -131,14 +131,17 @@ public class Login extends AbstractAction {
                 case PROFILE_CREATE:
                     note = localization.getString("StepProfileCreate");
                     break;
+                case PERSISTENCE_INITIALIZE:
+                    note = localization.getString("StepPersistenceInitialize");
+                    break;
+                case PUBLISH_WELCOME:
+                    note = null;
+                    break;
                 case SESSION_LOGIN:
                     note = localization.getString("StepSessionLogin");
                     break;
                 case SESSION_PROCESS_QUEUE:
                     note = localization.getString("StepProcessQueue");
-                    break;
-                case PERSISTENCE_INITIALIZE:
-                    note = localization.getString("StepPersistenceInitialize");
                     break;
                 default:
                     throw Assert.createUnreachable("UNKNOWN STEP STATE");

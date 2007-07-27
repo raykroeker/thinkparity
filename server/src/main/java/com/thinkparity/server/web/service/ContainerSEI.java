@@ -91,6 +91,15 @@ public class ContainerSEI extends ServiceSEI implements ContainerService {
     }
 
     /**
+     * @see com.thinkparity.service.ContainerService#publishWelcome(com.thinkparity.service.AuthToken)
+     *
+     */
+    @Override
+    public void publishWelcome(final AuthToken authToken) {
+        getModel(authToken).publishWelcome();
+    }
+
+    /**
      * Obtain a container model for an authenticated user.
      * 
      * @param authToken

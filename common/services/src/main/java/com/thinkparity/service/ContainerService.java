@@ -94,4 +94,13 @@ public interface ContainerService {
             List<DocumentVersion> documentVersions,
             List<ArtifactReceipt> receivedBy, Calendar publishedOn,
             List<EMail> publishToEMails, List<User> publishToUsers);
+
+    /**
+     * Publish a welcome container.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     */
+    @WebMethod
+    void publishWelcome(AuthToken authToken);
 }

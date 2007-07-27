@@ -3,22 +3,39 @@
  */
 package com.thinkparity.desdemona.model.container;
 
+import java.io.File;
+import java.io.InputStream;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
+import javax.crypto.spec.SecretKeySpec;
+
+import com.thinkparity.codebase.ResourceUtil;
+import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
+import com.thinkparity.codebase.bzip2.CompressFile;
+import com.thinkparity.codebase.crypto.EncryptFile;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
+import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.artifact.ArtifactVersionFlag;
 import com.thinkparity.codebase.model.contact.ContactInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamInfo;
+import com.thinkparity.codebase.model.stream.StreamSession;
+import com.thinkparity.codebase.model.stream.upload.UploadFile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
@@ -27,13 +44,17 @@ import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotific
 import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedNotificationEvent;
 
+import com.thinkparity.ophelia.model.util.UUIDGenerator;
+
 import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.Constants.Versioning;
 import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
 import com.thinkparity.desdemona.model.artifact.RemoteArtifact;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
+import com.thinkparity.desdemona.util.DateTimeProvider;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Container Model Implementation</br>
@@ -173,6 +194,101 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             createInvitations(user.getId(), version, publishToEMails, publishedOn);
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.container.ContainerModel#publishWelcome()
+     *
+     */
+    public void publishWelcome() {
+        try {
+            final Calendar now = DateTimeProvider.getCurrentDateTime();
+            final Locale locale = Locale.getDefault();
+            final WelcomeText welcomeText = new WelcomeText(locale, user);
+            final User support = getUserModel().read(User.THINKPARITY_SUPPORT.getId());
+
+            final ContainerVersion version = new ContainerVersion();
+            version.setArtifactName(welcomeText.getContainerVersionArtifactName());
+            version.setArtifactType(ArtifactType.CONTAINER);
+            version.setArtifactUniqueId(UUIDGenerator.nextUUID());
+            version.setComment(welcomeText.getContainerVersionComment());
+            version.setCreatedBy(User.THINKPARITY_SUPPORT.getId());
+            version.setCreatedOn(now);
+            version.setFlags(Collections.<ArtifactVersionFlag>emptyList());
+            version.setName(welcomeText.getContainerVersionName());
+            version.setUpdatedBy(version.getCreatedBy());
+            version.setUpdatedOn(version.getCreatedOn());
+            version.setVersionId(Versioning.START);
+
+            final List<DocumentVersion> documentVersions = new ArrayList<DocumentVersion>(1);
+            final File contentFile = createTempFile();
+            try {
+                final InputStream content = ResourceUtil.getLocalizedInputStream(
+                        "localization/Welcome", locale);
+                try {
+                    streamToFile(content, contentFile);
+                } finally {
+                    content.close();
+                }
+
+                final DocumentVersion documentVersion = new DocumentVersion();
+                documentVersion.setArtifactName(welcomeText.getDocumentVersionArtifactName());
+                documentVersion.setArtifactType(ArtifactType.DOCUMENT);
+                documentVersion.setArtifactUniqueId(UUIDGenerator.nextUUID());
+                documentVersion.setChecksum(checksum(contentFile));
+                documentVersion.setChecksumAlgorithm(ChecksumAlgorithm.MD5.name());
+                documentVersion.setComment(welcomeText.getDocumentVersionComment());
+                documentVersion.setCreatedBy(version.getCreatedBy());
+                documentVersion.setCreatedOn(version.getCreatedOn());
+                documentVersion.setFlags(Collections.<ArtifactVersionFlag>emptyList());
+                documentVersion.setName(welcomeText.getDocumentVersionName());
+                documentVersion.setSize(Long.valueOf(contentFile.length()));
+                documentVersion.setUpdatedBy(documentVersion.getCreatedBy());
+                documentVersion.setUpdatedOn(documentVersion.getCreatedOn());
+                documentVersion.setVersionId(Versioning.START);
+                documentVersions.add(documentVersion);
+
+                final File compressedContent = createTempFile();
+                try {
+                    synchronized (getBufferLock()) {
+                        new CompressFile().compress(contentFile, compressedContent, getBuffer());
+                    }
+                    final File encryptedContent = createTempFile();
+                    try {
+                        final Secret secret = getCryptoModel(support).createSecret(documentVersion);
+                        final Key key = new SecretKeySpec(secret.getKey(), secret.getAlgorithm());
+                        synchronized (getBufferLock()) {
+                            new EncryptFile(secret.getAlgorithm()).encrypt(key,
+                                    compressedContent, encryptedContent,
+                                    getBufferArray());
+                        }
+                        final StreamInfo streamInfo = new StreamInfo();
+                        streamInfo.setMD5(checksum(encryptedContent));
+                        streamInfo.setSize(Long.valueOf(encryptedContent.length()));
+                        final StreamSession session = newUpstreamSession(
+                                streamInfo, documentVersion);
+                        new UploadFile(session).upload(encryptedContent);
+                    } finally {
+                        // TEMPFILE - ProfileModelImpl#enqueueWelcome
+                        encryptedContent.delete();
+                    }
+                } finally {
+                    // TEMPFILE - ProfileModelImpl#enqueueWelcome
+                    compressedContent.delete();
+                }
+            } finally {
+                // TEMPFILE - ProfileModelImpl#enqueueWelcome
+                contentFile.delete();
+            }
+
+            final List<User> publishToUsers = new ArrayList<User>(1);
+            publishToUsers.add(user);
+
+            getContainerModel(support).publish(version, documentVersions,
+                    Collections.<EMail> emptyList(), publishToUsers);
+        } catch (final Throwable t) {
+            throw panic(t);
         }
     }
 
@@ -518,7 +634,6 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         return getUserModel().read(user.getId());
     }
 
-    
     /**
      * Obtain a local reference for an artifact.
      * 
@@ -532,6 +647,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         return getArtifactModel().read(artifact.getUniqueId());
     }
 
+    
     /**
      * Obtain a local reference for an artifact version.
      * 
@@ -543,6 +659,20 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
      */
     private <T extends ArtifactVersion> Artifact localize(final T version) {
         return getArtifactModel().read(version.getArtifactUniqueId());
+    }
+
+    /**
+     * Create a new upstream session.
+     * 
+     * @param streamInfo
+     *            A <code>StreamInfo</code>.
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @return A <code>Session</code>.
+     */
+    private StreamSession newUpstreamSession(final StreamInfo streamInfo,
+            final DocumentVersion version) {
+        return getStreamModel().newUpstreamSession(streamInfo, version);
     }
 
     /**

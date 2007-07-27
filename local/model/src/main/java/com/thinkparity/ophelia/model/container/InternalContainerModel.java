@@ -115,7 +115,7 @@ public interface InternalContainerModel extends ContainerModel {
      *            An <code>ArtifactReceivedEvent</code>.
      */
     public void handleReceived(final ArtifactReceivedEvent event);
-    
+
     /**
      * Notify the container listenter a team member has been added.
      * 
@@ -126,7 +126,7 @@ public interface InternalContainerModel extends ContainerModel {
     @Deprecated
     @ThinkParityTransaction(TransactionType.SUPPORTED)
     public void notifyTeamMemberAdded(final TeamMember teamMember);
-
+    
     /**
      * Notify the container listenter a team member has been removed.
      * 
@@ -137,6 +137,12 @@ public interface InternalContainerModel extends ContainerModel {
     @Deprecated
     @ThinkParityTransaction(TransactionType.SUPPORTED)
     public void notifyTeamMemberRemoved(final TeamMember teamMember);
+
+    /**
+     * Publish a welcome container.
+     * 
+     */
+    public void publishWelcome();
 
     /**
      * Read a list of of documents for a container version.

@@ -172,6 +172,38 @@ public abstract class AbstractModelImpl
     }
 
     /**
+     * Calculate a checksum for a file's contents. Create a channel to read the
+     * file.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @return An MD5 checksum <code>String</code>.
+     */
+    protected final String checksum(final File file) throws IOException {
+        final ReadableByteChannel channel = ChannelUtil.openReadChannel(file);
+        try {
+            return checksum(channel);
+        } finally {
+            channel.close();
+        }
+    }
+
+    /**
+     * Calculate a checksum for a readable byte channel. Use the workspace
+     * buffer as an intermediary.
+     * 
+     * @param channel
+     *            A <code>ReadableByteChannel</code>.
+     * @return An MD5 checksum <code>String</code>.
+     */
+    protected final String checksum(final ReadableByteChannel channel)
+            throws IOException {
+        synchronized (getBufferLock()) {
+            return MD5Util.md5Base64(channel, getBufferArray());
+        }
+    }
+
+    /**
      * Determine if a list contains a user.
      * 
      * @param <U>
@@ -592,6 +624,17 @@ public abstract class AbstractModelImpl
     }
 
     /**
+     * Obtain an internal crypto model.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return An instance of <code>InternalCryptoModel</code>.
+     */
+    protected final InternalCryptoModel getCryptoModel(final User user) {
+        return InternalModelFactory.getInstance(getContext(), user).getCryptoModel();
+    }
+
+    /**
      * Obtain the local environment.
      * 
      * @return An instance of <code>Environment</code>.
@@ -694,7 +737,7 @@ public abstract class AbstractModelImpl
         return secretKeySpec;
     }
 
-    protected final InternalSessionModel getSessionModel() {
+	protected final InternalSessionModel getSessionModel() {
         return InternalModelFactory.getInstance(getContext(), user).getSessionModel();
     }
 
@@ -706,7 +749,7 @@ public abstract class AbstractModelImpl
         return InternalModelFactory.getInstance(getContext(), user).getStreamModel();
     }
 
-    /**
+	/**
      * Obtain the temp file system for the model user.
      * 
      * @return A <code>FileSystem</code>.
@@ -724,15 +767,15 @@ public abstract class AbstractModelImpl
         return tempFileSystem;
     }
 
-	protected final InternalUserModel getUserModel() {
+    protected final InternalUserModel getUserModel() {
         return InternalModelFactory.getInstance(getContext(), user).getUserModel();
     }
 
-	protected final InternalUserModel getUserModel(final User user) {
+    protected final InternalUserModel getUserModel(final User user) {
         return InternalModelFactory.getInstance(getContext(), user).getUserModel();
     }
 
-    /**
+	/**
      * Obtain the index of a user in the list.
      * 
      * @param <U>
@@ -770,13 +813,13 @@ public abstract class AbstractModelImpl
         return -1;
     }
 
-	/**
+    /**
      * Intialize the model.
      * 
      */
     protected void initialize() {}
 
-    /**
+	/**
      * Inject the fields of a user into a user type object.
      * 
      * @param <T>
@@ -796,7 +839,7 @@ public abstract class AbstractModelImpl
         return logger.logVariable("type", type);
     }
 
-    /**
+	/**
      * Determine if the user id is a system user.
      * 
      * @param userId
@@ -807,12 +850,12 @@ public abstract class AbstractModelImpl
         return userId.equals(User.THINKPARITY.getId());
     }
 
-	/** Log an api id. */
+    /** Log an api id. */
     protected final void logApiId() {
         logger.logApiId();
     }
 
-	/**
+    /**
      * Log an api id with a message.
      * 
      * @param message
@@ -822,7 +865,7 @@ public abstract class AbstractModelImpl
         logger.logApiId();
     }
 
-    /**
+	/**
      * Log an info message.
      * 
      * @param infoPattern
@@ -835,12 +878,12 @@ public abstract class AbstractModelImpl
         logger.logInfo(infoPattern, infoArguments);
     }
 
-    /** Log a trace id. */
+	/** Log a trace id. */
     protected final void logTraceId() {
         logger.logApiId();
     }
 
-	/**
+    /**
      * Log a named variable. Note that the logging renderer will be used only
      * for the value.
      * 
@@ -854,7 +897,7 @@ public abstract class AbstractModelImpl
         return logger.logVariable(name, value);
     }
 
-	/**
+    /**
      * Log a warning.
      * 
      * @param warning

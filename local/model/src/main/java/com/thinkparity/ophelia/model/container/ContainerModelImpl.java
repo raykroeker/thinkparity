@@ -79,6 +79,7 @@ import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.util.sort.user.UserComparatorFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
+import com.thinkparity.service.AuthToken;
 import com.thinkparity.service.ContainerService;
 import com.thinkparity.service.client.ServiceFactory;
 
@@ -1009,6 +1010,19 @@ public final class ContainerModelImpl extends
             notifyContainerPublished(container, null, previousVersion, version,
                     nextVersion, localTeamMember, delegate.getInvitations(),
                     localEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#publishWelcome()
+     *
+     */
+    @Override
+    public void publishWelcome() {
+        try {
+            containerService.publishWelcome(getAuthToken());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -2901,6 +2915,15 @@ public final class ContainerModelImpl extends
                         });
             }
         }
+    }
+
+    /**
+     * Obtain the authentication token.
+     * 
+     * @return An <code>AuthToken</code>.
+     */
+    private AuthToken getAuthToken() {
+        return getSessionModel().getAuthToken();
     }
 
     /**

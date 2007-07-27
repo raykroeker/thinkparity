@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.application.browser;
 
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.ophelia.model.events.ContactAdapter;
 import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContactListener;
@@ -60,88 +62,88 @@ class EventDispatcher {
 		sessionListener = createSessionListener();
 		browser.getSessionModel().addListener(sessionListener);
 	}
-    
+
     private ContactListener createContactListener() {
         return new ContactAdapter() {
             @Override
-            public void contactCreated(ContactEvent e) {
-                browser.syncContactTabContact(e.getContact().getId(), e.isRemote());
+            public void contactCreated(final ContactEvent e) {
+                syncContactTabContact(e);
             }
             @Override
             public void contactDeleted(final ContactEvent e) {
-                browser.syncContactTabContact(e.getContact().getId(), e.isRemote());
+                syncContactTabContact(e);
             }
             @Override
             public void contactUpdated(final ContactEvent e) {
-                browser.syncContactTabContact(e.getContact().getId(), e.isRemote());
+                syncContactTabContact(e);
             }
             @Override
             public void incomingEMailInvitationAccepted(final ContactEvent e) {
-                browser.syncContactTabIncomingEMailInvitation(e.getIncomingInvitation().getId(), e.isRemote());
-                browser.syncContactTabContact(e.getContact().getId(), e.isRemote());
+                syncContactTabIncomingEMailInvitation(e);
+                syncContactTabContact(e);
             }
             @Override
             public void incomingEMailInvitationCreated(final ContactEvent e) {
-                browser.syncContactTabIncomingEMailInvitation(e.getIncomingInvitation().getId(), e.isRemote());
+                syncContactTabIncomingEMailInvitation(e);
             }
             @Override
             public void incomingEMailInvitationDeclined(final ContactEvent e) {
-                browser.syncContactTabIncomingEMailInvitation(e.getIncomingInvitation().getId(), e.isRemote());
+                syncContactTabIncomingEMailInvitation(e);
             }
             @Override
             public void incomingEMailInvitationDeleted(final ContactEvent e) {
-                browser.syncContactTabIncomingEMailInvitation(e.getIncomingInvitation().getId(), e.isRemote());
+                syncContactTabIncomingEMailInvitation(e);
             }
             @Override
             public void incomingUserInvitationAccepted(final ContactEvent e) {
-                browser.syncContactTabIncomingUserInvitation(e.getIncomingInvitation().getId(), e.isRemote());
-                browser.syncContactTabContact(e.getContact().getId(), e.isRemote());
+                syncContactTabIncomingUserInvitation(e);
+                syncContactTabContact(e);
             }
             @Override
             public void incomingUserInvitationCreated(final ContactEvent e) {
-                browser.syncContactTabIncomingUserInvitation(e.getIncomingInvitation().getId(), e.isRemote());
+                syncContactTabIncomingUserInvitation(e);
             }
             @Override
             public void incomingUserInvitationDeclined(final ContactEvent e) {
-                browser.syncContactTabIncomingUserInvitation(e.getIncomingInvitation().getId(), e.isRemote());
+                syncContactTabIncomingUserInvitation(e);
             }
             @Override
             public void incomingUserInvitationDeleted(final ContactEvent e) {
-                browser.syncContactTabIncomingUserInvitation(e.getIncomingInvitation().getId(), e.isRemote());
+                syncContactTabIncomingUserInvitation(e);
             }
             @Override
             public void outgoingEMailInvitationAccepted(final ContactEvent e) {
-                browser.syncContactTabOutgoingEMailInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
-                browser.syncContactTabContact(e.getContact().getId(), e.isRemote());
+                syncContactTabOutgoingEMailInvitation(e);
+                syncContactTabContact(e);
             }
             @Override
             public void outgoingEMailInvitationCreated(final ContactEvent e) {
-                browser.syncContactTabOutgoingEMailInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
+                syncContactTabOutgoingEMailInvitation(e);
             }
             @Override
             public void outgoingEMailInvitationDeclined(final ContactEvent e) {
-                browser.syncContactTabOutgoingEMailInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
+                syncContactTabOutgoingEMailInvitation(e);
             }
             @Override
             public void outgoingEMailInvitationDeleted(final ContactEvent e) {
-                browser.syncContactTabOutgoingEMailInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
+                syncContactTabOutgoingEMailInvitation(e);
             }
             @Override
             public void outgoingUserInvitationAccepted(final ContactEvent e) {
-                browser.syncContactTabOutgoingUserInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
-                browser.syncContactTabContact(e.getContact().getId(), e.isRemote());
+                syncContactTabOutgoingUserInvitation(e);
+                syncContactTabContact(e);
             }
             @Override
             public void outgoingUserInvitationCreated(final ContactEvent e) {
-                browser.syncContactTabOutgoingUserInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
+                syncContactTabOutgoingUserInvitation(e);
             }
             @Override
             public void outgoingUserInvitationDeclined(final ContactEvent e) {
-                browser.syncContactTabOutgoingUserInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
+                syncContactTabOutgoingUserInvitation(e);
             }
             @Override
             public void outgoingUserInvitationDeleted(final ContactEvent e) {
-                browser.syncContactTabOutgoingUserInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
+                syncContactTabOutgoingUserInvitation(e);
             }
         };
     }
@@ -158,5 +160,75 @@ class EventDispatcher {
                 browser.displayErrorDialog("SessionError", new Object[] {}, cause);
             }
         };
+    }
+
+    /**
+     * Sync the contact tab contact.
+     * 
+     * @param e
+     *            A <code>ContactEvent</code>.
+     */
+    private void syncContactTabContact(final ContactEvent e) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                browser.syncContactTabContact(e.getContact().getId(), e.isRemote());
+            }
+        });
+    }
+
+    /**
+     * Sync the contact tab incoming email invitation.
+     * 
+     * @param e
+     *            A <code>ContactEvent</code>.
+     */
+    private void syncContactTabIncomingEMailInvitation(final ContactEvent e) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                browser.syncContactTabIncomingEMailInvitation(e.getIncomingInvitation().getId(), e.isRemote());
+            }
+        });
+    }
+
+    /**
+     * Sync the contact tab incoming user invitation.
+     * 
+     * @param e
+     *            A <code>ContactEvent</code>.
+     */
+    private void syncContactTabIncomingUserInvitation(final ContactEvent e) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                browser.syncContactTabIncomingUserInvitation(e.getIncomingInvitation().getId(), e.isRemote());
+            }
+        });
+    }
+
+    /**
+     * Sync the contact tab outgoing email invitation.
+     * 
+     * @param e
+     *            A <code>ContactEvent</code>.
+     */
+    private void syncContactTabOutgoingEMailInvitation(final ContactEvent e) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                browser.syncContactTabOutgoingEMailInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
+            }
+        });
+    }
+
+    /**
+     * Sync the contact tab outgoing user invitation.
+     * 
+     * @param e
+     *            A <code>ContactEvent</code>.
+     */
+    private void syncContactTabOutgoingUserInvitation(final ContactEvent e) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                browser.syncContactTabOutgoingUserInvitation(e.getOutgoingInvitation().getId(), e.isRemote());
+            }
+        });
     }
 }

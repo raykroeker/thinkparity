@@ -102,8 +102,8 @@ public class EventDispatcherFactory {
             eventDispatcher = new MainStatusDispatcher(contactModel,
                     containerModel, migratorModel, profileModel, sessionModel);
             break;
-        case DIALOG_PROFILE_UPDATE:
-            eventDispatcher = new UpdateProfileDispatcher(profileModel);
+        case MAIN_TITLE:
+            eventDispatcher = new MainTitleDispatcher(profileModel);
             break;
         default:
             throw Assert.createUnreachable("No dispatcher available for avatar:  {0}", avatarId);

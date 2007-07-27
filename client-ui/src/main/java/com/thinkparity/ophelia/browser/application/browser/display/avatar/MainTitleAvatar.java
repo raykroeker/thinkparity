@@ -5,14 +5,19 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.ophelia.model.events.ProfileEvent;
+
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.Constants.Colors.Browser;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer.ResizeEdges;
+import com.thinkparity.ophelia.browser.application.browser.display.event.MainTitleDispatcher;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
@@ -62,6 +67,17 @@ public final class MainTitleAvatar extends Avatar {
                 }
             }
         });
+
+        addPropertyChangeListener("eventDispatcher", new PropertyChangeListener() {
+            public void propertyChange(final PropertyChangeEvent evt) {
+                if (null != evt.getOldValue())
+                    ((MainTitleDispatcher) evt.getOldValue()).removeListeners(
+                            MainTitleAvatar.this);
+                if (null != evt.getNewValue())
+                    ((MainTitleDispatcher) evt.getNewValue()).addListeners(
+                            MainTitleAvatar.this);
+            }
+        });
     }
 
     /**
@@ -69,6 +85,16 @@ public final class MainTitleAvatar extends Avatar {
      */
     public void clearSearch() {
         searchPanel.clearSearch();
+    }
+
+    /**
+     * Fire a profile e-mail event.
+     * 
+     * @param e
+     *            A <code>ProfileEvent</code>.
+     */
+    public void fireProfileEMailEvent(final ProfileEvent e) {
+        reload();
     }
 
     /**
@@ -204,23 +230,27 @@ public final class MainTitleAvatar extends Avatar {
      */
     private void reloadTab() {
         final TabId tabId = getInputTabId();
-        if (null != tabId && !tabPanel.isTabSelected(tabId)) {
-            tabPanel.selectTab(tabId);
-            switch (tabId) {
-            case CONTACT:
-                getController().displayContactTabAvatar();
-                break;
-            case CONTAINER:
-                getController().displayContainerTabAvatar();
-                break;
-            case HELP:
-                getController().displayHelpTabAvatar();
-                break;
-            default:
-                Assert.assertUnreachable("UNKNOWN TAB");
+        if (null != tabId) {
+            if (tabPanel.isTabSelected(tabId)) {
+                tabPanel.refreshSelectedTab();
+            } else {
+                tabPanel.selectTab(tabId);
+                switch (tabId) {
+                case CONTACT:
+                    getController().displayContactTabAvatar();
+                    break;
+                case CONTAINER:
+                    getController().displayContainerTabAvatar();
+                    break;
+                case HELP:
+                    getController().displayHelpTabAvatar();
+                    break;
+                default:
+                    Assert.assertUnreachable("UNKNOWN TAB");
+                }
+                clearSearch();
+                searchPanel.reloadTabFilter(tabId);
             }
-            clearSearch();
-            searchPanel.reloadTabFilter(tabId);
         }
     }
 

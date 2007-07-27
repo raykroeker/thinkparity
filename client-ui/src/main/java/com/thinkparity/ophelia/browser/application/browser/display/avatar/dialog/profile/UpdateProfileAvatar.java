@@ -6,8 +6,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialo
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.Locale;
 
@@ -37,7 +35,6 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.ophelia.browser.application.browser.display.event.UpdateProfileDispatcher;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.UpdateProfileProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.dialog.profile.LocaleRenderer;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -111,16 +108,6 @@ public class UpdateProfileAvatar extends Avatar {
         this.countryModel = new DefaultComboBoxModel();
         initCountryModel();
         initComponents();
-        addPropertyChangeListener("eventDispatcher", new PropertyChangeListener() {
-            public void propertyChange(final PropertyChangeEvent evt) {
-                if (null != evt.getOldValue())
-                    ((UpdateProfileDispatcher) evt.getOldValue()).removeListeners(
-                            UpdateProfileAvatar.this);
-                if (null != evt.getNewValue())
-                    ((UpdateProfileDispatcher) evt.getNewValue()).addListeners(
-                            UpdateProfileAvatar.this);
-            }
-        });
         addValidationListeners();
         bindEscapeKey();
     }

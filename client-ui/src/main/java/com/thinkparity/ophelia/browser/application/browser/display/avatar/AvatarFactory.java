@@ -122,6 +122,7 @@ public final class AvatarFactory {
 		    break;
 		case MAIN_TITLE:
 		    avatar = newAvatar(MainTitleAvatar.class);
+            avatar.setEventDispatcher(EventDispatcherFactory.getDispatcher(id));
 		    break;
 
         case TAB_CONTAINER:
@@ -224,7 +225,6 @@ public final class AvatarFactory {
         case DIALOG_PROFILE_UPDATE:
             avatar = newAvatar(UpdateProfileAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
-            avatar.setEventDispatcher(EventDispatcherFactory.getDispatcher(id));
             break;
         case DIALOG_PROFILE_UPDATE_ACCOUNT:
             avatar = newAvatar(UpdateAccountAvatar.class);

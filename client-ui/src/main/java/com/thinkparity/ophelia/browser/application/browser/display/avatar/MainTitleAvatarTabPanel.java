@@ -93,15 +93,24 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     }
 
     /**
+     * Refresh the selected tab.
+     */
+    void refreshSelectedTab() {
+        selectedTab.setActionAvailable(tabButtonActionDelegate.isTabButtonActionAvailable());
+        repaint();
+    }
+
+    /**
      * Select a tab.
      * 
      * @param tabId
      *            A tab.
      */
     void selectTab(final TabId tabId) {
-        this.selectedTab = allTabs.get(tabId);
-        reloadDisplay();
+        selectedTab = allTabs.get(tabId);
         reloadTabButtonActionDelegate(tabId);
+        selectedTab.setActionAvailable(tabButtonActionDelegate.isTabButtonActionAvailable());
+        reloadDisplay();
     }
 
     /**
@@ -310,7 +319,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             this.jLabel.addMouseMotionListener(new MouseAdapter() {
                 @Override
                 public void mouseMoved(final MouseEvent e) {
-                    if (actionAvailable) {
+                    if (isActionAvailable()) {
                         applyHandCursor(isInActiveRectangle(e.getPoint()));
                     }
                 }
@@ -328,6 +337,16 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
          */
         public Boolean isLeftmost() {
             return leftmost;
+        }
+
+        /**
+         * Set action available.
+         * 
+         * @param actionAvailable
+         *            The action available <code>Boolean</code>.
+         */
+        public void setActionAvailable(final Boolean actionAvailable) {
+            this.actionAvailable = actionAvailable;
         }
 
         /**
@@ -359,11 +378,10 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             final int textHeight = fm.getHeight();
             final int x = labelLocation.x + (labelSize.width - textWidth) / 2;
             final int y = labelLocation.y + (labelSize.height - textHeight) / 2 + 13;
-            final Boolean actionAvailable = isActionAvailable();
-            g2.setColor(actionAvailable ? Colors.Browser.Link.LINK_FOREGROUND : Color.BLACK);
+            g2.setColor(isActionAvailable() ? Colors.Browser.Link.LINK_FOREGROUND : Color.BLACK);
             g2.drawString(jLabelText, x, y);
             // underline
-            if (actionAvailable) {
+            if (isActionAvailable()) {
                 g2.drawLine(x, y + 2, x + fm.stringWidth(jLabelText), y + 2);
             }
             // set the active rectangle
@@ -376,8 +394,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
          * @return true if an action is available.
          */
         private Boolean isActionAvailable() {
-            actionAvailable = isSelectedTab() && tabButtonActionDelegate.isTabButtonActionAvailable();
-            return actionAvailable;
+            return isSelectedTab() && actionAvailable;
         }
 
         /**

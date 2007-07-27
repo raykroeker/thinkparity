@@ -250,7 +250,7 @@ public class UpdateAccountAvatar extends Avatar {
      * Downgrade the account type.
      */
     private void downgradeAccountType() {
-        // TODO
+        getController().runDowngradeAccount();
     }
 
     /**

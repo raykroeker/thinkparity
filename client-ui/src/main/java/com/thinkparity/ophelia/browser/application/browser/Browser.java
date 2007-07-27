@@ -1255,6 +1255,13 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Run the downgrade account action.
+     */
+    public void runDowngradeAccount() {
+        invoke(ActionId.PROFILE_DOWNGRADE_ACCOUNT, Data.emptyData());
+    }
+
+    /**
 	 * Run the open document action.
 	 *
      * @param containerId

@@ -265,6 +265,9 @@ public class ActionFactory extends AbstractFactory {
         case PROFILE_ADD_EMAIL:
             action = new com.thinkparity.ophelia.browser.platform.action.profile.AddEmail(getBrowser());
             break;
+        case PROFILE_DOWNGRADE_ACCOUNT:
+            action = new com.thinkparity.ophelia.browser.platform.action.profile.DowngradeAccount(getBrowser());
+            break;
         case PROFILE_REMOVE_EMAIL:
             action = new com.thinkparity.ophelia.browser.platform.action.profile.RemoveEmail(getBrowser());
             break;

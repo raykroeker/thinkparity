@@ -7,30 +7,38 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
+
 import com.thinkparity.codebase.Pair;
+import com.thinkparity.codebase.bzip2.InflateFile;
+import com.thinkparity.codebase.crypto.DecryptFile;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.ophelia.model.DownloadHelper;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.container.ContainerDelegate;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.monitor.RestoreBackupStep;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentFileLock;
-import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
@@ -61,7 +69,9 @@ public final class RestoreBackup extends ContainerDelegate {
      * Restore from a backup.
      *
      */
-    public void restoreBackup() throws CannotLockException, IOException {
+    public void restoreBackup() throws CannotLockException, IOException,
+            NoSuchPaddingException, NoSuchAlgorithmException,
+            InvalidKeyException {
         // if backup is not enabled for the profile, do nothing
         if (!getProfileModel().isBackupEnabled().booleanValue())
             return;
@@ -141,9 +151,10 @@ public final class RestoreBackup extends ContainerDelegate {
      *            An archive reader.
      * @throws IOException
      */
-    private void restore(final Container container) throws IOException {
+    private void restore(final Container container) throws IOException,
+            NoSuchPaddingException, NoSuchAlgorithmException,
+            InvalidKeyException {
         final InternalBackupModel backupModel = getBackupModel();
-        final InternalDocumentModel documentModel = getDocumentModel();
         final InternalUserModel userModel = getUserModel();
         userModel.readLazyCreate(container.getCreatedBy());
         userModel.readLazyCreate(container.getUpdatedBy());
@@ -180,8 +191,7 @@ public final class RestoreBackup extends ContainerDelegate {
         ContainerVersion previous;
         List<ArtifactReceipt> publishedTo;
         List<PublishedToEMail> publishedToEMails;
-        DownloadHelper downloadHelper;
-        File tempFile;
+        File versionFile;
         for (final ContainerVersion version : versions) {
             logger.logTrace("Restoring container \"{0}\" version \"{1}.\"",
                     version.getArtifactName(), version.getVersionId());
@@ -237,11 +247,11 @@ public final class RestoreBackup extends ContainerDelegate {
                             userModel.readLazyCreate(documentVersion.getCreatedBy());
                             userModel.readLazyCreate(documentVersion.getUpdatedBy());
                             documentVersion.setArtifactId(document.getId());
-                            downloadHelper = documentModel.newDownloadHelper(documentVersion);
-                            tempFile = createTempFile();
+                            versionFile = createTempFile(MessageFormat.format(
+                                    "-{0}", documentVersion.getName()));
                             try {
-                                downloadHelper.download(tempFile);
-                                documentVersionStream = new FileInputStream(tempFile);
+                                download(documentVersion, versionFile);
+                                documentVersionStream = new FileInputStream(versionFile);
                                 try {
                                     documentIO.createVersion(documentVersion,
                                             documentVersionStream,
@@ -250,8 +260,8 @@ public final class RestoreBackup extends ContainerDelegate {
                                     documentVersionStream.close();
                                 }
                             } finally {
-                                // no assert; temp file
-                                tempFile.delete();
+                                // TEMPFILE - RestoreBackup#restore(Container)
+                                versionFile.delete();
                             }
                             containerIO.addVersion(container.getId(),
                                     version.getVersionId(), document.getId(),
@@ -279,5 +289,40 @@ public final class RestoreBackup extends ContainerDelegate {
         }
         // index
         getIndexModel().indexContainer(container.getId());
+    }
+
+    /**
+     * Download a document version.
+     * 
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @return A version <code>File</code>.
+     */
+    private void download(final DocumentVersion version, final File file)
+            throws IOException, NoSuchPaddingException,
+            NoSuchAlgorithmException, InvalidKeyException {
+        final String suffix = MessageFormat.format("-{0}",  version.getArtifactName());
+        final File downloadFile = createTempFile(suffix);
+        try {
+            getDocumentModel().newDownloadHelper(version).download(downloadFile);
+            final Secret secret = getCryptoModel().readSecret(version);
+            final Key key = new SecretKeySpec(secret.getKey(), secret.getAlgorithm());
+            final File decryptFile = createTempFile(suffix);
+            try {
+                synchronized (getBufferLock()) {
+                    new DecryptFile(secret.getAlgorithm()).decrypt(
+                            key, downloadFile, decryptFile, getBufferArray());
+                }
+                synchronized (getBufferLock()) {
+                    new InflateFile().inflate(decryptFile, file, getBuffer());
+                }
+            } finally {
+                // TEMPFILE - RestoreBackup#download(DocumentVersion)
+                decryptFile.delete();
+            }
+        } finally {
+            // TEMPFILE - RestoreBackup#download(DocumentVersion)
+            downloadFile.delete();
+        }
     }
 }

@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
+import com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 
@@ -122,6 +123,15 @@ public class InvitationSql extends AbstractSql {
         .append("CIA.ATTACHMENT_REFERENCE_ID,CIA.ATTACHMENT_REFERENCE_TYPE_ID ")
         .append("from TPSD_CONTACT_INVITATION_ATTACHMENT CIA ")
         .append("where CIA.CONTACT_INVITATION_ID=?")
+        .toString();
+
+    /** Sql to read container version attachments. */
+    private static final String SQL_READ_CONTAINER_VERSION_ATTACHMENTS =
+        new StringBuilder("select CIA.CONTACT_INVITATION_ID,")
+        .append("CIA.ATTACHMENT_REFERENCE_ID,CIA.ATTACHMENT_REFERENCE_TYPE_ID ")
+        .append("from TPSD_CONTACT_INVITATION_ATTACHMENT CIA ")
+        .append("where CIA.CONTACT_INVITATION_ID=? ")
+        .append("and CIA.ATTACHMENT_REFERENCE_TYPE_ID=?")
         .toString();
 
     /** Sql to read an incoming e-mail invitation. */
@@ -562,6 +572,32 @@ public class InvitationSql extends AbstractSql {
     }
 
     /**
+     * Read the attachments for an invitation.
+     * 
+     * @param invitation
+     *            A <code>ContactInvitation</code>.
+     * @return A <code>List</code> of <code>Attachment</code>s.
+     */
+    public List<ContainerVersionAttachment> readContainerVersionAttachments(
+            final ContactInvitation invitation) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_CONTAINER_VERSION_ATTACHMENTS);
+            session.setLong(1, invitation.getId());
+            session.executeQuery();
+            final List<ContainerVersionAttachment> attachments = new ArrayList<ContainerVersionAttachment>();
+            while (session.nextResult()) {
+                attachments.add(extractContainerVersionAttachment(session));
+            }
+            return attachments;
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Read incoming e-mail invitations for a user.
      * 
      * @param user
@@ -912,5 +948,22 @@ public class InvitationSql extends AbstractSql {
         attachment.setReferenceType(Attachment.ReferenceType.fromId(
                 session.getInteger("ATTACHMENT_REFERENCE_TYPE_ID")));
         return attachment;
+    }
+
+    /**
+     * Extract a container version attachment from a session.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @return An <code>ContainerVersionAttachment</code>.
+     */
+    private ContainerVersionAttachment extractContainerVersionAttachment(
+            final HypersonicSession session) {
+        final ContainerVersionAttachment cva = new ContainerVersionAttachment();
+        cva.setInvitationId(session.getLong("CONTACT_INVITATION_ID"));
+        cva.setReferenceId(session.getString("ATTACHMENT_REFERENCE_ID"));
+        cva.setReferenceType(Attachment.ReferenceType.fromId(
+                session.getInteger("ATTACHMENT_REFERENCE_TYPE_ID")));
+        return cva;
     }
 }

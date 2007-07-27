@@ -7,38 +7,60 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.user.UserNameTokenizer;
 
 /**
+ * <b>Title:</b>thinkParity Desdemona Model Contact Outgoing E-Mail Invitation
+ * Text<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public class InvitationText {
 
-    /** The inviting user. */
-    private final User invitedBy;
+    /** The contact us link. */
+    private static final String WWW_CONTACT_US_LINK;
+
+    /** The download link. */
+    private static final String WWW_DOWNLOAD_LINK;
+
+    /** The link. */
+    private static final String WWW_LINK;
+
+    static {
+        WWW_LINK = "http://www.thinkparity.com";
+        WWW_DOWNLOAD_LINK = "http://www.thinkparity.com/download";
+        WWW_CONTACT_US_LINK = "http://www.thinkparity.com/contactus";
+    }
+
+    /** The invitation attachment. */
+    private final ContainerVersion attachment;
+
+    /** The created by user's name tokenizer. */
+    private final UserNameTokenizer invitedByNameTokenizer;
 
     /** The resource bundle. */
     private final ResourceBundle resourceBundle;
 
-    /** A <code>UserNameTokenizer</code>. */
-    private final UserNameTokenizer userNameTokenizer;
-
     /**
      * Create InvitationText.
      * 
-     * @param locale
-     *            The invitee locale
      * @param invitedBy
-     *            The invited by user.
+     *            A <code>User</code>.
+     * @param attachment
+     *            A <code>ContainerVersion</code>.
      */
-    InvitationText(final Locale locale, final User invitedBy) {
+    InvitationText(final Locale locale, final User invitedBy,
+            final ContainerVersion attachment) {
         super();
-        this.invitedBy = invitedBy;
+        this.attachment = attachment;
+        this.invitedByNameTokenizer = new UserNameTokenizer(invitedBy);
+
         this.resourceBundle = ResourceBundle.getBundle(
                 "localization.Invitation_Messages", locale);
-        this.userNameTokenizer = new UserNameTokenizer(invitedBy.getName());
     }
 
     /**
@@ -48,11 +70,12 @@ public class InvitationText {
      *            The inviting user.
      * @return The invitation body.
      */
-    public String getBody() {
-        final String linkDisplay = "http://www.thinkparity.com";
-        return MessageFormat.format(resourceBundle.getString("body"),
-                getSubject(), invitedBy.getName(), userNameTokenizer.getGiven(),
-                linkDisplay);
+    String getBody() {
+        if (null == attachment.getName()) {
+            return getString("body.no-version");
+        } else {
+            return getString("body");
+        }
     }
 
     /**
@@ -60,7 +83,7 @@ public class InvitationText {
      * 
      * @return A string.
      */
-    public String getBodyType() {
+    String getBodyType() {
         return "text/plain";
     }
 
@@ -69,20 +92,39 @@ public class InvitationText {
      * 
      * @return A from personal <code>String</code>.
      */
-    public String getFromPersonal() {
-        return MessageFormat.format(resourceBundle.getString("from"),
-                invitedBy.getName());
+    String getFromPersonal() {
+        return getString("from");
     }
 
     /**
      * Obtain the invitation subject.
      * 
-     * @param inviter
-     *            The inviting user.
-     * @return The invitation subject.
+     * @return A <code>String</code>.
      */
-    public String getSubject() {
-        return MessageFormat.format(resourceBundle.getString("subject"),
-                invitedBy.getName());
+    String getSubject() {
+        if (null == attachment.getName()) {
+            return getString("subject.no-version");
+        } else {
+            return getString("subject");
+        }
+    }
+
+    /**
+     * Obtain a localized formatted string.
+     * 
+     * @param key
+     *            A localization key.
+     * @return A <code>String</code>.
+     */
+    private String getString(final String key) {
+        return MessageFormat.format(resourceBundle.getString(key),
+                WWW_LINK, WWW_CONTACT_US_LINK, WWW_DOWNLOAD_LINK,
+                invitedByNameTokenizer.getName(),
+                invitedByNameTokenizer.getGiven(),
+                invitedByNameTokenizer.isSetFamily()
+                        ? invitedByNameTokenizer.getGivenAndFamily("{0} {1}")
+                                : invitedByNameTokenizer.getGiven(),
+                attachment.getArtifactName(),
+                attachment.getName());
     }
 }

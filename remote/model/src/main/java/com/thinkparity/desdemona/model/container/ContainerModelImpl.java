@@ -378,7 +378,8 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             attachment.setVersionId(version.getVersionId());
             // create attachment
             if (!attachments.contains(attachment)) {
-                getContactModel().createInvitationAttachment(userId, attachment);
+                getContactModel().createInvitationAttachment(invitation,
+                        attachment);
             }
         }
     }

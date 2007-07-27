@@ -200,17 +200,14 @@ public final class ContactModelImpl extends AbstractModelImpl implements
             final UserModel userModel = getUserModel();
             final User createdBy = userModel.read(invitation.getCreatedBy().getId());
 
-            // create outgoing e-mail
+            // create outgoing e-mail invitation
             invitation.setCreatedBy(createdBy);
             invitationSql.create(user, invitation);
 
             final User invitationUser = userModel.read(invitation.getInvitationEMail());
             if (null == invitationUser) {
-                // send e-mail
-                final MimeMessage mimeMessage = smtpService.createMessage();
-                inject(mimeMessage, invitation.getInvitationEMail(), user);
-                addRecipient(mimeMessage, invitation.getInvitationEMail());
-                smtpService.deliver(mimeMessage);
+                logger.logInfo("User for {0} does not exist.",
+                        invitation.getInvitationEMail());
             } else {
                 // create incoming
                 final IncomingEMailInvitation incoming = new IncomingEMailInvitation();
@@ -267,14 +264,31 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.contact.InternalContactModel#createInvitationAttachment(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.desdemona.model.contact.invitation.Attachment)
+     * @see com.thinkparity.desdemona.model.contact.InternalContactModel#createInvitationAttachment(com.thinkparity.codebase.model.contact.OutgoingEMailInvitation,
+     *      com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttachment)
      * 
      */
-    public void createInvitationAttachment(final JabberId userId,
-            final Attachment attachment) {
+    public void createInvitationAttachment(
+            final OutgoingEMailInvitation invitation,
+            final ContainerVersionAttachment attachment) {
         try {
             invitationSql.createAttachment(attachment);
+
+            final InternalUserModel userModel = getUserModel();
+            final User invitationUser = userModel.read(invitation.getInvitationEMail());
+            if (null == invitationUser) {
+                final ContainerVersion version =
+                    getBackupModel().readContainerVersionAuth(
+                            attachment.getUniqueId(), attachment.getVersionId());
+                // send e-mail
+                final MimeMessage mimeMessage = smtpService.createMessage();
+                inject(mimeMessage, userModel.read(invitation.getCreatedBy().getLocalId()), version);
+                addRecipient(mimeMessage, invitation.getInvitationEMail());
+                smtpService.deliver(mimeMessage);
+            } else {
+                logger.logInfo("User {0} for {1} exists.", user.getUsername(),
+                        invitation.getInvitationEMail());
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -748,17 +762,21 @@ public final class ContactModelImpl extends AbstractModelImpl implements
      * 
      * @param mimeMessage
      *            A <code>MimeMessage</code>.
-     * @param email
-     *            The <code>EMail</code>.
+     * @param invitation
+     *            An <code>OutgoingEMailInvitation</code>.
      * @param invitedBy
-     *            The invited by <code>User</code>.
+     *            An invitation <code>User</code>.
+     * @param attachment
+     *            A <code>ContainerVersion</code>.
      * @throws MessagingException
+     * @throws UnsupportedEncodingException
      */
-	private void inject(final MimeMessage mimeMessage, final EMail email,
-            final User invitedBy) throws MessagingException,
+	private void inject(final MimeMessage mimeMessage, final User invitedBy,
+            final ContainerVersion attachment) throws MessagingException,
             UnsupportedEncodingException {
-	    final InvitationText text = new InvitationText(Locale.getDefault(),
-                invitedBy);
+	    final Locale locale = Locale.getDefault();
+	    final InvitationText text = new InvitationText(locale, invitedBy,
+	            attachment);
 
         final InternetAddress fromInternetAddress = new InternetAddress();
         fromInternetAddress.setAddress(Constants.Internet.Mail.FROM_ADDRESS);

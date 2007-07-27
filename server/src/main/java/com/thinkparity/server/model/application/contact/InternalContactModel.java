@@ -41,9 +41,17 @@ public interface InternalContactModel extends ContactModel {
             final JabberId invitationUserId,
             final IncomingEMailInvitation invitation);
 
-    @ThinkParityAuthenticate(AuthenticationType.USER)
-    public void createInvitationAttachment(final JabberId userId,
-            final Attachment attachment);
+    /**
+     * Create a container version attachment for an outgoing e-mail invitation.
+     * 
+     * @param invitation
+     *            An <code>OutgoingEMailInvitation</code>.
+     * @param attachment
+     *            A <code>ContainerVersionAttachment</code>.
+     */
+    public void createInvitationAttachment(
+            final OutgoingEMailInvitation invitation,
+            final ContainerVersionAttachment attachment);
 
     /**
      * Delete an invitation attachment.

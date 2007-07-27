@@ -177,7 +177,7 @@ public class UserModelImpl extends AbstractModelImpl implements UserModel,
             userSql.updateVCard(user.getLocalId(), vcard, new VCardWriter<com.thinkparity.codebase.model.user.UserVCard>() {
                 public void write(final com.thinkparity.codebase.model.user.UserVCard vcard, final Writer writer) throws IOException {
                     final StringWriter stringWriter = new StringWriter();
-                    XSTREAM_UTIL.toXML(vcard, writer);
+                    XSTREAM_UTIL.toXML(vcard, stringWriter);
                     try {
                         writer.write(encrypt(stringWriter.toString()));
                     } catch (final GeneralSecurityException gsx) {

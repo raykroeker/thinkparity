@@ -374,9 +374,10 @@ public final class SystemApplication extends AbstractApplication {
      *            A <code>ContactEvent</code>.
      */
     void fireContactIncomingInvitationCreated(final ContactEvent e) {
-        final Data data = new Data(1);
+        final Data data = new Data(2);
         final Long id = e.getIncomingInvitation().getId();
         data.set(Show.DataKey.INVITATION_ID, id);
+        data.set(Show.DataKey.CLEAR_SEARCH, Boolean.TRUE);
         impl.fireNotification(new DefaultNotification() {
             @Override
             public String getContentLine1() {
@@ -424,11 +425,12 @@ public final class SystemApplication extends AbstractApplication {
      *            A <code>ContainerEvent</code>.
      */
     void fireContainerPublished(final ContainerEvent e) {
-        final Data data = new Data(2);
+        final Data data = new Data(3);
         final Long containerId = e.getContainer().getId();
         final Long versionId = e.getVersion().getVersionId();
         data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.CONTAINER_ID, containerId);
         data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.VERSION_ID, versionId);
+        data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.CLEAR_SEARCH, Boolean.TRUE);
         if (null == e.getPreviousVersion() && null == e.getNextVersion()) {
             // this is the first publish event
             impl.fireNotification(new DefaultNotification() {

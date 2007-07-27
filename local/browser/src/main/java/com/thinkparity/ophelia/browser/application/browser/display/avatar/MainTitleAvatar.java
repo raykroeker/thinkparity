@@ -65,6 +65,13 @@ public final class MainTitleAvatar extends Avatar {
     }
 
     /**
+     * Clear the search.
+     */
+    public void clearSearch() {
+        searchPanel.clearSearch();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getId()
      */
     @Override
@@ -212,7 +219,7 @@ public final class MainTitleAvatar extends Avatar {
             default:
                 Assert.assertUnreachable("UNKNOWN TAB");
             }
-            searchPanel.clearSearch();
+            clearSearch();
             searchPanel.reloadTabFilter(tabId);
         }
     }

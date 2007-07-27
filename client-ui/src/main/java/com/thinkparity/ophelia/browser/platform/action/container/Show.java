@@ -37,6 +37,7 @@ public class Show extends AbstractBrowserAction {
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         final Long versionId = (Long) data.get(DataKey.VERSION_ID);
+        final Boolean clearSearch = (Boolean) data.get(DataKey.CLEAR_SEARCH);
 
         // Restore the Browser if it is hibernating
         invoke(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
@@ -44,6 +45,11 @@ public class Show extends AbstractBrowserAction {
         // Uniconify and move to front
         browser.iconify(Boolean.FALSE);
         browser.moveToFront();
+
+        // Clear search
+        if (clearSearch) {
+            browser.clearSearch();
+        }
 
         // Select the container tab and show the container
         browser.selectTab(MainTitleAvatar.TabId.CONTAINER);
@@ -55,5 +61,5 @@ public class Show extends AbstractBrowserAction {
     }
 
     /** The data keys. */
-    public enum DataKey { CONTAINER_ID, VERSION_ID }
+    public enum DataKey { CLEAR_SEARCH, CONTAINER_ID, VERSION_ID }
 }

@@ -164,6 +164,13 @@ public class Browser extends AbstractApplication {
 	}
 
     /**
+     * Clear the search.
+     */
+    public void clearSearch() {
+        getMainTitleAvatar().clearSearch();
+    }
+
+    /**
      * Clear all status links.
      */
     public void clearStatusLink() {

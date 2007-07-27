@@ -625,6 +625,7 @@ public class MainStatusAvatar extends Avatar {
                         linkJLabel.setText(getString("ContainerLink", new Object[] {unseenContainerVersions.size()}));
                         linkRunnable = new Runnable() {
                             public void run() {
+                                getController().clearSearch();
                                 getController().selectTab(MainTitleAvatar.TabId.CONTAINER);
                                 getController().showTopVisibleUnreadContainerVersion();
                             }
@@ -635,6 +636,7 @@ public class MainStatusAvatar extends Avatar {
                         if (0 < incomingEMail.size()) {
                             optionalLinkRunnable = new Runnable() {
                                 public void run() {
+                                    getController().clearSearch();
                                     getController().selectTab(MainTitleAvatar.TabId.CONTACT);
                                     getController().showContactIncomingEMailInvitation(incomingEMail.get(0));
                                 }
@@ -643,6 +645,7 @@ public class MainStatusAvatar extends Avatar {
                         if (0 < incomingUser.size()) {
                             optionalLinkRunnable = new Runnable() {
                                 public void run() {
+                                    getController().clearSearch();
                                     getController().selectTab(MainTitleAvatar.TabId.CONTACT);
                                     getController().showContactIncomingUserInvitation(incomingUser.get(0));
                                 }
@@ -654,6 +657,7 @@ public class MainStatusAvatar extends Avatar {
                         linkJLabel.setText(getString("ContainerLink", new Object[] {unseenContainerVersions.size()}));
                         linkRunnable = new Runnable() {
                             public void run() {
+                                getController().clearSearch();
                                 getController().selectTab(MainTitleAvatar.TabId.CONTAINER);
                                 getController().showTopVisibleUnreadContainerVersion();
                             }
@@ -666,6 +670,7 @@ public class MainStatusAvatar extends Avatar {
                         if (0 < incomingEMail.size()) {
                             linkRunnable = new Runnable() {
                                 public void run() {
+                                    getController().clearSearch();
                                     getController().selectTab(MainTitleAvatar.TabId.CONTACT);
                                     getController().showContactIncomingEMailInvitation(incomingEMail.get(0));
                                 }
@@ -674,6 +679,7 @@ public class MainStatusAvatar extends Avatar {
                         if (0 < incomingUser.size()) {
                             linkRunnable = new Runnable() {
                                 public void run() {
+                                    getController().clearSearch();
                                     getController().selectTab(MainTitleAvatar.TabId.CONTACT);
                                     getController().showContactIncomingUserInvitation(incomingUser.get(0));
                                 }

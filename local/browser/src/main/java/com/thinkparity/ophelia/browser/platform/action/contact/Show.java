@@ -36,6 +36,7 @@ public class Show extends AbstractBrowserAction {
     @Override
     public void invoke(final Data data) {
         final Long invitationId = (Long) data.get(DataKey.INVITATION_ID);
+        final Boolean clearSearch = (Boolean) data.get(DataKey.CLEAR_SEARCH);
 
         // Restore the Browser if it is hibernating
         invoke(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
@@ -44,11 +45,16 @@ public class Show extends AbstractBrowserAction {
         browser.iconify(Boolean.FALSE);
         browser.moveToFront();
 
+        // Clear search
+        if (clearSearch) {
+            browser.clearSearch();
+        }
+
         // Select the contact tab and show the invitation
         browser.selectTab(MainTitleAvatar.TabId.CONTACT);
         browser.showContactInvitation(invitationId);
     }
 
     /** The data keys. */
-    public enum DataKey { INVITATION_ID }
+    public enum DataKey { CLEAR_SEARCH, INVITATION_ID }
 }

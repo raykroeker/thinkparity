@@ -542,6 +542,13 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Display the update account dialog.
+     */
+    public void displayUpdateAccountDialog() {
+        displayAvatar(AvatarId.DIALOG_PROFILE_UPDATE_ACCOUNT);
+    }
+
+    /**
      * Display the update draft comment dialog.
      * 
      * @param containerId

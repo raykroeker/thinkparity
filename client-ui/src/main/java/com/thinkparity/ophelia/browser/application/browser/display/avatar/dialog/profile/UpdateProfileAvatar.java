@@ -73,6 +73,7 @@ public class UpdateProfileAvatar extends Avatar {
     private final javax.swing.JLabel emailJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField emailJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
+    private final javax.swing.JButton manageAccountJButton = ButtonFactory.create();
     private final javax.swing.JTextField mobilePhoneJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField nameJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
@@ -149,6 +150,7 @@ public class UpdateProfileAvatar extends Avatar {
         reload(emailJTextField, getEMailString(), online);
         reloadProvinceLabel();
         reloadPostalCodeLabel();
+        reloadManageAccount();
         reloadStatistics();
         validateInput();
     }
@@ -210,8 +212,10 @@ public class UpdateProfileAvatar extends Avatar {
             errorMessageJLabel.setText(getInputErrors().get(0));
         }
         saveJButton.setEnabled(!containsInputErrors());
-        // enable the change password button if online and there are no input changes
+        // enable the change password button & manage account button
+        // if online and there are no input changes
         changePasswordJButton.setEnabled(online && !inputChanged);
+        manageAccountJButton.setEnabled(online && !inputChanged);
     }
 
     /**
@@ -461,14 +465,14 @@ public class UpdateProfileAvatar extends Avatar {
         countryJPanel.setMinimumSize(new java.awt.Dimension(20, 20));
         countryJPanel.setOpaque(false);
         countryJPanel.setPreferredSize(new java.awt.Dimension(74, 20));
+        countryJTextField.setFont(Fonts.DialogFont);
+        countryJTextField.setText("Middle Earth");
+        countryJPanel.add(countryJTextField, "offline");
+
         countryJComboBox.setFont(Fonts.DialogTextEntryFont);
         countryJComboBox.setModel(countryModel);
         countryJComboBox.setRenderer(new LocaleRenderer(getController().getLocale()));
         countryJPanel.add(countryJComboBox, "online");
-
-        countryJTextField.setFont(Fonts.DialogFont);
-        countryJTextField.setText("Middle Earth");
-        countryJPanel.add(countryJTextField, "offline");
 
         postalCodeJLabel.setFont(Fonts.DialogFont);
         postalCodeJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateProfileAvatar.PostalCode"));
@@ -489,6 +493,14 @@ public class UpdateProfileAvatar extends Avatar {
         emailJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 profileJTextFieldActionPerformed(evt);
+            }
+        });
+
+        manageAccountJButton.setFont(Fonts.DialogButtonFont);
+        manageAccountJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateProfileAvatar.UpgradeAccount"));
+        manageAccountJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                manageAccountJButtonActionPerformed(evt);
             }
         });
 
@@ -533,9 +545,36 @@ public class UpdateProfileAvatar extends Avatar {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(profileExplanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(profileJSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
-                        .addContainerGap())
+                        .addGap(16, 16, 16)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(titleJLabel)
+                            .addComponent(nameJLabel)
+                            .addComponent(organizationJLabel)
+                            .addComponent(phoneJLabel)
+                            .addComponent(mobilePhoneJLabel)
+                            .addComponent(addressJLabel)
+                            .addComponent(cityJLabel)
+                            .addComponent(provinceJLabel)
+                            .addComponent(countryJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(postalCodeJLabel)
+                            .addComponent(emailJLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(countryJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(emailJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(postalCodeJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(provinceJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cityJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(addressJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(mobilePhoneJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(phoneJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(organizationJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(titleJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(nameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(16, 16, 16))
+                    .addComponent(profileJSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -543,59 +582,33 @@ public class UpdateProfileAvatar extends Avatar {
                                 .addGap(14, 14, 14))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addComponent(changePasswordJButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 198, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(manageAccountJButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 73, Short.MAX_VALUE)
                                 .addComponent(saveJButton)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(cancelJButton)))
-                        .addGap(12, 12, 12))
+                        .addGap(2, 2, 2))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addGap(16, 16, 16)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(titleJLabel)
-                                            .addComponent(nameJLabel)
-                                            .addComponent(organizationJLabel)
-                                            .addComponent(phoneJLabel)
-                                            .addComponent(mobilePhoneJLabel)
-                                            .addComponent(addressJLabel)
-                                            .addComponent(cityJLabel)
-                                            .addComponent(provinceJLabel)
-                                            .addComponent(countryJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(postalCodeJLabel)
-                                            .addComponent(emailJLabel))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(countryJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(emailJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(postalCodeJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(provinceJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(cityJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(addressJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(mobilePhoneJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(phoneJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(organizationJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(titleJTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(nameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 321, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addComponent(backupExplanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(16, 16, 16)
-                                        .addComponent(backupStatisticsJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)))
-                                .addGap(16, 16, 16))
-                            .addComponent(profileExplanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
-                        .addContainerGap())))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(backupExplanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(16, 16, 16)
+                                .addComponent(backupStatisticsJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)))
+                        .addGap(16, 16, 16)))
+                .addContainerGap())
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cancelJButton, saveJButton});
 
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {changePasswordJButton, manageAccountJButton});
+
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addGap(27, 27, 27)
                 .addComponent(profileExplanationJLabel)
-                .addGap(12, 12, 12)
+                .addGap(14, 14, 14)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(nameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(nameJLabel))
@@ -639,11 +652,11 @@ public class UpdateProfileAvatar extends Avatar {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(emailJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(emailJLabel))
-                .addGap(18, 18, 18)
+                .addGap(19, 19, 19)
                 .addComponent(profileJSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(backupExplanationJLabel)
-                .addGap(15, 15, 15)
+                .addGap(14, 14, 14)
                 .addComponent(backupStatisticsJLabel)
                 .addGap(22, 22, 22)
                 .addComponent(errorMessageJLabel)
@@ -651,8 +664,9 @@ public class UpdateProfileAvatar extends Avatar {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(saveJButton)
                     .addComponent(cancelJButton)
-                    .addComponent(changePasswordJButton))
-                .addContainerGap())
+                    .addComponent(changePasswordJButton)
+                    .addComponent(manageAccountJButton))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -786,6 +800,15 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     /**
+     * Determine if signup is available (ie. this is a guest account).
+     * 
+     * @return True if signup is available (ie. this is a guest account)
+     */
+    private Boolean isSignUpAvailable() {
+        return ((UpdateProfileProvider) contentProvider).isSignUpAvailable();
+    }
+
+    /**
      * Determines if the United States is the selected country.
      * 
      * @return true if the United States is selected; false otherwise
@@ -797,6 +820,16 @@ public class UpdateProfileAvatar extends Avatar {
             return Boolean.FALSE;
         }
     }
+
+    private void manageAccountJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manageAccountJButtonActionPerformed
+        disposeWindow();
+        if (isSignUpAvailable()) {
+            // TODO
+            getController().displayUpdateAccountDialog();
+        } else {
+            getController().displayUpdateAccountDialog();
+        }
+    }//GEN-LAST:event_manageAccountJButtonActionPerformed
 
     /**
      * Action performed method for all text fields, behaves like save button.
@@ -872,35 +905,6 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     /**
-     * Reload the profile statistics.
-     * 
-     */
-    private void reloadStatistics() {
-        Long diskUsage = readStatistics().getDiskUsage();
-        if (null == diskUsage) {
-            diskUsage = 0L;
-        }
-        if (isBackupEnabled()) {
-            final Long allotment = readBackupStatistics().getDiskUsageAllotment();
-            final Long percent = allotment <= 0 ? 100L : 100L * diskUsage / allotment;
-            if (percent == 0 && diskUsage > 0) {
-                backupStatisticsJLabel.setText(getString(
-                        "BackupSupportedOnePercent", new Object[] {
-                                BYTES_FORMAT.format(diskUsage),
-                                BYTES_FORMAT.format(allotment) }));
-            } else {
-                backupStatisticsJLabel.setText(getString(
-                        "BackupSupported", new Object[] {
-                                BYTES_FORMAT.format(diskUsage), percent,
-                                BYTES_FORMAT.format(allotment) }));
-            }
-        } else {
-            backupStatisticsJLabel.setText(getString("BackupNotSupported",
-                    new Object[] { BYTES_FORMAT.format(diskUsage) }));
-        }
-    }
-
-    /**
      * Reload the country picklist (used if online) and text field
      * (used if offline).
      * 
@@ -928,6 +932,17 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     /**
+     * Reload the manage account button.
+     */
+    private void reloadManageAccount() {
+        if (isSignUpAvailable()) {
+            manageAccountJButton.setText(getString("UpgradeAccount"));
+        } else {
+            manageAccountJButton.setText(getString("ManageAccount"));
+        }
+    }
+
+    /**
      * Reload the postal code (ie. postal code or zip code) label.
      */
     private void reloadPostalCodeLabel() {
@@ -946,6 +961,35 @@ public class UpdateProfileAvatar extends Avatar {
             provinceJLabel.setText(getString("State"));
         } else {
             provinceJLabel.setText(getString("Province"));    
+        }
+    }
+
+    /**
+     * Reload the profile statistics.
+     * 
+     */
+    private void reloadStatistics() {
+        Long diskUsage = readStatistics().getDiskUsage();
+        if (null == diskUsage) {
+            diskUsage = 0L;
+        }
+        if (isBackupEnabled()) {
+            final Long allotment = readBackupStatistics().getDiskUsageAllotment();
+            final Long percent = allotment <= 0 ? 100L : 100L * diskUsage / allotment;
+            if (percent == 0 && diskUsage > 0) {
+                backupStatisticsJLabel.setText(getString(
+                        "BackupSupportedOnePercent", new Object[] {
+                                BYTES_FORMAT.format(diskUsage),
+                                BYTES_FORMAT.format(allotment) }));
+            } else {
+                backupStatisticsJLabel.setText(getString(
+                        "BackupSupported", new Object[] {
+                                BYTES_FORMAT.format(diskUsage), percent,
+                                BYTES_FORMAT.format(allotment) }));
+            }
+        } else {
+            backupStatisticsJLabel.setText(getString("BackupNotSupported",
+                    new Object[] { BYTES_FORMAT.format(diskUsage) }));
         }
     }
 

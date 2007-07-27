@@ -23,6 +23,9 @@ public final class BrowserConstants {
 
         /** The standard text colour. */
         public static final Color DIALOG_TEXT_FG = Color.BLACK;
+
+        /** Transparent colour. */
+        public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
     }
 
     /** Browser Fonts */

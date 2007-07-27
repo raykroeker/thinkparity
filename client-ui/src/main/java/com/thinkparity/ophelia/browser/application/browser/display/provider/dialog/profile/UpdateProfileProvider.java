@@ -32,8 +32,6 @@ public class UpdateProfileProvider extends ContentProvider {
      * 
      * @param profileModel
      *            A profile model interface.
-     * @param backupModel
-     *            An instance of <code>BackupModel</code>.
      * @param sessionModel
      *            An instance of <code>SessionModel</code>.
      */
@@ -59,6 +57,15 @@ public class UpdateProfileProvider extends ContentProvider {
      */
     public Boolean isOnline() {
         return sessionModel.isOnline();
+    }
+
+    /**
+     * Determine if signup is available (ie. this is a guest account).
+     * 
+     * @return True if signup is available (ie. this is a guest account)
+     */
+    public Boolean isSignUpAvailable() {
+        return profileModel.isSignUpAvailable();
     }
 
     /**

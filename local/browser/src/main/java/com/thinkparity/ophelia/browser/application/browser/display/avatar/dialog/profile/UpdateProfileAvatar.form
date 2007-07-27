@@ -12,13 +12,42 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="profileExplanationJLabel" pref="455" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="profileJSeparator" pref="455" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="titleJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="nameJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="organizationJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="phoneJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="mobilePhoneJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="addressJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="cityJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="provinceJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="countryJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="postalCodeJLabel" alignment="0" min="-2" max="-2" attributes="1"/>
+                          <Component id="emailJLabel" min="-2" max="-2" attributes="1"/>
+                      </Group>
+                      <EmptySpace pref="24" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="countryJPanel" min="-2" pref="321" max="-2" attributes="1"/>
+                          <Component id="emailJTextField" alignment="0" min="-2" pref="321" max="-2" attributes="1"/>
+                          <Component id="postalCodeJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
+                          <Component id="provinceJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
+                          <Component id="cityJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
+                          <Component id="addressJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
+                          <Component id="mobilePhoneJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
+                          <Component id="phoneJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
+                          <Component id="organizationJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="3"/>
+                          <Component id="titleJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="3"/>
+                          <Component id="nameJTextField" alignment="0" min="-2" pref="321" max="-2" attributes="3"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="profileJSeparator" alignment="0" pref="455" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
@@ -26,71 +55,38 @@
                               <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="1" attributes="0">
-                              <Component id="changePasswordJButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="198" max="32767" attributes="0"/>
+                              <Component id="changePasswordJButton" linkSize="2" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="manageAccountJButton" linkSize="2" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace pref="73" max="32767" attributes="0"/>
                               <Component id="saveJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="cancelJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Group type="103" groupAlignment="1" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="backupExplanationJLabel" alignment="0" pref="439" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" alignment="1" attributes="0">
-                                      <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="titleJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="nameJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="organizationJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="phoneJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="mobilePhoneJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="addressJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="cityJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="provinceJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="countryJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="postalCodeJLabel" alignment="0" min="-2" max="-2" attributes="1"/>
-                                          <Component id="emailJLabel" min="-2" max="-2" attributes="1"/>
-                                      </Group>
-                                      <EmptySpace pref="24" max="32767" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                          <Component id="countryJPanel" min="-2" pref="321" max="-2" attributes="1"/>
-                                          <Component id="emailJTextField" alignment="0" min="-2" pref="321" max="-2" attributes="1"/>
-                                          <Component id="postalCodeJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
-                                          <Component id="provinceJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
-                                          <Component id="cityJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
-                                          <Component id="addressJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
-                                          <Component id="mobilePhoneJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
-                                          <Component id="phoneJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="1"/>
-                                          <Component id="organizationJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="3"/>
-                                          <Component id="titleJTextField" alignment="1" min="-2" pref="321" max="-2" attributes="3"/>
-                                          <Component id="nameJTextField" alignment="0" min="-2" pref="321" max="-2" attributes="3"/>
-                                      </Group>
-                                  </Group>
-                                  <Component id="backupExplanationJLabel" alignment="0" pref="439" max="32767" attributes="0"/>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-                                      <Component id="backupStatisticsJLabel" pref="423" max="32767" attributes="0"/>
-                                  </Group>
-                              </Group>
                               <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
+                              <Component id="backupStatisticsJLabel" pref="423" max="32767" attributes="0"/>
                           </Group>
-                          <Component id="profileExplanationJLabel" alignment="1" pref="455" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
                   </Group>
               </Group>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="1" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
               <Component id="profileExplanationJLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="nameJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="nameJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -145,11 +141,11 @@
                   <Component id="emailJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="emailJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
               <Component id="profileJSeparator" min="-2" pref="10" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="backupExplanationJLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
               <Component id="backupStatisticsJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
               <Component id="errorMessageJLabel" min="-2" max="-2" attributes="0"/>
@@ -158,8 +154,9 @@
                   <Component id="saveJButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="cancelJButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="changePasswordJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="manageAccountJButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -430,6 +427,23 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignCardLayout"/>
       <SubComponents>
+        <Component class="javax.swing.JTextField" name="countryJTextField">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="Fonts.DialogFont" type="code"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Middle Earth"/>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
+          </AuxValues>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignCardLayout" value="org.netbeans.modules.form.compat2.layouts.DesignCardLayout$CardConstraintsDescription">
+              <CardConstraints cardName="offline"/>
+            </Constraint>
+          </Constraints>
+        </Component>
         <Component class="javax.swing.JComboBox" name="countryJComboBox">
           <Properties>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
@@ -448,23 +462,6 @@
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignCardLayout" value="org.netbeans.modules.form.compat2.layouts.DesignCardLayout$CardConstraintsDescription">
               <CardConstraints cardName="online"/>
-            </Constraint>
-          </Constraints>
-        </Component>
-        <Component class="javax.swing.JTextField" name="countryJTextField">
-          <Properties>
-            <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="Fonts.DialogFont" type="code"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="Middle Earth"/>
-          </Properties>
-          <AuxValues>
-            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
-            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
-          </AuxValues>
-          <Constraints>
-            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignCardLayout" value="org.netbeans.modules.form.compat2.layouts.DesignCardLayout$CardConstraintsDescription">
-              <CardConstraints cardName="offline"/>
             </Constraint>
           </Constraints>
         </Component>
@@ -519,6 +516,23 @@
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
         <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getEmail()));"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JButton" name="manageAccountJButton">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogButtonFont" type="code"/>
+        </Property>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="localization/Browser_Messages.properties" key="UpdateProfileAvatar.UpgradeAccount" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="manageAccountJButtonActionPerformed"/>
+      </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="ButtonFactory.create();"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>

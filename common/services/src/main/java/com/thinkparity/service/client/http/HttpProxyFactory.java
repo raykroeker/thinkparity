@@ -44,7 +44,7 @@ public final class HttpProxyFactory implements ServiceProxyFactory {
      * @return An <code>HtttpClient</code>.
      */
     private static HttpClient newHttpClient() {
-        final HttpClient httpClient = HttpUtils.newClient();
+        final HttpClient httpClient = HttpUtils.newMultiThreadedClient();
 
         final HttpConnectionManagerParams params = httpClient.getHttpConnectionManager().getParams();
         params.setSoTimeout(90 * 1000);

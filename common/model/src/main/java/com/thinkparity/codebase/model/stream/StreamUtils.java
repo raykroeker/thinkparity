@@ -36,7 +36,7 @@ public final class StreamUtils {
 
     static {
         BYTES_FORMAT = new BytesFormat();
-        HTTP_CLIENT = HttpUtils.newClient();
+        HTTP_CLIENT = HttpUtils.newMultiThreadedClient();
         HTTP_CLIENT.getHttpConnectionManager().getParams().setMaxTotalConnections(3);
         LOGGER = new Log4JWrapper(StreamUtils.class);
     }

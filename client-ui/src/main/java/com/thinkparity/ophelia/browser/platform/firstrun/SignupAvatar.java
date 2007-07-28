@@ -28,7 +28,10 @@ import com.thinkparity.ophelia.browser.util.localization.Localization;
 
 /**
  *
- * @author  user
+ * <b>Title:</b>thinkParity OpheliaUI Signup Avatar<br>
+ * <b>Description:</b><br>
+ * 
+ * @author robert@thinkparity.com
  */
 public class SignupAvatar extends Avatar implements SignupDelegate {
 
@@ -203,7 +206,13 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
         });
         bindEnterKey("Next", new AbstractAction() {
             public void actionPerformed(final ActionEvent e) {
-                nextJButtonActionPerformed(e);
+                if (cancelJButton.isFocusOwner()) {
+                    cancelJButtonActionPerformed(e);
+                } else if (prevJButton.isFocusOwner()) {
+                    prevJButtonActionPerformed(e);
+                } else {
+                    nextJButtonActionPerformed(e);
+                }
             }
         });
     }

@@ -156,7 +156,7 @@ class ConfigurationHelper {
     Credentials extractCredentials() {
         def credentials = new Credentials()
         credentials.setUsername("thinkparity")
-        credentials.setPassword("parity")
+        credentials.setPassword("pr3t0r1a")
         return credentials
     }
 

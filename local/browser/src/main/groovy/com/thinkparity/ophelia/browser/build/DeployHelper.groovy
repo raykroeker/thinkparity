@@ -10,6 +10,7 @@ import com.thinkparity.codebase.nio.ChannelUtil
 import com.thinkparity.codebase.model.migrator.Product
 import com.thinkparity.codebase.model.migrator.Release
 import com.thinkparity.codebase.model.migrator.Resource
+import com.thinkparity.codebase.model.stream.StreamInfo
 import com.thinkparity.codebase.model.stream.StreamSession
 import com.thinkparity.codebase.model.stream.StreamMonitor
 import com.thinkparity.codebase.model.stream.StreamWriter
@@ -118,11 +119,11 @@ class DeployHelper {
      * @throws IOException
      */
     void upload(Product product, Release release, File file) {
-        final Long contentLength = file.length()
-        final String contentMD5 = checksum(file)
+        final StreamInfo streamInfo = new StreamInfo()
+        streamInfo.setMD5(checksum(file))
+        streamInfo.setSize(Long.valueOf(file.length()))
         final StreamSession session = streamService.newUpstreamSession(
-                authToken, product, release, contentLength, contentMD5,
-                HttpUtils.ContentTypeNames.APPLICATION_ZIP)
+                authToken, streamInfo, product, release)
         final BytesFormat bytesFormat = new BytesFormat()
         final StreamWriter writer = new StreamWriter(new DeployStreamMonitor(),
             session);

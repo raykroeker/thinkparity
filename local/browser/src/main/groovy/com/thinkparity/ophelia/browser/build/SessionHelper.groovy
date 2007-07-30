@@ -41,10 +41,8 @@ class SessionHelper {
      */
     void login() {
         init()
-        final String sessionId = sessionService.login(
+        final AuthToken authToken = sessionService.login(
             configuration["thinkparity.credentials"])
-        final AuthToken authToken = new AuthToken()
-        authToken.setSessionId(sessionId)
         configuration["thinkparity.auth-token"] = authToken
     }
 

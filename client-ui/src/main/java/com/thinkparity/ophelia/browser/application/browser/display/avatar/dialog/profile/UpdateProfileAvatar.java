@@ -811,8 +811,7 @@ public class UpdateProfileAvatar extends Avatar {
     private void manageAccountJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manageAccountJButtonActionPerformed
         disposeWindow();
         if (isSignUpAvailable()) {
-            // TODO
-            getController().displayUpdateAccountDialog();
+            getController().displayUpgradeAccountDialog();
         } else {
             getController().displayUpdateAccountDialog();
         }
@@ -927,6 +926,8 @@ public class UpdateProfileAvatar extends Avatar {
         } else {
             manageAccountJButton.setText(getString("ManageAccount"));
         }
+        // NOCOMMIT Remove this
+        manageAccountJButton.setVisible(getController().isDevelopmentMode());
     }
 
     /**

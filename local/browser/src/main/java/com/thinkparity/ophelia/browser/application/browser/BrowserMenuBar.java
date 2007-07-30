@@ -53,17 +53,17 @@ public class BrowserMenuBar extends JMenuBar {
     /** Maximize label rollover icon. */
     private static final Icon MAXIMIZE_ROLLOVER_ICON;
 
-    /** Sign-Up label icon. */
-    private static final Icon SIGNUP_ICON;
-
-    /** Sign-Up label rollover icon. */
-    private static final Icon SIGNUP_ROLLOVER_ICON;
-
     /** Un-Maximize label icon. */
     private static final Icon UNMAXIMIZE_ICON;
 
     /** Un-Maximize label rollover icon. */
     private static final Icon UNMAXIMIZE_ROLLOVER_ICON;
+
+    /** Upgrade label icon. */
+    private static final Icon UPGRADE_ICON;
+
+    /** Upgrade label rollover icon. */
+    private static final Icon UPGRADE_ROLLOVER_ICON;
 
     static {
         CLOSE_ICON = ImageIOUtil.readIcon("BrowserTitle_Close.png");
@@ -75,11 +75,11 @@ public class BrowserMenuBar extends JMenuBar {
         MAXIMIZE_ICON = ImageIOUtil.readIcon("BrowserTitle_Maximize.png");
         MAXIMIZE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_MaximizeRollover.png");
 
-        SIGNUP_ICON = ImageIOUtil.readIcon("BrowserTitle_SignUp.png");
-        SIGNUP_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_SignUpRollover.png");
-
         UNMAXIMIZE_ICON = ImageIOUtil.readIcon("BrowserTitle_UnMaximize.png");
         UNMAXIMIZE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_UnMaximizeRollover.png");
+
+        UPGRADE_ICON = ImageIOUtil.readIcon("BrowserTitle_Upgrade.png");
+        UPGRADE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_UpgradeRollover.png");
     }
 
     /**
@@ -131,10 +131,10 @@ public class BrowserMenuBar extends JMenuBar {
         new Resizer(browser, this, Boolean.FALSE, Resizer.ResizeEdges.TOP);
         installMouseListener();
 
-        // Create the Sign-Up button
+        // Create the upgrade button
         this.add(Box.createHorizontalGlue());
         if (browser.getPlatform().isSignUpAvailable()) {
-            this.add(getSignUpButton());
+            this.add(getUpgradeButton());
             this.add(Box.createRigidArea(new Dimension(2,0)));
         }
 
@@ -200,23 +200,23 @@ public class BrowserMenuBar extends JMenuBar {
         return button;
     }
 
-    private javax.swing.JButton getSignUpButton() {
-        final javax.swing.JButton signUpJButton = getButton(SIGNUP_ICON);
-        signUpJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+    private javax.swing.JButton getUpgradeButton() {
+        final javax.swing.JButton upgradeJButton = getButton(UPGRADE_ICON);
+        upgradeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(final java.awt.event.MouseEvent e) {
-                signUpJButtonMouseEntered(e);
+                upgradeJButtonMouseEntered(e);
             }
             public void mouseExited(final java.awt.event.MouseEvent e) {
-                signUpJButtonMouseExited(e);
+                upgradeJButtonMouseExited(e);
             }
         });
-        signUpJButton.addActionListener(new java.awt.event.ActionListener() {
+        upgradeJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(final java.awt.event.ActionEvent e) {
-                signUpJButtonActionPerformed(e);
+                upgradeJButtonActionPerformed(e);
             }
         });
 
-        return signUpJButton;
+        return upgradeJButton;
     }
 
     private javax.swing.JButton getMinimizeButton() {
@@ -277,18 +277,18 @@ public class BrowserMenuBar extends JMenuBar {
         return closeJButton;        
     }
 
-    private void signUpJButtonActionPerformed(final java.awt.event.ActionEvent e) {
-        browser.runProfileSignUp();
+    private void upgradeJButtonActionPerformed(final java.awt.event.ActionEvent e) {
+        browser.runUpgradeAccount();
     }
 
-    private void signUpJButtonMouseEntered(final java.awt.event.MouseEvent e) {
+    private void upgradeJButtonMouseEntered(final java.awt.event.MouseEvent e) {
         SwingUtil.setCursor((javax.swing.JButton) e.getSource(), java.awt.Cursor.HAND_CURSOR);
-        ((javax.swing.JButton) e.getSource()).setIcon(SIGNUP_ROLLOVER_ICON);
+        ((javax.swing.JButton) e.getSource()).setIcon(UPGRADE_ROLLOVER_ICON);
     }
 
-    private void signUpJButtonMouseExited(final java.awt.event.MouseEvent e) {
+    private void upgradeJButtonMouseExited(final java.awt.event.MouseEvent e) {
         SwingUtil.setCursor((javax.swing.JButton) e.getSource(), null);
-        ((javax.swing.JButton) e.getSource()).setIcon(SIGNUP_ICON);
+        ((javax.swing.JButton) e.getSource()).setIcon(UPGRADE_ICON);
     }
 
     private void minimizeJButtonActionPerformed(final java.awt.event.ActionEvent e) {

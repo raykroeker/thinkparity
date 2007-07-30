@@ -271,14 +271,14 @@ public class ActionFactory extends AbstractFactory {
         case PROFILE_REMOVE_EMAIL:
             action = new com.thinkparity.ophelia.browser.platform.action.profile.RemoveEmail(getBrowser());
             break;
-        case PROFILE_SIGN_UP:
-            action = new com.thinkparity.ophelia.browser.platform.action.profile.SignUp(getBrowser());
-            break;
         case PROFILE_UPDATE:
             action = new com.thinkparity.ophelia.browser.platform.action.profile.Update(getBrowser());
             break;
         case PROFILE_UPDATE_PASSWORD:
             action = new com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword(getBrowser());
+            break;
+        case PROFILE_UPGRADE_ACCOUNT:
+            action = new com.thinkparity.ophelia.browser.platform.action.profile.UpgradeAccount(getBrowser());
             break;
         case PROFILE_VERIFY_EMAIL:
             action = new com.thinkparity.ophelia.browser.platform.action.profile.VerifyEmail(getBrowser());

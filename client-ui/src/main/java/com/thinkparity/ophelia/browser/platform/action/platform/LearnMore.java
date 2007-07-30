@@ -24,15 +24,19 @@ import org.jdesktop.jdic.desktop.DesktopException;
  */
 public class LearnMore extends AbstractAction {
 
-    /** The relative link for "signup" learn more. */
-    private static String SIGNUP_LINK;
-
     /** The relative link for "beta" learn more. */
     private static String BETA_LINK;
 
+    /** The relative link for "privacy" learn more. */
+    private static String PRIVACY_LINK;
+
+    /** The relative link for "signup" learn more. */
+    private static String SIGNUP_LINK;
+
     static {
-        SIGNUP_LINK = "pricing";
         BETA_LINK = "contactUs";
+        PRIVACY_LINK = "solutions/index.php#secrurity";
+        SIGNUP_LINK = "pricing";
     }
 
     /** Create LearnMore. */
@@ -49,6 +53,9 @@ public class LearnMore extends AbstractAction {
         // TODO Finalize where links go.
         // TODO Beta topic will go away when beta is done.
         switch (topic) {
+        case PRIVACY:
+            browse(PRIVACY_LINK);
+            break;
         case SIGNUP:
             browse(SIGNUP_LINK);
             break;
@@ -77,5 +84,5 @@ public class LearnMore extends AbstractAction {
     }
 
     public enum DataKey { TOPIC }
-    public enum Topic { SIGNUP, BETA }
+    public enum Topic { BETA, PRIVACY, SIGNUP }
 }

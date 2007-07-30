@@ -60,10 +60,12 @@ import com.thinkparity.ophelia.browser.platform.action.contact.*;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
+import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
 import com.thinkparity.ophelia.browser.platform.action.profile.AddEmail;
 import com.thinkparity.ophelia.browser.platform.action.profile.RemoveEmail;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword;
+import com.thinkparity.ophelia.browser.platform.action.profile.UpgradeAccount;
 import com.thinkparity.ophelia.browser.platform.action.profile.VerifyEmail;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
@@ -581,6 +583,13 @@ public class Browser extends AbstractApplication {
      */
     public void displayUpdateProfileDialog() {
         displayAvatar(AvatarId.DIALOG_PROFILE_UPDATE);
+    }
+
+    /**
+     * Display the upgrade account dialog.
+     */
+    public void displayUpgradeAccountDialog() {
+        displayAvatar(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT);
     }
 
     /**
@@ -1269,6 +1278,16 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Run the learn more action.
+     * 
+     * @param topic
+     *            The action <code>LearnMore.Topic</code>.
+     */
+    public void runLearnMore(final LearnMore.Topic topic) {
+        getPlatform().runLearnMore(topic);
+    }
+
+    /**
 	 * Run the open document action.
 	 *
      * @param containerId
@@ -1299,14 +1318,6 @@ public class Browser extends AbstractApplication {
 		data.set(OpenVersion.DataKey.VERSION_ID, versionId);
 		invoke(ActionId.DOCUMENT_OPEN_VERSION, data);
 	}
-
-    /**
-     * Run the profile sign-up action.
-     *
-     */
-    public void runProfileSignUp() {
-        invoke(ActionId.PROFILE_SIGN_UP, Data.emptyData());
-    }
 
     /**
      * Run the publish container action.
@@ -1570,7 +1581,19 @@ public class Browser extends AbstractApplication {
         data.set(UpdatePassword.DataKey.NEW_PASSWORD_CONFIRM, confirmNewPassword);
         invoke(ActionId.PROFILE_UPDATE_PASSWORD, data);
     }
-    
+
+    /**
+     * Run the upgrade account action.
+     */
+    public void runUpgradeAccount() {
+        // NOCOMMIT Remove the "if" test
+        if (isDevelopmentMode()) {
+            final Data data = new Data(1);
+            data.set(UpgradeAccount.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            invoke(ActionId.PROFILE_UPGRADE_ACCOUNT, data);
+        }
+    }
+
     /**
      * Run the verify email action.
      * 

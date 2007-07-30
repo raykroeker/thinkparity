@@ -17,10 +17,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameContainerAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameDocumentAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.UpdateDraftCommentAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpdateAccountAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpdatePasswordAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpdateProfileAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.VerifyEMailAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.*;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.help.HelpTabAvatar;
@@ -233,6 +230,18 @@ public final class AvatarFactory {
         case DIALOG_PROFILE_UPDATE_PASSWORD:
             avatar = newAvatar(UpdatePasswordAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
+        case DIALOG_PROFILE_UPGRADE_ACCOUNT:
+            avatar = newAvatar(UpgradeAccountAvatar.class);
+            break;
+        case DIALOG_PROFILE_UPGRADE_ACCOUNT_INTRO:
+            avatar = newAvatar(UpgradeAccountIntroAvatar.class);
+            break;
+        case DIALOG_PROFILE_UPGRADE_ACCOUNT_PAYMENT:
+            avatar = newAvatar(UpgradeAccountPaymentAvatar.class);
+            break;
+        case DIALOG_PROFILE_UPGRADE_ACCOUNT_SUMMARY:
+            avatar = newAvatar(UpgradeAccountSummaryAvatar.class);
             break;
         case DIALOG_PROFILE_VERIFY_EMAIL:
             avatar = newAvatar(VerifyEMailAvatar.class);

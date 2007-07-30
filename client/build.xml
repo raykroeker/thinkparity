@@ -555,7 +555,7 @@ Examples:
         <property name="thinkparity.target.native-dir" value="${target.native.dir}"/>
         <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
         <property name="thinkparity.target.workspace-dir" value="${target.dir}/workspace"/>
-        <property name="thinkparity.jre-dir" value="${antx.vendor-dir}/i686/${thinkparity.os-platform}/sun.com/jre1.6.0"/>
+        <property name="thinkparity.jre-dir" value="${antx.vendor-dir}/i686/${thinkparity.os-platform}/sun.com/jre1.6.0_01"/>
         <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath"/>
         <groovy src="${basedir}/local/browser/src/main/groovy/PackageImageTask.groovy"/>
     </target>
@@ -566,7 +566,7 @@ Examples:
         <property name="thinkparity.target.native-dir" value="${target.native.dir}"/>
         <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
         <property name="thinkparity.target.workspace-dir" value="${target.dir}/workspace"/>
-        <property name="thinkparity.jre-dir" value="${antx.vendor-dir}/i686/${thinkparity.os-platform}/sun.com/jre1.6.0"/>
+        <property name="thinkparity.jre-dir" value="${antx.vendor-dir}/i686/${thinkparity.os-platform}/sun.com/jre1.6.0_01"/>
         <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath"/>
         <groovy src="${basedir}/local/browser/src/main/groovy/PackageTask.groovy"/>
         <groovy src="${basedir}/local/browser/src/main/groovy/PackageImageTask.groovy"/>

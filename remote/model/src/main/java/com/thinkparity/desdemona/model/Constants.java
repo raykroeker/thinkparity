@@ -63,7 +63,7 @@ public interface Constants {
     public static final class Security {
         public static final class Encryption {
             public static final String ALGORITHM = "AES";
-            public static final Integer KEY_SIZE = 256;
+            public static final Integer KEY_SIZE = 128;
         }
         public static final class KeyStore {
             public static final char[] CLIENT_PASS = "password".toCharArray();

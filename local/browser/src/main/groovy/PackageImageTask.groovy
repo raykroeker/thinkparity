@@ -82,6 +82,7 @@ class PackageImageTask {
             jar(destfile:new File(imageCoreDir,"codebase.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
                 fileset(dir:classesDir) {
                     include(name:"com/thinkparity/codebase/")
+                    include(name:"org/apache/tools/bzip2/")
                     include(name:"net/online/")
                     include(name:"carol.properties")
                 }

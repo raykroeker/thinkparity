@@ -36,7 +36,7 @@ import com.thinkparity.ophelia.browser.util.localization.Localization;
 public class SignupAvatar extends Avatar implements SignupDelegate {
 
     /** A <code>CardLayout</code>. */
-    final java.awt.CardLayout cardLayout;
+    private final java.awt.CardLayout cardLayout;
 
     /** Signup cancelled flag <code>Boolean</code>. */
     private Boolean cancelled;
@@ -255,6 +255,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
 
         nextJButton.setFont(Fonts.DialogButtonFont);
         nextJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.NextButton"));
+        nextJButton.setPreferredSize(new java.awt.Dimension(85, 23));
         nextJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 nextJButtonActionPerformed(evt);
@@ -263,7 +264,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
         cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.CancelButton"));
-        cancelJButton.setPreferredSize(new java.awt.Dimension(69, 23));
+        cancelJButton.setPreferredSize(new java.awt.Dimension(85, 23));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelJButtonActionPerformed(evt);
@@ -278,7 +279,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
                 .addContainerGap(200, Short.MAX_VALUE)
                 .addComponent(prevJButton)
                 .addGap(0, 0, 0)
-                .addComponent(nextJButton)
+                .addComponent(nextJButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(10, 10, 10)
                 .addComponent(cancelJButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -294,14 +295,14 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cancelJButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(nextJButton)
+                    .addComponent(nextJButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(prevJButton))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     /**
-     * Find the SignupPage give the page name.
+     * Find the SignupPage given the page name.
      * 
      * @param pageName
      *            The page name <code>String</code>.
@@ -333,7 +334,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
         }
     }//GEN-LAST:event_nextJButtonActionPerformed
 
-    private void prevJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prevJButtonActionPerformed
+    private void prevJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prevJButtonActionPerformed
         Assert.assertNotTrue("Invalid first page in signup dialog.", currentPage.isFirstPage());
         setPage(lookupPage(currentPage.getPreviousPageName()));
     }//GEN-LAST:event_prevJButtonActionPerformed

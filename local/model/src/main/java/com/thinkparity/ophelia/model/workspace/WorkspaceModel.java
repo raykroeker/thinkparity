@@ -284,6 +284,12 @@ public class WorkspaceModel {
             final Release latestRelease = sessionModel.readMigratorLatestRelease(
                     Constants.Product.NAME, OSUtil.getOS());
             if (latestRelease.getName().equals(Constants.Release.NAME)) {
+                // publish a welcome package
+                if (firstLogin) {
+                    notifyStepBegin(monitor, InitializeStep.PUBLISH_WELCOME);
+                    modelFactory.getContainerModel().publishWelcome();
+                    notifyStepEnd(monitor, InitializeStep.PUBLISH_WELCOME);
+                }
                 // process events
                 notifyStepBegin(monitor, InitializeStep.SESSION_PROCESS_QUEUE);
                 final InternalQueueModel queueModel = modelFactory.getQueueModel();
@@ -292,12 +298,6 @@ public class WorkspaceModel {
                 queueModel.startNotificationClient();
             } else {
                 migratorModel.startDownloadRelease();
-            }
-            // publish a welcome package
-            if (firstLogin) {
-                notifyStepBegin(monitor, InitializeStep.PUBLISH_WELCOME);
-                modelFactory.getContainerModel().publishWelcome();
-                notifyStepEnd(monitor, InitializeStep.PUBLISH_WELCOME);
             }
             // finish initialization
             workspaceImpl.finishInitialize();

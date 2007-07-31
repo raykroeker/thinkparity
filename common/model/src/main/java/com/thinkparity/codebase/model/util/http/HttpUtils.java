@@ -9,7 +9,6 @@ import java.util.Date;
 import com.thinkparity.codebase.Constants;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.protocol.Protocol;
 
 /**
@@ -50,8 +49,8 @@ public final class HttpUtils {
      *            An <code>int</code>.
      * @return A <code>HttpClient</code>.
      */
-    public static HttpClient newMultiThreadedClient() {
-       return new HttpClient(new MultiThreadedHttpConnectionManager());
+    public static HttpClient newClient() {
+       return new HttpClient();
     }
 
     /**

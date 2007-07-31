@@ -301,9 +301,13 @@
                 </Component>
                 <Component class="javax.swing.JLabel" name="firstJLabel">
                   <Properties>
+                    <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                      <Image iconType="3" name="/images/LinkFirst.png"/>
+                    </Property>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
                       <ResourceString bundle="localization/Browser_Messages.properties" key="HelpTabPanel.firstJLabel" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
                     </Property>
+                    <Property name="iconTextGap" type="int" value="3"/>
                   </Properties>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="LabelFactory.createLink(&quot;&quot;,Fonts.DefaultFont);"/>
@@ -317,9 +321,13 @@
                 </Component>
                 <Component class="javax.swing.JLabel" name="previousJLabel">
                   <Properties>
+                    <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                      <Image iconType="3" name="/images/LinkPrevious.png"/>
+                    </Property>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
                       <ResourceString bundle="localization/Browser_Messages.properties" key="HelpTabPanel.previousJLabel" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
                     </Property>
+                    <Property name="iconTextGap" type="int" value="3"/>
                   </Properties>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="LabelFactory.createLink(&quot;&quot;,Fonts.DefaultFont);"/>
@@ -351,9 +359,14 @@
                 </Component>
                 <Component class="javax.swing.JLabel" name="nextJLabel">
                   <Properties>
+                    <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                      <Image iconType="3" name="/images/LinkNext.png"/>
+                    </Property>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
                       <ResourceString bundle="localization/Browser_Messages.properties" key="HelpTabPanel.nextJLabel" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
                     </Property>
+                    <Property name="horizontalTextPosition" type="int" value="10"/>
+                    <Property name="iconTextGap" type="int" value="2"/>
                   </Properties>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="LabelFactory.createLink(&quot;&quot;,Fonts.DefaultFont);"/>
@@ -367,9 +380,14 @@
                 </Component>
                 <Component class="javax.swing.JLabel" name="lastJLabel">
                   <Properties>
+                    <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                      <Image iconType="3" name="/images/LinkLast.png"/>
+                    </Property>
                     <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
                       <ResourceString bundle="localization/Browser_Messages.properties" key="HelpTabPanel.lastJLabel" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
                     </Property>
+                    <Property name="horizontalTextPosition" type="int" value="10"/>
+                    <Property name="iconTextGap" type="int" value="2"/>
                   </Properties>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="LabelFactory.createLink(&quot;&quot;,Fonts.DefaultFont);"/>

@@ -1019,7 +1019,6 @@ public final class ContainerModelImpl extends
      * @see com.thinkparity.ophelia.model.container.InternalContainerModel#publishWelcome()
      *
      */
-    @Override
     public void publishWelcome() {
         try {
             containerService.publishWelcome(getAuthToken());

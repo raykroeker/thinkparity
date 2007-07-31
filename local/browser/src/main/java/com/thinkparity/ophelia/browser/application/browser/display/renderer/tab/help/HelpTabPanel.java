@@ -559,14 +559,18 @@ public class HelpTabPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 0);
         expandedContentJPanel.add(fillerJLabel, gridBagConstraints);
 
+        firstJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkFirst.png")));
         firstJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("HelpTabPanel.firstJLabel"));
+        firstJLabel.setIconTextGap(3);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         expandedContentJPanel.add(firstJLabel, gridBagConstraints);
 
+        previousJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkPrevious.png")));
         previousJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("HelpTabPanel.previousJLabel"));
+        previousJLabel.setIconTextGap(3);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
@@ -581,14 +585,20 @@ public class HelpTabPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         expandedContentJPanel.add(countJLabel, gridBagConstraints);
 
+        nextJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkNext.png")));
         nextJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("HelpTabPanel.nextJLabel"));
+        nextJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        nextJLabel.setIconTextGap(2);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         expandedContentJPanel.add(nextJLabel, gridBagConstraints);
 
+        lastJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkLast.png")));
         lastJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("HelpTabPanel.lastJLabel"));
+        lastJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        lastJLabel.setIconTextGap(2);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 1;

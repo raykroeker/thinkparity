@@ -29,12 +29,13 @@ public class LabelFactory extends ComponentFactory {
         @Override
         protected void paintComponent(final Graphics g) {
             super.paintComponent(g);
-            if (getText().length() > 0) {            
+            if (getText().length() > 0) {
+                final int iconWidth = (null == getIcon() ? 0 : getIcon().getIconWidth() + getIconTextGap());
                 final FontMetrics fontMetrics = getFontMetrics(getFont());
                 final int y = fontMetrics.getMaxAscent() + 1;
-                g.drawLine(0, y, fontMetrics.stringWidth(getText()), y);                
+                g.drawLine(0, y, fontMetrics.stringWidth(getText()) + iconWidth, y);
             }
-        }        
+        }
     }
 
 	/** A singleton instance of <code>LabelFactory</code>. */

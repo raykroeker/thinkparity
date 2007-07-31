@@ -111,6 +111,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel lastPublishedJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel participantsJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel versionsJLabel = new javax.swing.JLabel();
@@ -1068,11 +1069,6 @@ public class ContainerPanel extends DefaultTabPanel {
     private String getContainerAdditionalText(final Container container) {
         if (!container.isLatest()) {
             return localization.getString("ContainerMessageNotLatest");    
-        } else if (isLocalDraft()) {
-            return localization.getString("ContainerMessageLocalDraftOwner");    
-        } else if (isSetDraft()) {
-            return localization.getString("ContainerMessageDraftOwner",
-                    new Object[] {getDraft().getOwner().getName()}); 
         } else if (null != latestVersion) {
             return localization.getString("ContainerMessagePublishDate",
                     new Object[] {formatFuzzy(latestVersion.getCreatedOn())});
@@ -1244,11 +1240,20 @@ public class ContainerPanel extends DefaultTabPanel {
 
         textJLabel.setText("!Package Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
         collapsedJPanel.add(textJLabel, gridBagConstraints);
+
+        nameJLabel.setFont(Fonts.DialogFont);
+        nameJLabel.setForeground(Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG);
+        nameJLabel.setText("!name!");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
+        collapsedJPanel.add(nameJLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -1292,14 +1297,18 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 0);
         westJPanel.add(westFillerJLabel, gridBagConstraints);
 
+        westFirstJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkFirst.png")));
         westFirstJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.firstJLabelWest"));
+        westFirstJLabel.setIconTextGap(3);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 5);
         westJPanel.add(westFirstJLabel, gridBagConstraints);
 
+        westPreviousJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkPrevious.png")));
         westPreviousJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.previousJLabelWest"));
+        westPreviousJLabel.setIconTextGap(3);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
@@ -1314,14 +1323,20 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         westJPanel.add(westCountJLabel, gridBagConstraints);
 
+        westNextJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkNext.png")));
         westNextJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.nextJLabelWest"));
+        westNextJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        westNextJLabel.setIconTextGap(2);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         westJPanel.add(westNextJLabel, gridBagConstraints);
 
+        westLastJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkLast.png")));
         westLastJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.lastJLabelWest"));
+        westLastJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        westLastJLabel.setIconTextGap(2);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 1;
@@ -1481,14 +1496,18 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 0);
         eastJPanel.add(eastFillerJLabel, gridBagConstraints);
 
+        eastFirstJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkFirst.png")));
         eastFirstJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.firstJLabelEast"));
+        eastFirstJLabel.setIconTextGap(3);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         eastJPanel.add(eastFirstJLabel, gridBagConstraints);
 
+        eastPreviousJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkPrevious.png")));
         eastPreviousJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.previousJLabelEast"));
+        eastPreviousJLabel.setIconTextGap(3);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
@@ -1503,14 +1522,20 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         eastJPanel.add(eastCountJLabel, gridBagConstraints);
 
+        eastNextJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkNext.png")));
         eastNextJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.nextJLabelEast"));
+        eastNextJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        eastNextJLabel.setIconTextGap(2);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         eastJPanel.add(eastNextJLabel, gridBagConstraints);
 
+        eastLastJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkLast.png")));
         eastLastJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.lastJLabelEast"));
+        eastLastJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        eastLastJLabel.setIconTextGap(2);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 1;
@@ -1612,9 +1637,15 @@ public class ContainerPanel extends DefaultTabPanel {
     private void reloadText() {
         // The container text is painted instead of setting JLabel text.
         // This makes it possible to draw text all the way across the panel when
-        // the container is expanded.
-        // So, make the text in the JLabel blank.
+        // the container is expanded. So, make the text in the JLabel blank.
         textJLabel.setText(" ");
+
+        // set the name of the draft owner
+        if (isSetDraft()) {
+            nameJLabel.setText(getDraft().getOwner().getName());
+        } else {
+            nameJLabel.setText("");
+        }
     }
 
     /**

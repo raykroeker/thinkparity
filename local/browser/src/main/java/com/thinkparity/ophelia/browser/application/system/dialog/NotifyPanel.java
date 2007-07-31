@@ -250,7 +250,9 @@ public final class NotifyPanel extends SystemPanel {
         gridBagConstraints.weighty = 1.0;
         controlJPanel.add(fillerJLabel, gridBagConstraints);
 
+        previousJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkPrevious.png")));
         previousJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SystemApplication.NotifyPanel.Previous"));
+        previousJLabel.setIconTextGap(3);
         previousJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 previousJLabelMousePressed(evt);
@@ -270,7 +272,10 @@ public final class NotifyPanel extends SystemPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
         controlJPanel.add(countJLabel, gridBagConstraints);
 
+        nextJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkNext.png")));
         nextJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SystemApplication.NotifyPanel.Next"));
+        nextJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        nextJLabel.setIconTextGap(2);
         nextJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 nextJLabelMousePressed(evt);

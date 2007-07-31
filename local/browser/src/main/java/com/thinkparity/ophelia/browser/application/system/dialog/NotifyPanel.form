@@ -239,9 +239,13 @@
         </Component>
         <Component class="javax.swing.JLabel" name="previousJLabel">
           <Properties>
+            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+              <Image iconType="3" name="/images/LinkPrevious.png"/>
+            </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="localization/Browser_Messages.properties" key="SystemApplication.NotifyPanel.Previous" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
+            <Property name="iconTextGap" type="int" value="3"/>
           </Properties>
           <Events>
             <EventHandler event="mousePressed" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="previousJLabelMousePressed"/>
@@ -271,9 +275,14 @@
         </Component>
         <Component class="javax.swing.JLabel" name="nextJLabel">
           <Properties>
+            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+              <Image iconType="3" name="/images/LinkNext.png"/>
+            </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="localization/Browser_Messages.properties" key="SystemApplication.NotifyPanel.Next" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>
+            <Property name="horizontalTextPosition" type="int" value="10"/>
+            <Property name="iconTextGap" type="int" value="2"/>
           </Properties>
           <Events>
             <EventHandler event="mousePressed" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="nextJLabelMousePressed"/>

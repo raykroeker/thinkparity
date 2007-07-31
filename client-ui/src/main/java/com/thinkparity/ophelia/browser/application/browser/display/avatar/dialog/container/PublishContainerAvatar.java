@@ -317,7 +317,10 @@ public final class PublishContainerAvatar extends Avatar implements
                     emails.clear();
                     break;
                 } else {
-                    emails.add(EMailBuilder.parse(emailAddress.trim()));
+                    final EMail email = EMailBuilder.parse(emailAddress.trim());
+                    if (!emails.contains(email)) {
+                        emails.add(email);
+                    }
                 }
             }
         }

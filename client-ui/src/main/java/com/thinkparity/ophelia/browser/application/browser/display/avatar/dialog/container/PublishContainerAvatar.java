@@ -313,7 +313,10 @@ public final class PublishContainerAvatar extends Avatar implements
                     emailDelimiters, new ArrayList<String>());
             emails = new ArrayList<EMail>(emailAddresses.size());
             for (final String emailAddress : emailAddresses) {
-                if (!profileEMailAddresses.contains(emailAddress.toLowerCase())) {
+                if (profileEMailAddresses.contains(emailAddress.toLowerCase())) {
+                    emails.clear();
+                    break;
+                } else {
                     emails.add(EMailBuilder.parse(emailAddress.trim()));
                 }
             }

@@ -41,7 +41,7 @@ public final class Constants {
                 public static final Color BORDER_COLOR = new Color(130, 130, 130, 255);
             }
             public static final class Link {
-                public static final Color LINK_FOREGROUND = new Color(118, 123, 141, 255);
+                public static final Color LINK_FOREGROUND = new Color(13, 65, 140, 255);
             }
             public static final class List {
                 // TODO Can remove these if the tab cell code is stripped out
@@ -71,7 +71,7 @@ public final class Constants {
                 public static final Color BG_GRAD_START = new Color(251, 252, 252, 255);                
             }
             public static final class Panel {
-                public static final Color PANEL_ADDITIONAL_TEXT_FG = new Color(118, 123, 141, 255);
+                public static final Color PANEL_ADDITIONAL_TEXT_FG = new Color(13, 65, 140, 255);
                 public static final Color PANEL_COLLAPSED_BORDER = new Color(212, 212, 212, 255);
                 public static final Color PANEL_COLLAPSED_BACKGROUND = new Color(234, 234, 234, 255);
                 public static final Color PANEL_COLLAPSED_SELECTED_BACKGROUND = new Color(196, 198, 208, 255);

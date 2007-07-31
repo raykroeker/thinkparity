@@ -49,7 +49,6 @@ import com.thinkparity.desdemona.model.Constants;
 import com.thinkparity.desdemona.model.Constants.Product.Ophelia;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
-import com.thinkparity.desdemona.model.io.sql.EMailSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.migrator.InternalMigratorModel;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
@@ -68,9 +67,6 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
 
     /** Contact db io. */
     private ContactSql contactSql;
-
-    /** An e-mail address sql interface. */
-    private EMailSql emailSql;
 
     /** An instance of <code>SMTPService</code>. */
     private final SMTPService smtpService;
@@ -321,7 +317,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      */
     public Boolean isEmailAvailable(final EMail email) {
         try {
-            return !emailSql.doesExist(email).booleanValue();
+            return !userSql.doesExist(email).booleanValue();
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -512,7 +508,6 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     @Override
     protected void initialize() {
         this.contactSql = new ContactSql();
-        this.emailSql = new EMailSql();
         this.userSql = new UserSql();
     }
 

@@ -177,17 +177,6 @@ public interface InternalSessionModel extends SessionModel {
     public void initializeToken();
 
     /**
-     * Determine the availability of an e-mail address.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param email
-     *            An <code>EMail</code> address.
-     * @return True if the email is not being used.
-     */
-    public Boolean isEmailAvailable(final JabberId userId, final EMail email);
-
-    /**
      * Determine whether or not this is the first login.
      * 
      * @return True if this is the first login.

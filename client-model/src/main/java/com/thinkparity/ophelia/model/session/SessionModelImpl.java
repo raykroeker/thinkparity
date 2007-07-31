@@ -424,19 +424,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isEmailAvailable(com.thinkparity.codebase.jabber.JabberId,
-     *      com.thinkparity.codebase.email.EMail)
-     * 
-     */
-    public Boolean isEmailAvailable(final JabberId userId, final EMail email) {
-        try {
-            return profileService.isEMailAvailable(getAuthToken(), email);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isFirstLogin(com.thinkparity.codebase.jabber.JabberId)
      *
      */

@@ -219,7 +219,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
                 if (email.toString().equals(contactEmail.toString()))
                     return Boolean.FALSE;
             // check all users
-            return getSessionModel().isEmailAvailable(localUserId(), email);
+            return profileService.isEMailAvailable(getAuthToken(), email);
         } catch (final Throwable t) {
             throw panic(t);
         }

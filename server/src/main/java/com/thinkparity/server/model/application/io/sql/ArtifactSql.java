@@ -197,7 +197,7 @@ public class ArtifactSql extends AbstractSql {
     private static final String SQL_READ_VERSION_COUNT_PK =
         new StringBuilder("select count(AV.ARTIFACT_ID) \"VERSION_COUNT\" ")
         .append("from TPSD_ARTIFACT_VERSION AV ")
-        .append("where AV.ARTIFACT_ID=? and AV.ARTIFACT_VERSION_ID=?")
+        .append("where AV.ARTIFACT_ID=?")
         .toString();
 
     /** Sql to read the version secret. */

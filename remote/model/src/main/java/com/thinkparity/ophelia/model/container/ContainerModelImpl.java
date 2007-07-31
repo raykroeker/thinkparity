@@ -805,12 +805,12 @@ public final class ContainerModelImpl extends
         boolean didHit;
 
         // walk through compare to version's documents
-        for (final ArtifactVersion compareToDocument : compareToDocuments) {
+        for (final DocumentVersion compareToDocument : compareToDocuments) {
             artifactVersionDelta = new ContainerVersionArtifactVersionDelta();
             artifactVersionDelta.setArtifactId(compareToDocument.getArtifactId());
             // walk through compare version's documents
             didHit = false;
-            for (final ArtifactVersion versionDocument : compareDocuments) {
+            for (final DocumentVersion versionDocument : compareDocuments) {
                 // the artifact exists in this version; and in the compare version
                 // therefore it must be the same or modified
                 if (versionDocument.getArtifactId().equals(compareToDocument.getArtifactId())) {
@@ -819,7 +819,15 @@ public final class ContainerModelImpl extends
                     if (versionDocument.getVersionId().equals(compareToDocument.getVersionId())) {
                         artifactVersionDelta.setDelta(Delta.NONE);
                     } else {
-                        artifactVersionDelta.setDelta(Delta.MODIFIED);
+                        /* if the version checksum and the algorithm used to
+                         * calculate the checksum are identical; the versions
+                         * are considered identical */
+                        if (versionDocument.getChecksumAlgorithm().equals(compareToDocument.getChecksumAlgorithm())
+                                && versionDocument.getChecksum().equals(compareToDocument.getChecksum())) {
+                            artifactVersionDelta.setDelta(Delta.NONE);
+                        } else {
+                            artifactVersionDelta.setDelta(Delta.MODIFIED);
+                        }
                     }
                     didHit = true;
                     break;

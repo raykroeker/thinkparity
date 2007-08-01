@@ -1080,10 +1080,16 @@ public class ContainerPanel extends DefaultTabPanel {
     /**
      * Get the color for the container additional text.
      * 
+     * @param container
+     *       The <code>Container</code>.
      * @return A <code>Color</code>.
      */
-    private Color getContainerAdditionalTextColor() {
-        return Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG;
+    private Color getContainerAdditionalTextColor(final Container container) {
+        if (!container.isLatest()) {
+            return Colors.Browser.Panel.PANEL_DISABLED_TEXT_FG;
+        } else {
+            return Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG;
+        }
     }
 
     /**
@@ -1100,10 +1106,12 @@ public class ContainerPanel extends DefaultTabPanel {
     /**
      * Get the color for the container text.
      * 
+     * @param container
+     *       The <code>Container</code>.
      * @return A <code>Color</code>.
      */
-    private Color getContainerTextColor() {
-        if (!isLatest()) {
+    private Color getContainerTextColor(final Container container) {
+        if (!container.isLatest()) {
             return Colors.Browser.Panel.PANEL_DISABLED_TEXT_FG;
         } else {
             return Colors.Browser.Panel.PANEL_CONTAINER_TEXT_FG;
@@ -1602,12 +1610,12 @@ public class ContainerPanel extends DefaultTabPanel {
         g2.setFont(getContainerTextFont());
         final Point location = new Point(CONTAINER_TEXT_X, CONTAINER_TEXT_Y + g2.getFontMetrics().getMaxAscent());
         clippedText = clipText(g2, location, getContainerText(container));
-        paintText(g2, location, getContainerTextColor(), clippedText);
+        paintText(g2, location, getContainerTextColor(container), clippedText);
         if (null != clippedText && clippedText.equals(getContainerText(container))) {
             location.x = location.x + SwingUtil.getStringWidth(getContainerText(container), g2) + CONTAINER_TEXT_SPACE_BETWEEN;
             clippedAdditionalText = clipText(g2, location, getContainerAdditionalText(container));
             if (null != clippedAdditionalText) {
-                paintText(g2, location, getContainerAdditionalTextColor(), clippedAdditionalText);
+                paintText(g2, location, getContainerAdditionalTextColor(container), clippedAdditionalText);
             }
         } else {
             clippedAdditionalText = null;

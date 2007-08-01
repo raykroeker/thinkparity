@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.events;
 import java.util.Collections;
 import java.util.List;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -21,10 +22,13 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
  */
 public class ContainerEvent {
 
+    private static final List<ArtifactReceipt> EMPTY_ARTIFACT_RECEIPTS;
+
     private static final List<OutgoingEMailInvitation> EMPTY_OUTGOING_EMAIL_INVITATIONS;
 
     static {
         EMPTY_OUTGOING_EMAIL_INVITATIONS = Collections.emptyList();
+        EMPTY_ARTIFACT_RECEIPTS = Collections.emptyList();
     }
 
     /** The event source. */
@@ -44,6 +48,9 @@ public class ContainerEvent {
 
     /** The previous <code>ContainerVersion</code>. */
     private final ContainerVersion previousVersion;
+
+    /** A list of artifact receipts. */
+    private final List<ArtifactReceipt> receipts;
 
     /** The event source. */
     private final Source source;
@@ -67,7 +74,7 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final Container container) {
         this(source, container, null, null, null, null, null, null,
-                EMPTY_OUTGOING_EMAIL_INVITATIONS, null);
+                EMPTY_OUTGOING_EMAIL_INVITATIONS, null, EMPTY_ARTIFACT_RECEIPTS);
     }
 
     /**
@@ -83,7 +90,7 @@ public class ContainerEvent {
     public ContainerEvent(final Source source, final Container container,
             final ContainerDraft draft) {
         this(source, container, draft, null, null, null, null, null,
-                EMPTY_OUTGOING_EMAIL_INVITATIONS, null);
+                EMPTY_OUTGOING_EMAIL_INVITATIONS, null, EMPTY_ARTIFACT_RECEIPTS);
     }
 
     /**
@@ -104,7 +111,8 @@ public class ContainerEvent {
             final TeamMember teamMember,
             final List<OutgoingEMailInvitation> outgoingEMailInvitations) {
         this(source, container, draft, previousVersion, version, nextVersion,
-                teamMember, null, outgoingEMailInvitations, null);
+                teamMember, null, outgoingEMailInvitations, null,
+                EMPTY_ARTIFACT_RECEIPTS);
     }
 
     /**
@@ -122,7 +130,7 @@ public class ContainerEvent {
     public ContainerEvent(final Source source, final Container container,
             final ContainerDraft draft, final Document document) {
         this(source, container, draft, null, null, null, null, document,
-                EMPTY_OUTGOING_EMAIL_INVITATIONS, null);
+                EMPTY_OUTGOING_EMAIL_INVITATIONS, null, EMPTY_ARTIFACT_RECEIPTS);
     }
 
     /**
@@ -158,7 +166,24 @@ public class ContainerEvent {
             final ContainerVersion version, final ContainerVersion nextVersion,
             final User user) {
         this(source, container, null, previousVersion, version, nextVersion,
-                null, null, EMPTY_OUTGOING_EMAIL_INVITATIONS, user);
+                null, null, EMPTY_OUTGOING_EMAIL_INVITATIONS, user,
+                EMPTY_ARTIFACT_RECEIPTS);
+    }
+
+    /**
+     * Create ContainerEvent.
+     * 
+     * @param source
+     *            The event <code>Source</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param receipts
+     *            A <code>List<ArtifactReceipt></code>.
+     */
+    public ContainerEvent(final Source source, final Container container,
+            final ContainerVersion version, final List<ArtifactReceipt> receipts) {
+        this(source, container, null, null, version, null, null, null,
+                EMPTY_OUTGOING_EMAIL_INVITATIONS, null, receipts);
     }
 
     /**
@@ -174,7 +199,7 @@ public class ContainerEvent {
     public ContainerEvent(final Source source, final Container container,
             final TeamMember teamMember) {
         this(source, container, null, null, null, null, teamMember, null,
-                EMPTY_OUTGOING_EMAIL_INVITATIONS, null);
+                EMPTY_OUTGOING_EMAIL_INVITATIONS, null, EMPTY_ARTIFACT_RECEIPTS);
     }
 
     /**
@@ -192,7 +217,7 @@ public class ContainerEvent {
     public ContainerEvent(final Source source, final Container container,
             final TeamMember teamMember, final ContainerVersion version) {
         this(source, container, null, null, version, null, teamMember, null,
-                EMPTY_OUTGOING_EMAIL_INVITATIONS, null);
+                EMPTY_OUTGOING_EMAIL_INVITATIONS, null, EMPTY_ARTIFACT_RECEIPTS);
     }
 
     /**
@@ -218,7 +243,7 @@ public class ContainerEvent {
      */
     public ContainerEvent(final Source source, final ContainerVersion version) {
         this(source, null, null, null, version, null, null, null,
-                EMPTY_OUTGOING_EMAIL_INVITATIONS, null);
+                EMPTY_OUTGOING_EMAIL_INVITATIONS, null, EMPTY_ARTIFACT_RECEIPTS);
     }
 
     /**
@@ -242,7 +267,7 @@ public class ContainerEvent {
             final ContainerVersion version, final ContainerVersion nextVersion,
             final TeamMember teamMember, final Document document,
             final List<OutgoingEMailInvitation> outgoingEMailInvitations,
-            final User user) {
+            final User user, final List<ArtifactReceipt> receipts) {
         super();
         this.source = source;
         this.container = container;
@@ -254,6 +279,7 @@ public class ContainerEvent {
         this.teamMember = teamMember;
         this.version = version;
         this.user = user;
+        this.receipts = receipts;
     }
 
     /**
@@ -303,6 +329,15 @@ public class ContainerEvent {
      */
     public ContainerVersion getPreviousVersion() {
         return previousVersion;
+    }
+
+    /**
+     * Obtain the receipts.
+     * 
+     * @return A <code>List<ArtifactReceipt></code>.
+     */
+    public List<ArtifactReceipt> getReceipts() {
+        return receipts;
     }
 
     /**

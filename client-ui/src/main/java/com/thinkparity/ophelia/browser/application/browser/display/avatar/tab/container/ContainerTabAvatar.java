@@ -7,11 +7,13 @@ import java.awt.EventQueue;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 
@@ -108,6 +110,24 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
             showPanel(e.getContainer().getId(), Boolean.FALSE);
             setDraftSelection(e.getContainer().getId());
         }
+    }
+
+    /**
+     * Synchronize the container version's artifact receipts.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param receipts
+     *            A <code>List<ArtifactReceipt></code>.
+     */
+    public void syncContainerVersionReceipts(final ContainerVersion version,
+            final List<ArtifactReceipt> receipts) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            @Override
+            public void run() {
+                model.syncContainerVersionReceipts(version, receipts);
+            }
+        });
     }
 
     /**

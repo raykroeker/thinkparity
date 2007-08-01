@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.container.delegate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
@@ -32,8 +33,20 @@ import com.thinkparity.ophelia.model.user.InternalUserModel;
 public final class HandleVersionPublishedNotification extends
         ContainerDelegate {
 
+    /** The container. */
+    private Container container;
+
     /** The notification event. */
     private VersionPublishedNotificationEvent event;
+
+    /** Whether or not to fire a notification post invocation. */
+    private Boolean notify;
+
+    /** The artifact receipts for the version. */
+    private final List<ArtifactReceipt> receipts;
+
+    /** The version. */
+    private ContainerVersion version;
 
     /**
      * Create HandlePublishedNotificationDelegate.
@@ -41,6 +54,44 @@ public final class HandleVersionPublishedNotification extends
      */
     public HandleVersionPublishedNotification() {
         super();
+        this.notify = Boolean.FALSE;
+        this.receipts = new ArrayList<ArtifactReceipt>();
+    }
+
+    /**
+     * Determine whether or not to fire a notification post invocation.
+     * 
+     * @return True if a notification should be fired.
+     */
+    public Boolean doNotify() {
+        return notify;
+    }
+
+    /**
+     * Obtain the container.
+     * 
+     * @return A <code>Container</code>.
+     */
+    public Container getContainer() {
+        return container;
+    }
+
+    /**
+     * Obtain the version receipts.
+     * 
+     * @return A <code>List<ArtifactReceipt></code>.
+     */
+    public List<ArtifactReceipt> getReceipts() {
+        return receipts;
+    }
+
+    /**
+     * Obtain the version.
+     * 
+     * @return A <code>ContainerVersion</code>.
+     */
+    public ContainerVersion getVersion() {
+        return version;
     }
 
     /**
@@ -50,7 +101,7 @@ public final class HandleVersionPublishedNotification extends
     public void handleVersionPublishedNotification() throws CannotLockException {
         final InternalArtifactModel artifactModel = getArtifactModel();
         final Long containerId = artifactModel.readId(event.getVersion().getArtifactUniqueId());
-        final Container container = read(containerId);
+        container = read(containerId);
         // create draft if one exists remotely
         final JabberId draftOwnerId = readKeyHolder(container);
         if (draftOwnerId.equals(User.THINKPARITY.getId())) {
@@ -79,7 +130,7 @@ public final class HandleVersionPublishedNotification extends
         }
         /* if the version exists locally */
         if (artifactModel.doesVersionExist(containerId, event.getVersion().getVersionId())) {
-            final ContainerVersion version = readVersion(containerId, event.getVersion().getVersionId());
+            version = readVersion(containerId, event.getVersion().getVersionId());
             /* create the local published to list for the event */
             final InternalUserModel userModel = getUserModel();
             User localPublishedTo;
@@ -90,16 +141,16 @@ public final class HandleVersionPublishedNotification extends
                         containerId, version.getVersionId(),
                         event.getPublishedOn(), localPublishedTo);
                 if (null == receipt) {
+                    notify = Boolean.TRUE;
                     containerIO.createPublishedTo(containerId,
                             version.getVersionId(), localPublishedTo,
                             event.getPublishedOn());
                 }
             }
+            if (notify.booleanValue()) {
+                receipts.addAll(readPublishedTo(version));
+            }
         }
-    }
-
-    private JabberId readKeyHolder(final Container container) {
-        return getSessionModel().readKeyHolder(container.getUniqueId());
     }
 
     /**
@@ -110,5 +161,9 @@ public final class HandleVersionPublishedNotification extends
      */
     public void setEvent(final VersionPublishedNotificationEvent event) {
         this.event = event;
+    }
+
+    private JabberId readKeyHolder(final Container container) {
+        return getSessionModel().readKeyHolder(container.getUniqueId());
     }
 }

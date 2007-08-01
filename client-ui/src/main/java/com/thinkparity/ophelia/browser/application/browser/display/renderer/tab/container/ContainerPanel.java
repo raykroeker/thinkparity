@@ -107,8 +107,8 @@ public class ContainerPanel extends DefaultTabPanel {
     private javax.swing.JPanel eastListJPanel;
     private final javax.swing.JLabel eastNextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel eastPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel expandIconJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel expandIconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel lastPublishedJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
@@ -354,6 +354,17 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * Obtain the published to information for a version.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @return A <code>PublishedToView</code>.
+     */
+    public PublishedToView getPublishedTo(final ContainerVersion version) {
+        return publishedTo.get(version);
+    }
+
+    /**
      * Obtain the team.
      * 
      * @return A list of <code>TeamMember</code>.
@@ -547,46 +558,6 @@ public class ContainerPanel extends DefaultTabPanel {
     /**
      * Set the panel data.
      * 
-     * This version is appropriate (for example) when a document is added
-     * or modified or removed, or when a draft is added or removed.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     * @param draft
-     *            A <code>ContainerDraft</code>.
-     */
-    public void setPanelData(final Container container,
-            final DraftView draftView) {
-        this.container = container;
-        this.draft = draftView;
-        if (isSetExpandedData()) {
-            // set the container cell.
-            westCells.set(0, new ContainerCell(
-                    draft, latestVersion, versions, documentViews, team));
-            final Boolean wasLocalDraft = ((westCells.size() > 1) &&
-                    (westCells.get(1) instanceof DraftCell));
-            if (wasLocalDraft && isLocalDraft()) {
-                // set the draft cell
-                westCells.set(1, new DraftCell(draft));
-            } else if (wasLocalDraft && !isLocalDraft()) {
-                // remove the draft cell
-                westCells.remove(1);
-            } else if (!wasLocalDraft && isLocalDraft()) {
-                // add the draft cell
-                westCells.add(1, new DraftCell(draft));
-            }
-            // re-initialize
-            westListModel.initialize(westCells);
-        }
-        iconJLabel.setIcon(container.isBookmarked() 
-                ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK) 
-                : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
-        reloadText();
-    }
-
-    /**
-     * Set the panel data.
-     * 
      * This version is appropriate (for example) when a flag has
      * changed on a version.
      * 
@@ -640,22 +611,34 @@ public class ContainerPanel extends DefaultTabPanel {
     /**
      * Set the panel data.
      * 
-     * This version is appropriate when the team has changed.
+     * This version is appropriate (for example) when a document is added
+     * or modified or removed, or when a draft is added or removed.
      * 
      * @param container
      *            A <code>Container</code>.
-     * @param team
-     *            A <code>List</code> of <code>TeamMember</code>s.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
      */
     public void setPanelData(final Container container,
-            final List<TeamMember> team) {
+            final DraftView draftView) {
         this.container = container;
-        this.team.clear();
-        this.team.addAll(team);
+        this.draft = draftView;
         if (isSetExpandedData()) {
             // set the container cell.
             westCells.set(0, new ContainerCell(
                     draft, latestVersion, versions, documentViews, team));
+            final Boolean wasLocalDraft = ((westCells.size() > 1) &&
+                    (westCells.get(1) instanceof DraftCell));
+            if (wasLocalDraft && isLocalDraft()) {
+                // set the draft cell
+                westCells.set(1, new DraftCell(draft));
+            } else if (wasLocalDraft && !isLocalDraft()) {
+                // remove the draft cell
+                westCells.remove(1);
+            } else if (!wasLocalDraft && isLocalDraft()) {
+                // add the draft cell
+                westCells.add(1, new DraftCell(draft));
+            }
             // re-initialize
             westListModel.initialize(westCells);
         }
@@ -694,6 +677,61 @@ public class ContainerPanel extends DefaultTabPanel {
                 ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK)
                 : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
         reloadText();
+    }
+    
+    /**
+     * Set the panel data.
+     * 
+     * This version is appropriate when the team has changed.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param team
+     *            A <code>List</code> of <code>TeamMember</code>s.
+     */
+    public void setPanelData(final Container container,
+            final List<TeamMember> team) {
+        this.container = container;
+        this.team.clear();
+        this.team.addAll(team);
+        if (isSetExpandedData()) {
+            // set the container cell.
+            westCells.set(0, new ContainerCell(
+                    draft, latestVersion, versions, documentViews, team));
+            // re-initialize
+            westListModel.initialize(westCells);
+        }
+        iconJLabel.setIcon(container.isBookmarked() 
+                ? IMAGE_CACHE.read(TabPanelIcon.CONTAINER_BOOKMARK) 
+                : IMAGE_CACHE.read(TabPanelIcon.CONTAINER));
+        reloadText();
+    }
+
+    /**
+     * Set the published to information for a version. We find the version cell
+     * within the west cell list; and replace it with a new one; then initialize
+     * the model.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param publishedTo
+     *            A <code>PublishedToView</code>.
+     */
+    public void setPanelData(final ContainerVersion version,
+            final PublishedToView publishedTo) {
+        this.publishedTo.put(version, publishedTo);
+        for (final Cell cell : westCells) {
+            if (cell.getClass().isAssignableFrom(VersionCell.class)) {
+                final VersionCell versionCell = (VersionCell) cell;
+                if (versionCell.getVersionId().equals(version.getVersionId())) {
+                    final Cell newVersionCell = new VersionCell(
+                            versionCell.version, versionCell.documentViews,
+                            publishedTo, versionCell.publishedBy);
+                    westCells.set(westCells.indexOf(versionCell), newVersionCell);
+                    westListModel.initialize(westCells);
+                }
+            }
+        }
     }
 
     /**
@@ -1581,15 +1619,6 @@ public class ContainerPanel extends DefaultTabPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     /**
-     * Determine if there is a latest version or not.
-     * 
-     * @return True if the version is the latest.
-     */
-    private boolean isLatest() {
-        return container.isLatest();
-    }
-
-    /**
      * Determine if the specified user is the local user.
      * 
      * @param user
@@ -2023,6 +2052,53 @@ public class ContainerPanel extends DefaultTabPanel {
         }
     }
 
+    /**
+     * <b>Title:</b>Conainer Panel Published To EMail East Cell<br>
+     * 
+     */
+    private final class PublishedToEMailCell extends AbstractEastCell {
+
+        /** A <code>PublishedToEMail</code>. */
+        private final PublishedToEMail publishedTo;
+
+        /**
+         * Create PublishedToEMailCell.
+         * 
+         * @param parent
+         *            A parent <code>WestCell</code>.
+         * @param publishedTo
+         *            A <code>PublishedToEMail</code>.
+         */
+        private PublishedToEMailCell(final WestCell parent,
+                final PublishedToEMail publishedTo) {
+            super(parent);
+            this.publishedTo = publishedTo;
+            setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
+            setText(publishedTo.getEMail().toString());
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#getId()
+         */
+        @Override
+        public String getId() {
+            return new StringBuffer("email-").append(publishedTo.getEMail()).toString();
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isActionAvailable()
+         */
+        @Override
+        public Boolean isActionAvailable() {
+            return Boolean.FALSE;
+        }
+        /**
+         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isPopupAvailable()
+         */
+        @Override
+        public Boolean isPopupAvailable() {
+            return Boolean.FALSE;
+        }
+    }
+
     /** A version cell. */
     private final class VersionCell extends AbstractWestCell {
         /** The <code>DocumentView</code>s. */ 
@@ -2179,77 +2255,10 @@ public class ContainerPanel extends DefaultTabPanel {
         }
     }
 
-    /**
-     * <b>Title:</b>Conainer Panel Published To EMail East Cell<br>
-     * 
-     */
-    private final class PublishedToEMailCell extends AbstractEastCell {
-
-        /** A <code>PublishedToEMail</code>. */
-        private final PublishedToEMail publishedTo;
-
-        /**
-         * Create PublishedToEMailCell.
-         * 
-         * @param parent
-         *            A parent <code>WestCell</code>.
-         * @param publishedTo
-         *            A <code>PublishedToEMail</code>.
-         */
-        private PublishedToEMailCell(final WestCell parent,
-                final PublishedToEMail publishedTo) {
-            super(parent);
-            this.publishedTo = publishedTo;
-            setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
-            setText(publishedTo.getEMail().toString());
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#getId()
-         */
-        @Override
-        public String getId() {
-            return new StringBuffer("email-").append(publishedTo.getEMail()).toString();
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isActionAvailable()
-         */
-        @Override
-        public Boolean isActionAvailable() {
-            return Boolean.FALSE;
-        }
-        /**
-         * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#isPopupAvailable()
-         */
-        @Override
-        public Boolean isPopupAvailable() {
-            return Boolean.FALSE;
-        }
-    }
-
     /** A user cell. */
     private final class VersionUserCell extends AbstractEastCell {
         /** A <code>User</code>. */
         private final User user;
-
-        /**
-         * Create VersionUserCell.
-         * 
-         * @param parent
-         *            The parent <code>WestCell</code>.
-         * @param publisher
-         *            The publisher <code>User</code>.
-         * @param publishedOn
-         *            The published on date <code>Calendar</code>.
-         */
-        private VersionUserCell(final WestCell parent,
-                final User publisher, final Calendar publishedOn) {
-            super(parent);
-            this.user = publisher;
-            setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
-            setText(publisher.getName());
-            setAdditionalText(localization.getString("UserPublished",
-                    new Object[] {formatFuzzy(publishedOn)}));
-        }
 
         /**
          * Create VersionUserCell.
@@ -2271,6 +2280,26 @@ public class ContainerPanel extends DefaultTabPanel {
                 setAdditionalText(localization.getString("UserReceived",
                         new Object[] {formatFuzzy(receipt.getReceivedOn())}));
             }                   
+        }
+
+        /**
+         * Create VersionUserCell.
+         * 
+         * @param parent
+         *            The parent <code>WestCell</code>.
+         * @param publisher
+         *            The publisher <code>User</code>.
+         * @param publishedOn
+         *            The published on date <code>Calendar</code>.
+         */
+        private VersionUserCell(final WestCell parent,
+                final User publisher, final Calendar publishedOn) {
+            super(parent);
+            this.user = publisher;
+            setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
+            setText(publisher.getName());
+            setAdditionalText(localization.getString("UserPublished",
+                    new Object[] {formatFuzzy(publishedOn)}));
         }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#getId()

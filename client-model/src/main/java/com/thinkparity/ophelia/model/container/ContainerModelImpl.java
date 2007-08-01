@@ -734,6 +734,12 @@ public final class ContainerModelImpl extends
                 createDelegate(HandleVersionPublishedNotification.class);
             delegate.setEvent(event);
             delegate.handleVersionPublishedNotification();
+
+            if (delegate.doNotify()) {
+                notifyContainerVersionPublished(delegate.getContainer(),
+                        delegate.getVersion(), delegate.getReceipts(),
+                        remoteEventGenerator);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -3266,6 +3272,31 @@ public final class ContainerModelImpl extends
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
                 listener.containerVersionFlagSeenRemoved(ceg.generate(version));
+            }
+        });
+    }
+
+    /**
+     * Fire a container version published event.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param receipts
+     *            A <code>List<ArtifactReceipt></code>.
+     * @param ceg
+     *            A <code>ContainerEventGenerator</code>.
+     */
+    private void notifyContainerVersionPublished(final Container container,
+            final ContainerVersion version,
+            final List<ArtifactReceipt> receipts,
+            final ContainerEventGenerator ceg) {
+        notifyListeners(new EventNotifier<ContainerListener>() {
+            @Override
+            public void notifyListener(final ContainerListener listener) {
+                listener.containerVersionPublished(ceg.generate(container, 
+                        version, receipts));
             }
         });
     }

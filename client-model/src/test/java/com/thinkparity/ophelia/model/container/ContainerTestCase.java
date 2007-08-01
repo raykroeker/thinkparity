@@ -178,6 +178,10 @@ public abstract class ContainerTestCase extends ModelTestCase {
         public void containerVersionFlagSeenRemoved(final ContainerEvent e) {
             fail(getName() + " Container version flag seen applied event was fired.");
         }
+        @Override
+        public void containerVersionPublished(ContainerEvent e) {
+            fail(getName() + " - Container version published event was fired.");
+        }
         public void documentAdded(ContainerEvent e) {
             fail(getName() + " - Document added event was fired.");
         }

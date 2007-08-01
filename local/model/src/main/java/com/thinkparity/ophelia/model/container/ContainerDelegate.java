@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerConstraints;
@@ -342,6 +343,15 @@ public abstract class ContainerDelegate extends
     protected final ContainerVersion readPreviousVersion(
             final Long containerId, final Long versionId) {
         return modelImplementation.readPreviousVersion(containerId, versionId);
+    }
+
+    /**
+     * @see ContainerModelImpl#readPublishedTo(Long, Long)
+     * 
+     */
+    protected final List<ArtifactReceipt> readPublishedTo(final ContainerVersion version) {
+        return modelImplementation.readPublishedTo(version.getArtifactId(),
+                version.getVersionId());
     }
 
     /**

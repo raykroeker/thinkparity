@@ -134,6 +134,16 @@ public interface ContainerListener extends EventListener {
     public void containerVersionFlagSeenRemoved(final ContainerEvent e);
 
     /**
+     * A container version has been published. The event will include the
+     * container information; the container version information and the
+     * container version's artifact receipt information.
+     * 
+     * @param e
+     *            A <code>ContainerEvent</code>.
+     */
+    public void containerVersionPublished(final ContainerEvent e);
+
+    /**
      * A document was added to a container.
      * 
      * @param e

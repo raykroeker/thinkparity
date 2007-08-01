@@ -105,6 +105,13 @@ public class ContainerAdapter implements ContainerListener {
     public void containerVersionFlagSeenRemoved(final ContainerEvent e) {}
 
     /**
+     * @see com.thinkparity.ophelia.model.events.ContainerListener#containerVersionPublished(com.thinkparity.ophelia.model.events.ContainerEvent)
+     *
+     */
+    @Override
+    public void containerVersionPublished(final ContainerEvent e) {}
+
+    /**
      * @see com.thinkparity.ophelia.model.events.ContainerListener#documentAdded(com.thinkparity.ophelia.model.events.ContainerEvent)
      * 
      */

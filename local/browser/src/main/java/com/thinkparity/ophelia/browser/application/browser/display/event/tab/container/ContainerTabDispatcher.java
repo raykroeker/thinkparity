@@ -45,6 +45,10 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
                 "Listener for avatar {0} already added.", avatar.getId());
         containerListener = new ContainerAdapter() {
             @Override
+            public void containerVersionPublished(final ContainerEvent e) {
+                avatar.syncContainerVersionReceipts(e.getVersion(), e.getReceipts());
+            }
+            @Override
             public void containerBookmarkAdded(final ContainerEvent e) {
                 avatar.fireFlagged(e);
             }

@@ -7,6 +7,7 @@ package com.thinkparity.ophelia.model.container;
 
 import java.util.List;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -108,6 +109,23 @@ class ContainerEventGenerator {
     ContainerEvent generate(final Container container,
             final ContainerVersion version) {
         return new ContainerEvent(source, container, version);
+    }
+
+    /**
+     * Generate a container event for a container; a container version and a
+     * list of artifact receipts.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param receipts
+     *            A <code>List<ArtifactRecipt></code>.
+     * @return A container event.
+     */
+    ContainerEvent generate(final Container container,
+            final ContainerVersion version, final List<ArtifactReceipt> receipts) {
+        return new ContainerEvent(source, container, version, receipts);
     }
 
     /**

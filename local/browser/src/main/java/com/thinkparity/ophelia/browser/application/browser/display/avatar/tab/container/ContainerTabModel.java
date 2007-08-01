@@ -22,6 +22,7 @@ import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -569,6 +570,29 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
             final Document document) {
         addContainerIdLookup(document.getId(), container.getId());
         syncDocumentModified(container, draft, document);
+    }
+
+    /**
+     * Synchronize a version's receipts.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param receipts
+     *            A <code>List<ArtifactReceipt></code>.
+     */
+    void syncContainerVersionReceipts(final ContainerVersion version,
+            final List<ArtifactReceipt> receipts) {
+        if (isPanel(version.getArtifactId())) {
+            final ContainerPanel panel = lookupContainerPanel(version.getArtifactId());
+            final PublishedToView publishedTo = panel.getPublishedTo(version);
+            if (null == publishedTo) {
+                logger.logInfo("Published to panel data for {0} has not been retreived.", panel);
+            } else {
+                publishedTo.setArtifactReceipts(receipts);
+                panel.setPanelData(version, publishedTo);
+                synchronize();
+            }
+        }
     }
 
     /**

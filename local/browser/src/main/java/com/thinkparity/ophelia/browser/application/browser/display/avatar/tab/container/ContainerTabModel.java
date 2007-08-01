@@ -94,6 +94,13 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#clearFilter()
+     */
+    public void clearFilter() {
+        applyFilter(FilterBy.FILTER_NONE);
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate#getFilterBy()
      */
     public List<TabAvatarFilterBy> getFilterBy() {

@@ -166,13 +166,6 @@ public class Browser extends AbstractApplication {
 	}
 
     /**
-     * Clear the search.
-     */
-    public void clearSearch() {
-        getMainTitleAvatar().clearSearch();
-    }
-
-    /**
      * Clear all status links.
      */
     public void clearStatusLink() {
@@ -1628,6 +1621,13 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Show all tab panels, ie. clear filter and search on the tab.
+     */
+    public void showAllTabPanels() {
+        getMainTitleAvatar().showAllTabPanels();
+    }
+
+    /**
      * Show the contact invitation.
      * 
      * @param invitationId
@@ -1698,7 +1698,11 @@ public class Browser extends AbstractApplication {
      * and the container and version are selected.
      */
     public void showTopVisibleUnreadContainerVersion() {
-        getTabContainerAvatar().showTopVisibleUnreadContainerVersion();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContainerAvatar().showTopVisibleUnreadContainerVersion();
+            }
+        }); 
     }
 
     /**

@@ -46,9 +46,9 @@ public class Show extends AbstractBrowserAction {
         browser.iconify(Boolean.FALSE);
         browser.moveToFront();
 
-        // Clear search
+        // Clear search and filter
         if (clearSearch) {
-            browser.clearSearch();
+            browser.showAllTabPanels();
         }
 
         // Select the container tab and show the container

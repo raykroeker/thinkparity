@@ -13,6 +13,11 @@ import java.util.List;
 public interface TabAvatarFilterDelegate {
 
     /**
+     * Clear the filter.
+     */
+    public void clearFilter();
+
+    /**
      * Obtain a list of the filter by definitions.
      * 
      * @return A <code>List</code> of <code>TabAvatarFilterBy</code>.

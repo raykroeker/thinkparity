@@ -87,6 +87,14 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
     }
 
     /**
+     * Clear the filter.
+     */
+    public void clearFilter() {
+        filterDelegate.clearFilter();
+        setFilterIcon(Boolean.FALSE);
+    }
+
+    /**
      * Clear the search.
      */
     public void clearSearch() {
@@ -116,7 +124,7 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
      */
     public void reloadTabFilter(final TabId tabId) {
         filterDelegate = getBrowser().getFilterDelegate(tabId);
-        setFilterIcon(Boolean.FALSE);
+        clearFilter();
     }
 
     /**

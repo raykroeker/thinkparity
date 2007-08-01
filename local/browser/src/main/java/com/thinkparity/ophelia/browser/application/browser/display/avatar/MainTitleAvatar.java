@@ -81,13 +81,6 @@ public final class MainTitleAvatar extends Avatar {
     }
 
     /**
-     * Clear the search.
-     */
-    public void clearSearch() {
-        searchPanel.clearSearch();
-    }
-
-    /**
      * Fire a profile e-mail event.
      * 
      * @param e
@@ -133,6 +126,18 @@ public final class MainTitleAvatar extends Avatar {
      */
     @Override
     public void setState(final State state) {}
+
+    /**
+     * Show all tab panels, ie. clear filter and search on the tab.
+     */
+    public void showAllTabPanels() {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                searchPanel.clearSearch();
+                searchPanel.clearFilter();  
+            }
+        });
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getResizeEdges()
@@ -248,7 +253,7 @@ public final class MainTitleAvatar extends Avatar {
                 default:
                     Assert.assertUnreachable("UNKNOWN TAB");
                 }
-                clearSearch();
+                searchPanel.clearSearch();
                 searchPanel.reloadTabFilter(tabId);
             }
         }

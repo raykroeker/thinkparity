@@ -4,6 +4,7 @@
 package com.thinkparity.desdemona.model.queue;
 
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.model.queue.notification.NotificationSession;
@@ -128,7 +129,11 @@ public class QueueModelImpl extends AbstractModelImpl implements QueueModel,
      */
     public List<XMPPEvent> readEvents() {
         try {
-            return queueSql.readEvents(user.getLocalId());
+            if (getProfileModel().isVerified()) {
+                return queueSql.readEvents(user.getLocalId());
+            } else {
+                return Collections.emptyList();
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }

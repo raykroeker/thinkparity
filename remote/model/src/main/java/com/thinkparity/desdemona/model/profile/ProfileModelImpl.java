@@ -324,6 +324,19 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.profile.InternalProfileModel#isVerified()
+     *
+     */
+    @Override
+    public Boolean isVerified() {
+        try {
+            return 0 < readVerifiedEMails(user).size();
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#read()
      * 
      */
@@ -357,14 +370,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      */
     public List<EMail> readEMails(final JabberId userId, final User user) {
         try {
-            // read only verified e-mails
-            final List<ProfileEMail> profileEMails = userSql.readEMails(user);
-            final List<EMail> emails = new ArrayList<EMail>(profileEMails.size());
-            for (final ProfileEMail profileEMail : profileEMails) {
-                if (profileEMail.isVerified())
-                    emails.add(profileEMail.getEmail());
-            }
-            return emails;
+            return readVerifiedEMails(user);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -448,7 +454,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             throw translateError(t);
         }
     }
-    
+
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#updateProductRelease(com.thinkparity.codebase.model.migrator.Product, com.thinkparity.codebase.model.migrator.Release)
      *
@@ -466,7 +472,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             throw panic(t);
         }
     }
-
+    
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#verifyEmail(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.email.EMail, java.lang.String)
@@ -496,6 +502,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             }
             // fire event
             notifyContactUpdated();
+            // flush event queue
+            getQueueModel().flush();
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -669,5 +677,23 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         contactUpdated.setContactId(user.getId());
         contactUpdated.setUpdatedOn(currentDateTime());
         enqueueEvents(contactIds, contactUpdated);
+    }
+
+    /**
+     * Read the verified e-mail addresses for a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return A <code>List<EMail></code>.
+     */
+    private List<EMail> readVerifiedEMails(final User user) {
+        // read only verified e-mails
+        final List<ProfileEMail> profileEMails = userSql.readEMails(user);
+        final List<EMail> emails = new ArrayList<EMail>(profileEMails.size());
+        for (final ProfileEMail profileEMail : profileEMails) {
+            if (profileEMail.isVerified())
+                emails.add(profileEMail.getEmail());
+        }
+        return emails;
     }
 }

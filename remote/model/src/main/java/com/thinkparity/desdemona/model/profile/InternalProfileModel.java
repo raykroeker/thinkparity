@@ -10,9 +10,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.user.User;
 
-import com.thinkparity.desdemona.model.annotation.ThinkParityAuthenticate;
-import com.thinkparity.desdemona.util.AuthenticationType;
-
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Internal Profile Model<br>
@@ -24,6 +21,13 @@ import com.thinkparity.desdemona.util.AuthenticationType;
 public interface InternalProfileModel extends ProfileModel {
 
     /**
+     * Determine whether or not the model user's profile has been verified.
+     * 
+     * @return True if the profile is verified.
+     */
+    public Boolean isVerified();
+
+    /**
      * Read a user's e-mail addresses.
      * 
      * @param userId
@@ -32,6 +36,5 @@ public interface InternalProfileModel extends ProfileModel {
      *            A <code>User</code>.
      * @return A <code>List</code> of <code>EMail</code> addresses.
      */
-    @ThinkParityAuthenticate(AuthenticationType.USER)
     public List<EMail> readEMails(final JabberId userId, final User user);
 }

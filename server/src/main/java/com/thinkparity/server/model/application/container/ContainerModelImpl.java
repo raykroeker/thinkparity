@@ -537,12 +537,13 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
      */
     private void enqueueContainerVersionPublishedNotification(
             final ContainerVersion version, final JabberId publishedBy,
-            final Calendar publishedOn, final List<User> publishToUsers) {
+            final Calendar publishedOn, final List<User> publishedTo) {
         final VersionPublishedNotificationEvent event = new VersionPublishedNotificationEvent();
         event.setPublishedBy(publishedBy);
         event.setPublishedOn(publishedOn);
+        event.setPublishedTo(publishedTo);
         event.setVersion(version);
-        
+
         // enqueue to the team
         final Artifact localArtifact = localize(version);
         final List<TeamMember> team = getArtifactModel().readTeam(localArtifact.getId());

@@ -7,14 +7,18 @@ import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedNotificationEvent;
 
+import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.container.ContainerDelegate;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.document.CannotLockException;
+import com.thinkparity.ophelia.model.user.InternalUserModel;
 
 /**
  * <b>Title:</b>thinkParity OpheliaModel Container Handle Published
@@ -44,8 +48,9 @@ public final class HandleVersionPublishedNotification extends
      *
      */
     public void handleVersionPublishedNotification() throws CannotLockException {
-        final Long localId = getArtifactModel().readId(event.getVersion().getArtifactUniqueId());
-        final Container container = read(localId);
+        final InternalArtifactModel artifactModel = getArtifactModel();
+        final Long containerId = artifactModel.readId(event.getVersion().getArtifactUniqueId());
+        final Container container = read(containerId);
         // create draft if one exists remotely
         final JabberId draftOwnerId = readKeyHolder(container);
         if (draftOwnerId.equals(User.THINKPARITY.getId())) {
@@ -69,6 +74,25 @@ public final class HandleVersionPublishedNotification extends
                     logger.logWarning("Draft owner {0} does not match {1} for {2}.",
                             localDraft.getOwner().getId(), draftOwnerId,
                             container.getName());
+                }
+            }
+        }
+        /* if the version exists locally */
+        if (artifactModel.doesVersionExist(containerId, event.getVersion().getVersionId())) {
+            final ContainerVersion version = readVersion(containerId, event.getVersion().getVersionId());
+            /* create the local published to list for the event */
+            final InternalUserModel userModel = getUserModel();
+            User localPublishedTo;
+            ArtifactReceipt receipt;
+            for (final User publishedToUser : event.getPublishedTo()) {
+                localPublishedTo = userModel.readLazyCreate(publishedToUser.getId());
+                receipt = containerIO.readPublishedToReceipt(
+                        containerId, version.getVersionId(),
+                        event.getPublishedOn(), localPublishedTo);
+                if (null == receipt) {
+                    containerIO.createPublishedTo(containerId,
+                            version.getVersionId(), localPublishedTo,
+                            event.getPublishedOn());
                 }
             }
         }

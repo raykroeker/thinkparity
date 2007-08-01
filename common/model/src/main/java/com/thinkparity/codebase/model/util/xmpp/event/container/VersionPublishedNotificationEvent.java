@@ -3,19 +3,23 @@
  */
 package com.thinkparity.codebase.model.util.xmpp.event.container;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 /**
  * <b>Title:</b>thinkParity CommonModel Container Published Notification Event<br>
  * <b>Description:</b>The event fired to everyone indicating a version has been
- * published. Is used to keep the is latest flag up to date, as well the team
- * definition and draft information.<br>
+ * published. Is used to keep the is latest flag up to date, as well the
+ * version's published to list, and draft information.<br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
@@ -29,15 +33,19 @@ public final class VersionPublishedNotificationEvent extends XMPPEvent {
     /** The published on <code>Calendar</code>. */
     private Calendar publishedOn;
 
+    /** The list of users published to. */
+    private final List<User> publishedTo;
+
     /** The <code>ArtifactVersion</code>. */
     private ArtifactVersion version;
 
     /**
-     * Create ArtifactPublishedEvent.
+     * Create VersionPublishedNotificationEvent.
      * 
      */
     public VersionPublishedNotificationEvent() {
         super();
+        this.publishedTo = new ArrayList<User>();
     }
 
     /**
@@ -56,6 +64,15 @@ public final class VersionPublishedNotificationEvent extends XMPPEvent {
      */
     public Calendar getPublishedOn() {
         return publishedOn;
+    }
+
+    /**
+     * Obtain publishedTo.
+     *
+     * @return A List<User>.
+     */
+    public List<User> getPublishedTo() {
+        return Collections.unmodifiableList(publishedTo);
     }
 
     /**
@@ -85,6 +102,17 @@ public final class VersionPublishedNotificationEvent extends XMPPEvent {
      */
     public void setPublishedOn(final Calendar publishedOn) {
         this.publishedOn = publishedOn;
+    }
+
+    /**
+     * Set published to.
+     * 
+     * @param publishedTo
+     *            A <code>List<User></code>.
+     */
+    public void setPublishedTo(final List<User> publishedTo) {
+        this.publishedTo.clear();
+        this.publishedTo.addAll(publishedTo);
     }
 
     /**

@@ -175,7 +175,8 @@ public final class PublishContainerAvatar extends Avatar implements
 
     public void reload() {
         reloadProgressBar();
-        if (input != null) { 
+        if (input != null) {
+            showBusyIndicators(Boolean.FALSE);
             reloadPublishToLists();
             reloadEMails();
             reloadVersionName();
@@ -950,12 +951,18 @@ public final class PublishContainerAvatar extends Avatar implements
      *            The busy <code>Boolean</code>.
      */
     private void showBusyCursor(final Boolean busy) {
-        final java.awt.Cursor cursor = busy ? Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) : null;
-        SwingUtil.setCursor(this, cursor);
-        // NOTE Setting the cursor on the Avatar does not automatically
-        // set the cursor on these subcomponents
-        SwingUtil.setCursor(emailsJTextField, cursor);
-        SwingUtil.setCursor(versionNameJTextField, cursor);
+        if (busy) {
+            final java.awt.Cursor cursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
+            SwingUtil.setCursor(this, cursor);
+            SwingUtil.setCursor(emailsJTextField, cursor);
+            SwingUtil.setCursor(versionNameJTextField, cursor);
+        } else {
+            SwingUtil.setCursor(this, null);
+            final java.awt.Cursor cursor = Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR);
+            SwingUtil.setCursor(emailsJTextField, cursor);
+            SwingUtil.setCursor(versionNameJTextField,
+                    PublishType.PUBLISH == getInputPublishType() ? cursor : null);
+        }
     }
 
     /**

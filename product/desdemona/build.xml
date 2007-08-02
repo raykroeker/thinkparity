@@ -430,21 +430,33 @@ Examples:
             <isset property="test"/>
         </condition>
 
+        <tstamp>
+            <format property="junit.started" pattern="yyyy-MM-dd HH:mm:ss.SSS Z" timezone="PST"/>
+        </tstamp>   
+        <echo message="Start time: ${junit.started}"/>
         <junit fork="on" forkmode="once" reloading="false"
                 errorproperty="junit.didError" failureproperty="junit.didFail">
             <jvmarg value="-Dthinkparity.mode=${thinkparity.mode}"/>
             <jvmarg value="-Djunitx.log4j.level=${inner.junitx.log4j.level}"/>
             <jvmarg value="-Djunitx.log4j.console=${inner.junitx.log4j.console}"/>
 
-            <classpath refid="project.test-classpath"/>
+            <classpath refid="test.classpath"/>
+        	<!--
             <formatter type="brief" usefile="false"/>
-
+-->
             <!-- execute batch tests -->
             <batchtest todir="${target.test-sessions.dir}">
+<!--
                 <formatter type="xml"/>
-                <fileset dir="${target.test-classes.dir}/remote/model" includes="${inner.test}"/>
+-->
+                <fileset dir="${target.test-classes.dir}" includes="${inner.test}"/>
             </batchtest>
         </junit>
+        <tstamp>
+            <format property="junit.ended" pattern="yyyy-MM-dd HH:mm:ss.SSS Z" timezone="PST"/>
+        </tstamp>   
+        <echo message="End time: ${junit.ended}"/>
+
         <delete dir="${target.test-report.dir}"/>
         <mkdir dir="${target.test-report.dir}"/>
         <junitreport todir="${target.test-report.dir}">

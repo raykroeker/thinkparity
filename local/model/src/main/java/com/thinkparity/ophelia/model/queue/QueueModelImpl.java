@@ -9,7 +9,6 @@ import java.util.Observer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-import com.thinkparity.codebase.model.queue.notification.NotificationSession;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
@@ -117,8 +116,7 @@ public final class QueueModelImpl extends Model implements QueueModel,
                 }
             }
         }
-        setNotificationClient(newNotificationClient(
-                queueService.createNotificationSession(getAuthToken())));
+        setNotificationClient(newNotificationClient());
         newThread(getNotificationClient()).start();
     }
 
@@ -166,13 +164,15 @@ public final class QueueModelImpl extends Model implements QueueModel,
     }
 
     /**
-     * Create an instance of a notification client.
+     * Create an instance of a notification client. The notification client will
+     * <i>always</i> fire an initial notification regardless of the queue
+     * situation on the server.
      * 
      * @param session
      *            A <code>NotificationSession</code>.
      * @return A <code>NotificationClient</code>.
      */
-    private NotificationClient newNotificationClient(final NotificationSession session) {
+    private NotificationClient newNotificationClient() {
         final NotificationClient notificationClient = new NotificationClient();
         notificationClient.addObserver(new Observer() {
             public void update(final Observable o, final Object arg) {
@@ -193,7 +193,9 @@ public final class QueueModelImpl extends Model implements QueueModel,
                 }
             }
         });
-        notificationClient.setSession(session);
+        notificationClient.setNotify(Boolean.TRUE);
+        notificationClient.setSession(queueService.createNotificationSession(
+                getAuthToken()));
         return notificationClient;
     }
 

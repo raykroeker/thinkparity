@@ -13,6 +13,7 @@ import javax.jws.WebService;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.DraftExistsException;
+import com.thinkparity.codebase.model.artifact.IllegalVersionException;
 
 /**
  * <b>Title:</b>thinkParity Artifact Service<br>
@@ -25,8 +26,9 @@ import com.thinkparity.codebase.model.artifact.DraftExistsException;
 public interface ArtifactService {
 
     @WebMethod
-    void createDraft(AuthToken authToken, List<JabberId> team,
-            UUID uniqueId, Calendar createdOn) throws DraftExistsException;
+    void createDraft(AuthToken authToken, List<JabberId> team, UUID uniqueId,
+            Long latestVersionId, Calendar createdOn)
+            throws DraftExistsException, IllegalVersionException;
 
     @WebMethod
     void deleteDraft(AuthToken authToken, List<JabberId> team,

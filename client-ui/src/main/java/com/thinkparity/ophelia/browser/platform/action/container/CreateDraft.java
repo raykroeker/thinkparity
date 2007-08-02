@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 
 
 import com.thinkparity.codebase.model.artifact.DraftExistsException;
+import com.thinkparity.codebase.model.artifact.IllegalVersionException;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
@@ -44,6 +45,13 @@ public class CreateDraft extends AbstractBrowserAction {
              * 
              * nothing need be done in this case */
             logger.logWarning("Draft for artifact {0} already exists.", containerId);
+        } catch (final IllegalVersionException ivx) {
+            /* the user attempted to create a draft without posessing the latest
+             * version; can happen if a version event has been queued and not
+             * processed
+             * 
+             * nothing need be done in this case */
+            logger.logWarning("Local version data for artifact {0} not up to date.", containerId);
         }
     }
 

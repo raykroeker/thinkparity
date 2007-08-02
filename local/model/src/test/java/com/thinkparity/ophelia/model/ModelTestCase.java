@@ -28,6 +28,7 @@ import com.thinkparity.codebase.junitx.TestException;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.DraftExistsException;
+import com.thinkparity.codebase.model.artifact.IllegalVersionException;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -842,6 +843,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         } catch (final DraftExistsException dex) {
             fail(dex, "Draft for {0} already exists.", containerId);
             throw new TestException(dex);
+        } catch (final IllegalVersionException ivx) {
+            fail(ivx, "{0} is not up to date.", containerId);
+            throw new TestException(ivx);
         }
     }
 
@@ -904,6 +908,9 @@ public abstract class ModelTestCase extends OpheliaTestCase {
         } catch (final DraftExistsException dex) {
             fail(dex, "Draft for {0} already exists.", c.getName());
             throw new TestException(dex);
+        } catch (final IllegalVersionException ivx) {
+            fail(ivx, "{0} is not up to date.", c.getName());
+            throw new TestException(ivx);
         }
     }
 

@@ -233,7 +233,8 @@ public class ArtifactSql extends AbstractSql {
     private static final String SQL_UPDATE_DRAFT_OWNER =
         new StringBuilder("update TPSD_ARTIFACT ")
         .append("set ARTIFACT_DRAFT_OWNER=?,UPDATED_ON=?,UPDATED_BY=? ")
-        .append("where ARTIFACT_ID=? and ARTIFACT_DRAFT_OWNER=?")
+        .append("where ARTIFACT_ID=? and ARTIFACT_LATEST_VERSION_ID=? ")
+        .append("and ARTIFACT_DRAFT_OWNER=?")
         .toString();
 
     /** Sql to update the latest version id. */
@@ -890,8 +891,8 @@ public class ArtifactSql extends AbstractSql {
      *            An updated by user id <code>JabberId</code>.
      */
     public void updateDraftOwner(final Artifact artifact,
-            final User currentOwner, final User newOwner,
-            final Calendar updatedOn) {
+            final Long latestVersionId, final User currentOwner,
+            final User newOwner, final Calendar updatedOn) {
 		final HypersonicSession session = openSession();
 		try {
 			session.prepareStatement(SQL_UPDATE_DRAFT_OWNER);
@@ -899,7 +900,8 @@ public class ArtifactSql extends AbstractSql {
             session.setCalendar(2, updatedOn);
 			session.setLong(3, newOwner.getLocalId());
 			session.setLong(4, artifact.getId());
-            session.setLong(5, currentOwner.getLocalId());
+			session.setLong(5, latestVersionId);
+            session.setLong(6, currentOwner.getLocalId());
             if (1 != session.executeUpdate()) {
                 // TODO use a specific error code for this scenario
                 throw new HypersonicException("Could not update draft owner.");

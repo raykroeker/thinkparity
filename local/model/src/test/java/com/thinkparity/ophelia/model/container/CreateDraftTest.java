@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.container;
 import java.util.List;
 
 import com.thinkparity.codebase.model.artifact.DraftExistsException;
+import com.thinkparity.codebase.model.artifact.IllegalVersionException;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -74,6 +75,9 @@ public class CreateDraftTest extends ContainerTestCase {
         } catch (final DraftExistsException dex) {
             draftCreate = null;
             fail(dex, "Draft already exists.");
+        } catch (final IllegalVersionException ivx) {
+            draftCreate = null;
+            fail(ivx, "Version info not up to date.");
         }
         datum.removeListener(datum.junit);
         datum.waitForEvents();

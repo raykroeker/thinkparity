@@ -342,7 +342,8 @@ public final class ContainerModelImpl extends
      * @see com.thinkparity.ophelia.model.container.ContainerModel#createDraft(java.lang.Long)
      * 
      */
-    public ContainerDraft createDraft(final Long containerId) throws DraftExistsException {
+    public ContainerDraft createDraft(final Long containerId)
+            throws DraftExistsException, IllegalVersionException {
         try {
             if (doesExistDraft(containerId)) {
                 throw new DraftExistsException();
@@ -402,7 +403,7 @@ public final class ContainerModelImpl extends
                     final List<JabberId> team = artifactModel.readTeamIds(containerId);
                     team.remove(localUserId());
                     getSessionModel().createDraft(team, container.getUniqueId(),
-                            createdOn);
+                            latestVersion.getVersionId(), createdOn);
                 } finally {
                     releaseLocks(documentLocks.values());
                 }
@@ -414,6 +415,8 @@ public final class ContainerModelImpl extends
             return postCreationDraft;
         } catch (final DraftExistsException dex) {
             throw dex;
+        } catch (final IllegalVersionException ivx) {
+            throw ivx;
         } catch (final Throwable t) {
             throw panic(t);
         }

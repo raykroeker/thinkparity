@@ -39,6 +39,9 @@ public final class NotificationClient extends Observable implements Runnable {
     /** A log4j wrapper. */
     private final Log4JWrapper logger;
 
+    /** A notify override. */
+    private Boolean notify;
+
     /** A notification reader. */
     private NotificationReader reader;
 
@@ -113,17 +116,34 @@ public final class NotificationClient extends Observable implements Runnable {
                     break;
                 }
             }
-            if (reader.isOpen().booleanValue()) {
-                reader.waitForNotification();
-                if (reader.didNotify()) {
-                    setChanged();
-                    notifyPendingEvents();
-                }
-            } else {
+            /* allow for a single use notification override */
+            if (notify) {
+                notify = Boolean.FALSE;
                 setChanged();
-                notifyClientOffline();
+                notifyPendingEvents();
+            } else {
+                if (reader.isOpen().booleanValue()) {
+                    reader.waitForNotification();
+                    if (reader.didNotify()) {
+                        setChanged();
+                        notifyPendingEvents();
+                    }
+                } else {
+                    setChanged();
+                    notifyClientOffline();
+                }
             }
         }
+    }
+
+    /**
+     * Set the notify override.
+     * 
+     * @param notify
+     *            A <code>Boolean</code>.
+     */
+    public void setNotify(final Boolean notify) {
+        this.notify = notify;
     }
 
     /**

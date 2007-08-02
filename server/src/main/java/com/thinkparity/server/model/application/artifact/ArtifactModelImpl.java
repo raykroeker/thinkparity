@@ -14,6 +14,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.artifact.DraftExistsException;
+import com.thinkparity.codebase.model.artifact.IllegalVersionException;
 import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -103,38 +104,61 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
 	}
 
     /**
-     * @see com.thinkparity.desdemona.model.artifact.ArtifactModel#createDraft(com.thinkparity.codebase.jabber.JabberId,
-     *      java.util.List, java.util.UUID, java.util.Calendar)
-     * 
+     * @see com.thinkparity.desdemona.model.artifact.ArtifactModel#createDraft(java.util.List, java.util.UUID, java.lang.Long, java.util.Calendar)
+     *
      */
     public void createDraft(final List<JabberId> team, final UUID uniqueId,
-            final Calendar createdOn) throws DraftExistsException {
+            final Long latestVersionId, final Calendar createdOn)
+            throws DraftExistsException, IllegalVersionException {
         try {
             final JabberId keyHolderId = readKeyHolder(uniqueId);
             if (keyHolderId.equals(User.THINKPARITY.getId())) {
                 final Artifact artifact = read(uniqueId);
-                final User currentOwner = getUserModel().read(User.THINKPARITY.getId());
-                try {
-                    artifactSql.updateDraftOwner(artifact, currentOwner, user,
-                            createdOn);
-                } catch (final HypersonicException hx) {
-                    // TODO use a specific error code for this scenario
-                    if ("Could not update draft owner.".equals(hx.getMessage())) {
-                        throw new DraftExistsException();
-                    } else {
-                        throw hx;
+                if (isLatestVersionId(artifact.getId(), latestVersionId)) {
+                    final User currentOwner = getUserModel().read(User.THINKPARITY.getId());
+                    try {
+                        artifactSql.updateDraftOwner(artifact, latestVersionId,
+                                currentOwner, user, createdOn);
+                    } catch (final HypersonicException hx) {
+                        // TODO use a specific error code for this scenario
+                        if ("Could not update draft owner.".equals(hx.getMessage())) {
+                            if (isLatestVersionId(artifact.getId(), latestVersionId)) {
+                                throw new DraftExistsException();
+                            } else {
+                                throw new IllegalVersionException();
+                            }
+                        } else {
+                            throw hx;
+                        }
                     }
+                    notifyDraftCreated(team, artifact, user.getId(),
+                            DateTimeProvider.getCurrentDateTime());
+                } else {
+                    throw new IllegalVersionException();
                 }
-                notifyDraftCreated(team, artifact, user.getId(),
-                        DateTimeProvider.getCurrentDateTime());
             } else {
                 throw new DraftExistsException();
             }
         } catch (final DraftExistsException dex) {
             throw dex;
+        } catch (final IllegalVersionException ivx) {
+            throw ivx;
         } catch (final Throwable t) {
             throw translateError(t);
         }
+    }
+
+    /**
+     * Determine whether or not the version id is the latest version id.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return True if the version id is equal to the latest version id.
+     */
+    private boolean isLatestVersionId(final Long artifactId, final Long versionId) {
+        return artifactSql.readLatestVersionId(artifactId).equals(versionId);
     }
 
     /**
@@ -174,7 +198,9 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
 
             // update draft owner to system user
             final User newOwner = getUserModel().read(User.THINKPARITY.getId());
-            artifactSql.updateDraftOwner(artifact, user, newOwner, deletedOn);
+            final Long latestVersionId = artifactSql.readLatestVersionId(artifact.getId());
+            artifactSql.updateDraftOwner(artifact, latestVersionId, user,
+                    newOwner, deletedOn);
 
             // fire notification
             final ArtifactDraftDeletedEvent draftDeleted = new ArtifactDraftDeletedEvent();
@@ -461,7 +487,9 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
         // update key data
         final Artifact artifact = read(uniqueId);
         final User newOwner = getUserModel().read(User.THINKPARITY.getId());
-        artifactSql.updateDraftOwner(artifact, user, newOwner, deletedOn);
+        final Long latestVersionId = artifactSql.readLatestVersionId(artifact.getId());
+        artifactSql.updateDraftOwner(artifact, latestVersionId, user, newOwner,
+                deletedOn);
 
         // fire notification
         final ArtifactDraftDeletedEvent draftDeleted = new ArtifactDraftDeletedEvent();

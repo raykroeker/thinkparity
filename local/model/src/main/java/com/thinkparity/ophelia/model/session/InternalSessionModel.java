@@ -14,6 +14,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.DraftExistsException;
+import com.thinkparity.codebase.model.artifact.IllegalVersionException;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
@@ -84,7 +85,8 @@ public interface InternalSessionModel extends SessionModel {
 
     // TODO-javadoc InternalSessionModel#createDraft()
     public void createDraft(final List<JabberId> team, final UUID uniqueId,
-            final Calendar createdOn) throws DraftExistsException;
+            final Long latestVersionId, final Calendar createdOn)
+            throws DraftExistsException, IllegalVersionException;
 
     /**
      * Create an outgoing e-mail invitation.

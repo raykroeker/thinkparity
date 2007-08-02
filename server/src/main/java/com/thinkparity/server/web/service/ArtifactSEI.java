@@ -12,6 +12,7 @@ import javax.jws.WebService;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.DraftExistsException;
+import com.thinkparity.codebase.model.artifact.IllegalVersionException;
 
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 
@@ -38,12 +39,14 @@ public class ArtifactSEI extends ServiceSEI implements ArtifactService {
 
     /**
      * @see com.thinkparity.service.ArtifactService#createDraft(com.thinkparity.service.AuthToken,
-     *      java.util.List, java.util.UUID, java.util.Calendar)
+     *      java.util.List, java.util.UUID, java.lang.Long, java.util.Calendar)
      * 
      */
-    public void createDraft(final AuthToken authToken, final List<JabberId> team,
-            final UUID uniqueId, final Calendar createdOn) throws DraftExistsException {
-        getModel(authToken).createDraft(team, uniqueId, createdOn);
+    public void createDraft(final AuthToken authToken,
+            final List<JabberId> team, final UUID uniqueId,
+            final Long latestVersionId, final Calendar createdOn)
+            throws DraftExistsException, IllegalVersionException {
+        getModel(authToken).createDraft(team, uniqueId, latestVersionId, createdOn);
     }
 
     /**

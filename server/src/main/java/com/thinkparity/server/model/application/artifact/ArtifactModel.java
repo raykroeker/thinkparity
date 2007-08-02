@@ -11,6 +11,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.DraftExistsException;
+import com.thinkparity.codebase.model.artifact.IllegalVersionException;
 
 /**
  * <b>Title:</b><br>
@@ -27,8 +28,9 @@ public interface ArtifactModel {
      * @param uniqueId
      *            The artifact unique id.
      */
-    void createDraft(List<JabberId> team, UUID uniqueId, Calendar createdOn)
-            throws DraftExistsException;
+    void createDraft(List<JabberId> team, UUID uniqueId, Long versionId,
+            Calendar createdOn) throws DraftExistsException,
+            IllegalVersionException;
 
 	/**
      * Delete a draft from an artifact.

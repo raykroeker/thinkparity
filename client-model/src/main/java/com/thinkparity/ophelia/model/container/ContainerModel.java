@@ -17,6 +17,7 @@ import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.artifact.DraftExistsException;
+import com.thinkparity.codebase.model.artifact.IllegalVersionException;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
@@ -104,9 +105,12 @@ public interface ContainerModel {
      * @throws DraftExistsException
      *             if a user attempts to create a draft; when a draft already
      *             exists
+     * @throws IllegalVersionException
+     *             if a user attempts to create a draft without having the
+     *             latest version
      */
     public ContainerDraft createDraft(final Long containerId)
-            throws DraftExistsException;
+            throws DraftExistsException, IllegalVersionException;
 
     /**
      * Delete a container.

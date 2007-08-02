@@ -83,13 +83,13 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
             session.setString(1, key);
             session.executeQuery();
             if(session.nextResult()) {
-                final MetaData metaData = extractMetaData(session, metaDataIO);
-                metaDataIO.delete(session, metaData.getId());
-
                 session.prepareStatement(SQL_DELETE);
                 session.setString(1, key);
                 if(1 != session.executeUpdate())
                     throw new HypersonicException("Could not delete configuration entry.");
+
+                final MetaData metaData = extractMetaData(session, metaDataIO);
+                metaDataIO.delete(session, metaData.getId());
             }
             else {
                 throw new HypersonicException("Could not find configuration entry.");

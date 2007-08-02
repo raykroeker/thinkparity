@@ -1,4 +1,4 @@
-select A.ARTIFACT_TYPE_ID "type",A.ARTIFACT_UNIQUE_ID "unique id",DOU.USERNAME "draft owner",CBU.USERNAME "created by",A.CREATED_ON "created on"
+select A.ARTIFACT_TYPE_ID "type",A.ARTIFACT_UNIQUE_ID "unique id",A.ARTIFACT_LATEST_VERSION_ID "latest version",DOU.USERNAME "draft owner",CBU.USERNAME "created by",A.CREATED_ON "created on"
 from TPSD_ARTIFACT A
 inner join TPSD_USER DOU on DOU.USER_ID=A.ARTIFACT_DRAFT_OWNER
 inner join TPSD_USER CBU on CBU.USER_ID=A.CREATED_BY

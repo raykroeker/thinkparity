@@ -436,6 +436,13 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Display the license agreement dialog.
+     */
+    public void displayLicenseAgreementDialog() {
+        displayAvatar(AvatarId.DIALOG_SHOW_LICENSE_AGREEMENT);
+    }
+
+    /**
      * Display the "publish container" dialog.
      * If the user presses OK, the CONTAINER_PUBLISH action is invoked.
      * 

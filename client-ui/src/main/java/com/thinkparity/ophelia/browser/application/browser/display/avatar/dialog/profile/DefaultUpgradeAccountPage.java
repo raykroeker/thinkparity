@@ -88,6 +88,12 @@ public abstract class DefaultUpgradeAccountPage extends Avatar implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpgradeAccountPage#refresh()
+     */
+    public void refresh() {
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpgradeAccountPage#setDefaultFocus()
      */
     public void setDefaultFocus() {

@@ -30,12 +30,17 @@ public class LearnMore extends AbstractAction {
     /** The relative link for "privacy" learn more. */
     private static String PRIVACY_LINK;
 
+    /** The relative link for "security" learn more. */
+    private static String SECURITY_LINK;
+
     /** The relative link for "signup" learn more. */
     private static String SIGNUP_LINK;
 
     static {
         BETA_LINK = "contactUs";
-        PRIVACY_LINK = "solutions/index.php#secrurity";
+        // TODO Fix the privacy link
+        PRIVACY_LINK = "pricing";
+        SECURITY_LINK = "solutions/index.php#security";
         SIGNUP_LINK = "pricing";
     }
 
@@ -55,6 +60,9 @@ public class LearnMore extends AbstractAction {
         switch (topic) {
         case PRIVACY:
             browse(PRIVACY_LINK);
+            break;
+        case SECURITY:
+            browse(SECURITY_LINK);
             break;
         case SIGNUP:
             browse(SIGNUP_LINK);
@@ -84,5 +92,5 @@ public class LearnMore extends AbstractAction {
     }
 
     public enum DataKey { TOPIC }
-    public enum Topic { BETA, PRIVACY, SIGNUP }
+    public enum Topic { BETA, PRIVACY, SECURITY, SIGNUP }
 }

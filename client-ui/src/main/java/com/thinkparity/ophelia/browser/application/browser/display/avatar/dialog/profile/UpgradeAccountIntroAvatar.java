@@ -36,7 +36,7 @@ public class UpgradeAccountIntroAvatar extends DefaultUpgradeAccountPage {
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpgradeAccountPage#getNextPageName()
      */
     public String getNextPageName() {
-        return getPageName(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_PAYMENT);
+        return getPageName(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_AGREEMENT);
     }
 
     /**
@@ -90,9 +90,9 @@ public class UpgradeAccountIntroAvatar extends DefaultUpgradeAccountPage {
         final javax.swing.JLabel benefit1JLabel = new javax.swing.JLabel();
         final javax.swing.JLabel benefit2JLabel = new javax.swing.JLabel();
         final javax.swing.JLabel benefitLearnMoreJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-        final javax.swing.JLabel privacyTitleJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel privacyExplanationJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel privacyLearnMoreJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+        final javax.swing.JLabel securityTitleJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel securityExplanationJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel securityLearnMoreJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
 
         setOpaque(false);
         welcomeJLabel.setFont(Fonts.DialogFontBold);
@@ -121,18 +121,18 @@ public class UpgradeAccountIntroAvatar extends DefaultUpgradeAccountPage {
             }
         });
 
-        privacyTitleJLabel.setFont(Fonts.DialogFontBold);
-        privacyTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Intro.PrivacyTitle"));
+        securityTitleJLabel.setFont(Fonts.DialogFontBold);
+        securityTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Intro.SecurityTitle"));
 
-        privacyExplanationJLabel.setFont(Fonts.DialogFont);
-        privacyExplanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Intro.PrivacyExplanation"));
-        privacyExplanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        securityExplanationJLabel.setFont(Fonts.DialogFont);
+        securityExplanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Intro.SecurityExplanation"));
+        securityExplanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        privacyLearnMoreJLabel.setFont(Fonts.DialogFont);
-        privacyLearnMoreJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Intro.PrivacyLearnMore"));
-        privacyLearnMoreJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+        securityLearnMoreJLabel.setFont(Fonts.DialogFont);
+        securityLearnMoreJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Intro.SecurityLearnMore"));
+        securityLearnMoreJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
-                privacyLearnMoreJLabelMousePressed(evt);
+                securityLearnMoreJLabelMousePressed(evt);
             }
         });
 
@@ -143,22 +143,22 @@ public class UpgradeAccountIntroAvatar extends DefaultUpgradeAccountPage {
             .addGroup(layout.createSequentialGroup()
                 .addGap(64, 64, 64)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(privacyTitleJLabel)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(introJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(benefitsTitleJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addGap(10, 10, 10)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(benefit1JLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(benefit2JLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(benefitLearnMoreJLabel, javax.swing.GroupLayout.Alignment.LEADING)))
+                    .addComponent(welcomeJLabel)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(privacyLearnMoreJLabel)
-                            .addComponent(privacyExplanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(welcomeJLabel))
+                            .addComponent(securityTitleJLabel)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(benefitsTitleJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                    .addGap(10, 10, 10)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addComponent(benefit1JLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(benefit2JLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(benefitLearnMoreJLabel, javax.swing.GroupLayout.Alignment.LEADING)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(securityLearnMoreJLabel)
+                                    .addComponent(securityExplanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addComponent(introJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(50, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -177,18 +177,18 @@ public class UpgradeAccountIntroAvatar extends DefaultUpgradeAccountPage {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(benefitLearnMoreJLabel)
                 .addGap(33, 33, 33)
-                .addComponent(privacyTitleJLabel)
+                .addComponent(securityTitleJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(privacyExplanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(securityExplanationJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(privacyLearnMoreJLabel)
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addComponent(securityLearnMoreJLabel)
+                .addContainerGap(36, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void privacyLearnMoreJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_privacyLearnMoreJLabelMousePressed
-        getController().runLearnMore(LearnMore.Topic.PRIVACY);
-    }//GEN-LAST:event_privacyLearnMoreJLabelMousePressed
+    private void securityLearnMoreJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_securityLearnMoreJLabelMousePressed
+        getController().runLearnMore(LearnMore.Topic.SECURITY);
+    }//GEN-LAST:event_securityLearnMoreJLabelMousePressed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables

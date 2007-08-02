@@ -59,6 +59,11 @@ public interface UpgradeAccountPage {
     public Boolean isNextOk();
 
     /**
+     * Refresh. This is done when the page is shown.
+     */
+    public void refresh();
+
+    /**
      * Reload.
      */
     public void reload();

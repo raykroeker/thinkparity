@@ -9,6 +9,7 @@ import com.thinkparity.codebase.swing.AbstractJPanel;
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ConfirmAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.FileChooserAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ShowLicenseAgreementAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.StatusAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.UserInfoAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ContainerVersionCommentAvatar;
@@ -150,6 +151,9 @@ public final class AvatarFactory {
         case DIALOG_FILE_CHOOSER:
             avatar = newAvatar(FileChooserAvatar.class);
             break;
+        case DIALOG_SHOW_LICENSE_AGREEMENT:
+            avatar = newAvatar(ShowLicenseAgreementAvatar.class);
+            break;
         case DIALOG_STATUS:
             avatar = newAvatar(StatusAvatar.class);
             break;
@@ -233,6 +237,9 @@ public final class AvatarFactory {
             break;
         case DIALOG_PROFILE_UPGRADE_ACCOUNT:
             avatar = newAvatar(UpgradeAccountAvatar.class);
+            break;
+        case DIALOG_PROFILE_UPGRADE_ACCOUNT_AGREEMENT:
+            avatar = newAvatar(UpgradeAccountAgreementAvatar.class);
             break;
         case DIALOG_PROFILE_UPGRADE_ACCOUNT_INTRO:
             avatar = newAvatar(UpgradeAccountIntroAvatar.class);

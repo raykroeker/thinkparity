@@ -17,14 +17,25 @@ import com.thinkparity.codebase.model.profile.ProfileConstraints;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
 
 /**
  *
  * @author robert@thinkparity.com
  */
 public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JComboBox cardMonthJComboBox = new javax.swing.JComboBox();
+    private final javax.swing.JTextField cardNameJTextField = TextFactory.create();
+    private final javax.swing.JTextField cardNumberJTextField = TextFactory.create();
+    private final javax.swing.JTextField cardSecurityCodeJTextField = TextFactory.create();
+    private final javax.swing.JComboBox cardTypeJComboBox = new javax.swing.JComboBox();
+    private final javax.swing.JComboBox cardYearJComboBox = new javax.swing.JComboBox();
+    // End of variables declaration//GEN-END:variables
 
     /** The country <code>DefaultComboBoxModel</code>. */
     private final DefaultComboBoxModel cardMonthModel;
@@ -77,7 +88,26 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpgradeAccountPage#getPreviousPageName()
      */
     public String getPreviousPageName() {
-        return getPageName(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_INTRO);
+        return getPageName(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_AGREEMENT);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
+     */
+    @Override
+    public void reload() {
+        validateInput();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.DefaultUpgradeAccountPage#validateInput()
+     */
+    @Override
+    public void validateInput() {
+        super.validateInput();
+        if (isUpgradeAccountDelegateInitialized()) {
+            upgradeAccountDelegate.enableNextButton(Boolean.TRUE);
+        }
     }
 
     /**
@@ -127,6 +157,7 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
         final javax.swing.JLabel cardNameJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel cardExpiryDateJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel cardSecurityCodeJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel privacyLearnMoreJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
         final javax.swing.JLabel proceedJLabel = new javax.swing.JLabel();
 
         setOpaque(false);
@@ -166,6 +197,13 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
         cardSecurityCodeJTextField.setFont(Fonts.DialogTextEntryFont);
         ((AbstractDocument) cardSecurityCodeJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getCreditCardSecurityCode()));
 
+        privacyLearnMoreJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.PrivacyLearnMore"));
+        privacyLearnMoreJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                privacyLearnMoreJLabelMousePressed(evt);
+            }
+        });
+
         proceedJLabel.setFont(Fonts.DialogFont);
         proceedJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.Proceed"));
 
@@ -197,12 +235,13 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(cardYearJComboBox, 0, 181, Short.MAX_VALUE)))
                         .addGap(36, 36, 36))
+                    .addComponent(privacyLearnMoreJLabel)
                     .addComponent(proceedJLabel))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addGap(128, 128, 128)
                 .addComponent(creditInfoTitleJLabel)
                 .addGap(14, 14, 14)
@@ -226,20 +265,17 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cardSecurityCodeJLabel)
                     .addComponent(cardSecurityCodeJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(31, 31, 31)
+                .addGap(17, 17, 17)
+                .addComponent(privacyLearnMoreJLabel)
+                .addGap(15, 15, 15)
                 .addComponent(proceedJLabel)
-                .addContainerGap(72, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JComboBox cardMonthJComboBox = new javax.swing.JComboBox();
-    private final javax.swing.JTextField cardNameJTextField = TextFactory.create();
-    private final javax.swing.JTextField cardNumberJTextField = TextFactory.create();
-    private final javax.swing.JTextField cardSecurityCodeJTextField = TextFactory.create();
-    private final javax.swing.JComboBox cardTypeJComboBox = new javax.swing.JComboBox();
-    private final javax.swing.JComboBox cardYearJComboBox = new javax.swing.JComboBox();
-    // End of variables declaration//GEN-END:variables
+    private void privacyLearnMoreJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_privacyLearnMoreJLabelMousePressed
+        getController().runLearnMore(LearnMore.Topic.PRIVACY);
+    }//GEN-LAST:event_privacyLearnMoreJLabelMousePressed
 
     /**
      * Credit card types

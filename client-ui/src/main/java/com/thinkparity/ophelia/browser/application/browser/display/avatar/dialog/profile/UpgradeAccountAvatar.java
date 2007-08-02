@@ -14,6 +14,7 @@ import java.util.List;
 import javax.swing.AbstractAction;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -87,10 +88,14 @@ public class UpgradeAccountAvatar extends Avatar implements
 
     /** @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload() */
     public void reload() {
-        for (final UpgradeAccountPage page : upgradeAccountPages) {
-            page.reload();
-        }
-        setFirstPage();
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                for (final UpgradeAccountPage page : upgradeAccountPages) {
+                    page.reload();
+                }
+                setFirstPage();  
+            }
+        });
     }
 
     /**
@@ -237,6 +242,7 @@ public class UpgradeAccountAvatar extends Avatar implements
      */
     private void initUpgradeAccountAvatar() {
         registerPage(getUpgradeAccountPage(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_INTRO));
+        registerPage(getUpgradeAccountPage(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_AGREEMENT));
         registerPage(getUpgradeAccountPage(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_PAYMENT));
         registerPage(getUpgradeAccountPage(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_SUMMARY));
     }
@@ -337,6 +343,7 @@ public class UpgradeAccountAvatar extends Avatar implements
         reloadNextButton();
         reloadPrevButton();
         reloadCancelButton();
+        page.refresh();
         page.validateInput();
         page.setDefaultFocus();
     }

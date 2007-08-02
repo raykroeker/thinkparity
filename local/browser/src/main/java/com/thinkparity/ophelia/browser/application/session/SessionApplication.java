@@ -21,8 +21,6 @@ import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 
-import org.apache.log4j.Logger;
-
 /**
  * The session application is responsible for creating and maintaining the
  * user's session.
@@ -91,14 +89,6 @@ public class SessionApplication extends AbstractApplication {
      */
     public ApplicationId getId() {
         return ApplicationId.SESSION;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.application.Application#getLogger(java.lang.Class)
-     * 
-     */
-    public Logger getLogger(final Class clasz) {
-        return getPlatform().getLogger(clasz);
     }
 
     /**
@@ -261,6 +251,10 @@ public class SessionApplication extends AbstractApplication {
      *
      */
     private void logout() {
-        getSessionModel().logout();
+        try {
+            getSessionModel().logout();
+        } catch (final Throwable t) {
+            logger.logError(t, "Could not logout of session.");
+        }
     }
 }

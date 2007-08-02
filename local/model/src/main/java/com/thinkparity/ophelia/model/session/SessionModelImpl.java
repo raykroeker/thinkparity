@@ -376,12 +376,8 @@ public final class SessionModelImpl extends Model<SessionListener>
              * so, re-login and set a new authentication token */
             final AuthToken authToken =
                 (AuthToken) workspace.getAttribute(WS_ATTRIBUTE_KEY_AUTH_TOKEN);
-            final long localDateTime =
-                currentDateTime().getTime().getTime() - AUTH_TOKEN_EXPIRY_FUDGE;
-            if (localDateTime > authToken.getExpiresOn().getTime()) {
+            if (isExpired(authToken)) {
                 logger.logInfo("User session has expired.");
-                logger.logVariable("localDateTime", localDateTime);
-                logger.logVariable("authToken", authToken);
                 try {
                     setAuthToken(sessionService.login(readCredentials()));
                     return getAuthToken();
@@ -632,11 +628,21 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     public void logout() {
 		try {
-		    // logout
-            sessionService.logout(getAuthToken());
-            removeAuthToken();
-            // fire event
-            notifySessionTerminated();
+		    try {
+    		    /* if the session has expired; don't bother logging out */
+    	        final AuthToken authToken =
+    	            (AuthToken) workspace.getAttribute(WS_ATTRIBUTE_KEY_AUTH_TOKEN);
+    	        if (isExpired(authToken)) {
+    	            logger.logInfo("User session is expired.");
+    	        } else {
+    	            sessionService.logout(authToken);
+    	        }
+		    } finally {
+		        /* guarantee that the session is terminated by removing the
+		         * token and firing a notification */
+		        removeAuthToken();
+		        notifySessionTerminated();
+		    }
 		} catch (final Throwable t) {
 			throw panic(t);
 		}
@@ -758,7 +764,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupDocuments(java.util.UUID, java.lang.Long)
      *
@@ -772,7 +778,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupDocumentVersions(java.util.UUID, java.lang.Long)
      *
@@ -1018,7 +1024,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readProfileFeatures(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
@@ -1030,7 +1036,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readStatistics()
      *
      */
@@ -1075,7 +1081,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#updateProfile(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.profile.Profile)
      * 
@@ -1088,7 +1094,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#updateProfilePassword(com.thinkparity.codebase.model.session.Credentials,
      *      java.lang.String)
      * 
@@ -1159,6 +1165,21 @@ public final class SessionModelImpl extends Model<SessionListener>
         } else {
             return offlineCodes.contains(OfflineCode.CLIENT_MAINTENANCE);
         }
+    }
+
+    /**
+     * Determine whether or not the authentication token has expired.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @return True if it has expired; false otherwise.
+     */
+    private boolean isExpired(final AuthToken authToken) {
+        logger.logVariable("authToken", authToken);
+        final long localDateTime = currentDateTime().getTime().getTime()
+            - AUTH_TOKEN_EXPIRY_FUDGE;
+        logger.logVariable("localDateTime", localDateTime);
+        return localDateTime > authToken.getExpiresOn().getTime();
     }
 
     /**

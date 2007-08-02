@@ -285,6 +285,8 @@ public final class RestoreBackup extends ContainerDelegate {
             }
             getIndexModel().indexContainerVersion(new Pair<Long, Long>(
                     version.getArtifactId(), version.getVersionId()));
+            // NOTE the model needs to apply the flag seen in this single case
+            getArtifactModel().applyFlagSeen(version);
             logger.logTrace("Container version has been restored.");
         }
         // index

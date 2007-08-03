@@ -47,7 +47,7 @@ public final class UserInfoAvatar extends Avatar {
     public UserInfoAvatar() {
         super("UserInfoAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
-        bindEscapeKey();
+        bindKeys();
     }
 
     public AvatarId getId() {
@@ -65,6 +65,9 @@ public final class UserInfoAvatar extends Avatar {
             nameJTextField.setText(user.getName());
             companyJTextField.setText(user.getOrganization());
             titleJTextField.setText(user.getTitle());
+            nameJTextField.setCaretPosition(0);
+            companyJTextField.setCaretPosition(0);
+            titleJTextField.setCaretPosition(0);
         }
     }
 
@@ -72,10 +75,15 @@ public final class UserInfoAvatar extends Avatar {
     }
 
     /**
-     * Make the escape key behave like cancel.
+     * Bind the escape and enter keys.
      */
-    private void bindEscapeKey() {
+    private void bindKeys() {
         bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                disposeWindow();
+            }
+        });
+        bindEnterKey("Enter", new AbstractAction() {
             public void actionPerformed(final ActionEvent e) {
                 disposeWindow();
             }
@@ -146,7 +154,6 @@ public final class UserInfoAvatar extends Avatar {
 
         nameJTextField.setEditable(false);
         nameJTextField.setFont(Fonts.DialogFont);
-        nameJTextField.setFocusable(false);
         nameJTextField.setOpaque(false);
 
         titleHeadingJLabel.setFont(Fonts.DialogFont);
@@ -154,7 +161,6 @@ public final class UserInfoAvatar extends Avatar {
 
         titleJTextField.setEditable(false);
         titleJTextField.setFont(Fonts.DialogFont);
-        titleJTextField.setFocusable(false);
         titleJTextField.setOpaque(false);
 
         companyHeadingJLabel.setFont(Fonts.DialogFont);
@@ -162,7 +168,6 @@ public final class UserInfoAvatar extends Avatar {
 
         companyJTextField.setEditable(false);
         companyJTextField.setFont(Fonts.DialogFont);
-        companyJTextField.setFocusable(false);
         companyJTextField.setOpaque(false);
 
         inviteJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Invite"));

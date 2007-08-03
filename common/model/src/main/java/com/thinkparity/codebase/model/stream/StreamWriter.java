@@ -6,6 +6,7 @@ package com.thinkparity.codebase.model.stream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.SocketException;
 
 import com.thinkparity.codebase.model.util.http.HttpUtils;
 
@@ -135,6 +136,10 @@ public final class StreamWriter implements RequestEntity {
                             method.getStatusCode(), method.getStatusLine(),
                             "\n\t", method.getStatusText());
                 }
+            } catch (final SocketException sx) {
+                utils.writeError(method);
+                throw new StreamException(Boolean.TRUE,
+                        "Could not download stream.  {0}", sx.getMessage());
             } finally {
                 method.releaseConnection();
             }

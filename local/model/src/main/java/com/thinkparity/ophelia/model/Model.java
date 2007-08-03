@@ -1386,8 +1386,8 @@ public abstract class Model<T extends EventListener> extends
                 final Class<?>[] causeClasses = new Class<?>[] {
                         UnknownHostException.class, SocketException.class
                 };
-                for (final Class<?> causeClasse : causeClasses) {
-                    if (rootCause.getClass().isAssignableFrom(causeClasse)) {
+                for (final Class<?> causeClass : causeClasses) {
+                    if (causeClass.isAssignableFrom(rootCause.getClass())) {
                         return true;
                     }
                 }

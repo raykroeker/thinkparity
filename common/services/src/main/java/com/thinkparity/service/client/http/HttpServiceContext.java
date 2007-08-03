@@ -26,6 +26,9 @@ final class HttpServiceContext implements ServiceContext {
     /** The service host. */
     private static final String HOST;
 
+    /** The server port. */
+    private static final Integer PORT;
+
     /** The message format pattern for the service urls. */
     private static final String URI_PATTERN;
 
@@ -33,9 +36,10 @@ final class HttpServiceContext implements ServiceContext {
         final Environment environment = Environment.valueOf(
                 System.getProperty("thinkparity.environment"));
         HOST = environment.getServiceHost();
+        PORT = environment.getServicePort();
         URI_PATTERN = new StringBuilder(32)
-            .append("https://").append(HOST).append(':')
-            .append(environment.getServicePort()).append("/tps/service/{0}")
+            .append("https://").append(HOST).append(':').append(PORT)
+            .append("/tps/service/{0}")
             .toString();
     }
 
@@ -95,6 +99,15 @@ final class HttpServiceContext implements ServiceContext {
      */
     public Log4JWriter getLogWriter() {
         return logWriter;
+    }
+
+    /**
+     * Obtain the port.
+     * 
+     * @return A port <code>Integer</code>.
+     */
+    public Integer getPort() {
+        return PORT;
     }
 
     /**

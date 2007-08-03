@@ -8,11 +8,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
+import java.util.List;
 
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
@@ -41,11 +40,17 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     /** The xml charset (encoding). */
     private static final Charset CHARSET;
 
+    /** A timeout for check online. */
+    private static final int CHECK_ONLINE_TIMEOUT;
+
     /** The error response attribute names. */
     private static final String[] ERROR_XML_ATTRIBUTE_NAMES;
 
     /** A log4j wrapper. */
     private static final Log4JWrapper LOGGER;
+
+    /** A proxy selector. */
+    private static final ProxySelector PROXY_SELECTOR;
 
     /** The request xml components. */
     private static final char[][] REQUEST_XML;
@@ -66,6 +71,8 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
 
         LOGGER = new Log4JWrapper(HttpServiceProxy.class);
 
+        PROXY_SELECTOR = ProxySelector.getDefault();
+
         REQUEST_XML = new char[][] {
                 "<?xml version=\"1.0\" encoding=\"".toCharArray(),
                 "\"?><service-request service=\"".toCharArray(),
@@ -80,6 +87,8 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
         };
 
         SERVICE_HELPER = new ServiceHelper();
+
+        CHECK_ONLINE_TIMEOUT = 250;
 
         XSTREAM = new XStream();
     }
@@ -245,6 +254,26 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     }
 
     /**
+     * Select a list of proxies for a host address and port.
+     * 
+     * @param host
+     *            An <code>InetAddress</code>.
+     * @param port
+     *            A port <code>int</code>.
+     * @return A <code>Proxy</code> <code>List</code>.
+     */
+    private static List<Proxy> selectProxies(
+            final InetSocketAddress inetSocketAddress) {
+        try {
+            return PROXY_SELECTOR.select(new URI(MessageFormat.format(
+                    "socket://{0}:{1}", inetSocketAddress.getHostName(),
+                    inetSocketAddress.getPort())));
+        } catch (final URISyntaxException urisx) {
+            throw new IllegalArgumentException(urisx);
+        }
+    }
+
+    /**
      * Unmarshall the error stack trace of the response.
      * 
      * @param xppReader
@@ -329,7 +358,7 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
                 postMethod.setRequestHeader("operationId", serviceRequest.getService().getId());
                 postMethod.setRequestEntity(this);
                 httpClient = context.getHttpClient();
-                checkOnline();
+                ensureOnline();
                 httpClient.executeMethod(postMethod);
 
                 /* extract the response; a 200 status code will be used even in the
@@ -396,15 +425,42 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     }
 
     /**
-     * Check if we are online by resolving the address of the context host.
+     * Ensure if we are online by resolving the address of the context host; and
+     * opening a socket to the host at the port.
      * 
      * @throws UnknownHostException
      *             if the address cannot be resolved; or if the address is null
      */
-    private void checkOnline() throws UnknownHostException {
-        final InetAddress inetAddrefss = InetAddress.getByName(context.getHost());
-        if (null == inetAddrefss) {
+    private void ensureOnline() throws UnknownHostException, SocketException {
+        final InetAddress inetAddress = InetAddress.getByName(context.getHost());
+        if (null == inetAddress) {
             throw new UnknownHostException(context.getHost());
+        }
+        final InetSocketAddress inetSocketAddress =
+            new InetSocketAddress(inetAddress, context.getPort());
+        /* attempt to establish a connection to a host/port through a specified
+         * proxy - the first connection wins */
+        final List<Proxy> proxies = selectProxies(inetSocketAddress);
+        Socket socket = null;
+        try {
+            for (final Proxy proxy : proxies) {
+                socket = new Socket(proxy);
+                socket.connect(inetSocketAddress, CHECK_ONLINE_TIMEOUT);
+                break;
+            }
+        } catch (final IOException iox) {
+            LOGGER.logWarning(iox, "Online check failed.");
+            throw new ConnectException(context.getHost());
+        } finally {
+            if (null != socket) {
+                try {
+                    socket.close();
+                } catch (final IOException iox) {
+                    LOGGER.logWarning(iox, "Online check could not close socket.");
+                } finally {
+                    socket = null;
+                }
+            }
         }
     }
 

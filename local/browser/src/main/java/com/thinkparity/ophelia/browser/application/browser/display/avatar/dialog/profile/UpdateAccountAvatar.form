@@ -21,56 +21,52 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <EmptySpace min="-2" pref="234" max="-2" attributes="0"/>
+                      <Component id="licenseAgreementJLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
                       <Component id="okJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="cancelJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="accountTypeTitleJLabel" alignment="0" pref="360" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="accountTypeTitleJLabel" alignment="0" pref="360" max="32767" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="accountTypeStandardJRadioButton" min="-2" max="-2" attributes="1"/>
-                                  <Component id="accountTypeGuestJRadioButton" alignment="0" min="-2" max="-2" attributes="1"/>
-                              </Group>
-                              <EmptySpace min="-2" pref="112" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="jSeparator1" alignment="0" pref="360" max="32767" attributes="0"/>
-                          <Component id="creditInfoTitleJLabel" alignment="0" pref="360" max="32767" attributes="0"/>
-                          <Group type="102" alignment="1" max="-2" attributes="0">
-                              <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="cardNameJLabel" min="-2" max="-2" attributes="0"/>
-                                  <Component id="cardTypeJLabel" min="-2" pref="92" max="-2" attributes="0"/>
-                                  <Component id="cardNumberJLabel" min="-2" max="-2" attributes="0"/>
-                                  <Component id="cardExpiryDateJLabel" min="-2" max="-2" attributes="0"/>
-                                  <Component id="cardSecurityCodeJLabel" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace pref="14" max="32767" attributes="0"/>
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="cardNumberJTextField" alignment="0" min="-2" pref="218" max="-2" attributes="1"/>
-                                  <Component id="cardTypeJPanel" alignment="0" min="-2" pref="218" max="-2" attributes="1"/>
-                                  <Component id="cardNameJTextField" alignment="0" min="-2" pref="218" max="-2" attributes="1"/>
-                                  <Group type="102" alignment="1" attributes="0">
-                                      <Group type="103" groupAlignment="1" attributes="0">
-                                          <Component id="cardSecurityCodeJTextField" alignment="0" pref="85" max="32767" attributes="1"/>
-                                          <Component id="cardMonthJPanel" alignment="1" max="32767" attributes="1"/>
-                                      </Group>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="cardYearJPanel" min="-2" pref="127" max="-2" attributes="0"/>
-                                  </Group>
-                              </Group>
-                              <EmptySpace pref="16" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="errorMessageJLabel" alignment="0" pref="360" max="32767" attributes="0"/>
-                          <Component id="licenseAgreementJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="accountTypeStandardJRadioButton" min="-2" max="-2" attributes="1"/>
+                          <Component id="accountTypeGuestJRadioButton" alignment="0" min="-2" max="-2" attributes="1"/>
                       </Group>
+                      <EmptySpace min="-2" pref="112" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="jSeparator1" alignment="0" pref="360" max="32767" attributes="0"/>
+                  <Component id="creditInfoTitleJLabel" alignment="0" pref="360" max="32767" attributes="0"/>
+                  <Group type="102" alignment="1" max="-2" attributes="0">
+                      <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="cardNameJLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="cardTypeJLabel" min="-2" pref="92" max="-2" attributes="0"/>
+                          <Component id="cardNumberJLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="cardExpiryDateJLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="cardSecurityCodeJLabel" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace pref="14" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="cardNumberJTextField" alignment="0" min="-2" pref="218" max="-2" attributes="1"/>
+                          <Component id="cardTypeJPanel" alignment="0" min="-2" pref="218" max="-2" attributes="1"/>
+                          <Component id="cardNameJTextField" alignment="0" min="-2" pref="218" max="-2" attributes="1"/>
+                          <Group type="102" alignment="1" attributes="0">
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="cardSecurityCodeJTextField" alignment="0" pref="85" max="32767" attributes="1"/>
+                                  <Component id="cardMonthJPanel" alignment="1" max="32767" attributes="1"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="cardYearJPanel" min="-2" pref="127" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace pref="16" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="errorMessageJLabel" alignment="0" pref="360" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -123,12 +119,13 @@
               </Group>
               <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
               <Component id="errorMessageJLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
-              <Component id="licenseAgreementJLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="cancelJButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="okJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="cancelJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="okJButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="licenseAgreementJLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>

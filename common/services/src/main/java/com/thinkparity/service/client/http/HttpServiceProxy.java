@@ -8,6 +8,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
 
@@ -15,6 +17,7 @@ import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 
@@ -213,9 +216,9 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
      *            A <code>Service</code>.
      * @return A service url <code>String</code>.
      */
-    private static String newServiceURL(final HttpServiceContext context,
+    private static String newServiceURI(final HttpServiceContext context,
             final Service service) {
-        return MessageFormat.format(context.getURLPattern(), service.getId());
+        return MessageFormat.format(context.getURIPattern(), service.getId());
     }
 
     /**
@@ -318,13 +321,16 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
             serviceRequest = newServiceRequest(service, method, args);
 
             // execute the http post
-            final PostMethod postMethod = new PostMethod(newServiceURL(context, service));
+            final HttpClient httpClient;
+            final PostMethod postMethod = newPostMethod();
             try {
                 postMethod.setRequestHeader("serviceId", serviceRequest.getService().getId());
                 postMethod.setRequestHeader("operationId", serviceRequest.getService().getId());
                 postMethod.setRequestEntity(this);
-                context.getHttpClient().executeMethod(postMethod);
-    
+                httpClient = context.getHttpClient();
+                checkOnline();
+                httpClient.executeMethod(postMethod);
+
                 /* extract the response; a 200 status code will be used even in the
                  * case of a remote error; the error will be serialized to the
                  * stream and can be determined by the top-level xml node name in
@@ -359,6 +365,8 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
                             serviceRequest.getOperation().getId(),
                             postMethod.getStatusCode());
                 }
+            } catch (final UnknownHostException uhx) {
+                throw new ServiceException(uhx);
             } finally {
                 postMethod.releaseConnection();
             }
@@ -385,6 +393,19 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     }
 
     /**
+     * Check if we are online by resolving the address of the context host.
+     * 
+     * @throws UnknownHostException
+     *             if the address cannot be resolved; or if the address is null
+     */
+    private void checkOnline() throws UnknownHostException {
+        final InetAddress inetAddrefss = InetAddress.getByName(context.getHost());
+        if (null == inetAddrefss) {
+            throw new UnknownHostException(context.getHost());
+        }
+    }
+
+    /**
      * Marshal a parameter.
      * 
      * @param parameter
@@ -394,6 +415,15 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
      */
     private void marshalParameter(final Parameter parameter, final Writer writer) {
         XSTREAM.marshal(parameter.getValue(), new XmlWriter(writer));
+    }
+
+    /**
+     * Create the post method.
+     * 
+     * @return A <code>PostMethod</code>.
+     */
+    private PostMethod newPostMethod() {
+        return new PostMethod(newServiceURI(context, service));
     }
 
     /**

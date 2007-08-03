@@ -15,7 +15,7 @@ import org.apache.commons.httpclient.HttpClient;
 import com.thinkparity.service.client.ServiceContext;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity Service Http Context<br>
  * <b>Description:</b><br>
  * 
  * @author raymond@thinkparity.com
@@ -23,14 +23,18 @@ import com.thinkparity.service.client.ServiceContext;
  */
 final class HttpServiceContext implements ServiceContext {
 
+    /** The service host. */
+    private static final String HOST;
+
     /** The message format pattern for the service urls. */
-    private static final String URL_PATTERN;
+    private static final String URI_PATTERN;
 
     static {
         final Environment environment = Environment.valueOf(
                 System.getProperty("thinkparity.environment"));
-        URL_PATTERN = new StringBuilder(32)
-            .append("https://").append(environment.getServiceHost()).append(':')
+        HOST = environment.getServiceHost();
+        URI_PATTERN = new StringBuilder(32)
+            .append("https://").append(HOST).append(':')
             .append(environment.getServicePort()).append("/tps/service/{0}")
             .toString();
     }
@@ -67,6 +71,15 @@ final class HttpServiceContext implements ServiceContext {
     }
 
     /**
+     * Obtain the host.
+     * 
+     * @return A host <code>String</code>.
+     */
+    public String getHost() {
+        return HOST;
+    }
+
+    /**
      * Obtain httpClient.
      *
      * @return A HttpClient.
@@ -89,15 +102,15 @@ final class HttpServiceContext implements ServiceContext {
      *
      * @return A String.
      */
-    public String getURLPattern() {
-        return URL_PATTERN;
+    public String getURIPattern() {
+        return URI_PATTERN;
     }
 
     /**
      * Set contentType.
      *
      * @param contentType
-     *		A String.
+     *      A String.
      */
     public void setContentType(final String contentType) {
         this.contentType = contentType;
@@ -107,7 +120,7 @@ final class HttpServiceContext implements ServiceContext {
      * Set httpClient.
      *
      * @param httpClient
-     *		A HttpClient.
+     *      A HttpClient.
      */
     public void setHttpClient(final HttpClient httpClient) {
         this.httpClient = httpClient;

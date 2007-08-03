@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.session;
 
+import com.thinkparity.codebase.model.ThinkParityException;
+
 /**
  * <b>Title:</b>thinkParity OpheliaModel Offline Exception<br>
  * <b>Description:</b><br>
@@ -10,7 +12,7 @@ package com.thinkparity.ophelia.model.session;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class OfflineException extends RuntimeException {
+public final class OfflineException extends ThinkParityException {
 
     /** Exception message <code>String</code>. */
     private static final String MESSAGE;

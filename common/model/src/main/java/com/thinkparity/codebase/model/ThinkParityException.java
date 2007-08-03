@@ -11,7 +11,7 @@ package com.thinkparity.codebase.model;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ThinkParityException extends RuntimeException {
+public class ThinkParityException extends RuntimeException {
 
 	/**
      * Create ParityException.
@@ -34,6 +34,17 @@ public final class ThinkParityException extends RuntimeException {
      */
     public ThinkParityException(final Throwable cause) {
         super(cause);
+        fillInStackTrace();
+    }
+
+    /**
+     * Create ThinkParityException.
+     * 
+     * @param message
+     *            An error message <code>String</code>.
+     */
+    protected ThinkParityException(final String message) {
+        super(message);
         fillInStackTrace();
     }
 }

@@ -101,7 +101,7 @@ public class StackUtil {
         return getFrameFileName(CALLER_DEPTH);
     }
 
-	/**
+    /**
      * Obtain the caller's line number.
      * 
      * @return The line number.
@@ -110,7 +110,7 @@ public class StackUtil {
         return getFrameLineNumber(CALLER_DEPTH);
     }
 
-    /**
+	/**
 	 * Obtain the caller's method name.
 	 * 
 	 * @return The name of the immediate caller.
@@ -155,7 +155,7 @@ public class StackUtil {
         return getFrameLineNumber(EXECUTION_POINT_DEPTH);
     }
 
-	/**
+    /**
      * Obtain the execution point's method name.
      * 
      * @return The method name.
@@ -164,7 +164,7 @@ public class StackUtil {
         return getFrameMethodName(EXECUTION_POINT_DEPTH);
     }
 
-    /**
+	/**
      * Obtain a stack frame.
      * 
      * @param depth
@@ -247,7 +247,7 @@ public class StackUtil {
         return null == frame ? null : frame.getFileName();
     }
 
-	/**
+    /**
      * Obtain the frame's line number
      * 
      * @param depth
@@ -260,7 +260,7 @@ public class StackUtil {
                 ? null : frame.getLineNumber();
     }
 
-    /**
+	/**
      * Obtain the frame's method name.
      * 
      * @param depth
@@ -289,7 +289,7 @@ public class StackUtil {
         return createFilteredStack(internalFilters.toArray(new Filter[] {}));
     }
 
-	/**
+    /**
      * Obtain a filtered stack frame.
      * 
      * @param filter
@@ -300,6 +300,24 @@ public class StackUtil {
         final List<StackUtil.Filter> filters = new ArrayList<StackUtil.Filter>(1);
         filters.add(filter);
         return getFrames(filters);
+    }
+
+	/**
+     * Obtain the root cause of an error.
+     * 
+     * @param error
+     *            An error <code>Throwable</code>.
+     * @return The root cause <code>Throwable</code> or null if no cause
+     *         exists.
+     */
+    public static Throwable getRootCause(final Throwable error) {
+        Throwable rootCause = null;
+        Throwable cause = error.getCause();
+        while (cause != null) {
+            rootCause = cause;
+            cause = cause.getCause();
+        }
+        return rootCause;
     }
 
     /**

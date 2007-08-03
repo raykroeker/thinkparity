@@ -23,8 +23,8 @@ public final class ServiceFactory {
     static {
         SINGLETON = new ServiceFactory();
 
-        System.setProperty("networkaddress.cache.ttl", String.valueOf(90));
-        System.setProperty("networkaddress.cache.negative.ttl", String.valueOf(90));
+        System.setProperty("networkaddress.cache.ttl", String.valueOf(1));
+        System.setProperty("networkaddress.cache.negative.ttl", String.valueOf(1));
     }
 
     /**

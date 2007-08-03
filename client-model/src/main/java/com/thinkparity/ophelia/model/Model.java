@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -20,6 +21,7 @@ import java.util.Vector;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
 import com.thinkparity.codebase.assertion.Assert;
@@ -69,6 +71,8 @@ import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
+
+import com.thinkparity.service.client.ServiceException;
 
 /**
  * <b>Title:</b>thinkParity Model<br>
@@ -1118,24 +1122,29 @@ public abstract class Model<T extends EventListener> extends
      */
 	@Override
     protected ThinkParityException panic(final Throwable t) {
-        final ThinkParityException tpx = super.panic(t);
-        /* NOTE An attempt is made to log the error that has just occured on the
-         * server.  In order to prevent recursion; a check is made to determine
-         * if a remote error logging attempt is in progress before performing
-         * the operation. */
-        final Object workspaceLock = workspace.getAttribute("panicLock");
-        if (null == workspaceLock) {
-            workspace.setAttribute("panicLock", DateUtil.getInstance());
-            try {
-                getMigratorModel().logError(tpx, invocationContext.getMethod(),
-                        invocationContext.getArguments());
-            } catch (final Throwable t2) {
-                logger.logError(t2, "Could not log error.");
-            } finally {
-                workspace.removeAttribute("panicLock");
+	    if (isOfflineCausality(t)) {
+	        /* NOTE we do not care about logging offline causing errors */
+	        return new OfflineException();
+	    } else {
+            final ThinkParityException tpx = super.panic(t);
+            /* NOTE An attempt is made to log the error that has just occured on the
+             * server.  In order to prevent recursion; a check is made to determine
+             * if a remote error logging attempt is in progress before performing
+             * the operation. */
+            final Object workspaceLock = workspace.getAttribute("panicLock");
+            if (null == workspaceLock) {
+                workspace.setAttribute("panicLock", DateUtil.getInstance());
+                try {
+                    getMigratorModel().logError(tpx, invocationContext.getMethod(),
+                            invocationContext.getArguments());
+                } catch (final Throwable t2) {
+                    logger.logError(t2, "Could not log error.");
+                } finally {
+                    workspace.removeAttribute("panicLock");
+                }
             }
-        }
-        return tpx;
+            return tpx;
+	    }
     }
 
     /**
@@ -1357,6 +1366,29 @@ public abstract class Model<T extends EventListener> extends
 		}
 		return assertion.toString();
 	}
+
+    /**
+     * Determine whether or not the throwable is a network related error. A
+     * throwable is considered a network related error if it is a service
+     * exception and it is known to be caused by one of a finite set of errors.
+     * 
+     * @param t
+     *            A <code>Throwable</code>.
+     * @return True if the error is network related.
+     */
+    private boolean isOfflineCausality(final Throwable t) {
+        if (t.getClass().isAssignableFrom(ServiceException.class)) {
+            final Throwable rootCause = StackUtil.getRootCause(t);
+            if (null == rootCause) {
+                return false;
+            } else {
+                return rootCause.getClass().isAssignableFrom(
+                        UnknownHostException.class);
+            }
+        } else {
+            return false;
+        }
+    }
 
     /**
      * Determine whether or not the user's credentials have been set.

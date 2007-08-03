@@ -41,7 +41,7 @@
       <fo:page-sequence master-reference="simpleA4">
         <xsl:apply-templates select="../resources/resource/name"/>
         <fo:flow flow-name="xsl-region-body">
-          <fo:block font-size="50pt" font-family="{$fontFamily}" space-after="3mm"><xsl:value-of select="name"/></fo:block>
+          <fo:block font-size="30pt" font-family="{$fontFamily}" space-after="3mm"><xsl:value-of select="name"/></fo:block>
           <fo:block font-size="{$bodyTextSize}" font-family="{$fontFamily}" margin-left="1cm">
             <xsl:call-template name="displayValue">
               <xsl:with-param name="itemLeft"><xsl:value-of select="localization/firstPublished"/>:</xsl:with-param>

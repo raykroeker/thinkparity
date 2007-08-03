@@ -70,6 +70,7 @@ import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
 import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
+import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
@@ -417,6 +418,8 @@ public final class ContainerModelImpl extends
             throw dex;
         } catch (final IllegalVersionException ivx) {
             throw ivx;
+        } catch (final OfflineException ox) {
+            throw ox;
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1028,7 +1031,6 @@ public final class ContainerModelImpl extends
      * @see com.thinkparity.ophelia.model.container.InternalContainerModel#publishWelcome()
      *
      */
-    @Override
     public void publishWelcome() {
         try {
             containerService.publishWelcome(getAuthToken());
@@ -3296,7 +3298,6 @@ public final class ContainerModelImpl extends
             final List<ArtifactReceipt> receipts,
             final ContainerEventGenerator ceg) {
         notifyListeners(new EventNotifier<ContainerListener>() {
-            @Override
             public void notifyListener(final ContainerListener listener) {
                 listener.containerVersionPublished(ceg.generate(container, 
                         version, receipts));

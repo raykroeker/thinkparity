@@ -1128,20 +1128,24 @@ public abstract class Model<T extends EventListener> extends
 	        return new OfflineException();
 	    } else {
             final ThinkParityException tpx = super.panic(t);
-            /* NOTE An attempt is made to log the error that has just occured on the
-             * server.  In order to prevent recursion; a check is made to determine
-             * if a remote error logging attempt is in progress before performing
-             * the operation. */
-            final Object workspaceLock = workspace.getAttribute("panicLock");
-            if (null == workspaceLock) {
-                workspace.setAttribute("panicLock", DateUtil.getInstance());
-                try {
-                    getMigratorModel().logError(tpx, invocationContext.getMethod(),
-                            invocationContext.getArguments());
-                } catch (final Throwable t2) {
-                    logger.logError(t2, "Could not log error.");
-                } finally {
-                    workspace.removeAttribute("panicLock");
+            if (isOffline(tpx)) {
+                logger.logError(tpx, "Could not log offline error.");
+            } else {
+                /* NOTE An attempt is made to log the error that has just occured on the
+                 * server.  In order to prevent recursion; a check is made to determine
+                 * if a remote error logging attempt is in progress before performing
+                 * the operation. */
+                final Object workspaceLock = workspace.getAttribute("panicLock");
+                if (null == workspaceLock) {
+                    workspace.setAttribute("panicLock", DateUtil.getInstance());
+                    try {
+                        getMigratorModel().logError(tpx, invocationContext.getMethod(),
+                                invocationContext.getArguments());
+                    } catch (final Throwable t2) {
+                        logger.logError(t2, "Could not log error.");
+                    } finally {
+                        workspace.removeAttribute("panicLock");
+                    }
                 }
             }
             return tpx;
@@ -1369,6 +1373,17 @@ public abstract class Model<T extends EventListener> extends
 	}
 
     /**
+     * Determine whether or not the throwable is an offline error.
+     * 
+     * @param t
+     *            A <code>Throwable</code>.
+     * @return True if the error is an offline error.
+     */
+    private boolean isOffline(final Throwable t) {
+        return OfflineException.class.isAssignableFrom(t.getClass());
+    }
+
+    /**
      * Determine whether or not the throwable is a network related error. A
      * throwable is considered a network related error if it is a service
      * exception and it is known to be caused by one of a finite set of errors.
@@ -1378,7 +1393,7 @@ public abstract class Model<T extends EventListener> extends
      * @return True if the error is network related.
      */
     private boolean isOfflineCausality(final Throwable t) {
-        if (t.getClass().isAssignableFrom(ServiceException.class)) {
+        if (ServiceException.class.isAssignableFrom(t.getClass())) {
             final Throwable rootCause = StackUtil.getRootCause(t);
             if (null == rootCause) {
                 return false;

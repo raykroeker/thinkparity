@@ -19,6 +19,9 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  */
 public class CreateDraft extends AbstractBrowserAction {
 
+    /** The browser application. */
+    private final Browser browser;
+
     /**
      * Create a Create.
      * 
@@ -27,6 +30,7 @@ public class CreateDraft extends AbstractBrowserAction {
      */
     public CreateDraft(final Browser browser) {
         super(ActionId.CONTAINER_CREATE_DRAFT);
+        this.browser = browser;
     }
 
     /**
@@ -41,17 +45,17 @@ public class CreateDraft extends AbstractBrowserAction {
             /* a draft already exists; a likely candidate for this error is that
              * another user started the draft creation milliseconds prior to
              * this user; and the draft is created after the local check; but
-             * before this user can create the draft
-             * 
-             * nothing need be done in this case */
+             * before this user can create the draft */
             logger.logWarning("Draft for artifact {0} already exists.", containerId);
+            browser.displayErrorDialog("CreateDraft.ErrorDraftExists",
+                    new Object[] {getContainerModel().read(containerId).getName()});
         } catch (final IllegalVersionException ivx) {
             /* the user attempted to create a draft without posessing the latest
              * version; can happen if a version event has been queued and not
-             * processed
-             * 
-             * nothing need be done in this case */
+             * processed */
             logger.logWarning("Local version data for artifact {0} not up to date.", containerId);
+            browser.displayErrorDialog("CreateDraft.ErrorIllegalVersion",
+                    new Object[] {getContainerModel().read(containerId).getName()});
         }
     }
 

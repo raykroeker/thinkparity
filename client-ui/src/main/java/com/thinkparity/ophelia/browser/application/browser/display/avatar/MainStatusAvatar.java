@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Window;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
@@ -72,6 +74,9 @@ public class MainStatusAvatar extends Avatar {
     /** A <code>Runnable</code> used to display the optional status bar link. */
     private Runnable optionalLinkRunnable;
 
+    /** The most recent <code>Profile</code>. */
+    private Profile profile;
+
     /** The resize offset size in the x direction. */
     private int resizeOffsetX;
 
@@ -101,6 +106,7 @@ public class MainStatusAvatar extends Avatar {
                             MainStatusAvatar.this);
             }
         });
+        initComponentListener();
     }
 
     /**
@@ -302,6 +308,18 @@ public class MainStatusAvatar extends Avatar {
      */
     private OfflineCode getOfflineCode() {
         return ((MainStatusProvider) contentProvider).getOfflineCode();
+    }
+
+    /**
+     * Initialize the component listener.
+     */
+    private void initComponentListener() {
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(final ComponentEvent e) {
+                reloadProfile(profile);
+            }
+        });
     }
 
     /**
@@ -705,7 +723,15 @@ public class MainStatusAvatar extends Avatar {
      *            A <code>Profile</code>.
      */
     private void reloadProfile(final Profile profile) {
-        userJLabel.setText(profile.getName());
+        this.profile = profile;
+        String clippedName = profile.getName();
+        if (null != userJLabel.getGraphics()) {
+            final int maxWidth = getWidth() / 3;
+            clippedName = SwingUtil.limitWidthWithEllipsis(
+                    profile.getName(), maxWidth,
+                    userJLabel.getGraphics());
+        }
+        userJLabel.setText(clippedName);
     }
 
     private void resizeJLabelMouseDragged(java.awt.event.MouseEvent e) {                                          

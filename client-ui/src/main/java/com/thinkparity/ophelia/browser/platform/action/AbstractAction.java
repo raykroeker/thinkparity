@@ -24,6 +24,7 @@ import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
+import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.UserModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -214,6 +215,8 @@ public abstract class AbstractAction implements ActionInvocation {
                         }
                     });
                     invoke(data);
+                } catch (final OfflineException ox) {
+                    displayErrorDialog(application.getId(), "ErrorOffline");
                 } catch (final Throwable t) {
                     displayErrorDialog(application.getId(), t);
                 } finally {
@@ -552,6 +555,20 @@ public abstract class AbstractAction implements ActionInvocation {
     private void displayErrorDialog(final ApplicationId applicationId,
             final Throwable error) {
         BrowserPlatform.getInstance().displayErrorDialog(applicationId, error);
+    }
+
+    /**
+     * Display an error dialog for an application.
+     * 
+     * @param applicationId
+     *            An <code>ApplicationId</code>.
+     * @param errorMessageKey
+     *            An error message localization key <code>String</code>.
+     */
+    public void displayErrorDialog(final ApplicationId applicationId,
+            final String errorMessageKey) {
+        BrowserPlatform.getInstance().displayErrorDialog(applicationId, null,
+                errorMessageKey, (Object[]) null);
     }
 
     /**

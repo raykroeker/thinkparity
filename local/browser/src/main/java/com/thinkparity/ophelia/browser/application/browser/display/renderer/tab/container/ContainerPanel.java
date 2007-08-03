@@ -99,6 +99,7 @@ public class ContainerPanel extends DefaultTabPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPanel collapsedJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel documentsJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel draftOwnerJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel eastContentJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel eastCountJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel eastFirstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
@@ -107,10 +108,9 @@ public class ContainerPanel extends DefaultTabPanel {
     private javax.swing.JPanel eastListJPanel;
     private final javax.swing.JLabel eastNextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel eastPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel expandIconJLabel = new javax.swing.JLabel();
+    private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel lastPublishedJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel participantsJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
@@ -1218,7 +1218,7 @@ public class ContainerPanel extends DefaultTabPanel {
         westFillerJLabel = new javax.swing.JLabel();
         final javax.swing.JPanel eastSummaryJPanel = new javax.swing.JPanel();
         final javax.swing.JPanel eastSummaryTitlesJPanel = new javax.swing.JPanel();
-        final javax.swing.JLabel lastPublishedTitleJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel draftOwnerTitleJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel participantsTitleJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel documentsTitleJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel versionsTitleJLabel = new javax.swing.JLabel();
@@ -1406,16 +1406,16 @@ public class ContainerPanel extends DefaultTabPanel {
         eastSummaryTitlesJPanel.setLayout(new java.awt.GridBagLayout());
 
         eastSummaryTitlesJPanel.setOpaque(false);
-        lastPublishedTitleJLabel.setFont(Fonts.DialogFont);
-        lastPublishedTitleJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        lastPublishedTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.lastPublishedJLabel"));
+        draftOwnerTitleJLabel.setFont(Fonts.DialogFont);
+        draftOwnerTitleJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        draftOwnerTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.draftOwnerJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(55, 0, 0, 5);
-        eastSummaryTitlesJPanel.add(lastPublishedTitleJLabel, gridBagConstraints);
+        eastSummaryTitlesJPanel.add(draftOwnerTitleJLabel, gridBagConstraints);
 
         participantsTitleJLabel.setFont(Fonts.DialogFont);
         participantsTitleJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
@@ -1461,15 +1461,15 @@ public class ContainerPanel extends DefaultTabPanel {
         eastSummaryContentJPanel.setLayout(new java.awt.GridBagLayout());
 
         eastSummaryContentJPanel.setOpaque(false);
-        lastPublishedJLabel.setFont(Fonts.DialogFont);
-        lastPublishedJLabel.setText("!date!");
+        draftOwnerJLabel.setFont(Fonts.DialogFont);
+        draftOwnerJLabel.setText("!name!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(55, 5, 0, 0);
-        eastSummaryContentJPanel.add(lastPublishedJLabel, gridBagConstraints);
+        eastSummaryContentJPanel.add(draftOwnerJLabel, gridBagConstraints);
 
         participantsJLabel.setFont(Fonts.DialogFont);
         participantsJLabel.setText("!number!");
@@ -1731,11 +1731,14 @@ public class ContainerPanel extends DefaultTabPanel {
                 final Map<ContainerVersion, List<DocumentView>> documentViews,
                 final List<TeamMember> team) {
             super(Boolean.TRUE);
+            if (isSetDraft()) {
+                draftOwnerJLabel.setText(getDraft().getOwner().getName());
+            } else {
+                draftOwnerJLabel.setText(localization.getString("draftAvailable"));
+            }
             if (!isDistributed()) {
-                lastPublishedJLabel.setText(localization.getString("notApplicable"));
                 participantsJLabel.setText(localization.getString("notApplicable"));
             } else {
-                lastPublishedJLabel.setText(formatFuzzy(latestVersion.getCreatedOn()));
                 participantsJLabel.setText(MessageFormat.format("{0}", team.size()));
             }
             if (isLocalDraft()) {

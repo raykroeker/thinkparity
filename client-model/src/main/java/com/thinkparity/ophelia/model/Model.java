@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
@@ -1382,8 +1383,15 @@ public abstract class Model<T extends EventListener> extends
             if (null == rootCause) {
                 return false;
             } else {
-                return rootCause.getClass().isAssignableFrom(
-                        UnknownHostException.class);
+                final Class<?>[] causeClasses = new Class<?>[] {
+                        UnknownHostException.class, SocketException.class
+                };
+                for (final Class<?> causeClasse : causeClasses) {
+                    if (rootCause.getClass().isAssignableFrom(causeClasse)) {
+                        return true;
+                    }
+                }
+                return false;
             }
         } else {
             return false;

@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
@@ -367,6 +368,8 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
                 }
             } catch (final UnknownHostException uhx) {
                 throw new ServiceException(uhx);
+            } catch (final SocketException sx) {
+                throw new ServiceException(sx);
             } finally {
                 postMethod.releaseConnection();
             }

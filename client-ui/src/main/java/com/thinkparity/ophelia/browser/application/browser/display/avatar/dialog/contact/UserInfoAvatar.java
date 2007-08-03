@@ -34,10 +34,10 @@ import com.thinkparity.ophelia.browser.platform.util.State;
 public final class UserInfoAvatar extends Avatar {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel companyJLabel = new javax.swing.JLabel();
+    private final javax.swing.JTextField companyJTextField = new javax.swing.JTextField();
     private final javax.swing.JLabel inviteJLabel = LabelFactory.createLink("",Fonts.DialogFont);
-    private final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel titleJLabel = new javax.swing.JLabel();
+    private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField titleJTextField = new javax.swing.JTextField();
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -62,9 +62,9 @@ public final class UserInfoAvatar extends Avatar {
         if (input!=null) {
             final User user = readUser(getInputUserId());
             reloadInvite(user);
-            nameJLabel.setText(user.getName());
-            companyJLabel.setText(user.getOrganization());
-            titleJLabel.setText(user.getTitle());
+            nameJTextField.setText(user.getName());
+            companyJTextField.setText(user.getOrganization());
+            titleJTextField.setText(user.getTitle());
         }
     }
 
@@ -144,23 +144,26 @@ public final class UserInfoAvatar extends Avatar {
         nameHeadingJLabel.setFont(Fonts.DialogFont);
         nameHeadingJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Name"));
 
-        nameJLabel.setFont(Fonts.DialogFont);
-        nameJLabel.setText("!name!");
-        nameJLabel.setPreferredSize(new java.awt.Dimension(34, 20));
+        nameJTextField.setEditable(false);
+        nameJTextField.setFont(Fonts.DialogFont);
+        nameJTextField.setFocusable(false);
+        nameJTextField.setOpaque(false);
 
         titleHeadingJLabel.setFont(Fonts.DialogFont);
         titleHeadingJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.TitleLabel"));
 
-        titleJLabel.setFont(Fonts.DialogFont);
-        titleJLabel.setText("!title!");
-        titleJLabel.setPreferredSize(new java.awt.Dimension(26, 20));
+        titleJTextField.setEditable(false);
+        titleJTextField.setFont(Fonts.DialogFont);
+        titleJTextField.setFocusable(false);
+        titleJTextField.setOpaque(false);
 
         companyHeadingJLabel.setFont(Fonts.DialogFont);
         companyHeadingJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Company"));
 
-        companyJLabel.setFont(Fonts.DialogFont);
-        companyJLabel.setText("!company!");
-        companyJLabel.setPreferredSize(new java.awt.Dimension(51, 20));
+        companyJTextField.setEditable(false);
+        companyJTextField.setFont(Fonts.DialogFont);
+        companyJTextField.setFocusable(false);
+        companyJTextField.setOpaque(false);
 
         inviteJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Invite"));
         inviteJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -182,14 +185,14 @@ public final class UserInfoAvatar extends Avatar {
                         .add(closeJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 59, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(companyHeadingJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 99, Short.MAX_VALUE)
-                            .add(titleHeadingJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 99, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, nameHeadingJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 99, Short.MAX_VALUE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                            .add(companyJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 255, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(titleJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 255, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 255, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                            .add(nameHeadingJLabel)
+                            .add(titleHeadingJLabel)
+                            .add(companyHeadingJLabel))
+                        .add(49, 49, 49)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 262, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(titleJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 262, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(companyJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 262, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -198,16 +201,16 @@ public final class UserInfoAvatar extends Avatar {
                 .add(24, 24, 24)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(nameHeadingJLabel)
-                    .add(nameJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(titleHeadingJLabel)
-                    .add(titleJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(companyHeadingJLabel)
-                    .add(companyJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 19, Short.MAX_VALUE)
+                    .add(companyJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 16, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(closeJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(inviteJLabel))

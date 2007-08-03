@@ -261,7 +261,6 @@ public class Publish extends AbstractBrowserAction {
                 try {
                     containerModel.publish(publishMonitor, container.getId(),
                             versionName, emails, contacts, teamMembers);
-                    containerModel.applyFlagSeen(container.getId());
                     latestVersion = containerModel.readLatestVersion(container.getId());
                 } catch (final OfflineException ox) {
                     offline = true;

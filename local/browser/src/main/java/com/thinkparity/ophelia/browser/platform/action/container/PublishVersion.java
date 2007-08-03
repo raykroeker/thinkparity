@@ -119,7 +119,6 @@ public class PublishVersion extends AbstractBrowserAction {
                 try {
                     getContainerModel().publishVersion(version.getArtifactId(),
                             version.getVersionId(), emails, contacts, teamMembers);
-                    getContainerModel().applyFlagSeen(version.getArtifactId());
                 } catch (final OfflineException ox) {
                     browser.displayErrorDialog("ErrorOffline");
                 }

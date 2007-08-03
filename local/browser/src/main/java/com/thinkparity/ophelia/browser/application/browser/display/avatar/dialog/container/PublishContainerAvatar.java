@@ -170,6 +170,7 @@ public final class PublishContainerAvatar extends Avatar implements
         publishJProgressBar.setIndeterminate(true);
         progressBarJPanel.setVisible(true);
         buttonBarJPanel.setVisible(false);
+        setCloseButtonEnabled(Boolean.FALSE);
         validate();
     }
 
@@ -851,6 +852,7 @@ public final class PublishContainerAvatar extends Avatar implements
 
     private void reloadProgressBar() {
         buttonBarJPanel.setVisible(true);
+        setCloseButtonEnabled(Boolean.TRUE);
         progressBarJPanel.setVisible(false);
         /* NOTE the space is deliberate (as opposed to an empty string) in
          * order to maintain vertical spacing. */

@@ -23,10 +23,13 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
  *
  * @author  Administrator
  */
-public class WindowTitle extends AbstractJPanel {
+public class WindowTitle extends AbstractJPanel implements WindowTitleButtons {
 
     /** @see java.io.Serializable */
     private static final long serialVersionUID = 1;
+
+    /** Close label icon when disabled. */
+    private static final Icon CLOSE_DISABLED_ICON = ImageIOUtil.readIcon("BrowserTitle_CloseDisabled.png");
 
     /** Close label icon. */
     private static final Icon CLOSE_ICON = ImageIOUtil.readIcon("BrowserTitle_Close.png");
@@ -37,16 +40,29 @@ public class WindowTitle extends AbstractJPanel {
     /** The border type. */
     private BorderType borderType = BorderType.DEFAULT;
 
+    /** The enabled flag for the close button. */
+    private Boolean closeButtonEnabled;
+
     /** Creates new form WindowTitle */
     public WindowTitle() {
+        closeButtonEnabled = Boolean.TRUE;
         initComponents();
         setTitleText(null);
     }
 
     /** Creates new form WindowTitle */
     public WindowTitle(final String title) {
+        closeButtonEnabled = Boolean.TRUE;
         initComponents();
         setTitleText(title);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.window.WindowTitleButtons#setCloseButtonEnabled(java.lang.Boolean)
+     */
+    public void setCloseButtonEnabled(final Boolean closeButtonEnabled) {
+        this.closeButtonEnabled = closeButtonEnabled;
+        setCloseButtonIcon();
     }
 
     /**
@@ -167,16 +183,31 @@ public class WindowTitle extends AbstractJPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void closeJButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJButtonMouseExited
-        ((javax.swing.JButton) evt.getSource()).setIcon(CLOSE_ICON);
+        setCloseButtonIcon();
     }//GEN-LAST:event_closeJButtonMouseExited
 
     private void closeJButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJButtonMouseEntered
-        ((javax.swing.JButton) evt.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
+        if (closeButtonEnabled) {
+            ((javax.swing.JButton) evt.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
+        }
     }//GEN-LAST:event_closeJButtonMouseEntered
 
     private void closeJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
-        SwingUtilities.getWindowAncestor(WindowTitle.this).dispose();
+        if (closeButtonEnabled) {
+            SwingUtilities.getWindowAncestor(WindowTitle.this).dispose();
+        }
     }//GEN-LAST:event_closeJButtonActionPerformed
+
+    /**
+     * Set the appropriate close button icon.
+     */
+    private void setCloseButtonIcon() {
+        if (closeButtonEnabled) {
+            closeJButton.setIcon(CLOSE_ICON);
+        } else {
+            closeJButton.setIcon(CLOSE_DISABLED_ICON);
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JButton closeJButton = new javax.swing.JButton();

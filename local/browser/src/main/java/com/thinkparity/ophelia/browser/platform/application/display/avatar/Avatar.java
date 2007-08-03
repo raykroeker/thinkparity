@@ -31,6 +31,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.Cont
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
+import com.thinkparity.ophelia.browser.platform.application.window.WindowTitleButtons;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.util.localization.BrowserLocalization;
@@ -67,6 +68,9 @@ public abstract class Avatar extends AbstractJPanel {
     /** The clipped background image. */
     private BufferedImage clippedBackgroundImage;
 
+    /** Close button enabled flag. */
+    private Boolean closeButtonEnabled;
+
 	/** An avatar's <code>EventDispatcher</code>. */
     private EventDispatcher eventDispatcher;
 
@@ -78,6 +82,9 @@ public abstract class Avatar extends AbstractJPanel {
 
     /** The avatar's scrolling policy. */
     private final ScrollPolicy scrollPolicy;
+
+    /** The window title buttons. */
+    private WindowTitleButtons windowTitleButtons;
 
     /**
      * Create Avatar.
@@ -126,8 +133,9 @@ public abstract class Avatar extends AbstractJPanel {
         this.localization = new BrowserLocalization(l18nContext);
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
+        this.closeButtonEnabled = Boolean.TRUE;
 	}
-    
+
     /**
 	 * Create an Avatar.
 	 * 
@@ -146,6 +154,7 @@ public abstract class Avatar extends AbstractJPanel {
         this.localization = new BrowserLocalization(l18nContext);
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
+        this.closeButtonEnabled = Boolean.TRUE;
 	}
 
     /**
@@ -340,6 +349,17 @@ public abstract class Avatar extends AbstractJPanel {
 	 *            The avatar's state information.
 	 */
 	public abstract void setState(final State state);
+
+    /**
+     * Set the avatar's window title buttons.
+     * 
+     * @param windowTitleButtons
+     *            A <code>WindowTitleButtons</code>.
+     */
+    public void setWindowTitleButtons(final WindowTitleButtons windowTitleButtons) {
+        this.windowTitleButtons = windowTitleButtons;
+        this.windowTitleButtons.setCloseButtonEnabled(closeButtonEnabled);
+    }
 
     /**
      * Set an error for display.
@@ -590,6 +610,19 @@ public abstract class Avatar extends AbstractJPanel {
                 }
             }
             finally { g2.dispose(); }
+        }
+    }
+
+    /**
+     * Enable or disable the close button on the window title.
+     * 
+     * @param closeButtonEnabled
+     *            A <code>Boolean</code>, true to enable the close button.
+     */
+    protected void setCloseButtonEnabled(final Boolean closeButtonEnabled) {
+        this.closeButtonEnabled = closeButtonEnabled;
+        if (null != windowTitleButtons) {
+            windowTitleButtons.setCloseButtonEnabled(closeButtonEnabled);
         }
     }
 

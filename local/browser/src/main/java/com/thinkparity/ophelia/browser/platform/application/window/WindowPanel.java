@@ -88,6 +88,7 @@ public class WindowPanel extends AbstractJPanel {
         if (avatar.isAvatarTitle()) {
             windowTitle.setTitleText(avatar.getAvatarTitle());
 		    add(windowTitle, c.clone());
+            avatar.setWindowTitleButtons(windowTitle);
         }
 
 		jPanels.add(avatar);

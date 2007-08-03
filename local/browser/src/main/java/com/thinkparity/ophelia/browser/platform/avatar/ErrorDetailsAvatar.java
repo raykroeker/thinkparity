@@ -30,13 +30,14 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  * @version 1.1.2.1
  */
 public final class ErrorDetailsAvatar extends Avatar {
-    
+
     /**
      * Create ErrorDetailsAvatar.
      * 
      */
     public ErrorDetailsAvatar() {
-        super("ErrorDetailsAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
+        // NOTE Share localized error strings with ErrorAvatar
+        super("ErrorAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         bindEscapeKey("Cancel", new AbstractAction() {
             public void actionPerformed(final ActionEvent e) {
                 disposeWindow();
@@ -48,7 +49,7 @@ public final class ErrorDetailsAvatar extends Avatar {
     public AvatarId getId() { return AvatarId.DIALOG_ERROR_DETAILS; }
 
     public State getState() { return null; }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
      * 
@@ -59,7 +60,7 @@ public final class ErrorDetailsAvatar extends Avatar {
     }
 
     public void setState(final State state) {}
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -144,7 +145,7 @@ public final class ErrorDetailsAvatar extends Avatar {
     private void copyDetailsJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_copyDetailsJButtonActionPerformed
         ClipboardUtils.copy(detailsJTextArea);
     }//GEN-LAST:event_copyDetailsJButtonActionPerformed
-    
+
     /**
      * Get the input error.
      * 
@@ -163,7 +164,7 @@ public final class ErrorDetailsAvatar extends Avatar {
             }
         }
     }
-    
+
     /**
      * Get the input error localized message.
      * 

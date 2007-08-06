@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
+
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
@@ -40,6 +41,11 @@ interface PublishContainerSwingDisplay {
      *            The number of steps to complete.
      */
     void setDetermination(final Long containerId, final Integer steps);
+
+    /**
+     * Set the error.
+     */
+    void setError(final String errorMessageKey);
 
     /**
      * Update the progress for a container.

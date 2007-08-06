@@ -63,6 +63,13 @@ final class PublishContainerSwingMonitor implements ThinkParitySwingMonitor {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#setError(java.lang.String)
+     */
+    public void setError(final String errorMessageKey) {
+        display.setError(errorMessageKey);
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#setStep(int)
      *
      */

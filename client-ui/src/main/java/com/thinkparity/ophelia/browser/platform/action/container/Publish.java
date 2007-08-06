@@ -216,7 +216,9 @@ public class Publish extends AbstractBrowserAction {
 		public Runnable getErrorHandler(final Throwable t) {
 			return new Runnable() {
 				public void run() {
-					action.browser.displayErrorDialog("PublishError",
+                    monitor.reset();
+                    monitor.complete();
+					action.browser.displayErrorDialog("ErrorUnexpected",
 							new Object[] {}, t);
 				}
 			};
@@ -225,8 +227,7 @@ public class Publish extends AbstractBrowserAction {
         public Object run() {
             if (containerModel.isPublishRestricted(emails, contacts, teamMembers)) {
                 monitor.reset();
-                action.browser.displayErrorDialog("Publish.NoUsersToPublish",
-                        new Object[] {container.getName()});
+                monitor.setError("ErrorNoUsersToPublish");
                 return null;
             } else {
                 /* if any e-mail addresses are contact e-mails, convert them to
@@ -257,13 +258,12 @@ public class Publish extends AbstractBrowserAction {
                     action.browser.retry(action, container.getName());
                     return null;
                 }
-                boolean offline = false;
                 try {
                     containerModel.publish(publishMonitor, container.getId(),
                             versionName, emails, contacts, teamMembers);
                     latestVersion = containerModel.readLatestVersion(container.getId());
+                    monitor.complete();
                 } catch (final OfflineException ox) {
-                    offline = true;
                     action.logger.logError(ox,
                             "Could not publish {0}.", container.getName());
                     try {
@@ -274,6 +274,7 @@ public class Publish extends AbstractBrowserAction {
                                 "Could not restore draft for {0}.", container);
                     }
                     monitor.reset();
+                    monitor.setError("ErrorOffline");
                     return null;
                 } catch (final CannotLockException clx) {
                     action.logger.logError(clx,
@@ -300,13 +301,8 @@ public class Publish extends AbstractBrowserAction {
                                 "Could not restore draft for {0}.", container);
                     }
                     monitor.reset();
-                    throw tx;
-                } finally {
-                    // notify the avatar that the publish is complete at the last possible moment
                     monitor.complete();
-                    if (offline) {
-                        action.browser.displayErrorDialog("ErrorOffline");
-                    }
+                    throw tx;
                 }
                 return latestVersion;
             }

@@ -38,6 +38,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.user.UserUtils;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
@@ -76,6 +77,7 @@ public final class PublishContainerAvatar extends Avatar implements
     private final javax.swing.JList contactsJList = new javax.swing.JList();
     private final javax.swing.JScrollPane contactsJScrollPane = new javax.swing.JScrollPane();
     private final javax.swing.JTextField emailsJTextField = TextFactory.create();
+    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
     private final javax.swing.JButton publishJButton = ButtonFactory.create();
     private final javax.swing.JProgressBar publishJProgressBar = new javax.swing.JProgressBar();
@@ -208,6 +210,14 @@ public final class PublishContainerAvatar extends Avatar implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerSwingDisplay#setError(java.lang.String)
+     */
+    public void setError(final String errorMessageKey) {
+        addInputError(getString(errorMessageKey));
+        errorMessageJLabel.setText(getInputErrors().get(0));
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.ophelia.browser.platform.util.State)
      */
     @Override
@@ -243,7 +253,7 @@ public final class PublishContainerAvatar extends Avatar implements
         try {
             emails = extractEMails();
         } catch (final EMailFormatException efx) {
-            addInputError(Separator.EmptyString.toString());
+            addInputError(getString("ErrorEMailFormat"));
         }
 
         // check there is at least one person to publish to
@@ -257,6 +267,10 @@ public final class PublishContainerAvatar extends Avatar implements
             addInputError(Separator.EmptyString.toString());
         }
 
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors()) {
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        }
         publishJButton.setEnabled(!containsInputErrors());
     }
 
@@ -434,7 +448,6 @@ public final class PublishContainerAvatar extends Avatar implements
         final javax.swing.JLabel versionNameJLabel = new javax.swing.JLabel();
         final javax.swing.JSeparator versionNameJSeparator = new javax.swing.JSeparator();
         final javax.swing.JLabel emailsJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
         versionNameJLabel.setFont(Fonts.DialogFont);
@@ -498,8 +511,10 @@ public final class PublishContainerAvatar extends Avatar implements
         });
 
         buttonBarJPanel.setOpaque(false);
-        fillerJLabel.setFont(Fonts.DialogFont);
-        fillerJLabel.setPreferredSize(new java.awt.Dimension(3, 14));
+        errorMessageJLabel.setFont(Fonts.DialogFont);
+        errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
+        errorMessageJLabel.setText("!Error Message!");
+        errorMessageJLabel.setPreferredSize(new java.awt.Dimension(3, 14));
 
         publishJButton.setFont(Fonts.DialogButtonFont);
         publishJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.Publish"));
@@ -522,21 +537,21 @@ public final class PublishContainerAvatar extends Avatar implements
         buttonBarJPanelLayout.setHorizontalGroup(
             buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(buttonBarJPanelLayout.createSequentialGroup()
-                .addContainerGap()
+                .add(16, 16, 16)
                 .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonBarJPanelLayout.createSequentialGroup()
                         .add(publishJButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(cancelJButton))
                     .add(buttonBarJPanelLayout.createSequentialGroup()
-                        .add(fillerJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 279, Short.MAX_VALUE)
-                        .add(71, 71, 71))))
+                        .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 334, Short.MAX_VALUE)
+                        .addContainerGap())))
         );
         buttonBarJPanelLayout.setVerticalGroup(
             buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(buttonBarJPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(fillerJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(cancelJButton)
@@ -959,11 +974,11 @@ public final class PublishContainerAvatar extends Avatar implements
             SwingUtil.setCursor(emailsJTextField, cursor);
             SwingUtil.setCursor(versionNameJTextField, cursor);
         } else {
-            SwingUtil.setCursor(this, null);
             final java.awt.Cursor cursor = Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR);
             SwingUtil.setCursor(emailsJTextField, cursor);
             SwingUtil.setCursor(versionNameJTextField,
                     PublishType.PUBLISH == getInputPublishType() ? cursor : null);
+            SwingUtil.setCursor(this, null);
         }
     }
 

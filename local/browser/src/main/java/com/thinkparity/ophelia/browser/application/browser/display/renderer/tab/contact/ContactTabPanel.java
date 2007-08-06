@@ -45,6 +45,25 @@ import com.thinkparity.ophelia.browser.util.localization.Localization;
  */
 public class ContactTabPanel extends DefaultTabPanel {
 
+    /** The fraction of width allowed for additional text. */
+    private static final float FRACTION_WIDTH_CONTACT_ADDITIONAL;
+
+    /** The fraction of width allowed for the contact name. */
+    private static final float FRACTION_WIDTH_CONTACT_NAME;
+
+    /** The fraction of width allowed for additional text. */
+    private static final float FRACTION_WIDTH_INCOMING_INVITATION_ADDITIONAL;
+
+    /** The fraction of width allowed for the contact name. */
+    private static final float FRACTION_WIDTH_INCOMING_INVITATION_NAME;
+
+    static {
+        FRACTION_WIDTH_CONTACT_ADDITIONAL = 0.4f;
+        FRACTION_WIDTH_CONTACT_NAME = 0.4f;
+        FRACTION_WIDTH_INCOMING_INVITATION_ADDITIONAL = 0.25f;
+        FRACTION_WIDTH_INCOMING_INVITATION_NAME = 0.25f;
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel collapseIconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel collapsedAdditionalTextJLabel = new javax.swing.JLabel();
@@ -114,6 +133,15 @@ public class ContactTabPanel extends DefaultTabPanel {
         this.innerJPanelConstraints.weightx = this.innerJPanelConstraints.weighty = 1.0F;
         this.localization = new BrowserLocalization("ContactTabPanel");
         initComponents();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#adjustComponentWidth()
+     */
+    @Override
+    public void adjustComponentWidth() {
+        reloadName();
+        reloadAdditionalText();
     }
 
     /**
@@ -325,14 +353,11 @@ public class ContactTabPanel extends DefaultTabPanel {
             final Locale[] availableLocales) {
         this.contact = contact;
         initCollapsedPanel();
+        reloadName();
+        reloadAdditionalText();
         
         collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
         expandIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.EXPAND));
-        reload(collapsedTextJLabel, contact.getName());
-        reload(collapsedAdditionalTextJLabel, getAdditionalText(contact));
-
-        reload(contactTextJLabel, contact.getName());
-        reload(contactAdditionalTextJLabel, getAdditionalText(contact));
 
         reload(contactAddressValueJLabel, contact.getAddress());
         reload(contactLocationValueJLabel,
@@ -358,13 +383,13 @@ public class ContactTabPanel extends DefaultTabPanel {
     public void setPanelData(final IncomingEMailInvitation incomingEMail) {
         this.incomingEMail = incomingEMail;
         initCollapsedPanel();
+        reloadName();
+        reloadAdditionalText();
 
         incomingInvitationIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
-        reload(incomingInvitationAdditionalTextJLabel, getAdditionalText(incomingEMail.getExtendedBy()));
         reload(incomingInvitationTertiaryTextJLabel, localization.getString("IncomingInvitationTertiaryText"));
         reload(incomingInvitationAcceptJLabel, localization.getString("IncomingInvitationAccept"));
         reload(incomingInvitationDeclineJLabel, localization.getString("IncomingInvitationDecline"));
-        reload(incomingInvitationTextJLabel, incomingEMail.getExtendedBy().getName());
     }
 
     /**
@@ -376,13 +401,13 @@ public class ContactTabPanel extends DefaultTabPanel {
     public void setPanelData(final IncomingUserInvitation incomingUser) {
         this.incomingUser = incomingUser;
         initCollapsedPanel();
+        reloadName();
+        reloadAdditionalText();
 
         incomingInvitationIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
-        reload(incomingInvitationAdditionalTextJLabel, getAdditionalText(incomingUser.getExtendedBy()));
         reload(incomingInvitationTertiaryTextJLabel, localization.getString("IncomingInvitationTertiaryText"));
         reload(incomingInvitationAcceptJLabel, localization.getString("IncomingInvitationAccept"));
         reload(incomingInvitationDeclineJLabel, localization.getString("IncomingInvitationDecline"));
-        reload(incomingInvitationTextJLabel, incomingUser.getExtendedBy().getName());
     }
 
     /**
@@ -394,11 +419,11 @@ public class ContactTabPanel extends DefaultTabPanel {
     public void setPanelData(final OutgoingEMailInvitation outgoingEMail) {
         this.outgoingEMail = outgoingEMail;
         initCollapsedPanel();
+        reloadName();
+        reloadAdditionalText();
 
         collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
         expandIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.INVISIBLE));
-        reload(collapsedTextJLabel, outgoingEMail.getInvitationEMail());
-        reload(collapsedAdditionalTextJLabel, localization.getString("OutgoingInvitationAdditionalText"));
     }
 
     /**
@@ -410,11 +435,11 @@ public class ContactTabPanel extends DefaultTabPanel {
     public void setPanelData(final OutgoingUserInvitation outgoingUser) {
         this.outgoingUser = outgoingUser;
         initCollapsedPanel();
+        reloadName();
+        reloadAdditionalText();
 
         collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
         expandIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.INVISIBLE));
-        reload(collapsedTextJLabel, outgoingUser.getInvitationUser().getName());
-        reload(collapsedAdditionalTextJLabel, localization.getString("OutgoingInvitationAdditionalText"));
     }
 
     /**
@@ -1109,16 +1134,57 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /**
-     * Reload a display label.
-     * 
-     * @param jLabel
-     *            A swing <code>JLabel</code>.
-     * @param value
-     *            The label value.
+     * Reload the additional text label.
+     * The text may be clipped.
      */
-    private void reload(final javax.swing.JLabel jLabel,
-            final String value) {
-        jLabel.setText(null == value ? Separator.Space.toString() : value);
+    private void reloadAdditionalText() {
+        if (isSetContact()) {
+            if (isExpanded() || isAnimating()) {
+                reload(contactAdditionalTextJLabel, getAdditionalText(contact), FRACTION_WIDTH_CONTACT_ADDITIONAL);
+                reload(collapsedAdditionalTextJLabel, contactAdditionalTextJLabel.getText());
+            } else {
+                reload(collapsedAdditionalTextJLabel, getAdditionalText(contact), FRACTION_WIDTH_CONTACT_ADDITIONAL);
+                reload(contactAdditionalTextJLabel, collapsedAdditionalTextJLabel.getText());
+            }
+        } else if (isSetIncomingEMail())
+            reload(incomingInvitationAdditionalTextJLabel,
+                    getAdditionalText(incomingEMail.getExtendedBy()), FRACTION_WIDTH_INCOMING_INVITATION_ADDITIONAL);
+        else if (isSetIncomingUser())
+            reload(incomingInvitationAdditionalTextJLabel,
+                    getAdditionalText(incomingUser.getExtendedBy()), FRACTION_WIDTH_INCOMING_INVITATION_ADDITIONAL);
+        else if (isSetOutgoingEMail() || isSetOutgoingUser())
+            reload(collapsedAdditionalTextJLabel, localization.getString("OutgoingInvitationAdditionalText"));
+        else
+            Assert.assertUnreachable("Inconsistent contact tab panel state.");
+    }
+
+    /**
+     * Reload the name label.
+     * The name label may be clipped.
+     */
+    private void reloadName() {
+        if (isSetContact()) {
+            if (isExpanded() || isAnimating()) {
+                reload(contactTextJLabel, contact.getName(), FRACTION_WIDTH_CONTACT_NAME);
+                reload(collapsedTextJLabel, contactTextJLabel.getText());
+            } else {
+                reload(collapsedTextJLabel, contact.getName(), FRACTION_WIDTH_CONTACT_NAME);
+                reload(contactTextJLabel, collapsedTextJLabel.getText());
+            }
+        } else if (isSetIncomingEMail())
+            reload(incomingInvitationTextJLabel, incomingEMail.getExtendedBy()
+                    .getName(), FRACTION_WIDTH_INCOMING_INVITATION_NAME);
+        else if (isSetIncomingUser())
+            reload(incomingInvitationTextJLabel, incomingUser.getExtendedBy()
+                    .getName(), FRACTION_WIDTH_INCOMING_INVITATION_NAME);
+        else if (isSetOutgoingEMail())
+            reload(collapsedTextJLabel, outgoingEMail.getInvitationEMail()
+                    .toString(), FRACTION_WIDTH_CONTACT_NAME);
+        else if (isSetOutgoingUser())
+            reload(collapsedTextJLabel, outgoingUser.getInvitationUser()
+                    .getName(), FRACTION_WIDTH_CONTACT_NAME);
+        else
+            Assert.assertUnreachable("Inconsistent contact tab panel state.");
     }
 
     /**

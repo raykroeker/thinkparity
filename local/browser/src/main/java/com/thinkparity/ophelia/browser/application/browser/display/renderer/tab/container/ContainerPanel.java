@@ -16,12 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.AbstractAction;
-import javax.swing.DefaultListModel;
-import javax.swing.Icon;
-import javax.swing.JComponent;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
@@ -83,6 +78,9 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The east summary card name. */
     private static final String EAST_SUMMARY_CARD_NAME;
 
+    /** The fraction of width allowed for the draft owner name. */
+    private static final float FRACTION_WIDTH_DRAFT_OWNER_NAME;
+
     /** The number of rows in the version panel. */
     private static final int NUMBER_VISIBLE_ROWS;
 
@@ -93,6 +91,7 @@ public class ContainerPanel extends DefaultTabPanel {
         CONTAINER_TEXT_Y = 5;
         EAST_DATA_CARD_NAME = "eastJPanel";
         EAST_SUMMARY_CARD_NAME = "eastSummaryJPanel";
+        FRACTION_WIDTH_DRAFT_OWNER_NAME = 0.25f;
         NUMBER_VISIBLE_ROWS = 6;
     }
 
@@ -229,6 +228,14 @@ public class ContainerPanel extends DefaultTabPanel {
                 westLastJLabel);
         initComponents();
         expandedData = Boolean.FALSE;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#adjustComponentWidth()
+     */
+    @Override
+    public void adjustComponentWidth() {
+        reloadText();
     }
 
     /**
@@ -1021,7 +1028,10 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return The text <code>String</code>, which may or may not be clipped.
      */
     private String clipText(final Graphics2D g2, final Point location, final String text) {
-        final int availableWidth = getWidth() - location.x - CONTAINER_TEXT_SPACE_END;
+        int availableWidth = getWidth() - location.x - CONTAINER_TEXT_SPACE_END;
+        if (!isExpanded() && isSetDraft()) {
+            availableWidth -= getWidth() * FRACTION_WIDTH_DRAFT_OWNER_NAME;
+        }
         return SwingUtil.limitWidthWithEllipsis(text, availableWidth, g2);
     }
 
@@ -1057,6 +1067,24 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     private void doCollapse(final boolean animate) {
         doCollapse(animate, collapsedJPanel, expandedJPanel);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#doCollapse(boolean, javax.swing.JPanel, javax.swing.JPanel)
+     */
+    @Override
+    protected void doCollapse(final boolean animate, final JPanel collapsedJPanel, final JPanel expandedJPanel) {
+        super.doCollapse(animate, collapsedJPanel, expandedJPanel);
+        if (animate) {
+            addPropertyChangeListener("expanded", new PropertyChangeListener() {
+                public void propertyChange(final PropertyChangeEvent evt) {
+                    removePropertyChangeListener("expanded", this);
+                    reloadText();
+                }
+            });
+        } else {
+            reloadText();
+        }
     }
 
     /**
@@ -1677,9 +1705,9 @@ public class ContainerPanel extends DefaultTabPanel {
         // the container is expanded. So, make the text in the JLabel blank.
         textJLabel.setText(" ");
 
-        // set the name of the draft owner
+        // set the name of the draft owner. The text may be clipped.
         if (isSetDraft()) {
-            nameJLabel.setText(getDraft().getOwner().getName());
+            reload(nameJLabel, getDraft().getOwner().getName(), FRACTION_WIDTH_DRAFT_OWNER_NAME);
         } else {
             nameJLabel.setText("");
         }

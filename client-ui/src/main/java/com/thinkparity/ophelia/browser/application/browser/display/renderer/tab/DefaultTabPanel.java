@@ -16,7 +16,9 @@ import javax.swing.border.Border;
 
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.JVMUniqueId;
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.AbstractJPanel;
+import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
@@ -128,6 +130,12 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
         bindKeys();
         addPopupListeners();
 	}
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#adjustComponentWidth()
+     */
+    public void adjustComponentWidth() {
+    }
 
     /**
      * @see java.lang.Object#equals(java.lang.Object)
@@ -368,10 +376,10 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
             final javax.swing.JPanel expandedJPanel) {
         final boolean requestFocus = hasFocus();
         if (animate) {
+            animating = true;
             final Dimension expandedPreferredSize = getPreferredSize();
             expandedPreferredSize.height = ANIMATION_MAXIMUM_HEIGHT;
             setPreferredSize(expandedPreferredSize);
-            animating = true;
             animator.collapse(ANIMATION_HEIGHT_ADJUSTMENT,
                     ANIMATION_MINIMUM_HEIGHT, new Runnable() {
                         public void run() {
@@ -428,6 +436,10 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     protected void doExpand(final boolean animate,
             final javax.swing.JPanel collapsedJPanel,
             final javax.swing.JPanel expandedJPanel) {
+        // The animate flag has to be set before panels are removed and added.
+        if (animate) {
+            animating = true;
+        }
         final boolean requestFocus = hasFocus();
         if (isAncestorOf(expandedJPanel))
             remove(expandedJPanel);
@@ -439,7 +451,6 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
             final Dimension preferredSize = getPreferredSize();
             preferredSize.height = ANIMATION_MINIMUM_HEIGHT;
             setPreferredSize(preferredSize);
-            animating = true;
             animator.expand(ANIMATION_HEIGHT_ADJUSTMENT,
                     ANIMATION_MAXIMUM_HEIGHT, new Runnable() {
                         public void run() {
@@ -495,5 +506,40 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
      */
     protected Boolean isExpandable() {
         return Boolean.TRUE;
+    }
+
+    /**
+     * Reload a display label.
+     * 
+     * @param jLabel
+     *            A swing <code>JLabel</code>.
+     * @param value
+     *            The label value.
+     */
+    protected void reload(final javax.swing.JLabel jLabel,
+            final String value) {
+        jLabel.setText(null == value ? Separator.Space.toString() : value);
+    }
+
+    /**
+     * Reload a display label with clip.
+     * 
+     * @param jLabel
+     *            A swing <code>JLabel</code>.
+     * @param value
+     *            The label value.
+     * @param fraction
+     *            The fraction of overall width allowed <code>float</code>.
+     */
+    protected void reload(final javax.swing.JLabel jLabel,
+            final String value, final float fraction) {
+        if (null == value || null == jLabel.getGraphics()) {
+            jLabel.setText(Separator.Space.toString());
+        } else {
+            final float maxWidth = getWidth() * fraction;
+            final String clippedText = SwingUtil.limitWidthWithEllipsis(value,
+                    (int) maxWidth, jLabel.getGraphics());
+            reload(jLabel, clippedText);
+        }
     }
 }

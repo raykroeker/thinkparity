@@ -15,7 +15,6 @@ import java.awt.event.MouseEvent;
 import javax.swing.AbstractAction;
 import javax.swing.KeyStroke;
 
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.model.help.HelpContent;
@@ -692,19 +691,6 @@ public class HelpTabPanel extends DefaultTabPanel {
         if (e.getButton() == MouseEvent.BUTTON1) {
             actionDelegate.invokeForHelpTopic(getHelpTopic());
         }
-    }
-
-    /**
-     * Reload a display label.
-     * 
-     * @param jLabel
-     *            A swing <code>JLabel</code>.
-     * @param value
-     *            The label value.
-     */
-    private void reload(final javax.swing.JLabel jLabel,
-            final String value) {
-        jLabel.setText(null == value ? Separator.Space.toString() : value);
     }
 
     /**

@@ -56,6 +56,9 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
     private final javax.swing.JScrollPane tabJScrollPane = new javax.swing.JScrollPane();
     // End of variables declaration//GEN-END:variables
 
+    /** The most recent component width. */
+    private int componentWidth;
+
     /**
      * The set of <code>GridBagConstraints</code> used when adding a fill
      * component.
@@ -133,6 +136,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
         installRequestFocusListener();
         addRequestFocusListener(tabJPanel);
         installFocusListeners();
+        installComponentListener();
         setTransferHandler(new TransferHandler() {
             @Override
             public boolean canImport(final JComponent comp,
@@ -260,6 +264,7 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
         }
         panelConstraints.gridy = index;
         tabJPanel.add((Component) panel, panelConstraints.clone(), index);
+        panel.adjustComponentWidth();
         addTabPanelListeners(panel);
     }
     
@@ -432,6 +437,21 @@ public abstract class TabPanelAvatar<T extends TabPanelModel> extends TabAvatar<
         SwingUtilities.replaceUIActionMap(tabJScrollPane, null);
         SwingUtilities.replaceUIInputMap(tabJScrollPane, JComponent.
                    WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, null);
+    }
+
+    /**
+     * Install component listener.
+     */
+    private void installComponentListener() {
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(final ComponentEvent e) {
+                if (componentWidth != getWidth()) {
+                    componentWidth = getWidth();
+                    model.adjustComponentWidth();
+                }
+            }
+        });
     }
 
     /**

@@ -410,6 +410,15 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     }
 
     /**
+     * Adjust for change in component width.
+     */
+    protected void adjustComponentWidth() {
+        for (final TabPanel panel : visiblePanels) {
+            panel.adjustComponentWidth();
+        }
+    }
+
+    /**
      * Apply a busy indicator.
      */
     protected void applyBusyIndicator() {

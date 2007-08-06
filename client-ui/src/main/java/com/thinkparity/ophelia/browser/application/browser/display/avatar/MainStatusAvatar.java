@@ -718,6 +718,7 @@ public class MainStatusAvatar extends Avatar {
 
     /**
      * Reload the user name label.
+     * The name is trimmed if more than 1/3 of the overall width.
      * 
      * @param profile
      *            A <code>Profile</code>.

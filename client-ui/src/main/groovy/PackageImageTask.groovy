@@ -62,8 +62,8 @@ class PackageImageTask {
                     include(name:"thinkParityImage.properties")
                 }
             }
-            // /core/browser.jar
-            jar(destfile:new File(imageCoreDir,"browser.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
+            // /core/ui.jar
+            jar(destfile:new File(imageCoreDir,"ui.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
                 fileset(dir:classesDir) {
                     include(name:"com/thinkparity/ophelia/browser/")
                     // NOTE demo resources
@@ -98,6 +98,12 @@ class PackageImageTask {
                     include(name:"xml/")
                 }
             }
+            // /core/services.jar
+            jar(destfile:new File(imageCoreDir,"services.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
+                fileset(dir:classesDir) {
+                    include(name:"com/thinkparity/service/")
+                }
+            }
             // /lib/*.jar
             copy(todir:imageLibDir) {
                 fileset(refid:"run.dependencies-java")
@@ -125,7 +131,7 @@ class PackageImageTask {
             writer.write("# thinkParity Image")
             // thinkparity.image-classpath
             newLine(writer)
-            writer.write("thinkparity.image-classpath:core/codebase.jar,core/model.jar,core/browser.jar")
+            writer.write("thinkparity.image-classpath:core/codebase.jar,core/model.jar,core/services.jar,core/ui.jar")
             for (dependency in dependencies) {
                 if (dependency.getType().equals(Dependency.Type.JAVA)) {
 	                writer.write(",")

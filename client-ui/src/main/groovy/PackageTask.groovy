@@ -54,6 +54,7 @@ class PackageTask {
                     include(name:"com/thinkparity/")
                     exclude(name:"com/thinkparity/codebase/")
                     exclude(name:"com/thinkparity/ophelia/")
+                    exclude(name:"com/thinkparity/service/")
                 }
                 fileset(dir:classesDir) {
                     include(name:"com/thinkparity/codebase/assertion/")

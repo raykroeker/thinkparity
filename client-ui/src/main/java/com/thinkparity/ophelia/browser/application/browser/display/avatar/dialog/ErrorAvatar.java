@@ -169,7 +169,8 @@ public class ErrorAvatar extends Avatar {
             }
             errorMessageJLabel.setText(MessageFormat.format("<html>{0}</html>", text));
         } else {
-            errorMessageJLabel.setText(getString("ErrorUnexpected"));
+            errorMessageJLabel.setText(MessageFormat.format("<html>{0}</html>",
+                    getString("ErrorUnexpected")));
         }
     }
 

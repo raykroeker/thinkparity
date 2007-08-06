@@ -140,7 +140,7 @@ public class Browser extends AbstractApplication {
     }
 
 	/**
-     * Apply a search expression to a given tab.
+     * Apply a search expression to the current tab.
      * 
      * @param expression
      *            The search expression <code>String</code>.
@@ -150,15 +150,15 @@ public class Browser extends AbstractApplication {
 	    if (null != expression) {
 	        data.set(TabAvatar.DataKey.SEARCH_EXPRESSION, expression);
         }
-	    setInput(AvatarId.TAB_CONTACT, data);
-	    setInput(AvatarId.TAB_CONTAINER, data);
-        setInput(AvatarId.TAB_HELP, data);
         switch(getMainTitleAvatarTab()) {
         case CONTACT:
+            setInput(AvatarId.TAB_CONTACT, data);
             break;
         case CONTAINER:
+            setInput(AvatarId.TAB_CONTAINER, data);
             break;
         case HELP:
+            setInput(AvatarId.TAB_HELP, data);
             break;
         default:
             Assert.assertUnreachable("Unknown main title tab id.");

@@ -1706,7 +1706,7 @@ public class ContainerPanel extends DefaultTabPanel {
         textJLabel.setText(" ");
 
         // set the name of the draft owner. The text may be clipped.
-        if (isSetDraft()) {
+        if (isSetDraft() && container.isLatest()) {
             reload(nameJLabel, getDraft().getOwner().getName(), FRACTION_WIDTH_DRAFT_OWNER_NAME);
         } else {
             nameJLabel.setText("");
@@ -1759,7 +1759,7 @@ public class ContainerPanel extends DefaultTabPanel {
                 final Map<ContainerVersion, List<DocumentView>> documentViews,
                 final List<TeamMember> team) {
             super(Boolean.TRUE);
-            if (isSetDraft()) {
+            if (isSetDraft() && container.isLatest()) {
                 draftOwnerJLabel.setText(getDraft().getOwner().getName());
             } else {
                 draftOwnerJLabel.setText(localization.getString("draftAvailable"));

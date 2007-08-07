@@ -695,9 +695,11 @@ public final class ContainerModelImpl extends
                     containerId, version.getVersionId());
             final ContainerVersion nextVersion = readPreviousVersion(
                     containerId, version.getVersionId());
-            notifyContainerPublished(container, previousVersion, version,
-                    nextVersion, delegate.getPublishedBy(),
-                    remoteEventGenerator);
+            if (delegate.doNotify()) {
+                notifyContainerPublished(container, previousVersion, version,
+                        nextVersion, delegate.getPublishedBy(),
+                        remoteEventGenerator);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }

@@ -36,6 +36,9 @@ public final class HandleVersionPublished extends ContainerDelegate {
     /** A version published event. */
     private LocalVersionPublishedEvent event;
 
+    /** Whether or not to notify. */
+    private Boolean notify;
+
     /** The published by user. */
     private User publishedBy;
 
@@ -45,6 +48,15 @@ public final class HandleVersionPublished extends ContainerDelegate {
      */
     public HandleVersionPublished() {
         super();
+    }
+
+    /**
+     * Obtain the notification indication.
+     * 
+     * @return A <code>Boolean</code>.
+     */
+    public Boolean doNotify() {
+        return notify;
     }
 
     /**
@@ -61,6 +73,10 @@ public final class HandleVersionPublished extends ContainerDelegate {
      *
      */
     public void handleVersionPublished() {
+        /* determine whether or not we need to fire an event */
+        notify = !(doesExist(event.getVersion().getArtifactUniqueId())
+            && doesVersionExist(event.getVersion().getArtifactUniqueId(),
+                    event.getVersion().getVersionId()));
         /* order here is imporant; the team data is linked to the container; and
          * must be in place before the version is created because in the case
          * of a version published event; the version creator/publisher need not
@@ -173,6 +189,43 @@ public final class HandleVersionPublished extends ContainerDelegate {
     }
 
     /**
+     * Determine whether or not the artifact exists.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @return True if the artifact exists.
+     */
+    private boolean doesExist(final UUID uniqueId) {
+        return getArtifactModel().doesExist(uniqueId).booleanValue();
+    }
+
+    /**
+     * Determine whether or not the artifact version exists.
+     * 
+     * @param containerId
+     *            An container id <code>Long</code>.
+     * @param versionId
+     *            An artifact version id <code>Long</code>.
+     * @return True if the artifact version exists.
+     */
+    private boolean doesVersionExist(final Long artifactId, final Long versionId) {
+        return getArtifactModel().doesVersionExist(artifactId, versionId).booleanValue();
+    }
+
+    /**
+     * Determine whether or not the artifact version exists.
+     * 
+     * @param uniqueId
+     *            An artifact unique id <code>UUID</code>.
+     * @param versionId
+     *            An artifact version id <code>Long</code>.
+     * @return True if the artifact version exists.
+     */
+    private boolean doesVersionExist(final UUID uniqueId, final Long versionId) {
+        return getArtifactModel().doesVersionExist(uniqueId, versionId).booleanValue();
+    }
+
+    /**
      * Obtain the local container id for the event version.
      * 
      * @return A container id <code>Long</code>.
@@ -222,9 +275,9 @@ public final class HandleVersionPublished extends ContainerDelegate {
             final String versionComment, final JabberId createdBy, 
             final Calendar createdOn) {
         final InternalArtifactModel artifactModel = getArtifactModel();
-        final Long containerId = artifactModel.readId(uniqueId);
         final ContainerVersion version;
-        if (artifactModel.doesVersionExist(containerId, versionId).booleanValue()) {
+        final Long containerId = artifactModel.readId(uniqueId);
+        if (doesVersionExist(containerId, versionId)) {
             version = readVersion(containerId, versionId);
         } else {
             version = createVersion(containerId, versionId, versionName,

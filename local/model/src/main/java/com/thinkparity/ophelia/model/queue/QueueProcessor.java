@@ -37,6 +37,7 @@ import com.thinkparity.ophelia.model.container.event.LocalVersionPublishedEvent;
 import com.thinkparity.ophelia.model.crypto.InternalCryptoModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
+import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -435,11 +436,23 @@ public final class QueueProcessor implements Runnable {
      *            A <code>List<XMPPEvent></code>.
      */
     private void processEvents(final List<XMPPEvent> events) {
+        boolean isOnline;
         for (final XMPPEvent event : events) {
+            isOnline = true;
             try {
                 processEvent(event);
+            } catch (final OfflineException ox) {
+                logger.logWarning(ox,
+                        "User session went offline while processing event {0}.",
+                        event);
+                isOnline = false;
+                break;
             } finally {
-                deleteEvent(event);
+                if (isOnline) {
+                    /* only delete the event if the processing was successful or
+                     * if the error was not network releated */
+                    deleteEvent(event);
+                }
             }
         }
     }

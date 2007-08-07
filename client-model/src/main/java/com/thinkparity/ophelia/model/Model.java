@@ -64,6 +64,7 @@ import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.queue.InternalQueueModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
+import com.thinkparity.ophelia.model.session.OfflineCode;
 import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.stream.InternalStreamModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
@@ -1124,11 +1125,25 @@ public abstract class Model<T extends EventListener> extends
 	@Override
     protected ThinkParityException panic(final Throwable t) {
 	    if (isOfflineCausality(t)) {
-	        /* NOTE we do not care about logging offline causing errors */
+	        /* NOTE we do not care about logging offline causing errors; and we
+	         * notify the model that it is offline */
+            final InternalSessionModel sessionModel = getSessionModel();
+            if (sessionModel.isOnline()) {
+                sessionModel.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                sessionModel.notifySessionTerminated();
+            }
+
 	        return new OfflineException();
 	    } else {
             final ThinkParityException tpx = super.panic(t);
             if (isOffline(tpx)) {
+                /* notify the model that it is offline */
+                final InternalSessionModel sessionModel = getSessionModel();
+                if (sessionModel.isOnline()) {
+                    sessionModel.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                    sessionModel.notifySessionTerminated();
+                }
+
                 logger.logError(tpx, "Could not log offline error.");
             } else {
                 /* NOTE An attempt is made to log the error that has just occured on the

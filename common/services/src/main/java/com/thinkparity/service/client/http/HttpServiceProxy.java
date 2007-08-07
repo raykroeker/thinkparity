@@ -43,6 +43,9 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     /** A timeout for check online. */
     private static final int CHECK_ONLINE_TIMEOUT;
 
+    /** A number of retry attempts check online. */
+    private static final int CHECK_ONLINE_RETRY_ATTEMPTS;
+
     /** The error response attribute names. */
     private static final String[] ERROR_XML_ATTRIBUTE_NAMES;
 
@@ -88,7 +91,9 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
 
         SERVICE_HELPER = new ServiceHelper();
 
-        CHECK_ONLINE_TIMEOUT = 250;
+        CHECK_ONLINE_TIMEOUT = 750;
+
+        CHECK_ONLINE_RETRY_ATTEMPTS = 3;
 
         XSTREAM = new XStream();
     }
@@ -432,6 +437,31 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
      *             if the address cannot be resolved; or if the address is null
      */
     private void ensureOnline() throws UnknownHostException, SocketException {
+        for (int i = 0; i < CHECK_ONLINE_RETRY_ATTEMPTS; i++) {
+            try {
+                LOGGER.logInfo("Ensure online attempt {0}/{1}.", i, CHECK_ONLINE_RETRY_ATTEMPTS);
+                attemptEnsureOnline();
+                break;
+            } catch (final UnknownHostException uhx) {
+                if (i < CHECK_ONLINE_RETRY_ATTEMPTS - 1) {
+                    LOGGER.logWarning(uhx, "Could not ensure online status.");
+                } else {
+                    LOGGER.logError(uhx, "Could not ensure online status.");
+                    throw uhx;
+                }
+            } catch (final SocketException sx) {
+                if (i < CHECK_ONLINE_RETRY_ATTEMPTS - 1) {
+                    LOGGER.logWarning(sx, "Could not ensure online status.");
+                } else {
+                    LOGGER.logError(sx, "Could not ensure online status.");
+                    throw sx;
+                }
+            }
+        }
+    }
+
+    private void attemptEnsureOnline() throws UnknownHostException,
+            SocketException {
         final InetAddress inetAddress = InetAddress.getByName(context.getHost());
         if (null == inetAddress) {
             throw new UnknownHostException(context.getHost());

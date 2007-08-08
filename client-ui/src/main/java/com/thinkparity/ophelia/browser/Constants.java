@@ -84,6 +84,7 @@ public final class Constants {
                     new Color(250, 222, 188, 255),
                     new Color(250, 218, 180, 255)
                 };
+                public static final Color PANEL_CONTACT_TEXT_FG = Color.BLACK;
                 public static final Color PANEL_CONTAINER_TEXT_FG = Color.BLACK;
                 public static final Color PANEL_DISABLED_TEXT_FG = new Color(100, 100, 100, 255);
             }

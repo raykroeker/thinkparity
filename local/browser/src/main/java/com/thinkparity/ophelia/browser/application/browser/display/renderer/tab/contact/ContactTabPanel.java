@@ -3,7 +3,10 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -45,23 +48,23 @@ import com.thinkparity.ophelia.browser.util.localization.Localization;
  */
 public class ContactTabPanel extends DefaultTabPanel {
 
-    /** The fraction of width allowed for additional text. */
-    private static final float FRACTION_WIDTH_CONTACT_ADDITIONAL;
+    /** The space between contact name text and additional text. */
+    private static final int CONTACT_TEXT_SPACE_BETWEEN;
 
-    /** The fraction of width allowed for the contact name. */
-    private static final float FRACTION_WIDTH_CONTACT_NAME;
+    /** The space to leave at the end of the contact text. */
+    private static final int CONTACT_TEXT_SPACE_END;
 
-    /** The fraction of width allowed for additional text. */
-    private static final float FRACTION_WIDTH_INCOMING_INVITATION_ADDITIONAL;
+    /** The X location of the contact name text. */
+    private static final int CONTACT_TEXT_X;
 
-    /** The fraction of width allowed for the contact name. */
-    private static final float FRACTION_WIDTH_INCOMING_INVITATION_NAME;
+    /** The Y location of the contact name text. */
+    private static final int CONTACT_TEXT_Y;
 
     static {
-        FRACTION_WIDTH_CONTACT_ADDITIONAL = 0.4f;
-        FRACTION_WIDTH_CONTACT_NAME = 0.4f;
-        FRACTION_WIDTH_INCOMING_INVITATION_ADDITIONAL = 0.25f;
-        FRACTION_WIDTH_INCOMING_INVITATION_NAME = 0.25f;
+        CONTACT_TEXT_SPACE_BETWEEN = 5;
+        CONTACT_TEXT_SPACE_END = 20;
+        CONTACT_TEXT_X = 56;
+        CONTACT_TEXT_Y = 5;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -107,16 +110,16 @@ public class ContactTabPanel extends DefaultTabPanel {
 
     /** The inner <code>JPanel</code> <code>GridBagConstraints</code>. */
     private final GridBagConstraints innerJPanelConstraints;
-    
+
     /** The panel localization. */
     private final Localization localization;
-    
+
     /** A contact <code>OutgoingEMailInvitation</code>. */
     private OutgoingEMailInvitation outgoingEMail;
-    
+
     /** A contact <code>OutgoingUserInvitation</code>. */
     private OutgoingUserInvitation outgoingUser;
-    
+
     /** A contact tab <code>PopupDelegate</code>. */
     private PopupDelegate popupDelegate;
 
@@ -133,15 +136,6 @@ public class ContactTabPanel extends DefaultTabPanel {
         this.innerJPanelConstraints.weightx = this.innerJPanelConstraints.weighty = 1.0F;
         this.localization = new BrowserLocalization("ContactTabPanel");
         initComponents();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#adjustComponentWidth()
-     */
-    @Override
-    public void adjustComponentWidth() {
-        reloadName();
-        reloadAdditionalText();
     }
 
     /**
@@ -230,7 +224,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     public IncomingUserInvitation getIncomingUser() {
         return incomingUser;
     }
-    
+
     /**
      * Obtain the outgoing e-mail invitation.
      * 
@@ -353,8 +347,9 @@ public class ContactTabPanel extends DefaultTabPanel {
             final Locale[] availableLocales) {
         this.contact = contact;
         initCollapsedPanel();
-        reloadName();
+        reloadNameText();
         reloadAdditionalText();
+        reloadTertiaryText();
         
         collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
         expandIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.EXPAND));
@@ -383,11 +378,11 @@ public class ContactTabPanel extends DefaultTabPanel {
     public void setPanelData(final IncomingEMailInvitation incomingEMail) {
         this.incomingEMail = incomingEMail;
         initCollapsedPanel();
-        reloadName();
+        reloadNameText();
         reloadAdditionalText();
+        reloadTertiaryText();
 
         incomingInvitationIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
-        reload(incomingInvitationTertiaryTextJLabel, localization.getString("IncomingInvitationTertiaryText"));
         reload(incomingInvitationAcceptJLabel, localization.getString("IncomingInvitationAccept"));
         reload(incomingInvitationDeclineJLabel, localization.getString("IncomingInvitationDecline"));
     }
@@ -401,11 +396,11 @@ public class ContactTabPanel extends DefaultTabPanel {
     public void setPanelData(final IncomingUserInvitation incomingUser) {
         this.incomingUser = incomingUser;
         initCollapsedPanel();
-        reloadName();
+        reloadNameText();
         reloadAdditionalText();
+        reloadTertiaryText();
 
         incomingInvitationIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
-        reload(incomingInvitationTertiaryTextJLabel, localization.getString("IncomingInvitationTertiaryText"));
         reload(incomingInvitationAcceptJLabel, localization.getString("IncomingInvitationAccept"));
         reload(incomingInvitationDeclineJLabel, localization.getString("IncomingInvitationDecline"));
     }
@@ -419,8 +414,9 @@ public class ContactTabPanel extends DefaultTabPanel {
     public void setPanelData(final OutgoingEMailInvitation outgoingEMail) {
         this.outgoingEMail = outgoingEMail;
         initCollapsedPanel();
-        reloadName();
+        reloadNameText();
         reloadAdditionalText();
+        reloadTertiaryText();
 
         collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
         expandIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.INVISIBLE));
@@ -435,8 +431,9 @@ public class ContactTabPanel extends DefaultTabPanel {
     public void setPanelData(final OutgoingUserInvitation outgoingUser) {
         this.outgoingUser = outgoingUser;
         initCollapsedPanel();
-        reloadName();
+        reloadNameText();
         reloadAdditionalText();
+        reloadTertiaryText();
 
         collapsedIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
         expandIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.INVISIBLE));
@@ -493,6 +490,15 @@ public class ContactTabPanel extends DefaultTabPanel {
         } else {
             renderer.paintBackground(g, getWidth(), height, selected);
         }
+
+        // Paint text.
+        // Text is painted (instead of using JLabels) so that it is easier
+        // to control exact behavior of text clipping and positioning.
+        final Graphics2D g2 = (Graphics2D)g.create();
+        try {
+            paintText(g2);
+        }
+        finally { g2.dispose(); }
     }
 
     private void collapsedContactJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedContactJPanelMousePressed
@@ -581,6 +587,26 @@ public class ContactTabPanel extends DefaultTabPanel {
     }//GEN-LAST:event_expandIconJLabelMousePressed
 
     /**
+     * Get the additional text.
+     * 
+     * @return A <code>String</code>.
+     */
+    private String getAdditionalText() {
+        if (isSetContact()) {
+            return getAdditionalText(contact);
+        } else if (isSetIncomingEMail()) {
+            return getAdditionalText(incomingEMail.getExtendedBy());
+        } else if (isSetIncomingUser()) {
+            return getAdditionalText(incomingUser.getExtendedBy());
+        } else if (isSetOutgoingEMail() || isSetOutgoingUser()) {
+            return localization.getString("OutgoingInvitationAdditionalText");
+        } else {
+            Assert.assertUnreachable("Inconsistent contact tab panel state.");
+        }
+        return null;
+    }
+
+    /**
      * Extract additional text from a user.
      * 
      * @param <T>
@@ -593,6 +619,15 @@ public class ContactTabPanel extends DefaultTabPanel {
         final String pattern = "({0}, {1})";
         final Object[] values = new Object[] { user.getTitle(), user.getOrganization() };
         return new MessageFormat(pattern).format(values);
+    }
+
+    /**
+     * Get the color for the additional text.
+     * 
+     * @return A <code>Color</code>.
+     */
+    private Color getAdditionalTextColor() {
+        return Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG;
     }
 
     /**
@@ -665,6 +700,68 @@ public class ContactTabPanel extends DefaultTabPanel {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Get the name text.
+     * 
+     * @return A <code>String</code>.
+     */
+    private String getNameText() {
+        if (isSetContact()) {
+            return contact.getName();
+        } else if (isSetIncomingEMail()) {
+            return incomingEMail.getExtendedBy().getName();
+        } else if (isSetIncomingUser()) {
+            return incomingUser.getExtendedBy().getName();
+        } else if (isSetOutgoingEMail()) {
+            return outgoingEMail.getInvitationEMail().toString();
+        } else if (isSetOutgoingUser()) {
+            return outgoingUser.getInvitationUser().getName();
+        } else {
+            Assert.assertUnreachable("Inconsistent contact tab panel state.");
+        }
+        return null;
+    }
+
+    /**
+     * Get the color for the name text.
+     * 
+     * @return A <code>Color</code>.
+     */
+    private Color getNameTextColor() {
+        return Colors.Browser.Panel.PANEL_CONTACT_TEXT_FG;
+    }
+
+    /**
+     * Get the font for the name text.
+     * 
+     * @return A <code>Font</code>.
+     */
+    private Font getNameTextFont() {
+        return Fonts.DefaultFont;
+    }
+
+    /**
+     * Get the tertiary text.
+     * 
+     * @return A <code>String</code>.
+     */
+    private String getTertiaryText() {
+        if (isSetIncomingEMail() || isSetIncomingUser()) {
+            return localization.getString("IncomingInvitationTertiaryText");
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get the color for the tertiary text.
+     * 
+     * @return A <code>Color</code>.
+     */
+    private Color getTertiaryTextColor() {
+        return Colors.Browser.Panel.PANEL_CONTACT_TEXT_FG;
     }
 
     private void incomingInvitationAcceptJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_incomingInvitationAcceptJLabelMousePressed
@@ -839,6 +936,14 @@ public class ContactTabPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
         collapsedIncomingInvitationJPanel.add(incomingInvitationTertiaryTextJLabel, gridBagConstraints);
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        collapsedIncomingInvitationJPanel.add(fillerJLabel, gridBagConstraints);
+
         incomingInvitationAcceptJLabel.setText("!accept!");
         incomingInvitationAcceptJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -847,11 +952,11 @@ public class ContactTabPanel extends DefaultTabPanel {
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 10, 4, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 4, 0);
         collapsedIncomingInvitationJPanel.add(incomingInvitationAcceptJLabel, gridBagConstraints);
 
         incomingInvitationDeclineJLabel.setText("!decline!");
@@ -862,18 +967,10 @@ public class ContactTabPanel extends DefaultTabPanel {
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 10, 4, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 4, 15);
         collapsedIncomingInvitationJPanel.add(incomingInvitationDeclineJLabel, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        collapsedIncomingInvitationJPanel.add(fillerJLabel, gridBagConstraints);
 
         expandedContactJPanel.setOpaque(false);
         expandedContactJPanel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -1121,6 +1218,71 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /**
+     * Paint text on the panel.
+     * 
+     * @param g2
+     *            The <code>Graphics2D</code>.
+     */
+    private void paintText(final Graphics2D g2) {
+        final String nameText = getNameText();
+        final String additionalText = getAdditionalText();
+        final String tertiaryText = getTertiaryText();
+
+        // paint name text
+        g2.setFont(getNameTextFont());
+        final Point location = new Point(CONTACT_TEXT_X, CONTACT_TEXT_Y + g2.getFontMetrics().getMaxAscent());
+        int availableWidth;
+        if (isSetIncomingEMail() || isSetIncomingUser()) {
+            availableWidth = incomingInvitationAcceptJLabel.getLocation().x - location.x - CONTACT_TEXT_SPACE_END;
+        } else {
+            availableWidth = getWidth() - location.x - CONTACT_TEXT_SPACE_END;
+        }
+        final String clippedNameText = SwingUtil.limitWidthWithEllipsis(nameText, availableWidth, g2);
+        paintText(g2, location, getNameTextColor(), clippedNameText);
+
+        // paint additional text after name text
+        String clippedAdditionalText = null;
+        if (null != clippedNameText && clippedNameText.equals(nameText)) {
+            final int adjustX = SwingUtil.getStringWidth(nameText, g2) + CONTACT_TEXT_SPACE_BETWEEN;
+            location.x += adjustX;
+            availableWidth -= adjustX;
+            clippedAdditionalText = SwingUtil.limitWidthWithEllipsis(additionalText, availableWidth, g2);
+            if (null != clippedAdditionalText) {
+                paintText(g2, location, getAdditionalTextColor(), clippedAdditionalText);
+            }
+        }
+
+        // paint tertiary text (if any) after the additional text
+        String clippedTertiaryText = null;
+        if (null != tertiaryText && null != clippedAdditionalText && clippedAdditionalText.equals(additionalText)) {
+            final int adjustX = SwingUtil.getStringWidth(additionalText, g2) + CONTACT_TEXT_SPACE_BETWEEN;
+            location.x += adjustX;
+            availableWidth -= adjustX;
+            clippedTertiaryText = SwingUtil.limitWidthWithEllipsis(tertiaryText, availableWidth, g2);
+            if (null != clippedTertiaryText) {
+                paintText(g2, location, getTertiaryTextColor(), clippedTertiaryText);
+            }
+        }
+    }
+
+    /**
+     * Paint text on the panel.
+     * 
+     * @param g2
+     *            The <code>Graphics2D</code>.
+     * @param location
+     *            The text location <code>Point</code>.
+     * @param color
+     *            The text <code>Color</code>.
+     * @param text
+     *            The text <code>String</code>.
+     */
+    private void paintText(final Graphics2D g2, final Point location, final Color color, final String text) {
+        g2.setPaint(color);
+        g2.drawString(text, location.x, location.y);
+    }
+
+    /**
      * Reload a display label.
      * 
      * @param jLabel
@@ -1134,57 +1296,37 @@ public class ContactTabPanel extends DefaultTabPanel {
     }
 
     /**
-     * Reload the additional text label.
-     * The text may be clipped.
+     * Reload the additional text labels.
      */
     private void reloadAdditionalText() {
-        if (isSetContact()) {
-            if (isExpanded() || isAnimating()) {
-                reload(contactAdditionalTextJLabel, getAdditionalText(contact), FRACTION_WIDTH_CONTACT_ADDITIONAL);
-                reload(collapsedAdditionalTextJLabel, contactAdditionalTextJLabel.getText());
-            } else {
-                reload(collapsedAdditionalTextJLabel, getAdditionalText(contact), FRACTION_WIDTH_CONTACT_ADDITIONAL);
-                reload(contactAdditionalTextJLabel, collapsedAdditionalTextJLabel.getText());
-            }
-        } else if (isSetIncomingEMail())
-            reload(incomingInvitationAdditionalTextJLabel,
-                    getAdditionalText(incomingEMail.getExtendedBy()), FRACTION_WIDTH_INCOMING_INVITATION_ADDITIONAL);
-        else if (isSetIncomingUser())
-            reload(incomingInvitationAdditionalTextJLabel,
-                    getAdditionalText(incomingUser.getExtendedBy()), FRACTION_WIDTH_INCOMING_INVITATION_ADDITIONAL);
-        else if (isSetOutgoingEMail() || isSetOutgoingUser())
-            reload(collapsedAdditionalTextJLabel, localization.getString("OutgoingInvitationAdditionalText"));
-        else
-            Assert.assertUnreachable("Inconsistent contact tab panel state.");
+        // The additional text is painted instead of setting JLabel text.
+        // This makes it easier to control exact behavior of text clipping
+        // and positioning. So, make the text in the JLabel blank.
+        collapsedAdditionalTextJLabel.setText(" ");
+        contactAdditionalTextJLabel.setText(" ");
+        incomingInvitationAdditionalTextJLabel.setText(" ");
     }
 
     /**
-     * Reload the name label.
-     * The name label may be clipped.
+     * Reload the name labels.
      */
-    private void reloadName() {
-        if (isSetContact()) {
-            if (isExpanded() || isAnimating()) {
-                reload(contactTextJLabel, contact.getName(), FRACTION_WIDTH_CONTACT_NAME);
-                reload(collapsedTextJLabel, contactTextJLabel.getText());
-            } else {
-                reload(collapsedTextJLabel, contact.getName(), FRACTION_WIDTH_CONTACT_NAME);
-                reload(contactTextJLabel, collapsedTextJLabel.getText());
-            }
-        } else if (isSetIncomingEMail())
-            reload(incomingInvitationTextJLabel, incomingEMail.getExtendedBy()
-                    .getName(), FRACTION_WIDTH_INCOMING_INVITATION_NAME);
-        else if (isSetIncomingUser())
-            reload(incomingInvitationTextJLabel, incomingUser.getExtendedBy()
-                    .getName(), FRACTION_WIDTH_INCOMING_INVITATION_NAME);
-        else if (isSetOutgoingEMail())
-            reload(collapsedTextJLabel, outgoingEMail.getInvitationEMail()
-                    .toString(), FRACTION_WIDTH_CONTACT_NAME);
-        else if (isSetOutgoingUser())
-            reload(collapsedTextJLabel, outgoingUser.getInvitationUser()
-                    .getName(), FRACTION_WIDTH_CONTACT_NAME);
-        else
-            Assert.assertUnreachable("Inconsistent contact tab panel state.");
+    private void reloadNameText() {
+        // The name text is painted instead of setting JLabel text.
+        // This makes it easier to control exact behavior of text clipping
+        // and positioning. So, make the text in the JLabel blank.
+        collapsedTextJLabel.setText(" ");
+        contactTextJLabel.setText(" ");
+        incomingInvitationTextJLabel.setText(" ");
+    }
+
+    /**
+     * Reload the tertiary text labels.
+     */
+    private void reloadTertiaryText() {
+        // The tertiary text is painted instead of setting JLabel text.
+        // This makes it easier to control exact behavior of text clipping
+        // and positioning. So, make the text in the JLabel blank.
+        incomingInvitationTertiaryTextJLabel.setText(" ");
     }
 
     /**

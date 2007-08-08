@@ -17,11 +17,6 @@ import com.thinkparity.ophelia.browser.platform.action.PopupDelegate;
 public interface TabPanel {
 
     /**
-     * Adjust for change in component width.
-     */
-    public void adjustComponentWidth();
-
-    /**
 	 * Obtain a unique id for the panel.
 	 * 
 	 * @return An id unique per <code>TabPanelAvatar</code>.

@@ -18,7 +18,6 @@ import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.AbstractJPanel;
-import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
@@ -130,12 +129,6 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
         bindKeys();
         addPopupListeners();
 	}
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#adjustComponentWidth()
-     */
-    public void adjustComponentWidth() {
-    }
 
     /**
      * @see java.lang.Object#equals(java.lang.Object)
@@ -519,27 +512,5 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     protected void reload(final javax.swing.JLabel jLabel,
             final String value) {
         jLabel.setText(null == value ? Separator.Space.toString() : value);
-    }
-
-    /**
-     * Reload a display label with clip.
-     * 
-     * @param jLabel
-     *            A swing <code>JLabel</code>.
-     * @param value
-     *            The label value.
-     * @param fraction
-     *            The fraction of overall width allowed <code>float</code>.
-     */
-    protected void reload(final javax.swing.JLabel jLabel,
-            final String value, final float fraction) {
-        if (null == value || null == jLabel.getGraphics()) {
-            jLabel.setText(Separator.Space.toString());
-        } else {
-            final float maxWidth = getWidth() * fraction;
-            final String clippedText = SwingUtil.limitWidthWithEllipsis(value,
-                    (int) maxWidth, jLabel.getGraphics());
-            reload(jLabel, clippedText);
-        }
     }
 }

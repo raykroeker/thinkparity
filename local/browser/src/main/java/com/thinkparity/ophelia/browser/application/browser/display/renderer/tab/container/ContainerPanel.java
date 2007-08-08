@@ -110,7 +110,6 @@ public class ContainerPanel extends DefaultTabPanel {
     private final javax.swing.JLabel expandIconJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel participantsJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel versionsJLabel = new javax.swing.JLabel();
@@ -126,12 +125,6 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /** The container tab's <code>DefaultActionDelegate</code>. */
     private ActionDelegate actionDelegate;
-
-    /** The clipped additional text */
-    private String clippedAdditionalText;
-
-    /** The clipped text */
-    private String clippedText;
 
     /** A <code>Container</code>. */
     private Container container;
@@ -228,14 +221,6 @@ public class ContainerPanel extends DefaultTabPanel {
                 westLastJLabel);
         initComponents();
         expandedData = Boolean.FALSE;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#adjustComponentWidth()
-     */
-    @Override
-    public void adjustComponentWidth() {
-        reloadText();
     }
 
     /**
@@ -1016,25 +1001,6 @@ public class ContainerPanel extends DefaultTabPanel {
         westListModel.initialize(westCells);
     }
 
-    /**
-     * Clip text.
-     * 
-     * @param g2
-     *            The <code>Graphics2D</code>.
-     * @param location
-     *            The text location <code>Point</code>.
-     * @param text
-     *            The text <code>String</code>.
-     * @return The text <code>String</code>, which may or may not be clipped.
-     */
-    private String clipText(final Graphics2D g2, final Point location, final String text) {
-        int availableWidth = getWidth() - location.x - CONTAINER_TEXT_SPACE_END;
-        if (!isExpanded() && isSetDraft()) {
-            availableWidth -= getWidth() * FRACTION_WIDTH_DRAFT_OWNER_NAME;
-        }
-        return SwingUtil.limitWidthWithEllipsis(text, availableWidth, g2);
-    }
-
     private void collapsedJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMousePressed
         logger.logApiId();
         logger.logVariable("e", e);
@@ -1151,6 +1117,38 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return A <code>Color</code>.
      */
     private Color getContainerAdditionalTextColor(final Container container) {
+        if (!container.isLatest()) {
+            return Colors.Browser.Panel.PANEL_DISABLED_TEXT_FG;
+        } else {
+            return Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG;
+        }
+    }
+
+    /**
+     * Get the draft owner text associated with the container.
+     * 
+     * @param container
+     *       The <code>Container</code>.
+     * @return A <code>String</code>.
+     */
+    private String getContainerDraftOwnerText(final Container container) {
+        if (!container.isLatest()) {
+            return localization.getString("draftUnavailable");
+        } else if (isSetDraft()) {
+            return getDraft().getOwner().getName();
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get the color for the container draft owner text.
+     * 
+     * @param container
+     *       The <code>Container</code>.
+     * @return A <code>Color</code>.
+     */
+    private Color getContainerDraftOwnerTextColor(final Container container) {
         if (!container.isLatest()) {
             return Colors.Browser.Panel.PANEL_DISABLED_TEXT_FG;
         } else {
@@ -1314,20 +1312,11 @@ public class ContainerPanel extends DefaultTabPanel {
 
         textJLabel.setText("!Package Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
         collapsedJPanel.add(textJLabel, gridBagConstraints);
-
-        nameJLabel.setFont(Fonts.DialogFont);
-        nameJLabel.setForeground(Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG);
-        nameJLabel.setText("!name!");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
-        collapsedJPanel.add(nameJLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -1664,18 +1653,38 @@ public class ContainerPanel extends DefaultTabPanel {
      *            The <code>Graphics2D</code>.
      */
     private void paintText(final Graphics2D g2) {
+        final String containerText = getContainerText(container);
+        final String additionalText = getContainerAdditionalText(container);
+        final String draftOwnerText = getContainerDraftOwnerText(container);
+
+        // paint container name text
         g2.setFont(getContainerTextFont());
         final Point location = new Point(CONTAINER_TEXT_X, CONTAINER_TEXT_Y + g2.getFontMetrics().getMaxAscent());
-        clippedText = clipText(g2, location, getContainerText(container));
+        int availableWidth = getWidth() - location.x - CONTAINER_TEXT_SPACE_END;
+        if (null != draftOwnerText) {
+            availableWidth -= (getWidth() * FRACTION_WIDTH_DRAFT_OWNER_NAME + CONTAINER_TEXT_SPACE_END);
+        }
+        final String clippedText = SwingUtil.limitWidthWithEllipsis(containerText, availableWidth, g2);
         paintText(g2, location, getContainerTextColor(container), clippedText);
-        if (null != clippedText && clippedText.equals(getContainerText(container))) {
-            location.x = location.x + SwingUtil.getStringWidth(getContainerText(container), g2) + CONTAINER_TEXT_SPACE_BETWEEN;
-            clippedAdditionalText = clipText(g2, location, getContainerAdditionalText(container));
+
+        // paint additional text after container text
+        if (null != clippedText && clippedText.equals(containerText)) {
+            final int adjustX = SwingUtil.getStringWidth(containerText, g2) + CONTAINER_TEXT_SPACE_BETWEEN;
+            location.x += adjustX;
+            availableWidth -= adjustX;
+            final String clippedAdditionalText = SwingUtil.limitWidthWithEllipsis(additionalText, availableWidth, g2);
             if (null != clippedAdditionalText) {
                 paintText(g2, location, getContainerAdditionalTextColor(container), clippedAdditionalText);
             }
-        } else {
-            clippedAdditionalText = null;
+        }
+
+        // paint draft owner text on the right
+        if (null != draftOwnerText) {
+            availableWidth = (int)(getWidth() * FRACTION_WIDTH_DRAFT_OWNER_NAME);
+            final String clippedDraftOwnerText = SwingUtil.limitWidthWithEllipsis(draftOwnerText, availableWidth, g2);
+            final int textWidth = SwingUtil.getStringWidth(clippedDraftOwnerText, g2);
+            location.x = getWidth() - textWidth - CONTAINER_TEXT_SPACE_END;
+            paintText(g2, location, getContainerDraftOwnerTextColor(container), clippedDraftOwnerText);
         }
     }
 
@@ -1704,13 +1713,6 @@ public class ContainerPanel extends DefaultTabPanel {
         // This makes it possible to draw text all the way across the panel when
         // the container is expanded. So, make the text in the JLabel blank.
         textJLabel.setText(" ");
-
-        // set the name of the draft owner. The text may be clipped.
-        if (isSetDraft() && container.isLatest()) {
-            reload(nameJLabel, getDraft().getOwner().getName(), FRACTION_WIDTH_DRAFT_OWNER_NAME);
-        } else {
-            nameJLabel.setText("");
-        }
     }
 
     /**
@@ -1759,7 +1761,9 @@ public class ContainerPanel extends DefaultTabPanel {
                 final Map<ContainerVersion, List<DocumentView>> documentViews,
                 final List<TeamMember> team) {
             super(Boolean.TRUE);
-            if (isSetDraft() && container.isLatest()) {
+            if (!container.isLatest()) {
+                draftOwnerJLabel.setText(localization.getString("draftUnavailable"));
+            } else if (isSetDraft()) {
                 draftOwnerJLabel.setText(getDraft().getOwner().getName());
             } else {
                 draftOwnerJLabel.setText(localization.getString("draftAvailable"));

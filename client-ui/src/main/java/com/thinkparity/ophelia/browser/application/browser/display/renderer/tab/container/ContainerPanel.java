@@ -956,7 +956,8 @@ public class ContainerPanel extends DefaultTabPanel {
 
         // Paint text.
         // Text is painted (instead of using JLabels) so that when the container
-        // is expanded the top west row can paint all the way across.
+        // is expanded the top west row can paint all the way across. Also
+        // it is easier to control exact behavior of text clipping and positioning.
         final Graphics2D g2 = (Graphics2D)g.create();
         try {
             paintText(g2);
@@ -1117,11 +1118,7 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return A <code>Color</code>.
      */
     private Color getContainerAdditionalTextColor(final Container container) {
-        if (!container.isLatest()) {
-            return Colors.Browser.Panel.PANEL_DISABLED_TEXT_FG;
-        } else {
-            return Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG;
-        }
+        return Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG;
     }
 
     /**
@@ -1149,11 +1146,7 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return A <code>Color</code>.
      */
     private Color getContainerDraftOwnerTextColor(final Container container) {
-        if (!container.isLatest()) {
-            return Colors.Browser.Panel.PANEL_DISABLED_TEXT_FG;
-        } else {
-            return Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG;
-        }
+        return Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG;
     }
 
     /**
@@ -1175,11 +1168,7 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return A <code>Color</code>.
      */
     private Color getContainerTextColor(final Container container) {
-        if (!container.isLatest()) {
-            return Colors.Browser.Panel.PANEL_DISABLED_TEXT_FG;
-        } else {
-            return Colors.Browser.Panel.PANEL_CONTAINER_TEXT_FG;
-        }
+        return Colors.Browser.Panel.PANEL_CONTAINER_TEXT_FG;
     }
 
     /**

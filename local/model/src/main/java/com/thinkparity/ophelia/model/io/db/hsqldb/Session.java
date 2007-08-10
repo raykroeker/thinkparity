@@ -182,6 +182,7 @@ public final class Session {
     public void executeQuery() {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
+        close(resultSet);
         try {
             resultSet = preparedStatement.executeQuery();
         } catch (final SQLException sqlx) {
@@ -622,6 +623,7 @@ public final class Session {
 	 */
 	public void openMetaData() {
 		assertConnectionIsOpen();
+		close(metaData);
 		try {
             metaData = connection.getMetaData();
 		} catch (final SQLException sqlx) {
@@ -632,6 +634,7 @@ public final class Session {
     public void prepareStatement(final String query) {
 		assertConnectionIsOpen();
 		logStatement(query);
+		close(preparedStatement, resultSet);
 		try {
             this.query = query;
 			preparedStatement = connection.prepareStatement(query);

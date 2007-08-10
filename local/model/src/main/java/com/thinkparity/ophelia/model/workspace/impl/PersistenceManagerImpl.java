@@ -176,7 +176,6 @@ class PersistenceManagerImpl {
             System.setProperty("derby.infolog.append", "true");
             System.setProperty("derby.storage.pageCacheSize", "64");
             System.setProperty("derby.stream.error.file", persistenceLogFile.getAbsolutePath());
-            System.setProperty("derby.system.home", persistenceRoot.getAbsolutePath());
 
             // create the data source
             final XADataSourceConfiguration xaDataSourceConfiguration;

@@ -74,6 +74,9 @@ public class MainStatusAvatar extends Avatar {
     /** A <code>Runnable</code> used to display the optional status bar link. */
     private Runnable optionalLinkRunnable;
 
+    /** A <code>Boolean</code> indicating a product update has been installed. */
+    private Boolean productInstalled;
+
     /** The most recent <code>Profile</code>. */
     private Profile profile;
 
@@ -82,6 +85,9 @@ public class MainStatusAvatar extends Avatar {
 
     /** The resize offset size in the y direction. */
     private int resizeOffsetY;
+
+    /** A <code>Boolean</code> indicating the app is being restarted. */
+    private Boolean restarting;
 
     /** A <code>Boolean</code> indicating if a short term link is displayed. */
     private Boolean shortTermLinkDisplayed;
@@ -107,6 +113,8 @@ public class MainStatusAvatar extends Avatar {
             }
         });
         initComponentListener();
+        restarting = Boolean.FALSE;
+        productInstalled = Boolean.FALSE;
     }
 
     /**
@@ -136,24 +144,8 @@ public class MainStatusAvatar extends Avatar {
      *      A <code>MigratorEvent</code>.
      */
     public void fireProductReleaseInstalled(final MigratorEvent e) {
-        final MainStatusAvatarLink restartLink = new MainStatusAvatarLink() {
-            public String getLinkText() {
-                return getString("ProductInstalledLinkText");
-            }
-            public Runnable getTarget() {
-                return new Runnable() {
-                    public void run() {
-                        getController().getPlatform().restart();
-                    }
-                };
-            }
-            public String getText() {
-                return getString("ProductInstalledText");
-            }
-        };
-        final Data input = new Data(1);
-        input.set(DataKey.LINK, restartLink);
-        setInput(input);
+        productInstalled = Boolean.TRUE;
+        reloadLinks();
     }
 
     /**
@@ -616,11 +608,26 @@ public class MainStatusAvatar extends Avatar {
             shortTermLinkDisplayed = Boolean.FALSE;
             clearJLabels();
             linkRunnable = optionalLinkRunnable = null;
-            final List<EMail> unVerifiedEMails = readUnverifiedEMails();
-            final List<ContainerVersion> unseenContainerVersions = readUnseenContainerVersions();
-            final List<IncomingEMailInvitation> incomingEMail = readIncomingEMailInvitations();
-            final List<IncomingUserInvitation> incomingUser = readIncomingUserInvitations();
-            if (0 < unVerifiedEMails.size()) {
+
+            if (restarting) {
+                textJLabel.setForeground(Colors.Browser.MainStatus.CLIENT_MAINTENANCE_MESSAGE_FOREGROUND);
+                textJLabel.setText(getString("Text.Restarting") + Separator.Space);
+            } else if (productInstalled) {
+                textJLabel.setForeground(Colors.Browser.MainStatus.CLIENT_MAINTENANCE_MESSAGE_FOREGROUND);
+                textJLabel.setText(getString("Text.ProductInstalled") + Separator.Space);
+                linkJLabel.setText(getString("Link.ProductInstalled"));
+                linkRunnable = new Runnable() {
+                    public void run() {
+                        getController().getPlatform().restart();
+                        restarting = Boolean.TRUE;
+                        reloadLinks();
+                    }
+                };
+            } else if (!isOnline() && OfflineCode.CLIENT_MAINTENANCE == getOfflineCode()) {
+                textJLabel.setForeground(Colors.Browser.MainStatus.CLIENT_MAINTENANCE_MESSAGE_FOREGROUND);
+                textJLabel.setText(getString("Text.ClientMaintenance"));
+            } else if (0 < readUnverifiedEMails().size()) {
+                textJLabel.setForeground(Colors.Browser.MainStatus.MESSAGE_FOREGROUND);
                 if (isOnline()) {
                     /* if there is no verified e-mail address display a link about
                      * the e-mails only. */
@@ -636,6 +643,10 @@ public class MainStatusAvatar extends Avatar {
                     textJLabel.setText(getString("Text.VerifyEMailOffline"));
                 }
             } else {
+                final List<ContainerVersion> unseenContainerVersions = readUnseenContainerVersions();
+                final List<IncomingEMailInvitation> incomingEMail = readIncomingEMailInvitations();
+                final List<IncomingUserInvitation> incomingUser = readIncomingUserInvitations();
+                textJLabel.setForeground(Colors.Browser.MainStatus.MESSAGE_FOREGROUND);
                 if (0 < unseenContainerVersions.size()) {
                     if (0 < incomingEMail.size() || 0 < incomingUser.size()) {
                         // display container info/link

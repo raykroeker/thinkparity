@@ -39,7 +39,6 @@
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xdoclet/1.0.3/nanocontainer-1.0-beta-3.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xdoclet/1.0.3/nanocontainer-ant-1.0-beta-3.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xdoclet/1.0.3/picocontainer-1.0.jar"/>
-	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xdoclet/1.0.3/qdox-20051211.114207.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xdoclet/1.0.3/saxpath-1.0-FCS.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xdoclet/1.0.3/velocity-1.4.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xdoclet/1.0.3/xerces-2.4.0.jar"/>

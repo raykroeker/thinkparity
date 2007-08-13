@@ -59,4 +59,10 @@ public interface InternalQueueModel extends QueueModel {
      * 
      */
     public void startNotificationClient();
+
+    /**
+     * Stop the currently running queue processor.
+     * 
+     */
+    public void stopProcessor();
 }

@@ -11,6 +11,8 @@ import java.text.MessageFormat;
 
 import com.thinkparity.codebase.BytesFormat;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.delegate.CancelException;
+import com.thinkparity.codebase.delegate.Cancelable;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.stream.StreamException;
@@ -27,7 +29,7 @@ import com.thinkparity.codebase.model.stream.StreamSession;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class DownloadFile {
+public final class DownloadFile implements Cancelable {
 
     /** A bytes format. */
     private static final BytesFormat BYTES_FORMAT;
@@ -77,8 +79,14 @@ public final class DownloadFile {
     /** The stream session. */
     private final StreamSession session;
 
+    /** A delegate stream reader. */
+    private StreamReader streamReader;
+
     /** The target file. */
     private File target;
+
+    /** A target output stream. */
+    private OutputStream targetOutputStream;
 
     /**
      * Create DownloadFile.
@@ -110,6 +118,29 @@ public final class DownloadFile {
     }
 
     /**
+     * Cancel the download. Call the stream reader's cancel; and ensure cleanup
+     * of the target stream.
+     * 
+     * @see com.thinkparity.codebase.delegate.Cancelable#cancel()
+     */
+    public void cancel() throws CancelException {
+        if (null != streamReader) {
+            streamReader.cancel();
+        }
+        if (null != targetOutputStream) {
+            /* this can happen if cancel is called after creating the stream
+             * and before the try/finally is "entered" */
+            try {
+                targetOutputStream.close();
+            } catch (final IOException iox) {
+                throw new CancelException(iox);
+            } finally {
+                targetOutputStream = null;
+            }
+        }
+    }
+
+    /**
      * Download the stream represented by the session to the target file.
      * 
      * @param target
@@ -117,27 +148,33 @@ public final class DownloadFile {
      *            null; the file must exist and must be a file.
      */
     public void download(final File target) throws IOException {
-        this.target = target;
-        for (int i = 0; i < retryAttempts; i++) {
-            ensureDownload();
-            try {
-                LOGGER.logInfo("Download attempt {0}/{1}.", i, retryAttempts);
-                attemptDownload();
-                break;
-            } catch (final StreamException sx) {
-                if (sx.isRecoverable()) {
-                    LOGGER.logWarning("Could not download target.");
-                    Assert.assertTrue(target.delete(),
-                            "Could not delete download target {0}.", target);
-                    Assert.assertTrue(target.createNewFile(),
-                            "Could not delete download target {0}.", target);
-                } else {
-                    throw sx;
+        try {
+            this.target = target;
+            for (int i = 0; i < retryAttempts; i++) {
+                ensureDownload();
+                try {
+                    LOGGER.logInfo("Download attempt {0}/{1}.", i, retryAttempts);
+                    attemptDownload();
+                    break;
+                } catch (final StreamException sx) {
+                    if (sx.isRecoverable()) {
+                        LOGGER.logWarning("Could not download target.");
+                        Assert.assertTrue(target.delete(),
+                                "Could not delete download target {0}.", target);
+                        Assert.assertTrue(target.createNewFile(),
+                                "Could not delete download target {0}.", target);
+                    } else {
+                        throw sx;
+                    }
                 }
+            }
+        } finally {
+            synchronized (this) {
+                notifyAll();
             }
         }
     }
-        
+
     /**
      * Attempt a download of the version. Create a new stream reader using the
      * session; and download the version to the temp file, then return the temp
@@ -146,12 +183,20 @@ public final class DownloadFile {
      * @throws IOException
      */
     private void attemptDownload() throws IOException {
-        final StreamReader reader = new StreamReader(monitor, session);
-        final OutputStream output = new FileOutputStream(target);
+        streamReader = new StreamReader(monitor, session);
         try {
-            reader.read(output);
+            targetOutputStream = new FileOutputStream(target);
+            try {
+                streamReader.read(targetOutputStream);
+            } finally {
+                try {
+                    targetOutputStream.close();
+                } finally {
+                    targetOutputStream = null;
+                }
+            }
         } finally {
-            output.close();
+            streamReader = null;
         }
     }
 

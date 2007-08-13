@@ -44,7 +44,6 @@ public final class CompressionTest extends CodebaseTestCase {
     public void testCompression() {
         TEST_LOGGER.logTraceId();
         final CompressFile compressor = new CompressFile();
-        final InflateFile inflator = new InflateFile();
         File compressed;
         File inflated;
         long compressBegin, compressDuration;
@@ -85,9 +84,10 @@ public final class CompressionTest extends CodebaseTestCase {
                 fail(iox, "Could not create new file {0}.", inflated);
             }
             synchronized (getBufferLock()) {
+                final InflateFile inflator = new InflateFile(getBuffer());
                 try {
                     inflateBegin = System.currentTimeMillis();
-                    inflator.inflate(compressed, inflated, getBuffer());
+                    inflator.inflate(compressed, inflated);
                     inflateDuration = System.currentTimeMillis() - inflateBegin;
                     TEST_LOGGER.logInfo(
                             "File {0} inflated.{1}\tCompressed Size:{2}{1}\tInflated Size:{3}{1}\tCompression:{4}{1}\tTime:{5}",

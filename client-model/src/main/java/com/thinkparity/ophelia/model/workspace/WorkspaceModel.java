@@ -174,6 +174,8 @@ public class WorkspaceModel {
     public void close(final Workspace workspace) {
         final WorkspaceImpl impl = findImpl(workspace);
         Assert.assertNotNull(impl, "Workspace {0} has is not open.", workspace);
+        /* stop the queue processor */
+        getModelFactory(workspace).getQueueModel().stopProcessor();
         impl.close();
         synchronized (WORKSPACES) {
             WORKSPACES.remove(workspace.getWorkspaceDirectory());
@@ -251,7 +253,7 @@ public class WorkspaceModel {
             notifyStepBegin(monitor, InitializeStep.PERSISTENCE_INITIALIZE);
             workspaceImpl.beginInitialize();
             notifyStepEnd(monitor, InitializeStep.PERSISTENCE_INITIALIZE);
-            final InternalModelFactory modelFactory = InternalModelFactory.getInstance(context, environment, workspace);
+            final InternalModelFactory modelFactory = getModelFactory(workspace);
             final InternalSessionModel sessionModel = modelFactory.getSessionModel();
             // login
             notifyDetermine(monitor, 2);
@@ -375,5 +377,16 @@ public class WorkspaceModel {
             final String errorId = new ErrorHelper().getErrorId(t);
             return new ThinkParityException(errorId.toString(), t);
         }
+    }
+
+    /**
+     * Obtain an internal model factory.
+     * 
+     * @param workspace
+     *            A <code>Workspace</code>.
+     * @return An <code>InternalModelFactory</code>.
+     */
+    private InternalModelFactory getModelFactory(final Workspace workspace) {
+        return InternalModelFactory.getInstance(context, environment, workspace);
     }
 }

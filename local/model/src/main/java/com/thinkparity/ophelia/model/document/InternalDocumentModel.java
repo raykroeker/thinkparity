@@ -20,9 +20,8 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
+import com.thinkparity.codebase.model.stream.download.DownloadFile;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
-
-import com.thinkparity.ophelia.model.DownloadHelper;
 
 /**
  * <b>Title:</b>thinkParity Internal Document Model<br>
@@ -178,13 +177,13 @@ public interface InternalDocumentModel extends DocumentModel {
             throws CannotLockException;
 
     /**
-     * Create a new instance of a document version download helper.
+     * Create a new instance of a document version download file.
      * 
      * @param version
      *            A <code>DocumentVersion</code>.
-     * @return A <code>DownloadHelper</code>.
+     * @return A <code>DownloadFile</code>.
      */
-    public DownloadHelper newDownloadHelper(final DocumentVersion version);
+    public DownloadFile newDownloadFile(final DocumentVersion version);
 
     /**
      * Open the document draft input stream.

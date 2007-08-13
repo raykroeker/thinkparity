@@ -8,6 +8,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketException;
 
+import com.thinkparity.codebase.delegate.CancelException;
+import com.thinkparity.codebase.delegate.Cancelable;
+
 import org.apache.commons.httpclient.methods.GetMethod;
 
 /**
@@ -17,7 +20,10 @@ import org.apache.commons.httpclient.methods.GetMethod;
  * @author raymond@thinkparity.com
  * @version 1.1.2.8
  */
-public final class StreamReader {
+public final class StreamReader implements Cancelable {
+
+    /** A cancel indicator. */
+    private boolean cancel;
 
     /** A stream monitor. */
     private final StreamMonitor monitor;
@@ -30,6 +36,9 @@ public final class StreamReader {
     /** A set of stream utilities. */
     private final StreamUtils utils;
 
+    /** A run indicator. */
+    private boolean running;
+
     /**
      * Create StreamReader.
      * 
@@ -40,9 +49,28 @@ public final class StreamReader {
      */
     public StreamReader(final StreamMonitor monitor, final StreamSession session) {
         super();
+        this.cancel = false;
         this.monitor = monitor;
+        this.running = false;
         this.session = session;
         this.utils = new StreamUtils();
+    }
+
+    /**
+     * @see com.thinkparity.codebase.delegate.Cancelable#cancel()
+     *
+     */
+    public void cancel() throws CancelException {
+        this.cancel = true;
+        if (running) {
+            synchronized (this) {
+                try {
+                    wait();
+                } catch (final InterruptedException ix) {
+                    throw new CancelException(ix);
+                }
+            }
+        }
     }
 
     /**
@@ -53,10 +81,16 @@ public final class StreamReader {
      */
     public void read(final OutputStream stream) {
         this.stream = stream;
+        running = true;
         try {
             executeGet();
         } catch (final IOException iox) {
             throw new StreamException(iox);
+        } finally {
+            running = false;
+            synchronized (this) {
+                notifyAll();
+            }
         }
     }
 
@@ -77,11 +111,20 @@ public final class StreamReader {
                     try {
                         int len = 0;
                         final byte[] b = new byte[session.getBufferSize()];
+                        if (cancel) {
+                            return;
+                        }
                         try {
                             while ((len = input.read(b)) > 0) {
+                                if (cancel) {
+                                    return;
+                                }
                                 stream.write(b, 0, len);
                                 stream.flush();
                                 fireChunkReceived(len);
+                                if (cancel) {
+                                    return;
+                                }
                             }
                         } finally {
                             stream.flush();

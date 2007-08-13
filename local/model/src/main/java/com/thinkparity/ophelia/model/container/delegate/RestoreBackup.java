@@ -126,6 +126,41 @@ public final class RestoreBackup extends ContainerDelegate {
     }
 
     /**
+     * Download a document version.
+     * 
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @return A version <code>File</code>.
+     */
+    private void download(final DocumentVersion version, final File file)
+            throws IOException, NoSuchPaddingException,
+            NoSuchAlgorithmException, InvalidKeyException {
+        final String suffix = MessageFormat.format("-{0}",  version.getArtifactName());
+        final File downloadFile = createTempFile(suffix);
+        try {
+            getDocumentModel().newDownloadFile(version).download(downloadFile);
+            final Secret secret = getCryptoModel().readSecret(version);
+            final Key key = new SecretKeySpec(secret.getKey(), secret.getAlgorithm());
+            final File decryptFile = createTempFile(suffix);
+            try {
+                synchronized (getBufferLock()) {
+                    new DecryptFile(secret.getAlgorithm()).decrypt(
+                            key, downloadFile, decryptFile, getBufferArray());
+                }
+                synchronized (getBufferLock()) {
+                    new InflateFile(getBuffer()).inflate(decryptFile, file);
+                }
+            } finally {
+                // TEMPFILE - RestoreBackup#download(DocumentVersion)
+                decryptFile.delete();
+            }
+        } finally {
+            // TEMPFILE - RestoreBackup#download(DocumentVersion)
+            downloadFile.delete();
+        }
+    }
+
+    /**
      * Read a map of all documents for all containers. This will look in the
      * draft as well as all versions.
      * 
@@ -291,40 +326,5 @@ public final class RestoreBackup extends ContainerDelegate {
         }
         // index
         getIndexModel().indexContainer(container.getId());
-    }
-
-    /**
-     * Download a document version.
-     * 
-     * @param version
-     *            A <code>DocumentVersion</code>.
-     * @return A version <code>File</code>.
-     */
-    private void download(final DocumentVersion version, final File file)
-            throws IOException, NoSuchPaddingException,
-            NoSuchAlgorithmException, InvalidKeyException {
-        final String suffix = MessageFormat.format("-{0}",  version.getArtifactName());
-        final File downloadFile = createTempFile(suffix);
-        try {
-            getDocumentModel().newDownloadHelper(version).download(downloadFile);
-            final Secret secret = getCryptoModel().readSecret(version);
-            final Key key = new SecretKeySpec(secret.getKey(), secret.getAlgorithm());
-            final File decryptFile = createTempFile(suffix);
-            try {
-                synchronized (getBufferLock()) {
-                    new DecryptFile(secret.getAlgorithm()).decrypt(
-                            key, downloadFile, decryptFile, getBufferArray());
-                }
-                synchronized (getBufferLock()) {
-                    new InflateFile().inflate(decryptFile, file, getBuffer());
-                }
-            } finally {
-                // TEMPFILE - RestoreBackup#download(DocumentVersion)
-                decryptFile.delete();
-            }
-        } finally {
-            // TEMPFILE - RestoreBackup#download(DocumentVersion)
-            downloadFile.delete();
-        }
     }
 }

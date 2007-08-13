@@ -10,6 +10,7 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.List;
 
 import javax.crypto.NoSuchPaddingException;
@@ -17,10 +18,13 @@ import javax.crypto.spec.SecretKeySpec;
 
 import com.thinkparity.codebase.bzip2.InflateFile;
 import com.thinkparity.codebase.crypto.DecryptFile;
+import com.thinkparity.codebase.delegate.CancelException;
+import com.thinkparity.codebase.delegate.Cancelable;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.download.DownloadFile;
 import com.thinkparity.codebase.model.util.xmpp.event.*;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent;
@@ -49,7 +53,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class QueueProcessor implements Runnable {
+public final class QueueProcessor implements Cancelable, Runnable {
 
     /** A lock to prevent multiple threads processing the same queue. */
     private static final Object QUEUE_LOCK;
@@ -57,6 +61,24 @@ public final class QueueProcessor implements Runnable {
     static {
         QUEUE_LOCK = new Object();
     }
+
+    /** A cancel indicator. */
+    private boolean cancel;
+
+    /** A run indicator. */
+    private boolean running;
+
+    /** A delegate used to decrypt files. */
+    private DecryptFile decrypter;
+
+    /** A delegate used to download files. */
+    private DownloadFile downloader;
+
+    /** A delegate used to inflate (decompress) files. */
+    private InflateFile inflater;
+
+    /** A localized event. */
+    private LocalContentEvent<?,?> localEvent;
 
     /** A log4j wrapper. */
     private final Log4JWrapper logger;
@@ -73,7 +95,37 @@ public final class QueueProcessor implements Runnable {
      */
     public QueueProcessor() {
         super();
+        this.cancel = false;
         this.logger = new Log4JWrapper(getClass());
+        this.running = false;
+    }
+
+    /**
+     * Cancel an in-progress download/decryption/inflation.
+     * 
+     * 
+     * @see com.thinkparity.codebase.delegate.Cancelable#cancel()
+     */
+    public void cancel() throws CancelException {
+        this.cancel = true;
+        if (null != downloader) {
+            downloader.cancel();
+        }
+        if (null != decrypter) {
+            decrypter.cancel();
+        }
+        if (null != inflater) {
+            inflater.cancel();
+        }
+        if (running) {
+            synchronized (this) {
+                try {
+                    wait();
+                } catch (final InterruptedException ix) {
+                    throw new CancelException(ix);
+                }
+            }
+        }
     }
 
     /**
@@ -81,8 +133,16 @@ public final class QueueProcessor implements Runnable {
      *
      */
     public void run() {
-        synchronized (QUEUE_LOCK) {
-            processEvents(readEvents());
+        running = true;
+        try {
+            synchronized (QUEUE_LOCK) {
+                processEvents(readEvents());
+            }
+        } finally {
+            running = false;
+            synchronized (this) {
+                notifyAll();
+            }
         }
     }
 
@@ -153,9 +213,13 @@ public final class QueueProcessor implements Runnable {
             final File target) throws NoSuchPaddingException,
             NoSuchAlgorithmException, InvalidKeyException, IOException {
         final Key key = new SecretKeySpec(secret.getKey(), secret.getAlgorithm());
+        decrypter = new DecryptFile(secret.getAlgorithm());
         synchronized (workspace.getBufferLock()) {
-            new DecryptFile(secret.getAlgorithm()).decrypt(key, source, target,
-                    workspace.getBufferArray());
+            try {
+                decrypter.decrypt(key, source, target, workspace.getBufferArray());
+            } finally {
+                decrypter = null;
+            }
         }
     }
 
@@ -182,15 +246,30 @@ public final class QueueProcessor implements Runnable {
             final File downloadFile = createTempFile(suffix);
             try {
                 download(version, downloadFile);
-                final File decryptFile = createTempFile(suffix);
-                try {
-                    decrypt(readSecret(version), downloadFile, decryptFile);
-                    final File inflateFile = createTempFile(suffix);
-                    inflate(decryptFile, inflateFile);
-                    return inflateFile;
-                } finally {
-                    // TEMPFILE - QueueProcessor#download(DocumentVersion)
-                    decryptFile.delete();
+                if (cancel) {
+                    logger.logInfo("Cancelling queue processor.");
+                    return null;
+                } else {
+                    final File decryptFile = createTempFile(suffix);
+                    try {
+                        decrypt(readSecret(version), downloadFile, decryptFile);
+                        if (cancel) {
+                            logger.logInfo("Cancelling queue processor.");
+                            return null;
+                        } else {
+                            final File inflateFile = createTempFile(suffix);
+                            inflate(decryptFile, inflateFile);
+                            if (cancel) {
+                                logger.logInfo("Cancelling queue processor.");
+                                return null;
+                            } else {
+                                return inflateFile;
+                            }
+                        }
+                    } finally {
+                        // TEMPFILE - QueueProcessor#download(DocumentVersion)
+                        decryptFile.delete();
+                    }
                 }
             } finally {
                 // TEMPFILE - QueueProcessor#download(DocumentVersion)
@@ -215,7 +294,12 @@ public final class QueueProcessor implements Runnable {
      */
     private void download(final DocumentVersion version, final File target)
             throws IOException {
-        getDocumentModel().newDownloadHelper(version).download(target);
+        downloader = getDocumentModel().newDownloadFile(version);
+        try {
+            downloader.download(target);
+        } finally {
+            downloader = null;
+        }
     }
 
     /**
@@ -304,7 +388,12 @@ public final class QueueProcessor implements Runnable {
     private void inflate(final File source, final File target)
             throws IOException {
         synchronized (workspace.getBufferLock()) {
-            new InflateFile().inflate(source, target, workspace.getBuffer());
+            inflater = new InflateFile(workspace.getBuffer());
+            try {
+                inflater.inflate(source, target);
+            } finally {
+                 inflater = null;
+            }
         }
     }
 
@@ -322,21 +411,70 @@ public final class QueueProcessor implements Runnable {
         for (final DocumentVersion version : localEvent.getVersions()) {
             if (!artifactModel.doesVersionExist(version.getArtifactUniqueId(),
                     version.getVersionId())) {
-                localEvent.setLocalContent(version, download(version));
+                final File contentFile = download(version);
+                if (cancel) {
+                    logger.logInfo("Cancelling queue processor.");
+                } else {
+                    localEvent.setLocalContent(version, contentFile);
+                }
             }
+        }
+    }
+
+    /**
+     * Localize the published event. Download the file(s); decrypt them and
+     * inflate them.
+     * 
+     * @param event
+     *            A <code>PublishedEvent</code>.
+     * @return A <code>LocalContentEvent<?,?></code>.
+     */
+    private LocalContentEvent<?,?> localizeEvent(final PublishedEvent event) {
+        final LocalPublishedEvent localEvent = new LocalPublishedEvent();
+        localEvent.setEvent(event);
+        localizeContent(localEvent);
+        return localEvent;
+    }
+
+    /**
+     * Localize the version published event. Download the file(s); decrypt them;
+     * and inflate them.
+     * 
+     * @param event
+     *            A <code>VersionPublishedEvent</code>.
+     * @return A <code>LocalContentEvent<?,?></code>.
+     */
+    private LocalContentEvent<?,?> localizeEvent(final VersionPublishedEvent event) {
+        final LocalVersionPublishedEvent localEvent = new LocalVersionPublishedEvent();
+        localEvent.setEvent(event);
+        localizeContent(localEvent);
+        return localEvent;
+    }
+
+    /**
+     * Localize the xmpp event. Take key remote events and localize the content
+     * by downloading/decrypting and inflating the content.
+     * 
+     * @param event
+     *            An <code>XMPPEvent</code>.
+     */
+    private void localizeEvent(final XMPPEvent event) {
+        if (event.getClass() == PublishedEvent.class) {
+            localEvent = localizeEvent((PublishedEvent) event);
+        } else if (event.getClass() == VersionPublishedEvent.class) {
+            localEvent = localizeEvent((VersionPublishedEvent) event);
+        } else {
+            localEvent = null;
         }
     }
 
     /**
      * Process the container published event.
      * 
-     * @param event
-     *            A <code>PublishedEvent</code>.
+     * @param localEvent
+     *            A <code>LocalPublishedEvent</code>.
      */
-    private void processEvent(final PublishedEvent event) {
-        final LocalPublishedEvent localEvent = new LocalPublishedEvent();
-        localEvent.setEvent(event);
-        localizeContent(localEvent);
+    private void processEvent(final LocalPublishedEvent localEvent) {
         try {
             getContainerModel().handleEvent(localEvent);
         } finally {
@@ -347,13 +485,10 @@ public final class QueueProcessor implements Runnable {
     /**
      * Process the container version published event.
      * 
-     * @param event
-     *            A <code>VersionPublishedEvent</code>.
+     * @param localEvent
+     *            A <code>LocalVersionPublishedEvent</code>.
      */
-    private void processEvent(final VersionPublishedEvent event) {
-        final LocalVersionPublishedEvent localEvent = new LocalVersionPublishedEvent();
-        localEvent.setEvent(event);
-        localizeContent(localEvent);
+    private void processEvent(final LocalVersionPublishedEvent localEvent) {
         try {
             getContainerModel().handleEvent(localEvent);
         } finally {
@@ -411,12 +546,14 @@ public final class QueueProcessor implements Runnable {
             logger.logInfo("Handling contact user invitation extended.");
             getContactModel().handleUserInvitationExtended((ContactUserInvitationExtendedEvent) event);
         } else if (event.getClass() == PublishedEvent.class) {
-            processEvent((PublishedEvent) event);
+            logger.logInfo("Handling container published.");
+            processEvent((LocalPublishedEvent) localEvent);
         } else if (event.getClass() == PublishedNotificationEvent.class) {
             logger.logInfo("Handling container published notification.");
             getContainerModel().handleEvent((PublishedNotificationEvent) event);
         } else if (event.getClass() == VersionPublishedEvent.class) {
-            processEvent((VersionPublishedEvent) event);
+            logger.logInfo("Handling container version published.");
+            processEvent((LocalVersionPublishedEvent) localEvent);
         } else if (event.getClass() == VersionPublishedNotificationEvent.class) {
             logger.logInfo("Handling container version published notification.");
             getContainerModel().handleEvent((VersionPublishedNotificationEvent) event);
@@ -438,20 +575,30 @@ public final class QueueProcessor implements Runnable {
     private void processEvents(final List<XMPPEvent> events) {
         boolean isOnline;
         for (final XMPPEvent event : events) {
-            isOnline = true;
-            try {
-                processEvent(event);
-            } catch (final OfflineException ox) {
-                logger.logWarning(ox,
-                        "User session went offline while processing event {0}.",
-                        event);
-                isOnline = false;
-                break;
-            } finally {
-                if (isOnline) {
-                    /* only delete the event if the processing was successful or
-                     * if the error was not network releated */
-                    deleteEvent(event);
+            if (cancel) {
+                logger.logInfo("Cancelling queue processor.");
+            } else {
+                localizeEvent(event);
+                if (cancel) {
+                    logger.logInfo("Cancelling queue processor.");
+                } else {
+                    isOnline = true;
+                    try {
+                        processEvent(event);
+                    } catch (final OfflineException ox) {
+                        logger.logWarning(ox,
+                                "User session went offline while processing event {0}.",
+                                event);
+                        isOnline = false;
+                        break;
+                    } finally {
+                        if (isOnline) {
+                            /* only delete the event if the processing was
+                             * successful or if the error was not network
+                             * releated */
+                            deleteEvent(event);
+                        }
+                    }
                 }
             }
         }
@@ -463,7 +610,11 @@ public final class QueueProcessor implements Runnable {
      * @return A <code>List<XMPPEvent></code>.
      */
     private List<XMPPEvent> readEvents() {
-        return getQueueModel().readEvents();
+        if (cancel) {
+            return Collections.emptyList();
+        } else {
+            return getQueueModel().readEvents();
+        }
     }
 
     /**

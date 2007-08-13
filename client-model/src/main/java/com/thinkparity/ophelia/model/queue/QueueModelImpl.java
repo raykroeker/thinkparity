@@ -9,6 +9,8 @@ import java.util.Observer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
+import com.thinkparity.codebase.event.EventListener;
+
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
@@ -30,14 +32,18 @@ import com.thinkparity.service.client.ServiceFactory;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class QueueModelImpl extends Model implements QueueModel,
-        InternalQueueModel {
+public final class QueueModelImpl extends Model<EventListener> implements
+        QueueModel, InternalQueueModel {
 
     /** A workspace attribute key for the notification client. */
     private static final String WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT;
 
+    /** A workspace attribute key for the queue processor. */
+    private static final String WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR;
+
     static {
         WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT = "QueueModelImpl#notificationClient";
+        WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR = "QueueModelImpl#queueProcessor";
     }
 
     /** A queue web-service interface. */
@@ -71,7 +77,13 @@ public final class QueueModelImpl extends Model implements QueueModel,
      *
      */
     public void process(final ProcessMonitor monitor) {
-        newQueueProcessor().run();
+        final QueueProcessor queueProcessor = newQueueProcessor();
+        setQueueProcessor(queueProcessor);
+        try {
+            queueProcessor.run();
+        } finally {
+            removeQueueProcessor();
+        }
     }
 
     /**
@@ -121,6 +133,24 @@ public final class QueueModelImpl extends Model implements QueueModel,
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.queue.InternalQueueModel#stopProcessor()
+     *
+     */
+    @Override
+    public void stopProcessor() {
+        try {
+            if (isSetQueueProcessor()) {
+                /* NOTE - QueueModelImpl#stopProcessor - we do not need to
+                 * remove the queue processor because the natural evolution of
+                 * cancel will cause automatic removal */
+                getQueueProcessor().cancel();
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
@@ -154,6 +184,16 @@ public final class QueueModelImpl extends Model implements QueueModel,
     }
 
     /**
+     * Obtain the queue processor workspace attribute.
+     * 
+     * @return A <code>QueueProcessor</code>.
+     */
+    private QueueProcessor getQueueProcessor() {
+        return (QueueProcessor) workspace.getAttribute(
+                WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR);
+    }
+
+    /**
      * Determine if the notification client is set.
      * 
      * @return True if the notification client is set.
@@ -161,6 +201,16 @@ public final class QueueModelImpl extends Model implements QueueModel,
     private boolean isSetNotificationClient() {
         return workspace.isSetAttribute(
                 WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT).booleanValue();
+    }
+
+    /**
+     * Determine if the queue processor is set.
+     * 
+     * @return True if the queue processor is set.
+     */
+    private boolean isSetQueueProcessor() {
+        return workspace.isSetAttribute(
+                WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR).booleanValue();
     }
 
     /**
@@ -179,7 +229,13 @@ public final class QueueModelImpl extends Model implements QueueModel,
                 final ObservableEvent observableEvent = (ObservableEvent) arg;
                 switch (observableEvent) {
                 case PENDING_EVENTS:
-                    newQueueProcessor().run();
+                    final QueueProcessor queueProcessor = newQueueProcessor();
+                    setQueueProcessor(queueProcessor);
+                    try {
+                        queueProcessor.run();
+                    } finally {
+                        removeQueueProcessor();
+                    }
                     break;
                 case CLIENT_OFFLINE:
                     if (getSessionModel().isOnline()) {
@@ -240,6 +296,19 @@ public final class QueueModelImpl extends Model implements QueueModel,
     }
 
     /**
+     * Remove the queue processor workspace attribute.
+     * 
+     * @return A <code>QueueProcessor</code>.
+     */
+    private QueueProcessor removeQueueProcessor() {
+        final QueueProcessor queueProcessor = getQueueProcessor();
+        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR)) {
+            workspace.removeAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR);
+        }
+        return queueProcessor;
+    }
+
+    /**
      * Set the notification client workspace attribute.
      * 
      * @param notificationClient
@@ -247,5 +316,15 @@ public final class QueueModelImpl extends Model implements QueueModel,
      */
     private void setNotificationClient(final NotificationClient notificationClient) {
         workspace.setAttribute(WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT, notificationClient);
+    }
+
+    /**
+     * Set the queue processor workspace attribute.
+     * 
+     * @param queueProcessor
+     *            A <code>QueueProcessor</code>.
+     */
+    private void setQueueProcessor(final QueueProcessor queueProcessor) {
+        workspace.setAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR, queueProcessor);
     }
 }

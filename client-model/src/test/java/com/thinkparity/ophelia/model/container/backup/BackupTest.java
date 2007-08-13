@@ -189,7 +189,7 @@ public final class BackupTest extends BackupTestCase {
      */
     private File download(final DocumentVersion version) throws IOException {
         final File target = getOutputFile(version);
-        getDocumentModel(datum.junit_z).newDownloadHelper(version).download(target);
+        getDocumentModel(datum.junit_z).newDownloadFile(version).download(target);
         return target;
     }
 

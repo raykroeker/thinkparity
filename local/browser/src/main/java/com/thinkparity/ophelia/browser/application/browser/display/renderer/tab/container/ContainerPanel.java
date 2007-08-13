@@ -110,6 +110,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel participantsJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel participantsTitleJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel versionsJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel westCountJLabel = new javax.swing.JLabel();
@@ -1100,7 +1101,8 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     private String getContainerAdditionalText(final Container container) {
         if (!container.isLatest()) {
-            return localization.getString("ContainerMessageNotLatest");    
+            return localization.getString("ContainerMessageNotLatest",
+                    new Object[] {formatFuzzy(latestVersion.getCreatedOn())});
         } else if (null != latestVersion) {
             return localization.getString("ContainerMessagePublishDate",
                     new Object[] {formatFuzzy(latestVersion.getCreatedOn())});
@@ -1128,9 +1130,7 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return A <code>String</code>.
      */
     private String getContainerDraftOwnerText(final Container container) {
-        if (!container.isLatest()) {
-            return localization.getString("draftUnavailable");
-        } else if (isSetDraft()) {
+        if (isSetDraft()) {
             return getDraft().getOwner().getName();
         } else {
             return null;
@@ -1232,7 +1232,6 @@ public class ContainerPanel extends DefaultTabPanel {
         westFillerJLabel = new javax.swing.JLabel();
         final javax.swing.JPanel eastSummaryJPanel = new javax.swing.JPanel();
         final javax.swing.JPanel eastSummaryTitlesJPanel = new javax.swing.JPanel();
-        final javax.swing.JLabel participantsTitleJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel documentsTitleJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel versionsTitleJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel eastSummaryTitleFillerJLabel = new javax.swing.JLabel();
@@ -1461,7 +1460,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(63, 10, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(63, 0, 0, 0);
         eastSummaryContentJPanel.add(participantsJLabel, gridBagConstraints);
 
         documentsJLabel.setFont(Fonts.DialogFont);
@@ -1471,7 +1470,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(2, 10, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 0);
         eastSummaryContentJPanel.add(documentsJLabel, gridBagConstraints);
 
         versionsJLabel.setFont(Fonts.DialogFont);
@@ -1481,7 +1480,7 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(2, 10, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 0);
         eastSummaryContentJPanel.add(versionsJLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -1728,20 +1727,25 @@ public class ContainerPanel extends DefaultTabPanel {
                 final List<TeamMember> team) {
             super(Boolean.TRUE);
             if (!isDistributed()) {
-                participantsJLabel.setText(localization.getString("notApplicable"));
+                participantsTitleJLabel.setText(localization.getString("participantsJLabel"));
+                participantsJLabel.setText(twoBlankPrefix(localization.getString("notApplicable")));
+            } else if (!container.isLatest()) {
+                participantsTitleJLabel.setText(localization.getString("notLatestVersionLeft"));
+                participantsJLabel.setText(oneBlankPrefix(localization.getString("notLatestVersionRight")));
             } else {
-                participantsJLabel.setText(MessageFormat.format("{0}", team.size()));
+                participantsTitleJLabel.setText(localization.getString("participantsJLabel"));
+                participantsJLabel.setText(MessageFormat.format("  {0}", team.size()));
             }
             if (isLocalDraft()) {
-                documentsJLabel.setText(MessageFormat.format("{0}",
+                documentsJLabel.setText(MessageFormat.format("  {0}",
                         countActiveDocuments(draftView)));
             } else if (isDistributed()) {
-                documentsJLabel.setText(MessageFormat.format("{0}",
+                documentsJLabel.setText(MessageFormat.format("  {0}",
                         countActiveDocuments(documentViews.get(latestVersion))));
             } else {
-                documentsJLabel.setText(localization.getString("notApplicable"));
+                documentsJLabel.setText(twoBlankPrefix(localization.getString("notApplicable")));
             }
-            versionsJLabel.setText(MessageFormat.format("{0}", versions.size()));
+            versionsJLabel.setText(MessageFormat.format("  {0}", versions.size()));
         }
         @Override
         public Icon getIcon() {
@@ -1788,6 +1792,14 @@ public class ContainerPanel extends DefaultTabPanel {
                 }
             }
             return count;
+        }
+        private String oneBlankPrefix(final String text) {
+            final StringBuffer result = new StringBuffer(" ").append(text);
+            return result.toString();
+        }
+        private String twoBlankPrefix(final String text) {
+            final StringBuffer result = new StringBuffer("  ").append(text);
+            return result.toString();
         }
     }
 

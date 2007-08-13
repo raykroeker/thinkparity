@@ -4,6 +4,9 @@
 package com.thinkparity.ophelia.browser.platform.action;
 
 import java.awt.Component;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +14,8 @@ import java.util.Map;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -42,6 +47,12 @@ public class DefaultPopupDelegate implements PopupDelegate {
     /** A <code>MenuFactory</code>. */
     private JPopupMenu jPopupMenu;
 
+    /** A keyboard redispatch <code>Boolean</code>. */
+    private Boolean keyboardRedispatchEnabled;
+
+    /** A <code>KeyEventDispatcher</code>. */
+    private KeyEventDispatcher keyEventDispatcher;
+
     /** A map of menu name <code>String</code> to existing <code>JMenu</code>s. */
     private final Map<String, JMenu> submenus;
 
@@ -59,6 +70,7 @@ public class DefaultPopupDelegate implements PopupDelegate {
         this.logger = new Log4JWrapper(getClass());
         this.submenus = new HashMap<String, JMenu>();
         this.itemFactory = PopupItemFactory.getInstance(application);
+        this.keyboardRedispatchEnabled = Boolean.FALSE;
     }
 
     /**
@@ -72,7 +84,7 @@ public class DefaultPopupDelegate implements PopupDelegate {
     public void add(final ActionId actionId, final Data data) {
         jPopupMenu.add(itemFactory.createPopupItem(actionId, data));
     }
-    
+
     /**
      * Add a menu item to the popup menu.
      * 
@@ -99,7 +111,7 @@ public class DefaultPopupDelegate implements PopupDelegate {
         jPopupMenu.add(itemFactory.createPopupItem(actionIds, dataList,
                 mainActionIndex));
     }
-    
+
     /**
      * Add a string to the popup menu.
      * 
@@ -117,7 +129,16 @@ public class DefaultPopupDelegate implements PopupDelegate {
     public void addSeparator() {
         jPopupMenu.addSeparator();
     }
-    
+
+    /**
+     * Hide the popup.
+     */
+    public void hide() {
+        if (isVisible()) {
+            jPopupMenu.setVisible(false);
+        }
+    }
+
     /**
      * @see com.thinkparity.ophelia.browser.platform.action.PopupDelegate#initialize(java.awt.Component,
      *      int, int)
@@ -131,6 +152,29 @@ public class DefaultPopupDelegate implements PopupDelegate {
     }
 
     /**
+     * Determine if the popup is visible (currently being displayed).
+     * 
+     * @return true if the popup is visible.
+     */
+    public Boolean isVisible() {
+        return (null != jPopupMenu && jPopupMenu.isVisible());
+    }
+
+    /**
+     * Enable or disable keyboard redispatch.
+     * 
+     * When enabled, keyboard keys are intercepted and redispatched to the popup.
+     * This is normally not necessary unless the popup is designed to
+     * work when it doesn't have focus.
+     * 
+     * @param keyboardRedispatchEnabled
+     *            A <code>Boolean</code>, true to enable keyboard redispatch.
+     */
+    public void setKeyboardRedispatchEnabled(final Boolean keyboardRedispatchEnabled) {
+        this.keyboardRedispatchEnabled = keyboardRedispatchEnabled;
+    }
+
+    /**
      * Show the popup. Note that if the menu is null; or contains no elements;
      * nothing is done.
      * 
@@ -141,8 +185,23 @@ public class DefaultPopupDelegate implements PopupDelegate {
             logger.logVariable("invoker", invoker);
             logger.logVariable("x", x);
             logger.logVariable("y", y);
+            jPopupMenu.addPopupMenuListener(new PopupMenuListener() {
+                public void popupMenuCanceled(final PopupMenuEvent e) {}
+                public void popupMenuWillBecomeInvisible(final PopupMenuEvent e) {
+                    if (isKeyboardRedispatchEnabled()) {
+                        removeKeyEventDispatcher();
+                    }
+                    jPopupMenu.removePopupMenuListener(this);
+                    jPopupMenu = null;
+                }
+                public void popupMenuWillBecomeVisible(final PopupMenuEvent e) {
+                    if (isKeyboardRedispatchEnabled()) {
+                        addKeyEventDispatcher();
+                    }
+                }
+            });
             jPopupMenu.show(invoker, x, y);
-            invoker = jPopupMenu = null;
+            invoker = null;
             submenus.clear();
             x = y = -1;
         }
@@ -158,5 +217,69 @@ public class DefaultPopupDelegate implements PopupDelegate {
         if (jPopupMenu instanceof ThinkParityPopupMenu) {
             ((ThinkParityPopupMenu)jPopupMenu).setMenuBackgroundType(menuBackgroundType);
         }
+    }
+
+    /**
+     * Add the key event dispatcher.
+     * This logic forwards keyboard events to a popup that does not have focus.
+     */
+    private void addKeyEventDispatcher() {
+        removeKeyEventDispatcher();
+        keyEventDispatcher = new KeyEventDispatcher() {
+            public boolean dispatchKeyEvent(final KeyEvent e) {
+                // Handle the enter key as a special case.
+                // Simply forwarding VK_ENTER to the menu does not work when the menu
+                // does not have focus; instead, call doClick() on the armed JMenuItem.
+                if (KeyEvent.KEY_TYPED == e.getID() && KeyEvent.VK_ENTER == e.getKeyChar()) {
+                    final Component[] components = jPopupMenu.getComponents();
+                    for (final Component component : components) {
+                        if (component instanceof JMenuItem) {
+                            if (((JMenuItem)component).isArmed()) {
+                                ((JMenuItem)component).doClick();
+                                break;
+                            }
+                        }
+                    }
+                    return true;
+                }
+                // suck up other VK_ENTER key events
+                else if ((KeyEvent.KEY_PRESSED == e.getID() && KeyEvent.VK_ENTER == e.getKeyCode()) ||
+                        (KeyEvent.KEY_RELEASED == e.getID() && KeyEvent.VK_ENTER == e.getKeyCode())) {
+                    return true;
+                }
+                // forward escape, up, and down keys
+                else if (KeyEvent.KEY_PRESSED == e.getID() || KeyEvent.KEY_RELEASED == e.getID()) {
+                    final int keyCode = e.getKeyCode();
+                    if (keyCode == KeyEvent.VK_ESCAPE
+                            || keyCode == KeyEvent.VK_UP
+                            || keyCode == KeyEvent.VK_DOWN) {
+                        KeyboardFocusManager.getCurrentKeyboardFocusManager().redispatchEvent(jPopupMenu, e);
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        };
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyEventDispatcher);
+    }
+
+    /**
+     * Determine if keyboard redispatch is enabled.
+     * 
+     * @return true if keyboard redispatch is enabled.
+     */
+    private Boolean isKeyboardRedispatchEnabled() {
+        return keyboardRedispatchEnabled;
+    }
+
+    /**
+     * Remove the key event dispatcher.
+     */
+    private void removeKeyEventDispatcher() {
+        if (null != keyEventDispatcher) {
+            KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(keyEventDispatcher);
+        }
+        keyEventDispatcher = null;
     }
 }

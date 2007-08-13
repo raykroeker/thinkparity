@@ -147,6 +147,16 @@ public class PublishContainerProvider extends ContentProvider {
     /**
      * Read a list of the contacts that the user can publish to.
      * 
+     * @return A <code>List</code> of <code>Contact</code>.
+     */
+    public List<Contact> readPublishToContacts() {
+        return contactModel.readContainerPublishTo();
+    }
+
+    /**
+     * Read a list of the contacts that the user can publish to,
+     * excluding contacts that are also team members.
+     * 
      * @param teamMembers
      *            A <code>List</code> of <code>TeamMember</code>s to filter
      *            from the list.

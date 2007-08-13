@@ -180,7 +180,13 @@ final class NotificationServer {
             logger.logWarning("Session for user {0} has been disconnected.",
                     user.getUsername());
         } else {
-            session.getDelegate().sendNotify();
+            final NotificationSocketDelegate delegate = session.getDelegate();
+            if (null == delegate) {
+                logger.logWarning("Session for user {0} has been disconnected.",
+                        user.getUsername());
+            } else {
+                delegate.sendNotify();
+            }
         }
     }
 

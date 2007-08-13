@@ -106,11 +106,12 @@ public class FileIconReader {
 
         // return the icon from the cache if available, otherwise get the icon
         // from the system and cache it
-        if (null == name || 0 == name.length()) {
+        if (null == name) {
             return null;
         } else if (isCached(ICON_CACHE, name)) {
             return (Icon) read(ICON_CACHE, name);
         } else {
+            // note that extension of "" is valid
             final Icon icon = readSystemIcon(extension);
             if (null != icon) {
                 write(ICON_CACHE, name, icon);
@@ -167,9 +168,14 @@ public class FileIconReader {
     private Icon readSystemIcon(final String extension) {
         Icon icon = null;
         try {
-             final File file = BrowserPlatform.getInstance().createTempFile("." + extension);
-             FileSystemView view = FileSystemView.getFileSystemView();
-             icon = view.getSystemIcon(file);
+            final File file;
+            if (null == extension || 0 == extension.length() || extension.startsWith(".")) {
+                file = BrowserPlatform.getInstance().createTempFile(extension);
+            } else {
+                file = BrowserPlatform.getInstance().createTempFile("." + extension);
+            }
+            FileSystemView view = FileSystemView.getFileSystemView();
+            icon = view.getSystemIcon(file);
         } catch (final IOException iox) {
             throw new BrowserException("Cannot read system file icon.", iox);
         }

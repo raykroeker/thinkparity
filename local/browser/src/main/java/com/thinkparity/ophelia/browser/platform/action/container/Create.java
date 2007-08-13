@@ -58,7 +58,10 @@ public class Create extends AbstractBrowserAction {
             // Create the container
             final Container container = getContainerModel().create(containerName);
             getContainerModel().applyFlagSeen(container.getId());
-            
+
+            // Clear search and filter
+            browser.showAllTabPanels();
+
             // if there are files then add them to the container
             if (null != files) {
                 browser.runAddContainerDocuments(container.getId(), files.toArray(new File[] {}));

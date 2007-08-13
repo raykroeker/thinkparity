@@ -42,9 +42,11 @@ class PersistenceManagerImpl {
     private static final int XA_TIMEOUT;
 
     static {
-        // TIMEOUT - PersistenceManagerImpl#<cinit> - 2H
-        // TODO change the timeout of the transaction back to the default
-        XA_TIMEOUT = 60 * 60 * 2;
+        /* TIMEOUT - PersistenceManagerImpl#<cinit>
+         * SYNC - PersistenceManagerImpl#<cinit> - when a "multi-threaded"
+         * model is required; the timeout will need to drop in order to release
+         * resources from the transaction if it ceases to respond */
+        XA_TIMEOUT = Integer.MAX_VALUE;
     }
 
     /** A <code>DataSource</code>. */
@@ -152,8 +154,9 @@ class PersistenceManagerImpl {
         try {
             tx.setTransactionTimeout(XA_TIMEOUT);
         } catch (final SystemException sx) {
-            logger.logWarning(sx, "Could not set timeout for transaction.",
+            logger.logError(sx, "Could not set timeout for transaction.",
                     XA_TIMEOUT);
+            throw new WorkspaceException("Cannot set transaction timeout.", sx);
         }
         return tx;
     }
@@ -195,6 +198,7 @@ class PersistenceManagerImpl {
             // create the transaction manager
             transactionManager = TransactionManager.getInstance();
             transactionManager.start();
+            transactionManager.setTransactionTimeout(XA_TIMEOUT);
             // bind the transaction manager to the data source
             transactionManager.bind((XADataSourcePool) dataSource);
             sessionManager = new SessionManager(dataSource);

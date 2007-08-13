@@ -10,6 +10,7 @@ import com.thinkparity.codebase.model.ThinkParityException;
 import org.enhydra.jdbc.pool.StandardXAPoolDataSource;
 import org.objectweb.carol.util.configuration.ConfigurationException;
 import org.objectweb.carol.util.configuration.ConfigurationRepository;
+import org.objectweb.jotm.Current;
 import org.objectweb.jotm.Jotm;
 
 /**
@@ -70,6 +71,17 @@ public class TransactionManager {
      */
     public Transaction getTransaction() {
         return new Transaction(jotm.getUserTransaction());
+    }
+
+    /**
+     * Set the transaction timeout in seconds.
+     * 
+     * @param transactionTimeout
+     *            An <code>Integer</code> timeout.
+     */
+    public void setTransactionTimeout(final Integer transactionTimeout) {
+        ((Current) jotm.getTransactionManager()).setDefaultTimeout(
+                transactionTimeout.intValue());
     }
 
     /**

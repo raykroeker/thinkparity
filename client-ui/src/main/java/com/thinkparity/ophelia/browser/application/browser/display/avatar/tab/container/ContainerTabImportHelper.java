@@ -10,8 +10,10 @@ import java.io.File;
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.swing.dnd.TxUtils;
+
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.document.DocumentConstraints;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -27,6 +29,9 @@ public class ContainerTabImportHelper {
     /** The application. */
     private final Browser browser;
 
+    /** An instance of <code>DocumentConstraints</code>. */
+    private final DocumentConstraints documentConstraints;
+
     /** The model. */
     private final ContainerTabModel model;
 
@@ -37,6 +42,7 @@ public class ContainerTabImportHelper {
         super();
         this.model = model;
         this.browser = browser;
+        this.documentConstraints = DocumentConstraints.getInstance();
     }
 
     /**
@@ -86,6 +92,14 @@ public class ContainerTabImportHelper {
             browser.displayErrorDialog("ErrorCreatePackageIsFolder");
             return;
         }
+
+        // Check if the user is trying to import a file with file
+        // name too long. If so, report an error and stop.
+        if (containsFileNameTooLong(transferableFiles)) {
+            browser.displayErrorDialog("ErrorCreatePackageFileNameTooLong",
+                    new Object[] {getMaxDocumentNameLength()});
+            return;
+        }
         
         // Create a container and add documents.
         if (0 < transferableFiles.size()) {
@@ -113,6 +127,14 @@ public class ContainerTabImportHelper {
             return;
         }
 
+        // Check if the user is trying to import a file with file
+        // name too long. If so, report an error and stop.
+        if (containsFileNameTooLong(transferableFiles)) {
+            browser.displayErrorDialog("ErrorAddDocumentFileNameTooLong",
+                    new Object[] {getMaxDocumentNameLength()});
+            return;
+        }
+
         // Add and/or update documents to the container.
         if (0 < transferableFiles.size()) {
             showPanel(container.getId());
@@ -135,6 +157,32 @@ public class ContainerTabImportHelper {
             }
         }
         return Boolean.FALSE;
+    }
+
+    /**
+     * Determine if the list of files includes a file name that is too long.
+     * 
+     * @param files
+     *            A list of <code>File</code>.
+     * @return true if the list of files includes a file name that is too long.
+     */
+    private Boolean containsFileNameTooLong(final List<File> files) {
+        final int maxLength = getMaxDocumentNameLength();
+        for (final File file : files) {
+            if (!file.isDirectory()  && file.getName().length() > maxLength) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * Get the maximum allowed document name length.
+     * 
+     * @return The <code>int</code> maximum allowed document name length.
+     */
+    private int getMaxDocumentNameLength() {
+        return documentConstraints.getDocumentName().getMaxLength();
     }
 
     /**

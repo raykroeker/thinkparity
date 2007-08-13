@@ -15,6 +15,7 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentConstraints;
 
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -37,6 +38,9 @@ public class AddDocument extends AbstractBrowserAction {
 	/** The browser application. */
 	private final Browser browser;
 
+    /** An instance of <code>DocumentConstraints</code>. */
+    private final DocumentConstraints documentConstraints;
+
 	/**
 	 * Create Document.
 	 * 
@@ -46,6 +50,7 @@ public class AddDocument extends AbstractBrowserAction {
 	public AddDocument(final Browser browser) {
 		super(ActionId.CONTAINER_ADD_DOCUMENT);
 		this.browser = browser;
+        this.documentConstraints = DocumentConstraints.getInstance();
 	}
 
 	/**
@@ -60,6 +65,14 @@ public class AddDocument extends AbstractBrowserAction {
             // prompt for files
             browser.runAddContainerDocuments(containerId);
         } else {
+            // Check if the user is trying to add a file with file
+            // name too long. If so, report an error and stop.
+            if (containsFileNameTooLong(files)) {
+                browser.displayErrorDialog("AddDocument.FileNameTooLong",
+                        new Object[] {getMaxDocumentNameLength()});
+                return;
+            }
+
             final ContainerModel containerModel = getContainerModel();
             // Ensure the container has a local draft.
             final Container container = containerModel.read(containerId);
@@ -140,6 +153,32 @@ public class AddDocument extends AbstractBrowserAction {
         } catch (final IOException iox) {
             throw translateError(iox);
         }
+    }
+
+    /**
+     * Determine if the list of files includes a file name that is too long.
+     * 
+     * @param files
+     *            An array of <code>File</code>.
+     * @return true if the list of files includes a file name that is too long.
+     */
+    private Boolean containsFileNameTooLong(final File[] files) {
+        final int maxLength = getMaxDocumentNameLength();
+        for (final File file : files) {
+            if (!file.isDirectory()  && file.getName().length() > maxLength) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * Get the maximum allowed document name length.
+     * 
+     * @return The <code>int</code> maximum allowed document name length.
+     */
+    private int getMaxDocumentNameLength() {
+        return documentConstraints.getDocumentName().getMaxLength();
     }
 
     /**

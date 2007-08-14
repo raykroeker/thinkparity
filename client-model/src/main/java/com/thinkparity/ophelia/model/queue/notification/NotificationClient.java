@@ -94,46 +94,70 @@ public final class NotificationClient extends Observable implements Runnable {
     }
 
     /**
+     * Connect the notification client.
+     * 
+     */
+    public void connect() {
+        this.reader = new NotificationReader(newMonitor(), session);
+        int openAttempt = 0;
+        while (true) {
+            try {
+                reader.open();
+                break;
+            } catch (final Throwable t) {
+                openAttempt++;
+                logger.logWarning(t,
+                        "Could not connect notification reader {0}/{1}.",
+                        openAttempt, MAX_OPEN_ATTEMPTS);
+                if (openAttempt > MAX_OPEN_ATTEMPTS) {
+                    throw new NotificationException("Could not connect notification reader.");
+                } else {
+                    try {
+                        Thread.sleep(750);
+                    } catch (final InterruptedException ix) {}
+                }
+            }
+        }
+    }
+
+    /**
      * @see java.lang.Runnable#run()
      *
      */
     public void run() {
-        this.reader = new NotificationReader(newMonitor(), session);
         while (run) {
-            int openAttempt = 0;
-            while (!reader.isOpen().booleanValue()) {
-                if (openAttempt < MAX_OPEN_ATTEMPTS) {
-                    try {
-                        reader.open();
-                    } catch (final Throwable t) {
-                        openAttempt++;
-                        logger.logWarning(t,
-                                "Could not open notification reader {0}/{1}.",
-                                openAttempt, MAX_OPEN_ATTEMPTS);
-                    }
+            if (isConnected()) {
+                /* allow for a single use notification override */
+                if (notify) {
+                    notify = Boolean.FALSE;
+                    setChanged();
+                    notifyPendingEvents();
                 } else {
-                    run = false;
-                    break;
-                }
-            }
-            /* allow for a single use notification override */
-            if (notify) {
-                notify = Boolean.FALSE;
-                setChanged();
-                notifyPendingEvents();
-            } else {
-                if (reader.isOpen().booleanValue()) {
                     reader.waitForNotification();
                     if (reader.didNotify()) {
                         setChanged();
                         notifyPendingEvents();
                     }
-                } else {
+                }
+            } else {
+                try {
+                    connect();
+                } catch (final NotificationException nx) {
+                    run = false;
                     setChanged();
                     notifyClientOffline();
                 }
             }
         }
+    }
+
+    /**
+     * Determine if the client is connected.
+     * 
+     * @return True if the reader is not null and is open.
+     */
+    private boolean isConnected() {
+        return null != reader && reader.isOpen().booleanValue(); 
     }
 
     /**

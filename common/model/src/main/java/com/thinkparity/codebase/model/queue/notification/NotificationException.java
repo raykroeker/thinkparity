@@ -18,7 +18,7 @@ public final class NotificationException extends RuntimeException {
      * @param message
      *            The exception message.
      */
-    NotificationException(final String message) {
+    public NotificationException(final String message) {
         super(message);
     }
     

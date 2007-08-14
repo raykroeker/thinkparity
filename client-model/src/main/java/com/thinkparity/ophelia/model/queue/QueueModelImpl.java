@@ -128,8 +128,10 @@ public final class QueueModelImpl extends Model<EventListener> implements
                 }
             }
         }
-        setNotificationClient(newNotificationClient());
-        newThread(getNotificationClient()).start();
+        final NotificationClient notificationClient = newNotificationClient();
+        notificationClient.connect();
+        setNotificationClient(notificationClient);
+        newThread(notificationClient).start();
     }
 
     /**

@@ -47,7 +47,7 @@ final class SocketFactoryImpl extends javax.net.SocketFactory {
         final List<Proxy> proxies = selectProxies(host);
         for (final Proxy proxy : proxies) {
             socket = new Socket(proxy);
-            socket.connect(addr);
+            socket.connect(addr, 750);
             SocketFactory.LOGGER.logInfo(
                     "Socket endpoint to {0}:{1} has been established via {2}.",
                     host, port, proxy);

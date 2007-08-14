@@ -616,6 +616,9 @@ public final class SessionModelImpl extends Model<SessionListener>
 
             throw ilx;
         } catch (final Throwable t) {
+            pushOfflineCode(OfflineCode.OFFLINE);
+            getSessionModel().notifySessionTerminated();
+
             throw panic(t);
         } finally {
             notifyProcessEnd(monitor);

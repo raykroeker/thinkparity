@@ -1106,12 +1106,14 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return A <code>String</code>.
      */
     private String getContainerAdditionalText(final Container container) {
-        if (!container.isLatest()) {
-            return localization.getString("ContainerMessageNotLatest",
-                    new Object[] {formatFuzzy(latestVersion.getCreatedOn())});
-        } else if (null != latestVersion) {
-            return localization.getString("ContainerMessagePublishDate",
-                    new Object[] {formatFuzzy(latestVersion.getCreatedOn())});
+        if (null != latestVersion) {
+            if (container.isLatest()) {
+                return localization.getString("ContainerMessagePublishDate",
+                        new Object[] {formatFuzzy(latestVersion.getCreatedOn())});
+            } else {
+                return localization.getString("ContainerMessageNotLatest",
+                        new Object[] {formatFuzzy(latestVersion.getCreatedOn())});
+            }
         } else {
             return "";
         }

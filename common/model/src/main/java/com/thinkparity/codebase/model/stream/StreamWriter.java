@@ -11,6 +11,7 @@ import java.net.SocketException;
 import com.thinkparity.codebase.model.util.http.HttpUtils;
 
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.ProtocolException;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 
@@ -136,10 +137,14 @@ public final class StreamWriter implements RequestEntity {
                             method.getStatusCode(), method.getStatusLine(),
                             "\n\t", method.getStatusText());
                 }
+            } catch (final ProtocolException px) {
+                utils.writeError(method);
+                throw new StreamException(Boolean.TRUE,
+                        "Could not upload stream.  {0}", px.getMessage());
             } catch (final SocketException sx) {
                 utils.writeError(method);
                 throw new StreamException(Boolean.TRUE,
-                        "Could not download stream.  {0}", sx.getMessage());
+                        "Could not upload stream.  {0}", sx.getMessage());
             } finally {
                 method.releaseConnection();
             }

@@ -11,6 +11,7 @@ import java.net.SocketException;
 import com.thinkparity.codebase.delegate.CancelException;
 import com.thinkparity.codebase.delegate.Cancelable;
 
+import org.apache.commons.httpclient.ProtocolException;
 import org.apache.commons.httpclient.methods.GetMethod;
 
 /**
@@ -146,6 +147,10 @@ public final class StreamReader implements Cancelable {
                             method.getStatusCode(), method.getStatusLine(),
                             "\n\t", method.getStatusText());
                 }
+            } catch (final ProtocolException px) {
+                utils.writeError(method);
+                throw new StreamException(Boolean.TRUE,
+                        "Could not download stream.  {0}", px.getMessage());
             } catch (final SocketException sx) {
                 utils.writeError(method);
                 throw new StreamException(Boolean.TRUE,

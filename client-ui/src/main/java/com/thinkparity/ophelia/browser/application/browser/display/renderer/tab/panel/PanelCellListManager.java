@@ -290,6 +290,7 @@ public class PanelCellListManager {
     private void iconJLabelMousePressed(final java.awt.event.MouseEvent e) {
         if (e.getSource().equals(firstJLabel)) {
             goFirst();
+            selectTopRow();
         } else if (e.getSource().equals(previousJLabel)) {
             goPrevious();
             selectTopRow();
@@ -298,6 +299,7 @@ public class PanelCellListManager {
             selectTopRow();
         } else if (e.getSource().equals(lastJLabel)) {
             goLast();
+            selectTopRow();
         }
     }
 

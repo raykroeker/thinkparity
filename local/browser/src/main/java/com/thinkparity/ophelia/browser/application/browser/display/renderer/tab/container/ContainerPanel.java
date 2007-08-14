@@ -811,6 +811,12 @@ public class ContainerPanel extends DefaultTabPanel {
                                     ContainerPanel.this.getHeight() / 2);
                     popupDelegate.showForContainer(container, getDraft());
                 } else {
+                    // if focus is on the east but the selection in the east is
+                    // row 0, move the focus to the west.
+                    if (PanelFocusHelper.Focus.EAST == PanelFocusHelper.getFocus() &&
+                            0 == eastListModel.getSelectedIndex()) {
+                        PanelFocusHelper.setFocus(PanelFocusHelper.Focus.WEST);
+                    }
                     if (PanelFocusHelper.Focus.EAST == PanelFocusHelper.getFocus()) {
                         if (!eastListModel.isSelectionEmpty()) {
                             final Cell cell = eastListModel.getSelectedCell();

@@ -4,6 +4,7 @@
  */
 package com.thinkparity.codebase.model.document;
 
+import com.thinkparity.codebase.constraint.IntegerConstraint;
 import com.thinkparity.codebase.constraint.StringConstraint;
 
 /**
@@ -27,8 +28,11 @@ public class DocumentConstraints {
         return INSTANCE;
     }
 
-    /** A document name <code>StringConstraint</code>. */
-    private final StringConstraint documentName;
+    /** A document name constraint. */
+    private final StringConstraint name;
+
+    /** A document size constraint. */
+    private final IntegerConstraint size;
 
     /**
      * Create DocumentConstraints.
@@ -36,11 +40,17 @@ public class DocumentConstraints {
      */
     private DocumentConstraints() {
         super();
-        this.documentName = new StringConstraint();
-        this.documentName.setMaxLength(64);
-        this.documentName.setMinLength(1);
-        this.documentName.setName("Document name");
-        this.documentName.setNullable(Boolean.FALSE);
+        this.name = new StringConstraint();
+        this.name.setMaxLength(64);
+        this.name.setMinLength(1);
+        this.name.setName("Document name");
+        this.name.setNullable(Boolean.FALSE);
+
+        this.size = new IntegerConstraint();
+        this.size.setMaxValue(Integer.MAX_VALUE);
+        this.size.setMinValue(1);
+        this.size.setName("Document size");
+        this.size.setNullable(Boolean.FALSE);
     }
 
     /**
@@ -49,6 +59,15 @@ public class DocumentConstraints {
      * @return A <code>StringConstraint</code>.
      */
     public StringConstraint getDocumentName() {
-        return documentName;
+        return name;
+    }
+
+    /**
+     * Obtain the size constraint.
+     * 
+     * @return A <code>IntegerConstraint</code>.
+     */
+    public IntegerConstraint getSize() {
+        return size;
     }
 }

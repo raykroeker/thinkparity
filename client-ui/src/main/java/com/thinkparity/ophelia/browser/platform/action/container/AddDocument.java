@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.thinkparity.codebase.BytesFormat;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.container.Container;
@@ -41,6 +42,9 @@ public class AddDocument extends AbstractBrowserAction {
     /** An instance of <code>DocumentConstraints</code>. */
     private final DocumentConstraints documentConstraints;
 
+    /** A bytes format. */
+    private final BytesFormat bytesFormat;
+
 	/**
 	 * Create Document.
 	 * 
@@ -50,6 +54,7 @@ public class AddDocument extends AbstractBrowserAction {
 	public AddDocument(final Browser browser) {
 		super(ActionId.CONTAINER_ADD_DOCUMENT);
 		this.browser = browser;
+		this.bytesFormat = new BytesFormat();
         this.documentConstraints = DocumentConstraints.getInstance();
 	}
 
@@ -70,6 +75,12 @@ public class AddDocument extends AbstractBrowserAction {
             if (containsFileNameTooLong(files)) {
                 browser.displayErrorDialog("AddDocument.FileNameTooLong",
                         new Object[] {getMaxDocumentNameLength()});
+                return;
+            }
+            // check file size
+            if (containsFileTooLarge(files)) {
+                browser.displayErrorDialog("AddDocument.FileSizeTooLarge",
+                        new Object[] { bytesFormat.format(getMaxSize()) });
                 return;
             }
 
@@ -173,12 +184,41 @@ public class AddDocument extends AbstractBrowserAction {
     }
 
     /**
+     * Determine if any of the files are too large.
+     * 
+     * @param files
+     *            A <code>File[]</code>.
+     * @return True if any of the files are too large.
+     */
+    private boolean containsFileTooLarge(final File[] files) {
+        final int maxSize = getMaxSize().intValue();
+        int intSize;
+        for (final File file : files) {
+            /* the cast can cause a negative result */
+            intSize = (int) file.length();
+            if (0 > intSize || maxSize < intSize) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Get the maximum allowed document name length.
      * 
      * @return The <code>int</code> maximum allowed document name length.
      */
     private int getMaxDocumentNameLength() {
         return documentConstraints.getDocumentName().getMaxLength();
+    }
+
+    /**
+     * Obtain the document maximum size.
+     * 
+     * @return An <code>Integer</code>.
+     */
+    private Integer getMaxSize() {
+        return documentConstraints.getSize().getMaxValue();
     }
 
     /**

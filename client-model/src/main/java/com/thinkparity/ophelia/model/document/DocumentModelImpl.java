@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.constraint.IllegalValueException;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.io.StreamOpener;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -30,6 +31,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.artifact.ArtifactVersionFlag;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentConstraints;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
@@ -111,6 +113,7 @@ public final class DocumentModelImpl extends
     public Document create(final String name, final InputStream content) {
         try {
             assertIsSetCredentials();
+            validateName(name);
             // create
             final Document document = create(UUIDGenerator.nextUUID(), name,
                     content, localUserId(), currentDateTime());
@@ -538,8 +541,8 @@ public final class DocumentModelImpl extends
         } catch (final Throwable t) {
             throw panic(t);
         }
-    }        
-        
+    }
+
     /**
      * Print a document version.
      * 
@@ -572,8 +575,8 @@ public final class DocumentModelImpl extends
         } catch (final Throwable t) {
             throw panic(t);
         }
-    }
-
+    }        
+        
     /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#read()
      *
@@ -668,8 +671,6 @@ public final class DocumentModelImpl extends
         }
     }
 
-    
-
     /**
 	 * Obtain the latest document version.
 	 * 
@@ -690,6 +691,8 @@ public final class DocumentModelImpl extends
             throw panic(t);
 		}
 	}
+
+    
 
     /**
      * Read a document version.
@@ -759,7 +762,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#release(com.thinkparity.codebase.model.document.Document)
      *
      */
@@ -771,7 +774,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#remove(com.thinkparity.codebase.model.document.DocumentLock,
      *      java.lang.Long)
      * 
@@ -848,7 +851,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#updateDraft(com.thinkparity.ophelia.model.document.DocumentFileLock,
      *      java.lang.Long, java.io.InputStream)
      * 
@@ -874,7 +877,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.document.DocumentModel#updateDraft(java.lang.Long,
      *      java.io.InputStream)
      * 
@@ -914,7 +917,7 @@ public final class DocumentModelImpl extends
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
@@ -928,7 +931,7 @@ public final class DocumentModelImpl extends
                     "Cannot create directory {0}.", localFilesDirectory);
     }
 
-    /**
+	/**
      * Obtain the document persistence io.
      * 
      * @return A <code>DocumentIOHandler</code>.
@@ -953,7 +956,7 @@ public final class DocumentModelImpl extends
                 assertArguments);
     }
 
-	/**
+    /**
      * Assert that the document's draft is modified.
      * 
      * @param documentId
@@ -970,7 +973,7 @@ public final class DocumentModelImpl extends
                 assertArguments);
     }
 
-    /**
+	/**
      * Assert that the document's draft is modified.
      * 
      * @param documentId
@@ -1012,6 +1015,14 @@ public final class DocumentModelImpl extends
             streamToChannel(content, lock.getFileChannel(0L));
         } finally {
             release(lock);
+        }
+        try {
+            validateSize(lock.getFile().length());
+        } catch (final IllegalValueException ivx) {
+            logger.logWarning(ivx, "Illegal document size.");
+            Assert.assertTrue(lock.getFile().delete(),
+                    "Could not delete invalid file {0}.", lock.getFile());
+            throw ivx;
         }
         Assert.assertTrue(lock.getFile().setLastModified(
                 createdOn.getTimeInMillis()),
@@ -1396,6 +1407,30 @@ public final class DocumentModelImpl extends
         Assert.assertTrue(lock.getFile().renameTo(renameToFile),
                 "Could not rename file from {0} to {1}.", lock.getFile(),
                 renameToFile);
+    }
+
+    /**
+     * Validate a document name.
+     * 
+     * @param name
+     *            A name <code>String</code>.
+     */
+    private void validateName(final String name) {
+        final DocumentConstraints constraints = DocumentConstraints.getInstance();
+        constraints.getDocumentName().validate(name);
+    }
+
+    /**
+     * Validate a document size.
+     * 
+     * @param size
+     *            A size <code>Long</code>.
+     */
+    private void validateSize(final Long size) {
+        /* TODO - DocumentModelImpl#validateSize - fix the transaction manager
+         * implementation to allow binary streams with long sizes */
+        final DocumentConstraints constraints = DocumentConstraints.getInstance();
+        constraints.getSize().validate(size.intValue());
     }
 
     /**

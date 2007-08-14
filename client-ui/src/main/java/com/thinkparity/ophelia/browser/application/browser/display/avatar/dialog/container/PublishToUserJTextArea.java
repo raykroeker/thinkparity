@@ -4,6 +4,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
+import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -92,6 +93,7 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
         this.publishToUserPopupDelegate = new PublishToUserPopupDelegate();
         initEmailDelimiters();
         addDocumentListener();
+        adjustTabBehavior();
     }
 
     /**
@@ -105,12 +107,10 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
     public List<Contact> extractContacts() {
         final List<String> participants = extractParticipants();
         final List<Contact> extractedContacts = new ArrayList<Contact>();
-        if (null != participants) {
-            for (final String participant : participants) {
-                final Contact contact = getContact(contactsNotOnTeam, participant.trim());
-                if (null != contact && !extractedContacts.contains(contact)) {
-                    extractedContacts.add(contact);
-                }
+        for (final String participant : participants) {
+            final Contact contact = getContact(contactsNotOnTeam, participant.trim());
+            if (null != contact && !extractedContacts.contains(contact)) {
+                extractedContacts.add(contact);
             }
         }
         return extractedContacts;
@@ -128,19 +128,17 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
     public List<EMail> extractEMails() {
         final List<String> participants = extractParticipants();
         final List<EMail> extractedEMails = new ArrayList<EMail>();
-        if (null != participants) {
-            for (final String participant : participants) {
-                if (isEMail(participant)) {
-                    final EMail email = convertEMailAddressToEMail(participant.trim());
-                    if (null != email &&
-                            !extractedEMails.contains(email) &&
-                            null == getContact(contactsNotOnTeam, email) &&
-                            null == getContact(contactsOnTeam, email)) {
-                        extractedEMails.add(email);
-                    }
+        for (final String participant : participants) {
+            if (isEMail(participant)) {
+                final EMail email = convertEMailAddressToEMail(participant.trim());
+                if (null != email &&
+                        !extractedEMails.contains(email) &&
+                        null == getContact(contactsNotOnTeam, email) &&
+                        null == getContact(contactsOnTeam, email)) {
+                    extractedEMails.add(email);
                 }
-                
             }
+            
         }
         return extractedEMails;
     }
@@ -155,12 +153,10 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
     public List<TeamMember> extractTeamMembers() {
         final List<String> participants = extractParticipants();
         final List<TeamMember> extractedTeamMembers = new ArrayList<TeamMember>();
-        if (null != participants) {
-            for (final String participant : participants) {
-                final TeamMember teamMember = getTeamMember(teamMembers, contactsOnTeam, participant.trim());
-                if (null != teamMember && !extractedTeamMembers.contains(teamMember)) {
-                    extractedTeamMembers.add(teamMember);
-                }
+        for (final String participant : participants) {
+            final TeamMember teamMember = getTeamMember(teamMembers, contactsOnTeam, participant.trim());
+            if (null != teamMember && !extractedTeamMembers.contains(teamMember)) {
+                extractedTeamMembers.add(teamMember);
             }
         }
         return extractedTeamMembers;
@@ -279,6 +275,15 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
     }
 
     /**
+     * Modify tab behavior so it moves to the next control.
+     */
+    private void adjustTabBehavior() {
+        // Reset the text area to use the default tab keys.
+        setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
+        setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
+    }
+
+    /**
      * Convert a contact that is also a team member to a team member.
      * 
      * @param contact
@@ -321,15 +326,13 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
     private List<String> extractInvalidEMails() {
         final List<String> participants = extractParticipants();
         final List<String> extractedInvalidEMails = new ArrayList<String>();
-        if (null != participants) {
-            for (final String participant : participants) {
-                if (isEMail(participant)) {
-                    final String address = participant.trim();
-                    final EMail email = convertEMailAddressToEMail(address);
-                    if (null == email &&
-                            !extractedInvalidEMails.contains(address)) {
-                        extractedInvalidEMails.add(address);
-                    }
+        for (final String participant : participants) {
+            if (isEMail(participant)) {
+                final String address = participant.trim();
+                final EMail email = convertEMailAddressToEMail(address);
+                if (null == email &&
+                        !extractedInvalidEMails.contains(address)) {
+                    extractedInvalidEMails.add(address);
                 }
             }
         }
@@ -384,15 +387,13 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
     private List<String> extractUnknownNames() {
         final List<String> participants = extractParticipants();
         final List<String> extractedUnknownNames = new ArrayList<String>();
-        if (null != participants) {
-            for (final String participant : participants) {
-                if (!isEMail(participant)) {
-                    final String name = participant.trim();
-                    if (!extractedUnknownNames.contains(name) &&
-                            null == getContact(contactsNotOnTeam, name) &&
-                            null == getContact(contactsOnTeam, name)) {
-                        extractedUnknownNames.add(name);
-                    }
+        for (final String participant : participants) {
+            if (!isEMail(participant)) {
+                final String name = participant.trim();
+                if (!extractedUnknownNames.contains(name) &&
+                        null == getContact(contactsNotOnTeam, name) &&
+                        null == getContact(contactsOnTeam, name)) {
+                    extractedUnknownNames.add(name);
                 }
             }
         }

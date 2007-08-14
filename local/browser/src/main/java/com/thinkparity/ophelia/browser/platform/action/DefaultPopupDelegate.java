@@ -230,7 +230,9 @@ public class DefaultPopupDelegate implements PopupDelegate {
                 // Handle the enter key as a special case.
                 // Simply forwarding VK_ENTER to the menu does not work when the menu
                 // does not have focus; instead, call doClick() on the armed JMenuItem.
-                if (KeyEvent.KEY_TYPED == e.getID() && KeyEvent.VK_ENTER == e.getKeyChar()) {
+                // Tab key behaves the same.
+                if (KeyEvent.KEY_TYPED == e.getID() &&
+                        (KeyEvent.VK_ENTER == e.getKeyChar() || KeyEvent.VK_TAB == e.getKeyChar())) {
                     final Component[] components = jPopupMenu.getComponents();
                     for (final Component component : components) {
                         if (component instanceof JMenuItem) {

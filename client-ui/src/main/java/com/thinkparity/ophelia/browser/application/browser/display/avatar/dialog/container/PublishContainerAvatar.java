@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialo
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -14,6 +16,7 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.KeyStroke;
 import javax.swing.text.AbstractDocument;
 
 import com.thinkparity.codebase.FuzzyDateFormat;
@@ -100,7 +103,7 @@ public final class PublishContainerAvatar extends Avatar implements
         getPublishToUserControl().setLocalization(localization);
         initComponents();
         addValidationListener(publishToUserJTextArea);
-        bindEscapeKey();
+        bindKeys();
         teamMembersJScrollPane.getViewport().setOpaque(false);
     }
 
@@ -247,12 +250,18 @@ public final class PublishContainerAvatar extends Avatar implements
     }
 
     /**
-     * Make the escape key behave like cancel.
+     * Bind keys to actions.
      */
-    private void bindEscapeKey() {
+    private void bindKeys() {
         bindEscapeKey("Cancel", new AbstractAction() {
             public void actionPerformed(final ActionEvent e) {
                 cancelJButtonActionPerformed(e);
+            }
+        });
+        bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,
+                InputEvent.CTRL_DOWN_MASK), new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                publishJButtonActionPerformed(e);
             }
         });
     }

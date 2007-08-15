@@ -391,8 +391,8 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
             if (!isEMail(participant)) {
                 final String name = participant.trim();
                 if (!extractedUnknownNames.contains(name) &&
-                        null == getContact(contactsNotOnTeam, name) &&
-                        null == getContact(contactsOnTeam, name)) {
+                        null == getTeamMember(teamMembers, contactsOnTeam, name) &&
+                        null == getContact(contactsNotOnTeam, name)) {
                     extractedUnknownNames.add(name);
                 }
             }

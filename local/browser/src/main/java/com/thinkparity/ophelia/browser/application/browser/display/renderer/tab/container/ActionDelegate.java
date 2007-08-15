@@ -21,7 +21,37 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 public interface ActionDelegate {
 
     /**
-     * Invoke the action for a container.
+     * Invoke the delete action for a container.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    public void invokeDeleteForContainer(final Container container);
+
+    /**
+     * Invoke the delete action for a draft document.
+     * 
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param document
+     *            A <code>Document</code>.
+     */
+    public void invokeDeleteForDocument(final ContainerDraft draft,
+            final Document document);
+
+    /**
+     * Invoke the delete action for a draft.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     */
+    public void invokeDeleteForDraft(final Container container,
+            final ContainerDraft draft);
+
+    /**
+     * Invoke the default action for a container.
      * 
      * @param container
      *            A <code>Container</code>.
@@ -29,7 +59,7 @@ public interface ActionDelegate {
     public void invokeForContainer(final Container container);
 
     /**
-     * Invoke the action for a draft document.
+     * Invoke the default action for a draft document.
      * 
      * @param draft
      *            A <code>ContainerDraft</code>.
@@ -40,7 +70,7 @@ public interface ActionDelegate {
             final Document document);
 
     /**
-     * Invoke the action for a document version.
+     * Invoke the default action for a document version.
      * 
      * @param version
      *            A <code>DocumentVersion</code>.
@@ -51,7 +81,7 @@ public interface ActionDelegate {
             final Delta delta);
 
     /**
-     * Invoke the action for a draft.
+     * Invoke the default action for a draft.
      * 
      * @param draft
      *            A <code>ContainerDraft</code>.
@@ -59,7 +89,7 @@ public interface ActionDelegate {
     public void invokeForDraft(final ContainerDraft draft);
 
     /**
-     * Invoke the action for a user.
+     * Invoke the default action for a user.
      * 
      * @param user
      *            A <code>User</code>.
@@ -67,7 +97,7 @@ public interface ActionDelegate {
     public void invokeForUser(final User user);
 
     /**
-     * Invoke the action for a container version.
+     * Invoke the default action for a container version.
      * 
      * @param version
      *            A <code>ContainerVersion</code>.

@@ -45,16 +45,27 @@ public interface Cell {
 
     /**
      * Invoke the default action for the cell.
-     * 
      */
     public void invokeAction();
- 
+
+    /**
+     * Invoke the delete action for the cell.
+     */
+    public void invokeDeleteAction();
+
     /**
      * Determine whether or not an action is available for the cell.
      * 
      * @return True if an action is available.
      */
     public Boolean isActionAvailable();
+
+    /**
+     * Determine whether or not a delete action is available for the cell.
+     * 
+     * @return True if a delete action is available.
+     */
+    public Boolean isDeleteActionAvailable();
 
     /**
      * Determine whether or not a cell should be emphasized (eg bold).

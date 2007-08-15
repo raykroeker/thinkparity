@@ -861,6 +861,11 @@ public class ContainerPanel extends DefaultTabPanel {
             bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_END, 0));
             bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0));
             bindKeyStrokeToLists(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0));
+            bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), new AbstractAction() {
+                public void actionPerformed(final ActionEvent e) {
+                    invokeDeleteAction();
+                }
+            });
         } else {
             unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0));
             unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0));
@@ -868,6 +873,7 @@ public class ContainerPanel extends DefaultTabPanel {
             unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_END, 0));
             unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0));
             unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0));
+            unbindKey(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
         }
     }
 
@@ -922,6 +928,30 @@ public class ContainerPanel extends DefaultTabPanel {
                     final Cell cell = westListModel.getSelectedCell();
                     if (cell.isActionAvailable()) {
                         cell.invokeAction();
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Invoke the delete action on the selected object.
+     */
+    private void invokeDeleteAction() {
+        if (isExpanded()) {
+            // delete document
+            if (PanelFocusHelper.Focus.EAST == PanelFocusHelper.getFocus()) {
+                if (!eastListModel.isSelectionEmpty()) {
+                    final Cell cell = eastListModel.getSelectedCell();
+                    if (cell.isDeleteActionAvailable()) {
+                        cell.invokeDeleteAction();
+                    }
+                }
+            } else {
+                if (!westListModel.isSelectionEmpty()) {
+                    final Cell cell = westListModel.getSelectedCell();
+                    if (cell.isDeleteActionAvailable()) {
+                        cell.invokeDeleteAction();
                     }
                 }
             }
@@ -1736,10 +1766,10 @@ public class ContainerPanel extends DefaultTabPanel {
             super(Boolean.TRUE);
             if (!isDistributed()) {
                 participantsTitleJLabel.setText(localization.getString("participantsJLabel"));
-                participantsJLabel.setText(twoBlankPrefix(localization.getString("notApplicable")));
+                participantsJLabel.setText(prefixBlanks(localization.getString("notApplicable"), 2));
             } else if (!container.isLatest()) {
                 participantsTitleJLabel.setText(localization.getString("notLatestVersionLeft"));
-                participantsJLabel.setText(oneBlankPrefix(localization.getString("notLatestVersionRight")));
+                participantsJLabel.setText(prefixBlanks(localization.getString("notLatestVersionRight"), 1));
             } else {
                 participantsTitleJLabel.setText(localization.getString("participantsJLabel"));
                 participantsJLabel.setText(MessageFormat.format("  {0}", team.size()));
@@ -1751,7 +1781,7 @@ public class ContainerPanel extends DefaultTabPanel {
                 documentsJLabel.setText(MessageFormat.format("  {0}",
                         countActiveDocuments(documentViews.get(latestVersion))));
             } else {
-                documentsJLabel.setText(twoBlankPrefix(localization.getString("notApplicable")));
+                documentsJLabel.setText(prefixBlanks(localization.getString("notApplicable"), 2));
             }
             versionsJLabel.setText(MessageFormat.format("  {0}", versions.size()));
         }
@@ -1774,7 +1804,15 @@ public class ContainerPanel extends DefaultTabPanel {
             actionDelegate.invokeForContainer(container);
         }
         @Override
+        public void invokeDeleteAction() {
+            actionDelegate.invokeDeleteForContainer(container);
+        }
+        @Override
         public Boolean isActionAvailable() {
+            return Boolean.TRUE;
+        }
+        @Override
+        public Boolean isDeleteActionAvailable() {
             return Boolean.TRUE;
         }
         @Override
@@ -1801,13 +1839,12 @@ public class ContainerPanel extends DefaultTabPanel {
             }
             return count;
         }
-        private String oneBlankPrefix(final String text) {
-            final StringBuffer result = new StringBuffer(" ").append(text);
-            return result.toString();
-        }
-        private String twoBlankPrefix(final String text) {
-            final StringBuffer result = new StringBuffer("  ").append(text);
-            return result.toString();
+        private String prefixBlanks(final String text, final int numBlanks) {
+            final StringBuffer result = new StringBuffer(" ");
+            for (int index = 1; index < numBlanks; index++) {
+                result.append(" ");
+            }
+            return result.append(text).toString();
         }
     }
 
@@ -1844,7 +1881,15 @@ public class ContainerPanel extends DefaultTabPanel {
             actionDelegate.invokeForDraft(getDraft());
         }
         @Override
+        public void invokeDeleteAction() {
+            actionDelegate.invokeDeleteForDraft(container, getDraft());
+        }
+        @Override
         public Boolean isActionAvailable() {
+            return Boolean.TRUE;
+        }
+        @Override
+        public Boolean isDeleteActionAvailable() {
             return Boolean.TRUE;
         }
         @Override
@@ -1886,7 +1931,15 @@ public class ContainerPanel extends DefaultTabPanel {
             actionDelegate.invokeForDocument(getDraft(), document);
         }
         @Override
+        public void invokeDeleteAction() {
+            actionDelegate.invokeDeleteForDocument(getDraft(), document);
+        }
+        @Override
         public Boolean isActionAvailable() {
+            return (getDraft().getState(document) != ArtifactState.REMOVED);
+        }
+        @Override
+        public Boolean isDeleteActionAvailable() {
             return (getDraft().getState(document) != ArtifactState.REMOVED);
         }
         @Override

@@ -78,11 +78,12 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
      */
     public void showForContainer(final Container container, final ContainerDraft draft) {
         final boolean online = isOnline();
+        final boolean distributed = isDistributed(container.getId());
         boolean needSeparator = false;
 
         // create draft
         if (null == draft
-                && ((online && container.isLatest()) || !isDistributed(container.getId()))) {
+                && ((online && container.isLatest()) || !distributed)) {
             final Data createDraftData = new Data(1);
             createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_CREATE_DRAFT, createDraftData, container);  
@@ -108,7 +109,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         }
 
         // delete draft
-        if (isLocalDraft(draft) && (online || !isDistributed(container.getId()))) {
+        if (isLocalDraft(draft) && (online || !distributed)) {
             final Data deleteData = new Data(1);
             deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
             add(ActionId.CONTAINER_DELETE_DRAFT, deleteData);
@@ -134,7 +135,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         needSeparator = true;
 
         // Rename container
-        if (!isDistributed(container.getId())) {
+        if (!distributed) {
             final Data renameData = new Data(1);
             renameData.set(Rename.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_RENAME, renameData, container);
@@ -143,7 +144,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
 
         // delete
         // This menu is shown if online, or if it has never been published.
-        if (online || !isDistributed(container.getId())) {
+        if (online || !distributed) {
             final Data deleteData = new Data(1);
             deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_DELETE, deleteData, container);
@@ -151,7 +152,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         }
 
         // audit report
-        if (isDistributed(container.getId())) {
+        if (distributed) {
             if (needSeparator) {
                 addSeparator();
             }
@@ -162,7 +163,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         }
 
         // export
-        if (isDistributed(container.getId())) {
+        if (distributed) {
             final Data exportData = new Data(1);
             exportData.set(Export.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_EXPORT, exportData, container);

@@ -5,7 +5,9 @@ package com.thinkparity.ophelia.model.help;
 
 import java.util.List;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityConcurrency;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.util.concurrent.Lock;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
@@ -18,10 +20,12 @@ import com.thinkparity.codebase.model.util.jta.TransactionType;
 @ThinkParityTransaction(TransactionType.NEVER)
 public interface HelpModel {
 
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public HelpContent readContent(final Long id);
 
     public HelpTopic readTopic(final Long id);
 
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<HelpTopic> readTopics();
 
     public List<Long> searchTopics(final String expression);

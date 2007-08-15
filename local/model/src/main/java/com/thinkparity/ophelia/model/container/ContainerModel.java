@@ -12,6 +12,7 @@ import java.util.Map;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.filter.Filter;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityConcurrency;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -25,6 +26,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.util.concurrent.Lock;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.annotation.ThinkParityOnline;
@@ -179,6 +181,7 @@ public interface ContainerModel {
      *            A container id <code>Long</code>.
      * @return True if the container has been distributed.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public Boolean isDistributed(final Long containerId);
 
     /**
@@ -188,6 +191,7 @@ public interface ContainerModel {
      *            A container id <code>Long</code>.
      * @return True if the draft is modified.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public Boolean isLocalDraftModified(final Long containerId);
 
     /**
@@ -300,6 +304,7 @@ public interface ContainerModel {
      * 
      * @return A list of containers.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
 	public List<Container> read();
 
     /**
@@ -309,6 +314,7 @@ public interface ContainerModel {
      *            A sort ordering to user.
      * @return A list of containers.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<Container> read(final Comparator<Artifact> comparator);
 
     /**
@@ -320,6 +326,7 @@ public interface ContainerModel {
      *            A filter to apply.
      * @return A list of containers.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<Container> read(final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter);
 
@@ -330,6 +337,7 @@ public interface ContainerModel {
      *            A filter to apply.
      * @return A list of containers.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<Container> read(final Filter<? super Artifact> filter);
 
     /**
@@ -526,6 +534,7 @@ public interface ContainerModel {
      *            A version id <code>Long</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId);
 
@@ -540,6 +549,7 @@ public interface ContainerModel {
      *            A <code>Comparator&lt;User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId, final Comparator<ArtifactReceipt> comparator);
 
@@ -556,6 +566,7 @@ public interface ContainerModel {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId, final Comparator<ArtifactReceipt> comparator,
             final Filter<? super ArtifactReceipt> filter);
@@ -571,6 +582,7 @@ public interface ContainerModel {
      *            A <code>Filter&lt;? super User&gt;</code>.
      * @return A <code>List&lt;User&gt;</code>.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<ArtifactReceipt> readPublishedTo(final Long containerId,
             final Long versionId, final Filter<? super ArtifactReceipt> filter);
 
@@ -583,6 +595,7 @@ public interface ContainerModel {
      *            A version id <code>Long</code>.
      * @return A <code>List<PublishedToEMail></code>.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<PublishedToEMail> readPublishedToEMails(final Long containerId,
             final Long versionId);
 
@@ -602,6 +615,7 @@ public interface ContainerModel {
      *            A container id.
      * @return A list of users.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<TeamMember> readTeam(final Long containerId);
 
     /**
@@ -623,6 +637,7 @@ public interface ContainerModel {
      *            A container id.
      * @return A list of versions.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<ContainerVersion> readVersions(final Long containerId);
 
     /**
@@ -634,6 +649,7 @@ public interface ContainerModel {
      *            A container version comparator.
      * @return A list of versions.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<ContainerVersion> readVersions(final Long containerId,
             final Comparator<ArtifactVersion> comparator);
 
@@ -648,6 +664,7 @@ public interface ContainerModel {
      *            A container version filter.
      * @return A list of versions.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<ContainerVersion> readVersions(final Long containerId,
             final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter);
@@ -662,6 +679,7 @@ public interface ContainerModel {
      * 
      * @return A list of versions.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<ContainerVersion> readVersions(final Long containerId,
             final Filter<? super ArtifactVersion> filter);
 

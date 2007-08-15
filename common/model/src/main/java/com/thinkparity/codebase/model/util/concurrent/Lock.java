@@ -10,4 +10,4 @@ package com.thinkparity.codebase.model.util.concurrent;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public enum Lock { EXCLUSIVE, NONE }
+public enum Lock { EXCLUSIVE, NONE, LOCAL_READ }

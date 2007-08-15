@@ -10,11 +10,13 @@ import java.util.UUID;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityConcurrency;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.concurrent.Lock;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftCreatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
@@ -119,6 +121,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      *            An artifact id.
      * @return True if the artifact version exists.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public Boolean doesVersionExist(final Long artifactId);
 
 	/**
@@ -245,6 +248,7 @@ public interface InternalArtifactModel extends ArtifactModel {
      *            An artifact <code>Filter</code>.
      * @return A <code>TeamMember</code> <code>List</code>.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<TeamMember> readTeam(final Long artifactId,
             final Comparator<? super User> comparator,
             final Filter<? super User> filter);

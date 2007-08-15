@@ -11,12 +11,14 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityConcurrency;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
+import com.thinkparity.codebase.model.util.concurrent.Lock;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.annotation.ThinkParityOnline;
@@ -142,6 +144,7 @@ public interface ContactModel {
      *            A contact id <code>Long</code>.
      * @return True if the contact exists; false otherwise.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public Boolean doesExist(final Long contactId);
 
     /**
@@ -151,6 +154,7 @@ public interface ContactModel {
      *            A user id <code>Long</code>.
      * @return True if there exists an outgoing user invitation for the user.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public Boolean doesExistOutgoingUserInvitationForUser(final Long userId);
 
     /**
@@ -158,6 +162,7 @@ public interface ContactModel {
      * 
      * @return A list of contacts.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<Contact> read();
 
     /**
@@ -167,6 +172,7 @@ public interface ContactModel {
      *            A contact comparator to sort the contacts.
      * @return A list of contacts.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<Contact> read(final Comparator<Contact> comparator);
 
     /**
@@ -178,6 +184,7 @@ public interface ContactModel {
      *            A contact filter to scope the contacts.
      * @return A list of contacts.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<Contact> read(final Comparator<Contact> comparator,
             final Filter<? super Contact> filter);
 
@@ -206,6 +213,7 @@ public interface ContactModel {
      *            A contact jabber id.
      * @return A contact.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public Contact read(final JabberId contactId);
 
     /**
@@ -215,11 +223,18 @@ public interface ContactModel {
      */
     public List<Contact> readContainerPublishTo();
 
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public IncomingEMailInvitation readIncomingEMailInvitation(
             final Long invitationId);
+
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<IncomingEMailInvitation> readIncomingEMailInvitations();
+
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public IncomingUserInvitation readIncomingUserInvitation(
             final Long invitationId);
+
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<IncomingUserInvitation> readIncomingUserInvitations();
 
     /**
@@ -229,6 +244,7 @@ public interface ContactModel {
      *            An invitation id.
      * @return An outgoing invitation.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public OutgoingEMailInvitation readOutgoingEMailInvitation(
             final Long invitationId);
 
@@ -237,6 +253,7 @@ public interface ContactModel {
      * 
      * @return A list of outgoing invitations.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<OutgoingEMailInvitation> readOutgoingEMailInvitations();
 
     /**
@@ -246,6 +263,7 @@ public interface ContactModel {
      *            An invitation id.
      * @return An outgoing user invitation.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public OutgoingUserInvitation readOutgoingUserInvitation(
             final Long invitationId);
 
@@ -255,6 +273,7 @@ public interface ContactModel {
      * 
      * @return A list of outgoing invitations.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<OutgoingUserInvitation> readOutgoingUserInvitations();
 
     /**

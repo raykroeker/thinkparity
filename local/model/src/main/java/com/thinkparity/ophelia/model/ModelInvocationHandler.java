@@ -105,6 +105,9 @@ final class ModelInvocationHandler implements InvocationHandler {
             LOGGER.logInfo("Locking workspace.");
             lock = workspace;
             break;
+        case LOCAL_READ:
+            lock = new Object();
+            break;
         case NONE:
             lock = new Object();
             break;

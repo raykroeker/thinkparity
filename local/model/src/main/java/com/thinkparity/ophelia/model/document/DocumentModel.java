@@ -5,9 +5,11 @@ package com.thinkparity.ophelia.model.document;
 
 import java.io.InputStream;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityConcurrency;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.util.concurrent.Lock;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.events.DocumentListener;
@@ -63,6 +65,7 @@ public interface DocumentModel {
      *            The document id.
      * @return True if the draft of the document has been modified.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public Boolean isDraftModified(final Long documentId);
 
 	/**

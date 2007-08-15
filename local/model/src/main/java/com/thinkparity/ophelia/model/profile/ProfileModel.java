@@ -8,6 +8,7 @@ import java.util.List;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityConcurrency;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.EMailReservation;
@@ -18,6 +19,7 @@ import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.concurrent.Lock;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.annotation.ThinkParityOnline;
@@ -104,6 +106,7 @@ public interface ProfileModel {
      * 
      * @return A profile.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public Profile read();
 
     /**

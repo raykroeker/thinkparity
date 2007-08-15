@@ -5,8 +5,10 @@ package com.thinkparity.ophelia.model.user;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityConcurrency;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.concurrent.Lock;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 /**
@@ -35,5 +37,6 @@ public interface UserModel {
      *      The user's jabber id.
      * @return The user.
      */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public User read(final JabberId jabberId);
 }

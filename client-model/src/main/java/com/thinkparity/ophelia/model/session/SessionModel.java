@@ -3,9 +3,11 @@
  */
 package com.thinkparity.ophelia.model.session;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityConcurrency;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.session.InvalidLocationException;
+import com.thinkparity.codebase.model.util.concurrent.Lock;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.events.SessionListener;
@@ -52,6 +54,7 @@ public interface SessionModel {
      * @return True if the session is online; false otherwise.
      */
     @ThinkParityTransaction(TransactionType.SUPPORTED)
+    @ThinkParityConcurrency(Lock.NONE)
     public Boolean isOnline();
 
     /**

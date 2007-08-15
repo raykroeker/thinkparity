@@ -82,8 +82,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         boolean needSeparator = false;
 
         // create draft
-        if (null == draft
-                && ((online && container.isLatest()) || !distributed)) {
+        if (null == draft && (online || !distributed)) {
             final Data createDraftData = new Data(1);
             createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_CREATE_DRAFT, createDraftData, container);  
@@ -409,7 +408,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         boolean needSeparator = false;
 
         // create draft
-        if (online && latestVersion && null == draft && container.isLatest()) {
+        if (online && latestVersion && null == draft) {
             final Data createDraftData = new Data(1);
             createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_CREATE_DRAFT, createDraftData, container);  

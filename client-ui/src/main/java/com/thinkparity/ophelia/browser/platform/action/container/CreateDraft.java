@@ -40,7 +40,12 @@ public class CreateDraft extends AbstractBrowserAction {
     public void invoke(final Data data) {
         final Long containerId = (Long) data.get(DataKey.CONTAINER_ID);
         try {
-            getContainerModel().createDraft(containerId);
+            if (!getContainerModel().read(containerId).isLatest()) {
+                browser.displayErrorDialog("CreateDraft.ErrorIllegalVersion",
+                        new Object[] {getContainerModel().read(containerId).getName()});
+            } else {
+                getContainerModel().createDraft(containerId);
+            }
         } catch (final DraftExistsException dex) {
             /* a draft already exists; a likely candidate for this error is that
              * another user started the draft creation milliseconds prior to

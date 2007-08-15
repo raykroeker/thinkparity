@@ -479,18 +479,6 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
-     * Assert that the xmpp service is online.
-     * 
-     * @param environment
-     *            A thinkParity <code>Environment</code>.
-     */
-    protected void assertServiceIsReachable(final Environment environment) {
-        Assert.assertTrue(environment.isServiceReachable(),
-                "Service environment {0}:{1} is not reachable.",
-                environment.getServiceHost(), environment.getServicePort());
-    }
-
-    /**
 	 * Assert that the state transition from currentState to newState can be
 	 * made safely.
 	 * 

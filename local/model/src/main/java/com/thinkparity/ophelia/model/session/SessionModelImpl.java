@@ -526,10 +526,8 @@ public final class SessionModelImpl extends Model<SessionListener>
     public void login(final Credentials credentials)
             throws InvalidCredentialsException {
         try {
-            if (!environment.isServiceReachable()) {
-                if (!isServerMaintenance()) {
-                    notifyServerMaintenance();
-                }
+            if (!isServerMaintenance()) {
+                notifyServerMaintenance();
                 return;
             }
 
@@ -556,13 +554,12 @@ public final class SessionModelImpl extends Model<SessionListener>
     public void login(final ProcessMonitor monitor)
             throws InvalidCredentialsException, InvalidLocationException {
         try {
-            if (isClientMaintenance())
+            if (isClientMaintenance()) {
                 return;
+            }
 
-            if (!environment.isServiceReachable()) {
-                if (!isServerMaintenance()) {
-                    notifyServerMaintenance();
-                }
+            if (!isServerMaintenance()) {
+                notifyServerMaintenance();
                 return;
             }
 
@@ -606,21 +603,28 @@ public final class SessionModelImpl extends Model<SessionListener>
                 throw new InvalidLocationException();
             }
         } catch (final InvalidCredentialsException icx) {
-            pushOfflineCode(OfflineCode.OFFLINE);
-            getSessionModel().notifySessionTerminated();
+            if (isOnline()) {
+                pushOfflineCode(OfflineCode.OFFLINE);
+                getSessionModel().notifySessionTerminated();
+            }
 
             throw icx;
         } catch (final InvalidLocationException ilx) {
-            pushOfflineCode(OfflineCode.OFFLINE);
-            getSessionModel().notifySessionTerminated();
+            if (isOnline()) {
+                pushOfflineCode(OfflineCode.OFFLINE);
+                getSessionModel().notifySessionTerminated();
+            }
 
             throw ilx;
         } catch (final Throwable t) {
-            pushOfflineCode(OfflineCode.OFFLINE);
-            getSessionModel().notifySessionTerminated();
+            if (isOnline()) {
+                pushOfflineCode(OfflineCode.OFFLINE);
+                getSessionModel().notifySessionTerminated();
+            }
 
             throw panic(t);
         } finally {
+
             notifyProcessEnd(monitor);
         }
     }

@@ -3,7 +3,6 @@
  */
 package com.thinkparity.codebase.model.session;
 
-import com.thinkparity.codebase.NetworkUtil;
 
 /**
  * @author raymond@thinkparity.com
@@ -67,26 +66,6 @@ public enum Environment {
      */
     public Integer getServicePort() {
         return servicePort;
-    }
-
-    /**
-     * Determine whether or not all services within the environment are
-     * reachable.
-     * 
-     * @return True if the environment is reachable; false otherwise.
-     */
-    public Boolean isReachable() {
-        return isServiceReachable();
-    }
-
-    /**
-     * Determine whether or not the xmpp service within the environment is
-     * reachable.
-     * 
-     * @return True if it is reachable.
-     */
-    public Boolean isServiceReachable() {
-        return NetworkUtil.isTargetReachable(serviceHost, servicePort);
     }
 
     /**

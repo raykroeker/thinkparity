@@ -6,7 +6,6 @@ package com.thinkparity.ophelia;
 import java.io.File;
 import java.util.List;
 
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 import com.thinkparity.codebase.junitx.TestException;
@@ -210,19 +209,6 @@ public class OpheliaTestUser extends User {
     }
 
     /**
-     * Assert that the environment is online.
-     * 
-     * @param assertion
-     *            An assertion.
-     * @param environment
-     *            An environment.
-     */
-    protected void assertIsReachable(final Environment environment) {
-        Assert.assertTrue(environment.isReachable(),
-                "Environment {0} is not reachable.", environment.name());
-    }
-
-    /**
      * Initialize the test user. We login (via the session model); download all
      * contacts and read our profile then logout.
      * 
@@ -254,7 +240,6 @@ public class OpheliaTestUser extends User {
      * 
      */
     private void processOfflineQueue() throws InvalidCredentialsException {
-        assertIsReachable(environment);
         final ServiceFactory factory = ServiceFactory.getInstance();
         final SessionService sessionService = factory.getSessionService();
         final AuthToken authToken = sessionService.login(credentials);

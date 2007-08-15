@@ -75,12 +75,14 @@ public final class PublishContainerAvatar extends Avatar implements
     private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
     private final javax.swing.JButton publishJButton = ButtonFactory.create();
     private final javax.swing.JProgressBar publishJProgressBar = new javax.swing.JProgressBar();
+    private final javax.swing.JLabel publishToUserJLabel = new javax.swing.JLabel();
     private final javax.swing.JScrollPane publishToUserJScrollPane = new javax.swing.JScrollPane();
     private final javax.swing.JTextArea publishToUserJTextArea = new PublishToUserJTextArea(this);
     private final javax.swing.JLabel statusJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel teamMembersJLabel = new javax.swing.JLabel();
     private final javax.swing.JList teamMembersJList = new javax.swing.JList();
     private final javax.swing.JScrollPane teamMembersJScrollPane = new javax.swing.JScrollPane();
+    private final javax.swing.JLabel versionNameJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField versionNameJTextField = TextFactory.create();
     // End of variables declaration//GEN-END:variables
 
@@ -324,6 +326,8 @@ public final class PublishContainerAvatar extends Avatar implements
     private void enableTextEntry(final Boolean enable) {
         setEditable(publishToUserJTextArea, enable);
         setEditable(versionNameJTextField, enable && PublishType.PUBLISH == getInputPublishType());
+        publishToUserJScrollPane.setOpaque(enable.booleanValue());
+        publishToUserJScrollPane.getViewport().setOpaque(enable.booleanValue());
     }
 
     /**
@@ -416,9 +420,6 @@ public final class PublishContainerAvatar extends Avatar implements
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JLabel versionNameJLabel = new javax.swing.JLabel();
-        final javax.swing.JSeparator versionNameJSeparator = new javax.swing.JSeparator();
-        final javax.swing.JLabel publishToUserJLabel = new javax.swing.JLabel();
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
         versionNameJLabel.setFont(Fonts.DialogFont);
@@ -549,18 +550,10 @@ public final class PublishContainerAvatar extends Avatar implements
                     .add(layout.createSequentialGroup()
                         .addContainerGap()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(versionNameJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
-                                .add(250, 250, 250))
-                            .add(versionNameJSeparator, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, teamMembersJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                                 .add(16, 16, 16)
                                 .add(teamMembersJScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
-                                .add(16, 16, 16))
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                                .add(16, 16, 16)
-                                .add(versionNameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
                                 .add(16, 16, 16))))
                     .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
                         .add(26, 26, 26)
@@ -570,6 +563,14 @@ public final class PublishContainerAvatar extends Avatar implements
                                 .add(publishToUserJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 328, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 16, Short.MAX_VALUE)))))
                 .addContainerGap())
+            .add(layout.createSequentialGroup()
+                .add(26, 26, 26)
+                .add(versionNameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+                .add(26, 26, 26))
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(versionNameJLabel)
+                .addContainerGap(302, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -578,12 +579,10 @@ public final class PublishContainerAvatar extends Avatar implements
                 .add(versionNameJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(versionNameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(14, 14, 14)
-                .add(versionNameJSeparator, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(15, 15, 15)
                 .add(teamMembersJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(teamMembersJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 69, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(teamMembersJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 72, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(publishToUserJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -594,6 +593,45 @@ public final class PublishContainerAvatar extends Avatar implements
                 .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Initialize the components adjusting the vertical group
+     * so that the space used is appropriate for the number of
+     * team members.
+     * 
+     * @param numTeamMembers
+     *            The <code>int</code> number of team members.
+     */
+    private void initComponentsAdjustVerticalSize(final int numTeamMembers) {
+        int teamMembersVerticalSize = 72;
+        if (4 > numTeamMembers) {
+            teamMembersVerticalSize -= (4 - numTeamMembers) * 18;
+        }
+        // NOTE This is ugly but I haven't thought of a better way.
+        // This code should match the setVerticalGroup logic in initComponents()
+        // but with the preferred size of the teamMembersJScrollPane changed.
+        org.jdesktop.layout.GroupLayout layout = (org.jdesktop.layout.GroupLayout)getLayout();
+        layout.setVerticalGroup(
+                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                    .add(27, 27, 27)
+                    .add(versionNameJLabel)
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(versionNameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(15, 15, 15)
+                    .add(teamMembersJLabel)
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(teamMembersJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, teamMembersVerticalSize, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(publishToUserJLabel)
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(publishToUserJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 48, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(27, 27, 27)
+                    .add(buttonBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(progressBarJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            );
+    }
 
     /**
      * Determine whether or not the user is a version recipient. The user can be
@@ -802,6 +840,9 @@ public final class PublishContainerAvatar extends Avatar implements
                         teamMember, Boolean.FALSE));
             }
         }
+
+        // adjust the size of the control
+        initComponentsAdjustVerticalSize(teamMembers.size());
 
         // if there are no team members then hide the team member list
         final boolean showTeamList = (PublishTypeSpecific.PUBLISH_FIRST_TIME != publishType &&

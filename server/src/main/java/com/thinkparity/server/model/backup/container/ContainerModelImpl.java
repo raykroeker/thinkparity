@@ -652,17 +652,9 @@ public final class ContainerModelImpl extends
                     return o1.getUser().getLocalId().compareTo(o2.getUser().getLocalId());
                 }
             });
-            // remote duplicate users
-            ArtifactReceipt previousReceipt = null, receipt = null;
-            for (final Iterator<ArtifactReceipt> iPublishedTo =
-                publishedTo.iterator(); iPublishedTo.hasNext();) {
-                receipt = iPublishedTo.next();
-                if (null != previousReceipt
-                        && previousReceipt.getUser().equals(receipt.getUser())) {
-                    iPublishedTo.remove();
-                }
-                previousReceipt = receipt;
-            }
+            /* NOTE - ContainerModelImpl#readPublishedTo(Long,Long,Comparator<ArtifactReceipt>,Filter<ArtifactReceipt>) -
+             * a deliberate non-filtering here; to get all data when
+             * restoring */ 
             FilterManager.filter(publishedTo, filter);
             ModelSorter.sortReceipts(publishedTo, comparator);
             return publishedTo;
@@ -959,8 +951,8 @@ public final class ContainerModelImpl extends
      *            A <code>ContainerPublishedEvent</code>.
      * @return A <code>Container</code>.
      */
-    Container handleResolution(final UUID uniqueId, final JabberId publishedBy,
-            final Calendar publishedOn, final String name) {
+    Container handleResolution(final UUID uniqueId, final JabberId createdBy,
+            final Calendar createdOn, final String name) {
         // determine the existance of the container and the version.
         final InternalArtifactModel artifactModel = modelFactory.getArtifactModel();
         final boolean doesExist = artifactModel.doesExist(uniqueId).booleanValue();
@@ -969,11 +961,11 @@ public final class ContainerModelImpl extends
             container = read(artifactModel.readId(uniqueId));
         } else {
             // ensure the published by user exists locally
-            modelFactory.getUserModel().readLazyCreate(publishedBy);
+            modelFactory.getUserModel().readLazyCreate(createdBy);
     
             container = new Container();
-            container.setCreatedBy(publishedBy);
-            container.setCreatedOn(publishedOn);
+            container.setCreatedBy(createdBy);
+            container.setCreatedOn(createdOn);
             container.setName(name);
             container.setState(ArtifactState.ACTIVE);
             container.setType(ArtifactType.CONTAINER);

@@ -126,6 +126,10 @@ public final class StreamUtils {
      */
     void writeError(final HttpMethod method) throws IOException {
         final InputStream errorStream = method.getResponseBodyAsStream();
-        StreamUtil.copy(errorStream, System.err);
+        try {
+            StreamUtil.copy(errorStream, System.err);
+        } catch (final Exception x) {
+            LOGGER.logWarning(x, "Could not write response error.");
+        }
     }
 }

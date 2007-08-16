@@ -526,7 +526,7 @@ public final class SessionModelImpl extends Model<SessionListener>
     public void login(final Credentials credentials)
             throws InvalidCredentialsException {
         try {
-            if (!isServerMaintenance()) {
+            if (isServerMaintenance()) {
                 notifyServerMaintenance();
                 return;
             }
@@ -558,7 +558,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return;
             }
 
-            if (!isServerMaintenance()) {
+            if (isServerMaintenance()) {
                 notifyServerMaintenance();
                 return;
             }

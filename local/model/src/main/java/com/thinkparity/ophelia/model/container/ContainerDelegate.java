@@ -177,10 +177,10 @@ public abstract class ContainerDelegate extends
      * 
      */
     protected final Container handleResolution(final UUID uniqueId,
-            final JabberId publishedBy, final Calendar publishedOn,
+            final JabberId createdBy, final Calendar createdOn,
             final String name) {
-        return modelImplementation.handleResolution(uniqueId, publishedBy,
-                publishedOn, name);
+        return modelImplementation.handleResolution(uniqueId, createdBy,
+                createdOn, name);
     }
 
     /**

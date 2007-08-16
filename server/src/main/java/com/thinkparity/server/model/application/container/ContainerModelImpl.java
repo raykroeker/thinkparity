@@ -181,7 +181,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         try {
             // enqueue container version published events
             enqueueContainerVersionPublished(version, documentVersions,
-                    receivedBy, publishToUsers);
+                    receivedBy, publishedOn, publishToUsers);
 
             // add new team members as required
             handleTeamResolution(version, publishToUsers);
@@ -500,7 +500,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     private void enqueueContainerVersionPublished(
             final ContainerVersion version,
             final List<DocumentVersion> documentVersions,
-            final List<ArtifactReceipt> receivedBy,
+            final List<ArtifactReceipt> receivedBy, final Calendar publishedOn,
             final List<User> publishToUsers) {
         final Artifact localArtifact = localize(version);
         final Long latestVersionId = readLatestVersionId(localArtifact);
@@ -509,7 +509,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         event.setDocumentVersions(documentVersions);
         event.setLatestVersion(latestVersionId.equals(version.getVersionId()));
         event.setPublishedBy(user.getId());
-        event.setPublishedOn(version.getCreatedOn());
+        event.setPublishedOn(publishedOn);
         event.setPublishedTo(localize(publishToUsers));
         event.setReceivedBy(receivedBy);
         event.setTeam(getArtifactModel().readTeam(localArtifact.getId()));

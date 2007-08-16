@@ -19,6 +19,7 @@ import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.model.profile.ReservationExpiredException;
+import com.thinkparity.ophelia.model.session.OfflineException;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
@@ -173,10 +174,12 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
     private void createProfile() {
         try {
             getSignupHelper().createProfile();
+        } catch (final OfflineException ox) {
+            addInputError(getSharedString("ErrorOffline"));
         } catch (final ReservationExpiredException rex) {
             addInputError(getString("ErrorReservationExpired"));
         } catch (final Throwable t) {
-            addInputError(getString("ErrorCreateAccount"));
+            addInputError(getSharedString("ErrorUnexpected"));
         }
     }
 

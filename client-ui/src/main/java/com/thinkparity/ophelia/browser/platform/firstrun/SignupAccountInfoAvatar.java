@@ -32,6 +32,8 @@ import com.thinkparity.codebase.model.profile.ProfileConstraints;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 
+import com.thinkparity.ophelia.model.session.OfflineException;
+
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -68,6 +70,9 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
 
     /** The country <code>DefaultComboBoxModel</code>. */
     private final DefaultComboBoxModel securityQuestionModel;
+
+    /** The temporary error <code>String</code>. */
+    private String temporaryError;
 
     /** The most recent unacceptable <code>EMail</code> address. */
     private EMail unacceptableEMail;
@@ -276,27 +281,34 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         final EMail email = extractEMail();
         if (!isReserved(username) || !isReserved(email)) {
             SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
-            final UsernameReservation usernameReservation;
-            final EMailReservation emailReservation;
+            UsernameReservation usernameReservation = null;
+            EMailReservation emailReservation = null;
             try {
                 errorMessageJLabel.setText(getString("CheckingUsername"));
                 errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel
                         .getWidth(), errorMessageJLabel.getHeight());
+
+                // get username reservation
                 usernameReservation = createUsernameReservation(username);
+                if (null == usernameReservation) {
+                    unacceptableUsername = username;
+                } else {
+                    usernameReservations.put(username.toLowerCase(), usernameReservation);
+                }
+
+                // get email reservation
                 emailReservation = createEMailReservation(email);
+                if (null == emailReservation) {
+                    unacceptableEMail = email;
+                } else {
+                    emailReservations.put(email, emailReservation);
+                }
+            } catch (final OfflineException ox) {
+                temporaryError = getSharedString("ErrorOffline");
+            } catch (final Throwable t) {
+                temporaryError = getSharedString("ErrorUnexpected");
             } finally {
                 SwingUtil.setCursor(this, null);
-            }
-
-            if (null == usernameReservation) {
-                unacceptableUsername = username;
-            } else {
-                usernameReservations.put(username.toLowerCase(), usernameReservation);
-            }
-            if (null == emailReservation) {
-                unacceptableEMail = email;
-            } else {
-                emailReservations.put(email, emailReservation);
             }
             validateInput();
         }
@@ -777,7 +789,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
             }
         }
         if (null != emailAddress && null != unacceptableEMail
-                && emailAddress.equals(unacceptableEMail.toString())) {
+                && emailAddress.equalsIgnoreCase(unacceptableEMail.toString())) {
             addInputError(getString("ErrorEMailTaken"));
         }
 
@@ -813,12 +825,22 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
             addInputError(Separator.Space.toString());
         }
 
+        // enable or disable next button based on errors, but note that
+        // temporary errors do not disable the next button
+        if (isSignupDelegateInitialized()) {
+            signupDelegate.enableNextButton(!containsInputErrors());
+        }
+
+        // show temporary errors once
+        if (null != temporaryError) {
+            addInputError(temporaryError);
+            temporaryError = null;
+        }
+
+        // display error message
         errorMessageJLabel.setText(" ");
         if (containsInputErrors()) {
             errorMessageJLabel.setText(getInputErrors().get(0));
-        }
-        if (isSignupDelegateInitialized()) {
-            signupDelegate.enableNextButton(!containsInputErrors());
         }
     }
 }

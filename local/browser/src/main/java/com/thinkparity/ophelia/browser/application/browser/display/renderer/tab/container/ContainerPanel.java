@@ -1168,7 +1168,7 @@ public class ContainerPanel extends DefaultTabPanel {
      * @return A <code>String</code>.
      */
     private String getContainerDraftOwnerText(final Container container) {
-        if (isSetDraft()) {
+        if (container.isLatest() && isSetDraft()) {
             return getDraft().getOwner().getName();
         } else {
             return null;

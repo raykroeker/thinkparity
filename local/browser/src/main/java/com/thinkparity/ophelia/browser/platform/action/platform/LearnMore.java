@@ -38,8 +38,7 @@ public class LearnMore extends AbstractAction {
 
     static {
         BETA_LINK = "contactUs";
-        // TODO Fix the privacy link
-        PRIVACY_LINK = "pricing";
+        PRIVACY_LINK = "privacy";
         SECURITY_LINK = "solutions/index.php#security";
         SIGNUP_LINK = "pricing";
     }

@@ -112,7 +112,7 @@ public class AddDocument extends AbstractBrowserAction {
                 // allow the cpu to catch-up between documents
                 Thread.yield();
             }
-            
+
             // Update documents
             final ContainerDraft containerDraft = getContainerModel().readDraft(containerId);
             for (final File file : updateFileList) {
@@ -120,9 +120,12 @@ public class AddDocument extends AbstractBrowserAction {
                 boolean update = true;
                 if (ContainerDraft.ArtifactState.ADDED == containerDraft.getState(document)) {
                     update = browser.confirm("ConfirmOverwriteAddedDocument", new Object[] { file.getName() });
-                } else if (ContainerDraft.ArtifactState.REMOVED != containerDraft.getState(document) &&
-                        getDocumentModel().isDraftModified(document.getId())) {
-                    update = browser.confirm("ConfirmOverwriteModifiedDocument", new Object[] { file.getName() });                    
+                } else if (ContainerDraft.ArtifactState.REMOVED == containerDraft.getState(document)) {
+                    update = true;
+                } else if (getDocumentModel().isDraftModified(document.getId())) {
+                    update = browser.confirm("ConfirmOverwriteModifiedDocument", new Object[] { file.getName() });
+                } else {
+                    update = browser.confirm("ConfirmOverwriteUnchangedDocument", new Object[] { file.getName() });
                 }
 
                 // Update the document. If necessary, undelete the document first.

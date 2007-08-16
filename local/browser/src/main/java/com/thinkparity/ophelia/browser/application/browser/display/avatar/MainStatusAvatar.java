@@ -232,10 +232,14 @@ public class MainStatusAvatar extends Avatar {
      * @return A localized string.
      */
     protected String getString(final OfflineCode offlineCode) {
-        final String key = new StringBuilder("CXN.")
-            .append(offlineCode.name())
-            .toString();
-        return getString(key);
+        if (null == offlineCode) {
+            return null;
+        } else {
+            final String key = new StringBuilder("CXN.")
+                .append(offlineCode.name())
+                .toString();
+            return getString(key);
+        }
     }
 
     /**

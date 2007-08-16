@@ -35,7 +35,7 @@
         <fo:simple-page-master master-name="simpleA4" page-height="29.7cm" page-width="21cm" margin-top="0cm" margin-bottom="0cm" margin-left="0cm" margin-right="0cm">
           <fo:region-body margin-top="4cm" margin-bottom="2cm" margin-left="2cm" margin-right="3cm"/>
           <fo:region-before extent="4cm"/>
-          <fo:region-after extent="1.1cm"/>
+          <fo:region-after extent="1cm"/>
         </fo:simple-page-master>
       </fo:layout-master-set>
       <fo:page-sequence master-reference="simpleA4">

@@ -225,7 +225,15 @@ public class Publish extends AbstractBrowserAction {
 		}
         @Override
         public Object run() {
-            if (containerModel.isPublishRestricted(emails, contacts, teamMembers)) {
+            Boolean publishRestricted;
+            try {
+                publishRestricted = containerModel.isPublishRestricted(emails, contacts, teamMembers);
+            } catch (final OfflineException ox) {
+                monitor.reset();
+                monitor.setError("ErrorOffline");
+                return null;
+            }
+            if (publishRestricted) {
                 monitor.reset();
                 monitor.setError("ErrorNoUsersToPublish");
                 return null;

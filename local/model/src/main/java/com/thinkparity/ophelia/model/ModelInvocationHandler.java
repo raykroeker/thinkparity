@@ -20,9 +20,7 @@ import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
-import com.thinkparity.codebase.model.annotation.ThinkParityConcurrency;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
-import com.thinkparity.codebase.model.util.concurrent.Lock;
 import com.thinkparity.codebase.model.util.jta.Transaction;
 import com.thinkparity.codebase.model.util.jta.TransactionContext;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
@@ -99,22 +97,7 @@ final class ModelInvocationHandler implements InvocationHandler {
             for (int i = 0; i < args.length; i++)
                 LOGGER.logDebug("args[{0}]:{1}", i, args[i]);
         }
-        final Object lock;
-        switch (extractConcurrency(method)) {
-        case EXCLUSIVE:
-            LOGGER.logInfo("Locking workspace.");
-            lock = workspace;
-            break;
-        case LOCAL_READ:
-            lock = new Object();
-            break;
-        case NONE:
-            lock = new Object();
-            break;
-        default:
-            throw Assert.createUnreachable("Undefined concurrency definition.");
-        }
-        synchronized (lock) {
+        synchronized (workspace) {
             final Transaction transaction = workspace.getTransaction();
             final TransactionContext transactionContext = newXAContext(method);
             beginXA(transaction, transactionContext);
@@ -253,26 +236,6 @@ final class ModelInvocationHandler implements InvocationHandler {
                 XA_LOGGER.logFatal("Unknown transaction type.");
                 Assert.assertUnreachable("Unknown transaction type.");
             }
-        }
-    }
-
-    /**
-     * Obtain the concurrency definition on the api. If there is no definition;
-     * use an exclusive lock.
-     * 
-     * @param method
-     *            A <code>Method</code>.
-     * @return A <code>Lock</code>.
-     */
-    private Lock extractConcurrency(final Method method) {
-        ThinkParityConcurrency concurrency = method.getAnnotation(ThinkParityConcurrency.class);
-        if (null == concurrency) {
-            concurrency = method.getDeclaringClass().getAnnotation(ThinkParityConcurrency.class);
-        }
-        if (null == concurrency) {
-            return Lock.EXCLUSIVE;
-        } else {
-            return concurrency.value();
         }
     }
 

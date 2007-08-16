@@ -77,7 +77,7 @@ public final class NotifyPanel extends SystemPanel {
      * Close notifications.
      * 
      * @param notificationId
-     *            A notification id <code>String</code>.
+     *            A notification id or group id <code>String</code>.
      */
     void close(final String notificationId) {
         int index;
@@ -143,13 +143,15 @@ public final class NotifyPanel extends SystemPanel {
      * Obtain the index of the notification within the list.
      * 
      * @param notificationId
-     *            A notification id <code>String</code>.
+     *            A notification id or group id <code>String</code>.
      * @return An <code>int</code> index or -1 if the notification does not
      *         exist.
      */
     private int indexOf(final String notificationId) {
         for (int i = 0; i < NOTIFICATIONS.size(); i++) {
             if (NOTIFICATIONS.get(i).getId().equals(notificationId)) {
+                return i;
+            } else if (NOTIFICATIONS.get(i).getGroupId().equals(notificationId)) {
                 return i;
             }
         }

@@ -73,6 +73,19 @@ public class Delete extends AbstractBrowserAction {
     }
 
     /**
+     * Clear notifications.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     */
+    private void clearNotifications(final Long containerId) {
+        final Data data = new Data(2);
+        data.set(ClearNotifications.DataKey.ALL_VERSIONS, Boolean.TRUE);
+        data.set(ClearNotifications.DataKey.CONTAINER_ID, containerId);
+        invoke(ActionId.CONTAINER_CLEAR_NOTIFICATIONS, data);
+    }
+
+    /**
      * Invoke delete.
      * 
      * @param container
@@ -80,6 +93,7 @@ public class Delete extends AbstractBrowserAction {
      */
     private void invoke(final Container container) {
         this.container = container;
+        clearNotifications(container.getId());
         try {
             getContainerModel().delete(container.getId());
         } catch (final CannotLockException clx) {

@@ -76,6 +76,17 @@ public final class SystemApplication extends AbstractApplication {
      * 
      * @param containerId
      *            A container id <code>Long</code>.
+     */
+    public void clearContainerNotifications(final Long containerId) {
+        impl.fireClearNotifications(newNotificationId(Container.class,
+                containerId));
+    }
+
+    /**
+     * Clear the container notifications for a version.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
      * @param versionId
      *            A version id <code>Long</code>.
      */
@@ -384,6 +395,10 @@ public final class SystemApplication extends AbstractApplication {
                 return e.getIncomingInvitation().getExtendedBy().getName();
             }
             @Override
+            public String getGroupId() {
+                return newNotificationId(ContactInvitation.class, id);
+            }
+            @Override
             public String getHeadingLine1() {
                 return getString("Notification.ContactIncomingInvitationCreated.HeadingLine1");
             }
@@ -443,6 +458,10 @@ public final class SystemApplication extends AbstractApplication {
                     return e.getContainer().getName();
                 }
                 @Override
+                public String getGroupId() {
+                    return newNotificationId(Container.class, containerId);
+                }
+                @Override
                 public String getHeadingLine1() {
                     return getString("Notification.ContainerPublishedFirstTime.HeadingLine1");
                 }
@@ -477,6 +496,10 @@ public final class SystemApplication extends AbstractApplication {
                 @Override
                 public String getContentLine2() {
                     return e.getContainer().getName();
+                }
+                @Override
+                public String getGroupId() {
+                    return newNotificationId(Container.class, containerId);
                 }
                 @Override
                 public String getHeadingLine1() {

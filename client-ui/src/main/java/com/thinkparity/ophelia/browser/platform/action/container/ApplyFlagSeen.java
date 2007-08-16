@@ -64,7 +64,8 @@ public class ApplyFlagSeen extends AbstractBrowserAction {
      *            A version id <code>Long</code>.
      */
     private void clearNotifications(final Long containerId, final Long versionId) {
-        final Data data = new Data(2);
+        final Data data = new Data(3);
+        data.set(ClearNotifications.DataKey.ALL_VERSIONS, Boolean.FALSE);
         data.set(ClearNotifications.DataKey.CONTAINER_ID, containerId);
         data.set(ClearNotifications.DataKey.VERSION_ID, versionId);
         invoke(ActionId.CONTAINER_CLEAR_NOTIFICATIONS, data);

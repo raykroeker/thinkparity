@@ -111,7 +111,7 @@ class SystemApplicationImpl extends Thread {
      * Fire a clear notification event.
      * 
      * @param notificationId
-     *            A notification id <code>String</code>.
+     *            A notification id or group id <code>String</code>.
      */
     void fireClearNotifications(final String notificationId) {
         synchronized (this) {

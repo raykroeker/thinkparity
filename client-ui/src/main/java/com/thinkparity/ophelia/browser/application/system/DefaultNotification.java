@@ -41,6 +41,13 @@ class DefaultNotification implements Notification {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#getGroupId()
+     */
+    public String getGroupId() {
+        return JVMUniqueId.nextId().toString();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#getHeadingLine1()
      *
      */

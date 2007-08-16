@@ -101,7 +101,7 @@ public class NotifyFrame extends SystemFrame {
      * Close notifications.
      * 
      * @param notificationId
-     *            A notification id <code>String</code>.
+     *            A notification id or group id <code>String</code>.
      */
     public static void close(final String notificationId) {
         if (isDisplayed()) {
@@ -141,7 +141,7 @@ public class NotifyFrame extends SystemFrame {
      * Close a notification.
      * 
      * @param notificationId
-     *            A notification id <code>String</code>.
+     *            A notification id or group id <code>String</code>.
      */
     private void doClose(final String notificationId) {
         panel.close(notificationId);

@@ -28,6 +28,13 @@ public interface Notification {
     String getContentLine2();
 
     /**
+     * Obtain the notification group id.
+     * 
+     * @return A notification group id <code>String</code>.
+     */
+    String getGroupId();
+
+    /**
      * Obtain the first line of the heading.
      * 
      * @return A heading <code>String</code>.

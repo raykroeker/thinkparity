@@ -119,6 +119,7 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
     @Override
     public void reload() {
         reloadProgressBar();
+        setVisibleButtons(Boolean.TRUE);
         validateInput();
     }
 
@@ -156,13 +157,11 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
      * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#setError(java.lang.String)
      */
     public void setError(final String errorMessageKey) {
-        if (errorMessageKey.equals("ErrorOffline")) {
-            errorMessageJLabel.setText(getSharedString(errorMessageKey));
-        } else {
-            errorMessageJLabel.setText(getString(errorMessageKey));
+        String message = getSharedString(errorMessageKey);
+        if (message.startsWith("!")) {
+            message = getString(errorMessageKey);
         }
-        setVisibleButtons(Boolean.TRUE);
-        reloadProgressBar();
+        errorMessageJLabel.setText(message);
     }
 
     /**
@@ -329,7 +328,9 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
      *            Visible <code>Boolean</code>.
      */
     private void setVisibleButtons(final Boolean visible) {
-        signupDelegate.setVisibleNextButton(visible);
-        signupDelegate.setVisibleCancelButton(visible);
+        if (isSignupDelegateInitialized()) {
+            signupDelegate.setVisibleNextButton(visible);
+            signupDelegate.setVisibleCancelButton(visible);
+        }
     }
 }

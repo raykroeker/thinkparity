@@ -68,6 +68,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
         setFeatures(features);
         saveData();
         SwingUtil.setCursor(this, null);
+        signupDelegate.enableNextButton(Boolean.TRUE);
         resetProgressBar();
         signupDelegate.setNextPage();
         synchronized (signupDelegate) {
@@ -165,11 +166,11 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
      * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginCredentialsDisplay#setError(java.lang.String)
      */
     public void setError(final String errorMessageKey) {
-        if (errorMessageKey.equals("ErrorOffline")) {
-            errorMessageJLabel.setText(getSharedString(errorMessageKey));
-        } else {
-            errorMessageJLabel.setText(getString(errorMessageKey));
+        String message = getSharedString(errorMessageKey);
+        if (message.startsWith("!")) {
+            message = getString(errorMessageKey);
         }
+        errorMessageJLabel.setText(message);
         SwingUtil.setCursor(this, null);
         signupDelegate.enableNextButton(Boolean.TRUE);
     }

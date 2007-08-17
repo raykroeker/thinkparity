@@ -42,6 +42,15 @@ public interface SignupDelegate {
     public Boolean isCancelled();
 
     /**
+     * Determine if this is the current page.
+     * 
+     * @param signupPage
+     *            A <code>SignupPage</code>.
+     * @return true if this is the current page.        
+     */
+    public Boolean isCurrentPage(final SignupPage signupPage);
+
+    /**
      * Set focus on the next button.
      */
     public void setFocusNextButton();

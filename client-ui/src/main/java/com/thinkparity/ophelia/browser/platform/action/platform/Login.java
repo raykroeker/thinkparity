@@ -114,12 +114,19 @@ public class Login extends AbstractAction {
                         workspace, credentials);
                 monitor.complete();
             } catch (final InvalidCredentialsException icx) {
+                action.logger.logError(icx, "An invalid credentials error has occurred in login.");
                 monitor.reset();
                 monitor.setError("ErrorInvalidCredentials");
                 return null;
             } catch (final OfflineException ox) {
+                action.logger.logError(ox, "An offline error has occurred in login.");
                 monitor.reset();
                 monitor.setError("ErrorOffline");
+                return null;
+            } catch (final Throwable t) {
+                action.logger.logError(t, "An unexpected error has occurred in login.");
+                monitor.reset();
+                monitor.setError("ErrorUnexpected");
                 return null;
             }
             return null;
@@ -213,7 +220,7 @@ public class Login extends AbstractAction {
 		public Runnable getErrorHandler(final Throwable t) {
 			return new Runnable() {
 				public void run() {
-				    action.logger.logError(t, "An error has occured for login.");
+				    action.logger.logError(t, "An error has occurred for login.");
 				}
 			};
 		}

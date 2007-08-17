@@ -114,6 +114,13 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate#isCurrentPage(com.thinkparity.ophelia.browser.platform.firstrun.SignupPage)
+     */
+    public Boolean isCurrentPage(final SignupPage signupPage) {
+        return signupPage.equals(currentPage);
+    }
+
+    /**
      * Register a page for the card layout in the signup avatar.
      * 
      * @param signupPage

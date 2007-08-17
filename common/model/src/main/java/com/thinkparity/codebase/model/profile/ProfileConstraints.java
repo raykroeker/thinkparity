@@ -7,6 +7,7 @@ import java.util.Calendar;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.constraint.*;
+import com.thinkparity.codebase.constraint.IllegalValueException.Reason;
 
 /**
  * <b>Title:</b>thinkParity CommonModel Profile Constraints<br>
@@ -170,7 +171,21 @@ public final class ProfileConstraints {
         this.language.setName("Language");
         this.language.setNullable(Boolean.FALSE);
 
-        this.name = new StringConstraint();
+        final char[] invalidChars = new char[] { '@', '(', ')' };
+        this.name = new StringConstraint() {
+            @Override
+            public void validate(final String value) {
+                super.validate(value);
+                final char[] valueChars = value.toCharArray();
+                for (final char valueChar : valueChars) {
+                    for (final char invalidChar : invalidChars) {
+                        if (valueChar == invalidChar) {
+                            invalidate(Reason.ILLEGAL, value);
+                        }
+                    }
+                }
+            }
+        };
         this.name.setMaxLength(64);
         this.name.setMinLength(1);
         this.name.setName("Name");

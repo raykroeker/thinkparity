@@ -91,7 +91,7 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
 
         SERVICE_HELPER = new ServiceHelper();
 
-        CHECK_ONLINE_TIMEOUT = 750;
+        CHECK_ONLINE_TIMEOUT = 750 * 3;
 
         CHECK_ONLINE_RETRY_ATTEMPTS = 3;
 

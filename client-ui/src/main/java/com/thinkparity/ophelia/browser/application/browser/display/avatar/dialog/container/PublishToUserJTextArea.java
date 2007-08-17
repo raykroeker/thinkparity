@@ -7,6 +7,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialo
 import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -435,13 +436,57 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
         if (isEMail(text)) {
             return getContact(contacts, convertEMailAddressToEMail(text));
         } else {
+            final Boolean longForm = isLongFormName(text);
             for (final Contact contact : contacts) {
-                if (contact.getName().equalsIgnoreCase(text)) {
+                final String displayName = getDisplayName(contact, longForm);
+                if (displayName.equalsIgnoreCase(text)) {
                     return contact;
                 }
             }
         }
         return null;
+    }
+
+    /**
+     * Get the display name (for display in the text area).
+     * 
+     * @param contact
+     *            A <code>Contact</code>.
+     * @param longForm
+     *            A <code>Boolean</code>, true to use long form.
+     * @return The display text <code>String</code>.
+     */
+    private String getDisplayName(final Contact contact,
+            final Boolean longForm) {
+        if (longForm) {
+            // avoid comma which is used to separate participants
+            return MessageFormat.format("{0} ({1} - {2})",
+                    contact.getName(), contact.getTitle(),
+                    contact.getOrganization());
+        } else {
+            return contact.getName();
+        }
+    }
+
+    /**
+     * Get the display name (for display in the text area).
+     * 
+     * @param teamMember
+     *            A <code>TeamMember</code>.
+     * @param longForm
+     *            A <code>Boolean</code>, true to use long form.
+     * @return The display text <code>String</code>.
+     */
+    private String getDisplayName(final TeamMember teamMember,
+            final Boolean longForm) {
+        if (longForm) {
+            // avoid comma which is used to separate participants
+            return MessageFormat.format("{0} ({1} - {2})",
+                    teamMember.getName(), teamMember.getTitle(),
+                    teamMember.getOrganization());
+        } else {
+            return teamMember.getName();
+        }
     }
 
     /**
@@ -579,8 +624,10 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
                 return convertContactToTeamMember(contact);
             }
         } else {
+            final Boolean longForm = isLongFormName(text);
             for (final TeamMember teamMember : teamMembers ) {
-                if (teamMember.getName().equalsIgnoreCase(text)) {
+                final String displayName = getDisplayName(teamMember, longForm);
+                if (displayName.equalsIgnoreCase(text)) {
                     return teamMember;
                 }
             }
@@ -615,7 +662,7 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
      * 
      * @param contact
      *            A <code>Contact</code>.
-     * @return A <code>boolean</code>, true if the contact has an activated email.  
+     * @return A <code>Boolean</code>, true if the contact has an activated email.  
      */
     private Boolean isActivatedEMail(final Contact contact) {
         return (0 < contact.getEmailsSize());
@@ -624,13 +671,27 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
     /**
      * Determine if the text represents an email.
      * It is considered an email if it contains a '@'.
+     * Note that a user's name is not allowed to have the '@' character.
      * 
      * @param text
      *            A text <code>String</code>.
-     * @return A <code>boolean</code>, true if the text is an email.   
+     * @return A <code>Boolean</code>, true if the text is an email.   
      */
     private Boolean isEMail(final String text) {
         return text.contains("@");
+    }
+
+    /**
+     * Determine if the text represents a long form name.
+     * It is considered a long form name if it contains '('.
+     * Note that a user's name is not allowed to have the '(' character.
+     * 
+     * @param text
+     *            A text <code>String</code>.
+     * @return A <code>Boolean</code>, true if the text is a long form name.   
+     */
+    private Boolean isLongFormName(final String text) {
+        return text.contains("(");
     }
 
     /**
@@ -640,9 +701,9 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
      *            A match text <code>String</code>.
      * @param text
      *            A text <code>String</code>.
-     * @return A <code>boolean</code>, true if there is a match.     
+     * @return A <code>Boolean</code>, true if there is a match.     
      */
-    private boolean isMatch(final String matchText, final String text) {
+    private Boolean isMatch(final String matchText, final String text) {
         if (text.length() >= matchText.length()) {
             final String clipText = text.substring(0, matchText.length());
             if (clipText.equalsIgnoreCase(matchText)) {
@@ -659,9 +720,9 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
      *            A match text <code>String</code>.
      * @param contact
      *            A <code>Contact</code>.
-     * @return A <code>boolean</code>, true if the contact is a match.     
+     * @return A <code>Boolean</code>, true if the contact is a match.     
      */
-    private boolean isMatchEMail(final String matchText, final Contact contact) {
+    private Boolean isMatchEMail(final String matchText, final Contact contact) {
         if (isActivatedEMail(contact)) {
             return isMatch(matchText, getEMailString(contact));
         }
@@ -676,9 +737,16 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
      *            A match text <code>String</code>.
      * @param fullName
      *            A name <code>String</code>.
-     * @return A <code>boolean</code>, true if there is a match.     
+     * @return A <code>Boolean</code>, true if there is a match.     
      */
-    private boolean isMatchName(final String matchText, final String fullName) {
+    private Boolean isMatchName(final String matchText, final String fullName) {
+        // check for match on full string first, so for example,
+        // "Brian Sm" should match "Brian Smith"
+        if (isMatch(matchText, fullName.trim())) {
+            return true;
+        }
+        // check for match on each substring, so for example,
+        // "Sm" should match the "Smith" of "Brian Smith"
         final List<String> names = StringUtil.tokenize(fullName, Separator.Space,
                 new ArrayList<String>());
         for (final String name : names) {
@@ -696,10 +764,54 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
      *            A match text <code>String</code>.
      * @param user
      *            A <code>User</code>.
-     * @return A <code>boolean</code>, true if the user is a match.     
+     * @return A <code>Boolean</code>, true if the user is a match.     
      */
-    private boolean isMatchName(final String matchText, final User user) {
+    private Boolean isMatchName(final String matchText, final User user) {
         return isMatchName(matchText, user.getName());
+    }
+
+    /**
+     * Determine if the short name for the contact is unique.
+     * 
+     * @param contact
+     *            A <code>Contact</code>.
+     * @return A <code>Boolean</code>, true if the short name is unique.   
+     */
+    private Boolean isShortNameUnique(final Contact contact) {
+        return isShortNameUnique(getDisplayName(contact, Boolean.FALSE));
+    }
+
+    /**
+     * Determine if the specified short name is unique.
+     * 
+     * @param shortName
+     *            A short name <code>String</code>.
+     * @return A <code>Boolean</code>, true if the short name is unique.   
+     */
+    private Boolean isShortNameUnique(final String shortName) {
+        int count = 0;
+        for (final TeamMember teamMember : teamMembers) {
+            if (getDisplayName(teamMember, Boolean.FALSE).equals(shortName)) {
+                count++;
+            }
+        }
+        for (final Contact contact : contactsNotOnTeam) {
+            if (getDisplayName(contact, Boolean.FALSE).equals(shortName)) {
+                count++;
+            }
+        }
+        return (count <= 1);
+    }
+
+    /**
+     * Determine if the short name for the team member is unique.
+     * 
+     * @param teamMember
+     *            A <code>TeamMember</code>.
+     * @return A <code>Boolean</code>, true if the short name is unique.   
+     */
+    private Boolean isShortNameUnique(final TeamMember teamMember) {
+        return isShortNameUnique(getDisplayName(teamMember, Boolean.FALSE));
     }
 
     /**
@@ -902,10 +1014,13 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
          * @return The display text <code>String</code>.
          */
         private String getDisplayText() {
+            final Boolean longForm;
             if (isSetContact()) {
-                return contact.getName();
+                longForm = !isShortNameUnique(contact);
+                return getDisplayName(contact, longForm);
             } else if (isSetTeamMember()) {
-                return teamMember.getName();
+                longForm = !isShortNameUnique(teamMember);
+                return getDisplayName(teamMember, longForm);
             } else {
                 Assert.assertUnreachable("Inconsistent publish to user state.");
             }

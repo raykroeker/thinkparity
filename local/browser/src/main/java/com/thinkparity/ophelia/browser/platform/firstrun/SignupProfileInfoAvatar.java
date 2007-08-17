@@ -127,8 +127,10 @@ public final class SignupProfileInfoAvatar extends DefaultSignupPage {
         super.validateInput();
         final Profile profile = extractProfile(); 
 
-        // check the name does not have an '@' character
-        if (null != profile.getName() && profile.getName().contains("@")) {
+        // check the name does not have an invalid character
+        final String name = profile.getName();
+        if (null != name &&
+                (name.contains("@") || name.contains("(") || name.contains(")"))) {
             addInputError(getString("ErrorNameHasInvalidChar"));
         }
 

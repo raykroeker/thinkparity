@@ -158,9 +158,10 @@ public class UpdateProfileAvatar extends Avatar {
             addInputError(getString("ErrorOffline"));
         }
 
-        // check the name does not have an '@' character
+        // check the name does not have an invalid character
         final String name = extractInputName();
-        if (null != name && name.contains("@")) {
+        if (null != name &&
+                (name.contains("@") || name.contains("(") || name.contains(")"))) {
             addInputError(getString("ErrorNameHasInvalidChar"));
         }
 

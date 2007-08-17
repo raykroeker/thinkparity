@@ -45,6 +45,19 @@ public interface InternalDocumentModel extends DocumentModel {
             final Long documentId) throws CannotLockException;
 
     /**
+     * Create an existing document version.
+     * 
+     * @param document
+     *            A <code>Document</code>.
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @param stream
+     *            An <code>InputStream</code>.
+     */
+    public void createVersion(final Document document,
+            final DocumentVersion version, final InputStream stream);
+
+    /**
      * Create a new document version based upon an existing document. This will
      * check the cache for updates to the document, write the updates to the
      * document, then create a new version based upon that document.

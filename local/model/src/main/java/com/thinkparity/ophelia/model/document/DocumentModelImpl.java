@@ -152,6 +152,43 @@ public final class DocumentModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#createVersion(com.thinkparity.codebase.model.document.DocumentVersion, java.io.InputStream)
+     *
+     */
+    @Override
+    public void createVersion(final Document document,
+            final DocumentVersion version, final InputStream stream) {
+        try {
+            final File tempFile = createTempFile();
+            try {
+                // create a temp file containing the stream
+                streamToFile(stream, tempFile);
+                // create database content
+                final InputStream databaseStream = new FileInputStream(tempFile);
+                try {
+                    documentIO.createVersion(version, databaseStream,
+                            getBufferSize());
+                } finally {
+                    databaseStream.close();
+                }
+                // write local version file
+                final File versionFile = getVersionFile(document, version);
+                fileToFile(tempFile, versionFile);
+                Assert.assertTrue(versionFile.setLastModified(
+                        version.getCreatedOn().getTimeInMillis()),
+                        "Could not set last modified for document {0} version {1}.",
+                        version.getArtifactName(), version.getVersionId());
+                versionFile.setReadOnly();
+            } finally {
+                // TEMPFILE - DocumentModelImpl#createVersion(DocumentVersion,InputStream)
+                tempFile.delete();
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#createVersion(com.thinkparity.ophelia.model.document.DocumentFileLock, java.lang.Long, java.io.InputStream, java.lang.Integer, java.util.Calendar)
      *
      */
@@ -494,6 +531,12 @@ public final class DocumentModelImpl extends
     public void openVersion(final Long documentId, final Long versionId,
             final Opener opener) {
 		try {
+		    final File versionFile = getVersionFile(read(documentId),
+		            readVersion(documentId, versionId));
+		    if (!versionFile.exists()) {
+		        
+		    }
+
 			opener.open(getVersionFile(read(documentId),
                     readVersion(documentId, versionId)));
 		} catch (final Throwable t) {

@@ -19,7 +19,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.thinkparity.codebase.Pair;
-import com.thinkparity.codebase.bzip2.InflateFile;
 import com.thinkparity.codebase.crypto.DecryptFile;
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -39,6 +38,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.monitor.RestoreBackupStep;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentFileLock;
+import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
@@ -141,18 +141,9 @@ public final class RestoreBackup extends ContainerDelegate {
             getDocumentModel().newDownloadFile(version).download(downloadFile);
             final Secret secret = getCryptoModel().readSecret(version);
             final Key key = new SecretKeySpec(secret.getKey(), secret.getAlgorithm());
-            final File decryptFile = createTempFile(suffix);
-            try {
-                synchronized (getBufferLock()) {
-                    new DecryptFile(secret.getAlgorithm()).decrypt(
-                            key, downloadFile, decryptFile, getBufferArray());
-                }
-                synchronized (getBufferLock()) {
-                    new InflateFile(getBuffer()).inflate(decryptFile, file);
-                }
-            } finally {
-                // TEMPFILE - RestoreBackup#download(DocumentVersion)
-                decryptFile.delete();
+            synchronized (getBufferLock()) {
+                new DecryptFile(secret.getAlgorithm()).decrypt(
+                        key, downloadFile, file, getBufferArray());
             }
         } finally {
             // TEMPFILE - RestoreBackup#download(DocumentVersion)
@@ -190,6 +181,7 @@ public final class RestoreBackup extends ContainerDelegate {
             NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidKeyException {
         final InternalBackupModel backupModel = getBackupModel();
+        final InternalDocumentModel documentModel = getDocumentModel();
         final InternalUserModel userModel = getUserModel();
         userModel.readLazyCreate(container.getCreatedBy());
         userModel.readLazyCreate(container.getUpdatedBy());
@@ -283,14 +275,14 @@ public final class RestoreBackup extends ContainerDelegate {
                             userModel.readLazyCreate(documentVersion.getUpdatedBy());
                             documentVersion.setArtifactId(document.getId());
                             versionFile = createTempFile(MessageFormat.format(
-                                    "-{0}", documentVersion.getName()));
+                                    "-{0}", documentVersion.getArtifactName()));
                             try {
                                 download(documentVersion, versionFile);
                                 documentVersionStream = new FileInputStream(versionFile);
                                 try {
-                                    documentIO.createVersion(documentVersion,
-                                            documentVersionStream,
-                                            getBufferSize());
+                                    documentModel.createVersion(document,
+                                            documentVersion,
+                                            documentVersionStream);
                                 } finally {
                                     documentVersionStream.close();
                                 }

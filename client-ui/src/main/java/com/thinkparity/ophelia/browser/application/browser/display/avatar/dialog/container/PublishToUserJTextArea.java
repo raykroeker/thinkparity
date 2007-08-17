@@ -450,42 +450,21 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
     /**
      * Get the display name (for display in the text area).
      * 
-     * @param contact
-     *            A <code>Contact</code>.
+     * @param user
+     *            A <code>User</code>.
      * @param longForm
      *            A <code>Boolean</code>, true to use long form.
      * @return The display text <code>String</code>.
      */
-    private String getDisplayName(final Contact contact,
+    private String getDisplayName(final User user,
             final Boolean longForm) {
         if (longForm) {
             // avoid comma which is used to separate participants
             return MessageFormat.format("{0} ({1} - {2})",
-                    contact.getName(), contact.getTitle(),
-                    contact.getOrganization());
+                    user.getName(), user.getTitle(),
+                    user.getOrganization());
         } else {
-            return contact.getName();
-        }
-    }
-
-    /**
-     * Get the display name (for display in the text area).
-     * 
-     * @param teamMember
-     *            A <code>TeamMember</code>.
-     * @param longForm
-     *            A <code>Boolean</code>, true to use long form.
-     * @return The display text <code>String</code>.
-     */
-    private String getDisplayName(final TeamMember teamMember,
-            final Boolean longForm) {
-        if (longForm) {
-            // avoid comma which is used to separate participants
-            return MessageFormat.format("{0} ({1} - {2})",
-                    teamMember.getName(), teamMember.getTitle(),
-                    teamMember.getOrganization());
-        } else {
-            return teamMember.getName();
+            return user.getName();
         }
     }
 
@@ -771,17 +750,6 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
     }
 
     /**
-     * Determine if the short name for the contact is unique.
-     * 
-     * @param contact
-     *            A <code>Contact</code>.
-     * @return A <code>Boolean</code>, true if the short name is unique.   
-     */
-    private Boolean isShortNameUnique(final Contact contact) {
-        return isShortNameUnique(getDisplayName(contact, Boolean.FALSE));
-    }
-
-    /**
      * Determine if the specified short name is unique.
      * 
      * @param shortName
@@ -804,14 +772,14 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
     }
 
     /**
-     * Determine if the short name for the team member is unique.
+     * Determine if the short name for the user is unique.
      * 
-     * @param teamMember
-     *            A <code>TeamMember</code>.
+     * @param user
+     *            A <code>User</code>.
      * @return A <code>Boolean</code>, true if the short name is unique.   
      */
-    private Boolean isShortNameUnique(final TeamMember teamMember) {
-        return isShortNameUnique(getDisplayName(teamMember, Boolean.FALSE));
+    private Boolean isShortNameUnique(final User user) {
+        return isShortNameUnique(getDisplayName(user, Boolean.FALSE));
     }
 
     /**

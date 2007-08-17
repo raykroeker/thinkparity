@@ -310,7 +310,7 @@ public class ThinkParityButtonUI extends BasicButtonUI {
                 g2.drawLine(widthLeft+1, heightTop-1, widthLeft+widthMid-2, heightTop-1);
                 g2.setPaint(COLORS_BOTTOM[index]);
                 g2.drawLine(widthLeft+1, heightTop+heightMid, widthLeft+widthMid-2, heightTop+heightMid);
-                if (!isEnabled(button)) {
+                if (isPressed(button)) {
                     g2.drawLine(widthLeft, heightTop, widthLeft, heightTop+heightMid-1);
                     g2.drawLine(widthLeft+widthMid-1, heightTop, widthLeft+widthMid-1, heightTop+heightMid-1);
                 }

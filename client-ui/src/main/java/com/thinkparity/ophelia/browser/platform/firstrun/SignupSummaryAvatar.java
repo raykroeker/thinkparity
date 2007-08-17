@@ -153,14 +153,16 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#setValidCredentials(java.lang.Boolean)
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#setError(java.lang.String)
      */
-    public void setValidCredentials(final Boolean validCredentials) {
-        if (!validCredentials) {
-            errorMessageJLabel.setText(getString("ErrorInvalidCredentials"));
-            setVisibleButtons(Boolean.TRUE);
-            reloadProgressBar();
+    public void setError(final String errorMessageKey) {
+        if (errorMessageKey.equals("ErrorOffline")) {
+            errorMessageJLabel.setText(getSharedString(errorMessageKey));
+        } else {
+            errorMessageJLabel.setText(getString(errorMessageKey));
         }
+        setVisibleButtons(Boolean.TRUE);
+        reloadProgressBar();
     }
 
     /**

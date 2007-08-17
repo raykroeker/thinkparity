@@ -149,12 +149,12 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#setValidCredentials(java.lang.Boolean)
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#setError(java.lang.String)
      */
-    public void setValidCredentials(final Boolean validCredentials) {
+    public void setError(final String errorMessageKey) {
         final LoginCredentialsDisplay display = SignupLoginHelper.getInstance().getLoginCredentialsDisplay();
         Assert.assertNotNull("The login credentials display null.", display);
-        display.setValidCredentials(validCredentials);
+        display.setError(errorMessageKey);
     }
 
     /**

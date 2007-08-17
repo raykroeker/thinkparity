@@ -162,13 +162,16 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginCredentialsDisplay#setValidCredentials(java.lang.Boolean)
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginCredentialsDisplay#setError(java.lang.String)
      */
-    public void setValidCredentials(final Boolean validCredentials) {
-        if (!validCredentials) {
-            SwingUtil.setCursor(this, null);
-            errorMessageJLabel.setText(getString("ErrorInvalidCredentials"));
+    public void setError(final String errorMessageKey) {
+        if (errorMessageKey.equals("ErrorOffline")) {
+            errorMessageJLabel.setText(getSharedString(errorMessageKey));
+        } else {
+            errorMessageJLabel.setText(getString(errorMessageKey));
         }
+        SwingUtil.setCursor(this, null);
+        signupDelegate.enableNextButton(Boolean.TRUE);
     }
 
     /**
@@ -353,6 +356,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
      */
     private void login() {
         saveData();
+        signupDelegate.enableNextButton(Boolean.FALSE);
         SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
         errorMessageJLabel.setText(getString("LoggingIn"));
         errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(), errorMessageJLabel.getHeight());

@@ -80,6 +80,8 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
      */
     public void enableNextButton(final Boolean enable) {
         nextJButton.setEnabled(enable);
+        nextJButton.paintImmediately(0, 0,
+                nextJButton.getWidth(), nextJButton.getHeight());
     }
 
     /**

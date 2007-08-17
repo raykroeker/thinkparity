@@ -34,12 +34,12 @@ public interface LoginSwingDisplay {
     void setDetermination(final Integer steps);
 
     /**
-     * Set the credentials valid flag.
+     * Set the error.
      * 
-     * @param validCredentials
-     *            The credentials valid <code>Boolean</code>.
+     * @param errorMessageKey
+     *            An error message key <code>String</code>.
      */
-    void setValidCredentials(final Boolean validCredentials);
+    void setError(final String errorMessageKey);
 
     /**
      * Update the progress.

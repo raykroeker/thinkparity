@@ -394,6 +394,7 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
      */
     private void signup() {
         saveData();
+        signupDelegate.enableNextButton(Boolean.FALSE);
         SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
         errorMessageJLabel.setText(getString("SigningUp"));
         errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(), errorMessageJLabel.getHeight());
@@ -403,6 +404,7 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
             errorMessageJLabel.setText(getInputErrors().get(0));
         }
         SwingUtil.setCursor(this, null);
+        signupDelegate.enableNextButton(Boolean.TRUE);
     }
 
     /**

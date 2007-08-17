@@ -11,10 +11,10 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 public interface LoginCredentialsDisplay {
 
     /**
-     * Set the credentials valid flag.
+     * Set the error.
      * 
-     * @param validCredentials
-     *            The credentials valid <code>Boolean</code>.
+     * @param errorMessageKey
+     *            The <code>String</code> error message key.
      */
-    void setValidCredentials(final Boolean validCredentials);
+    void setError(final String errorMessageKey);
 }

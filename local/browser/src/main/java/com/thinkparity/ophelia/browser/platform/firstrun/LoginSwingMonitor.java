@@ -45,7 +45,6 @@ public class LoginSwingMonitor implements ThinkParitySwingMonitor {
     public void reset() {
         this.step = 0;
         this.note = "";
-        display.setValidCredentials(Boolean.FALSE);
         display.resetProgressBar();
     }
 
@@ -53,6 +52,7 @@ public class LoginSwingMonitor implements ThinkParitySwingMonitor {
      * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#setError(java.lang.String)
      */
     public void setError(final String errorMessageKey) {
+        display.setError(errorMessageKey);
     }
 
     /**

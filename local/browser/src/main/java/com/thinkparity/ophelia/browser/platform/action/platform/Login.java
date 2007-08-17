@@ -9,6 +9,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
+import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
@@ -114,6 +115,12 @@ public class Login extends AbstractAction {
                 monitor.complete();
             } catch (final InvalidCredentialsException icx) {
                 monitor.reset();
+                monitor.setError("ErrorInvalidCredentials");
+                return null;
+            } catch (final OfflineException ox) {
+                monitor.reset();
+                monitor.setError("ErrorOffline");
+                return null;
             }
             return null;
         }

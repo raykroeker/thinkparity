@@ -280,6 +280,7 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         final String username = extractUsername();
         final EMail email = extractEMail();
         if (!isReserved(username) || !isReserved(email)) {
+            signupDelegate.enableNextButton(Boolean.FALSE);
             SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
             UsernameReservation usernameReservation = null;
             EMailReservation emailReservation = null;

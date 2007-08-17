@@ -17,7 +17,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
-import com.thinkparity.codebase.bzip2.CompressFile;
 import com.thinkparity.codebase.crypto.EncryptFile;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -249,33 +248,24 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
                 documentVersion.setVersionId(Versioning.START);
                 documentVersions.add(documentVersion);
 
-                final File compressedContent = createTempFile();
+                final File encryptedContent = createTempFile();
                 try {
+                    final Secret secret = getCryptoModel(support).createSecret(documentVersion);
+                    final Key key = new SecretKeySpec(secret.getKey(), secret.getAlgorithm());
                     synchronized (getBufferLock()) {
-                        new CompressFile().compress(contentFile, compressedContent, getBuffer());
+                        new EncryptFile(secret.getAlgorithm()).encrypt(key,
+                                contentFile, encryptedContent,
+                                getBufferArray());
                     }
-                    final File encryptedContent = createTempFile();
-                    try {
-                        final Secret secret = getCryptoModel(support).createSecret(documentVersion);
-                        final Key key = new SecretKeySpec(secret.getKey(), secret.getAlgorithm());
-                        synchronized (getBufferLock()) {
-                            new EncryptFile(secret.getAlgorithm()).encrypt(key,
-                                    compressedContent, encryptedContent,
-                                    getBufferArray());
-                        }
-                        final StreamInfo streamInfo = new StreamInfo();
-                        streamInfo.setMD5(checksum(encryptedContent));
-                        streamInfo.setSize(Long.valueOf(encryptedContent.length()));
-                        final StreamSession session = newUpstreamSession(
-                                streamInfo, documentVersion);
-                        new UploadFile(session).upload(encryptedContent);
-                    } finally {
-                        // TEMPFILE - ProfileModelImpl#enqueueWelcome
-                        encryptedContent.delete();
-                    }
+                    final StreamInfo streamInfo = new StreamInfo();
+                    streamInfo.setMD5(checksum(encryptedContent));
+                    streamInfo.setSize(Long.valueOf(encryptedContent.length()));
+                    final StreamSession session = newUpstreamSession(
+                            streamInfo, documentVersion);
+                    new UploadFile(session).upload(encryptedContent);
                 } finally {
                     // TEMPFILE - ProfileModelImpl#enqueueWelcome
-                    compressedContent.delete();
+                    encryptedContent.delete();
                 }
             } finally {
                 // TEMPFILE - ProfileModelImpl#enqueueWelcome

@@ -171,6 +171,8 @@ public final class ProfileConstraints {
         this.language.setName("Language");
         this.language.setNullable(Boolean.FALSE);
 
+        /* HACK - ProfileConstraints#<init> - the requirement to filter out
+         * the characters for ease of parsing is incorrect */
         final char[] invalidChars = new char[] { '@', '(', ')' };
         this.name = new StringConstraint() {
             @Override

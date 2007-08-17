@@ -16,7 +16,6 @@ import java.util.List;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.thinkparity.codebase.bzip2.InflateFile;
 import com.thinkparity.codebase.crypto.DecryptFile;
 import com.thinkparity.codebase.delegate.CancelException;
 import com.thinkparity.codebase.delegate.Cancelable;
@@ -65,17 +64,11 @@ public final class QueueProcessor implements Cancelable, Runnable {
     /** A cancel indicator. */
     private boolean cancel;
 
-    /** A run indicator. */
-    private boolean running;
-
     /** A delegate used to decrypt files. */
     private DecryptFile decrypter;
 
     /** A delegate used to download files. */
     private DownloadFile downloader;
-
-    /** A delegate used to inflate (decompress) files. */
-    private InflateFile inflater;
 
     /** A localized event. */
     private LocalContentEvent<?,?> localEvent;
@@ -85,6 +78,9 @@ public final class QueueProcessor implements Cancelable, Runnable {
 
     /** An internal model factory. */
     private InternalModelFactory modelFactory;
+
+    /** A run indicator. */
+    private boolean running;
 
     /** A workspace. */
     private Workspace workspace;
@@ -113,9 +109,6 @@ public final class QueueProcessor implements Cancelable, Runnable {
         }
         if (null != decrypter) {
             decrypter.cancel();
-        }
-        if (null != inflater) {
-            inflater.cancel();
         }
         if (running) {
             synchronized (this) {
@@ -251,25 +244,8 @@ public final class QueueProcessor implements Cancelable, Runnable {
                     return null;
                 } else {
                     final File decryptFile = createTempFile(suffix);
-                    try {
-                        decrypt(readSecret(version), downloadFile, decryptFile);
-                        if (cancel) {
-                            logger.logInfo("Cancelling queue processor.");
-                            return null;
-                        } else {
-                            final File inflateFile = createTempFile(suffix);
-                            inflate(decryptFile, inflateFile);
-                            if (cancel) {
-                                logger.logInfo("Cancelling queue processor.");
-                                return null;
-                            } else {
-                                return inflateFile;
-                            }
-                        }
-                    } finally {
-                        // TEMPFILE - QueueProcessor#download(DocumentVersion)
-                        decryptFile.delete();
-                    }
+                    decrypt(readSecret(version), downloadFile, decryptFile);
+                    return decryptFile;
                 }
             } finally {
                 // TEMPFILE - QueueProcessor#download(DocumentVersion)
@@ -372,29 +348,6 @@ public final class QueueProcessor implements Cancelable, Runnable {
      */
     private InternalQueueModel getQueueModel() {
         return getModelFactory().getQueueModel();
-    }
-
-    /**
-     * Inflate a dopcument version file.
-     * 
-     * @param version
-     *            A <code>DocumentVersion</code>.
-     * @param source
-     *            A <code>File</code>.
-     * @param taret
-     *            A <code>File</code>.
-     * @throws IOException
-     */
-    private void inflate(final File source, final File target)
-            throws IOException {
-        synchronized (workspace.getBufferLock()) {
-            inflater = new InflateFile(workspace.getBuffer());
-            try {
-                inflater.inflate(source, target);
-            } finally {
-                 inflater = null;
-            }
-        }
     }
 
     /**

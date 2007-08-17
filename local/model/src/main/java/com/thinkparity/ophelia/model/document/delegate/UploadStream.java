@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.model.document.delegate;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
@@ -13,8 +14,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.thinkparity.codebase.bzip2.CompressStream;
-import com.thinkparity.codebase.crypto.EncryptFile;
+import com.thinkparity.codebase.crypto.EncryptStream;
 import com.thinkparity.codebase.io.StreamOpener;
 
 import com.thinkparity.codebase.model.crypto.Secret;
@@ -78,53 +78,23 @@ public final class UploadStream extends DocumentDelegate {
      * Upload a document version to the streaming server.
      * 
      * @throws IOException
-     * @throws NoSuchPaddingException
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeyException
      */
-    public void uploadStream() throws IOException, NoSuchPaddingException,
-            NoSuchAlgorithmException, InvalidKeyException {
-        final File compressed = createTempFile(name);
+    public void uploadStream() throws IOException {
+        final File encrypted = createTempFile(name);
         try {
-            compress(compressed);
-            final File encrypted = createTempFile(name);
-            try {
-                encrypt(resolveSecret(), compressed, encrypted);
-                upload(encrypted);
-            } finally {
-                // TEMPFILE - UploadStream#uploadStream()
-                encrypted.delete();
-            }
+            encrypt(resolveSecret(), encrypted);
+            upload(encrypted);
         } finally {
             // TEMPFILE - UploadStream#uploadStream()
-            compressed.delete();
+            encrypted.delete();
         }
     }
 
     /**
-     * Compress the version content using a BZip2 compression algorithm.
-     * 
-     * @param target
-     *            A <code>File</code>.
-     * @throws IOException
-     */
-    private void compress(final File target) throws IOException {
-        documentIO.openStream(version.getArtifactId(), version.getVersionId(), new StreamOpener() {
-            public void open(final InputStream stream) throws IOException {
-                synchronized (getBufferLock()) {
-                    new CompressStream().compress(stream, target, getBuffer());
-                }
-            }
-        });
-    }
-
-    /**
-     * Encrypt a file.
+     * Encrypt the document version content.
      * 
      * @param secret
      *            A <code>Secret</code>.
-     * @param source
-     *            A <code>File</code>.
      * @param target
      *            A <code>File</code>.
      * @throws IOException
@@ -132,14 +102,21 @@ public final class UploadStream extends DocumentDelegate {
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeyException
      */
-    private void encrypt(final Secret secret, final File source,
-            final File target) throws IOException, NoSuchPaddingException,
-            NoSuchAlgorithmException, InvalidKeyException {
+    private void encrypt(final Secret secret, final File target)
+            throws IOException {
         final Key key = new SecretKeySpec(secret.getKey(), secret.getAlgorithm());
-        synchronized (getBufferLock()) {
-            new EncryptFile(secret.getAlgorithm()).encrypt(key, source, target,
-                    getBufferArray());
-        }
+        documentIO.openStream(version.getArtifactId(), version.getVersionId(), new StreamOpener() {
+            public void open(final InputStream stream) throws IOException {
+                synchronized (getBufferLock()) {
+                    try {
+                        new EncryptStream(secret.getAlgorithm()).encrypt(key,
+                                stream, target, getBufferArray());
+                    } catch (final GeneralSecurityException gsx) {
+                        throw new IOException(gsx);
+                    }
+                }
+            }
+        });
     }
 
     /**

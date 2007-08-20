@@ -1161,6 +1161,15 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * Get the font for the container additional text.
+     * 
+     * @return A <code>Font</code>.
+     */
+    private Font getContainerAdditionalTextFont() {
+        return getContainerTextFont();
+    }
+
+    /**
      * Get the draft owner text associated with the container.
      * 
      * @param container
@@ -1184,6 +1193,15 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     private Color getContainerDraftOwnerTextColor(final Container container) {
         return Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG;
+    }
+
+    /**
+     * Get the font for the container draft owner text.
+     * 
+     * @return A <code>Font</code>.
+     */
+    private Font getContainerDraftOwnerTextFont() {
+        return Fonts.DefaultFont;
     }
 
     /**
@@ -1672,6 +1690,7 @@ public class ContainerPanel extends DefaultTabPanel {
 
         // paint additional text after container text
         if (null != clippedText && clippedText.equals(containerText)) {
+            g2.setFont(getContainerAdditionalTextFont());
             final int adjustX = SwingUtil.getStringWidth(containerText, g2) + CONTAINER_TEXT_SPACE_BETWEEN;
             location.x += adjustX;
             availableWidth -= adjustX;
@@ -1683,6 +1702,7 @@ public class ContainerPanel extends DefaultTabPanel {
 
         // paint draft owner text on the right
         if (null != draftOwnerText) {
+            g2.setFont(getContainerDraftOwnerTextFont());
             availableWidth = (int)(getWidth() * FRACTION_WIDTH_DRAFT_OWNER_NAME);
             final String clippedDraftOwnerText = SwingUtil.limitWidthWithEllipsis(draftOwnerText, availableWidth, g2);
             final int textWidth = SwingUtil.getStringWidth(clippedDraftOwnerText, g2);

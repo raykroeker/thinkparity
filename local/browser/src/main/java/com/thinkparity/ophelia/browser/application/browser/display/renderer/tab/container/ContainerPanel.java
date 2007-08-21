@@ -1038,7 +1038,7 @@ public class ContainerPanel extends DefaultTabPanel {
         westListModel.initialize(westCells);
     }
 
-    private void collapsedJPanelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMousePressed
+    private void collapsedJPanelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMousePressed
         logger.logApiId();
         logger.logVariable("e", e);
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {
@@ -1052,7 +1052,7 @@ public class ContainerPanel extends DefaultTabPanel {
         }
     }//GEN-LAST:event_collapsedJPanelMousePressed
 
-    private void collapsedJPanelMouseReleased(java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMouseReleased
+    private void collapsedJPanelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapsedJPanelMouseReleased
         logger.logApiId();
         logger.logVariable("e", e);
         if (e.getClickCount() == 1 && e.isPopupTrigger()) {

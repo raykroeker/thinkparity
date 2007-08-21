@@ -654,6 +654,7 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
      *            A <code>TabPanel</code>.
      */
     protected void requestFocusInWindow(final TabPanel tabPanel) {
+        ((JComponent) tabPanel).requestFocusInWindow();
         if (!((JComponent) tabPanel).isFocusOwner()) {
             // focus is gained more consistently with invokeLater
             SwingUtilities.invokeLater(new Runnable() {

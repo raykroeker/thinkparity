@@ -88,7 +88,9 @@ public final class JTextFieldLengthFilter extends DocumentFilter {
         if (null == inputString)
             return null;
         final Integer findIndex = inputString.indexOf(Separator.NixNewLine.toString());
-        if (findIndex > 0) {
+        if (0 == findIndex) {
+            return null;
+        } else if (0 < findIndex) {
             return inputString.substring(0, findIndex);
         }
         return inputString;

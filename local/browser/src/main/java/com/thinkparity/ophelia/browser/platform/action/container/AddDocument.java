@@ -83,6 +83,10 @@ public class AddDocument extends AbstractBrowserAction {
                         new Object[] { bytesFormat.format(getMaxSize()) });
                 return;
             }
+            if (containsFileTooSmall(files)) {
+                browser.displayErrorDialog("AddDocument.FileSizeTooSmall");
+                return;
+            }
 
             final ContainerModel containerModel = getContainerModel();
             // Ensure the container has a local draft.
@@ -207,6 +211,26 @@ public class AddDocument extends AbstractBrowserAction {
     }
 
     /**
+     * Determine if any of the files are too small.
+     * 
+     * @param files
+     *            A <code>File[]</code>.
+     * @return True if any of the files are too small.
+     */
+    private boolean containsFileTooSmall(final File[] files) {
+        final int minSize = getMinSize().intValue();
+        int intSize;
+        for (final File file : files) {
+            /* the cast can cause a negative result */
+            intSize = (int) file.length();
+            if (0 <= intSize && minSize > intSize) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Get the maximum allowed document name length.
      * 
      * @return The <code>int</code> maximum allowed document name length.
@@ -222,6 +246,15 @@ public class AddDocument extends AbstractBrowserAction {
      */
     private Integer getMaxSize() {
         return documentConstraints.getSize().getMaxValue();
+    }
+
+    /**
+     * Obtain the document minimum size.
+     * 
+     * @return An <code>Integer</code>.
+     */
+    private Integer getMinSize() {
+        return documentConstraints.getSize().getMinValue();
     }
 
     /**

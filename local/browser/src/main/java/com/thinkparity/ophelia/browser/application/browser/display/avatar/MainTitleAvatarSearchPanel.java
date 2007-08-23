@@ -98,13 +98,11 @@ public class MainTitleAvatarSearchPanel extends MainTitleAvatarAbstractPanel {
      * Clear the search.
      */
     public void clearSearch() {
-        if (!searchJTextField.getText().isEmpty()) {
-            searchJTextField.setText(null);
-            if (searchActivationTimer != null) {
-                searchActivationTimer.stop();
-            }
-            applySearch();
+        searchJTextField.setText(null);
+        if (searchActivationTimer != null) {
+            searchActivationTimer.stop();
         }
+        applySearch();
     }
 
     /**

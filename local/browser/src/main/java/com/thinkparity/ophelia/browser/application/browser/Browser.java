@@ -26,6 +26,7 @@ import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
+import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.TeamMember;
 
@@ -668,25 +669,15 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Notify the browser that a document draft has been updated (ie. documents changed)
-     * 
-     * @param documentId
-     *            A document id.
-     */
-    public void fireDocumentDraftUpdated(final Long documentId) {
-        syncDocumentTabContainer(documentId, Boolean.FALSE);
-    }
-
-    /**
      * Notify the application that a document has in some way been updated.
      *
-     * @param containerId
-     *            The container id.
-     * @param documentId
-     *            The document that has changed.
+     * @param document
+     *            A <code>Document</code>.
+     * @param remote
+     *            True if the synchronization is the result of a remote event.
      */
-    public void fireDocumentUpdated(final Long documentId, final Boolean remote) {
-        syncDocumentTabContainer(documentId, remote);
+    public void fireDocumentUpdated(final Document document, final Boolean remote) {
+        syncDocumentTabContainer(document, remote);
     }
 
     /**
@@ -2147,20 +2138,18 @@ public class Browser extends AbstractApplication {
 	}
 
     /**
-     * Synchronize a container within the container tab.
+     * Synchronize a container document within the container tab.
      * 
-     * @param containerId
-     *            The container id.
+     * @param document
+     *            A <code>Document</code>.
      * @param remote
-     *            The remote event indicator.
-     * @param select
-     *            The selection indicator.
+     *            True if the synchronization is the result of a remote event.
      */
-    private void syncDocumentTabContainer(final Long documentId,
+    private void syncDocumentTabContainer(final Document document,
             final Boolean remote) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                getTabContainerAvatar().syncDocument(documentId, remote);
+                getTabContainerAvatar().syncDocument(document, remote);
             }
         });        
     }

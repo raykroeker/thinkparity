@@ -538,21 +538,23 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
      * Synchronize a document.
      * Performance is a concern so unnecessary steps are avoided.
      * This method is called (for example) when a document is renamed
-     * or updated (eg. drag and drop to replace it).
+     * or updated (eg. drag and drop to replace it's content).
      * 
      * @param containerId
      *            A container id <code>Long</code>.
-     * @param documentId
-     *            A document id <code>Long</code>.
+     * @param document
+     *            A <code>Document</code>.
      * @param remote
      *            A remote event <code>Boolean</code> indicator.
      */
-    void syncDocument(final Long containerId, final Long documentId, final Boolean remote) {
+    void syncDocument(final Long containerId, final Document document, final Boolean remote) {
+        // We need to update the document and document state in the draft.
+        // An easy way is to read the draft. It is inefficient to read the draft view
+        // because the draft view also prepares other data that hasn't changed.
         final ContainerPanel containerPanel = lookupContainerPanel(containerId);
         final Container container = containerPanel.getContainer();
-        final DraftView draftView = readDraftView(containerId);
-        containerPanel.setPanelData(container, draftView);
-        synchronize();
+        final ContainerDraft draft = readDraft(containerId);
+        syncDocumentModified(container, draft, document);
     }
 
     /**
@@ -992,6 +994,17 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
             final Long versionId) {
         return ((ContainerProvider) contentProvider).readDocumentViews(
                 containerId, versionId);
+    }
+
+    /**
+     * Read the draft for a container.
+     *
+     * @param containerId
+     *      A container id <code>Long</code>.
+     * @return A <code>ContainerDraft</code>.
+     */
+    private ContainerDraft readDraft(final Long containerId) {
+        return ((ContainerProvider) contentProvider).readDraft(containerId);
     }
 
     /**

@@ -16,6 +16,7 @@ import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 
@@ -360,15 +361,16 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     /**
      * Synchronize a document in the avatar.
      * 
-     * @param documentId
-     *            A document id <code>Long</code>.
+     * @param document
+     *            A <code>Document</code>.
      * @param remote
      *            A remote event <code>Boolean</code> indicator.
      */
-    public void syncDocument(final Long documentId, final Boolean remote) {
+    public void syncDocument(final Document document, final Boolean remote) {
+        final Long documentId = document.getId();
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
-                model.syncDocument(model.lookupId(documentId), documentId, remote);
+                model.syncDocument(model.lookupId(documentId), document, remote);
             }
         });
         if (!remote) {

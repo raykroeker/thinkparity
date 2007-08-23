@@ -98,7 +98,7 @@ public class RenameDocument extends AbstractBrowserAction {
         try {
             getContainerModel().renameDocument(container.getId(),
                     document.getId(), renameTo);
-            browser.fireDocumentUpdated(document.getId(), Boolean.FALSE);
+            browser.fireDocumentUpdated(getDocumentModel().read(document.getId()), Boolean.FALSE);
         } catch (final CannotLockException clx) {
             browser.retry(this, document.getName(), renameTo);
         }

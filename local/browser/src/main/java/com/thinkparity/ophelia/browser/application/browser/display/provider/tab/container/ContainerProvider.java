@@ -25,6 +25,7 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.contact.ContactModel;
+import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerDraftMonitor;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
@@ -247,11 +248,22 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     }
 
     /**
+     * Read a container draft.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A <code>ContainerDraft</code>.
+     */
+    public ContainerDraft readDraft(final Long containerId) {
+        return containerModel.readDraft(containerId);
+    }
+
+    /**
 	 * Read a container draft view.
 	 * 
 	 * @param containerId
 	 *            A container id <code>Long</code>.
-	 * @return A <code>ContainerDraft</code>.
+	 * @return A <code>DraftView</code>.
 	 */
     public DraftView readDraftView(final Long containerId) {
         final DraftView draftView = new DraftView();

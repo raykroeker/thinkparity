@@ -77,7 +77,7 @@ public class UpdateDraft extends AbstractBrowserAction {
             final InputStream inputStream = new FileInputStream(file);
             try {
                 getDocumentModel().updateDraft(document.getId(), inputStream);
-                browser.fireDocumentDraftUpdated(document.getId());
+                browser.fireDocumentUpdated(getDocumentModel().read(document.getId()), Boolean.FALSE);
             } catch (final CannotLockException clx) {
                 browser.retry(this, document.getName());
             } finally {

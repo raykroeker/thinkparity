@@ -154,6 +154,7 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
             }
         });
         if (e.isLocal()) {
+            setDraftSelection(e.getContainer().getId());
             setDraftDocumentSelection(e.getContainer().getId(), e.getDocument().getId());
         }
     }
@@ -367,14 +368,15 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
      *            A remote event <code>Boolean</code> indicator.
      */
     public void syncDocument(final Document document, final Boolean remote) {
-        final Long documentId = document.getId();
+        final Long containerId = model.lookupId(document.getId());
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
-                model.syncDocument(model.lookupId(documentId), document, remote);
+                model.syncDocument(containerId, document, remote);
             }
         });
         if (!remote) {
-            setDraftDocumentSelection(model.lookupId(documentId), documentId);
+            setDraftSelection(containerId);
+            setDraftDocumentSelection(containerId, document.getId());
         }
     }
 

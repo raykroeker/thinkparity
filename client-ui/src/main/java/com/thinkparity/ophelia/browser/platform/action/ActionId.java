@@ -25,6 +25,8 @@ package com.thinkparity.ophelia.browser.platform.action;
  * @version 1.1.2.26
  */
 public enum ActionId {
+    BACKUP_RESTORE,
+
     CONTACT_ACCEPT_INCOMING_EMAIL_INVITATION,
     CONTACT_ACCEPT_INCOMING_USER_INVITATION,
     CONTACT_CLEAR_INCOMING_EMAIL_INVITATION_NOTIFICATIONS,

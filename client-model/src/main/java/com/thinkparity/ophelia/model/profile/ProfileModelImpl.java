@@ -37,6 +37,7 @@ import com.thinkparity.ophelia.model.events.ProfileEvent;
 import com.thinkparity.ophelia.model.events.ProfileListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ProfileIOHandler;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.service.AuthToken;
@@ -186,18 +187,28 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      */
     public void initialize() {
         try {
-            final Profile remoteProfile = getSessionModel().readProfile();
-            final List<ProfileEMail> remoteEMails =
-                getSessionModel().readProfileEMails();
-            profileIO.create(remoteProfile);
+            /* download */
+            final AuthToken authToken = getAuthToken();
+            final Profile profile = profileService.read(authToken);
+            final List<ProfileEMail> remoteEMails = profileService.readEMails(authToken);
+
+            /* create */
+            final User profileUser = getUserModel().readLazyCreate(
+                    profile.getId());
+            profile.setLocalId(profileUser.getLocalId());
+            profileIO.create(profile);
+
+            /* create e-mail */
             ProfileEMail localEMail;
             for (final ProfileEMail remoteEMail : remoteEMails) {
                 localEMail = new ProfileEMail();
                 localEMail.setEmail(remoteEMail.getEmail());
-                localEMail.setProfileId(remoteProfile.getLocalId());
+                localEMail.setProfileId(profile.getLocalId());
                 localEMail.setVerified(remoteEMail.isVerified());
-                profileIO.createEmail(remoteProfile.getLocalId(), localEMail);
+                profileIO.createEmail(profile.getLocalId(), localEMail);
             }
+
+            /* index */
             getIndexModel().indexProfile();
         } catch (final Throwable t) {
             throw panic(t);
@@ -303,7 +314,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         }
     }
 
-
     /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#readBackupStatistics()
      *
@@ -329,6 +339,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     public Credentials readCredentials() {
         return super.readCredentials();
     }
+
 
     /**
      * Read a profile email.
@@ -414,6 +425,33 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     @Override
     public void removeListener(final ProfileListener listener) {
         super.removeListener(listener);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.InternalProfileModel#restoreBackup(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     *
+     */
+    @Override
+    public void restoreBackup(final ProcessMonitor monitor) {
+        try {
+            final Profile profile = read();
+            /* delete e-mail */
+            final List<ProfileEMail> emails = readEMails();
+            for (final ProfileEMail email : emails) {
+                profileIO.deleteEmail(profile.getLocalId(), email.getEmailId());
+            }
+
+            /* delete */
+            profileIO.delete(profile);
+
+            /* create */
+            initialize();
+
+            /* fire event */
+            notifyProfileUpdated(profile, localEventGenerator);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -724,5 +762,14 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
                 listener.profileUpdated(eventGenerator.generate(profile));
             }
         });
+    }
+
+    /**
+     * Read the profile e-mail addresses.
+     * 
+     * @return A <code>List<ProfileEMail</code>.
+     */
+    private List<ProfileEMail> readEMails() {
+        return readEmails();
     }
 }

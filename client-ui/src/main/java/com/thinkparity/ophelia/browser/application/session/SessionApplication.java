@@ -19,6 +19,11 @@ import com.thinkparity.ophelia.browser.Constants.Session;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
+import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
+import com.thinkparity.ophelia.browser.platform.action.ActionId;
+import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
+import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
+import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 
 /**
@@ -29,6 +34,9 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
  * @version 1.1.2.6
  */
 public class SessionApplication extends AbstractApplication {
+
+    /** Action registry. */
+    private final ActionRegistry actionRegistry;
 
     /** The connect <code>Timer</code>. */
     private Timer connectTimer;
@@ -45,6 +53,7 @@ public class SessionApplication extends AbstractApplication {
      */
     public SessionApplication(final Platform platform) {
         super(platform, null);
+        this.actionRegistry = new ActionRegistry();
     }
 
     /**
@@ -198,8 +207,10 @@ public class SessionApplication extends AbstractApplication {
             logger.logError(icx, "Cannot login.");
             connectTimer.cancel();
         } catch (final InvalidLocationException ilx) {
-            logger.logError(ilx, "Cannot login.");
+            logger.logWarning("Cannot login from this location.");
             connectTimer.cancel();
+
+            invoke(ActionId.BACKUP_RESTORE, Data.emptyData());
         }
     }
 
@@ -235,6 +246,36 @@ public class SessionApplication extends AbstractApplication {
                 }
             }
         }, delay, Session.CONNECT_TIMER_PERIOD);
+    }
+
+    /**
+     * Obtain the action from the controller's cache. If the action does not
+     * exist in the cache it is created and stored.
+     * 
+     * @param id
+     *            The action id.
+     * @return The action.
+     * 
+     * @see ActionId
+     */
+    private ActionInvocation getAction(final ActionId id) {
+        if (actionRegistry.contains(id)) {
+            return actionRegistry.get(id);
+        } else {
+            return ActionFactory.create(id);
+        }
+    }
+
+    /**
+     * Invoke an action.
+     * 
+     * @param actionId
+     *            An <code>ActionId</code>.
+     * @param data
+     *            A <code>Data</code>.
+     */
+    private void invoke(final ActionId actionId, final Data data) {
+        getAction(actionId).invokeAction(this, data);
     }
 
     /**

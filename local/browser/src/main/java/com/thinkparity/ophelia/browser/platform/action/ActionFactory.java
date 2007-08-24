@@ -86,6 +86,9 @@ public class ActionFactory extends AbstractFactory {
 	private AbstractAction doCreateAction(final ActionId id) {
         final AbstractAction action;
 		switch (id) {
+		case BACKUP_RESTORE:
+		    action = new com.thinkparity.ophelia.browser.platform.action.backup.Restore(getBrowser());
+		    break;
         case CONTACT_ACCEPT_INCOMING_EMAIL_INVITATION:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingEMailInvitation(getBrowser());
             break;

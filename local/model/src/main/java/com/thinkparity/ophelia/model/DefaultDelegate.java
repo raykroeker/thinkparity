@@ -15,12 +15,14 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
+import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.crypto.InternalCryptoModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.index.InternalIndexModel;
@@ -30,6 +32,8 @@ import com.thinkparity.ophelia.model.stream.InternalStreamModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
+
+import com.thinkparity.service.AuthToken;
 
 /**
  * <b>Title:</b>thinkParity OpheliaModel Default Delegate<br>
@@ -41,7 +45,7 @@ import com.thinkparity.ophelia.model.util.Step;
  * @param <T>
  *            A type of model implementation.
  */
-public class DefaultDelegate<T extends Model> implements Delegate<T> {
+public class DefaultDelegate<T extends Model<?>> implements Delegate<T> {
 
     /**
      * @see com.thinkparity.ophelia.model.Model#contains(List, List)
@@ -191,6 +195,22 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
     }
 
     /**
+     * @see Model#deleteCredentials()
+     * 
+     */
+    protected final void deleteCredentials() {
+        modelImplementation.deleteCredentials();
+    }
+
+    /**
+     * @see Model#deleteToken()
+     * 
+     */
+    protected final void deleteToken() {
+        modelImplementation.deleteToken();
+    }
+
+    /**
      * @see Model#fileToChannel(File, WritableByteChannel)
      * 
      */
@@ -206,6 +226,15 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
      */
     protected final InternalArtifactModel getArtifactModel() {
         return modelImplementation.getArtifactModel();
+    }
+
+    /**
+     * Obtain the web-service authentication token.
+     * 
+     * @return An <code>AuthToken</code>.
+     */
+    protected final AuthToken getAuthToken() {
+        return getSessionModel().getAuthToken();
     }
 
     /**
@@ -255,6 +284,15 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
      */
     protected final InternalContactModel getContactModel() {
         return modelImplementation.getContactModel();
+    }
+
+    /**
+     * Obtain an internal container model.
+     * 
+     * @return An instance of <code>InternalContainerModel</code>.
+     */
+    protected final InternalContainerModel getContainerModel() {
+        return modelImplementation.getContainerModel();
     }
 
     /**
@@ -344,6 +382,14 @@ public class DefaultDelegate<T extends Model> implements Delegate<T> {
      */
     protected final JabberId localUserId() {
         return modelImplementation.localUserId();
+    }
+
+    /**
+     * @see Model#readCredentials()
+     * 
+     */
+    protected final Credentials readCredentials() {
+        return modelImplementation.readCredentials();
     }
 
     /**

@@ -12,7 +12,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
-import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -112,14 +111,6 @@ public class BackupSEI extends ServiceSEI implements BackupService {
             final UUID containerUniqueId, final Long containerVersionId) {
         return getModel(authToken).readPublishedToEMails(containerUniqueId,
                 containerVersionId);
-    }
-
-    /**
-     * @see com.thinkparity.service.BackupService#readStatistics(com.thinkparity.service.AuthToken)
-     *
-     */
-    public Statistics readStatistics(final AuthToken authToken) {
-        return getModel(authToken).readStatistics();
     }
 
     /**

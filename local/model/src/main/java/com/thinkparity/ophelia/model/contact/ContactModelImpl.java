@@ -547,22 +547,27 @@ public final class ContactModelImpl extends Model<ContactListener>
                 notifyStepBegin(monitor, DownloadStep.DOWNLOAD);
                 createLocal(contact);
                 notifyStepEnd(monitor, DownloadStep.DOWNLOAD);
+                notifyContactCreated(contact, localEventGenerator);
             }
             final List<IncomingEMailInvitation> incomingEMail = sessionModel.readIncomingEMailInvitations();
             for (final IncomingEMailInvitation iei : incomingEMail) {
                 createLocal(iei);
+                notifyIncomingEMailInvitationCreated(iei, localEventGenerator);
             }
             final List<IncomingUserInvitation> incomingUser = sessionModel.readIncomingUserInvitations();
             for (final IncomingUserInvitation iui : incomingUser) {
                 createLocal(iui);
+                notifyIncomingUserInvitationCreated(iui, localEventGenerator);
             }
             final List<OutgoingEMailInvitation> outgoingEMail = sessionModel.readOutgoingEMailInvitations();
             for (final OutgoingEMailInvitation oei : outgoingEMail) {
                 createLocal(oei);
+                notifyOutgoingEMailInvitationCreated(oei, localEventGenerator);
             }
             final List<OutgoingUserInvitation> outgoingUser = sessionModel.readOutgoingUserInvitations();
             for (final OutgoingUserInvitation oui : outgoingUser) {
                 createLocal(oui);
+                notifyOutgoingUserInvitationCreated(oui, localEventGenerator);
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -1107,6 +1112,64 @@ public final class ContactModelImpl extends Model<ContactListener>
     @Override
     public void removeListener(final ContactListener listener) {
         super.removeListener(listener);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#restoreBackup(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     * 
+     */
+    @Override
+    public void restoreBackup(final ProcessMonitor monitor) {
+        try {
+            final InternalIndexModel indexModel = getIndexModel();
+
+            /* delete contacts */
+            final List<Contact> contacts = read();
+            for (final Contact contact : contacts) {
+                deleteLocal(contact);
+                notifyContactDeleted(contact, localEventGenerator);
+            }
+
+            /* delete incoming e-mail invitations */
+            final List<IncomingEMailInvitation> incomingEMail = readIncomingEMailInvitations();
+            for (final IncomingEMailInvitation invitation : incomingEMail) {
+                contactIO.deleteInvitation(invitation);
+                indexModel.deleteIncomingEMailInvitation(invitation.getId());
+                notifyIncomingEMailInvitationDeleted(invitation,
+                        localEventGenerator);
+            }
+
+            /* delete incoming user invitations */
+            final List<IncomingUserInvitation> incomingUser = readIncomingUserInvitations();
+            for (final IncomingUserInvitation invitation : incomingUser) {
+                contactIO.deleteInvitation(invitation);
+                indexModel.deleteIncomingUserInvitation(invitation.getId());
+                notifyIncomingUserInvitationDeleted(invitation,
+                        localEventGenerator);
+            }
+
+            /* delete outgoing e-mail invitations */
+            final List<OutgoingEMailInvitation> outgoingEMail = readOutgoingEMailInvitations();
+            for (final OutgoingEMailInvitation invitation : outgoingEMail) {
+                contactIO.deleteInvitation(invitation);
+                indexModel.deleteOutgoingEMailInvitation(invitation.getId());
+                notifyOutgoingEMailInvitationDeleted(invitation,
+                        localEventGenerator);
+            }
+
+            /* delete outgoing user invitations */
+            final List<OutgoingUserInvitation> outgoingUser = readOutgoingUserInvitations();
+            for (final OutgoingUserInvitation invitation : outgoingUser) {
+                contactIO.deleteInvitation(invitation);
+                indexModel.deleteOutgoingUserInvitation(invitation.getId());
+                notifyOutgoingUserInvitationDeleted(invitation,
+                        localEventGenerator);
+            }
+
+            download(monitor);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**

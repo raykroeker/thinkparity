@@ -13,7 +13,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
-import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -326,24 +325,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
                 logger.logWarning("User {0} has no backup feature.",
                         user.getId());
                 return Collections.emptyList();
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.backup.BackupModel#readStatistics(com.thinkparity.codebase.jabber.JabberId)
-     * 
-     */
-    public Statistics readStatistics() {
-        try {
-            if (isBackupEnabledImpl(user)) {
-                return readStatisticsImpl(user);
-            } else {
-                logger.logWarning("User {0} has no backup feature.",
-                        user.getId());
-                return null;
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -771,60 +752,6 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
                     uniqueId, user.getId());
             return Collections.emptyList();
         }
-    }
-
-    /**
-     * Read statistics implementation.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @return An instance of <code>Statistics</code>.
-     */
-    private Statistics readStatisticsImpl(final User user) {
-        logger.logTrace("Entry");
-        final List<UUID> backedUpContainerIds = readBackedUpContainerIds(user);
-        logger.logVariable("backedUpContainerIds", backedUpContainerIds);
-        final com.thinkparity.ophelia.model.container.InternalContainerModel
-                containerModel = getModelFactory(user).getContainerModel();
-        final com.thinkparity.ophelia.model.document.InternalDocumentModel
-                documentModel = getModelFactory(user).getDocumentModel();
-        final com.thinkparity.ophelia.model.artifact.InternalArtifactModel
-                artifactModel = getModelFactory(user).getArtifactModel();
-        final List<ContainerVersion> versions = new ArrayList<ContainerVersion>();
-        final List<Document> documents = new ArrayList<Document>();
-        final List<Document> allDocuments = new ArrayList<Document>();
-        for (final UUID backedUpContainerId : backedUpContainerIds) {
-            versions.clear();
-            versions.addAll(containerModel.readVersions(artifactModel.readId(
-                    backedUpContainerId)));
-            logger.logVariable("versions", versions);
-            for (final ContainerVersion version : versions) {
-                documents.clear();
-                documents.addAll(containerModel.readDocuments(
-                        version.getArtifactId(), version.getVersionId()));
-                logger.logVariable("documents", documents);
-                for (final Document document : documents) {
-                    if (!allDocuments.contains(document))
-                        allDocuments.add(document);
-                }
-            }
-        }
-        logger.logVariable("allDocuments", allDocuments);
-        final List<DocumentVersion> allDocumentVersions = new ArrayList<DocumentVersion>();
-        long diskUsage = 0;
-        for (final Document document : allDocuments) {
-            allDocumentVersions.clear();
-            allDocumentVersions.addAll(documentModel.readVersions(document.getId()));
-            for (final DocumentVersion documentVersion : allDocumentVersions) {
-                diskUsage += documentVersion.getSize().longValue();
-            }
-        }
-        logger.logVariable("allDocumentVersions", allDocumentVersions);
-        final Statistics statistics = new Statistics();
-        statistics.setDiskUsage(Long.valueOf(diskUsage));
-        logger.logVariable("statistics", statistics);
-        logger.logTrace("Exit");
-        return statistics;
     }
 
     /**

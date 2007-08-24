@@ -20,7 +20,9 @@ import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityConcurrency;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.util.concurrent.Lock;
 import com.thinkparity.codebase.model.util.jta.Transaction;
 import com.thinkparity.codebase.model.util.jta.TransactionContext;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
@@ -97,7 +99,19 @@ final class ModelInvocationHandler implements InvocationHandler {
             for (int i = 0; i < args.length; i++)
                 LOGGER.logDebug("args[{0}]:{1}", i, args[i]);
         }
-        synchronized (workspace) {
+        final Object lock;
+        switch (extractConcurrency(method)) {
+        case NONE:
+            lock = new Object();
+            break;
+        case EXCLUSIVE:
+        case LOCAL_READ:
+            lock = workspace;
+            break;
+        default:
+            throw Assert.createUnreachable("No concurrency specified.");
+        }
+        synchronized (lock) {
             final Transaction transaction = workspace.getTransaction();
             final TransactionContext transactionContext = newXAContext(method);
             beginXA(transaction, transactionContext);
@@ -236,6 +250,25 @@ final class ModelInvocationHandler implements InvocationHandler {
                 XA_LOGGER.logFatal("Unknown transaction type.");
                 Assert.assertUnreachable("Unknown transaction type.");
             }
+        }
+    }
+
+    /**
+     * Extract the concurrency annotation for the method.
+     * 
+     * @param method
+     *            A <code>Method</code>.
+     * @return A <code>Lock</code>.
+     */
+    private Lock extractConcurrency(final Method method) {
+        ThinkParityConcurrency concurrency = method.getAnnotation(ThinkParityConcurrency.class);
+        if (null == concurrency) {
+            concurrency = method.getDeclaringClass().getAnnotation(ThinkParityConcurrency.class);
+        }
+        if (null == concurrency) {
+            return Lock.EXCLUSIVE;
+        } else {
+            return concurrency.value();
         }
     }
 

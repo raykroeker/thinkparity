@@ -18,7 +18,6 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.DraftExistsException;
 import com.thinkparity.codebase.model.artifact.IllegalVersionException;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
-import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
@@ -1038,18 +1037,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     public List<Feature> readProfileFeatures() {
         try {
             return profileService.readFeatures(getAuthToken());
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-	/**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readStatistics()
-     *
-     */
-    public Statistics readStatistics() {
-        try {
-            return backupService.readStatistics(getAuthToken());
         } catch (final Throwable t) {
             throw panic(t);
         }

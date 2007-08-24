@@ -635,10 +635,22 @@ public abstract class Model<T extends EventListener> extends
      *            A user's <code>Token</code>.
      * @return The user's <code>Token</code>.
      */
-    protected Token createToken(final Token token) {
+    protected final Token createToken(final Token token) {
         try {
             configurationIO.create(ConfigurationKeys.TOKEN, encrypt(token.getValue()));
             return readToken();
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * Delete the user's token.
+     * 
+     */
+    protected final void deleteToken() {
+        try {
+            configurationIO.delete(ConfigurationKeys.TOKEN);
         } catch (final Throwable t) {
             throw panic(t);
         }

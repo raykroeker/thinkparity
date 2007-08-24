@@ -11,22 +11,31 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
-import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+import com.thinkparity.codebase.model.session.InvalidLocationException;
 
+import com.thinkparity.ophelia.model.Delegate;
 import com.thinkparity.ophelia.model.Model;
+import com.thinkparity.ophelia.model.backup.delegate.Restore;
 import com.thinkparity.ophelia.model.events.BackupListener;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.workspace.Workspace;
+
+import com.thinkparity.service.BackupService;
+import com.thinkparity.service.SessionService;
+import com.thinkparity.service.client.ServiceFactory;
 
 /**
  * <b>Title:</b>thinkParity Backup Model Implementation</br>
@@ -37,6 +46,9 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  */
 public final class BackupModelImpl extends Model<BackupListener> implements
         BackupModel, InternalBackupModel {
+
+    /** The backup web-service. */
+    private BackupService backupService;
 
     /** A default artifact comparator. */
     private final Comparator<Artifact> defaultComparator;
@@ -55,6 +67,9 @@ public final class BackupModelImpl extends Model<BackupListener> implements
 
     /** A default artifact version filter. */
     private final Filter<ArtifactVersion> defaultVersionFilter;
+
+    /** The session web-service. */
+    private SessionService sessionService;
 
     /**
      * Create BackupModelImpl.
@@ -138,17 +153,6 @@ public final class BackupModelImpl extends Model<BackupListener> implements
         } catch (final Throwable t) {
             throw panic(t);
         }
-    }
-
-    /**
-     * Read the containers from the backup.
-     * 
-     * @param filter
-     *            A <code>Filter&lt;Artifact&gt;</code>.
-     * @return A <code>List&lt;Container&gt;</code>.
-     */
-    public List<Container> readContainers(final Filter<? super Artifact> filter) {
-        return readContainers(defaultComparator, filter);
     }
 
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId) {
@@ -335,13 +339,9 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.backup.BackupModel#readStatistics()
+     * @see com.thinkparity.ophelia.model.backup.InternalBackupModel#readTeamIds(java.util.UUID)
      *
      */
-    public Statistics readStatistics() {
-        return getSessionModel().readStatistics();
-    }
-
     public List<JabberId> readTeamIds(final UUID uniqueId) {
         try {
             return getSessionModel().readBackupTeamIds(uniqueId);
@@ -360,10 +360,74 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.backup.BackupModel#restore(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     *
+     */
+    @Override
+    public void restore(final ProcessMonitor monitor)
+            throws InvalidCredentialsException, InvalidLocationException {
+        try {
+            final Restore delegate = createDelegate(Restore.class);
+            delegate.setMonitor(monitor);
+            delegate.restore();
+        } catch (final InvalidCredentialsException icx) {
+            throw icx;
+        } catch (final InvalidLocationException ilx) {
+            throw ilx;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.Model#initializeModel(com.thinkparity.codebase.model.session.Environment, com.thinkparity.ophelia.model.workspace.Workspace)
      *
      */
     @Override
     protected void initializeModel(final Environment environment,
-            final Workspace workspace) {}
+            final Workspace workspace) {
+        final ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        this.backupService = serviceFactory.getBackupService();
+        this.sessionService = serviceFactory.getSessionService();
+    }
+
+    /**
+     * Obtain the backup web-serivce.
+     * 
+     * @return An instance of <code>BackupService</code>.
+     */
+    BackupService getBackupService() {
+        return backupService;
+    }
+
+    /**
+     * Obtain the session web-serivce.
+     * 
+     * @return An instance of <code>SessionService</code>.
+     */
+    SessionService getSessionService() {
+        return sessionService;
+    }
+
+    /**
+     * Create an instance of a delegate.
+     * 
+     * @param <D>
+     *            A delegate type.
+     * @param type
+     *            The delegate type <code>Class</code>.
+     * @return An instance of <code>D</code>.
+     */
+    private <D extends Delegate<BackupModelImpl>> D createDelegate(
+            final Class<D> type) {
+        try {
+            final D instance = type.newInstance();
+            instance.initialize(this);
+            return instance;
+        } catch (final IllegalAccessException iax) {
+            throw new ThinkParityException("Could not create delegate.", iax);
+        } catch (final InstantiationException ix) {
+            throw new ThinkParityException("Could not create delegate.", ix);
+        }
+    }
 }

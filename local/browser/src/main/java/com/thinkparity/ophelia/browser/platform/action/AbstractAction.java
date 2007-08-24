@@ -20,6 +20,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
@@ -158,6 +159,20 @@ public abstract class AbstractAction implements ActionInvocation {
     }
 
     /**
+     * Display an error dialog for an application.
+     * 
+     * @param applicationId
+     *            An <code>ApplicationId</code>.
+     * @param errorMessageKey
+     *            An error message localization key <code>String</code>.
+     */
+    public void displayErrorDialog(final ApplicationId applicationId,
+            final String errorMessageKey) {
+        BrowserPlatform.getInstance().displayErrorDialog(applicationId, null,
+                errorMessageKey, (Object[]) null);
+    }
+    
+    /**
      * Obtain the action ACCELERATOR.
      * 
      * @return The action ACCELERATOR.
@@ -170,15 +185,15 @@ public abstract class AbstractAction implements ActionInvocation {
 	 * @return The action ICON.
 	 */
 	public Icon getIcon() { return icon; }
-    
-    /**
+
+	/**
 	 * Obtain the action id.
 	 * 
 	 * @return The action id.
 	 */
 	public ActionId getId() { return id; }
 
-	/**
+    /**
      * Obtain the action MENUNAME.
      * (This name is used for main menus.)
      * 
@@ -186,14 +201,14 @@ public abstract class AbstractAction implements ActionInvocation {
      */
     public String getMenuName() { return menuName; }
 
-    /**
+	/**
      * Obtain the action MNEMONIC.
      * 
      * @return The action MNEMONIC.
      */
     public String getMnemonic() { return mnemonic; }
 
-	/**
+    /**
 	 * Obtain the action NAME.
      * (This name is used for context menus.)
 	 * 
@@ -270,7 +285,7 @@ public abstract class AbstractAction implements ActionInvocation {
         return null != menuName;
     }
 
-    /**
+	/**
      * Determine if the mnemonic is set.
      * 
      * @return True if the mnemonic is set; false otherwise.
@@ -279,7 +294,7 @@ public abstract class AbstractAction implements ActionInvocation {
         return ((null != mnemonic) && (mnemonic.charAt(0) != '!'));
     }
 
-	/**
+    /**
      * Determine if the name is set.
      * 
      * @return True if the name is set; false otherwise.
@@ -293,7 +308,7 @@ public abstract class AbstractAction implements ActionInvocation {
      * 
      */
     public void retryInvokeAction() {}
-
+    
     /**
      * Set the accelerator.
      * 
@@ -313,8 +328,8 @@ public abstract class AbstractAction implements ActionInvocation {
 	public void setIcon(final Icon icon) {
         this.icon = icon;
     }
-    
-    /**
+
+	/**
      * Set the menu name.
      * 
      * @param name
@@ -333,8 +348,8 @@ public abstract class AbstractAction implements ActionInvocation {
     public void setMnemonic(final String mnemonic) {
         this.mnemonic = mnemonic;
     }
-
-	/**
+    
+    /**
 	 * Set the name.
 	 * 
 	 * @param name
@@ -354,6 +369,15 @@ public abstract class AbstractAction implements ActionInvocation {
 	}
     
     /**
+     * Obtain a backup model.
+     * 
+     * @return An instance of <code>BackupModel</code>.
+     */
+    protected BackupModel getBackupModel() {
+        return modelFactory.getBackupModel(getClass());
+    }
+
+    /**
      * Obtain the thinkParity browser application from the registry.
      * 
      * @return The thinkParity browser application.
@@ -361,8 +385,8 @@ public abstract class AbstractAction implements ActionInvocation {
     protected Browser getBrowserApplication() {
         return (Browser) applicationRegistry.get(ApplicationId.BROWSER);
     }
-    
-    /**
+
+	/**
      * Obtain the contact model api.
      * 
      * @return The contact model api.
@@ -371,7 +395,7 @@ public abstract class AbstractAction implements ActionInvocation {
         return modelFactory.getContactModel(getClass());
     }
 
-	/**
+    /**
      * Obtain the container model api.
      * 
      * @return The container model api.
@@ -380,7 +404,7 @@ public abstract class AbstractAction implements ActionInvocation {
         return modelFactory.getContainerModel(getClass());
     }
 
-    /**
+	/**
      * Convert the data element foudn at the given key to a list of files.
      * 
      * @param data
@@ -397,7 +421,7 @@ public abstract class AbstractAction implements ActionInvocation {
         return files;
     }
 
-	/**
+    /**
      * Convert the data element found at the given key to a list of jabber ids.
      * 
      * @param data
@@ -448,7 +472,7 @@ public abstract class AbstractAction implements ActionInvocation {
     protected ProfileModel getProfileModel() {
         return modelFactory.getProfileModel(getClass());
     }
-
+    
     /**
      * Obtain the parity session interface.
      * 
@@ -456,9 +480,9 @@ public abstract class AbstractAction implements ActionInvocation {
      */
 	protected SessionModel getSessionModel() {
 		return modelFactory.getSessionModel(getClass());
-	}
-    
-    /**
+	}  
+
+	/**
 	 * Obtain localized text.
 	 * 
 	 * @param localKey
@@ -467,8 +491,8 @@ public abstract class AbstractAction implements ActionInvocation {
 	 */
 	protected String getString(final String localKey) {
 		return localization.getString(localKey);
-	}  
-
+	}   
+    
 	/**
 	 * Obtain localized text.
 	 * 
@@ -480,8 +504,8 @@ public abstract class AbstractAction implements ActionInvocation {
 	 */
 	protected String getString(final String localKey, final Object[] arguments) {
 		return localization.getString(localKey, arguments);
-	}   
-    
+	}
+
 	/**
      * Obtain the thinkParity user interface.
      * 
@@ -490,7 +514,7 @@ public abstract class AbstractAction implements ActionInvocation {
     protected UserModel getUserModel() {
         return modelFactory.getUserModel(getClass());
     }
-
+    
 	/**
      * Obtain the thinkParity workspace.
      * 
@@ -499,14 +523,6 @@ public abstract class AbstractAction implements ActionInvocation {
     protected Workspace getWorkspace() {
         return modelFactory.getWorkspace(getClass());
     }
-    
-	/**
-	 * Invoke the action.
-	 * 
-	 * @param data
-	 *            The action data.
-	 */
-	protected abstract void invoke(final Data data);
 
     /**
      * Invoke an action.
@@ -522,6 +538,14 @@ public abstract class AbstractAction implements ActionInvocation {
     }
 
     /**
+	 * Invoke the action.
+	 * 
+	 * @param data
+	 *            The action data.
+	 */
+	protected abstract void invoke(final Data data);
+
+	/**
      * Translate an error into a browser runtime exception.
      * 
      * @param t
@@ -544,7 +568,7 @@ public abstract class AbstractAction implements ActionInvocation {
         }
     }
 
-	/**
+    /**
      * Display an error dialog for an application.
      * 
      * @param applicationId
@@ -555,20 +579,6 @@ public abstract class AbstractAction implements ActionInvocation {
     private void displayErrorDialog(final ApplicationId applicationId,
             final Throwable error) {
         BrowserPlatform.getInstance().displayErrorDialog(applicationId, error);
-    }
-
-    /**
-     * Display an error dialog for an application.
-     * 
-     * @param applicationId
-     *            An <code>ApplicationId</code>.
-     * @param errorMessageKey
-     *            An error message localization key <code>String</code>.
-     */
-    public void displayErrorDialog(final ApplicationId applicationId,
-            final String errorMessageKey) {
-        BrowserPlatform.getInstance().displayErrorDialog(applicationId, null,
-                errorMessageKey, (Object[]) null);
     }
 
     /**

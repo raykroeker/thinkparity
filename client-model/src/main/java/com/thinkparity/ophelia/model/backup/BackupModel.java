@@ -4,10 +4,12 @@
 package com.thinkparity.ophelia.model.backup;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
-import com.thinkparity.codebase.model.backup.Statistics;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+import com.thinkparity.codebase.model.session.InvalidLocationException;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.events.BackupListener;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
 /**
  * <b>Title:</b>thinkParity Backup Model<br>
@@ -22,25 +24,32 @@ public interface BackupModel {
     /**
      * Add a backup listener.
      * 
-     * @param l
+     * @param listener
      *            A <code>BackupListener</code>.
      */
     @ThinkParityTransaction(TransactionType.NEVER)
-    public void addListener(final BackupListener l);
+    void addListener(BackupListener listener);
 
-    /**
-     * Read the backup statistics.
-     * 
-     * @return An instance of <code>Statistics</code>.
-     */
-    public Statistics readStatistics();
-
+    
     /**
      * Remove a backup listener.
      * 
-     * @param l
+     * @param listener
      *            A <code>BackupListener</code>.
      */
     @ThinkParityTransaction(TransactionType.NEVER)
-    public void removeListener(final BackupListener l);
+    void removeListener(BackupListener listener);
+
+    /**
+     * Restore the profile from backup.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * 
+     * @throws InvalidCredentialsException
+     *             if the stored credentials are no longer valid
+     * @throws InvalidLocationException
+     */
+    void restore(ProcessMonitor monitor) throws InvalidCredentialsException,
+            InvalidLocationException;
 }

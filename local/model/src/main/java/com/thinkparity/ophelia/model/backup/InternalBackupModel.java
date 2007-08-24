@@ -68,15 +68,6 @@ public interface InternalBackupModel extends BackupModel {
             final Comparator<Artifact> comparator,
             final Filter<? super Artifact> filter);
 
-    /**
-     * Read the containers from the backup.
-     * 
-     * @param filter
-     *            A <code>Filter&lt;Artifact&gt;</code>.
-     * @return A <code>List&lt;Container&gt;</code>.
-     */
-    public List<Container> readContainers(final Filter<? super Artifact> filter);
-
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId);
 
     public List<ContainerVersion> readContainerVersions(final UUID uniqueId,

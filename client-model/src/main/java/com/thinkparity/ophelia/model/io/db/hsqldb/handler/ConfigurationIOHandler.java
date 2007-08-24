@@ -20,26 +20,25 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
 
     /** Sql to create a configuration entry. */
     private static final String SQL_CREATE =
-            new StringBuffer("insert into CONFIGURATION ")
-            .append("(CONFIGURATION_KEY,META_DATA_ID) ")
-            .append("values (?,?)")
-            .toString();
+        new StringBuilder("insert into CONFIGURATION ")
+        .append("(CONFIGURATION_KEY,META_DATA_ID) ")
+        .append("values (?,?)")
+        .toString();
 
     /** Sql to delete a configuration entry. */
     private static final String SQL_DELETE =
-            new StringBuffer("insert into CONFIGURATION ")
-            .append("values (CONFIGURATION_KEY,META_DATA_ID) ")
-            .append("(?,?)")
-            .toString();
+        new StringBuilder("delete from CONFIGURATION ")
+        .append("where CONFIGURATION_KEY=?")
+        .toString();
 
     /** Sql to read a configuration entry. */
     private static final String SQL_READ =
-            new StringBuffer("select C.CONFIGURATION_KEY,MD.META_DATA_ID,")
-            .append("MD.META_DATA_TYPE_ID,MD.META_DATA_KEY,MD.META_DATA_VALUE ")
-            .append("from CONFIGURATION C ")
-            .append("inner join META_DATA MD on C.META_DATA_ID=MD.META_DATA_ID ")
-            .append("where C.CONFIGURATION_KEY=?")
-            .toString();
+        new StringBuffer("select C.CONFIGURATION_KEY,MD.META_DATA_ID,")
+        .append("MD.META_DATA_TYPE_ID,MD.META_DATA_KEY,MD.META_DATA_VALUE ")
+        .append("from CONFIGURATION C ")
+        .append("inner join META_DATA MD on C.META_DATA_ID=MD.META_DATA_ID ")
+        .append("where C.CONFIGURATION_KEY=?")
+        .toString();
 
     /** The meta data io interface. */
     private final MetaDataIOHandler metaDataIO;
@@ -82,13 +81,14 @@ public class ConfigurationIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_READ);
             session.setString(1, key);
             session.executeQuery();
-            if(session.nextResult()) {
+            if (session.nextResult()) {
+                final MetaData metaData = extractMetaData(session, metaDataIO);
+
                 session.prepareStatement(SQL_DELETE);
                 session.setString(1, key);
                 if(1 != session.executeUpdate())
                     throw new HypersonicException("Could not delete configuration entry.");
 
-                final MetaData metaData = extractMetaData(session, metaDataIO);
                 metaDataIO.delete(session, metaData.getId());
             }
             else {

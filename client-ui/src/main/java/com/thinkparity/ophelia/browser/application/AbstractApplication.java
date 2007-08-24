@@ -19,6 +19,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.profile.Profile;
 
 import com.thinkparity.ophelia.model.artifact.ArtifactModel;
+import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.document.DocumentModel;
@@ -155,9 +156,18 @@ public abstract class AbstractApplication implements Application {
      * 
      * @return The parity artifact interface.
      */
-	public ArtifactModel getArtifactModel() {
-		return platform.getModelFactory().getArtifactModel(getClass());
-	}
+    public ArtifactModel getArtifactModel() {
+        return platform.getModelFactory().getArtifactModel(getClass());
+    }
+
+    /**
+     * Obtain a backup model.
+     * 
+     * @return An instance of <code>BackupModel</code>.
+     */
+    public BackupModel getBackupModel() {
+        return platform.getModelFactory().getBackupModel(getClass());
+    }
 
     /**
      * Obtain the thinkParity contact model.
@@ -356,6 +366,15 @@ public abstract class AbstractApplication implements Application {
     }
 
     /**
+     * Obtain the build id.
+     * 
+     * @return The build id <code>String</code>.
+     */
+    protected String getBuildId() {
+        return platform.getBuildId();
+    }
+
+	/**
 	 * Obtain the platform.
 	 * 
 	 * @return The platform.
@@ -366,7 +385,7 @@ public abstract class AbstractApplication implements Application {
 		return persistence.get(key, defaultValue);
 	}
 
-	protected String getPref(final String key, final String defaultValue) {
+    protected String getPref(final String key, final String defaultValue) {
 		return persistence.get(key, defaultValue);
 	}
 
@@ -386,15 +405,6 @@ public abstract class AbstractApplication implements Application {
      */
     protected String getReleaseName() {
         return platform.getReleaseName();
-    }
-
-    /**
-     * Obtain the build id.
-     * 
-     * @return The build id <code>String</code>.
-     */
-    protected String getBuildId() {
-        return platform.getBuildId();
     }
 
     protected String getString(final String localKey) {

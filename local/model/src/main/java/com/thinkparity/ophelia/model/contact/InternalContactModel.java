@@ -165,4 +165,12 @@ public interface InternalContactModel extends ContactModel {
      */
     public List<OutgoingEMailInvitation> readOutgoingEMailInvitations(
             final ContainerVersion version);
+
+    /**
+     * Restore backup.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     */
+    void restoreBackup(ProcessMonitor monitor);
 }

@@ -10,7 +10,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
-import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -125,15 +124,6 @@ public interface BackupModel {
      */
     public List<PublishedToEMail> readPublishedToEMails(
             final UUID containerUniqueId, final Long containerVersionId);
-
-    /**
-     * Read the backup statistics.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @return An instance of <code>Statistics</code>.
-     */
-    public Statistics readStatistics();
 
     /**
      * Read the artifact team from the backup.

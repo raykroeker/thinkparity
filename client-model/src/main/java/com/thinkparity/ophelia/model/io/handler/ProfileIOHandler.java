@@ -115,4 +115,12 @@ public interface ProfileIOHandler extends IOHandler {
      */
     public void verifyEmail(final Long profileId, final Long emailId,
             final Boolean verified);
+
+    /**
+     * Delete the profile.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     */
+    void delete(Profile profile);
 }

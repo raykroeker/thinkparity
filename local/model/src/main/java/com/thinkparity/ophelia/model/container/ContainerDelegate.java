@@ -31,7 +31,6 @@ import com.thinkparity.ophelia.model.io.handler.ContainerIOHandler;
 import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
-import com.thinkparity.service.AuthToken;
 import com.thinkparity.service.ContainerService;
 
 /**
@@ -141,15 +140,6 @@ public abstract class ContainerDelegate extends
     }
 
     /**
-     * Obtain the web-service authentication token.
-     * 
-     * @return An <code>AuthToken</code>.
-     */
-    protected final AuthToken getAuthToken() {
-        return getSessionModel().getAuthToken();
-    }
-
-    /**
      * @see ContainerModelImpl#getContainerConstraints()
      * 
      */
@@ -251,6 +241,22 @@ public abstract class ContainerDelegate extends
     protected final Map<DocumentVersion, DocumentFileLock> lockDocumentVersions(
             final List<Document> documents) throws CannotLockException {
         return modelImplementation.lockDocumentVersions(documents);
+    }
+
+    /**
+     * @see ContainerModelImpl#notifyContainerCreatedLocally(Container)
+     * 
+     */
+    protected final void notifyContainerCreatedLocally(final Container container) {
+        modelImplementation.notifyContainerCreatedLocally(container);
+    }
+
+    /**
+     * @see ContainerModelImpl#notifyContainerDeletedLocally(Container)
+     * 
+     */
+    protected final void notifyContainerDeletedLocally(final Container container) {
+        modelImplementation.notifyContainerDeletedLocally(container);
     }
 
     /**

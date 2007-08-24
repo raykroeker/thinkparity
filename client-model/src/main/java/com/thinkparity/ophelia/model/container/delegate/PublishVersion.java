@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.model.container.delegate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
@@ -109,12 +108,6 @@ public final class PublishVersion extends ContainerDelegate {
         // include the users who have already received the package
         final List<ArtifactReceipt> receivedBy =
             containerIO.readPublishedToReceipts(containerId, versionId);
-        final Iterator<ArtifactReceipt> iReceivedBy = receivedBy.iterator();
-        while (iReceivedBy.hasNext()) {
-            if (!iReceivedBy.next().isSetReceivedOn().booleanValue()) {
-                iReceivedBy.remove();
-            }
-        }
         // publish
         final List<DocumentVersion> versions = readDocumentVersions(
                 version.getArtifactId(), version.getVersionId(),

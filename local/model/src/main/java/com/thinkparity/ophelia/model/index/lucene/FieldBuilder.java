@@ -183,8 +183,10 @@ public class FieldBuilder {
 	 */
 	public FieldBuilder setValue(final List<TeamMember> teamMembers) {
 		final StringBuffer buffer = new StringBuffer();
-		for(final TeamMember teamMember : teamMembers) {
-			if(0 < buffer.length()) { buffer.append(Separator.SemiColon); }
+		for (final TeamMember teamMember : teamMembers) {
+			if (0 < buffer.length()) {
+			    buffer.append(Separator.Space);
+			}
 			buffer.append(tokenize(teamMember));
 		}
 		this.value = buffer.toString();
@@ -282,12 +284,12 @@ public class FieldBuilder {
         final StringTokenizer nameTokenizer = new StringTokenizer(user.getName(), " ");
         while (nameTokenizer.hasMoreTokens()) {
             if (0 < buffer.length()) {
-                buffer.append(Separator.Comma);
+                buffer.append(Separator.Space);
             }
             buffer.append(nameTokenizer.nextToken());
         }
-        return buffer.append(Separator.Comma).append(user.getOrganization())
-            .append(Separator.Comma).append(user.getTitle())
+        return buffer.append(Separator.Space).append(user.getOrganization())
+            .append(Separator.Space).append(user.getTitle())
             .toString();
 	}
 }

@@ -7,6 +7,8 @@ import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
+
 /**
  * <b>Title:</b>thinkParity Internal Profile Model<br>
  * <b>Description:</b><br>
@@ -30,6 +32,14 @@ public interface InternalProfileModel extends ProfileModel {
      * @return An instance of <code>Credentials</code>.
      */
     Credentials readCredentials();
+
+    /**
+     * Restore backup.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     */
+    void restoreBackup(ProcessMonitor monitor);
 
     /**
      * Update the release for the profile.

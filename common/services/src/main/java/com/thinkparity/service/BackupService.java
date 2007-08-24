@@ -13,7 +13,6 @@ import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
-import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
@@ -57,9 +56,6 @@ public interface BackupService {
     @WebMethod
     List<PublishedToEMail> readPublishedToEMails(AuthToken authToken,
             UUID containerUniqueId, Long containerVersionId);
-
-    @WebMethod
-    Statistics readStatistics(AuthToken authToken);
 
     @WebMethod
     List<JabberId> readTeamIds(AuthToken authToken,

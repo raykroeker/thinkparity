@@ -16,7 +16,6 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.DraftExistsException;
 import com.thinkparity.codebase.model.artifact.IllegalVersionException;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
-import com.thinkparity.codebase.model.backup.Statistics;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
@@ -487,13 +486,6 @@ public interface InternalSessionModel extends SessionModel {
      * @return A <code>List</code> of <code>Feature</code>s.
      */
     public List<Feature> readProfileFeatures();
-
-    /**
-     * Read the backup statistics.
-     * 
-     * @return The <code>Statistics</code>.
-     */
-    public Statistics readStatistics();
 
     /**
      * Read a thinkParity user from the server.

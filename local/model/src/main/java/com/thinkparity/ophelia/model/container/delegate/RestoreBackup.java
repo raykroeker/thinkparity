@@ -72,9 +72,6 @@ public final class RestoreBackup extends ContainerDelegate {
     public void restoreBackup() throws CannotLockException, IOException,
             NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidKeyException {
-        // if backup is not enabled for the profile, do nothing
-        if (!getProfileModel().isBackupEnabled().booleanValue())
-            return;
         final List<Container> containers = read();
         notifyDetermine(monitor, containers.size());
         if (0 < containers.size()) {
@@ -103,6 +100,10 @@ public final class RestoreBackup extends ContainerDelegate {
             }
             notifyStepEnd(monitor, RestoreBackupStep.DELETE_LOCAL_CONTAINER);
         }
+
+        // if backup is not enabled for the profile, do nothing
+        if (!getProfileModel().isBackupEnabled().booleanValue())
+            return;
 
         final InternalBackupModel backupModel = getBackupModel();
         final List<Container> backupContainers = backupModel.readContainers();

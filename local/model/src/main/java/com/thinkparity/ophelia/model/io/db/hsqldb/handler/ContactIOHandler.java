@@ -387,6 +387,8 @@ public final class ContactIOHandler extends AbstractIOHandler implements
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not create contact.");
 
+            userIO.update(session, contact);
+
             createEMails(session, contact);
         } finally {
             session.close();

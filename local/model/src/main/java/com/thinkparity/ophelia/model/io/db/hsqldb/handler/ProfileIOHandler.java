@@ -49,11 +49,23 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
         .append("values (?,?)")
         .toString();
 
+    /** Sql to delete profile. */
+    private static final String SQL_DELETE =
+        new StringBuilder("delete from PROFILE ")
+        .append("where PROFILE_ID=?")
+        .toString();
+
     /** Sql to delete an email. */
     private static final String SQL_DELETE_EMAIL =
         new StringBuilder("delete from ")
         .append("PROFILE_EMAIL_REL ")
         .append("where PROFILE_ID=? and EMAIL_ID=?")
+        .toString();
+
+    /** Sql to delete profile features. */
+    private static final String SQL_DELETE_FEATURES =
+        new StringBuilder("delete from PROFILE_FEATURE ")
+        .append("where PROFILE_ID=?")
         .toString();
 
     /** Sql to read the profile. */
@@ -148,7 +160,6 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
     public void create(final Profile profile) {
         final Session session = openSession();
         try {
-            userIO.create(session, profile);
             session.prepareStatement(SQL_CREATE);
             session.setLong(1, profile.getLocalId());
             session.setVCard(2, profile.getVCard());
@@ -164,6 +175,8 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
                             "Could not create feature {0} for profile {1}.",
                             feature, profile);
             }
+
+            userIO.update(session, profile);
         } finally {
             session.close();
         }
@@ -184,6 +197,30 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
             session.setBoolean(3, email.isVerified());
             if (1 != session.executeUpdate())
                 throw new HypersonicException("COULD NOT CREATE EMAIL");
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ProfileIOHandler#delete(com.thinkparity.codebase.model.profile.Profile)
+     *
+     */
+    @Override
+    public void delete(final Profile profile) {
+        final Session session = openSession();
+        try {
+            final int featureCount = profile.getFeatures().size();
+            session.prepareStatement(SQL_DELETE_FEATURES);
+            session.setLong(1, profile.getLocalId());
+            if (featureCount != session.executeUpdate()) {
+                throw new HypersonicException("Could not delete profile features.");
+            }
+            
+            session.prepareStatement(SQL_DELETE);
+            session.setLong(1, profile.getLocalId());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException("Could not delete profile.");
         } finally {
             session.close();
         }
@@ -288,14 +325,7 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
     public List<Feature> readFeatures(final Long profileId) {
         final Session session = openSession();
         try {
-            session.prepareStatement(SQL_READ_FEATURES);
-            session.setLong(1, profileId);
-            session.executeQuery();
-            final List<Feature> features = new ArrayList<Feature>();
-            while (session.nextResult()) {
-                features.add(extractFeature(session));
-            }
-            return features;
+            return readFeatures(session, profileId);
         } finally {
             session.close();
         }
@@ -303,6 +333,7 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
 
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ProfileIOHandler#update(com.thinkparity.codebase.model.profile.Profile)
+     * 
      */
     public void update(final Profile profile) {
         final Session session = openSession();
@@ -369,6 +400,8 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
         profile.setName(session.getString("NAME"));
         profile.setOrganization(session.getString("ORGANIZATION"));
         profile.setTitle(session.getString("TITLE"));
+
+        profile.setFeatures(readFeatures(session, profile.getLocalId()));
         return profile;
     }
 
@@ -392,6 +425,7 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
         }
     }
 
+
     /**
      * Extract the feature from the session.
      * 
@@ -404,5 +438,25 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
         feature.setFeatureId(session.getLong("FEATURE_ID"));
         feature.setName(session.getString("FEATURE_NAME"));
         return feature;
+    }
+
+    /**
+     * Read the profile features.
+     * 
+     * @param session
+     *            A <code>Session</code>.
+     * @param profileId
+     *            A <code>Long</code>.
+     * @return A <code>List<Feature></code>.
+     */
+    private List<Feature> readFeatures(final Session session, final Long profileId) {
+        session.prepareStatement(SQL_READ_FEATURES);
+        session.setLong(1, profileId);
+        session.executeQuery();
+        final List<Feature> features = new ArrayList<Feature>();
+        while (session.nextResult()) {
+            features.add(extractFeature(session));
+        }
+        return features;
     }
 }

@@ -24,9 +24,9 @@ create table TPSD_USERNAME_RESERVATION(
 create table TPSD_USER(
     USER_ID bigint generated always as identity(start with 7000),
     USERNAME varchar(32) not null,
-    PASSWORD varchar(32) not null,
+    PASSWORD varchar(64) not null,
     SECURITY_QUESTION varchar(64) not null,
-    SECURITY_ANSWER varchar(64) not null,
+    SECURITY_ANSWER varchar(128) not null,
     DISABLED char not null,
     TOKEN varchar(64),
     VCARD clob not null,

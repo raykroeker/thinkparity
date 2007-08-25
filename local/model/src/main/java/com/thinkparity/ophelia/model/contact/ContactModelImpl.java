@@ -1452,7 +1452,7 @@ public final class ContactModelImpl extends Model<ContactListener>
      * @return True if the contact exists.
      */
     private boolean doesExist(final Contact contact) {
-        return contactIO.doesExist(contact.getLocalId());
+        return null != contact && contactIO.doesExist(contact.getLocalId());
     }
 
     /**

@@ -178,6 +178,19 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("and ARTIFACT_ID=?")
         .toString();
 
+    /** Sql to delete a draft artifact relationship. */
+    private static final String SQL_DELETE_DRAFT_ARTIFACTS =
+        new StringBuilder("delete from CONTAINER_DRAFT_ARTIFACT_REL ")
+        .append("where CONTAINER_ID=?")
+        .toString();
+
+    /** Sql to read the draft artifact count. */
+    private static final String SQL_READ_DRAFT_ARTIFACT_COUNT =
+        new StringBuilder("select count(CDAR.ARTIFACT_ID) \"ARTIFACT_COUNT\" ")
+        .append("from CONTAINER_DRAFT_ARTIFACT_REL CDAR ")
+        .append("where CDAR.CONTAINER_ID=?")
+        .toString();
+
     /** Sql to delete the draft document. */
     private static final String SQL_DELETE_DRAFT_DOCUMENT =
         new StringBuilder("delete from CONTAINER_DRAFT_DOCUMENT ")
@@ -961,6 +974,26 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.setLong(2, artifactId);
             if(1 != session.executeUpdate())
                 throw new HypersonicException("Could not delete draft artifact relationship.");
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#deleteDraftArtifacts(java.lang.Long)
+     *
+     */
+    @Override
+    public void deleteDraftArtifacts(final Long containerId) {
+        final Session session = openSession();
+        try {
+            final Integer artifactCount = readDraftArtifactCount(session, containerId);
+
+            session.prepareStatement(SQL_DELETE_DRAFT_ARTIFACTS);
+            session.setLong(1, containerId);
+            if (artifactCount.intValue() != session.executeUpdate())
+                throw new HypersonicException("Could not delete draft artifacts.");
+
         } finally {
             session.close();
         }
@@ -2103,6 +2136,26 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         session.executeQuery();
         if (session.nextResult()) {
             return session.getInteger("DOCUMENT_COUNT");
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Obtain the draft artifact count.
+     * 
+     * @param session
+     *            A <code>Session</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return The draft artifact count <code>Integer</code>.
+     */
+    private Integer readDraftArtifactCount(final Session session, final Long containerId) {
+        session.prepareStatement(SQL_READ_DRAFT_ARTIFACT_COUNT);
+        session.setLong(1, containerId);
+        session.executeQuery();
+        if (session.nextResult()) {
+            return session.getInteger("ARTIFACT_COUNT");
         } else {
             return null;
         }

@@ -194,6 +194,14 @@ public interface ContainerIOHandler {
     public void deleteDraftArtifactRel(final Long containerId,
             final Long artifactId);
 
+    /**
+     * Delete the draft artifact relationships.
+     * 
+     * @param containerId
+     *            A container id.
+     */
+    public void deleteDraftArtifacts(final Long containerId);
+
     // TODO-javadoc ContainerIOHandler#deleteDraftDocument
     public void deleteDraftDocument(final Long containerDraftId,
             final Long documentId);

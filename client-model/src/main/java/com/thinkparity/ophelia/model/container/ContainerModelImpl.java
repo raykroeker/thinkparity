@@ -2190,11 +2190,11 @@ public final class ContainerModelImpl extends
             final Map<Document, DocumentFileLock> documentLocks,
             final Map<DocumentVersion, DocumentFileLock> documentVersionLocks) {
         // delete the draft
-        final ContainerDraft draft = readDraft(containerId);
-        if (null != draft) {
-            for(final Document document : draft.getDocuments()) {
-                containerIO.deleteDraftArtifactRel(containerId, document.getId());
-            }
+        final User localUser = localUser();
+        if (containerIO.doesExistDraft(containerId)
+                && containerIO.doesExistLocalDraft(containerId,
+                        localUser.getLocalId())) {
+            containerIO.deleteDraftArtifacts(containerId);
             containerIO.deleteDraftDocuments(containerId);
             containerIO.deleteDraft(containerId);
         }

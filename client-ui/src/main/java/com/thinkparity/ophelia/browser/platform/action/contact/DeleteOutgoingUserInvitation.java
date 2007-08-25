@@ -44,10 +44,10 @@ public final class DeleteOutgoingUserInvitation extends AbstractAction {
         final Long invitationId = (Long) data.get(DataKey.INVITATION_ID);
 
         final ContactModel contactModel = getContactModel();
-        final OutgoingUserInvitation outgoing = contactModel.readOutgoingUserInvitation(invitationId);
+        final OutgoingUserInvitation invitation = contactModel.readOutgoingUserInvitation(invitationId);
         if (browser.confirm("ContactOutgoingUserInvitationDelete.ConfirmDeleteMessage",
-                new Object[] {outgoing.getInvitationUser().getName()})) {
-            contactModel.deleteOutgoingUserInvitation(invitationId);
+                new Object[] {invitation.getInvitationUser().getName()})) {
+            contactModel.deleteInvitation(invitation);
         }
     }
 

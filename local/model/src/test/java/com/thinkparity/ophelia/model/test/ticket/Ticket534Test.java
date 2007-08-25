@@ -8,7 +8,8 @@ import java.util.List;
 
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
-import com.thinkparity.codebase.model.contact.OutgoingInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
 
 import com.thinkparity.ophelia.model.contact.InternalContactModel;
 
@@ -49,19 +50,19 @@ public class Ticket534Test extends TicketTestCase {
         final Contact c = cm.read(datum.junit_x.getId());
         if (null != c) {
             logger.logInfo("Deleting contact {0} as {1}.", c.getId().getUsername(), datum.junit.getSimpleUsername());
-            cm.delete(c.getId());
+            cm.delete(c);
             datum.waitForEvents();
         }
-        List<? extends OutgoingInvitation> oi_list = cm.readOutgoingEMailInvitations();
-        for (final OutgoingInvitation oi : oi_list) {
-            logger.logInfo("Deleting e-mail invitation {0} as {1}.", oi.getId(), datum.junit.getSimpleUsername());
-            cm.deleteOutgoingEMailInvitation(oi.getId());
+        final List<OutgoingEMailInvitation> oei_list = cm.readOutgoingEMailInvitations();
+        for (final OutgoingEMailInvitation oei : oei_list) {
+            logger.logInfo("Deleting e-mail invitation {0} as {1}.", oei.getId(), datum.junit.getSimpleUsername());
+            cm.deleteInvitation(oei);
             datum.waitForEvents();
         }
-        oi_list = cm.readOutgoingUserInvitations();
-        for (final OutgoingInvitation oi : oi_list) {
-            logger.logInfo("Deleting user invitation {0} as {1}.", oi.getId(), datum.junit.getSimpleUsername());
-            cm.deleteOutgoingUserInvitation(oi.getId());
+        final List<OutgoingUserInvitation> oui_list = cm.readOutgoingUserInvitations();
+        for (final OutgoingUserInvitation oui : oui_list) {
+            logger.logInfo("Deleting user invitation {0} as {1}.", oui.getId(), datum.junit.getSimpleUsername());
+            cm.deleteInvitation(oui);
             datum.waitForEvents();
         }
 
@@ -69,19 +70,19 @@ public class Ticket534Test extends TicketTestCase {
         final Contact c_x = cm_x.read(datum.junit.getId());
         if (null != c_x) {
             logger.logInfo("Deleting contact {0} as {1}.", c_x.getId().getUsername(), datum.junit_x.getSimpleUsername());
-            cm_x.delete(c_x.getId());
+            cm_x.delete(c_x);
             datum.waitForEvents();
         }
-        List<? extends OutgoingInvitation> oi_list_x = cm_x.readOutgoingEMailInvitations();
-        for (final OutgoingInvitation oi_x : oi_list_x) {
-            logger.logInfo("Deleting invitation {0} as {1}.", oi_x.getId(), datum.junit_x.getSimpleUsername());
-            cm_x.deleteOutgoingEMailInvitation(oi_x.getId());
+        final List<OutgoingEMailInvitation> oei_list_x = cm_x.readOutgoingEMailInvitations();
+        for (final OutgoingEMailInvitation oei_x : oei_list_x) {
+            logger.logInfo("Deleting invitation {0} as {1}.", oei_x.getId(), datum.junit_x.getSimpleUsername());
+            cm_x.deleteInvitation(oei_x);
             datum.waitForEvents();
         }
-        oi_list_x = cm_x.readOutgoingUserInvitations();
-        for (final OutgoingInvitation oi_x : oi_list_x) {
-            logger.logInfo("Deleting invitation {0} as {1}.", oi_x.getId(), datum.junit_x.getSimpleUsername());
-            cm_x.deleteOutgoingEMailInvitation(oi_x.getId());
+        final List<OutgoingUserInvitation> oui_list_x = cm_x.readOutgoingUserInvitations();
+        for (final OutgoingUserInvitation oui_x : oui_list_x) {
+            logger.logInfo("Deleting invitation {0} as {1}.", oui_x.getId(), datum.junit_x.getSimpleUsername());
+            cm_x.deleteInvitation(oui_x);
             datum.waitForEvents();
         }
 
@@ -94,7 +95,7 @@ public class Ticket534Test extends TicketTestCase {
         // accept the invitation from junit to junit_x
         final List<IncomingEMailInvitation> invitations = getContactModel(datum.junit).readIncomingEMailInvitations();
         assertEquals("Number of incoming invitations does not match expectation.", invitations.size(), 1);
-        getContactModel(datum.junit).acceptIncomingEMailInvitation(invitations.get(0).getId());
+        getContactModel(datum.junit).acceptInvitation(invitations.get(0));
         datum.waitForEvents();
         final Contact c2 = getContactModel(datum.junit).read(datum.junit_x.getId());
         assertNotNull("Contact is null.", c2);

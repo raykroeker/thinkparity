@@ -3,7 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.contact;
 
-import com.thinkparity.codebase.model.contact.IncomingInvitation;
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 
 import com.thinkparity.ophelia.model.contact.ContactModel;
 
@@ -43,10 +43,10 @@ public final class DeclineIncomingUserInvitation extends AbstractBrowserAction {
 	    final Long invitationId = (Long) data.get(DataKey.INVITATION_ID);
 
         final ContactModel contactModel = getContactModel();
-        final IncomingInvitation invitation = contactModel.readIncomingUserInvitation(invitationId);
+        final IncomingUserInvitation invitation = contactModel.readIncomingUserInvitation(invitationId);
         if (browser.confirm("DeclineIncomingUserInvitation.ConfirmDecline",
                 new Object[] { invitation.getExtendedBy().getName() })) {
-            contactModel.declineIncomingUserInvitation(invitationId);
+            contactModel.declineInvitation(invitation);
         }
 
         // clear any displayed notifications

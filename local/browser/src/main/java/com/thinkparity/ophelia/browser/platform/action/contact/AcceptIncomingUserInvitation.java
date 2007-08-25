@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.contact;
 
+import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
+
 import com.thinkparity.ophelia.model.contact.ContactModel;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -37,7 +39,8 @@ public class AcceptIncomingUserInvitation extends AbstractBrowserAction {
 	    final Long invitationId = (Long) data.get(DataKey.INVITATION_ID);
 
         final ContactModel contactModel = getContactModel();
-        contactModel.acceptIncomingUserInvitation(invitationId);
+        final IncomingUserInvitation invitation = contactModel.readIncomingUserInvitation(invitationId);
+        contactModel.acceptInvitation(invitation);
 
         // clear any displayed notifications
         final Data clearData = new Data(1);

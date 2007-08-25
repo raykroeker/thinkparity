@@ -17,6 +17,7 @@ import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.ContactInvitation;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
@@ -86,144 +87,153 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.contact.ContactModel#acceptIncomingEMailInvitation(java.lang.Long)
-     * 
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#acceptInvitation(com.thinkparity.codebase.model.contact.IncomingEMailInvitation)
+     *
      */
-    public void acceptIncomingEMailInvitation(final Long invitationId) {
+    @Override
+    public void acceptInvitation(final IncomingEMailInvitation invitation) {
         try {
-            final InternalIndexModel indexModel = getIndexModel();
-            final InternalSessionModel sessionModel = getSessionModel();
-            final Calendar acceptedOn = sessionModel.readDateTime();
-
-            final IncomingEMailInvitation incomingEMailInvitation =
-                contactIO.readIncomingEMailInvitation(invitationId);
-            final User extendedBy = incomingEMailInvitation.getExtendedBy();
-
-            // delete incoming e-mail invitations and indicies
-            final List<IncomingEMailInvitation> incomingEMailInvitations = 
-                contactIO.readIncomingEMailInvitations(extendedBy);
-            for (final IncomingEMailInvitation iei : incomingEMailInvitations) {
-                contactIO.deleteInvitation(iei);
-                indexModel.deleteIncomingEMailInvitation(iei.getId());
+            if (doesExist(invitation)) {
+                final InternalIndexModel indexModel = getIndexModel();
+                final InternalSessionModel sessionModel = getSessionModel();
+                final Calendar acceptedOn = sessionModel.readDateTime();
+    
+                final IncomingEMailInvitation incomingEMailInvitation =
+                    contactIO.readIncomingEMailInvitation(invitation.getId());
+                final User extendedBy = incomingEMailInvitation.getExtendedBy();
+    
+                // delete incoming e-mail invitations and indicies
+                final List<IncomingEMailInvitation> incomingEMailInvitations = 
+                    contactIO.readIncomingEMailInvitations(extendedBy);
+                for (final IncomingEMailInvitation iei : incomingEMailInvitations) {
+                    contactIO.deleteInvitation(iei);
+                    indexModel.deleteIncomingEMailInvitation(iei.getId());
+                }
+    
+                // delete incoming user invitation and index
+                final IncomingUserInvitation incomingUserInvitation =
+                    contactIO.readIncomingUserInvitation(extendedBy);
+                if (null != incomingUserInvitation) {
+                    contactIO.deleteInvitation(incomingUserInvitation);
+                    indexModel.deleteIncomingUserInvitation(
+                            incomingUserInvitation.getId());
+                }
+    
+                // delete outgoing e-mail invitations and indicies
+                final Contact contact = sessionModel.readContact(extendedBy.getId());
+                final List<OutgoingEMailInvitation> outgoingEMailInvitations =
+                    contactIO.readOutgoingEMailInvitations(contact.getEmails());
+                for (final OutgoingEMailInvitation oei : outgoingEMailInvitations) {
+                    getContainerModel().deletePublishedTo(oei.getInvitationEMail());
+                    contactIO.deleteInvitation(oei);
+                    indexModel.deleteOutgoingEMailInvitation(oei.getId());
+                }
+    
+                // delete outgoing user invitation and index
+                final OutgoingUserInvitation outgoingUserInvitation =
+                    contactIO.readOutgoingUserInvitation(extendedBy);
+                if (null != outgoingUserInvitation) {
+                    contactIO.deleteInvitation(outgoingUserInvitation);
+                    indexModel.deleteOutgoingUserInvitation(
+                            outgoingUserInvitation.getId());
+                }
+    
+                // create contact and index
+                final Contact localContact = createLocal(contact);
+    
+                // accept remote
+                sessionModel.acceptInvitation(incomingEMailInvitation, acceptedOn);
+    
+                // fire events
+                for (final IncomingEMailInvitation iei : incomingEMailInvitations)
+                    notifyIncomingEMailInvitationDeleted(iei, localEventGenerator);
+                if (null != incomingUserInvitation)
+                    notifyIncomingUserInvitationDeleted(incomingUserInvitation,
+                            localEventGenerator);
+                for (final OutgoingEMailInvitation oei : outgoingEMailInvitations)
+                    notifyOutgoingEMailInvitationDeleted(oei, localEventGenerator);
+                if (null != outgoingUserInvitation)
+                    notifyOutgoingUserInvitationDeleted(outgoingUserInvitation,
+                            localEventGenerator);
+                notifyContactCreated(localContact, localEventGenerator);
+            } else {
+                logger.logInfo("Invitation {0} no longer exists.", invitation);
             }
-
-            // delete incoming user invitation and index
-            final IncomingUserInvitation incomingUserInvitation =
-                contactIO.readIncomingUserInvitation(extendedBy);
-            if (null != incomingUserInvitation) {
-                contactIO.deleteInvitation(incomingUserInvitation);
-                indexModel.deleteIncomingUserInvitation(
-                        incomingUserInvitation.getId());
-            }
-
-            // delete outgoing e-mail invitations and indicies
-            final Contact contact = sessionModel.readContact(extendedBy.getId());
-            final List<OutgoingEMailInvitation> outgoingEMailInvitations =
-                contactIO.readOutgoingEMailInvitations(contact.getEmails());
-            for (final OutgoingEMailInvitation oei : outgoingEMailInvitations) {
-                getContainerModel().deletePublishedTo(oei.getInvitationEMail());
-                contactIO.deleteInvitation(oei);
-                indexModel.deleteOutgoingEMailInvitation(oei.getId());
-            }
-
-            // delete outgoing user invitation and index
-            final OutgoingUserInvitation outgoingUserInvitation =
-                contactIO.readOutgoingUserInvitation(extendedBy);
-            if (null != outgoingUserInvitation) {
-                contactIO.deleteInvitation(outgoingUserInvitation);
-                indexModel.deleteOutgoingUserInvitation(
-                        outgoingUserInvitation.getId());
-            }
-
-            // create contact and index
-            final Contact localContact = createLocal(contact);
-
-            // accept remote
-            sessionModel.acceptInvitation(incomingEMailInvitation, acceptedOn);
-
-            // fire events
-            for (final IncomingEMailInvitation iei : incomingEMailInvitations)
-                notifyIncomingEMailInvitationDeleted(iei, localEventGenerator);
-            if (null != incomingUserInvitation)
-                notifyIncomingUserInvitationDeleted(incomingUserInvitation,
-                        localEventGenerator);
-            for (final OutgoingEMailInvitation oei : outgoingEMailInvitations)
-                notifyOutgoingEMailInvitationDeleted(oei, localEventGenerator);
-            if (null != outgoingUserInvitation)
-                notifyOutgoingUserInvitationDeleted(outgoingUserInvitation,
-                        localEventGenerator);
-            notifyContactCreated(localContact, localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.contact.ContactModel#acceptIncomingUserInvitation(java.lang.Long)
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#acceptInvitation(com.thinkparity.codebase.model.contact.IncomingUserInvitation)
      * 
      */
-    public void acceptIncomingUserInvitation(final Long invitationId) {
+    public void acceptInvitation(final IncomingUserInvitation invitation) {
         try {
-            final InternalIndexModel indexModel = getIndexModel();
-            final InternalSessionModel sessionModel = getSessionModel();
-            final Calendar acceptedOn = sessionModel.readDateTime();
-
-            final IncomingUserInvitation incomingUserInvitation =
-                contactIO.readIncomingUserInvitation(invitationId);
-            final User extendedBy = incomingUserInvitation.getExtendedBy();
-
-            // delete incoming e-mail invitations and index
-            final List<IncomingEMailInvitation> incomingEMailInvitations = 
-                contactIO.readIncomingEMailInvitations(extendedBy);
-            for (final IncomingEMailInvitation iei : incomingEMailInvitations) {
-                contactIO.deleteInvitation(iei);
-                indexModel.deleteIncomingEMailInvitation(iei.getId());
+            if (doesExist(invitation)) {
+                final InternalIndexModel indexModel = getIndexModel();
+                final InternalSessionModel sessionModel = getSessionModel();
+                final Calendar acceptedOn = sessionModel.readDateTime();
+    
+                final IncomingUserInvitation incomingUserInvitation =
+                    contactIO.readIncomingUserInvitation(invitation.getId());
+                final User extendedBy = incomingUserInvitation.getExtendedBy();
+    
+                // delete incoming e-mail invitations and index
+                final List<IncomingEMailInvitation> incomingEMailInvitations = 
+                    contactIO.readIncomingEMailInvitations(extendedBy);
+                for (final IncomingEMailInvitation iei : incomingEMailInvitations) {
+                    contactIO.deleteInvitation(iei);
+                    indexModel.deleteIncomingEMailInvitation(iei.getId());
+                }
+    
+                // delete incoming user invitation and index
+                contactIO.deleteInvitation(incomingUserInvitation);
+                indexModel.deleteIncomingUserInvitation(
+                        incomingUserInvitation.getId());
+    
+                // accept remote
+                sessionModel.acceptInvitation(incomingUserInvitation, acceptedOn);
+                final Contact contact = sessionModel.readContact(extendedBy.getId());
+    
+                // delete outgoing e-mail invitations and indicies
+                final List<OutgoingEMailInvitation> outgoingEMailInvitations =
+                    contactIO.readOutgoingEMailInvitations(contact.getEmails());
+                for (final OutgoingEMailInvitation oei : outgoingEMailInvitations) {
+                    // delete the published to reference
+                    getContainerModel().deletePublishedTo(oei.getInvitationEMail());
+                    // delete the invitation and e-mail
+                    contactIO.deleteInvitation(oei);
+                    indexModel.deleteOutgoingEMailInvitation(oei.getId());
+                }
+    
+                // delete outgoing user invitation and index
+                final OutgoingUserInvitation outgoingUserInvitation =
+                    contactIO.readOutgoingUserInvitation(extendedBy);
+                if (null != outgoingUserInvitation) {
+                    contactIO.deleteInvitation(outgoingUserInvitation);
+                    indexModel.deleteOutgoingUserInvitation(
+                            outgoingUserInvitation.getId());
+                }
+    
+                // create contact data
+                final Contact localContact = createLocal(contact);
+    
+                // fire events
+                for (final IncomingEMailInvitation iei : incomingEMailInvitations)
+                    notifyIncomingEMailInvitationDeleted(iei, localEventGenerator);
+                if (null != incomingUserInvitation)
+                    notifyIncomingUserInvitationDeleted(incomingUserInvitation,
+                            localEventGenerator);
+                for (final OutgoingEMailInvitation oei : outgoingEMailInvitations)
+                    notifyOutgoingEMailInvitationDeleted(oei, localEventGenerator);
+                if (null != outgoingUserInvitation)
+                    notifyOutgoingUserInvitationDeleted(outgoingUserInvitation,
+                            localEventGenerator);
+                notifyContactCreated(localContact, localEventGenerator);
+            } else {
+                logger.logInfo("Invitation {0} no longer exists.", invitation);
             }
-
-            // delete incoming user invitation and index
-            contactIO.deleteInvitation(incomingUserInvitation);
-            indexModel.deleteIncomingUserInvitation(
-                    incomingUserInvitation.getId());
-
-            // accept remote
-            sessionModel.acceptInvitation(incomingUserInvitation, acceptedOn);
-            final Contact contact = sessionModel.readContact(extendedBy.getId());
-
-            // delete outgoing e-mail invitations and indicies
-            final List<OutgoingEMailInvitation> outgoingEMailInvitations =
-                contactIO.readOutgoingEMailInvitations(contact.getEmails());
-            for (final OutgoingEMailInvitation oei : outgoingEMailInvitations) {
-                // delete the published to reference
-                getContainerModel().deletePublishedTo(oei.getInvitationEMail());
-                // delete the invitation and e-mail
-                contactIO.deleteInvitation(oei);
-                indexModel.deleteOutgoingEMailInvitation(oei.getId());
-            }
-
-            // delete outgoing user invitation and index
-            final OutgoingUserInvitation outgoingUserInvitation =
-                contactIO.readOutgoingUserInvitation(extendedBy);
-            if (null != outgoingUserInvitation) {
-                contactIO.deleteInvitation(outgoingUserInvitation);
-                indexModel.deleteOutgoingUserInvitation(
-                        outgoingUserInvitation.getId());
-            }
-
-            // create contact data
-            final Contact localContact = createLocal(contact);
-
-            // fire events
-            for (final IncomingEMailInvitation iei : incomingEMailInvitations)
-                notifyIncomingEMailInvitationDeleted(iei, localEventGenerator);
-            if (null != incomingUserInvitation)
-                notifyIncomingUserInvitationDeleted(incomingUserInvitation,
-                        localEventGenerator);
-            for (final OutgoingEMailInvitation oei : outgoingEMailInvitations)
-                notifyOutgoingEMailInvitationDeleted(oei, localEventGenerator);
-            if (null != outgoingUserInvitation)
-                notifyOutgoingUserInvitationDeleted(outgoingUserInvitation,
-                        localEventGenerator);
-            notifyContactCreated(localContact, localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -330,58 +340,68 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.contact.ContactModel#declineIncomingEMailInvitation(java.lang.Long)
-     * 
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#declineInvitation(com.thinkparity.codebase.model.contact.IncomingEMailInvitation)
+     *
      */
-    public void declineIncomingEMailInvitation(final Long invitationId) {
+    @Override
+    public void declineInvitation(final IncomingEMailInvitation invitation) {
         try {
-            final InternalSessionModel sessionModel = getSessionModel();
-            final Calendar declinedOn = sessionModel.readDateTime();
-
-            // delete incoming e-mail invitation
-            final IncomingEMailInvitation incomingEMailInvitation =
-                contactIO.readIncomingEMailInvitation(invitationId);
-            contactIO.deleteInvitation(incomingEMailInvitation);
-
-            // delete index
-            getIndexModel().deleteIncomingEMailInvitation(
-                    incomingEMailInvitation.getId());
-
-            // decline remote
-            sessionModel.declineInvitation(incomingEMailInvitation, declinedOn);
-
-            // fire event
-            notifyIncomingEMailInvitationDeclined(incomingEMailInvitation,
-                    localEventGenerator);
+            if (doesExist(invitation)) {
+                final InternalSessionModel sessionModel = getSessionModel();
+                final Calendar declinedOn = sessionModel.readDateTime();
+    
+                // delete incoming e-mail invitation
+                final IncomingEMailInvitation incomingEMailInvitation =
+                    contactIO.readIncomingEMailInvitation(invitation.getId());
+                contactIO.deleteInvitation(incomingEMailInvitation);
+    
+                // delete index
+                getIndexModel().deleteIncomingEMailInvitation(
+                        incomingEMailInvitation.getId());
+    
+                // decline remote
+                sessionModel.declineInvitation(incomingEMailInvitation, declinedOn);
+    
+                // fire event
+                notifyIncomingEMailInvitationDeclined(incomingEMailInvitation,
+                        localEventGenerator);
+            } else {
+                logger.logInfo("Invitation {0} no longer exists.", invitation);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.contact.ContactModel#declineIncomingUserInvitation(java.lang.Long)
-     * 
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#declineInvitation(com.thinkparity.codebase.model.contact.IncomingUserInvitation)
+     *
      */
-    public void declineIncomingUserInvitation(final Long invitationId) {
+    @Override
+    public void declineInvitation(final IncomingUserInvitation invitation) {
         try {
-            final InternalSessionModel sessionModel = getSessionModel();
-            final Calendar declinedOn = sessionModel.readDateTime();
-
-            // delete incoming user invitation
-            final IncomingUserInvitation incomingUserInvitation =
-                contactIO.readIncomingUserInvitation(invitationId);
-            contactIO.deleteInvitation(incomingUserInvitation);
-
-            // delete index
-            getIndexModel().deleteIncomingUserInvitation(
-                    incomingUserInvitation.getId());
-
-            // decline remote
-            sessionModel.declineInvitation(incomingUserInvitation, declinedOn);
-
-            // fire event
-            notifyIncomingUserInvitationDeclined(incomingUserInvitation,
-                    localEventGenerator);
+            if (doesExist(invitation)) {
+                final InternalSessionModel sessionModel = getSessionModel();
+                final Calendar declinedOn = sessionModel.readDateTime();
+    
+                // delete incoming user invitation
+                final IncomingUserInvitation incomingUserInvitation =
+                    contactIO.readIncomingUserInvitation(invitation.getId());
+                contactIO.deleteInvitation(incomingUserInvitation);
+    
+                // delete index
+                getIndexModel().deleteIncomingUserInvitation(
+                        incomingUserInvitation.getId());
+    
+                // decline remote
+                sessionModel.declineInvitation(incomingUserInvitation, declinedOn);
+    
+                // fire event
+                notifyIncomingUserInvitationDeclined(incomingUserInvitation,
+                        localEventGenerator);
+            } else {
+                logger.logInfo("Invitation {0} no longer exists.", invitation);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -391,18 +411,89 @@ public final class ContactModelImpl extends Model<ContactListener>
      * @see com.thinkparity.ophelia.model.contact.ContactModel#delete(com.thinkparity.codebase.jabber.JabberId)
      *
      */
-    public void delete(final JabberId contactId) {
+    public void delete(final Contact contact) {
         try {
-            final Contact contact = read(contactId);
+            if (doesExist(contact)) {
+                // delete local and index
+                deleteLocal(contact);
+                
+                // delete remote
+                getSessionModel().delete(contact.getId());
+                
+                // fire event
+                notifyContactDeleted(contact, localEventGenerator);
+            } else {
+                logger.logInfo("Contact {0} no longer exists.", contact);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
 
-            // delete local and index
-            deleteLocal(contact);
+    /**
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#deleteOutgoingEMailInvitation(java.lang.Long)
+     * 
+     */
+    public void deleteInvitation(final OutgoingEMailInvitation invitation) {
+        try {
+            if (contactIO.doesExistOutgoingEMailInvitation(invitation.getInvitationEMail())) {
+                final InternalSessionModel sessionModel = getSessionModel();
+                final Calendar deletedOn = sessionModel.readDateTime();
+    
+                // delete outgoing e-mail invitation
+                final OutgoingEMailInvitation outgoingEMailInvitation =
+                    contactIO.readOutgoingEMailInvitation(invitation.getId());
+                // delete the published to reference
+                getContainerModel().deletePublishedTo(outgoingEMailInvitation.getInvitationEMail());
+                contactIO.deleteInvitation(outgoingEMailInvitation);
+    
+                // delete index
+                getIndexModel().deleteOutgoingEMailInvitation(
+                        outgoingEMailInvitation.getId());
+    
+                // delete remote
+                sessionModel.deleteInvitation(outgoingEMailInvitation,
+                        deletedOn);
+    
+                // fire event
+                notifyOutgoingEMailInvitationDeleted(outgoingEMailInvitation,
+                        localEventGenerator);
+            } else {
+                logger.logInfo("Invitation {0} no longer exists.", invitation);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
 
-            // delete remote
-            getSessionModel().delete(contactId);
-
-            // fire event
-            notifyContactDeleted(contact, localEventGenerator);
+    /**
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#deleteInvitation(com.thinkparity.codebase.model.contact.OutgoingUserInvitation)
+     * 
+     */
+    public void deleteInvitation(final OutgoingUserInvitation invitation) {
+        try {
+            if (doesExistOutgoingUserInvitationForUser(invitation.getInvitationUser().getLocalId())) {
+                final InternalSessionModel sessionModel = getSessionModel();
+                final Calendar deletedOn = sessionModel.readDateTime();
+    
+                // delete outgoing user invitation
+                final OutgoingUserInvitation outgoingUserInvitation =
+                    contactIO.readOutgoingUserInvitation(invitation.getId());
+                contactIO.deleteInvitation(outgoingUserInvitation);
+    
+                // delete index
+                getIndexModel().deleteOutgoingUserInvitation(
+                        outgoingUserInvitation.getId());
+    
+                // delete remote
+                sessionModel.deleteInvitation(outgoingUserInvitation, deletedOn);
+    
+                // fire event
+                notifyOutgoingUserInvitationDeleted(outgoingUserInvitation,
+                        localEventGenerator);
+            } else {
+                logger.logInfo("Invitation {0} no longer exists.", invitation);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -420,67 +511,6 @@ public final class ContactModelImpl extends Model<ContactListener>
             contactIO.deleteInvitation(invitation);
             getIndexModel().deleteOutgoingEMailInvitation(invitation.getId());
             return invitation;
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.contact.ContactModel#deleteOutgoingEMailInvitation(java.lang.Long)
-     * 
-     */
-    public void deleteOutgoingEMailInvitation(final Long invitationId) {
-        try {
-            final InternalSessionModel sessionModel = getSessionModel();
-            final Calendar deletedOn = sessionModel.readDateTime();
-
-            // delete outgoing e-mail invitation
-            final OutgoingEMailInvitation outgoingEMailInvitation =
-                contactIO.readOutgoingEMailInvitation(invitationId);
-            // delete the published to reference
-            getContainerModel().deletePublishedTo(outgoingEMailInvitation.getInvitationEMail());
-            contactIO.deleteInvitation(outgoingEMailInvitation);
-
-            // delete index
-            getIndexModel().deleteOutgoingEMailInvitation(
-                    outgoingEMailInvitation.getId());
-
-            // delete remote
-            sessionModel.deleteInvitation(outgoingEMailInvitation,
-                    deletedOn);
-
-            // fire event
-            notifyOutgoingEMailInvitationDeleted(outgoingEMailInvitation,
-                    localEventGenerator);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.contact.ContactModel#deleteOutgoingUserInvitation(java.lang.Long)
-     * 
-     */
-    public void deleteOutgoingUserInvitation(final Long invitationId) {
-        try {
-            final InternalSessionModel sessionModel = getSessionModel();
-            final Calendar deletedOn = sessionModel.readDateTime();
-
-            // delete outgoing user invitation
-            final OutgoingUserInvitation outgoingUserInvitation =
-                contactIO.readOutgoingUserInvitation(invitationId);
-            contactIO.deleteInvitation(outgoingUserInvitation);
-
-            // delete index
-            getIndexModel().deleteOutgoingUserInvitation(
-                    outgoingUserInvitation.getId());
-
-            // delete remote
-            sessionModel.deleteInvitation(outgoingUserInvitation, deletedOn);
-
-            // fire event
-            notifyOutgoingUserInvitationDeleted(outgoingUserInvitation,
-                    localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -582,10 +612,14 @@ public final class ContactModelImpl extends Model<ContactListener>
         try {
             // delete contact and index
             final Contact contact = read(event.getDeletedBy());
-            deleteLocal(contact);
-
-            // fire event
-            notifyContactDeleted(contact, remoteEventGenerator);
+            if (null == contact) {
+                logger.logInfo("Contact {0} no longer exists.", event.getDeletedBy());
+            } else {
+                deleteLocal(contact);
+    
+                // fire event
+                notifyContactDeleted(contact, remoteEventGenerator);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -597,31 +631,35 @@ public final class ContactModelImpl extends Model<ContactListener>
      */
     public void handleContactUpdated(final ContactUpdatedEvent event) {
         try {
-            final InternalSessionModel sessionModel = getSessionModel();
-
             final Contact local = read(event.getContactId());
-            final Contact remote = sessionModel.readContact(event.getContactId());
-            // local contact can be null if the workspace has been re-created
             if (null == local) {
-                // create and index contact
-                createLocal(remote);
+                logger.logInfo("Contact {0} no longer exists.", event.getContactId());
             } else {
-                // update contact
-                local.setEMails(remote.getEmails());
-                local.setId(remote.getId());
-                local.setName(remote.getName());
-                local.setOrganization(remote.getOrganization());
-                local.setTitle(remote.getTitle());
-                local.setVCard(remote.getVCard());
-                contactIO.update(local);
-
-                // index
-                getIndexModel().updateContact(event.getContactId());
+                final InternalSessionModel sessionModel = getSessionModel();
+    
+                final Contact remote = sessionModel.readContact(event.getContactId());
+                // local contact can be null if the workspace has been re-created
+                if (null == local) {
+                    // create and index contact
+                    createLocal(remote);
+                } else {
+                    // update contact
+                    local.setEMails(remote.getEmails());
+                    local.setId(remote.getId());
+                    local.setName(remote.getName());
+                    local.setOrganization(remote.getOrganization());
+                    local.setTitle(remote.getTitle());
+                    local.setVCard(remote.getVCard());
+                    contactIO.update(local);
+    
+                    // index
+                    getIndexModel().updateContact(event.getContactId());
+                }
+    
+                // fire event
+                notifyContactUpdated(read(event.getContactId()),
+                        remoteEventGenerator);
             }
-
-            // fire event
-            notifyContactUpdated(read(event.getContactId()),
-                    remoteEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -637,17 +675,21 @@ public final class ContactModelImpl extends Model<ContactListener>
             // delete outgoing e-mail invitation
             final OutgoingEMailInvitation outgoingEMailInvitation =
                 contactIO.readOutgoingEMailInvitation(event.getInvitedAs());
-            // delete the published to reference
-            getContainerModel().deletePublishedTo(outgoingEMailInvitation.getInvitationEMail());
-            contactIO.deleteInvitation(outgoingEMailInvitation);
-
-            // delete index
-            getIndexModel().deleteOutgoingEMailInvitation(
-                    outgoingEMailInvitation.getId());
-
-            // fire event
-            notifyOutgoingEMailInvitationDeclined(outgoingEMailInvitation,
-                    remoteEventGenerator);
+            if (null == outgoingEMailInvitation) {
+                logger.logInfo("Invitation {0} no longer exists.", event.getInvitedAs());
+            } else {
+                // delete the published to reference
+                getContainerModel().deletePublishedTo(outgoingEMailInvitation.getInvitationEMail());
+                contactIO.deleteInvitation(outgoingEMailInvitation);
+    
+                // delete index
+                getIndexModel().deleteOutgoingEMailInvitation(
+                        outgoingEMailInvitation.getId());
+    
+                // fire event
+                notifyOutgoingEMailInvitationDeclined(outgoingEMailInvitation,
+                        remoteEventGenerator);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -666,15 +708,19 @@ public final class ContactModelImpl extends Model<ContactListener>
             final IncomingEMailInvitation incomingEMailInvitation =
                 contactIO.readIncomingEMailInvitation(event.getInvitedAs(),
                         deletedBy);
-            contactIO.deleteInvitation(incomingEMailInvitation);
-
-            // delete index
-            getIndexModel().deleteIncomingEMailInvitation(
-                    incomingEMailInvitation.getId());
-
-            // fire event
-            notifyIncomingEMailInvitationDeleted(incomingEMailInvitation,
-                    remoteEventGenerator);
+            if (null == incomingEMailInvitation) {
+                logger.logInfo("Invitation {0} no longer exists.", event.getInvitedAs());
+            } else {
+                contactIO.deleteInvitation(incomingEMailInvitation);
+    
+                // delete index
+                getIndexModel().deleteIncomingEMailInvitation(
+                        incomingEMailInvitation.getId());
+    
+                // fire event
+                notifyIncomingEMailInvitationDeleted(incomingEMailInvitation,
+                        remoteEventGenerator);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -804,15 +850,19 @@ public final class ContactModelImpl extends Model<ContactListener>
             // delete outgoing user invitation
             final OutgoingUserInvitation outgoingUserInvitation =
                 contactIO.readOutgoingUserInvitation(declinedBy);
-            contactIO.deleteInvitation(outgoingUserInvitation);
-
-            // delete index
-            getIndexModel().deleteOutgoingUserInvitation(
-                    outgoingUserInvitation.getId());
-
-            // fire event
-            notifyOutgoingUserInvitationDeleted(outgoingUserInvitation,
-                    remoteEventGenerator);
+            if (null == outgoingUserInvitation) {
+                logger.logInfo("Invitation {0} no longer exists.", event.getDeclinedBy());
+            } else {
+                contactIO.deleteInvitation(outgoingUserInvitation);
+    
+                // delete index
+                getIndexModel().deleteOutgoingUserInvitation(
+                        outgoingUserInvitation.getId());
+    
+                // fire event
+                notifyOutgoingUserInvitationDeleted(outgoingUserInvitation,
+                        remoteEventGenerator);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -830,15 +880,19 @@ public final class ContactModelImpl extends Model<ContactListener>
             // delete incoming user invitation
             final IncomingUserInvitation incomingUserInvitation =
                 contactIO.readIncomingUserInvitation(deletedBy);
-            contactIO.deleteInvitation(incomingUserInvitation);
-
-            // delete index
-            getIndexModel().deleteIncomingUserInvitation(
-                    incomingUserInvitation.getId());
-
-            // fire event
-            notifyIncomingUserInvitationDeleted(incomingUserInvitation,
-                    remoteEventGenerator);
+            if (null == incomingUserInvitation) {
+                logger.logInfo("Invitation {0} no longer exists.", event.getDeletedBy());
+            } else {
+                contactIO.deleteInvitation(incomingUserInvitation);
+    
+                // delete index
+                getIndexModel().deleteIncomingUserInvitation(
+                        incomingUserInvitation.getId());
+    
+                // fire event
+                notifyIncomingUserInvitationDeleted(incomingUserInvitation,
+                        remoteEventGenerator);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1378,6 +1432,28 @@ public final class ContactModelImpl extends Model<ContactListener>
 
         // delete index
         getIndexModel().deleteContact(contact.getId());
+    }
+
+    /**
+     * Determine whether or not a contact exists.
+     * 
+     * @param contact
+     *            A <code>Contact</code>.
+     * @return True if the contact exists.
+     */
+    private boolean doesExist(final Contact contact) {
+        return contactIO.doesExist(contact.getLocalId());
+    }
+
+    /**
+     * Determine whether or not an incoming e-mail invitation exists.
+     * 
+     * @param invitation
+     *            An <code>ContactInvitation</code>.
+     * @return True if it exists.
+     */
+    private boolean doesExist(final ContactInvitation invitation) {
+        return contactIO.doesExistInvitation(invitation);
     }
 
     /**

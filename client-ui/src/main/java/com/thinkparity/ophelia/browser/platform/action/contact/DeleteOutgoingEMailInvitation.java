@@ -44,10 +44,10 @@ public final class DeleteOutgoingEMailInvitation extends AbstractAction {
         final Long invitationId = (Long) data.get(DataKey.INVITATION_ID);
 
         final ContactModel contactModel = getContactModel();
-        final OutgoingEMailInvitation outgoing = contactModel.readOutgoingEMailInvitation(invitationId);
+        final OutgoingEMailInvitation invitation = contactModel.readOutgoingEMailInvitation(invitationId);
         if (browser.confirm("ContactOutgoingEMailInvitationDelete.ConfirmDeleteMessage",
-                new Object[] {outgoing.getInvitationEMail()})) {
-            contactModel.deleteOutgoingEMailInvitation(invitationId);
+                new Object[] {invitation.getInvitationEMail()})) {
+            contactModel.deleteInvitation(invitation);
         }
     }
 

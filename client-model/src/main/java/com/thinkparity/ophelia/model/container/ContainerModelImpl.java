@@ -634,13 +634,17 @@ public final class ContainerModelImpl extends
                         event.getClass().getSimpleName(), event);
             } else {
                 final Long containerId = getArtifactModel().readId(event.getUniqueId());
-                final ContainerDraft draft = readDraft(containerId);
-                for (final Artifact artifact : draft.getArtifacts()) {
-                    containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+                if (doesExistDraft(containerId)) {
+                    final ContainerDraft draft = readDraft(containerId);
+                    for (final Artifact artifact : draft.getArtifacts()) {
+                        containerIO.deleteDraftArtifactRel(containerId, artifact.getId());
+                    }
+                    containerIO.deleteDraft(containerId);
+                    // fire event
+                    notifyDraftDeleted(read(containerId), draft, remoteEventGenerator);
+                } else {
+                    logger.logWarning("Draft for {0} does not exist.", containerId);
                 }
-                containerIO.deleteDraft(containerId);
-                // fire event
-                notifyDraftDeleted(read(containerId), draft, remoteEventGenerator);
             }
         } catch (final Throwable t) {
             throw panic(t);

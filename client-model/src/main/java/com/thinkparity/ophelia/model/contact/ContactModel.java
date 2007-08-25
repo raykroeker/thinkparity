@@ -35,22 +35,12 @@ import com.thinkparity.ophelia.model.events.ContactListener;
 public interface ContactModel {
 
     /**
-     * Accept the incoming e-mail invitation.
-     * 
-     * @param invitationId
-     *            An invitation id.
-     */
-    @ThinkParityOnline
-    public void acceptIncomingEMailInvitation(final Long invitationId);
-
-    /**
      * Accept the incoming user invitation.
      * 
-     * @param invitationId
-     *            An invitation id.
+     * @param invitation
+     *            An <code>IncomingUserInvitation</code>.
      */
-    @ThinkParityOnline
-    public void acceptIncomingUserInvitation(final Long invitationId);
+    public void acceptInvitation(final IncomingUserInvitation invitation);
 
     /**
      * Add a contact listener.
@@ -61,7 +51,7 @@ public interface ContactModel {
     @ThinkParityTransaction(TransactionType.NEVER)
     public void addListener(final ContactListener listener);
 
-	/**
+    /**
      * Create an e-mail contact invitation.
      * 
      * @param email
@@ -72,7 +62,7 @@ public interface ContactModel {
     public OutgoingEMailInvitation createOutgoingEMailInvitation(
             final EMail email);
 
-    /**
+	/**
      * Create a contact invitation.
      * 
      * @param userId
@@ -85,48 +75,18 @@ public interface ContactModel {
     /**
      * Decline an incoming e-mail invitation.
      * 
-     * @param invitationId
-     *            An invitation id <code>Long</code>.
+     * @param invitation
+     *            An <code>IncomingEMailInvitation</code>.
      */
-    @ThinkParityOnline
-    public void declineIncomingEMailInvitation(final Long invitationId);
+    public void declineInvitation(final IncomingEMailInvitation invitation);
 
     /**
      * Decline an incoming user invitation.
      * 
-     * @param invitationId
-     *            An invitation id <code>Long</code>.
+     * @param invitation
+     *            An <code>IncomingUserInvitation</code>.
      */
-    @ThinkParityOnline
-    public void declineIncomingUserInvitation(final Long invitationId);
-
-    /**
-     * Delete a contact.
-     * 
-     * @param contactId
-     *            A contact jabber id.
-     * @return A contact.
-     */
-    @ThinkParityOnline
-    public void delete(final JabberId contactId);
-
-	/**
-     * Delete an outgoing e-mail invitation.
-     * 
-     * @param invitationId
-     *            An invitation id.
-     */
-    @ThinkParityOnline
-    public void deleteOutgoingEMailInvitation(final Long invitationId);
-
-	/**
-     * Delete an outgoing user invitation.
-     * 
-     * @param invitationId
-     *            An invitation id.
-     */
-    @ThinkParityOnline
-    public void deleteOutgoingUserInvitation(final Long invitationId);
+    public void declineInvitation(final IncomingUserInvitation invitation);
 
     /**
      * Determine if a contact exists for an e-mail address.
@@ -147,7 +107,7 @@ public interface ContactModel {
     @ThinkParityConcurrency(Lock.LOCAL_READ)
     public Boolean doesExist(final Long contactId);
 
-    /**
+	/**
      * Determine if the outgoing user invitation exists.
      * 
      * @param userId
@@ -157,7 +117,7 @@ public interface ContactModel {
     @ThinkParityConcurrency(Lock.LOCAL_READ)
     public Boolean doesExistOutgoingUserInvitationForUser(final Long userId);
 
-    /**
+	/**
      * Read a list of contacts.
      * 
      * @return A list of contacts.
@@ -267,7 +227,6 @@ public interface ContactModel {
     public OutgoingUserInvitation readOutgoingUserInvitation(
             final Long invitationId);
 
-    
     /**
      * Read a list of outgoing user invitations.
      * 
@@ -303,6 +262,7 @@ public interface ContactModel {
      */
     public List<Long> searchIncomingEMailInvitations(final String expression);
 
+    
     /**
      * Search for incoming e-mail invitations.
      * 
@@ -329,4 +289,37 @@ public interface ContactModel {
      * @return A <code>List&lt;Long&gt;</code>.
      */
     public List<Long> searchOutgoingUserInvitations(final String expression);
+
+    /**
+     * Accept the incoming e-mail invitation.
+     * 
+     * @param invitation
+     *            An <code>IncomingEMailInvitation</code>.
+     */
+    void acceptInvitation(IncomingEMailInvitation invitation);
+
+    /**
+     * Delete a contact.
+     * 
+     * @param contact
+     *            A <code>Contact</code>.
+     */
+    void delete(Contact contact);
+
+    /**
+     * Delete an outgoing e-mail invitation.
+     * 
+     * @param invitation
+     *            An <code>OutgoingEMailInvitation</code>.
+     */
+    @ThinkParityOnline
+    void deleteInvitation(OutgoingEMailInvitation invitation);
+
+    /**
+     * Delete an outgoing user invitation.
+     * 
+     * @param invitation
+     *            An <code>OutgoingUserInvitation</code>.
+     */
+    void deleteInvitation(OutgoingUserInvitation invitation);
 }

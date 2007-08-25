@@ -135,6 +135,13 @@ public final class ContactIOHandler extends AbstractIOHandler implements
         .append("where PU.USER_ID=?")
         .toString();
 
+    /** Sql to determine invitation existence. */
+    private static final String SQL_DOES_EXIST_INVITATION =
+        new StringBuilder("select count(CI.CONTACT_INVITATION_ID) \"INVITATION_COUNT\" ")
+        .append("from CONTACT_INVITATION CI ")
+        .append("where CI.CONTACT_INVITATION_ID=?")
+        .toString();
+
     /** Sql to determine the existence of an outgoing e-mail invitation. */
     private static final String SQL_DOES_EXIST_OEI_EMAIL =
         new StringBuilder("select count(CI.CONTACT_INVITATION_ID) \"INVITATION_COUNT\" ")
@@ -609,6 +616,34 @@ public final class ContactIOHandler extends AbstractIOHandler implements
                 return Boolean.TRUE;
             } else {
                 throw new HypersonicException("Could not determine contact existence.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContactIOHandler#doesExistInvitation(com.thinkparity.codebase.model.contact.ContactInvitation)
+     *
+     */
+    @Override
+    public Boolean doesExistInvitation(final ContactInvitation invitation) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_INVITATION);
+            session.setLong(1, invitation.getId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int invitationCount = session.getInteger("INVITATION_COUNT");
+                if (0 == invitationCount) {
+                    return Boolean.FALSE;
+                } else if (1 == invitationCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine invitation existence.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine invitation existence.");
             }
         } finally {
             session.close();

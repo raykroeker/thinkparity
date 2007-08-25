@@ -9,6 +9,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.ContactInvitation;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
@@ -112,7 +113,7 @@ public interface ContactIOHandler {
      * @return True if a contact exists.
      */
     public Boolean doesExist(final EMail email);
-    
+
     /**
      * Determine whether or not a contact exists.
      * 
@@ -121,6 +122,15 @@ public interface ContactIOHandler {
      * @return True if the contact does exist.
      */
     public Boolean doesExist(final Long contactId);
+    
+    /**
+     * Determine whether or not an invitation exists.
+     * 
+     * @param invitation
+     *            A <code>ContactInvitation</code>.
+     * @return True if it exists.
+     */
+    public Boolean doesExistInvitation(final ContactInvitation invitation);
 
     /**
      * Determine whether or not an outgoing e-mail invitation exists.

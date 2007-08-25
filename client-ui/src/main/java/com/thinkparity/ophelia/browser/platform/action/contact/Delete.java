@@ -40,7 +40,7 @@ public class Delete extends AbstractBrowserAction {
         final Contact contact = getContactModel().read(contactId);
 
         if(browser.confirm("ContactDelete.ConfirmDeleteMessage", new Object[] {contact.getName()})) {
-            getContactModel().delete(contactId);
+            getContactModel().delete(contact);
         }
     }
 

@@ -87,10 +87,15 @@ public final class ContactSql extends AbstractSql {
             session.setLong(2, contactId);
             session.setLong(3, contactId);
             session.setLong(4, userId);
-			if (2 != session.executeUpdate())
-				throw new HypersonicException(
-                        "Could not delete contact {0} for user {1}.", contactId,
-                        userId);
+			switch (session.executeUpdate()) {
+			    case 0:      // the contact beat you to it
+			    case 2:      // the first good delete
+			        break;
+		        default:
+		            throw new HypersonicException(
+		                    "Could not delete contact {0} for user {1}.", contactId,
+		                    userId);
+			}
 
             session.commit();
         } catch (final Throwable t) {

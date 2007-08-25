@@ -49,7 +49,7 @@ final class ContactTabPopupDelegate extends DefaultBrowserPopupDelegate
 
         if (online) {
             final Data deleteData = new Data(1);
-            deleteData.set(Delete.DataKey.CONTACT_ID, contact.getId());
+            deleteData.set(Delete.DataKey.CONTACT_ID, contact.getLocalId());
             add(ActionId.CONTACT_DELETE, deleteData);
 
             show();

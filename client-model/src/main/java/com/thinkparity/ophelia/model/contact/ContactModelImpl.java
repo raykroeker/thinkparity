@@ -653,7 +653,7 @@ public final class ContactModelImpl extends Model<ContactListener>
                     contactIO.update(local);
     
                     // index
-                    getIndexModel().updateContact(event.getContactId());
+                    getIndexModel().updateContact(local);
                 }
     
                 // fire event
@@ -1019,6 +1019,19 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#read(java.lang.Long)
+     *
+     */
+    @Override
+    public Contact read(final Long contactId) {
+        try {
+            return contactIO.read(contactId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.contact.ContactModel#readPublishTo()
      *
      */
@@ -1227,13 +1240,10 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
-     * Search for contacts.
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#search(java.lang.String)
      * 
-     * @param expression
-     *            A search expression.
-     * @return A <code>List&lt;JabberId&gt;</code>.
      */
-    public List<JabberId> search(final String expression) {
+    public List<Long> search(final String expression) {
         try {
             return getIndexModel().searchContacts(expression);
         } catch (final Throwable t) {
@@ -1327,7 +1337,7 @@ public final class ContactModelImpl extends Model<ContactListener>
         contactIO.create(local);
 
         // index
-        getIndexModel().indexContact(local.getId());
+        getIndexModel().indexContact(local);
         return contactIO.read(local.getId());
     }
 
@@ -1431,7 +1441,7 @@ public final class ContactModelImpl extends Model<ContactListener>
         contactIO.delete(contact);
 
         // delete index
-        getIndexModel().deleteContact(contact.getId());
+        getIndexModel().deleteContact(contact);
     }
 
     /**
@@ -1453,7 +1463,7 @@ public final class ContactModelImpl extends Model<ContactListener>
      * @return True if it exists.
      */
     private boolean doesExist(final ContactInvitation invitation) {
-        return contactIO.doesExistInvitation(invitation);
+        return null != invitation && contactIO.doesExistInvitation(invitation);
     }
 
     /**

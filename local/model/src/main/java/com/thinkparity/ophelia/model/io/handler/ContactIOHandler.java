@@ -176,6 +176,15 @@ public interface ContactIOHandler {
     public Contact read(final JabberId contactId);
 
     /**
+     * Read a contact.
+     * 
+     * @param contactId
+     *            A contact id.
+     * @return A contact.
+     */
+    public Contact read(final Long contactId);
+
+    /**
      * Read an incoming e-mail invitation.
      * 
      * @param email

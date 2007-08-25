@@ -8,10 +8,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import com.thinkparity.codebase.jabber.JabberId;
-import com.thinkparity.codebase.jabber.JabberIdBuilder;
-import com.thinkparity.codebase.sort.StringComparator;
-
 import com.thinkparity.codebase.model.contact.Contact;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
@@ -30,11 +26,10 @@ import org.apache.lucene.index.Term;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ContactIndexImpl extends
-        AbstractIndexImpl<Contact, JabberId> {
+public final class ContactIndexImpl extends AbstractIndexImpl<Contact, Long> {
 
     /** Contact id comparator. */
-    private static final Comparator<JabberId> CONTACT_ID_COMPARATOR;
+    private static final Comparator<Long> CONTACT_ID_COMPARATOR;
 
     /** Contact id index field. */
     private static final FieldBuilder IDX_CONTACT_ID;
@@ -49,11 +44,9 @@ public final class ContactIndexImpl extends
     private static final FieldBuilder IDX_USER_TITLE;
 
     static {
-        CONTACT_ID_COMPARATOR = new Comparator<JabberId>() {
-            final StringComparator stringComparator = new StringComparator(Boolean.TRUE);
-            public int compare(final JabberId o1, final JabberId o2) {
-                return stringComparator.compare(o1.getQualifiedJabberId(),
-                        o2.getQualifiedJabberId());
+        CONTACT_ID_COMPARATOR = new Comparator<Long>() {
+            public int compare(final Long o1, final Long o2) {
+                return o1.compareTo(o2);
             }
         };
 
@@ -99,9 +92,9 @@ public final class ContactIndexImpl extends
      * @see com.thinkparity.ophelia.model.index.IndexImpl#delete(java.lang.Object)
      * 
      */
-    public void delete(final JabberId id) throws IOException {
+    public void delete(final Long id) throws IOException {
         final Field idField = IDX_CONTACT_ID.toSearchField();
-        final Term term = new Term(idField.name(), id.getQualifiedUsername());
+        final Term term = new Term(idField.name(), id.toString());
         delete(term);
     }
 
@@ -110,7 +103,7 @@ public final class ContactIndexImpl extends
      */
     public void index(final Contact o) throws IOException {
         final DocumentBuilder builder = new DocumentBuilder(4)
-            .append(IDX_CONTACT_ID.setValue(o.getId()).toField())
+            .append(IDX_CONTACT_ID.setValue(o.getLocalId()).toField())
             .append(IDX_USER_NAME.setValue(o.getName()).toField())
             .append(IDX_USER_ORGANIZATION.setValue(o.getOrganization()).toField())
             .append(IDX_USER_TITLE.setValue(o.getTitle()).toField());
@@ -121,7 +114,7 @@ public final class ContactIndexImpl extends
      * @see com.thinkparity.ophelia.model.index.IndexImpl#search(java.lang.String)
      * 
      */
-    public List<JabberId> search(final String expression) throws IOException {
+    public List<Long> search(final String expression) throws IOException {
         final List<Field> fields = new ArrayList<Field>(3);
         fields.add(IDX_USER_NAME.toSearchField());
         fields.add(IDX_USER_ORGANIZATION.toSearchField());
@@ -134,7 +127,7 @@ public final class ContactIndexImpl extends
      *
      */
     @Override
-    protected Comparator<? super JabberId> getComparator() {
+    protected Comparator<? super Long> getComparator() {
         return CONTACT_ID_COMPARATOR;
     }
 
@@ -143,7 +136,7 @@ public final class ContactIndexImpl extends
      * 
      */
     @Override
-    protected JabberId resolveHit(final String hitIdValue) {
-        return JabberIdBuilder.parse(hitIdValue);
+    protected Long resolveHit(final String hitIdValue) {
+        return Long.parseLong(hitIdValue);
     }
 }

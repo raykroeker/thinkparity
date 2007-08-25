@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.Pair;
+import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
@@ -52,11 +53,11 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * 
  * TODO Include the index within the transaction.
  */
-public final class IndexModelImpl extends Model implements
+public final class IndexModelImpl extends Model<EventListener> implements
         IndexModel, InternalIndexModel {
 
     /** A contact index implementation. */
-    private IndexImpl<Contact, JabberId> contactIndex;
+    private IndexImpl<Contact, Long> contactIndex;
 
     /** A container index implementation. */
     private IndexImpl<Container, Long> containerIndex;
@@ -97,9 +98,9 @@ public final class IndexModelImpl extends Model implements
      * @see com.thinkparity.ophelia.model.index.InternalIndexModel#deleteContact(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
-	public void deleteContact(final JabberId contactId) {
+	public void deleteContact(final Contact contact) {
         try {
-            contactIndex.delete(contactId);
+            contactIndex.delete(contact.getLocalId());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -207,15 +208,12 @@ public final class IndexModelImpl extends Model implements
     }
 
     /**
-     * Create a index entry for a contact.
+     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#indexContact(com.thinkparity.codebase.model.contact.Contact)
      * 
-     * @param contactId
-     *            A contact id <code>JabberId</code>.
      */
-    public void indexContact(final JabberId contactId) {
+    public void indexContact(final Contact contact) {
         try {
-            contactIndex.delete(contactId);
-            final Contact contact = getContactModel().read(contactId);
+            contactIndex.delete(contact.getLocalId());
             contactIndex.index(contact);
         } catch (final Throwable t) {
             throw panic(t);
@@ -444,13 +442,10 @@ public final class IndexModelImpl extends Model implements
     }
 
     /**
-     * Search the contact index.
+     * @see com.thinkparity.ophelia.model.index.InternalIndexModel#searchContacts(java.lang.String)
      * 
-     * @param expression
-     *            A search expression.
-     * @return A <code>List&lt;JabberId&gt;</code>.
      */
-    public List<JabberId> searchContacts(final String expression) {
+    public List<Long> searchContacts(final String expression) {
         try {
             return contactIndex.search(expression);
         } catch (final Throwable t) {
@@ -576,11 +571,10 @@ public final class IndexModelImpl extends Model implements
      * @see com.thinkparity.ophelia.model.index.InternalIndexModel#updateContact(com.thinkparity.codebase.jabber.JabberId)
      *
      */
-    public void updateContact(final JabberId contactId) {
+    public void updateContact(final Contact contact) {
         try {
             // update the contact info
-            final Contact contact = getContactModel().read(contactId);
-            contactIndex.delete(contactId);
+            contactIndex.delete(contact.getLocalId());
             contactIndex.index(contact);
             // update the team info
             final List<Container> containers = getContainerModel().readForTeamMember(contact.getLocalId());

@@ -4,7 +4,9 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.jabber.JabberId;
+
+import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.ContactInvitation;
 
 /**
  * <b>Title:</b>thinkParity Contact Panel Id<br>
@@ -15,8 +17,52 @@ import com.thinkparity.codebase.jabber.JabberId;
  */
 public class ContactPanelId {
 
-    /** The contact id <code>JabberId</code>. */
-    private final JabberId contactId;
+    /**
+     * Create a contact panel id.
+     * 
+     * @param contactId
+     *            A contact id <code>Long</code>.
+     * @return A <code>ContactPanelId</code>.
+     */
+    public static ContactPanelId newContactPanelId(final Long contactId) {
+        return new ContactPanelId(contactId, null);
+    }
+
+    /**
+     * Create an invitation contact panel id.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     * @return A <code>ContactPanelId</code>.
+     */
+    public static ContactPanelId newInvitationPanelId(final Long invitationId) {
+        return new ContactPanelId(null, invitationId);
+    }
+
+    /**
+     * Create a contact panel id.
+     * 
+     * @param contact
+     *            A <code>Contact</code>.
+     * @return A <code>ContactPanelId</code>.
+     */
+    public static ContactPanelId newPanelId(final Contact contact) {
+        return new ContactPanelId(contact.getLocalId(), null);
+    }
+
+    /**
+     * Create an invitation contact panel id.
+     * 
+     * @param invitation
+     *            A <code>ContactInvitation</code>.
+     * @return A <code>ContactPanelId</code>.
+     */
+    public static ContactPanelId newPanelId(final ContactInvitation invitation) {
+        return new ContactPanelId(null, invitation.getId());
+    }
+
+    /** The contact id <code>Long</code>. */
+    private final Long contactId;
 
     /** The invitation id <code>Long</code>. */
     private final Long invitationId;
@@ -27,29 +73,7 @@ public class ContactPanelId {
      * @param contactId
      *            A contact id <code>JabberId</code>.
      */
-    ContactPanelId(final JabberId contactId) {
-        this(contactId, null);
-    }
-
-    /**
-     * Create ContactPanelId.
-     * 
-     * @param invitationId
-     *            A contact invitation id <code>Long</code>.
-     */
-    ContactPanelId(final Long invitationId) {
-        this(null, invitationId);
-    }
-
-    /**
-     * Create ContactPanelId.
-     * 
-     * @param contactId
-     *            A contact id <code>JabberId</code>.
-     * @param invitationId
-     *            An invitation id <code>Long</code>.
-     */
-    private ContactPanelId(final JabberId contactId, final Long invitationId) {
+    private ContactPanelId(final Long contactId, final Long invitationId) {
         super();
         this.contactId = contactId;
         this.invitationId = invitationId;
@@ -98,7 +122,7 @@ public class ContactPanelId {
      * 
      * @return A contact id <code>JabberId</code>.
      */
-    JabberId getContactId() {
+    Long getContactId() {
         return contactId;
     }
 

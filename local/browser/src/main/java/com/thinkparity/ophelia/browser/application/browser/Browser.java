@@ -191,7 +191,7 @@ public class Browser extends AbstractApplication {
      * @param contactId
      *            The contact id.      
      */
-    public void collapseContact(final JabberId contactId) {
+    public void collapseContact(final Long contactId) {
         getTabContactAvatar().collapseContact(contactId);
     }
 
@@ -626,7 +626,7 @@ public class Browser extends AbstractApplication {
      * @param contactId
      *            The contact id.       
      */
-    public void expandContact(final JabberId contactId) {
+    public void expandContact(final Long contactId) {
         getTabContactAvatar().expandContact(contactId);
     }
 
@@ -870,21 +870,21 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Determine whether or not the browser is busy.
-     * 
-     * @return True if the browser is busy.
-     */
-    public Boolean isBusy() {
-        return mainWindow.isBusyIndicatorApplied();
-    }
-
-    /**
      * Determine if the browser window is maximized.
      * 
      * @return true if the browser window is maximized; false otherwise.
      */
     public Boolean isBrowserWindowMaximized() {
         return ((mainWindow.getExtendedState() & JFrame.MAXIMIZED_BOTH) > 0);
+    }
+
+    /**
+     * Determine whether or not the browser is busy.
+     * 
+     * @return True if the browser is busy.
+     */
+    public Boolean isBusy() {
+        return mainWindow.isBusyIndicatorApplied();
     }
 
     /** @see com.thinkparity.ophelia.browser.platform.application.Application#isDevelopmentMode() */
@@ -1215,7 +1215,7 @@ public class Browser extends AbstractApplication {
      * @param contactId
      *            The contact id.
      */
-    public void runDeleteContact(final JabberId contactId) {
+    public void runDeleteContact(final Long contactId) {
         Assert.assertNotNull("Cannot delete null contact.", contactId);
         final Data data = new Data(1);
         data.set(com.thinkparity.ophelia.browser.platform.action.contact.Delete.DataKey.CONTACT_ID, contactId);
@@ -1726,12 +1726,12 @@ public class Browser extends AbstractApplication {
     /**
      * Synchronize a contact on the contact tab.
      * 
-     * @param contactId
-     *            A contact id <code>JabberId</code>.
+     * @param contact
+     *            A <code>Contact</code>.
      * @param remote
      *            True if the synchronization is the result of a remote event.
      */
-    public void syncContactTabContact(final JabberId contactId,
+    public void syncContactTabContact(final Long contactId,
             final Boolean remote) {
         getTabContactAvatar().syncContact(contactId, remote);
     }

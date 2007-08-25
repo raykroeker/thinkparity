@@ -8,7 +8,6 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
@@ -50,12 +49,12 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      * Collapse the contact.
      * 
      * @param contactId
-     *            A contact id <code>JabberId</code>.
+     *            A contact id <code>Long</code>.
      */
-    public void collapseContact(final JabberId contactId) {
+    public void collapseContact(final Long contactId) {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
-                model.collapsePanel(new ContactPanelId(contactId), Boolean.FALSE);
+                model.collapsePanel(newContactPanelId(contactId), Boolean.FALSE);
             }
         });
     }
@@ -66,10 +65,10 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      * @param contactId
      *            A contact id <code>JabberId</code>.
      */
-    public void expandContact(final JabberId contactId) {
+    public void expandContact(final Long contactId) {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
-                showPanel(new ContactPanelId(contactId), true);
+                showPanel(newContactPanelId(contactId), true);
             }
         });
     }
@@ -116,7 +115,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
             public void run() {
                 final List<ContactPanelId> panelIds = new ArrayList<ContactPanelId>(invitationIds.size());
                 for (final Long invitationId : invitationIds)
-                    panelIds.add(new ContactPanelId(invitationId));
+                    panelIds.add(newInvitationPanelId(invitationId));
                 final List<ContactPanelId> sortedInvitationIds = model.getCurrentVisibleOrder(panelIds);
                 if (index < sortedInvitationIds.size()) {
                     showPanel(sortedInvitationIds.get(index), false);
@@ -134,7 +133,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
     public void showContactInvitation(final Long invitationId) {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
-                showPanel(new ContactPanelId(invitationId), false);
+                showPanel(newInvitationPanelId(invitationId), false);
             }
         });
     }
@@ -147,7 +146,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
      * @param remote
      *            Indicates whether the sync is the result of a remote event
      */
-    public void syncContact(final JabberId contactId, final Boolean remote) {
+    public void syncContact(final Long contactId, final Boolean remote) {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 model.syncContact(contactId, remote);
@@ -222,6 +221,29 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
                 model.syncOutgoingUserInvitation(invitationId, remote);    
             }
         });
+    }
+
+    /**
+     * Create a new panel id for a contact.
+     * 
+     * @param contactId
+     *            A <code>Long</code>.
+     * @return A <code>ContactPanelId</code>.
+     */
+    private ContactPanelId newContactPanelId(final Long contactId) {
+        return ContactPanelId.newContactPanelId(contactId);
+    }
+
+    
+    /**
+     * Create a new panel id for an invitation.
+     * 
+     * @param invitationId
+     *            A <code>Long</code>.
+     * @return A <code>ContactPanelId</code>.
+     */
+    private ContactPanelId newInvitationPanelId(final Long invitationId) {
+        return ContactPanelId.newInvitationPanelId(invitationId);
     }
 
     /**

@@ -177,6 +177,16 @@ public interface ContactModel {
     public Contact read(final JabberId contactId);
 
     /**
+     * Read a contact.
+     * 
+     * @param contactId
+     *            A contact id <code>Long</code>.
+     * @return A contact.
+     */
+    @ThinkParityConcurrency(Lock.LOCAL_READ)
+    public Contact read(final Long contactId);
+
+    /**
      * Read a list of container publish to contacts.
      * 
      * @return A <code>List</code> of <code>Contact</code>s.
@@ -251,7 +261,7 @@ public interface ContactModel {
      *            A search expression.
      * @return A <code>List&lt;JabberId&gt;</code>.
      */
-    public List<JabberId> search(final String expression);
+    public List<Long> search(final String expression);
 
     /**
      * Search for incoming e-mail invitations.

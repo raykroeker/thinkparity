@@ -352,6 +352,12 @@ public final class ContactIOHandler extends AbstractIOHandler implements
         .append("where IU.USER_ID=?")
         .toString();
 
+    /** Sql to read a contact by its pk. */
+    private static final String SQL_READ_PK =
+        new StringBuilder(SQL_READ)
+        .append("where C.CONTACT_ID=?")
+        .toString();
+
     /** Sql to update a contact. */
     private static final String SQL_UPDATE =
         new StringBuilder("update CONTACT ")
@@ -751,6 +757,27 @@ public final class ContactIOHandler extends AbstractIOHandler implements
         try {
             session.prepareStatement(SQL_READ_BY_ID);
             session.setQualifiedUsername(1, contactId);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return extractContact(session);
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContactIOHandler#read(java.lang.Long)
+     *
+     */
+    @Override
+    public Contact read(final Long contactId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_PK);
+            session.setLong(1, contactId);
             session.executeQuery();
             if (session.nextResult()) {
                 return extractContact(session);

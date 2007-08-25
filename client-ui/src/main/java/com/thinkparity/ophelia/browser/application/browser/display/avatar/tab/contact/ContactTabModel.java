@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Locale;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.sort.StringComparator;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.ContactInvitation;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
@@ -193,15 +193,15 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     protected ContactPanelId lookupId(final TabPanel tabPanel) {
         final ContactTabPanel panel = (ContactTabPanel) tabPanel;
         if (panel.isSetContact()) {
-            return new ContactPanelId(panel.getContact().getId());
+            return newPanelId(panel.getContact());
         } else if (panel.isSetIncomingEMail()) {
-            return new ContactPanelId(panel.getIncomingEMail().getId());
+            return newPanelId(panel.getIncomingEMail());
         } else if (panel.isSetIncomingUser()) {
-            return new ContactPanelId(panel.getIncomingUser().getId());
+            return newPanelId(panel.getIncomingUser());
         } else if (panel.isSetOutgoingEMail()) {
-            return new ContactPanelId(panel.getOutgoingEMail().getId());
+            return newPanelId(panel.getOutgoingEMail());
         } else if (panel.isSetOutgoingUser()) {
-            return new ContactPanelId(panel.getOutgoingUser().getId());
+            return newPanelId(panel.getOutgoingUser());
         } else {
             throw Assert.createUnreachable("Unknown contact panel type.");
         }
@@ -212,14 +212,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      */
     @Override
     protected TabPanel lookupPanel(final ContactPanelId panelId) {
-        final int panelIndex;
-        if (panelId.isSetContactId()) {
-            panelIndex = lookupIndex(panelId.getContactId());
-        } else if (panelId.isSetInvitationId()) {
-            panelIndex = lookupIndex(panelId.getInvitationId());
-        } else {
-            throw Assert.createUnreachable("Unknown contact panel id type.");
-        }
+        final int panelIndex = lookupIndex(panelId);
         return -1 == panelIndex ? null : panels.get(panelIndex);
     }
 
@@ -230,7 +223,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     @Override
     protected List<ContactPanelId> readSearchResults() {
         checkThread();
-        final List<JabberId> contactIds = ((ContactProvider) contentProvider).search(searchExpression);
+        final List<Long> contactIds = ((ContactProvider) contentProvider).search(searchExpression);
         final List<Long> incomingEMailInvitationIds = ((ContactProvider) contentProvider).searchIncomingEMailInvitations(searchExpression);
         final List<Long> incomingUserInvitationIds = ((ContactProvider) contentProvider).searchIncomingUserInvitations(searchExpression);
         final List<Long> outgoingEMailInvitationIds = ((ContactProvider) contentProvider).searchOutgoingEMailInvitations(searchExpression);
@@ -240,16 +233,16 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
                 + outgoingEMailInvitationIds.size()
                 + outgoingUserInvitationIds.size();
         final List<ContactPanelId> panelIds = new ArrayList<ContactPanelId>(size);
-        for (final JabberId contactId : contactIds)
-            panelIds.add(new ContactPanelId(contactId));
+        for (final Long contactId : contactIds)
+            panelIds.add(newContactPanelId(contactId));
         for (final Long invitationId : incomingEMailInvitationIds)
-            panelIds.add(new ContactPanelId(invitationId));
+            panelIds.add(newInvitationPanelId(invitationId));
         for (final Long invitationId : incomingUserInvitationIds)
-            panelIds.add(new ContactPanelId(invitationId));
+            panelIds.add(ContactPanelId.newInvitationPanelId(invitationId));
         for (final Long invitationId : outgoingEMailInvitationIds)
-            panelIds.add(new ContactPanelId(invitationId));
+            panelIds.add(ContactPanelId.newInvitationPanelId(invitationId));
         for (final Long invitationId : outgoingUserInvitationIds)
-            panelIds.add(new ContactPanelId(invitationId));
+            panelIds.add(ContactPanelId.newInvitationPanelId(invitationId));
         return panelIds;
     }
 
@@ -283,22 +276,22 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         }
     }
 
-    void syncContact(final JabberId contactId, final Boolean remote) {
+    void syncContact(final Long contactId, final Boolean remote) {
         checkThread();
         debug();
         boolean requestFocus = false;
         final Contact contact = read(contactId);
         // remove the container from the panel list
         if (null == contact) {
-            removePanel(contactId, true);
+            removeContactPanel(contactId, true);
         } else {
-            final int panelIndex = lookupIndex(contact.getId());
+            final int panelIndex = lookupIndex(contact);
             if (-1 < panelIndex) {
                 // if the reload is the result of a remote event add the panel
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
-                requestFocus = ((Component)lookupPanel(new ContactPanelId(contactId))).hasFocus();
-                removePanel(contactId, false);
+                requestFocus = ((Component)lookupPanel(newPanelId(contact))).hasFocus();
+                removeContactPanel(contactId, false);
                 if (remote) {
                     addPanel(0, contact);
                 } else {
@@ -310,7 +303,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         }
         synchronize();
         if (requestFocus) {
-            requestFocusInWindow(lookupPanel(new ContactPanelId(contactId)));
+            requestFocusInWindow(lookupPanel(newPanelId(contact)));
         }
         debug();
     }
@@ -322,15 +315,15 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         final IncomingEMailInvitation invitation = readIncomingEMailInvitation(invitationId);
         // remove the container from the panel list
         if (null == invitation) {
-            removePanel(invitationId, true);
+            removeInvitationPanel(invitationId, true);
         } else {
-            final int panelIndex = lookupIndex(invitation.getId());
+            final int panelIndex = lookupIndex(invitation);
             if (-1 < panelIndex) {
                 // if the reload is the result of a remote event add the panel
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
-                requestFocus = ((Component)lookupPanel(new ContactPanelId(invitationId))).hasFocus();
-                removePanel(invitationId, false);
+                requestFocus = ((Component)lookupPanel(newPanelId(invitation))).hasFocus();
+                removeInvitationPanel(invitationId, false);
                 if (remote) {
                     addPanel(0, invitation);
                 } else {
@@ -342,10 +335,11 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         }
         synchronize();
         if (requestFocus) {
-            requestFocusInWindow(lookupPanel(new ContactPanelId(invitationId)));
+            requestFocusInWindow(lookupPanel(newPanelId(invitation)));
         }
         debug();
     }
+
     void syncIncomingUserInvitation(final Long invitationId, final Boolean remote) {
         checkThread();
         debug();
@@ -353,15 +347,15 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         final IncomingUserInvitation invitation = readIncomingUserInvitation(invitationId);
         // remove the container from the panel list
         if (null == invitation) {
-            removePanel(invitationId, true);
+            removeInvitationPanel(invitationId, true);
         } else {
-            final int panelIndex = lookupIndex(invitation.getId());
+            final int panelIndex = lookupIndex(invitation);
             if (-1 < panelIndex) {
                 // if the reload is the result of a remote event add the panel
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
-                requestFocus = ((Component)lookupPanel(new ContactPanelId(invitationId))).hasFocus();
-                removePanel(invitationId, false);
+                requestFocus = ((Component)lookupPanel(newPanelId(invitation))).hasFocus();
+                removeInvitationPanel(invitationId, false);
                 if (remote) {
                     addPanel(0, invitation);
                 } else {
@@ -373,7 +367,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         }
         synchronize();
         if (requestFocus) {
-            requestFocusInWindow(lookupPanel(new ContactPanelId(invitationId)));
+            requestFocusInWindow(lookupPanel(newPanelId(invitation)));
         }
         debug();
     }
@@ -385,15 +379,15 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         final OutgoingEMailInvitation invitation = readOutgoingEMailInvitation(invitationId);
         // remove the invitation from the panel list
         if (null == invitation) {
-            removePanel(invitationId, true);
+            removeInvitationPanel(invitationId, true);
         } else {
-            final int panelIndex = lookupIndex(invitation.getId());
+            final int panelIndex = lookupIndex(invitation);
             if (-1 < panelIndex) {
                 // if the reload is the result of a remote event add the panel
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
-                requestFocus = ((Component)lookupPanel(new ContactPanelId(invitationId))).hasFocus();
-                removePanel(invitationId, false);
+                requestFocus = ((Component)lookupPanel(newPanelId(invitation))).hasFocus();
+                removeInvitationPanel(invitationId, false);
                 if (remote) {
                     addPanel(0, invitation);
                 } else {
@@ -405,7 +399,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         }
         synchronize();
         if (requestFocus) {
-            requestFocusInWindow(lookupPanel(new ContactPanelId(invitationId)));
+            requestFocusInWindow(lookupPanel(newPanelId(invitation)));
         }
         debug();
 
@@ -418,15 +412,15 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         final OutgoingUserInvitation invitation = readOutgoingUserInvitation(invitationId);
         // remove the invitation from the panel list
         if (null == invitation) {
-            removePanel(invitationId, true);
+            removeInvitationPanel(invitationId, true);
         } else {
-            final int panelIndex = lookupIndex(invitation.getId());
+            final int panelIndex = lookupIndex(invitation);
             if (-1 < panelIndex) {
                 // if the reload is the result of a remote event add the panel
                 // at the top of the list; otherwise add it in the same location
                 // it previously existed
-                requestFocus = ((Component)lookupPanel(new ContactPanelId(invitationId))).hasFocus();
-                removePanel(invitationId, false);
+                requestFocus = ((Component)lookupPanel(newPanelId(invitation))).hasFocus();
+                removeInvitationPanel(invitationId, false);
                 if (remote) {
                     addPanel(0, invitation);
                 } else {
@@ -438,7 +432,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         }
         synchronize();
         if (requestFocus) {
-            requestFocusInWindow(lookupPanel(new ContactPanelId(invitationId)));
+            requestFocusInWindow(lookupPanel(newPanelId(invitation)));
         }
         debug();
 
@@ -453,7 +447,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     private void addPanel(final Contact contact) {
         addPanel(panels.size() == 0 ? 0 : panels.size(), contact);
     }
-
     /**
      * Add an incoming e-mail invitation to the end of the panels list.
      * 
@@ -485,7 +478,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     private void addPanel(final int index, final Contact contact) {
         panels.add(index, toDisplay(contact));
     }
-    
+
     /**
      * Add an incoming e-mail invitation to the panels list.
      * 
@@ -535,7 +528,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             final OutgoingUserInvitation invitation) {
         panels.add(index, toDisplay(invitation));
     }
-
+    
     /**
      * Add an outgoing e-mail invitation to the end of the panels list.
      * 
@@ -567,12 +560,19 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         Assert.assertTrue(EventQueue.isDispatchThread(), "Contact tab model not on the AWT event dispatch thread.");
     }
 
-    private int lookupIndex(final JabberId userId) {
+    /**
+     * Lookup the index of a contact panel.
+     * 
+     * @param contactId
+     *            A contact id <code>Long</code>.
+     * @return An <code>int</code>.
+     */
+    private int lookupContactIndex(final Long contactId) {
         ContactTabPanel panel;
         for (int i = 0; i < panels.size(); i++) {
             panel = ((ContactTabPanel) panels.get(i));
             if (panel.isSetContact()) {
-                if (panel.getContact().getId().equals(userId)) {
+                if (panel.getContact().getLocalId().equals(contactId)) {
                     return i;
                 }
             }
@@ -580,7 +580,32 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         return -1;
     }
 
-    private int lookupIndex(final Long invitationId) {
+    private int lookupIndex(final Contact contact) {
+        return lookupContactIndex(contact.getLocalId());
+    }
+
+    private int lookupIndex(final ContactInvitation invitation) {
+        return lookupInvitationIndex(invitation.getId());
+    }
+
+    private int lookupIndex(final ContactPanelId panelId) {
+        if (panelId.isSetContactId()) {
+            return lookupContactIndex(panelId.getContactId());
+        } else if (panelId.isSetInvitationId()) {
+            return lookupInvitationIndex(panelId.getInvitationId());
+        } else {
+            throw Assert.createUnreachable("Unkown panel id {0}.", panelId);
+        }
+    }
+
+    /**
+     * Lookup the index of an invitation panel.
+     * 
+     * @param invitationId
+     *            An invitation id <code>Long</code>.
+     * @return An <code>int</code>.
+     */
+    private int lookupInvitationIndex(final Long invitationId) {
         ContactTabPanel panel;
         for (int i = 0; i < panels.size(); i++) {
             panel = ((ContactTabPanel) panels.get(i));
@@ -605,8 +630,52 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         return -1;
     }
 
-    private Contact read(final JabberId contactId) {
-        return ((ContactProvider) contentProvider).readContact(contactId);
+    /**
+     * Create a new panel id for a contact.
+     * 
+     * @param contactId
+     *            A <code>Long</code>.
+     * @return A <code>ContactPanelId</code>.
+     */
+    private ContactPanelId newContactPanelId(final Long contactId) {
+        return ContactPanelId.newContactPanelId(contactId);
+    }
+
+    /**
+     * Create a new panel id for an invitation.
+     * 
+     * @param invitationId
+     *            A <code>Long</code>.
+     * @return A <code>ContactPanelId</code>.
+     */
+    private ContactPanelId newInvitationPanelId(final Long invitationId) {
+        return ContactPanelId.newInvitationPanelId(invitationId);
+    }
+
+    /**
+     * Create a new panel id for a contact.
+     * 
+     * @param contact
+     *            A <code>Contact</code>.
+     * @return A <code>ContactPanelId</code>.
+     */
+    private ContactPanelId newPanelId(final Contact contact) {
+        return ContactPanelId.newPanelId(contact);
+    }
+
+    /**
+     * Create a new panel id for an invitation.
+     * 
+     * @param invitation
+     *            A <code>ContactInvitation</code>.
+     * @return A <code>ContactPanelId</code>.
+     */
+    private ContactPanelId newPanelId(final ContactInvitation invitation) {
+        return ContactPanelId.newPanelId(invitation);
+    }
+
+    private Contact read(final Long contactId) {
+        return ((ContactProvider) contentProvider).read(contactId);
     }
 
     /**
@@ -672,11 +741,11 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      * @param removeExpandedState
      *            Remove expanded state <code>boolean</code>.
      */
-    private void removePanel(final JabberId userId,
+    private void removeContactPanel(final Long contactId,
             final boolean removeExpandedState) {
-        final int panelIndex = lookupIndex(userId);
+        final int panelIndex = lookupContactIndex(contactId);
         if (-1 == panelIndex) {
-            logger.logError("Cannot remove contact panel, user id {0}.", userId.getUsername());
+            logger.logError("Cannot remove contact panel {0}.", contactId);
         } else {
             final TabPanel panel = panels.remove(panelIndex);
             if (removeExpandedState) {
@@ -693,9 +762,9 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      * @param removeExpandedState
      *            Remove expanded state <code>boolean</code>.
      */
-    private void removePanel(final Long invitationId,
+    private void removeInvitationPanel(final Long invitationId,
             final boolean removeExpandedState) {
-        final int panelIndex = lookupIndex(invitationId);
+        final int panelIndex = lookupInvitationIndex(invitationId);
         if (-1 == panelIndex) {
             logger.logError("Cannot remove contact panel, invitation id {0}.", invitationId);
         } else {

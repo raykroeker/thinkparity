@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.tab
 import java.util.List;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
@@ -56,7 +55,7 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
         throw Assert.createUnreachable("Deprecated paradigm.");
     }
 
-    public Contact readContact(final JabberId contactId) {
+    public Contact read(final Long contactId) {
         return contactModel.read(contactId);
     }
 
@@ -98,7 +97,7 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
         return contactModel.readOutgoingUserInvitations();
     }
 
-    public List<JabberId> search(final String expression) {
+    public List<Long> search(final String expression) {
         return contactModel.search(expression);
     }
 

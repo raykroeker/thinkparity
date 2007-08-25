@@ -4,8 +4,6 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.contact;
 
-import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -36,7 +34,7 @@ public class Expand extends AbstractBrowserAction {
      */
     @Override
     public void invoke(final Data data) {
-        final JabberId contactId = (JabberId) data.get(DataKey.CONTACT_ID);
+        final Long contactId = (Long) data.get(DataKey.CONTACT_ID);
         browser.expandContact(contactId);  
     }
 

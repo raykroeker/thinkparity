@@ -9,6 +9,7 @@ import com.thinkparity.codebase.Pair;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
@@ -26,10 +27,10 @@ public interface InternalIndexModel extends IndexModel {
     /**
      * Delete a contact from the index.
      * 
-     * @param contactId
-     *            A contact id <code>JabberId</code>.
+     * @param contact
+     *            A <code>Contact</code>.
      */
-    public void deleteContact(final JabberId contactId);
+    public void deleteContact(final Contact contact);
 
     /**
      * Delete a container from the index.
@@ -88,10 +89,10 @@ public interface InternalIndexModel extends IndexModel {
     /**
      * Index a contact.
      * 
-     * @param contactId
-     *            A contact id <code>JabberId</code>.
+     * @param contact
+     *            A <code>Contact</code>.
      */
-    public void indexContact(final JabberId contactId);
+    public void indexContact(final Contact contact);
 
     /**
      * Index a container.
@@ -179,9 +180,9 @@ public interface InternalIndexModel extends IndexModel {
      * 
      * @param expression
      *            A search expresssion.
-     * @return A <code>List&lt;JabberId&gt;</code>.
+     * @return A <code>List<Long></code>.
      */
-    public List<JabberId> searchContacts(final String expression);
+    public List<Long> searchContacts(final String expression);
 
     /**
      * Search the index for containers.
@@ -268,8 +269,8 @@ public interface InternalIndexModel extends IndexModel {
     /**
      * Update a contact in the index.
      * 
-     * @param contactId
-     *            A contact id <code>JabberId</code>.
+     * @param contact
+     *            A <code>Contact</code>.
      */
-    public void updateContact(final JabberId contactId);
+    public void updateContact(final Contact contact);
 }

@@ -1094,10 +1094,12 @@ public final class SessionModelImpl extends Model<SessionListener>
      * 
      */
     public void updateProfilePassword(final Credentials credentials,
-            final String password) {
+            final String password) throws InvalidCredentialsException {
         try {
             profileService.updatePassword(getAuthToken(), credentials,
                     password);
+        } catch (final InvalidCredentialsException icx) {
+            throw icx;
         } catch (final Throwable t) {
             throw panic(t);
         }

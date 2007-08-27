@@ -20,6 +20,7 @@ import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.util.Token;
 
 /**
@@ -75,7 +76,7 @@ public interface ProfileService {
 
     @WebMethod
     void updatePassword(AuthToken authToken, Credentials credentials,
-            String password);
+            String password) throws InvalidCredentialsException;
 
     /**
      * Update the product release for the profile.

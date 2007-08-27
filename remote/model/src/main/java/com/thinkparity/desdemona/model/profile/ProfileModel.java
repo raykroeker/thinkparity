@@ -17,6 +17,7 @@ import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.util.Token;
 
 /**
@@ -149,8 +150,11 @@ public interface ProfileModel {
      *            The existing <code>Credentials</code>.
      * @param password
      *            The new password <code>String</code>.
+     * @throws InvalidCredentialsException
+     *             if the credentials are invalid
      */
-    void updatePassword(Credentials credentials, String newPassword);
+    void updatePassword(Credentials credentials, String newPassword)
+            throws InvalidCredentialsException;
 
     /**
      * Update the model user's product release.

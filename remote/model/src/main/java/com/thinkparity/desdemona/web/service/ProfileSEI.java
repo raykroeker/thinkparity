@@ -19,6 +19,7 @@ import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.Token;
 
@@ -161,7 +162,8 @@ public class ProfileSEI extends ServiceSEI implements ProfileService {
      *
      */
     public void updatePassword(final AuthToken authToken,
-            final Credentials credentials, final String password) {
+            final Credentials credentials, final String password)
+            throws InvalidCredentialsException {
         getModel(authToken).updatePassword(credentials, password);
     }
 

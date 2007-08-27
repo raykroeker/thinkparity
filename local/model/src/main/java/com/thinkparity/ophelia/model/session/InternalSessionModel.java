@@ -523,9 +523,11 @@ public interface InternalSessionModel extends SessionModel {
      *            A user's <code>Credentials</code>.
      * @param newPassword
      *            The new profile password<code>String</code>.
+     * @throws InvalidCredentialsException
+     *             if the credentials are invalid.
      */
     public void updateProfilePassword(final Credentials credentials,
-            final String newPassword);
+            final String newPassword) throws InvalidCredentialsException;
 
     /**
      * Verify an email in a user's profile.

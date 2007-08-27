@@ -38,6 +38,7 @@ import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.*;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.Token;
 import com.thinkparity.codebase.model.util.VCardWriter;
@@ -438,18 +439,21 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      * 
      */
     public void updatePassword(final Credentials credentials,
-            final String newPassword) {
+            final String newPassword) throws InvalidCredentialsException {
         try {
-            final Credentials localCredentials = userSql.readCredentials(
-                    user.getLocalId());
-            Assert.assertTrue(credentials.getPassword().equals(
-                    localCredentials.getPassword()),
-                    "User password cannot be updated.");
-            Assert.assertTrue(credentials.getUsername().equals(
-                    localCredentials.getUsername()),
-                    "User password cannot be updated.");
-            userSql.updatePassword(user.getId(), encryptPassword(credentials),
-                    encrypt(newPassword));
+            final Credentials encrypted = encryptPassword(credentials);
+            final User user = userSql.read(encrypted);
+            if (null == user) {
+                throw new InvalidCredentialsException();
+            }
+            if (this.user.equals(user)) {
+                userSql.updatePassword(user.getId(), encrypted,
+                        encrypt(newPassword));
+            } else {
+                throw new InvalidCredentialsException();
+            }
+        } catch (final InvalidCredentialsException icx) {
+            throw icx;
         } catch (final Throwable t) {
             throw translateError(t);
         }

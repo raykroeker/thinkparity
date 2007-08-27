@@ -30,6 +30,11 @@ public final class XADataSourcePool extends StandardXAPoolDataSource {
      */
     public XADataSourcePool(final XADataSource xaDataSource) {
         super(xaDataSource, 5);
+        /* TIMEOUT - XADataSourcePool#<init>
+         * SYNC - XADataSourcePool#<init> - when a "multi-threaded"
+         * model is required; the timeout will need to drop in order to release
+         * resources from the transaction if it ceases to respond */
+        setLifeTime(Long.valueOf(Integer.MAX_VALUE));
         this.xaDataSource = xaDataSource;
         setUser(xaDataSource.getUser());
         setPassword(xaDataSource.getPassword());

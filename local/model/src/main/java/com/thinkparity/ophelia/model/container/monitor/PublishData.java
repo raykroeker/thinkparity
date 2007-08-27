@@ -10,18 +10,22 @@ import java.util.List;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
 /**
- * <b>Title:</b><br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity Ophelia Model Container Monitor Publish Data<br>
+ * <b>Description:</b>The data produced by the model and consumed by the UI
+ * when displaying publish progress.<br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public final class PublishData {
 
+    /** An intermediate value for a number of bytes processed. */
     private Integer bytes;
 
+    /** A document version. */
     private DocumentVersion documentVersion;
 
+    /** A list of document versions. */
     private final List<DocumentVersion> documentVersions;
 
     /**
@@ -43,7 +47,7 @@ public final class PublishData {
     }
 
     /**
-     * Obtain the document Version.
+     * Obtain the document version.
      *
      * @return A <code>DocumentVersion</code>.
      */

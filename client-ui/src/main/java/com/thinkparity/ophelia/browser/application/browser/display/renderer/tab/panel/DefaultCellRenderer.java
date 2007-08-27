@@ -112,7 +112,13 @@ public abstract class DefaultCellRenderer extends AbstractJPanel implements Pane
             public void mousePressed(final java.awt.event.MouseEvent e) {
                 tabPanel.panelCellMousePressed(cell, Boolean.TRUE, e);
                 if (e.getButton() == MouseEvent.BUTTON1
-                        && e.getClickCount() == 1 && cell.isActionAvailable()) {
+                        && cell.isActionAvailable()
+                        && e.getClickCount() == 1) {
+                    cell.invokeAction();
+                } else if (e.getButton() == MouseEvent.BUTTON1
+                        && cell.isActionAvailable()
+                        && !cell.isActionDelayRequired()
+                        && e.getClickCount() > 1) {
                     cell.invokeAction();
                 } else {
                     maybeShowPopup(e);

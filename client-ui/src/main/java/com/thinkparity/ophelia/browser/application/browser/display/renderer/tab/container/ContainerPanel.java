@@ -1852,6 +1852,10 @@ public class ContainerPanel extends DefaultTabPanel {
             return Boolean.TRUE;
         }
         @Override
+        public Boolean isActionDelayRequired() {
+            return Boolean.FALSE;
+        }
+        @Override
         public Boolean isDeleteActionAvailable() {
             return Boolean.TRUE;
         }

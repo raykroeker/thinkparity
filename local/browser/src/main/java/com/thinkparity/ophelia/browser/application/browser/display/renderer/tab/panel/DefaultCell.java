@@ -85,6 +85,13 @@ public class DefaultCell implements Cell {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isActionDelayRequired()
+     */
+    public Boolean isActionDelayRequired() {
+        return Boolean.TRUE;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isDeleteActionAvailable()
      */
     public Boolean isDeleteActionAvailable() {

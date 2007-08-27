@@ -61,6 +61,15 @@ public interface Cell {
     public Boolean isActionAvailable();
 
     /**
+     * Determine whether or not a delay is required between invokes
+     * to the action. This affects whether the action can be called
+     * on multiple key presses.
+     * 
+     * @return True if an action delay is required.
+     */
+    public Boolean isActionDelayRequired();
+
+    /**
      * Determine whether or not a delete action is available for the cell.
      * 
      * @return True if a delete action is available.

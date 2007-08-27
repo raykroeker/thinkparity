@@ -116,8 +116,6 @@ public final class Publish extends ContainerDelegate {
             // previous version
             final ContainerVersion previous = readLatestVersion(containerId);
             // create version
-            notifyProcessBegin(monitor);
-            notifyStepBegin(monitor, PublishStep.CREATE_VERSION);
             final ContainerVersion version = createVersion(container.getId(),
                     readNextVersionId(containerId), versionName,
                     draft.getComment(), localUserId(), publishedOn);
@@ -150,7 +148,6 @@ public final class Publish extends ContainerDelegate {
                 // delta previous with version
                 containerIO.createDelta(calculateDelta(container, version, previous));
             }
-            notifyStepEnd(monitor, PublishStep.CREATE_VERSION);
             // delete draft
             for (final Document document : documents) {
                 documentModel.deleteDraft(locks.get(document), document.getId());

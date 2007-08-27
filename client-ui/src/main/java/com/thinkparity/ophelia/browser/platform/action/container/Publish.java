@@ -5,6 +5,8 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 
 import java.util.List;
 
+import com.thinkparity.codebase.BytesFormat;
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.codebase.model.ThinkParityException;
@@ -12,11 +14,13 @@ import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
+import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
 
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerModel;
+import com.thinkparity.ophelia.model.container.monitor.PublishData;
 import com.thinkparity.ophelia.model.container.monitor.PublishStep;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.session.OfflineException;
@@ -115,6 +119,10 @@ public class Publish extends AbstractBrowserAction {
                 case NONE:
                     isDraftPublishable = true;
                     break;
+                case REMOVED:
+                    break;
+                default:
+                    throw Assert.createUnreachable("Unknown artifact state.");
                 }
                 if (isDraftPublishable)
                     break;
@@ -157,6 +165,8 @@ public class Publish extends AbstractBrowserAction {
      *            A <code>ThinkParitySwingMonitor</code>.
      * @param container
      *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
      * @param versionName
      *            A version name <code>String</code>.
      * @param emails
@@ -176,7 +186,7 @@ public class Publish extends AbstractBrowserAction {
         this.contacts = contacts;
         this.teamMembers = teamMembers;
         this.versionName = versionName;
-        final ThinkParitySwingWorker worker = new PublishWorker(this,
+        final ThinkParitySwingWorker<Publish> worker = new PublishWorker(this,
                 container, versionName, emails, contacts, teamMembers);
         worker.setMonitor(monitor);
         worker.start();
@@ -209,7 +219,7 @@ public class Publish extends AbstractBrowserAction {
 
             this.contactModel = publish.getContactModel();
             this.containerModel = publish.getContainerModel();
-            
+
             this.publishMonitor = newPublishMonitor();
         }
         @Override
@@ -219,21 +229,23 @@ public class Publish extends AbstractBrowserAction {
                     monitor.reset();
                     monitor.complete();
 					action.browser.displayErrorDialog("ErrorUnexpected",
-							new Object[] {}, t);
+					        new Object[] {}, t);
 				}
 			};
 		}
         @Override
         public Object run() {
-            Boolean publishRestricted;
+            monitor.monitor();
+            final boolean restrictPublish;
             try {
-                publishRestricted = containerModel.isPublishRestricted(emails, contacts, teamMembers);
+                restrictPublish = containerModel.isPublishRestricted(emails,
+                        contacts, teamMembers).booleanValue();
             } catch (final OfflineException ox) {
                 monitor.reset();
                 monitor.setError("ErrorOffline");
                 return null;
             }
-            if (publishRestricted) {
+            if (restrictPublish) {
                 monitor.reset();
                 monitor.setError("ErrorNoUsersToPublish");
                 return null;
@@ -262,7 +274,6 @@ public class Publish extends AbstractBrowserAction {
                     containerModel.saveDraft(container.getId());
                 } catch (final CannotLockException clx) {
                     monitor.reset();
-                    publishMonitor = newPublishMonitor();
                     action.browser.retry(action, container.getName());
                     return null;
                 }
@@ -295,7 +306,6 @@ public class Publish extends AbstractBrowserAction {
                     			"Could not restore draft for {0}.", container);
                     }
                     monitor.reset();
-                    publishMonitor = newPublishMonitor();
                     action.browser.retry(action, container.getName());
                     return null;
                 } catch (final ThinkParityException tx) {
@@ -317,52 +327,149 @@ public class Publish extends AbstractBrowserAction {
         }
 
 		/**
-         * Create a new publish monitor.
+         * Create a publish process monitor.
          * 
          * @return A <code>ProcessMonitor</code>.
          */
         private ProcessMonitor newPublishMonitor() {
             return new ProcessAdapter() {
-                private Integer stepIndex;
-                private Integer steps;
+                /** A byte format. */
+                private final BytesFormat bytesFormat = new BytesFormat();
+                /** A running count of encrypted/uploaded bytes. */
+                private long encryptedBytes = 0, uploadedBytes = 0;
+                /** The current step. */
+                private int step;
+                /** The number of determined steps. */
+                private int steps;
+                /**
+                 * @see com.thinkparity.ophelia.model.util.ProcessAdapter#beginStep(com.thinkparity.ophelia.model.util.Step,
+                 *      java.lang.Object)
+                 * 
+                 */
                 @Override
-                public void beginProcess() {
-                    monitor.monitor();
-                }
-                @Override
-                public void beginStep(final Step step,
-                        final Object data) {
-                    if (null != steps && steps.intValue() > 0) {
-                        if (PublishStep.UPLOAD_STREAM == step) {
-                            monitor.setStep(stepIndex, action.getString("ProgressUploadStream", new Object[] {data}));
-                        } else if (PublishStep.PUBLISH == step) {
-                            monitor.setStep(stepIndex, action.getString("ProgressPublish"));
-                        }
+                public void beginStep(final Step step, final Object data) {
+                    final PublishData publishData = (PublishData) data;
+                    final PublishStep publishStep = (PublishStep) step;
+                    switch (publishStep) {
+                    case ENCRYPT_DOCUMENT_VERSION_BYTES:
+                    case UPLOAD_DOCUMENT_VERSION_BYTES:
+                        setStep(publishStep, publishData);
+                        break;
+                    case PUBLISH:
+                        setStep(publishStep, publishData);
+                        break;
+                    case UPLOAD_DOCUMENT_VERSION:
+                        setStep(publishStep, publishData);
+                        break;
+                    case UPLOAD_DOCUMENT_VERSIONS:
+                        /* where the progress is "realized" */
+                        setSteps(publishData);
+                        break;
+                    default:
+                        Assert.assertUnreachable("Unknown publish step.");
                     }
                 }
-                @Override
-                public void determineSteps(final Integer steps) {
-                    this.stepIndex = 0;
-                    this.steps = steps;
-                    monitor.setSteps(steps);
-                    monitor.setStep(stepIndex);
-                }
-                @Override
-                public void endProcess() {
-                    if (null != steps && steps.intValue() > 0) {
-                        stepIndex = steps;
-                        monitor.setStep(stepIndex);
-                    }
-                }
+                /**
+                 * @see com.thinkparity.ophelia.model.util.ProcessAdapter#endStep(com.thinkparity.ophelia.model.util.Step)
+                 * 
+                 */
                 @Override
                 public void endStep(final Step step) {
-                    if (PublishStep.PUBLISH == step) {
-                        stepIndex = steps;
-                        monitor.setStep(stepIndex);
-                    } else if (null != steps && steps.intValue() > 0) {
-                        stepIndex++;
-                        monitor.setStep(stepIndex);
+                }
+                /**
+                 * Obtain the step note.
+                 * 
+                 * @return A <code>String</code>.
+                 */
+                private String getStepNote(final PublishStep step,
+                        final PublishData data) {
+                    switch (step) {
+                    case ENCRYPT_DOCUMENT_VERSION_BYTES:
+                        encryptedBytes += data.getBytes();
+                        return getString("ProgressEncryptStream",
+                                data.getDocumentVersion().getArtifactName(),
+                                bytesFormat.format(encryptedBytes),
+                                bytesFormat.format(data.getDocumentVersion().getSize()));
+                    case PUBLISH:
+                        return getString("ProgressPublish");
+                    case UPLOAD_DOCUMENT_VERSION:
+                        encryptedBytes = uploadedBytes = 0L;
+                        return getString("ProgressUpload",
+                                data.getDocumentVersion().getArtifactName());
+                    case UPLOAD_DOCUMENT_VERSION_BYTES:
+                        uploadedBytes += data.getBytes();
+                        return getString("ProgressUploadStream",
+                                data.getDocumentVersion().getArtifactName(),
+                                bytesFormat.format(uploadedBytes),
+                                bytesFormat.format(data.getDocumentVersion().getSize()));
+                    default:
+                        throw Assert.createUnreachable("Unknown publish step.");
                     }
+                }
+                /**
+                 * Obtain a localized string from the action.
+                 * 
+                 * @param key
+                 *            A <code>String</code>.
+                 * @param data
+                 *            An <code>Object[]</code>.
+                 * @return A <code>String</code>.
+                 */
+                private String getString(final String key, final Object... data) {
+                    return action.getString(key, data);
+                }
+                /**
+                 * Calculate the current step.
+                 * 
+                 * @return A number of steps.
+                 */
+                private void setStep(final PublishStep step,
+                        final PublishData data) {
+                    switch (step) {
+                    case ENCRYPT_DOCUMENT_VERSION_BYTES:
+                        this.step += data.getBytes() / 1024;
+                        monitor.setStep(this.step, getStepNote(step, data));
+                        break;
+                    case PUBLISH:
+                        this.step = this.steps - 1;
+                        monitor.setStep(this.step, getStepNote(step, data));
+                        break;
+                    case UPLOAD_DOCUMENT_VERSION:
+                        this.step++;
+                        monitor.setStep(this.step, getStepNote(step, data));
+                        break;
+                    case UPLOAD_DOCUMENT_VERSION_BYTES:
+                        this.step += data.getBytes() / 1024;
+                        monitor.setStep(this.step, getStepNote(step, data));
+                        break;
+                    case UPLOAD_DOCUMENT_VERSIONS:
+                        break;
+                    default:
+                        Assert.assertUnreachable("Unknown publish step.");
+                    }
+                }
+                /**
+                 * Calculate the number of discrete steps involved in
+                 * publishing. We need to:
+                 * <ol>
+                 * <li>Encrypt document version(s).
+                 * <li>Upload document version(s).
+                 * <li>Publish to e-mails/contacts.
+                 * </ol>
+                 * 
+                 * @return A number of steps.
+                 */
+                private void setSteps(final PublishData data) {
+                    long uploadSize = 0;
+                    final List<DocumentVersion> uploadVersions = data.getDocumentVersions();
+                    for (final DocumentVersion uploadVersion : uploadVersions) {
+                        uploadSize += uploadVersion.getSize();
+                    }
+                    step = 0;
+                    steps = ((int) (uploadSize / 1024)) * 2 + 1
+                            + data.getDocumentVersions().size();
+                    monitor.setSteps(this.steps);
+                    monitor.setStep(this.step);
                 }
             };
         }

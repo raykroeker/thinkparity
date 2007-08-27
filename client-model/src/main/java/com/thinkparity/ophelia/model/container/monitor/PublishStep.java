@@ -13,5 +13,7 @@ import com.thinkparity.ophelia.model.util.Step;
  * @version 1.1.2.1
  */
 public enum PublishStep implements Step {
-    CREATE_VERSION, PUBLISH, UPLOAD_STREAM
+    ENCRYPT_DOCUMENT_VERSION_BYTES, PUBLISH,
+    UPLOAD_DOCUMENT_VERSION, UPLOAD_DOCUMENT_VERSION_BYTES,
+    UPLOAD_DOCUMENT_VERSIONS
 }

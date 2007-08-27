@@ -35,7 +35,6 @@ import com.thinkparity.codebase.model.document.DocumentConstraints;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.download.DownloadFile;
 
@@ -50,6 +49,7 @@ import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.DocumentIOHandler;
 import com.thinkparity.ophelia.model.util.Opener;
 import com.thinkparity.ophelia.model.util.Printer;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -943,16 +943,15 @@ public final class DocumentModelImpl extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#uploadStream(com.thinkparity.codebase.model.stream.StreamMonitor,
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#uploadStream(com.thinkparity.ophelia.model.util.ProcessMonitor,
      *      com.thinkparity.codebase.model.document.DocumentVersion)
      * 
      */
-    public void uploadStream(final StreamMonitor monitor,
+    public void uploadStream(final ProcessMonitor monitor,
             final DocumentVersion version) {
         try {
             final UploadStream delegate = newDelegate(UploadStream.class);
             delegate.setMonitor(monitor);
-            
             delegate.setVersion(version);
             delegate.uploadStream();
         } catch (final Throwable t) {

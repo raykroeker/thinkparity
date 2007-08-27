@@ -19,9 +19,10 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.download.DownloadFile;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
+
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
 /**
  * <b>Title:</b>thinkParity Internal Document Model<br>
@@ -333,10 +334,10 @@ public interface InternalDocumentModel extends DocumentModel {
      * Upload a document version to the streaming server.
      * 
      * @param monitor
-     *            A <code>StreamMonitor</code>.
+     *            A <code>ProcessMonitor</code>.
      * @param version
      *            A <code>DocumentVersion</code>.
      */
-    public void uploadStream(final StreamMonitor monitor,
+    public void uploadStream(final ProcessMonitor monitor,
             final DocumentVersion version);
 }

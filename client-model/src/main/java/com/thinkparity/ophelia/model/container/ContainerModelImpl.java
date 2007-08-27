@@ -8,8 +8,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.channels.FileChannel;
-import java.text.MessageFormat;
 import java.util.*;
 
 import javax.xml.transform.TransformerException;
@@ -41,7 +39,6 @@ import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactDraftDeletedEvent;
@@ -56,6 +53,7 @@ import com.thinkparity.ophelia.model.container.delegate.*;
 import com.thinkparity.ophelia.model.container.event.LocalPublishedEvent;
 import com.thinkparity.ophelia.model.container.event.LocalVersionPublishedEvent;
 import com.thinkparity.ophelia.model.container.export.PDFWriter;
+import com.thinkparity.ophelia.model.container.monitor.PublishData;
 import com.thinkparity.ophelia.model.container.monitor.PublishStep;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentFileLock;
@@ -93,49 +91,6 @@ import com.thinkparity.service.client.ServiceFactory;
 public final class ContainerModelImpl extends
         Model<ContainerListener> implements ContainerModel,
         InternalContainerModel {
-
-    /**
-     * Used by the progress monitor to determine the number of steps based on
-     * file size.
-     */
-    private static final Integer STEP_SIZE;
-
-    static {
-        STEP_SIZE = 1024;
-    }
-
-    /**
-     * Count the steps required to publish.
-     * 
-     * @param versions
-     *            A <code>List<DocumentVersion></code>.
-     * @param deltas
-     *            A <code>Map<DocumentVersion, Delta></code>.
-     */
-    static Integer countSteps(final List<DocumentVersion> versions,
-            final Map<DocumentVersion, Delta> versionDeltas) {
-        int totalCount = 0;
-        long totalSize = 0;
-        Delta versionDelta;
-        for (final DocumentVersion version : versions) {
-            versionDelta = versionDeltas.get(version);
-            switch (versionDelta) {
-            case ADDED:
-            case MODIFIED:
-                totalCount++;
-                totalSize += version.getSize();
-                break;
-            case NONE:
-                break;
-            default:
-                /* NOTE removed documents are not in the document version
-                 * and therefore are not considered here */
-                Assert.assertUnreachable("Unsupported delta {0}.", versionDelta);
-            }
-        }
-        // step per doc + per 1K + 1
-        return Integer.valueOf(1 + totalCount + (int) (totalSize / STEP_SIZE));
-    }
 
     /** The artifact io layer. */
     private ArtifactIOHandler artifactIO;
@@ -1953,8 +1908,7 @@ public final class ContainerModelImpl extends
             try {
                 ContainerDraftDocument draftDocument;
                 DocumentDraft documentDraft;
-                FileChannel channel;
-                File tempFile;
+                File file;
                 InputStream stream;
                 for (final Document document : draft.getDocuments()) {
                     if (documentModel.isDraftModified(locks.get(document), document.getId())) {
@@ -1963,21 +1917,13 @@ public final class ContainerModelImpl extends
                                 containerId, document.getId());
                         draftDocument.setChecksum(documentDraft.getChecksum());
                         draftDocument.setSize(documentDraft.getSize());
-                        channel = locks.get(document).getFileChannel(0L);
-                        tempFile = workspace.createTempFile();
-                        channelToFile(channel, tempFile);
+                        file = locks.get(document).getFile();
+                        stream = new FileInputStream(file);
                         try {
-                            stream = new FileInputStream(tempFile);
-                            try {
-                                containerIO.updateDraftDocument(draftDocument,
-                                        stream, getBufferSize());
-                            } finally {
-                                stream.close();
-                            }
+                            containerIO.updateDraftDocument(draftDocument,
+                                    stream, getBufferSize());
                         } finally {
-                            Assert.assertTrue(tempFile.delete(),
-                                    "Could not delete temporary file {0}.",
-                                    tempFile);
+                            stream.close();
                         }
                     }
                 }
@@ -2587,7 +2533,9 @@ public final class ContainerModelImpl extends
             final List<DocumentVersion> versions,
             final Map<DocumentVersion, Delta> deltas) {
         // set fixed progress determination
-        notifyDetermine(monitor, countSteps(versions, deltas));
+        final PublishData monitorData = new PublishData();
+        monitorData.setDocumentVersions(versions);
+        notifyStepBegin(monitor, PublishStep.UPLOAD_DOCUMENT_VERSIONS, monitorData);
         // upload versions
         final InternalDocumentModel documentModel = modelFactory.getDocumentModel();
         Delta delta;
@@ -2598,10 +2546,10 @@ public final class ContainerModelImpl extends
             switch (delta) {
             case ADDED:
             case MODIFIED:
-                notifyStepBegin(monitor, PublishStep.UPLOAD_STREAM, streamName);
-                documentModel.uploadStream(newUploadStreamMonitor(monitor,
-                        streamName), version);
-                notifyStepEnd(monitor, PublishStep.UPLOAD_STREAM);
+                monitorData.setDocumentVersion(version);
+                notifyStepBegin(monitor, PublishStep.UPLOAD_DOCUMENT_VERSION, monitorData);
+                documentModel.uploadStream(monitor, version);
+                notifyStepEnd(monitor, PublishStep.UPLOAD_DOCUMENT_VERSION);
                 break;
             case NONE:
                 logger.logInfo("Document {0} is unchanged.  No upload required.",
@@ -2613,6 +2561,7 @@ public final class ContainerModelImpl extends
                 Assert.assertUnreachable("Unsupported delta {0}.", delta);
             }
         }
+        notifyStepEnd(monitor, PublishStep.UPLOAD_DOCUMENT_VERSIONS);
     }
 
     /**
@@ -2997,56 +2946,6 @@ public final class ContainerModelImpl extends
      */
     private Boolean isFirstDraft(final Long containerId) {
         return 0 == readVersions(containerId).size();
-    }
-
-    /**
-     * Create an upload stream monitor. The stream events are transitioned to
-     * publish events on the process monitor.
-     * 
-     * @param monitor
-     *            A <code>ProcessMonitor</code>.
-     * @param streamName
-     *            A stream name <code>String</code>.
-     * @return A <code>StreamMonitor</code>.
-     */
-    private StreamMonitor newUploadStreamMonitor(final ProcessMonitor monitor,
-            final String streamName) {
-        return new StreamMonitor() {
-            /** A running count of the chunks uploaded. */
-            private long totalChunks = 0;
-
-            /**
-             * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkReceived(int)
-             * 
-             */
-            public void chunkReceived(final int chunkSize) {
-                // not possible for upload
-                Assert.assertUnreachable("");
-            }
-
-            /**
-             * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkSent(int)
-             *
-             */
-            public void chunkSent(final int chunkSize) {
-                totalChunks += chunkSize;
-                while (totalChunks >= STEP_SIZE) {
-                    totalChunks -= STEP_SIZE;
-                    notifyStepBegin(monitor, PublishStep.UPLOAD_STREAM, streamName);
-                    notifyStepEnd(monitor, PublishStep.UPLOAD_STREAM);
-                }
-            }
-
-            /**
-             * @see com.thinkparity.codebase.model.stream.StreamMonitor#getName()
-             *
-             */
-            public String getName() {
-                return MessageFormat.format(
-                        "ContainerModelImpl#uploadStreamMonitor({0})",
-                        streamName);
-            }
-        };
     }
 
     /**

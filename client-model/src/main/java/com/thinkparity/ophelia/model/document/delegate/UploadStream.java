@@ -10,10 +10,13 @@ import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.crypto.CryptoMonitor;
 import com.thinkparity.codebase.crypto.EncryptStream;
 import com.thinkparity.codebase.io.StreamOpener;
 
@@ -24,8 +27,11 @@ import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.upload.UploadFile;
 
+import com.thinkparity.ophelia.model.container.monitor.PublishData;
+import com.thinkparity.ophelia.model.container.monitor.PublishStep;
 import com.thinkparity.ophelia.model.crypto.InternalCryptoModel;
 import com.thinkparity.ophelia.model.document.DocumentDelegate;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
 /**
  * <b>Title:</b>thinkParity Ophelia Model Document Upload Stream Delegate<br>
@@ -36,8 +42,8 @@ import com.thinkparity.ophelia.model.document.DocumentDelegate;
  */
 public final class UploadStream extends DocumentDelegate {
 
-    /** The stream monitor. */
-    private StreamMonitor monitor;
+    /** The process monitor. */
+    private ProcessMonitor monitor;
 
     /** The document name. */
     private String name;
@@ -57,9 +63,9 @@ public final class UploadStream extends DocumentDelegate {
      * Set the stream monitor.
      * 
      * @param monitor
-     *            A <code>StreamMonitor</code>.
+     *            A <code>ProcessMonitor</code>.
      */
-    public void setMonitor(final StreamMonitor monitor) {
+    public void setMonitor(final ProcessMonitor monitor) {
         this.monitor = monitor;
     }
 
@@ -107,16 +113,97 @@ public final class UploadStream extends DocumentDelegate {
         final Key key = new SecretKeySpec(secret.getKey(), secret.getAlgorithm());
         documentIO.openStream(version.getArtifactId(), version.getVersionId(), new StreamOpener() {
             public void open(final InputStream stream) throws IOException {
-                synchronized (getBufferLock()) {
-                    try {
-                        new EncryptStream(secret.getAlgorithm()).encrypt(key,
-                                stream, target, getBufferArray());
-                    } catch (final GeneralSecurityException gsx) {
-                        throw new IOException(gsx);
+                try {
+                    final EncryptStream encryptStream = new EncryptStream(
+                            newCryptoMonitor(), secret.getAlgorithm());
+                    synchronized (getBufferLock()) {
+                            encryptStream.encrypt(key, stream, target,
+                                    getBufferArray());
                     }
+                } catch (final GeneralSecurityException gsx) {
+                    throw new IOException(gsx);
                 }
             }
         });
+    }
+
+    /**
+     * Create a crypto monitor. The monitor is responsible for translating
+     * encryption progress events into a publish monitor's progress events.
+     * 
+     * @return A <code>CryptoMonitor</code>.
+     */
+    private CryptoMonitor newCryptoMonitor() {
+        return new CryptoMonitor() {
+            /** A publish monitor data. */
+            private final PublishData monitorData = new PublishData();
+            /**
+             * @see com.thinkparity.codebase.crypto.CryptoMonitor#chunkDecrypted(int)
+             *
+             */
+            @Override
+            public void chunkDecrypted(final int chunkSize) {
+                throw Assert.createUnreachable("Cannot decrypt from here.");
+            }
+            /**
+             * @see com.thinkparity.codebase.crypto.CryptoMonitor#chunkEncrypted(int)
+             *
+             */
+            @Override
+            public void chunkEncrypted(final int chunkSize) {
+                monitorData.setDocumentVersion(version);
+                monitorData.setBytes(chunkSize);
+                notifyStepBegin(monitor, PublishStep.ENCRYPT_DOCUMENT_VERSION_BYTES, monitorData);
+                notifyStepEnd(monitor, PublishStep.ENCRYPT_DOCUMENT_VERSION_BYTES);
+            }
+        };
+    }
+
+    /**
+     * Create an upload stream monitor. The stream events are transitioned to
+     * events on the process monitor.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     * @param streamName
+     *            A stream name <code>String</code>.
+     * @return A <code>StreamMonitor</code>.
+     */
+    private StreamMonitor newUploadStreamMonitor(final ProcessMonitor monitor,
+            final String streamName) {
+        return new StreamMonitor() {
+            /** A publish monitor data. */
+            private final PublishData monitorData = new PublishData();
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkReceived(int)
+             * 
+             */
+            @Override
+            public void chunkReceived(final int chunkSize) {
+                // not possible for upload
+                Assert.assertUnreachable("");
+            }
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkSent(int)
+             *
+             */
+            @Override
+            public void chunkSent(final int chunkSize) {
+                monitorData.setDocumentVersion(version);
+                monitorData.setBytes(chunkSize);
+                notifyStepBegin(monitor, PublishStep.UPLOAD_DOCUMENT_VERSION_BYTES, monitorData);
+                notifyStepEnd(monitor, PublishStep.UPLOAD_DOCUMENT_VERSION_BYTES);
+            }
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#getName()
+             *
+             */
+            @Override
+            public String getName() {
+                return MessageFormat.format(
+                        "UploadStream#newUploadStreamMonitor({0})", streamName);
+            }
+        };
     }
 
     /**
@@ -155,6 +242,7 @@ public final class UploadStream extends DocumentDelegate {
      *            A <code>File</code>.
      */
     private void upload(final File file) throws IOException {
-        new UploadFile(monitor, newUpstreamSession(file)).upload(file);
+        new UploadFile(newUploadStreamMonitor(monitor, file.getName()),
+                newUpstreamSession(file)).upload(file);
     }
 }

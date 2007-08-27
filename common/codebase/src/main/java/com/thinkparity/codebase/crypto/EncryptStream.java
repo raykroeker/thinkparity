@@ -27,16 +27,23 @@ public final class EncryptStream {
     /** The encryption cipher. */
     private final Cipher cipher;
 
+    /** The encryption monitor. */
+    private final CryptoMonitor monitor;
+
     /**
      * Create EncryptFile.
      * 
+     * @param monitor
+     *            The <code>CryptoMonitor</code>.
      * @param transform
      *            The cipher transform <code>String</code>.
      */
-    public EncryptStream(final String transformation)
-            throws NoSuchPaddingException, NoSuchAlgorithmException {
+    public EncryptStream(final CryptoMonitor monitor,
+            final String transformation) throws NoSuchPaddingException,
+            NoSuchAlgorithmException {
         super();
         this.cipher = Cipher.getInstance(transformation);
+        this.monitor = monitor;
     }
 
     /**
@@ -82,6 +89,7 @@ public final class EncryptStream {
                     break;
                 }
                 cipherStream.write(buffer, 0, bytesRead);
+                notifyEncrypted(bytesRead);
             }
         } finally {
             try {
@@ -90,5 +98,15 @@ public final class EncryptStream {
                 cipherStream.close();
             }
         }
+    }
+
+    /**
+     * Notify the monitor that a number of bytes have been encrypted.
+     * 
+     * @param bytes
+     *            An <code>Integer</code>.
+     */
+    private void notifyEncrypted(final Integer bytes) {
+        monitor.chunkEncrypted(bytes);
     }
 }

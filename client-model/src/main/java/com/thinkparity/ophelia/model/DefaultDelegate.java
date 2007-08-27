@@ -111,14 +111,6 @@ public class DefaultDelegate<T extends Model<?>> implements Delegate<T> {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.Model#notifyProcessBegin(ProcessMonitor)
-     * 
-     */
-    protected static final void notifyProcessBegin(final ProcessMonitor monitor) {
-        Model.notifyProcessBegin(monitor);
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.Model#notifyStepBegin(ProcessMonitor, Step)
      * 
      */

@@ -247,7 +247,7 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     @Override
     public void expandIconMousePressed(final MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1) {
+        if (e.getButton() == MouseEvent.BUTTON1 && isExpandable() && !isAnimating()) {
             selectPanel();
             // request focus after the expand or collapse, otherwise the
             // focus will not be gained as it should be
@@ -1128,6 +1128,13 @@ public class ContainerPanel extends DefaultTabPanel {
         SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), null);
     }//GEN-LAST:event_expandIconJLabelMousePressed
 
+    private void expandIconJLabelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMouseReleased
+        if (e.getClickCount() == 1 && e.isPopupTrigger()) {
+            popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
+            popupDelegate.showForContainer(container, getDraft());
+        }
+    }//GEN-LAST:event_expandIconJLabelMouseReleased
+
     /**
      * Get additional text associated with the container.
      * 
@@ -1272,6 +1279,13 @@ public class ContainerPanel extends DefaultTabPanel {
         }
     }//GEN-LAST:event_iconJLabelMousePressed
 
+    private void iconJLabelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseReleased
+        if (e.getClickCount() == 1 && e.isPopupTrigger()) {
+            popupDelegate.initialize((Component) e.getSource(), e.getX(), e.getY());
+            popupDelegate.showForContainer(container, getDraft());
+        }
+    }//GEN-LAST:event_iconJLabelMouseReleased
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -1323,6 +1337,9 @@ public class ContainerPanel extends DefaultTabPanel {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 expandIconJLabelMousePressed(evt);
             }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                expandIconJLabelMouseReleased(evt);
+            }
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -1342,6 +1359,9 @@ public class ContainerPanel extends DefaultTabPanel {
             }
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 iconJLabelMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                iconJLabelMouseReleased(evt);
             }
         });
 

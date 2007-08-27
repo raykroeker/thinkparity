@@ -3,12 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.Point;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -161,7 +156,7 @@ public class ContactTabPanel extends DefaultTabPanel {
      */
     @Override
     public void expandIconMousePressed(final MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1 && isExpandable()) {
+        if (e.getButton() == MouseEvent.BUTTON1 && isExpandable() && !isAnimating()) {
             tabDelegate.toggleExpansion(this);
         }
     }
@@ -530,6 +525,13 @@ public class ContactTabPanel extends DefaultTabPanel {
         expandIconMousePressed(e);
     }//GEN-LAST:event_collapseIconJLabelMousePressed
 
+    private void collapseIconJLabelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapseIconJLabelMouseReleased
+        if (e.getClickCount() == 1 && e.isPopupTrigger()) {
+            popupDelegate.initialize((Component)e.getSource(), e.getX(), e.getY());
+            showPopup();
+        }
+    }//GEN-LAST:event_collapseIconJLabelMouseReleased
+
     /**
      * Collapse the panel.
      * 
@@ -585,6 +587,13 @@ public class ContactTabPanel extends DefaultTabPanel {
         selectPanel();
         expandIconMousePressed(e);
     }//GEN-LAST:event_expandIconJLabelMousePressed
+
+    private void expandIconJLabelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMouseReleased
+        if (e.getClickCount() == 1 && e.isPopupTrigger()) {
+            popupDelegate.initialize((Component)e.getSource(), e.getX(), e.getY());
+            showPopup();
+        }
+    }//GEN-LAST:event_expandIconJLabelMouseReleased
 
     /**
      * Get the additional text.
@@ -855,6 +864,9 @@ public class ContactTabPanel extends DefaultTabPanel {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 expandIconJLabelMousePressed(evt);
             }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                expandIconJLabelMouseReleased(evt);
+            }
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -995,6 +1007,9 @@ public class ContactTabPanel extends DefaultTabPanel {
             }
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 collapseIconJLabelMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                collapseIconJLabelMouseReleased(evt);
             }
         });
 

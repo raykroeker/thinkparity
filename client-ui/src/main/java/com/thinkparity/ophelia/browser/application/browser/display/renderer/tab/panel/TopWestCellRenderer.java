@@ -67,6 +67,10 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
         tabPanel.expandIconMousePressed(evt);
     }//GEN-LAST:event_collapseIconJLabelMousePressed
 
+    private void collapseIconJLabelMouseReleased(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_collapseIconJLabelMouseReleased
+        maybeShowPopup(evt);
+    }//GEN-LAST:event_collapseIconJLabelMouseReleased
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -95,6 +99,9 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
             }
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 collapseIconJLabelMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                collapseIconJLabelMouseReleased(evt);
             }
         });
 

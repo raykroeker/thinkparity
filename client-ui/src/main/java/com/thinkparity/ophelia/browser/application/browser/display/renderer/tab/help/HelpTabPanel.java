@@ -93,7 +93,7 @@ public class HelpTabPanel extends DefaultTabPanel {
      */
     @Override
     public void expandIconMousePressed(final MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1) {
+        if (e.getButton() == MouseEvent.BUTTON1 && isExpandable() && !isAnimating()) {
             selectPanel();
             tabDelegate.toggleExpansion(this);
         }
@@ -296,6 +296,13 @@ public class HelpTabPanel extends DefaultTabPanel {
         expandIconMousePressed(e);
     }//GEN-LAST:event_collapseIconJLabelMousePressed
 
+    private void collapseIconJLabelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapseIconJLabelMouseReleased
+        if (e.getClickCount() == 1 && e.isPopupTrigger()) {
+            popupDelegate.initialize((Component)e.getSource(), e.getX(), e.getY());
+            popupDelegate.showForHelpTopic(helpTopic);
+        }
+    }//GEN-LAST:event_collapseIconJLabelMouseReleased
+
     /**
      * Collapse the panel.
      * 
@@ -344,6 +351,13 @@ public class HelpTabPanel extends DefaultTabPanel {
         expandIconMousePressed(e);
     }//GEN-LAST:event_expandIconJLabelMousePressed
 
+    private void expandIconJLabelMouseReleased(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMouseReleased
+        if (e.getClickCount() == 1 && e.isPopupTrigger()) {
+            popupDelegate.initialize((Component)e.getSource(), e.getX(), e.getY());
+            popupDelegate.showForHelpTopic(helpTopic);
+        }
+    }//GEN-LAST:event_expandIconJLabelMouseReleased
+
     private void helpContentJTextAreaMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_helpContentJTextAreaMousePressed
         jPanelMousePressed((Component) e.getSource(), e);
     }//GEN-LAST:event_helpContentJTextAreaMousePressed
@@ -386,6 +400,9 @@ public class HelpTabPanel extends DefaultTabPanel {
             }
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 expandIconJLabelMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                expandIconJLabelMouseReleased(evt);
             }
         });
 
@@ -466,6 +483,9 @@ public class HelpTabPanel extends DefaultTabPanel {
             }
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 collapseIconJLabelMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                collapseIconJLabelMouseReleased(evt);
             }
         });
 

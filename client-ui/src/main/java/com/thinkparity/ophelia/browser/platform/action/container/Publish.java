@@ -348,8 +348,8 @@ public class Publish extends AbstractBrowserAction {
                  */
                 @Override
                 public void beginStep(final Step step, final Object data) {
-                    final PublishData publishData = (PublishData) data;
                     final PublishStep publishStep = (PublishStep) step;
+                    final PublishData publishData = (PublishData) data;
                     switch (publishStep) {
                     case ENCRYPT_DOCUMENT_VERSION_BYTES:
                     case UPLOAD_DOCUMENT_VERSION_BYTES:
@@ -362,7 +362,7 @@ public class Publish extends AbstractBrowserAction {
                         setStep(publishStep, publishData);
                         break;
                     case UPLOAD_DOCUMENT_VERSIONS:
-                        /* where the progress is "realized" */
+                        /* where the progress is "determined" */
                         setSteps(publishData);
                         break;
                     default:

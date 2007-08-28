@@ -28,14 +28,56 @@ import com.thinkparity.codebase.delegate.Cancelable;
  */
 public final class DecryptFile implements Cancelable {
 
+    /** A null (does nothing) monitor. */
+    private static final CryptoMonitor NULL_MONITOR;
+
+    static {
+        NULL_MONITOR = new CryptoMonitor() {
+            /**
+             * @see com.thinkparity.codebase.crypto.CryptoMonitor#chunkDecrypted(int)
+             * 
+             */
+            @Override
+            public void chunkDecrypted(final int chunkSize) {}
+            /**
+             * @see com.thinkparity.codebase.crypto.CryptoMonitor#chunkEncrypted(int)
+             *
+             */
+            @Override
+            public void chunkEncrypted(final int chunkSize) {}
+        };
+    }
+
     /** A cancel indicator. */
     private boolean cancel;
+
+    /** The decryption cipher. */
+    private final Cipher cipher;
+
+    /** A decryption monitor. */
+    private final CryptoMonitor monitor;
 
     /** A run indicator. */
     private boolean running;
 
-    /** The decryption cipher. */
-    private final Cipher cipher;
+    /**
+     * Create DecryptFile.
+     * 
+     * @param monitor
+     *            A <code>CryptoMonitor</code>.
+     * @param transformation
+     *            A cipher transformation <code>String</code>.
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     */
+    public DecryptFile(final CryptoMonitor monitor, final String transformation)
+            throws NoSuchPaddingException, NoSuchAlgorithmException {
+        super();
+        this.cancel = false;
+        this.cipher = Cipher.getInstance(transformation);
+        this.monitor = monitor;
+        this.running = false;
+    }
 
     /**
      * Create DecryptFile.
@@ -47,10 +89,7 @@ public final class DecryptFile implements Cancelable {
      */
     public DecryptFile(final String transformation)
             throws NoSuchPaddingException, NoSuchAlgorithmException {
-        super();
-        this.cancel = false;
-        this.cipher = Cipher.getInstance(transformation);
-        this.running = false;
+        this(NULL_MONITOR, transformation);
     }
 
     /**
@@ -105,6 +144,7 @@ public final class DecryptFile implements Cancelable {
                                 break;
                             } else {
                                 outStream.write(buffer, 0, bytesRead);
+                                notifyDecrypted(bytesRead);
                             }
                         }
                     }
@@ -124,5 +164,15 @@ public final class DecryptFile implements Cancelable {
                 notifyAll();
             }
         }
+    }
+
+    /**
+     * Notify a number of bytes has been decrypted.
+     * 
+     * @param bytes
+     *            An <code>Integer</code>.
+     */
+    private void notifyDecrypted(final Integer bytes) {
+        monitor.chunkDecrypted(bytes);
     }
 }

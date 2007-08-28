@@ -13,5 +13,5 @@ import com.thinkparity.ophelia.model.util.Step;
  * @version 1.1.2.1
  */
 public enum DownloadStep implements Step {
-    DOWNLOAD;
+    DOWNLOAD_CONTACT, DOWNLOAD_SIZE;
 }

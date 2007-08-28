@@ -28,6 +28,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.*;
 
 import com.thinkparity.ophelia.model.Model;
+import com.thinkparity.ophelia.model.contact.monitor.DownloadData;
 import com.thinkparity.ophelia.model.contact.monitor.DownloadStep;
 import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContactListener;
@@ -572,11 +573,15 @@ public final class ContactModelImpl extends Model<ContactListener>
         try {
             final InternalSessionModel sessionModel = getSessionModel();
             final List<Contact> contacts = sessionModel.readContacts();
-            notifyDetermine(monitor, contacts.size());
+            final DownloadData monitorData = new DownloadData();
+            monitorData.setSize(contacts.size());
+            notifyStepBegin(monitor, DownloadStep.DOWNLOAD_SIZE, monitorData);
+            notifyStepEnd(monitor, DownloadStep.DOWNLOAD_SIZE);
             for (final Contact contact : contacts) {
-                notifyStepBegin(monitor, DownloadStep.DOWNLOAD);
+                monitorData.setContact(contact);
+                notifyStepBegin(monitor, DownloadStep.DOWNLOAD_CONTACT, monitorData);
                 createLocal(contact);
-                notifyStepEnd(monitor, DownloadStep.DOWNLOAD);
+                notifyStepEnd(monitor, DownloadStep.DOWNLOAD_CONTACT);
                 notifyContactCreated(contact, localEventGenerator);
             }
             final List<IncomingEMailInvitation> incomingEMail = sessionModel.readIncomingEMailInvitations();

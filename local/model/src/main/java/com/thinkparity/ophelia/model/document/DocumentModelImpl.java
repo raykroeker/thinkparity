@@ -35,6 +35,7 @@ import com.thinkparity.codebase.model.document.DocumentConstraints;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.download.DownloadFile;
 
@@ -483,10 +484,23 @@ public final class DocumentModelImpl extends
      *
      */
     public DownloadFile newDownloadFile(final DocumentVersion version) {
+        return newDownloadFile(null, version);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.document.InternalDocumentModel#newDownloadHelper(com.thinkparity.codebase.model.document.DocumentVersion)
+     *
+     */
+    public DownloadFile newDownloadFile(final StreamMonitor monitor,
+            final DocumentVersion version) {
         try {
             final StreamSession session = getStreamModel().newDownstreamSession(
                     version);
-            return new DownloadFile(session);
+            if (null == monitor) {
+                return new DownloadFile(session);
+            } else {
+                return new DownloadFile(monitor, session);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }

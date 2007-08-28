@@ -19,6 +19,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.download.DownloadFile;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
@@ -198,6 +199,18 @@ public interface InternalDocumentModel extends DocumentModel {
      * @return A <code>DownloadFile</code>.
      */
     public DownloadFile newDownloadFile(final DocumentVersion version);
+
+    /**
+     * Create a new instance of a document version download file.
+     * 
+     * @param monitor
+     *            A <code>StreamMonitor</code>.
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @return A <code>DownloadFile</code>.
+     */
+    public DownloadFile newDownloadFile(final StreamMonitor monitor,
+            final DocumentVersion version);
 
     /**
      * Open the document draft input stream.

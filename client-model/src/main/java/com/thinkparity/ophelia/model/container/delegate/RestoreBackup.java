@@ -19,6 +19,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.thinkparity.codebase.Pair;
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.crypto.CryptoMonitor;
 import com.thinkparity.codebase.crypto.DecryptFile;
 import com.thinkparity.codebase.jabber.JabberId;
 
@@ -29,12 +31,14 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.backup.InternalBackupModel;
 import com.thinkparity.ophelia.model.container.ContainerDelegate;
 import com.thinkparity.ophelia.model.container.ContainerDraft;
+import com.thinkparity.ophelia.model.container.monitor.RestoreBackupData;
 import com.thinkparity.ophelia.model.container.monitor.RestoreBackupStep;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentFileLock;
@@ -57,12 +61,16 @@ public final class RestoreBackup extends ContainerDelegate {
     /** A <code>ProcessMonitor</code>. */
     private ProcessMonitor monitor;
 
+    /** The monitor data. */
+    private final RestoreBackupData monitorData;
+
     /**
      * Create RestoreBackup.
      *
      */
     public RestoreBackup() {
         super();
+        this.monitorData = new RestoreBackupData();
     }
 
     /**
@@ -73,32 +81,32 @@ public final class RestoreBackup extends ContainerDelegate {
             NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidKeyException {
         final List<Container> containers = read();
-        notifyDetermine(monitor, containers.size());
-        if (0 < containers.size()) {
-            notifyStepBegin(monitor, RestoreBackupStep.DELETE_LOCAL_CONTAINER);
-            final Map<Container, List<Document>> allDocuments = readAllDocuments();
-            final Map<Document, DocumentFileLock> allDocumentsLocks = new HashMap<Document, DocumentFileLock>();
-            final Map<DocumentVersion, DocumentFileLock> allDocumentsVersionsLocks = new HashMap<DocumentVersion, DocumentFileLock>();
-            try {
-                for (final List<Document> documents : allDocuments.values()) {
-                    for (final Document document : documents) {
-                        allDocumentsLocks.put(document, lockDocument(document));
-                        allDocumentsVersionsLocks.putAll(lockDocumentVersions(document));
-                    }
-                }
-                for (final Container container : containers) {
-                    deleteLocal(container.getId(), allDocuments.get(container),
-                            allDocumentsLocks, allDocumentsVersionsLocks);
-                    notifyContainerDeletedLocally(container);
-                }
-            } finally {
-                try {
-                    releaseLocks(allDocumentsLocks.values());
-                } finally {
-                    releaseLocks(allDocumentsVersionsLocks.values());
+        monitorData.setDeleteContainers(containers);
+        notifyStepBegin(monitor, RestoreBackupStep.DELETE_CONTAINERS, monitorData);
+        final Map<Container, List<Document>> allDocuments = readAllDocuments();
+        final Map<Document, DocumentFileLock> allDocumentsLocks = new HashMap<Document, DocumentFileLock>();
+        final Map<DocumentVersion, DocumentFileLock> allDocumentsVersionsLocks = new HashMap<DocumentVersion, DocumentFileLock>();
+        try {
+            for (final List<Document> documents : allDocuments.values()) {
+                for (final Document document : documents) {
+                    allDocumentsLocks.put(document, lockDocument(document));
+                    allDocumentsVersionsLocks.putAll(lockDocumentVersions(document));
                 }
             }
-            notifyStepEnd(monitor, RestoreBackupStep.DELETE_LOCAL_CONTAINER);
+            for (final Container container : containers) {
+                monitorData.setDeleteContainer(container);
+                notifyStepBegin(monitor, RestoreBackupStep.DELETE_CONTAINER, monitorData);
+                deleteLocal(container.getId(), allDocuments.get(container),
+                        allDocumentsLocks, allDocumentsVersionsLocks);
+                notifyContainerDeletedLocally(container);
+                notifyStepEnd(monitor, RestoreBackupStep.DELETE_CONTAINER);
+            }
+        } finally {
+            try {
+                releaseLocks(allDocumentsLocks.values());
+            } finally {
+                releaseLocks(allDocumentsVersionsLocks.values());
+            }
         }
 
         // if backup is not enabled for the profile, do nothing
@@ -107,13 +115,15 @@ public final class RestoreBackup extends ContainerDelegate {
 
         final InternalBackupModel backupModel = getBackupModel();
         final List<Container> backupContainers = backupModel.readContainers();
-        notifyDetermine(monitor, backupContainers.size());
+        monitorData.setRestoreContainers(backupContainers);
+        notifyStepBegin(monitor, RestoreBackupStep.RESTORE_CONTAINERS, monitorData);
         for (final Container backupContainer : backupContainers) {
-            notifyStepBegin(monitor, RestoreBackupStep.RESTORE_REMOTE_CONTAINER);
+            monitorData.setRestoreContainer(backupContainer);
+            notifyStepBegin(monitor, RestoreBackupStep.RESTORE_CONTAINER, monitorData);
             restore(backupContainer);
             // NOTE the model needs to apply the flag seen in this single case
             getArtifactModel().applyFlagSeen(backupContainer.getId());
-            notifyStepEnd(monitor, RestoreBackupStep.RESTORE_REMOTE_CONTAINER);
+            notifyStepEnd(monitor, RestoreBackupStep.RESTORE_CONTAINER);
             notifyContainerCreatedLocally(read(backupContainer.getId()));
         }
     }
@@ -141,17 +151,82 @@ public final class RestoreBackup extends ContainerDelegate {
         final String suffix = MessageFormat.format("-{0}",  version.getArtifactName());
         final File downloadFile = createTempFile(suffix);
         try {
-            getDocumentModel().newDownloadFile(version).download(downloadFile);
+            getDocumentModel().newDownloadFile(newStreamMonitor(version),
+                    version).download(downloadFile);
             final Secret secret = getCryptoModel().readSecret(version);
             final Key key = new SecretKeySpec(secret.getKey(), secret.getAlgorithm());
             synchronized (getBufferLock()) {
-                new DecryptFile(secret.getAlgorithm()).decrypt(
+                new DecryptFile(newCryptoMonitor(), secret.getAlgorithm()).decrypt(
                         key, downloadFile, file, getBufferArray());
             }
         } finally {
             // TEMPFILE - RestoreBackup#download(DocumentVersion)
             downloadFile.delete();
         }
+    }
+
+    /**
+     * Create a stream monitor for the download.
+     * 
+     * @return A <code>StreamMonitor</code>.
+     */
+    private StreamMonitor newStreamMonitor(final DocumentVersion version) {
+        return new StreamMonitor() {
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkReceived(int)
+             *
+             */
+            @Override
+            public void chunkReceived(final int chunkSize) {
+                monitorData.setBytes(chunkSize);
+                notifyStepBegin(monitor, RestoreBackupStep.RESTORE_DOCUMENT_VERSION_DOWNLOAD_BYTES, monitorData);
+                notifyStepEnd(monitor, RestoreBackupStep.RESTORE_DOCUMENT_VERSION_DOWNLOAD_BYTES);
+            }
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkSent(int)
+             *
+             */
+            @Override
+            public void chunkSent(final int chunkSize) {
+                Assert.assertUnreachable("Cannot upload from here.");
+            }
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#getName()
+             *
+             */
+            @Override
+            public String getName() {
+                return MessageFormat.format("RestoreBackup#newStreamMonitor({0})",
+                        version.getArtifactName());
+            }
+        };
+    }
+    /**
+     * Create a crypto monitor that looks for decrypted bytes.
+     * 
+     * @return A <code>CryptoMonitor</code>.
+     */
+    private CryptoMonitor newCryptoMonitor() {
+        return new CryptoMonitor() {
+            /**
+             * @see com.thinkparity.codebase.crypto.CryptoMonitor#chunkDecrypted(int)
+             *
+             */
+            @Override
+            public void chunkDecrypted(final int chunkSize) {
+                monitorData.setBytes(chunkSize);
+                notifyStepBegin(monitor, RestoreBackupStep.RESTORE_DOCUMENT_VERSION_DECRYPT_BYTES, monitorData);
+                notifyStepEnd(monitor, RestoreBackupStep.RESTORE_DOCUMENT_VERSION_DECRYPT_BYTES);
+            }
+            /**
+             * @see com.thinkparity.codebase.crypto.CryptoMonitor#chunkEncrypted(int)
+             *
+             */
+            @Override
+            public void chunkEncrypted(final int chunkSize) {
+                Assert.assertUnreachable("Cannot encrypt from here.");
+            }
+        };
     }
 
     /**
@@ -255,6 +330,8 @@ public final class RestoreBackup extends ContainerDelegate {
             }
             // restore version links
             documents = backupModel.readDocuments(container.getUniqueId(), version.getVersionId());
+            monitorData.setRestoreDocuments(documents);
+            notifyStepBegin(monitor, RestoreBackupStep.RESTORE_DOCUMENTS, monitorData);
             documentVersions = backupModel.readDocumentVersions(container.getUniqueId(), version.getVersionId());
             for (final Document document : documents) {
                 logger.logTrace("Restoring container \"{0}\" version \"{1}\" document \"{2}.\"",
@@ -267,10 +344,14 @@ public final class RestoreBackup extends ContainerDelegate {
                 } else {
                     documentIO.create(document);
                 }
+                monitorData.setRestoreDocumentVersions(documentVersions);
+                notifyStepBegin(monitor, RestoreBackupStep.RESTORE_DOCUMENT_VERSIONS, monitorData);
                 for (final DocumentVersion documentVersion : documentVersions) {
                     if (documentVersion.getArtifactUniqueId().equals(document.getUniqueId())) {
                         if (!artifactIO.doesVersionExist(document.getId(),
                                 documentVersion.getVersionId())) {
+                            monitorData.setRestoreDocumentVersion(documentVersion);
+                            notifyStepBegin(monitor, RestoreBackupStep.RESTORE_DOCUMENT_VERSION, monitorData);
                             logger.logTrace("Restoring container \"{0}\" version \"{1}\" document \"{2}\" version \"{3}.\"",
                                     version.getArtifactName(), version.getVersionId(),
                                     documentVersion.getArtifactName(), documentVersion.getVersionId());
@@ -299,10 +380,13 @@ public final class RestoreBackup extends ContainerDelegate {
                                     document.getType());
                             getIndexModel().indexDocument(container.getId(), document.getId());
                             logger.logTrace("Document version has been restored.");
+                            notifyStepEnd(monitor, RestoreBackupStep.RESTORE_DOCUMENT_VERSION);
                             break;
                         }
                     }
                 }
+                notifyStepEnd(monitor, RestoreBackupStep.RESTORE_DOCUMENT_VERSIONS);
+
                 logger.logTrace("Document has been restored.");
                 previous = readPreviousVersion(version.getArtifactId(),
                         version.getVersionId());
@@ -313,6 +397,7 @@ public final class RestoreBackup extends ContainerDelegate {
                             version, previous));
                 }
             }
+            notifyStepEnd(monitor, RestoreBackupStep.RESTORE_DOCUMENTS);
             getIndexModel().indexContainerVersion(new Pair<Long, Long>(
                     version.getArtifactId(), version.getVersionId()));
             // NOTE the model needs to apply the flag seen in this single case

@@ -71,43 +71,6 @@ public class WorkspaceModel {
     }
 
     /**
-     * Notify a process monitor that a given number of steps is upcoming.
-     * 
-     * @param monitor
-     *            A <code>ProcessMonitor</code>.
-     * @param steps
-     *            An <code>Integer</code> number of steps.
-     */
-    protected static final void notifyDetermine(final ProcessMonitor monitor,
-            final Integer steps) {
-        monitor.determineSteps(steps);
-    }
-
-    /**
-     * Notify a process monitor that a given process will begin.
-     * 
-     * @param monitor
-     *            A <code>ProcessMonitor</code>.
-     * @param steps
-     *            An <code>Integer</code> number of steps.
-     */
-    protected static final void notifyProcessBegin(final ProcessMonitor monitor) {
-        monitor.beginProcess();
-    }
-
-    /**
-     * Notify a process monitor that a given process will end.
-     * 
-     * @param monitor
-     *            A <code>ProcessMonitor</code>.
-     * @param steps
-     *            An <code>Integer</code> number of steps.
-     */
-    protected static final void notifyProcessEnd(final ProcessMonitor monitor) {
-        monitor.endProcess();
-    }
-
-    /**
      * Notify a process monitor that a given step will begin.
      * 
      * @param monitor
@@ -246,8 +209,6 @@ public class WorkspaceModel {
             final InitializeMediator mediator, final Workspace workspace,
             final Credentials credentials) throws InvalidCredentialsException {
         final WorkspaceImpl workspaceImpl = findImpl(workspace);
-        notifyProcessBegin(monitor);
-        notifyDetermine(monitor, 1);
         try {
             // begin initialization
             notifyStepBegin(monitor, InitializeStep.PERSISTENCE_INITIALIZE);
@@ -256,7 +217,6 @@ public class WorkspaceModel {
             final InternalModelFactory modelFactory = getModelFactory(workspace);
             final InternalSessionModel sessionModel = modelFactory.getSessionModel();
             // login
-            notifyDetermine(monitor, 2);
             notifyStepBegin(monitor, InitializeStep.SESSION_LOGIN);
             sessionModel.login(credentials);
             final Boolean firstLogin = sessionModel.isFirstLogin();
@@ -275,13 +235,9 @@ public class WorkspaceModel {
             modelFactory.getProfileModel().initialize();
             notifyStepEnd(monitor, InitializeStep.PROFILE_CREATE);
             // download contacts
-            notifyStepBegin(monitor, InitializeStep.CONTACT_DOWNLOAD);
             modelFactory.getContactModel().download(monitor);
-            notifyStepEnd(monitor, InitializeStep.CONTACT_DOWNLOAD);
             // restore backup
-            notifyStepBegin(monitor, InitializeStep.CONTAINER_RESTORE_BACKUP);
             modelFactory.getContainerModel().restoreBackup(monitor);
-            notifyStepEnd(monitor, InitializeStep.CONTAINER_RESTORE_BACKUP);
             // start download of new release if required
             final Release latestRelease = sessionModel.readMigratorLatestRelease(
                     Constants.Product.NAME, OSUtil.getOS());
@@ -303,7 +259,6 @@ public class WorkspaceModel {
             }
             // finish initialization
             workspaceImpl.finishInitialize();
-            notifyProcessEnd(monitor);
         } catch (final InvalidCredentialsException icx) {
             throw icx;
         } catch (final Throwable t) {

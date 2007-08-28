@@ -400,7 +400,11 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         }
     }
 
-    // TODO - javadoc
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#readUsername()
+     *
+     */
+    @Override
     public String readUsername() {
         try {
             return readCredentials().getUsername();

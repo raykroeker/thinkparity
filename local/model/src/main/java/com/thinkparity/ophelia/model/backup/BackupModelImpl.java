@@ -360,7 +360,11 @@ public final class BackupModelImpl extends Model<BackupListener> implements
         super.removeListener(l);
     }
 
-    // TODO - javadoc
+    /**
+     * @see com.thinkparity.ophelia.model.backup.BackupModel#restore(com.thinkparity.ophelia.model.util.ProcessMonitor,
+     *      com.thinkparity.codebase.model.session.Credentials)
+     * 
+     */
     @Override
     public void restore(final ProcessMonitor monitor,
             final Credentials credentials) throws InvalidCredentialsException,

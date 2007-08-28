@@ -45,9 +45,13 @@ public final class DeleteOutgoingUserInvitation extends AbstractAction {
 
         final ContactModel contactModel = getContactModel();
         final OutgoingUserInvitation invitation = contactModel.readOutgoingUserInvitation(invitationId);
-        if (browser.confirm("ContactOutgoingUserInvitationDelete.ConfirmDeleteMessage",
-                new Object[] {invitation.getInvitationUser().getName()})) {
-            contactModel.deleteInvitation(invitation);
+        if (null == invitation) {
+            logger.logInfo("Invitation no longer exists.");
+        } else {
+            if (browser.confirm("ContactOutgoingUserInvitationDelete.ConfirmDeleteMessage",
+                    new Object[] {invitation.getInvitationUser().getName()})) {
+                contactModel.deleteInvitation(invitation);
+            }
         }
     }
 

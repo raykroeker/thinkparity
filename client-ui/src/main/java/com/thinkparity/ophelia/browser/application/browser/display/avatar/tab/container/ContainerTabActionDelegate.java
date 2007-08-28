@@ -204,7 +204,7 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
             invoke(profileUpdate, getApplication(), data);
         } else {
             final Data data = new Data(1);
-            data.set(Read.DataKey.CONTACT_ID, user.getId());
+            data.set(Read.DataKey.CONTACT_ID, user.getLocalId());
             invoke(userRead, getApplication(), data);
         }
     }

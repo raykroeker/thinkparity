@@ -40,8 +40,11 @@ public class AcceptIncomingUserInvitation extends AbstractBrowserAction {
 
         final ContactModel contactModel = getContactModel();
         final IncomingUserInvitation invitation = contactModel.readIncomingUserInvitation(invitationId);
-        contactModel.acceptInvitation(invitation);
-
+        if (null == invitation) {
+            logger.logInfo("Invitation no longer exists.");
+        } else {
+            contactModel.acceptInvitation(invitation);
+        }
         // clear any displayed notifications
         final Data clearData = new Data(1);
         clearData.set(ClearIncomingUserInvitationNotifications.DataKey.INVITATION_ID, invitationId);

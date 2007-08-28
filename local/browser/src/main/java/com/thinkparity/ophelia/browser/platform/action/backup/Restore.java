@@ -101,7 +101,7 @@ public final class Restore extends AbstractBrowserAction {
         @Override
         public Object run() {
             try {
-                backupModel.restore(processMonitor);
+                backupModel.restore(processMonitor, null);
             } catch (final InvalidCredentialsException icx) {
             } catch (final InvalidLocationException ilx) {
             }

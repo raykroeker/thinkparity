@@ -38,8 +38,12 @@ public class Delete extends AbstractBrowserAction {
         final Long contactId = (Long) data.get(DataKey.CONTACT_ID);
         final Contact contact = getContactModel().read(contactId);
 
-        if(browser.confirm("ContactDelete.ConfirmDeleteMessage", new Object[] {contact.getName()})) {
-            getContactModel().delete(contact);
+        if (null == contact) {
+            logger.logInfo("Contact no longer exists.");
+        } else {
+            if(browser.confirm("ContactDelete.ConfirmDeleteMessage", new Object[] {contact.getName()})) {
+                getContactModel().delete(contact);
+            }
         }
     }
 

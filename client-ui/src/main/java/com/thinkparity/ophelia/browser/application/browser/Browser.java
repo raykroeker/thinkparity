@@ -19,7 +19,6 @@ import javax.swing.SwingUtilities;
 
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
-import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
 
@@ -29,6 +28,7 @@ import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -274,19 +274,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Display the contact info dialogue.
-     *
-     * @param contactId
-     *            A contact id.
-     */
-    public void displayContactInfoDialog(final JabberId contactId) {
-        final Data input = new Data(1);
-        input.set(UserInfoAvatar.DataKey.USER_ID, contactId);
-        setInput(AvatarId.DIALOG_CONTACT_INFO, input);
-        displayAvatar(AvatarId.DIALOG_CONTACT_INFO);        
-    }
-
-    /**
      * Display the contact tab avatar.
      *
      */
@@ -331,7 +318,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
         displayAvatar(AvatarId.DIALOG_CONTAINER_CREATE);
     }
-    
+
     /**
      * Display the "new container" dialog (to create new packages).
      * If the user presses OK, runCreateContainer() is called and
@@ -360,7 +347,7 @@ public class Browser extends AbstractApplication {
     public void displayErrorDialog(final String errorMessageKey) {
         displayErrorDialog(errorMessageKey, null, null);
     }
-
+    
     /**
      * Display an error dialog
      * 
@@ -476,7 +463,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_PUBLISH, input);
         displayAvatar(AvatarId.DIALOG_CONTAINER_PUBLISH);
     }
-    
+
     /**
      * Display a container rename dialog.
      * 
@@ -493,7 +480,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_RENAME, input);
         displayAvatar(AvatarId.DIALOG_CONTAINER_RENAME);
     }
-
+    
     /**
      * Display a document rename dialog.
      * 
@@ -577,7 +564,7 @@ public class Browser extends AbstractApplication {
     public void displayUpdatePasswordDialog() {
         displayAvatar(AvatarId.DIALOG_PROFILE_UPDATE_PASSWORD);
     }
-    
+
     /**
      * Display the update profile dialog.
      *
@@ -585,12 +572,25 @@ public class Browser extends AbstractApplication {
     public void displayUpdateProfileDialog() {
         displayAvatar(AvatarId.DIALOG_PROFILE_UPDATE);
     }
-
+    
     /**
      * Display the upgrade account dialog.
      */
     public void displayUpgradeAccountDialog() {
         displayAvatar(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT);
+    }
+
+    /**
+     * Display the contact info dialogue.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     */
+    public void displayUserInfoAvatar(final User user) {
+        final Data input = new Data(1);
+        input.set(UserInfoAvatar.DataKey.USER, user);
+        setInput(AvatarId.DIALOG_CONTACT_INFO, input);
+        displayAvatar(AvatarId.DIALOG_CONTACT_INFO);        
     }
 
     /**
@@ -1377,19 +1377,6 @@ public class Browser extends AbstractApplication {
                 invoke(ActionId.CONTAINER_PUBLISH_VERSION, data);
             }
         });
-    }
-
-    /**
-     * Run the open contact action.
-     * 
-     * @param contactId
-     *            The contact id.
-     */
-    public void runReadContact(final JabberId contactId) {
-        Assert.assertNotNull("Cannot open null contact.", contactId);
-        final Data data = new Data(1);
-        data.set(Read.DataKey.CONTACT_ID, contactId);
-        invoke(ActionId.CONTACT_READ, data);
     }
     
     /**

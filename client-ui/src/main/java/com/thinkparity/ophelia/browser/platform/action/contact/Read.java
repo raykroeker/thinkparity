@@ -3,27 +3,33 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.contact;
 
-import com.thinkparity.codebase.jabber.JabberId;
+import com.thinkparity.codebase.swing.SwingUtil;
+
+import com.thinkparity.codebase.model.contact.Contact;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
-
 /**
- * @author rob_masako@shaw.ca
- * @version 1.1.2.2
+ * <b>Title:</b>thinkParity Ophelia UI Contact Read<br>
+ * <b>Description:</b>Read the contact and display within an avatar.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
-public class Read extends AbstractBrowserAction {
-
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
+public final class Read extends AbstractBrowserAction {
 
     /** The browser application. */
     private final Browser browser;
 
-    /** Create ReadContact. */
+    /**
+     * Create Read.
+     * 
+     * @param browser
+     *            A <code>Browser</code>.
+     */
     public Read(final Browser browser) {
         super(ActionId.CONTACT_READ);
         this.browser = browser;
@@ -34,8 +40,22 @@ public class Read extends AbstractBrowserAction {
      * 
      */
     public void invoke(final Data data) {
-        final JabberId contactId = (JabberId) data.get(DataKey.CONTACT_ID);
-        browser.displayContactInfoDialog(contactId);
+        final Long contactId = (Long) data.get(DataKey.CONTACT_ID);
+        final Contact contact = getContactModel().read(contactId);
+        if (null == contact) {
+            logger.logInfo("Contact no longer exists.");
+        } else {
+            SwingUtil.ensureDispatchThread(new Runnable() {
+                /**
+                 * @see java.lang.Runnable#run()
+                 *
+                 */
+                @Override
+                public void run() {
+                    browser.displayUserInfoAvatar(contact);
+                }
+            });
+        }
     }
 
     /**

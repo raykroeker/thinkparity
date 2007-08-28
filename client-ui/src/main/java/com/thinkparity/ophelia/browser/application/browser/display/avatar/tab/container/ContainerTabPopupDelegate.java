@@ -391,7 +391,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             add(ActionId.PROFILE_UPDATE, data);
         } else {
             final Data data = new Data(1);
-            data.set(Read.DataKey.CONTACT_ID, user.getId());
+            data.set(Read.DataKey.CONTACT_ID, user.getLocalId());
             add(ActionId.CONTACT_READ, data);
         }
 

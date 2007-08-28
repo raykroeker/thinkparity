@@ -10,8 +10,6 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
-import com.thinkparity.codebase.jabber.JabberId;
-
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -59,12 +57,12 @@ public final class UserInfoAvatar extends Avatar {
     }
 
     public void reload() {
-        if (input!=null) {
-            final User user = readUser(getInputUserId());
-            reloadInvite(user);
-            nameJTextField.setText(user.getName());
-            companyJTextField.setText(user.getOrganization());
-            titleJTextField.setText(user.getTitle());
+        if (input != null) {
+            final User inputUser = getInputUser();
+            reloadInvite(inputUser);
+            nameJTextField.setText(inputUser.getName());
+            companyJTextField.setText(inputUser.getOrganization());
+            titleJTextField.setText(inputUser.getTitle());
             nameJTextField.setCaretPosition(0);
             companyJTextField.setCaretPosition(0);
             titleJTextField.setCaretPosition(0);
@@ -117,13 +115,13 @@ public final class UserInfoAvatar extends Avatar {
     }
 
     /**
-     * Obtain the input user id.
+     * Obtain the input user.
      *
-     * @return A user id.
+     * @return A <code>User</code>.
      */
-    private JabberId getInputUserId() {
-        if (input!=null) {
-            return (JabberId) ((Data) input).get(DataKey.USER_ID);
+    private User getInputUser() {
+        if (input != null) {
+            return (User) ((Data) input).get(DataKey.USER);
         } else {
             return null;
         }
@@ -225,7 +223,8 @@ public final class UserInfoAvatar extends Avatar {
 
     private void inviteJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_inviteJLabelMousePressed
         disposeWindow();
-        getController().runCreateOutgoingUserInvitation(readUser(getInputUserId()).getLocalId());
+        final User inputUser = getInputUser();
+        getController().runCreateOutgoingUserInvitation(inputUser.getLocalId());
     }//GEN-LAST:event_inviteJLabelMousePressed
 
     /**
@@ -249,15 +248,6 @@ public final class UserInfoAvatar extends Avatar {
     }
 
     /**
-     * Read the user.
-     *
-     * @return The user.
-     */
-    private User readUser(final JabberId userId) {
-        return ((UserInfoProvider)contentProvider).readUser(userId);
-    }
-
-    /**
      * Set the invite link visible or not as appropriate.
      * 
      * @param user
@@ -269,5 +259,5 @@ public final class UserInfoAvatar extends Avatar {
                 && isInviteAvailable(user));
     }
 
-    public enum DataKey { USER_ID }
+    public enum DataKey { USER }
 }

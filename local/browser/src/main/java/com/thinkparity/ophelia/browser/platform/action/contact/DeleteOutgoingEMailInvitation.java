@@ -45,9 +45,13 @@ public final class DeleteOutgoingEMailInvitation extends AbstractAction {
 
         final ContactModel contactModel = getContactModel();
         final OutgoingEMailInvitation invitation = contactModel.readOutgoingEMailInvitation(invitationId);
-        if (browser.confirm("ContactOutgoingEMailInvitationDelete.ConfirmDeleteMessage",
-                new Object[] {invitation.getInvitationEMail()})) {
-            contactModel.deleteInvitation(invitation);
+        if (null == invitation) {
+            logger.logInfo("Invitation no longer exists.");
+        } else {
+            if (browser.confirm("ContactOutgoingEMailInvitationDelete.ConfirmDeleteMessage",
+                    new Object[] {invitation.getInvitationEMail()})) {
+                contactModel.deleteInvitation(invitation);
+            }
         }
     }
 

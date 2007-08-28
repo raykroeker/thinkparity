@@ -44,11 +44,14 @@ public final class DeclineIncomingEMailInvitation extends AbstractBrowserAction 
 
         final ContactModel contactModel = getContactModel();
         final IncomingEMailInvitation invitation = contactModel.readIncomingEMailInvitation(invitationId);
-        if (browser.confirm("DeclineIncomingEMailInvitation.ConfirmDecline",
-                new Object[] { invitation.getExtendedBy().getName() })) {
-            contactModel.declineInvitation(invitation);
+        if (null == invitation) {
+            logger.logInfo("Invitation no longer exists.");
+        } else {
+            if (browser.confirm("DeclineIncomingEMailInvitation.ConfirmDecline",
+                    new Object[] { invitation.getExtendedBy().getName() })) {
+                contactModel.declineInvitation(invitation);
+            }
         }
-
         // clear any displayed notifications
         final Data clearData = new Data(1);
         clearData.set(ClearIncomingEMailInvitationNotifications.DataKey.INVITATION_ID, invitationId);

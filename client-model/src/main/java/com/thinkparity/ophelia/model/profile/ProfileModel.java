@@ -116,7 +116,7 @@ public interface ProfileModel {
      */
     public BackupStatistics readBackupStatistics();
 
-	/**
+    /**
      * Read a profile email.
      * 
      * @param emailId
@@ -125,7 +125,7 @@ public interface ProfileModel {
      */
     public ProfileEMail readEmail(final Long emailId);
 
-    /**
+	/**
      * Read a list of profile email addresses.
      * 
      * @return A list of email addresses.
@@ -213,4 +213,11 @@ public interface ProfileModel {
      */
     @ThinkParityOnline
     public void verifyEmail(final Long emailId, final String key);
+
+    /**
+     * Read the profile's username.
+     * 
+     * @return A <code>String</code>.
+     */
+    String readUsername();
 }

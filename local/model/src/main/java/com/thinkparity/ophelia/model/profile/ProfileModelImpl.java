@@ -340,7 +340,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         return super.readCredentials();
     }
 
-
     /**
      * Read a profile email.
      * 
@@ -358,6 +357,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             throw panic(t);
         }
     }
+
 
     /**
      * Read a list of profile email addresses.
@@ -395,6 +395,15 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final Statistics statistics = new Statistics();
             statistics.setDiskUsage(profileIO.readDiskUsage());
             return statistics;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    // TODO - javadoc
+    public String readUsername() {
+        try {
+            return readCredentials().getUsername();
         } catch (final Throwable t) {
             throw panic(t);
         }

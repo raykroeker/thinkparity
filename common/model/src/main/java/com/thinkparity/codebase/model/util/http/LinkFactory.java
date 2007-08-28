@@ -49,7 +49,7 @@ public class LinkFactory {
     private LinkFactory() {
         super();
         this.protocol = "http://";
-        this.webHost = "thinkparity.com";
+        this.webHost = "www.thinkparity.com";
         this.webPort = 80;
     }
 

@@ -118,6 +118,21 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#readContainerAuth(java.util.UUID)
+     *
+     */
+    @Override
+    public Container readContainerAuth(final UUID uniqueId) {
+        try {
+            final InternalModelFactory modelFactory = getModelFactory();
+            final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
+            return modelFactory.getContainerModel().read(containerId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#readContainerDocumentVersions(java.lang.Long, java.lang.Long)
      *
      */
@@ -125,6 +140,23 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             final UUID uniqueId, final Long versionId) {
         try {
             return readContainerDocumentVersionsImpl(uniqueId, versionId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.backup.InternalBackupModel#readContainerDocumentVersionsAuth(java.util.UUID, java.lang.Long)
+     *
+     */
+    @Override
+    public List<DocumentVersion> readContainerDocumentVersionsAuth(
+            final UUID uniqueId, final Long versionId) {
+        try {
+            final InternalModelFactory modelFactory = getModelFactory();
+            final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
+            return modelFactory.getContainerModel().readDocumentVersions(
+                    containerId, versionId);
         } catch (final Throwable t) {
             throw panic(t);
         }

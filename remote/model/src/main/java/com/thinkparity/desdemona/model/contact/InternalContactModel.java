@@ -8,6 +8,7 @@ import java.util.List;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.contact.ContactInvitation;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
@@ -89,4 +90,14 @@ public interface InternalContactModel extends ContactModel {
      */
     public List<OutgoingEMailInvitation> readProxyOutgoingEMailInvitations(
             final JabberId proxyId);
+
+    /**
+     * Determine whether or not an the container is attached to an outgoing
+     * e-mail invitation for the user.
+     * 
+     * @param uniqueId
+     *            A <code>UUID</code>.
+     * @return True if at least one attachment exists.
+     */
+    Boolean doesExistAttachment(Artifact artifact);
 }

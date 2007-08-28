@@ -4,12 +4,7 @@
 package com.thinkparity.desdemona.model.contact;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -24,6 +19,7 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.contact.*;
 import com.thinkparity.codebase.model.container.Container;
@@ -315,8 +311,16 @@ public final class ContactModelImpl extends AbstractModelImpl implements
             final OutgoingEMailInvitation outgoingEMailInvitation =
                 invitationSql.readOutgoingEMail(invitationUser,
                         invitation.getInvitationEMail());
+            final List<ContainerVersionAttachment> attachments =
+                invitationSql.readContainerVersionAttachments(outgoingEMailInvitation);
             invitationSql.deleteAttachments(outgoingEMailInvitation);
             invitationSql.delete(outgoingEMailInvitation);
+            final InternalBackupModel backupModel = getBackupModel();
+            for (final ContainerVersionAttachment attachment : attachments) {
+                if (!doesExistAttachment(attachment.getUniqueId())) {
+                    backupModel.delete(attachment.getUniqueId());
+                }
+            }
 
             // fire event
             final ContactEMailInvitationDeclinedEvent event = new ContactEMailInvitationDeclinedEvent();
@@ -469,6 +473,14 @@ public final class ContactModelImpl extends AbstractModelImpl implements
         } catch (final Throwable t) {
             throw panic(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.contact.InternalContactModel#doesExistAttachment(com.thinkparity.codebase.model.container.Container)
+     * 
+     */
+    public Boolean doesExistAttachment(final Artifact artifact) {
+        return Boolean.valueOf(doesExistAttachment(artifact.getUniqueId()));
     }
 
     /**
@@ -758,6 +770,35 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * Determine whether or not an the container is attached to an outgoing
+     * e-mail invitation for the user.
+     * 
+     * @param uniqueId
+     *            A <code>UUID</code>.
+     * @return True if at least one attachment exists.
+     */
+    private boolean doesExistAttachment(final UUID uniqueId) {
+        final List<OutgoingEMailInvitation> invitations =
+            readOutgoingEMailInvitations();
+        final List<ContainerVersionAttachment> attachments =
+            new ArrayList<ContainerVersionAttachment>();
+        ContainerVersionAttachment attachment;
+        for (final OutgoingEMailInvitation invitation : invitations) {
+            attachments.clear();
+            attachments.addAll(readContainerVersionInvitationAttachments(
+                    user.getId(), invitation));
+            for (final Iterator<ContainerVersionAttachment> iAttachments =
+                    attachments.iterator(); iAttachments.hasNext();) {
+                attachment = iAttachments.next();
+                if (attachment.getUniqueId().equals(uniqueId)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Inject invitation text into the e-mail mime message.
      * 
      * @param mimeMessage
@@ -887,12 +928,12 @@ public final class ContactModelImpl extends AbstractModelImpl implements
             final ContainerVersionAttachment attachment) {
         final InternalBackupModel backupModel = getBackupModel(sendAs);
         // grab from backup
-        final Container container = backupModel.readContainer(
+        final Container container = backupModel.readContainerAuth(
                 attachment.getUniqueId());
-        final ContainerVersion version = backupModel.readContainerVersion(
+        final ContainerVersion version = backupModel.readContainerVersionAuth(
                 container.getUniqueId(), attachment.getVersionId());
         final List<DocumentVersion> documentVersions =
-            backupModel.readContainerDocumentVersions(container.getUniqueId(),
+            backupModel.readContainerDocumentVersionsAuth(container.getUniqueId(),
                     version.getVersionId());
         final List<ArtifactReceipt> receivedBy = backupModel.readPublishedToAuth(
                 container.getUniqueId(), version.getVersionId());

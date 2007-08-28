@@ -90,6 +90,7 @@ final class NotificationSocketDelegate implements Runnable {
                 break;
             }
         }
+        server.removeSession(sessionId.getValue());
     }
 
     /**

@@ -16,37 +16,46 @@ import com.thinkparity.codebase.model.user.TeamMember;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Internal Backup Interface<br>
- * <b>Description:</b><br>
+ * <b>Description:</b>An internal application interface to the backup model.
+ * The *Auth methods do not validate whether or not the model user (the user on
+ * behalf of whom the current thread is executing) is "allowed" to see the
+ * content. The definition of allowance is they must either:
+ * <ul>
+ * <li>Be a member of the content's team.
+ * <li>Have archived the content.
+ * </ul>
+ * If the content is a document the appropriate container is checked.<br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public interface InternalBackupModel extends BackupModel {
 
-    public Boolean isBackedUp(final Artifact artifact);
+    Boolean isBackedUp(Artifact artifact);
 
-    public Boolean isBackupEnabled();
+    Boolean isBackupEnabled();
 
-    public List<TeamMember> readArtifactTeam(final UUID uniqueId);
+    List<TeamMember> readArtifactTeam(UUID uniqueId);
 
-    public Container readContainer(final UUID uniqueId);
+    Container readContainer(UUID uniqueId);
 
-    public List<DocumentVersion> readContainerDocumentVersions(
-            final UUID uniqueId, final Long versionId);
+    Container readContainerAuth(UUID uniqueId);
 
-    public ContainerVersion readContainerLatestVersion(final UUID uniqueId);
+    List<DocumentVersion> readContainerDocumentVersions(UUID uniqueId,
+            Long versionId);
 
-    public List<Container> readContainersForDocumentAuth(
-            final Document document);
+    List<DocumentVersion> readContainerDocumentVersionsAuth(UUID uniqueId,
+            Long versionId);
 
-    public ContainerVersion readContainerVersion(final UUID uniqueId,
-            final Long versionId);
+    ContainerVersion readContainerLatestVersion(UUID uniqueId);
 
-    public ContainerVersion readContainerVersionAuth(final UUID uniqueId,
-            final Long versionId);
+    List<Container> readContainersForDocumentAuth(Document document);
 
-    public Document readDocumentAuth(final UUID uniqueId);
+    ContainerVersion readContainerVersion(UUID uniqueId, Long versionId);
 
-    public List<ArtifactReceipt> readPublishedToAuth(final UUID uniqueId,
-            final Long versionId);
+    ContainerVersion readContainerVersionAuth(UUID uniqueId, Long versionId);
+
+    Document readDocumentAuth(UUID uniqueId);
+
+    List<ArtifactReceipt> readPublishedToAuth(UUID uniqueId, Long versionId);
 }

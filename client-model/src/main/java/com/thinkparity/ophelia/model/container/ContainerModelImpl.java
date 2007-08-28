@@ -389,8 +389,7 @@ public final class ContainerModelImpl extends
             delegate.setContainerId(containerId);
             delegate.delete();
             // fire event
-            notifyContainerDeleted(container, delegate.getInvitations(),
-                    localEventGenerator);
+            notifyContainerDeleted(container, localEventGenerator);
         } catch (final CannotLockException clx) {
             throw clx;
         } catch (final Throwable t) {
@@ -2459,9 +2458,7 @@ public final class ContainerModelImpl extends
      *            A <code>Container</code>.
      */
     void notifyContainerDeletedLocally(final Container container) {
-        notifyContainerDeleted(container,
-                Collections.<OutgoingEMailInvitation>emptyList(),
-                localEventGenerator);
+        notifyContainerDeleted(container, localEventGenerator);
     }
 
     /**
@@ -3004,18 +3001,14 @@ public final class ContainerModelImpl extends
      * 
      * @param container
      *            A container.
-     * @param invitations
-     *            A <code>List<OutgoingEMailInvitation></code>.
      * @param eventGenerator
      *            An event generator.
      */
     private void notifyContainerDeleted(final Container container,
-            final List<OutgoingEMailInvitation> invitations,
             final ContainerEventGenerator eventGenerator) {
         notifyListeners(new EventNotifier<ContainerListener>() {
             public void notifyListener(final ContainerListener listener) {
-                listener.containerDeleted(eventGenerator.generate(container,
-                        null, null, null, null, null, invitations));
+                listener.containerDeleted(eventGenerator.generate(container));
             }
         });
     }

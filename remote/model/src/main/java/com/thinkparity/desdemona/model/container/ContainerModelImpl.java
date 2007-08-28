@@ -9,7 +9,6 @@ import java.security.Key;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -26,7 +25,6 @@ import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.artifact.ArtifactVersionFlag;
-import com.thinkparity.codebase.model.contact.ContactInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
@@ -123,10 +121,11 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             }
             // remove team member
             artifactModel.removeTeamMember(artifact);
-            // delete from backup
-            getBackupModel().delete(artifact.getUniqueId());
-            // delete invitations
-            deleteAttachments(container, deletedOn);
+            // do not delete from backup while there exist attachments
+            if (!getContactModel().doesExistAttachment(artifact)) {
+                // delete from backup
+                getBackupModel().delete(artifact.getUniqueId());
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -370,40 +369,6 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             if (!attachments.contains(attachment)) {
                 getContactModel().createInvitationAttachment(invitation,
                         attachment);
-            }
-        }
-    }
-
-    /**
-     * Delete the invitation attachments associated with the container created
-     * by the user. As well any invitations without any attachments are deleted
-     * as well.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     * @param deletedOn
-     *            A deleted on <code>Calendar</code>.
-     */
-    private void deleteAttachments(final Container container, final Calendar deletedOn) {
-        final InternalContactModel contactModel = getContactModel();
-        final List<OutgoingEMailInvitation> emailInvitations =
-            contactModel.readOutgoingEMailInvitations();
-        final List<ContainerVersionAttachment> attachments =
-            new ArrayList<ContainerVersionAttachment>();
-        ContainerVersionAttachment attachment;
-        for (final OutgoingEMailInvitation invitation : emailInvitations) {
-            attachments.clear();
-            attachments.addAll(readContainerVersionAttachments(invitation));
-            for (final Iterator<ContainerVersionAttachment> iAttachments =
-                    attachments.iterator(); iAttachments.hasNext();) {
-                attachment = iAttachments.next();
-                if (attachment.getUniqueId().equals(container.getUniqueId())) {
-                    contactModel.deleteInvitationAttachment(attachment);
-                    iAttachments.remove();
-                }
-            }
-            if (attachments.isEmpty()) {
-                contactModel.deleteInvitation(invitation, deletedOn);
             }
         }
     }
@@ -665,19 +630,6 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     private StreamSession newUpstreamSession(final StreamInfo streamInfo,
             final DocumentVersion version) {
         return getStreamModel().newUpstreamSession(streamInfo, version);
-    }
-
-    /**
-     * Read all container versions attached to the invitation.
-     * 
-     * @param invitation
-     *            A <code>ContactInvitation</code>.
-     * @return A <code>List<ContainerVersionAttachment></code>.
-     */
-    private List<ContainerVersionAttachment> readContainerVersionAttachments(
-            final ContactInvitation invitation) {
-        return getContactModel().readContainerVersionInvitationAttachments(
-                user.getId(), invitation);
     }
 
     /**

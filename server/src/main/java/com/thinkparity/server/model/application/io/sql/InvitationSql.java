@@ -17,6 +17,7 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttachment;
+import com.thinkparity.desdemona.model.contact.invitation.Attachment.ReferenceType;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 
@@ -584,6 +585,7 @@ public class InvitationSql extends AbstractSql {
         try {
             session.prepareStatement(SQL_READ_CONTAINER_VERSION_ATTACHMENTS);
             session.setLong(1, invitation.getId());
+            session.setInt(2, ReferenceType.CONTAINER_VERSION.getId());
             session.executeQuery();
             final List<ContainerVersionAttachment> attachments = new ArrayList<ContainerVersionAttachment>();
             while (session.nextResult()) {

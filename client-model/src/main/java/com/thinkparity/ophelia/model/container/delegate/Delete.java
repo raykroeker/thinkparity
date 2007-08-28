@@ -3,20 +3,15 @@
  */
 package com.thinkparity.ophelia.model.container.delegate;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.container.Container;
-import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 
-import com.thinkparity.ophelia.model.contact.InternalContactModel;
 import com.thinkparity.ophelia.model.container.ContainerDelegate;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentFileLock;
@@ -33,16 +28,12 @@ public final class Delete extends ContainerDelegate {
     /** A container id. */
     private Long containerId;
 
-    /** The deleted invitations. */
-    private final List<OutgoingEMailInvitation> invitations;
-
     /**
      * Create Delete.
      *
      */
     public Delete() {
         super();
-        this.invitations = new ArrayList<OutgoingEMailInvitation>();
     }
 
     /**
@@ -61,10 +52,8 @@ public final class Delete extends ContainerDelegate {
             if (isDistributed(container.getId())) {
                 final InternalSessionModel sessionModel = getSessionModel();
                 final Calendar deletedOn = sessionModel.readDateTime();
-                final List<ContainerVersion> versions = readVersions(container);
                 // delete
                 deleteLocal(container.getId(), allDocuments, allDocumentsLocks, allDocumentVersionsLocks);
-                deleteLocalInvitations(versions);
                 containerService.delete(getAuthToken(), container, deletedOn);
             } else {
                 deleteLocal(container.getId(), allDocuments, allDocumentsLocks, allDocumentVersionsLocks);
@@ -79,15 +68,6 @@ public final class Delete extends ContainerDelegate {
     }
 
     /**
-     * Obtain invitations.
-     *
-     * @return A List<OutgoingEMailInvitation>.
-     */
-    public List<OutgoingEMailInvitation> getInvitations() {
-        return Collections.unmodifiableList(invitations);
-    }
-
-    /**
      * Set the container id.
      * 
      * @param containerId
@@ -95,25 +75,5 @@ public final class Delete extends ContainerDelegate {
      */
     public void setContainerId(final Long containerId) {
         this.containerId = containerId;
-    }
-
-    /**
-     * Delete the version invitations locally.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     */
-    private void deleteLocalInvitations(final List<ContainerVersion> versions) {
-        final InternalContactModel contactModel = getContactModel();
-        for (final ContainerVersion version : versions) {
-            // delete invitations if the invitation is the only one
-            final List<OutgoingEMailInvitation> invitations =
-                contactModel.readOutgoingEMailInvitations(version);
-            if (1 == invitations.size()) {
-                this.invitations.add(
-                        contactModel.deleteLocalOutgoingEMailInvitation(
-                                invitations.get(0).getInvitationEMail()));
-            }
-        }
     }
 }

@@ -614,10 +614,10 @@ public class MainStatusAvatar extends Avatar {
             linkRunnable = optionalLinkRunnable = null;
 
             if (restarting) {
-                textJLabel.setForeground(Colors.Browser.MainStatus.CLIENT_MAINTENANCE_MESSAGE_FOREGROUND);
+                textJLabel.setForeground(Colors.Browser.MainStatus.MESSAGE_FOREGROUND);
                 textJLabel.setText(getString("Text.Restarting") + Separator.Space);
             } else if (productInstalled) {
-                textJLabel.setForeground(Colors.Browser.MainStatus.CLIENT_MAINTENANCE_MESSAGE_FOREGROUND);
+                textJLabel.setForeground(Colors.Browser.MainStatus.MESSAGE_FOREGROUND);
                 textJLabel.setText(getString("Text.ProductInstalled") + Separator.Space);
                 linkJLabel.setText(getString("Link.ProductInstalled"));
                 linkRunnable = new Runnable() {

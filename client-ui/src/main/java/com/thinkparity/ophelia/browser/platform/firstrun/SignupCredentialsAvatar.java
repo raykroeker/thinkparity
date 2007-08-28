@@ -75,8 +75,8 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
             try {
                 signupDelegate.wait();
                 if (!signupDelegate.isCancelled()) {
-                    installProgressBar();
                     setVisibleButtons(Boolean.FALSE);
+                    installProgressBar();
                 }
             } catch (final Throwable t) {
                 throw new BrowserException(

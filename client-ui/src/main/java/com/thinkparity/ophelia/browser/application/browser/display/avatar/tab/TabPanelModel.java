@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -772,8 +773,13 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     private TabPanel getFocusedPanel() {
         if (isSelectedPanel()) {
             final TabPanel panel = getSelectedPanel();
-            if (((Component)panel).isFocusOwner()) {
-                return panel;
+            // isFocusOwner() is not used here because it will return
+            // false if the parent window does not currently have focus.
+            final Window window = javax.swing.SwingUtilities.getWindowAncestor((Component)panel);
+            if (null != window) {
+                if (window.getMostRecentFocusOwner().equals((Component)panel)) {
+                    return panel;
+                }
             }
         }
         return null;

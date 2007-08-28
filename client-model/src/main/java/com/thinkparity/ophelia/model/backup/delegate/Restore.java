@@ -20,6 +20,9 @@ import com.thinkparity.ophelia.model.util.ProcessMonitor;
  */
 public final class Restore extends BackupDelegate {
 
+    /** A set of credentials. */
+    private Credentials credentials;
+
     /** A process monitor. */
     private ProcessMonitor monitor;
 
@@ -38,7 +41,6 @@ public final class Restore extends BackupDelegate {
     public void restore() throws InvalidCredentialsException,
             InvalidLocationException {
         /* resolve saved credentials */
-        final Credentials credentials = readCredentials();
         deleteCredentials();
         deleteToken();
 
@@ -58,6 +60,13 @@ public final class Restore extends BackupDelegate {
 
         /* login again to take care of auto-update issues */
         sessionModel.login(monitor);
+    }
+
+    /**
+     * @param credentials the credentials to set
+     */
+    public void setCredentials(final Credentials credentials) {
+        this.credentials = credentials;
     }
 
     /**

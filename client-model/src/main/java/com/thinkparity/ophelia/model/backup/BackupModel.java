@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.model.backup;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.session.InvalidLocationException;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
@@ -45,11 +46,13 @@ public interface BackupModel {
      * 
      * @param monitor
      *            A <code>ProcessMonitor</code>.
+     * @param credentials
+     *            A set of <code>Credentials</code>.
      * 
      * @throws InvalidCredentialsException
      *             if the stored credentials are no longer valid
      * @throws InvalidLocationException
      */
-    void restore(ProcessMonitor monitor) throws InvalidCredentialsException,
-            InvalidLocationException;
+    void restore(ProcessMonitor monitor, Credentials credentials)
+            throws InvalidCredentialsException, InvalidLocationException;
 }

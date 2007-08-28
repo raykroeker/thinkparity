@@ -20,6 +20,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.session.InvalidLocationException;
@@ -359,15 +360,14 @@ public final class BackupModelImpl extends Model<BackupListener> implements
         super.removeListener(l);
     }
 
-    /**
-     * @see com.thinkparity.ophelia.model.backup.BackupModel#restore(com.thinkparity.ophelia.model.util.ProcessMonitor)
-     *
-     */
+    // TODO - javadoc
     @Override
-    public void restore(final ProcessMonitor monitor)
-            throws InvalidCredentialsException, InvalidLocationException {
+    public void restore(final ProcessMonitor monitor,
+            final Credentials credentials) throws InvalidCredentialsException,
+            InvalidLocationException {
         try {
             final Restore delegate = createDelegate(Restore.class);
+            delegate.setCredentials(credentials);
             delegate.setMonitor(monitor);
             delegate.restore();
         } catch (final InvalidCredentialsException icx) {

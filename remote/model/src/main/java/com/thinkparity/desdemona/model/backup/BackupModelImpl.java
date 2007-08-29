@@ -5,6 +5,7 @@ package com.thinkparity.desdemona.model.backup;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +24,7 @@ import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
+import com.thinkparity.ophelia.model.container.InternalContainerModel;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
@@ -778,7 +780,28 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
         if (isContainerBackedUpImpl(user, uniqueId)) {
             final InternalModelFactory modelFactory = getModelFactory(user);
             final Long containerId = modelFactory.getArtifactModel().readId(uniqueId);
-            return modelFactory.getContainerModel().readVersions(containerId);
+            final InternalContainerModel containerModel = modelFactory.getContainerModel();
+            final List<ContainerVersion> versions = containerModel.readVersions(containerId);
+            final List<ArtifactReceipt> receipts = new ArrayList<ArtifactReceipt>();
+            final Iterator<ContainerVersion> iVersions = versions.iterator();
+            ContainerVersion version;
+            boolean publishedTo;
+            while (iVersions.hasNext()) {
+                version = iVersions.next();
+                receipts.clear();
+                receipts.addAll(containerModel.readPublishedTo(version.getArtifactId(), version.getVersionId()));
+                publishedTo = false;
+                for (final ArtifactReceipt receipt : receipts) {
+                    if (receipt.getUser().getId().equals(user.getId())) {
+                        publishedTo = true;
+                        break;
+                    }
+                }
+                if (!publishedTo) {
+                    iVersions.remove();
+                }                
+            }
+            return versions;
         } else {
             logger.logWarning("Container {0} is not backed up for user {1}.",
                     uniqueId, user.getId());

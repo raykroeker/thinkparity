@@ -777,7 +777,8 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
             // false if the parent window does not currently have focus.
             final Window window = javax.swing.SwingUtilities.getWindowAncestor((Component)panel);
             if (null != window) {
-                if (window.getMostRecentFocusOwner().equals((Component)panel)) {
+                final Component focusOwner = window.getMostRecentFocusOwner();
+                if (null != focusOwner && focusOwner.equals((Component)panel)) {
                     return panel;
                 }
             }

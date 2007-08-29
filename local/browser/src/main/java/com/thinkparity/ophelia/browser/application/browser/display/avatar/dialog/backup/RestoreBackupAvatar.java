@@ -10,16 +10,20 @@ import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.text.AbstractDocument;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
+import com.thinkparity.codebase.model.profile.ProfileConstraints;
 import com.thinkparity.codebase.model.session.Credentials;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
+import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.backup.RestoreBackupProvider;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
@@ -40,6 +44,8 @@ public class RestoreBackupAvatar extends Avatar implements
     private final javax.swing.JButton cancelJButton = ButtonFactory.create();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel forgotPasswordExplanationJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel forgotPasswordJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JPasswordField passwordJPasswordField = new javax.swing.JPasswordField();
     private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
     private final javax.swing.JButton restoreJButton = ButtonFactory.create();
@@ -49,9 +55,13 @@ public class RestoreBackupAvatar extends Avatar implements
     private final javax.swing.JLabel warningJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
+    /** An instance of <code>ProfileConstraints</code>. */
+    private final ProfileConstraints profileConstraints;
+
     /** Creates new form RestoreBackupAvatar */
     public RestoreBackupAvatar() {
         super("RestoreBackupAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
+        this.profileConstraints = ProfileConstraints.getInstance();
         initComponents();
         addValidationListener(passwordJPasswordField);
         bindKeys();
@@ -89,6 +99,8 @@ public class RestoreBackupAvatar extends Avatar implements
         progressBarJPanel.setVisible(true);
         buttonBarJPanel.setVisible(false);
         setCloseButtonEnabled(Boolean.FALSE);
+        forgotPasswordExplanationJLabel.setText(" ");
+        forgotPasswordJLabel.setText(null);
         validate();
     }
 
@@ -99,6 +111,7 @@ public class RestoreBackupAvatar extends Avatar implements
     public void reload() {
         showBusyIndicators(Boolean.FALSE);
         reloadExplanation();
+        reloadForgotPassword();
         reloadProgressBar();
         reloadCredentials();
         validateInput();
@@ -108,6 +121,7 @@ public class RestoreBackupAvatar extends Avatar implements
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.backup.RestoreBackupSwingDisplay#resetProgressBar()
      */
     public void resetProgressBar() {
+        reloadForgotPassword();
         reloadProgressBar();
         validateInput();
         showBusyIndicators(Boolean.FALSE);
@@ -231,6 +245,10 @@ public class RestoreBackupAvatar extends Avatar implements
         return SwingUtil.extract(passwordJPasswordField, Boolean.TRUE);
     }
 
+    private void forgotPasswordJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_forgotPasswordJLabelMousePressed
+        getController().runContactUs();
+    }//GEN-LAST:event_forgotPasswordJLabelMousePressed
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -261,6 +279,18 @@ public class RestoreBackupAvatar extends Avatar implements
         passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RestoreBackupAvatar.Password"));
 
         passwordJPasswordField.setFont(Fonts.DialogTextEntryFont);
+        ((AbstractDocument) passwordJPasswordField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getPassword()));
+
+        forgotPasswordExplanationJLabel.setFont(Fonts.DialogFont);
+        forgotPasswordExplanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RestoreBackupAvatar.ExplanationForgetPassword"));
+
+        forgotPasswordJLabel.setFont(Fonts.DialogFont);
+        forgotPasswordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RestoreBackupAvatar.ForgetPassword"));
+        forgotPasswordJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                forgotPasswordJLabelMousePressed(evt);
+            }
+        });
 
         progressBarJPanel.setOpaque(false);
         statusJLabel.setFont(Fonts.DialogFont);
@@ -348,8 +378,8 @@ public class RestoreBackupAvatar extends Avatar implements
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(progressBarJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(buttonBarJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(warningJLabel)
                     .addGroup(layout.createSequentialGroup()
@@ -359,16 +389,20 @@ public class RestoreBackupAvatar extends Avatar implements
                             .addComponent(explanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(passwordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(passwordJLabel)
-                    .addComponent(usernameJLabel))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(usernameJLabel)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(forgotPasswordExplanationJLabel)
+                        .addGap(19, 19, 19)
+                        .addComponent(forgotPasswordJLabel)))
+                .addContainerGap())
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {passwordJPasswordField, usernameJTextField});
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(27, Short.MAX_VALUE)
                 .addComponent(warningJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(explanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -380,7 +414,11 @@ public class RestoreBackupAvatar extends Avatar implements
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(passwordJLabel)
                     .addComponent(passwordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
+                .addGap(14, 14, 14)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(forgotPasswordExplanationJLabel)
+                    .addComponent(forgotPasswordJLabel))
+                .addGap(14, 14, 14)
                 .addComponent(buttonBarJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(progressBarJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -424,6 +462,14 @@ public class RestoreBackupAvatar extends Avatar implements
             warningJLabel.setText(getString("WarningNoBackup"));
             explanationJLabel.setText(getString("ExplanationNoBackup"));
         }
+    }
+
+    /**
+     * Reload the forgot password fields.
+     */
+    private void reloadForgotPassword() {
+        forgotPasswordExplanationJLabel.setText(getString("ExplanationForgetPassword"));
+        forgotPasswordJLabel.setText(getString("ForgetPassword"));
     }
 
     /**

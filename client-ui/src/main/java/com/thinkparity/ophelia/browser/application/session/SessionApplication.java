@@ -24,6 +24,7 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
 import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.backup.Restore;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 
 /**
@@ -206,11 +207,11 @@ public class SessionApplication extends AbstractApplication {
         } catch (final InvalidCredentialsException icx) {
             logger.logError(icx, "Cannot login.");
             connectTimer.cancel();
+            restore();
         } catch (final InvalidLocationException ilx) {
             logger.logWarning("Cannot login from this location.");
             connectTimer.cancel();
-
-            invoke(ActionId.BACKUP_RESTORE, Data.emptyData());
+            restore();
         }
     }
 
@@ -297,5 +298,14 @@ public class SessionApplication extends AbstractApplication {
         } catch (final Throwable t) {
             logger.logError(t, "Could not logout of session.");
         }
+    }
+
+    /**
+     * Restore.
+     */
+    private void restore() {
+        final Data data = new Data(1);
+        data.set(Restore.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+        invoke(ActionId.BACKUP_RESTORE, data);
     }
 }

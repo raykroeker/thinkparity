@@ -57,6 +57,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.*;
+import com.thinkparity.ophelia.browser.platform.action.backup.Restore;
 import com.thinkparity.ophelia.browser.platform.action.contact.*;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
@@ -499,6 +500,14 @@ public class Browser extends AbstractApplication {
         input.set(RenameDocumentAvatar.DataKey.DOCUMENT_NAME, documentName);
         setInput(AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT, input);
         displayAvatar(AvatarId.DIALOG_CONTAINER_RENAME_DOCUMENT);
+    }
+
+    /**
+     * Display the "restore backup" dialog.
+     * If the user presses OK, the BACKUP_RESTORE action is invoked.
+     */
+    public void displayRestoreBackupDialog() {
+        displayAvatar(AvatarId.DIALOG_BACKUP_RESTORE);
     }
 
     /**
@@ -1347,6 +1356,28 @@ public class Browser extends AbstractApplication {
             }
         });
     }    
+
+    /**
+     * Run the restore backup action.
+     * 
+     * @param monitor
+     *            A <code>ThinkParitySwingMonitor</code> for updating the
+     *            dialogue for the long-running action.
+     * @param credentials
+     *            The user's <code>Credentials</code>.         
+     */
+    public void runRestoreBackup(final ThinkParitySwingMonitor monitor,
+            final Credentials credentials) {
+        final Data data = new Data(3);
+        data.set(Restore.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
+        data.set(Restore.DataKey.CREDENTIALS, credentials);
+        data.set(Restore.DataKey.MONITOR, monitor);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                invoke(ActionId.BACKUP_RESTORE, data);
+            }
+        });
+    }
 
     /**
      * Run the publish container version action.

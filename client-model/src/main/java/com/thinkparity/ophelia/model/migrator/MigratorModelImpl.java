@@ -498,9 +498,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
             }
         }
         // delete the help index
-        // NOCOMMIT
-        // getHelpModel().deleteIndex();
-        getIndexModel().rebuild(new ProcessAdapter());
+        getHelpModel().deleteIndex();
     }
 
     /**

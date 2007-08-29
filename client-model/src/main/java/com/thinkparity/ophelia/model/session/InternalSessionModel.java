@@ -11,6 +11,7 @@ import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityConcurrency;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.DraftExistsException;
@@ -38,6 +39,7 @@ import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.concurrent.Lock;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.service.AuthToken;
@@ -251,6 +253,7 @@ public interface InternalSessionModel extends SessionModel {
      *
      */
     @ThinkParityTransaction(TransactionType.SUPPORTED)
+    @ThinkParityConcurrency(Lock.NONE)
     public void notifySessionTerminated();
 
     // TODO-javadoc InternalSessionModel#publish
@@ -271,6 +274,7 @@ public interface InternalSessionModel extends SessionModel {
      *            An <code>OfflineCode</code>.
      */
     @ThinkParityTransaction(TransactionType.NEVER)
+    @ThinkParityConcurrency(Lock.NONE)
     public void pushOfflineCode(final OfflineCode offlineCode);
 
     public Container readBackupContainer(final UUID uniqueId);

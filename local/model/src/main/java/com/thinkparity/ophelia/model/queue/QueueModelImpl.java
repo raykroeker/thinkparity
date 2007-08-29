@@ -23,7 +23,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.service.AuthToken;
 import com.thinkparity.service.QueueService;
-import com.thinkparity.service.client.ServiceFactory;
+import com.thinkparity.service.ServiceFactory;
 
 /**
  * <b>Title:</b>thinkParity Ophelia Model Queue Model Implementation<br>
@@ -115,22 +115,19 @@ public final class QueueModelImpl extends Model<EventListener> implements
      * 
      */
     public void startNotificationClient() {
+        final NotificationClient notificationClient;
         // stop the client if running
         if (isSetNotificationClient()) {
-            try {
-                removeNotificationClient().disconnect();
-            } catch (final Throwable t) {
-                logger.logWarning(t, "An error occured disconnecting notification client.");
-            } finally {
-                if (getSessionModel().isOnline()) {
-                    getSessionModel().pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
-                    getSessionModel().notifySessionTerminated();
-                }
-            }
+            notificationClient = getNotificationClient();
+            notificationClient.stop();
+        } else {
+            notificationClient = newNotificationClient();
         }
-        final NotificationClient notificationClient = newNotificationClient();
-        notificationClient.connect();
+        notificationClient.setNotify(Boolean.TRUE);
+        notificationClient.setSession(queueService.createNotificationSession(
+                getAuthToken()));
         setNotificationClient(notificationClient);
+
         newThread(notificationClient).start();
     }
 
@@ -160,7 +157,7 @@ public final class QueueModelImpl extends Model<EventListener> implements
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
         // web-services
-        final ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        final ServiceFactory serviceFactory = workspace.getServiceFactory(environment);
         this.queueService = serviceFactory.getQueueService();
         // thread factory
         this.threadFactory = Executors.defaultThreadFactory();
@@ -239,7 +236,7 @@ public final class QueueModelImpl extends Model<EventListener> implements
                         removeQueueProcessor();
                     }
                     break;
-                case CLIENT_OFFLINE:
+                case OFFLINE:
                     if (getSessionModel().isOnline()) {
                         getSessionModel().pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
                         getSessionModel().notifySessionTerminated();
@@ -251,9 +248,6 @@ public final class QueueModelImpl extends Model<EventListener> implements
                 }
             }
         });
-        notificationClient.setNotify(Boolean.TRUE);
-        notificationClient.setSession(queueService.createNotificationSession(
-                getAuthToken()));
         return notificationClient;
     }
 
@@ -282,19 +276,6 @@ public final class QueueModelImpl extends Model<EventListener> implements
         thread.setDaemon(true);
         thread.setName("TPS-OpheliaModel-NotificationClient");
         return thread;
-    }
-
-    /**
-     * Remove the notification client workspace attribute.
-     * 
-     * @return The <code>NotificationReaderRunnable</code>.
-     */
-    private NotificationClient removeNotificationClient() {
-        final NotificationClient notificationClient = getNotificationClient();
-        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT)) {
-            workspace.removeAttribute(WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT);
-        }
-        return notificationClient;
     }
 
     /**

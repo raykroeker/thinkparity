@@ -52,7 +52,6 @@ import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.service.*;
-import com.thinkparity.service.client.ServiceFactory;
 
 /**
  * <b>Title:</b>thinkParity OpheliaModel Session Model Implementation<br>
@@ -82,8 +81,8 @@ public final class SessionModelImpl extends Model<SessionListener>
     static {
         AUTH_TOKEN_EXPIRY_FUDGE = 3 * 1000;
         CFG_KEY_REMOTE_RELEASE = "SessionModelImpl#remoteRelease";
-        WS_ATTRIBUTE_KEY_OFFLINE_CODES = "SessionModelImpl#offlineCodes";
         WS_ATTRIBUTE_KEY_AUTH_TOKEN = "SessionModelImpl#authToken";
+        WS_ATTRIBUTE_KEY_OFFLINE_CODES = "SessionModelImpl#offlineCodes";
     }
 
     /** An artifact web-service interface. */
@@ -101,9 +100,9 @@ public final class SessionModelImpl extends Model<SessionListener>
 
     /** A migrator web-service interface. */
     private MigratorService migratorService;
-
     /** A profile web-service interface. */
     private ProfileService profileService;
+
     /** A rule web-service interface. */
     private RuleService ruleService;
 
@@ -262,7 +261,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfileUsernameReservation(java.lang.String)
      * 
      */
@@ -276,7 +275,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#declineInvitation(com.thinkparity.codebase.model.contact.IncomingEMailInvitation,
      *      java.util.Calendar)
      * 
@@ -537,7 +536,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             // save release
             setRelease();
             // fire event
-            removeOfflineCodes();
+            clearOfflineCodes();
             notifySessionEstablished();
         } catch (final InvalidCredentialsException icx) {
             throw icx;
@@ -591,7 +590,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                     // start notification client
                     getQueueModel().startNotificationClient();
                     // fire event
-                    removeOfflineCodes();
+                    clearOfflineCodes();
                     notifySessionEstablished();
                 } else {
                     getMigratorModel().startDownloadRelease();
@@ -723,9 +722,6 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     public void pushOfflineCode(final OfflineCode offlineCode) {
         try {
-            if (!isSetOfflineCodes()) {
-                setOfflineCodes(new OfflineCodes());
-            }
             final OfflineCodes offlineCodes = getOfflineCodes();
             offlineCodes.push(offlineCode);
         } catch (final Throwable t) {
@@ -1126,7 +1122,7 @@ public final class SessionModelImpl extends Model<SessionListener>
     @Override
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
-        serviceFactory = ServiceFactory.getInstance();
+        serviceFactory = workspace.getServiceFactory(environment);
         artifactService = serviceFactory.getArtifactService();
         backupService = serviceFactory.getBackupService();
         contactService = serviceFactory.getContactService();
@@ -1137,6 +1133,22 @@ public final class SessionModelImpl extends Model<SessionListener>
         systemService = serviceFactory.getSystemService();
         profileService = serviceFactory.getProfileService();
         userService = serviceFactory.getUserService();
+
+        /* if the codes are null; they have not been set */
+        OfflineCodes offlineCodes = getOfflineCodes();
+        if (null == offlineCodes) {
+            offlineCodes = new OfflineCodes();
+            offlineCodes.push(OfflineCode.OFFLINE);
+            setOfflineCodes(offlineCodes);
+        }
+    }
+
+    /**
+     * Clear the offline codes.
+     * 
+     */
+    private void clearOfflineCodes() {
+        getOfflineCodes().clear();
     }
 
     /**
@@ -1208,22 +1220,7 @@ public final class SessionModelImpl extends Model<SessionListener>
      * @return True if an offline code has been set.
      */
     private boolean isSetOfflineCode() {
-        final OfflineCodes offlineCodes = getOfflineCodes();
-        if (null == offlineCodes) {
-            return false;
-        } else {
-            return !offlineCodes.isEmpty();
-        }
-    }
-
-    /**
-     * Determine whether or not the offline codes have been set.
-     * 
-     * @return True if the offline codes have been set.
-     */
-    private boolean isSetOfflineCodes() {
-        return workspace.isSetAttribute(
-                WS_ATTRIBUTE_KEY_OFFLINE_CODES).booleanValue();
+        return 0 < getOfflineCodes().size();
     }
 
     /**
@@ -1273,18 +1270,11 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Remove the offline code workspace attribute.
+     * Set the authentication token workspace attribute.
      * 
-     * @return The <code>OfflineCodes</code>.
+     * @param authToken
+     *            An <code>AuthToken</code>.
      */
-    private OfflineCodes removeOfflineCodes() {
-        final OfflineCodes offlineCodes = getOfflineCodes();
-        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES)) {
-            workspace.removeAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES);
-        }
-        return offlineCodes;
-    }
-
     private void setAuthToken(final AuthToken authToken) {
         workspace.setAttribute(WS_ATTRIBUTE_KEY_AUTH_TOKEN, authToken);
     }
@@ -1296,9 +1286,8 @@ public final class SessionModelImpl extends Model<SessionListener>
      *            The <code>OfflineCodes</code>.
      * @return The previous <code>OfflineCodes</code>.
      */
-    private OfflineCodes setOfflineCodes(final OfflineCodes offlineCodes) {
-        return (OfflineCodes) workspace.setAttribute(
-                WS_ATTRIBUTE_KEY_OFFLINE_CODES, offlineCodes);
+    private void setOfflineCodes(final OfflineCodes offlineCodes) {
+        workspace.setAttribute(WS_ATTRIBUTE_KEY_OFFLINE_CODES, offlineCodes);
     }
 
     /**

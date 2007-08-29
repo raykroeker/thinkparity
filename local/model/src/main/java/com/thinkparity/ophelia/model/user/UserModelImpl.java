@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.user;
 
 import java.util.List;
 
+import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.session.Environment;
@@ -18,13 +19,13 @@ import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
- * <b>Title:</b>thinkParity OpheliaModel User Implementation<br>
+ * <b>Title:</b>thinkParity Ophelia Model User Model Implementation<br>
  * <b>Description:</b><br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.8
  */
-public final class UserModelImpl extends Model implements UserModel,
+public final class UserModelImpl extends Model<EventListener> implements UserModel,
         InternalUserModel {
 
     /** The user db io. */

@@ -24,6 +24,13 @@ public class QueueSql extends AbstractSql {
         .append("values (?,?,?,?,?)")
         .toString();
 
+    /** Sql to create an audit event. */
+    private static final String SQL_CREATE_AUDIT_EVENT =
+        new StringBuilder("insert into TPSD_AUDIT_USER_EVENT_QUEUE ")
+        .append("(USER_ID,EVENT_ID,EVENT_DATE,EVENT_PRIORITY,EVENT_XML) ")
+        .append("values (?,?,?,?,?)")
+        .toString();
+
     /** Sql to delete an event. */
     private static final String SQL_DELETE_EVENT =
         new StringBuilder("delete from TPSD_USER_EVENT_QUEUE ")
@@ -70,6 +77,15 @@ public class QueueSql extends AbstractSql {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_CREATE_EVENT);
+            session.setLong(1, userId);
+            session.setString(2, event.getId());
+            session.setCalendar(3, event.getDate());
+            session.setInt(4, event.getPriority().priority());
+            session.setEvent(5, event);
+            if (1 != session.executeUpdate())
+                throw panic("Could not create queue event.");
+
+            session.prepareStatement(SQL_CREATE_AUDIT_EVENT);
             session.setLong(1, userId);
             session.setString(2, event.getId());
             session.setCalendar(3, event.getDate());

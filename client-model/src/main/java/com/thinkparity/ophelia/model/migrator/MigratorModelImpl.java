@@ -26,6 +26,7 @@ import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamRetryHandler;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.download.DownloadFile;
 import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEvent;
@@ -43,6 +44,8 @@ import com.thinkparity.ophelia.model.session.OfflineCode;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
+
+import com.thinkparity.network.NetworkException;
 
 /**
  * <b>Title:</b>thinkParity Migrator Model Implementation<br>
@@ -275,6 +278,9 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
                     try {
                         downloadRelease(DOWNLOAD_MONITOR, product,
                                 downloadRelease, downloadResources);
+                    } catch (final NetworkException nx) {
+                        logger.logError(nx, "Could not download release {0}.",
+                                downloadRelease);
                     } catch (final IOException iox) {
                         logger.logError(iox, "Could not download release {0}.",
                                 downloadRelease);
@@ -393,10 +399,12 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      * @return A <code>File</code>.
      */
     private File download(final Product product, final Release release,
-            final List<Resource> resources) throws IOException {
+            final List<Resource> resources) throws NetworkException,
+            IOException {
+        final StreamRetryHandler retryHandler = newDefaultRetryHandler();
         final StreamSession session = getStreamModel().newDownstreamSession(product, release);
         final File tempFile = workspace.createTempFile();
-        new DownloadFile(session).download(tempFile);
+        new DownloadFile(retryHandler, session).download(tempFile);
         return tempFile;
     }
 
@@ -406,7 +414,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      */
     private void downloadRelease(final ProcessMonitor monitor,
             final Product product, final Release release,
-            final List<Resource> resources) throws IOException {
+            final List<Resource> resources) throws NetworkException,
+            IOException {
         // the installed resources
         final List<Resource> localResources = readReleaseResources(
                 Constants.Release.NAME, new FileSystem(installDirectory));

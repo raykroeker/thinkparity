@@ -10,9 +10,12 @@ import java.nio.charset.Charset;
 
 import javax.sql.DataSource;
 
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.jta.Transaction;
 
 import com.thinkparity.ophelia.model.util.ShutdownHook;
+
+import com.thinkparity.service.ServiceFactory;
 
 /**
  * <b>Title:</b>thinkParity Workspace<br>
@@ -176,14 +179,23 @@ public interface Workspace {
      */
     public File getLogFile();
 
-	/**
+    /**
+     * Obtain a service factory.
+     * 
+     * @param environment
+     *            An <code>Environment</code>.
+     * @return A <code>ServiceFactory</code>.
+     */
+    public ServiceFactory getServiceFactory(final Environment environment);
+
+    /**
      * Obtain a transaction.
      * 
      * @return A <code>Transaction</code>.
      */
     public Transaction getTransaction();
 
-    /**
+	/**
      * Obtain the workspace directory.
      * 
      * @return The workspace directory <code>File</code>.
@@ -216,4 +228,15 @@ public interface Workspace {
      * @return The previous attribute value.
      */
     public Object setAttribute(final String name, final Object value);
+
+    /**
+     * Create a thread; providing the name and runnable.
+     * 
+     * @param name
+     *            A thread name <code>String</code>.
+     * @param runnable
+     *            A <code>Runnable</code>.
+     * @return A <code>Thread</code>.
+     */
+    Thread newThread(String name, Runnable runnable);
 }

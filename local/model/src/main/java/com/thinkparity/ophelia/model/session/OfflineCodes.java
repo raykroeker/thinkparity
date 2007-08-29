@@ -26,6 +26,10 @@ final class OfflineCodes {
         this.codes = new Stack<OfflineCode>();
     }
 
+    void clear() {
+        codes.clear();
+    }
+
     Boolean contains(final OfflineCode code) {
         return Boolean.valueOf(codes.contains(code));
     }
@@ -50,5 +54,9 @@ final class OfflineCodes {
     void remove(final OfflineCode code) {
         Assert.assertTrue(codes.contains(code), "Cannot remove {0}.", code);
         codes.remove(code);
+    }
+
+    int size() {
+        return codes.size();
     }
 }

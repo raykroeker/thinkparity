@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.crypto;
 
+import com.thinkparity.codebase.event.EventListener;
+
 import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
@@ -12,7 +14,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.service.AuthToken;
 import com.thinkparity.service.CryptoService;
-import com.thinkparity.service.client.ServiceFactory;
+import com.thinkparity.service.ServiceFactory;
 
 /**
  * <b>Title:</b>thinkParity Ophelia Model Encryption Model Implementation<br>
@@ -21,7 +23,7 @@ import com.thinkparity.service.client.ServiceFactory;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class CryptoModelImpl extends Model implements CryptoModel,
+public final class CryptoModelImpl extends Model<EventListener> implements CryptoModel,
         InternalCryptoModel {
 
     /** The encryption web-service. */
@@ -78,7 +80,7 @@ public final class CryptoModelImpl extends Model implements CryptoModel,
     @Override
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
-        final ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        final ServiceFactory serviceFactory = workspace.getServiceFactory(environment);
         this.cryptoService = serviceFactory.getCryptoService();
     }
 

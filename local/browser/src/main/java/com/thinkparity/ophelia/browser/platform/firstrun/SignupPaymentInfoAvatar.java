@@ -175,10 +175,13 @@ public class SignupPaymentInfoAvatar extends DefaultSignupPage {
         try {
             getSignupHelper().createProfile();
         } catch (final OfflineException ox) {
+            logger.logError(ox, "An offline error has occured.");
             addInputError(getSharedString("ErrorOffline"));
         } catch (final ReservationExpiredException rex) {
+            logger.logWarning(rex, "The username/e-mail reservation has expired.");
             addInputError(getString("ErrorReservationExpired"));
         } catch (final Throwable t) {
+            logger.logFatal(t, "An unexpected error has occured.");
             addInputError(getSharedString("ErrorUnexpected"));
         }
     }

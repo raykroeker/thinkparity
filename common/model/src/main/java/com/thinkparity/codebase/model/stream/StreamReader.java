@@ -7,12 +7,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 
 import com.thinkparity.codebase.delegate.CancelException;
 import com.thinkparity.codebase.delegate.Cancelable;
 
-import org.apache.commons.httpclient.ProtocolException;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
+
+import com.thinkparity.network.NetworkException;
 
 /**
  * <b>Title:</b>thinkParity Stream Reader<br>
@@ -79,8 +83,10 @@ public final class StreamReader implements Cancelable {
      * 
      * @param stream
      *            A target <code>OutputStream</code>.
+     *            
+     * @throws NetworkException
      */
-    public void read(final OutputStream stream) {
+    public void read(final OutputStream stream) throws NetworkException {
         this.stream = stream;
         running = true;
         try {
@@ -98,9 +104,10 @@ public final class StreamReader implements Cancelable {
     /**
      * Execute the http get method that will download the stream.
      * 
+     * @throws NetworkException
      * @throws IOException
      */
-    private void executeGet() throws IOException {
+    private void executeGet() throws NetworkException, IOException {
         StreamClientMetrics.begin(session);
         try {
             final GetMethod method = new GetMethod(session.getURI());
@@ -116,15 +123,26 @@ public final class StreamReader implements Cancelable {
                             return;
                         }
                         try {
-                            while ((len = input.read(b)) > 0) {
+                            try {
+                                len = input.read(b);
+                            } catch (final IOException iox) {
+                                throw new NetworkException(iox);
+                            }
+                            while (len > 0) {
                                 if (cancel) {
                                     return;
                                 }
                                 stream.write(b, 0, len);
                                 stream.flush();
                                 fireChunkReceived(len);
+
                                 if (cancel) {
                                     return;
+                                }
+                                try {
+                                    len = input.read(b);
+                                } catch (final IOException iox) {
+                                    throw new NetworkException(iox);
                                 }
                             }
                         } finally {
@@ -147,14 +165,18 @@ public final class StreamReader implements Cancelable {
                             method.getStatusCode(), method.getStatusLine(),
                             "\n\t", method.getStatusText());
                 }
-            } catch (final ProtocolException px) {
+            } catch (final UnknownHostException uhx) {
                 utils.writeError(method);
-                throw new StreamException(Boolean.TRUE,
-                        "Could not download stream.  {0}", px.getMessage());
+                throw new NetworkException(uhx);
             } catch (final SocketException sx) {
                 utils.writeError(method);
-                throw new StreamException(Boolean.TRUE,
-                        "Could not download stream.  {0}", sx.getMessage());
+                throw new NetworkException(sx);
+            } catch (final SocketTimeoutException stx) {
+                utils.writeError(method);
+                throw new NetworkException(stx);
+            } catch (final HttpException hx) {
+                utils.writeError(method);
+                throw new NetworkException(hx);
             } finally {
                 method.releaseConnection();
             }

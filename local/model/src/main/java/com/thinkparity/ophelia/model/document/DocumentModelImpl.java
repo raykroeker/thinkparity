@@ -497,9 +497,9 @@ public final class DocumentModelImpl extends
             final StreamSession session = getStreamModel().newDownstreamSession(
                     version);
             if (null == monitor) {
-                return new DownloadFile(session);
+                return new DownloadFile(newDefaultRetryHandler(), session);
             } else {
-                return new DownloadFile(monitor, session);
+                return new DownloadFile(monitor, newDefaultRetryHandler(), session);
             }
         } catch (final Throwable t) {
             throw panic(t);

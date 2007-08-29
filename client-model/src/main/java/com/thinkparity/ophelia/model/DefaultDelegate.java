@@ -14,8 +14,9 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -32,6 +33,8 @@ import com.thinkparity.ophelia.model.stream.InternalStreamModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
+import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.ophelia.model.workspace.impl.DefaultRetryHandler;
 
 import com.thinkparity.service.AuthToken;
 
@@ -239,22 +242,24 @@ public class DefaultDelegate<T extends Model<?>> implements Delegate<T> {
     }
 
     /**
-     * Obtain the buffer.
+     * @see com.thinkparity.ophelia.model.Model#getBuffer()
      * 
-     * @return An <code>ByteBuffer</code>.
      */
     protected final ByteBuffer getBuffer() {
         return modelImplementation.getBuffer();
     }
 
+    /**
+     * @see com.thinkparity.ophelia.model.Model#getBufferArray()
+     * 
+     */
     protected final byte[] getBufferArray() {
         return modelImplementation.getBufferArray();
     }
 
     /**
-     * Obtain the buffer lock.
+     * @see com.thinkparity.ophelia.model.Model#getBufferLock()
      * 
-     * @return An <code>Object</code>.
      */
     protected final Object getBufferLock() {
         return modelImplementation.getBufferLock();
@@ -306,6 +311,14 @@ public class DefaultDelegate<T extends Model<?>> implements Delegate<T> {
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.Model#environment
+     * 
+     */
+    protected final Environment getEnvironment() {
+        return modelImplementation.environment;
+    }
+
+    /**
      * Obtain an internal index model.
      * 
      * @return An instance of <code>InternalIndexModel</code>.
@@ -351,6 +364,14 @@ public class DefaultDelegate<T extends Model<?>> implements Delegate<T> {
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.Model#workspace
+     * 
+     */
+    protected final Workspace getWorkspace() {
+        return modelImplementation.workspace;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.Model#localTeamMember(Long)
      * 
      */
@@ -377,11 +398,27 @@ public class DefaultDelegate<T extends Model<?>> implements Delegate<T> {
     }
 
     /**
-     * @see Model#readCredentials()
+     * @see Model#newDefaultRetryHandler()
      * 
      */
-    protected final Credentials readCredentials() {
-        return modelImplementation.readCredentials();
+    protected final DefaultRetryHandler newDefaultRetryHandler() {
+        return modelImplementation.newDefaultRetryHandler();
+    }
+
+    /**
+     * @see Model#newThread(String, Runnable)
+     * 
+     */
+    protected Thread newThread(final String name, final Runnable runnable) {
+        return modelImplementation.newThread(name, runnable);
+    }
+
+    /**
+     * @see Model#panic(Throwable)
+     * 
+     */
+    protected final ThinkParityException panic(final Throwable cause) {
+        return modelImplementation.panic(cause);
     }
 
     /**

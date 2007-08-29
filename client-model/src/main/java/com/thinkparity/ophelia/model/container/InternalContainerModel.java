@@ -22,7 +22,6 @@ import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublished
 
 import com.thinkparity.ophelia.model.container.event.LocalPublishedEvent;
 import com.thinkparity.ophelia.model.container.event.LocalVersionPublishedEvent;
-import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
 /**
  * <b>Title:</b>thinkParity Container Internal Model<br>
@@ -193,12 +192,4 @@ public interface InternalContainerModel extends ContainerModel {
      */
     public List<User> readPublishedToUsers(final Long containerId,
             final Long versionId);
-
-    /**
-     * Restore all containers from the backup.
-     * 
-     * @param monitor
-     *            A <code>ProcessMonitor</code>.
-     */
-    public void restoreBackup(final ProcessMonitor monitor);
 }

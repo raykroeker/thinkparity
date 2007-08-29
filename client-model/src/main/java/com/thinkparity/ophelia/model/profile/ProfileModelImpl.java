@@ -42,7 +42,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.service.AuthToken;
 import com.thinkparity.service.ProfileService;
-import com.thinkparity.service.client.ServiceFactory;
+import com.thinkparity.service.ServiceFactory;
 
 /**
  * <b>Title:</b>thinkParity Profile Model Implementation<br>
@@ -595,7 +595,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final Workspace workspace) {
         this.profileIO = IOFactory.getDefault(workspace).createProfileHandler();
 
-        final ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        final ServiceFactory serviceFactory = workspace.getServiceFactory(environment);
         this.profileService = serviceFactory.getProfileService();
     }
 

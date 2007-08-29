@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.model.script;
 import java.io.InputStream;
 import java.util.List;
 
+import com.thinkparity.codebase.event.EventListener;
+
 import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.Model;
@@ -14,13 +16,13 @@ import com.thinkparity.ophelia.model.script.engine.EngineFactory.Framework;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
- * <b>Title:</b>thinkParity Script Model Implementation</br>
+ * <b>Title:</b>thinkParity Ophelia Model Script Model Implementation</br>
  * <b>Description:</b><br>
  *
  * @author CreateModel.groovy
  * @version 1.1.2.1
  */
-public final class ScriptModelImpl extends Model implements
+public final class ScriptModelImpl extends Model<EventListener> implements
         ScriptModel, InternalScriptModel {
 
     /**

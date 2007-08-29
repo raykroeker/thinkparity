@@ -35,8 +35,8 @@ import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.service.BackupService;
+import com.thinkparity.service.ServiceFactory;
 import com.thinkparity.service.SessionService;
-import com.thinkparity.service.client.ServiceFactory;
 
 /**
  * <b>Title:</b>thinkParity Backup Model Implementation</br>
@@ -390,7 +390,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     @Override
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
-        final ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        final ServiceFactory serviceFactory = workspace.getServiceFactory(environment);
         this.backupService = serviceFactory.getBackupService();
         this.sessionService = serviceFactory.getSessionService();
     }

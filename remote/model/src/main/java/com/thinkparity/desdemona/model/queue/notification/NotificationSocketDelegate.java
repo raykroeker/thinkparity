@@ -5,7 +5,9 @@ package com.thinkparity.desdemona.model.queue.notification;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketAddress;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -30,10 +32,20 @@ final class NotificationSocketDelegate implements Runnable {
     /** The notification server. */
     private final NotificationServer server;
 
+    /** The session id bytes. */
     private byte[] sessionIdBytes;
 
-    /** A client socket. */
+    /** The socket. */
     private final Socket socket;
+
+    /** The socket input. */
+    private final InputStream socketInput;
+
+    /** The socket output. */
+    private final OutputStream socketOutput;
+
+    /** The socket remote address. */
+    private final SocketAddress socketRemoteAddress;
 
     /**
      * Create NotificationSocketDelegate.
@@ -42,11 +54,14 @@ final class NotificationSocketDelegate implements Runnable {
      *            A client <code>Socket</code>.
      */
     NotificationSocketDelegate(final NotificationServer server,
-            final Socket socket) {
+            final Socket socket) throws IOException {
         super();
         this.logger = new Log4JWrapper("NotificationService");
         this.server = server;
         this.socket = socket;
+        this.socketInput = socket.getInputStream();
+        this.socketOutput = socket.getOutputStream();
+        this.socketRemoteAddress = socket.getRemoteSocketAddress();
     }
 
     /**
@@ -79,12 +94,11 @@ final class NotificationSocketDelegate implements Runnable {
             logger.logInfo("Waking up notification delegate {0}.", sessionId.getValue());
             if (isWritable()) {
                 try {
-                    socket.getOutputStream().write(getWriteBytes());
+                    socketOutput.write(getWriteBytes());
                 } catch (final IOException iox) {
                     logger.logError(iox,
                             "Could not write to notification delegate {0}.",
                             getRemoteAddress());
-                    break;
                 }
             } else {
                 break;
@@ -99,7 +113,7 @@ final class NotificationSocketDelegate implements Runnable {
      * @return The socket's remote socket address <code>String</code>.
      */
     String getRemoteAddress() {
-        return socket.getRemoteSocketAddress().toString();
+        return socketRemoteAddress.toString();
     }
 
     /**
@@ -151,9 +165,6 @@ final class NotificationSocketDelegate implements Runnable {
         /** An apache logger wrapper. */
         private final Log4JWrapper logger;
 
-        /** An <code>InputStream</code>. */
-        private final InputStream stream;
-
         /**
          * Create HeaderReader.
          * 
@@ -161,7 +172,6 @@ final class NotificationSocketDelegate implements Runnable {
         private HeaderReader() throws IOException {
             super();
             this.logger = new Log4JWrapper();
-            this.stream = socket.getInputStream();
         }
 
         /**
@@ -172,7 +182,7 @@ final class NotificationSocketDelegate implements Runnable {
          * @throws IOException
          */
         private final int read() throws IOException {
-            return stream.read();
+            return socketInput.read();
         }
 
         /**

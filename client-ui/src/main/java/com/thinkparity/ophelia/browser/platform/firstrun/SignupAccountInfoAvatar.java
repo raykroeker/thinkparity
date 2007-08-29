@@ -305,8 +305,10 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
                     emailReservations.put(email, emailReservation);
                 }
             } catch (final OfflineException ox) {
+                logger.logError(ox, "An offline error has occured.");
                 temporaryError = getSharedString("ErrorOffline");
             } catch (final Throwable t) {
+                logger.logError(t, "An unexpected error has occured.");
                 temporaryError = getSharedString("ErrorUnexpected");
             } finally {
                 SwingUtil.setCursor(this, null);

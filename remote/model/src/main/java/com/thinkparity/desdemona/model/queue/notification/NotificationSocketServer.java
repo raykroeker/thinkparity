@@ -207,7 +207,8 @@ class NotificationSocketServer implements Runnable {
      * @return A <code>NotificationSocketDelegate</code>.
      * @throws SocketException
      */
-    private NotificationSocketDelegate newDelegate() throws SocketException {
+    private NotificationSocketDelegate newDelegate() throws SocketException,
+            IOException {
         final Socket clientSocket = clientSockets.peek();
         return new NotificationSocketDelegate(server, clientSocket);
     }

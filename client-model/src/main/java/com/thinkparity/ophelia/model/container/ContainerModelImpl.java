@@ -79,7 +79,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.service.AuthToken;
 import com.thinkparity.service.ContainerService;
-import com.thinkparity.service.client.ServiceFactory;
+import com.thinkparity.service.ServiceFactory;
 
 /**
  * <b>Title:</b>thinkParity Container Model Implementation</br>
@@ -1989,7 +1989,7 @@ public final class ContainerModelImpl extends
         this.containerIO = IOFactory.getDefault(workspace).createContainerHandler();
         this.documentIO = IOFactory.getDefault(workspace).createDocumentHandler();
 
-        final ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        final ServiceFactory serviceFactory = workspace.getServiceFactory(environment);
         this.containerService = serviceFactory.getContainerService();
     }
 

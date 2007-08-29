@@ -21,6 +21,7 @@ import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerTestCase;
 
+import com.thinkparity.network.NetworkException;
 import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
@@ -172,6 +173,8 @@ public final class BackupTest extends BackupTestCase {
                             }
                         }
                     });
+                } catch (final NetworkException nx) {
+                    fail(nx, "Cannot download document version.");
                 } catch (final IOException iox) {
                     fail(iox, "Cannot download document version.");
                 }
@@ -187,7 +190,8 @@ public final class BackupTest extends BackupTestCase {
      * @return The <code>File</code>.
      * @throws IOException
      */
-    private File download(final DocumentVersion version) throws IOException {
+    private File download(final DocumentVersion version)
+            throws NetworkException, IOException {
         final File target = getOutputFile(version);
         getDocumentModel(datum.junit_z).newDownloadFile(version).download(target);
         return target;
@@ -316,6 +320,8 @@ public final class BackupTest extends BackupTestCase {
                                 }
                             }
                         });
+                    } catch (final NetworkException nx) {
+                        fail(nx, "Cannot download document version.");
                     } catch (final IOException iox) {
                         fail(iox, "Cannot download document version.");
                     }

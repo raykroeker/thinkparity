@@ -45,7 +45,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.service.AuthToken;
 import com.thinkparity.service.ContactService;
-import com.thinkparity.service.client.ServiceFactory;
+import com.thinkparity.service.ServiceFactory;
 
 /**
  * <b>Title:</b>thinkParity Contact Model Implementation<br>
@@ -1313,7 +1313,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             final Workspace workspace) {
         this.contactIO = IOFactory.getDefault(workspace).createContactHandler();
 
-        final ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        final ServiceFactory serviceFactory = workspace.getServiceFactory(environment);
         this.contactService = serviceFactory.getContactService();
     }
 

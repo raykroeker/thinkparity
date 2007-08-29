@@ -7,8 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
@@ -22,7 +20,6 @@ import java.util.Vector;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
 import com.thinkparity.codebase.assertion.Assert;
@@ -64,7 +61,6 @@ import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.queue.InternalQueueModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
-import com.thinkparity.ophelia.model.session.OfflineCode;
 import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.stream.InternalStreamModel;
 import com.thinkparity.ophelia.model.user.InternalUserModel;
@@ -73,8 +69,9 @@ import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.ophelia.model.workspace.impl.DefaultRetryHandler;
 
-import com.thinkparity.service.client.ServiceException;
+import com.thinkparity.network.NetworkException;
 
 /**
  * <b>Title:</b>thinkParity Model<br>
@@ -645,18 +642,6 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
-     * Delete the user's token.
-     * 
-     */
-    protected final void deleteToken() {
-        try {
-            configurationIO.delete(ConfigurationKeys.TOKEN);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * Delete the user credentials.
      *
      */
@@ -665,6 +650,18 @@ public abstract class Model<T extends EventListener> extends
         try {
             configurationIO.delete(ConfigurationKeys.Credentials.PASSWORD);
             configurationIO.delete(ConfigurationKeys.Credentials.USERNAME);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * Delete the user's token.
+     * 
+     */
+    protected final void deleteToken() {
+        try {
+            configurationIO.delete(ConfigurationKeys.TOKEN);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1085,6 +1082,28 @@ public abstract class Model<T extends EventListener> extends
 	}
 
     /**
+     * Create a default retry handler.
+     * 
+     * @return A <code>DefaultRetryHandler</code>.
+     */
+    protected final DefaultRetryHandler newDefaultRetryHandler() {
+        return new DefaultRetryHandler(environment, workspace);
+    }
+
+    /**
+     * Create a new instance of a daemon thread.
+     * 
+     * @param name
+     *            A name <code>String</code>.
+     * @param runnable
+     *            A <code>Runnable</code>.
+     * @return A <code>Thread</code>.
+     */
+    protected final Thread newThread(final String name, final Runnable runnable) {
+        return workspace.newThread(name, runnable);
+    }
+
+    /**
      * Notify all event listeners.
      *
      */
@@ -1108,7 +1127,7 @@ public abstract class Model<T extends EventListener> extends
         }
     }
 
-    /**
+	/**
      * Notify all event listeners.
      * 
      * @param notifier
@@ -1123,27 +1142,17 @@ public abstract class Model<T extends EventListener> extends
      * 
      */
 	@Override
-    protected ThinkParityException panic(final Throwable t) {
-	    if (isOfflineCausality(t)) {
-	        /* NOTE we do not care about logging offline causing errors; and we
-	         * notify the model that it is offline */
-            final InternalSessionModel sessionModel = getSessionModel();
-            if (sessionModel.isOnline()) {
-                sessionModel.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
-                sessionModel.notifySessionTerminated();
-            }
-
+    protected ThinkParityException panic(final Throwable error) {
+	    if (isNetworkException(error)) {
+	        /* NOTE - Model#panic(Throwable) - we do not care about logging
+	         * offline causing errors */
+	        logger.logError(error, "A network error has occured.");
 	        return new OfflineException();
 	    } else {
-            final ThinkParityException tpx = super.panic(t);
-            if (isOffline(tpx)) {
-                /* notify the model that it is offline */
-                final InternalSessionModel sessionModel = getSessionModel();
-                if (sessionModel.isOnline()) {
-                    sessionModel.pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
-                    sessionModel.notifySessionTerminated();
-                }
-
+            final ThinkParityException tpx = super.panic(error);
+            if (isOfflineException(tpx)) {
+                /* NOTE - Model#panic(Throwable) - we do not care about logging
+                 * offline causing errors */
                 logger.logError(tpx, "Could not log offline error.");
             } else {
                 /* NOTE An attempt is made to log the error that has just occured on the
@@ -1388,44 +1397,25 @@ public abstract class Model<T extends EventListener> extends
 	}
 
     /**
-     * Determine whether or not the throwable is an offline error.
+     * Determine if the error is a network exception.
      * 
-     * @param t
+     * @param error
+     *            A <code>Throwable</code>.
+     * @return True if it is a network exception
+     */
+	private boolean isNetworkException(final Throwable error) {
+	    return NetworkException.class.isAssignableFrom(error.getClass());
+	}
+
+    /**
+     * Determine whether or not the error is an offline exception.
+     * 
+     * @param error
      *            A <code>Throwable</code>.
      * @return True if the error is an offline error.
      */
-    private boolean isOffline(final Throwable t) {
-        return OfflineException.class.isAssignableFrom(t.getClass());
-    }
-
-    /**
-     * Determine whether or not the throwable is a network related error. A
-     * throwable is considered a network related error if it is a service
-     * exception and it is known to be caused by one of a finite set of errors.
-     * 
-     * @param t
-     *            A <code>Throwable</code>.
-     * @return True if the error is network related.
-     */
-    private boolean isOfflineCausality(final Throwable t) {
-        if (ServiceException.class.isAssignableFrom(t.getClass())) {
-            final Throwable rootCause = StackUtil.getRootCause(t);
-            if (null == rootCause) {
-                return false;
-            } else {
-                final Class<?>[] causeClasses = new Class<?>[] {
-                        UnknownHostException.class, SocketException.class
-                };
-                for (final Class<?> causeClass : causeClasses) {
-                    if (causeClass.isAssignableFrom(rootCause.getClass())) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        } else {
-            return false;
-        }
+    private boolean isOfflineException(final Throwable error) {
+        return OfflineException.class.isAssignableFrom(error.getClass());
     }
 
     /**

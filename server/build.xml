@@ -273,6 +273,13 @@ Local Configuration:                ${localconfig}
             <classpath refid="compile.classpath"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
+        <!-- common/network -->
+        <javac srcdir="${thinkparity.common.home}/network/src/main/java"
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="compile.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
         <!-- common/model -->
         <javac srcdir="${thinkparity.common.home}/model/src/main/java"
                 destdir="${target.classes.dir}" debug="${javac.debug}"

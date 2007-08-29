@@ -43,6 +43,8 @@ import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
+import com.thinkparity.network.NetworkException;
+
 /**
  * <b>Title:</b>thinkParity Ophelia Model Queue Processor<br>
  * <b>Description:</b>An instance of a queue processor is a simple delegate
@@ -254,6 +256,9 @@ public final class QueueProcessor implements Cancelable, Runnable {
         } catch (final GeneralSecurityException gsx) {
             logger.logError(gsx, "Could not decrypt file for {0}.", version);
             return null;
+        } catch (final NetworkException nx) {
+            logger.logError(nx, "Could not download file for {0}.", version);
+            return null;
         } catch (final IOException iox) {
             logger.logError(iox, "Could not download file for {0}.", version);
             return null;
@@ -269,7 +274,7 @@ public final class QueueProcessor implements Cancelable, Runnable {
      *            A target <code>File</code>.
      */
     private void download(final DocumentVersion version, final File target)
-            throws IOException {
+            throws NetworkException, IOException {
         downloader = getDocumentModel().newDownloadFile(version);
         try {
             downloader.download(target);

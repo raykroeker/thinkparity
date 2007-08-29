@@ -100,16 +100,14 @@ final class ModelInvocationHandler implements InvocationHandler {
                 LOGGER.logDebug("args[{0}]:{1}", i, args[i]);
         }
         final Object lock;
-        switch (extractConcurrency(method)) {
+        switch (extractLock(method)) {
         case NONE:
             lock = new Object();
             break;
-        case EXCLUSIVE:
-        case LOCAL_READ:
-            lock = workspace;
-            break;
+        case EXCLUSIVE:     // deliberate fall-through
+        case LOCAL_READ:    // deliberate fall-through
         default:
-            throw Assert.createUnreachable("No concurrency specified.");
+            lock = workspace;
         }
         synchronized (lock) {
             final Transaction transaction = workspace.getTransaction();
@@ -254,13 +252,13 @@ final class ModelInvocationHandler implements InvocationHandler {
     }
 
     /**
-     * Extract the concurrency annotation for the method.
+     * Extract the lock definition of the method.
      * 
      * @param method
      *            A <code>Method</code>.
      * @return A <code>Lock</code>.
      */
-    private Lock extractConcurrency(final Method method) {
+    private Lock extractLock(final Method method) {
         ThinkParityConcurrency concurrency = method.getAnnotation(ThinkParityConcurrency.class);
         if (null == concurrency) {
             concurrency = method.getDeclaringClass().getAnnotation(ThinkParityConcurrency.class);

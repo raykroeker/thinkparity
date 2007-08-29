@@ -22,9 +22,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 /**
  * <b>Title:</b>thinkParity CommonCodebase Socket Factory<br>
- * <b>Description:</b>A client socket factory that is system proxy aware. In
- * order for system proxies to be considered, the &quot;&quot; system property
- * must have been set prior to initializing the java.net framework.<br>
+ * <b>Description:</b>A secure socket factory.<br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.3
@@ -42,20 +40,9 @@ public final class SocketFactory {
 
     static {
         LOGGER = new Log4JWrapper(SocketFactory.class);
-        LOGGER.logVariable("java.net.useSystemProxies",
-                System.getProperty("java.net.useSystemProxies"));
 
         KEYSTORE_PATH = "security/client_keystore";
         KEYSTORE_PASSWORD = "password".toCharArray();
-    }
-
-    /**
-     * Obtain an instance of a socket factory.
-     * 
-     * @return A <code>javax.net.SocketFactory</code>.
-     */
-    public static final javax.net.SocketFactory getInstance() {
-        return new SocketFactoryImpl();
     }
 
     /**
@@ -96,9 +83,8 @@ public final class SocketFactory {
             final SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(keyManagerFactory.getKeyManagers(),
                     trustManagerFactory.getTrustManagers(), new SecureRandom());
-    
-            // create the factory
-            return new SSLSocketFactoryImpl(sslContext.getSocketFactory());
+
+            return sslContext.getSocketFactory();
         } catch (final KeyStoreException ksx) {
             throw new IllegalArgumentException("Cannot initialize secure socket factory.", ksx);
         } catch (final CertificateException cx) {

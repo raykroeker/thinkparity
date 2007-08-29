@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.stream;
 
+import com.thinkparity.codebase.event.EventListener;
+
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
@@ -14,17 +16,18 @@ import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.service.AuthToken;
+import com.thinkparity.service.ServiceFactory;
 import com.thinkparity.service.StreamService;
-import com.thinkparity.service.client.ServiceFactory;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity Ophelia Model Stream Model Implementation<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class StreamModelImpl extends Model implements StreamModel,
-        InternalStreamModel {
+public final class StreamModelImpl extends Model<EventListener> implements
+        StreamModel, InternalStreamModel {
 
     /** A stream web-service. */
     private StreamService streamService;
@@ -101,7 +104,7 @@ public final class StreamModelImpl extends Model implements StreamModel,
     @Override
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
-        final ServiceFactory serviceFactory = ServiceFactory.getInstance();
+        final ServiceFactory serviceFactory = workspace.getServiceFactory(environment);
         this.streamService = serviceFactory.getStreamService();
     }
 

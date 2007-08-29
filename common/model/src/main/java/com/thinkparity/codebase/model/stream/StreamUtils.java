@@ -12,6 +12,7 @@ import com.thinkparity.codebase.BytesFormat;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.stream.httpclient.HttpConnectionManager;
 import com.thinkparity.codebase.model.util.http.HttpUtils;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -37,7 +38,11 @@ public final class StreamUtils {
     static {
         BYTES_FORMAT = new BytesFormat();
         HTTP_CLIENT = HttpUtils.newClient();
+        HTTP_CLIENT.setHttpConnectionManager(new HttpConnectionManager());
         HTTP_CLIENT.getHttpConnectionManager().getParams().setMaxTotalConnections(3);
+        HTTP_CLIENT.getHttpConnectionManager().getParams().setSoTimeout(7 * 1000);
+        // NOCOMMIT
+        // HTTP_CLIENT.getHttpConnectionManager().getParams().setTcpNoDelay(true);
         LOGGER = new Log4JWrapper(StreamUtils.class);
     }
 
@@ -57,8 +62,7 @@ public final class StreamUtils {
      * @return An http status code.
      */
     int execute(final HttpMethod method) throws IOException {
-        HTTP_CLIENT.executeMethod(method);
-        return method.getStatusCode();
+        return HTTP_CLIENT.executeMethod(method);
     }
 
     /**
@@ -117,7 +121,7 @@ public final class StreamUtils {
             method.setRequestHeader(header.getKey(), header.getValue());
         }
     }
-    
+
     /**
      * Write the error to the system error stream.
      * 
@@ -126,10 +130,10 @@ public final class StreamUtils {
      */
     void writeError(final HttpMethod method) throws IOException {
         final InputStream errorStream = method.getResponseBodyAsStream();
-        try {
+        if (null == errorStream) {
+            LOGGER.logError("No stream response.");
+        } else {
             StreamUtil.copy(errorStream, System.err);
-        } catch (final Exception x) {
-            LOGGER.logWarning(x, "Could not write response error.");
         }
     }
 }

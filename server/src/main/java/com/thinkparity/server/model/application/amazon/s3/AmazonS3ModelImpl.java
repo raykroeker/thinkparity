@@ -356,7 +356,7 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
      * @return A <code>StringBuilder</code>.
      */
     private static StringBuilder newURIBuilder(final Environment environment) {
-        return new StringBuilder("https://s3.amazonaws.com/")
+        return new StringBuilder("http://s3.amazonaws.com/")
             .append(getBucketName(environment));
     }
 

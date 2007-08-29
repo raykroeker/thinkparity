@@ -31,8 +31,8 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
 import com.thinkparity.service.AuthToken;
 import com.thinkparity.service.QueueService;
+import com.thinkparity.service.ServiceFactory;
 import com.thinkparity.service.SessionService;
-import com.thinkparity.service.client.ServiceFactory;
 
 /**
  * @author raykroeker@gmail.com
@@ -240,7 +240,7 @@ public class OpheliaTestUser extends User {
      * 
      */
     private void processOfflineQueue() throws InvalidCredentialsException {
-        final ServiceFactory factory = ServiceFactory.getInstance();
+        final ServiceFactory factory = workspace.getServiceFactory(environment);
         final SessionService sessionService = factory.getSessionService();
         final AuthToken authToken = sessionService.login(credentials);
         final QueueService queueService = factory.getQueueService();

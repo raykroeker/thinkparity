@@ -54,6 +54,17 @@ create table TPSD_USER_EVENT_QUEUE(
 );
 create index TPSD_USER_EVENT_QUEUE_IX_0 on TPSD_USER_EVENT_QUEUE(EVENT_PRIORITY);
 create index TPSD_USER_EVENT_QUEUE_IX_1 on TPSD_USER_EVENT_QUEUE(EVENT_DATE);
+create table TPSD_AUDIT_USER_EVENT_QUEUE(
+    USER_ID bigint not null,
+    EVENT_ID varchar(32) not null,
+    EVENT_DATE timestamp not null,
+    EVENT_PRIORITY smallint not null,
+    EVENT_XML clob not null,
+    primary key(EVENT_ID),
+    foreign key(USER_ID) references TPSD_USER(USER_ID)
+);
+create index TPSD_AUDIT_USER_EVENT_QUEUE_IX_0 on TPSD_AUDIT_USER_EVENT_QUEUE(EVENT_PRIORITY);
+create index TPSD_AUDIT_USER_EVENT_QUEUE_IX_1 on TPSD_AUDIT_USER_EVENT_QUEUE(EVENT_DATE);
 create table TPSD_USER_TEMPORARY_CREDENTIAL(
     USER_ID bigint not null,
     TOKEN varchar(64) not null,

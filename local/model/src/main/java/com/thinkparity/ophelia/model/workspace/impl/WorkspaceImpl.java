@@ -14,6 +14,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import javax.sql.DataSource;
 
@@ -28,6 +30,7 @@ import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.jta.Transaction;
 
 import com.thinkparity.ophelia.model.Model;
@@ -36,6 +39,7 @@ import com.thinkparity.ophelia.model.Constants.FileNames;
 import com.thinkparity.ophelia.model.Constants.Release;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
+import com.thinkparity.ophelia.model.util.service.ServiceFactory;
 import com.thinkparity.ophelia.model.workspace.CannotLockException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
@@ -51,6 +55,13 @@ import org.apache.log4j.PropertyConfigurator;
  * @version 1.1.2.37
  */
 public final class WorkspaceImpl implements Workspace {
+
+    /** A thread factory. */
+    private static final ThreadFactory THREAD_FACTORY;
+
+    static {
+        THREAD_FACTORY = Executors.defaultThreadFactory();
+    }
 
     /** The workspace <code>ByteBuffer</code>. */
     private ByteBuffer buffer;
@@ -103,7 +114,7 @@ public final class WorkspaceImpl implements Workspace {
      *            A thinkParity event listener.
      */
     public <T extends EventListener> boolean addListener(
-            final Model impl, final T listener) {
+            final Model<?> impl, final T listener) {
         return listenersImpl.add(impl, listener);
     }
 
@@ -292,14 +303,14 @@ public final class WorkspaceImpl implements Workspace {
      */
     public Charset getCharset() {
         return StringUtil.Charset.UTF_8.getCharset();
-    }            
+    }
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getDataDirectory()
      */
     public File getDataDirectory() {
         return initChild(DirectoryNames.Workspace.DATA);
-    }
+    }            
 
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getDataSource()
@@ -333,7 +344,7 @@ public final class WorkspaceImpl implements Workspace {
         return initChild(DirectoryNames.Workspace.INDEX);
     }
 
-	/**
+    /**
      * Obtain the model's event listeners.
      * 
      * @param <T>
@@ -345,7 +356,7 @@ public final class WorkspaceImpl implements Workspace {
         return listenersImpl.get(impl);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#getLog4JDirectory()
      *
      */
@@ -368,6 +379,20 @@ public final class WorkspaceImpl implements Workspace {
      */
     public String getName() {
         return workspace.getRoot().getName();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getServiceFactory(com.thinkparity.codebase.model.session.Environment)
+     * 
+     */
+    @Override
+    public ServiceFactory getServiceFactory(final Environment environment) {
+        /* HACK - WorkspaceImpl#getServiceFactory - environment should be
+         * part of the workspace */
+        final ServiceFactory serviceFactory = new ServiceFactory();
+        serviceFactory.setRetryHandler(new DefaultRetryHandler(
+                environment, this));
+        return serviceFactory;
     }
 
     /**
@@ -453,6 +478,18 @@ public final class WorkspaceImpl implements Workspace {
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#startThread(java.lang.String, java.lang.Runnable)
+     *
+     */
+    @Override
+    public Thread newThread(final String name, final Runnable runnable) {
+        final Thread thread = THREAD_FACTORY.newThread(runnable);
+        thread.setDaemon(true);
+        thread.setName(MessageFormat.format("TPS-OpheliaModel-{0}", name));
+        return thread;
+    }
+
+    /**
      * Open the workspace.
      * 
      */
@@ -490,7 +527,7 @@ public final class WorkspaceImpl implements Workspace {
      *            A thinkParity event listener.
      */
     public <T extends EventListener> boolean removeListener(
-            final Model impl, final T listener) {
+            final Model<?> impl, final T listener) {
         return listenersImpl.remove(impl, listener);
     }
 
@@ -504,6 +541,7 @@ public final class WorkspaceImpl implements Workspace {
 
     /**
      * @see java.lang.Object#toString()
+     * 
      */
     @Override
     public String toString() {

@@ -31,6 +31,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamInfo;
+import com.thinkparity.codebase.model.stream.StreamRetryHandler;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.upload.UploadFile;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -53,6 +54,7 @@ import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
 import com.thinkparity.desdemona.util.DateTimeProvider;
+import com.thinkparity.desdemona.util.DefaultRetryHandler;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Container Model Implementation</br>
@@ -299,9 +301,11 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
                     final StreamInfo streamInfo = new StreamInfo();
                     streamInfo.setMD5(checksum(encryptedContent));
                     streamInfo.setSize(Long.valueOf(encryptedContent.length()));
-                    final StreamSession session = newUpstreamSession(
-                            streamInfo, documentVersion);
-                    new UploadFile(session).upload(encryptedContent);
+                    final StreamSession session = newUpstreamSession(streamInfo,
+                            documentVersion);
+                    final StreamRetryHandler retryHandler =
+                        new DefaultRetryHandler(session);
+                    new UploadFile(retryHandler, session).upload(encryptedContent);
                 } finally {
                     // TEMPFILE - ProfileModelImpl#enqueueWelcome
                     encryptedContent.delete();

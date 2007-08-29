@@ -50,6 +50,8 @@ import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 
+import com.thinkparity.network.NetworkException;
+
 /**
  * <b>Title:</b>thinkParity OpheliaModel Container Restore Backup Delegate<br>
  * <b>Description:</b><br>
@@ -81,8 +83,8 @@ public final class RestoreBackup extends ContainerDelegate {
      * Restore from a backup.
      *
      */
-    public void restoreBackup() throws CannotLockException, IOException,
-            NoSuchPaddingException, NoSuchAlgorithmException,
+    public void restoreBackup() throws CannotLockException, NetworkException,
+            IOException, NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidKeyException {
         restoredOn = getSessionModel().readDateTime();
         final List<Container> containers = read();
@@ -151,7 +153,7 @@ public final class RestoreBackup extends ContainerDelegate {
      * @return A version <code>File</code>.
      */
     private void download(final DocumentVersion version, final File file)
-            throws IOException, NoSuchPaddingException,
+            throws NetworkException, IOException, NoSuchPaddingException,
             NoSuchAlgorithmException, InvalidKeyException {
         final String suffix = MessageFormat.format("-{0}",  version.getArtifactName());
         final File downloadFile = createTempFile(suffix);
@@ -260,8 +262,8 @@ public final class RestoreBackup extends ContainerDelegate {
      *            An archive reader.
      * @throws IOException
      */
-    private void restore(final Container container) throws IOException,
-            NoSuchPaddingException, NoSuchAlgorithmException,
+    private void restore(final Container container) throws NetworkException,
+            IOException, NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidKeyException {
         final InternalBackupModel backupModel = getBackupModel();
         final InternalDocumentModel documentModel = getDocumentModel();

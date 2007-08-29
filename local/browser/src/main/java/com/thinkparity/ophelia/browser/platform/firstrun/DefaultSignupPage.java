@@ -156,8 +156,8 @@ public abstract class DefaultSignupPage extends Avatar
      * @return true if the system is online, false otherwise.
      */
     protected Boolean isOnline() {
-        online = platform.isOnline();
-        return online;
+// NOCOMMIT
+return Boolean.TRUE;
     }
 
     /**

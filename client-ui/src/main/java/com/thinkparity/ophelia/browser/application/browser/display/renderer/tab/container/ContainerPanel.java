@@ -513,14 +513,17 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /**
      * Set the selection to be the draft.
-     *
+     * This method has no effect if there is no draft cell.
      */
     public void setDraftSelection() {
         Assert.assertNotNull(draft,
                 "Cannot set draft selection for container:  {0}",
                 container.getId());
-        westListModel.showFirstPage();
-        westListModel.setSelectedCell(westCells.get(1));
+        if (westCells.size() > 1 &&
+                westCells.get(1) instanceof DraftCell) {
+            westListModel.showFirstPage();
+            westListModel.setSelectedCell(westCells.get(1));
+        }
     }
 
     /**

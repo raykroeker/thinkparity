@@ -16,6 +16,7 @@ import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.UserModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.backup.RestoreBackupProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.contact.UserInfoProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.ContainerVersionProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.PublishContainerProvider;
@@ -116,6 +117,9 @@ public class ProviderFactory {
     private ContentProvider doGetProvider(final AvatarId avatarId) {
         final ContentProvider provider;
         switch(avatarId) {
+        case DIALOG_BACKUP_RESTORE:
+            provider = new RestoreBackupProvider(profileModel);
+            break;
         case DIALOG_CONTACT_INFO:
             provider = new UserInfoProvider(profileModel, userModel, contactModel);
             break;

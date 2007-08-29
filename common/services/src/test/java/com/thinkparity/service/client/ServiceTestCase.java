@@ -5,6 +5,8 @@ package com.thinkparity.service.client;
 
 import com.thinkparity.codebase.junitx.TestCase;
 
+import com.thinkparity.service.ServiceFactory;
+
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
@@ -25,7 +27,7 @@ public abstract class ServiceTestCase extends TestCase {
     }
 
     protected final ServiceFactory getServiceFactory() {
-        return ServiceFactory.getInstance();
+        return ClientServiceFactory.getInstance();
     }
 
     /**

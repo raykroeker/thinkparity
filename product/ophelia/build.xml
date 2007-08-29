@@ -210,6 +210,13 @@ Local Configuration:            ${localconfig}
             <classpath refid="compile.classpath"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
+        <!-- commmon/network -->
+        <javac srcdir="${thinkparity.common.home}/network/src/main/java"
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="compile.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
         <!-- commmon/model -->
         <javac srcdir="${thinkparity.common.home}/model/src/main/java"
                 destdir="${target.classes.dir}" debug="${javac.debug}"
@@ -496,6 +503,13 @@ Examples:
         </javac>
         <!-- common/codebase -->
         <javac srcdir="${thinkparity.common.home}/codebase/src/test/java"
+                destdir="${target.test-classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="test.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
+        <!-- common/network -->
+        <javac srcdir="${thinkparity.common.home}/network/src/test/java"
                 destdir="${target.test-classes.dir}" debug="${javac.debug}"
                 debuglevel="${javac.debug-level}">
             <classpath refid="test.classpath"/>

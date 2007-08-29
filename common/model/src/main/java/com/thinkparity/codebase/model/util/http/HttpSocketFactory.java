@@ -6,22 +6,27 @@ package com.thinkparity.codebase.model.util.http;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
-
-import com.thinkparity.codebase.net.SocketFactory;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 
+import com.thinkparity.network.Network;
+import com.thinkparity.network.NetworkAddress;
+import com.thinkparity.network.NetworkConnection;
+import com.thinkparity.network.NetworkException;
+import com.thinkparity.network.NetworkProtocol;
+
 /**
- * <b>Title:</b>thinkParity Ophelia Web Service Protocol Socket Factory<br>
+ * <b>Title:</b>thinkParity Codebase Http Socket Factory<br>
  * <b>Description:</b><br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class HttpSocketFactory implements ProtocolSocketFactory {
+public class HttpSocketFactory implements ProtocolSocketFactory {
 
     /**
      * Obtain a custom instance of the http socket factory.
@@ -29,28 +34,45 @@ public final class HttpSocketFactory implements ProtocolSocketFactory {
      * @return A <code>HttpSocketFactory</code>.
      */
     public static HttpSocketFactory getInstance() {
-        return new HttpSocketFactory(SocketFactory.getSecureInstance());
+        return new HttpSocketFactory(NetworkProtocol.getProtocol("http"));
     }
 
-    /** A socket factory. */
-    private final javax.net.SocketFactory socketFactory;
+    /**
+     * Create a network address for a host/port pair.
+     * 
+     * @param host
+     *            A <code>String</code>.
+     * @param port
+     *            A <code>int</code>.
+     * @return A <code>NetworkAddress</code>.
+     */
+    private static NetworkAddress newAddress(final String host, final int port) {
+        return new NetworkAddress(host, port);
+    }
+
+    /** A network. */
+    private final Network network;
+
+    /** A network protocol. */
+    private final NetworkProtocol protocol;
 
     /**
      * Create SocketFactory.
      *
      */
-    private HttpSocketFactory(final javax.net.SocketFactory socketFactory) {
+    protected HttpSocketFactory(final NetworkProtocol protocol) {
         super();
-        this.socketFactory = socketFactory;
+        this.network = new Network();
+        this.protocol = protocol;
     }
 
     /**
      * @see org.apache.commons.httpclient.protocol.ProtocolSocketFactory#createSocket(java.lang.String, int)
      *
      */
-    public Socket createSocket(final String host, final int port) throws IOException,
-            UnknownHostException {
-        return socketFactory.createSocket(host, port);
+    public Socket createSocket(final String host, final int port)
+            throws IOException, UnknownHostException {
+        return createSocket(newAddress(host, port));
     }
 
     /**
@@ -60,7 +82,8 @@ public final class HttpSocketFactory implements ProtocolSocketFactory {
     public Socket createSocket(final String host, final int port,
             final InetAddress localAddress, final int localPort)
             throws IOException, UnknownHostException {
-        return socketFactory.createSocket(host, port, localAddress, localPort);
+        /* the local address/port are deliberately ignored */
+        return createSocket(host, port);
     }
 
     /**
@@ -71,23 +94,36 @@ public final class HttpSocketFactory implements ProtocolSocketFactory {
             final InetAddress localAddress, final int localPort,
             final HttpConnectionParams params) throws IOException,
             UnknownHostException, ConnectTimeoutException {
-        final Socket socket = createSocket(host, port, localAddress, localPort);
-        if (params.isParameterSet(HttpConnectionParams.SO_TIMEOUT)) {
-            socket.setSoTimeout(params.getIntParameter(HttpConnectionParams.SO_TIMEOUT, 0));
+        /* the local address/port are deliberately ignored */
+        /* the params are deliberately ignored */
+        return createSocket(host, port);
+    }
+
+    /**
+     * Obtain a socket connected to the network address.
+     * 
+     * @param address
+     *            A <code>NetworkAddress</code>.
+     * @return A <code>Socket</code>.
+     */
+    private Socket createSocket(final NetworkAddress address) throws SocketException {
+        final NetworkConnection connection = newConnection(address);
+        try {
+            connection.connect();
+        } catch (final NetworkException nx) {
+            throw new SocketException(nx.getMessage());
         }
-        if (params.isParameterSet(HttpConnectionParams.TCP_NODELAY)) {
-            socket.setTcpNoDelay(params.getBooleanParameter(HttpConnectionParams.TCP_NODELAY, false));
-        }
-        if (params.isParameterSet(HttpConnectionParams.SO_SNDBUF)) {
-            socket.setSendBufferSize(params.getIntParameter(HttpConnectionParams.SO_SNDBUF, 0));
-        }
-        if (params.isParameterSet(HttpConnectionParams.SO_RCVBUF)) {
-            socket.setReceiveBufferSize(params.getIntParameter(HttpConnectionParams.SO_RCVBUF, 0));
-        }
-        if (params.isParameterSet(HttpConnectionParams.SO_LINGER)
-                && 0 < params.getIntParameter(HttpConnectionParams.SO_LINGER, 0)) {
-            socket.setSoLinger(true, params.getIntParameter(HttpConnectionParams.SO_LINGER, 0));
-        }
-        return socket;
+        return connection.getSocket();
+    }
+
+    /**
+     * Create a new network connection.
+     * 
+     * @param address
+     *            A <code>NetworkAddress</code>.
+     * @return A <code>NetworkConnection</code>.
+     */
+    private NetworkConnection newConnection(final NetworkAddress address) {
+        return network.newConnection(protocol, address);
     }
 }

@@ -8,19 +8,21 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.*;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
-import java.util.List;
 
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 
+import com.thinkparity.network.NetworkException;
 import com.thinkparity.service.ServiceHelper;
 import com.thinkparity.service.client.*;
 import com.thoughtworks.xstream.XStream;
@@ -40,27 +42,17 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     /** The xml charset (encoding). */
     private static final Charset CHARSET;
 
-    /** A timeout for check online. */
-    private static final int CHECK_ONLINE_TIMEOUT;
-
-    /** A number of retry attempts check online. */
-    private static final int CHECK_ONLINE_RETRY_ATTEMPTS;
-
     /** The error response attribute names. */
     private static final String[] ERROR_XML_ATTRIBUTE_NAMES;
 
     /** A log4j wrapper. */
     private static final Log4JWrapper LOGGER;
 
-    /** A proxy selector. */
-    private static final ProxySelector PROXY_SELECTOR;
-
     /** The request xml components. */
     private static final char[][] REQUEST_XML;
 
     /** The possible node names for the response xml. */
     private static final String[] RESPONSE_NODE_NAMES;
-
     /** A <code>ServiceHelper</code>. */
     private static final ServiceHelper SERVICE_HELPER;
 
@@ -73,8 +65,6 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
         ERROR_XML_ATTRIBUTE_NAMES = new String[] { "message", "type" };
 
         LOGGER = new Log4JWrapper(HttpServiceProxy.class);
-
-        PROXY_SELECTOR = ProxySelector.getDefault();
 
         REQUEST_XML = new char[][] {
                 "<?xml version=\"1.0\" encoding=\"".toCharArray(),
@@ -90,10 +80,6 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
         };
 
         SERVICE_HELPER = new ServiceHelper();
-
-        CHECK_ONLINE_TIMEOUT = 750 * 3;
-
-        CHECK_ONLINE_RETRY_ATTEMPTS = 3;
 
         XSTREAM = new XStream();
     }
@@ -259,26 +245,6 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     }
 
     /**
-     * Select a list of proxies for a host address and port.
-     * 
-     * @param host
-     *            An <code>InetAddress</code>.
-     * @param port
-     *            A port <code>int</code>.
-     * @return A <code>Proxy</code> <code>List</code>.
-     */
-    private static List<Proxy> selectProxies(
-            final InetSocketAddress inetSocketAddress) {
-        try {
-            return PROXY_SELECTOR.select(new URI(MessageFormat.format(
-                    "socket://{0}:{1}", inetSocketAddress.getHostName(),
-                    inetSocketAddress.getPort())));
-        } catch (final URISyntaxException urisx) {
-            throw new IllegalArgumentException(urisx);
-        }
-    }
-
-    /**
      * Unmarshall the error stack trace of the response.
      * 
      * @param xppReader
@@ -363,7 +329,6 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
                 postMethod.setRequestHeader("operationId", serviceRequest.getService().getId());
                 postMethod.setRequestEntity(this);
                 httpClient = context.getHttpClient();
-                ensureOnline();
                 httpClient.executeMethod(postMethod);
 
                 /* extract the response; a 200 status code will be used even in the
@@ -401,9 +366,13 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
                             postMethod.getStatusCode());
                 }
             } catch (final UnknownHostException uhx) {
-                throw new ServiceException(uhx);
+                throw new NetworkException(uhx);
             } catch (final SocketException sx) {
-                throw new ServiceException(sx);
+                throw new NetworkException(sx);
+            } catch (final HttpException hx) {
+                throw new NetworkException(hx);
+            } catch (final IOException iox) {
+                throw new NetworkException(iox);
             } finally {
                 postMethod.releaseConnection();
             }
@@ -427,71 +396,6 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     public void writeRequest(final OutputStream stream) throws IOException {
         writeRequest(context.getLogWriter());
         writeRequest(newStreamWriter(stream));
-    }
-
-    /**
-     * Ensure if we are online by resolving the address of the context host; and
-     * opening a socket to the host at the port.
-     * 
-     * @throws UnknownHostException
-     *             if the address cannot be resolved; or if the address is null
-     */
-    private void ensureOnline() throws UnknownHostException, SocketException {
-        for (int i = 0; i < CHECK_ONLINE_RETRY_ATTEMPTS; i++) {
-            try {
-                LOGGER.logInfo("Ensure online attempt {0}/{1}.", i, CHECK_ONLINE_RETRY_ATTEMPTS);
-                attemptEnsureOnline();
-                break;
-            } catch (final UnknownHostException uhx) {
-                if (i < CHECK_ONLINE_RETRY_ATTEMPTS - 1) {
-                    LOGGER.logWarning(uhx, "Could not ensure online status.");
-                } else {
-                    LOGGER.logError(uhx, "Could not ensure online status.");
-                    throw uhx;
-                }
-            } catch (final SocketException sx) {
-                if (i < CHECK_ONLINE_RETRY_ATTEMPTS - 1) {
-                    LOGGER.logWarning(sx, "Could not ensure online status.");
-                } else {
-                    LOGGER.logError(sx, "Could not ensure online status.");
-                    throw sx;
-                }
-            }
-        }
-    }
-
-    private void attemptEnsureOnline() throws UnknownHostException,
-            SocketException {
-        final InetAddress inetAddress = InetAddress.getByName(context.getHost());
-        if (null == inetAddress) {
-            throw new UnknownHostException(context.getHost());
-        }
-        final InetSocketAddress inetSocketAddress =
-            new InetSocketAddress(inetAddress, context.getPort());
-        /* attempt to establish a connection to a host/port through a specified
-         * proxy - the first connection wins */
-        final List<Proxy> proxies = selectProxies(inetSocketAddress);
-        Socket socket = null;
-        try {
-            for (final Proxy proxy : proxies) {
-                socket = new Socket(proxy);
-                socket.connect(inetSocketAddress, CHECK_ONLINE_TIMEOUT);
-                break;
-            }
-        } catch (final IOException iox) {
-            LOGGER.logWarning(iox, "Online check failed.");
-            throw new ConnectException(context.getHost());
-        } finally {
-            if (null != socket) {
-                try {
-                    socket.close();
-                } catch (final IOException iox) {
-                    LOGGER.logWarning(iox, "Online check could not close socket.");
-                } finally {
-                    socket = null;
-                }
-            }
-        }
     }
 
     /**

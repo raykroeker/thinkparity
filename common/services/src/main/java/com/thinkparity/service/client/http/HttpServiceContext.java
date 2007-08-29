@@ -128,7 +128,7 @@ final class HttpServiceContext implements ServiceContext {
     public void setContentType(final String contentType) {
         this.contentType = contentType;
     }
-    
+
     /**
      * Set httpClient.
      *
@@ -138,7 +138,7 @@ final class HttpServiceContext implements ServiceContext {
     public void setHttpClient(final HttpClient httpClient) {
         this.httpClient = httpClient;
     }
-
+    
     /** <b>Title:</b>Http Service Context Log4J Writer<br> */
     private class Log4JWriter extends Writer {
 

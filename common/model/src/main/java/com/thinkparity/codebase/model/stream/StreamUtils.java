@@ -41,8 +41,6 @@ public final class StreamUtils {
         HTTP_CLIENT.setHttpConnectionManager(new HttpConnectionManager());
         HTTP_CLIENT.getHttpConnectionManager().getParams().setMaxTotalConnections(3);
         HTTP_CLIENT.getHttpConnectionManager().getParams().setSoTimeout(7 * 1000);
-        // NOCOMMIT
-        // HTTP_CLIENT.getHttpConnectionManager().getParams().setTcpNoDelay(true);
         LOGGER = new Log4JWrapper(StreamUtils.class);
     }
 

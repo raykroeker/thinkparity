@@ -7,13 +7,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 
 import com.thinkparity.codebase.model.util.http.HttpUtils;
 
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.ProtocolException;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
+
+import com.thinkparity.network.NetworkException;
 
 /**
  * <b>Title:</b>thinkParity CommonModel Stream Writer<br>
@@ -26,6 +29,9 @@ public final class StreamWriter implements RequestEntity {
 
     /** A stream monitor. */
     private final StreamMonitor monitor;
+
+    /** The http put method. */
+    private PutMethod putMethod;
 
     /** A stream session. */
     private final StreamSession session;
@@ -50,6 +56,19 @@ public final class StreamWriter implements RequestEntity {
         this.monitor = monitor;
         this.session = session;
         this.utils = new StreamUtils();
+    }
+
+    /**
+     * Abort the stream write.
+     * 
+     */
+    public void abort() {
+        if (null == putMethod) {
+            return;
+        } else {
+            putMethod.abort();
+            putMethod = null;
+        }
     }
 
     /**
@@ -84,7 +103,8 @@ public final class StreamWriter implements RequestEntity {
      * @param streamSize
      *            The stream size <code>Long</code>.
      */
-    public void write(final InputStream stream, final Long streamSize) {
+    public void write(final InputStream stream, final Long streamSize)
+            throws NetworkException {
         this.stream = stream;
         this.streamSize = streamSize;
         try {
@@ -102,8 +122,12 @@ public final class StreamWriter implements RequestEntity {
         int len = 0;
         final byte[] b = new byte[session.getBufferSize()];
         while ((len = stream.read(b)) > 0) {
-            out.write(b, 0, len);
-            out.flush();
+            try {
+                out.write(b, 0, len);
+                out.flush();
+            } catch (final IOException iox) {
+                throw new IOException(new NetworkException(iox));
+            }
             fireChunkSent(len);
         }
     }
@@ -114,39 +138,45 @@ public final class StreamWriter implements RequestEntity {
      * @throws HttpException
      * @throws IOException
      */
-    private void executePut() throws IOException {
+    private void executePut() throws NetworkException, IOException {
         StreamClientMetrics.begin(session);
         try {
-            final PutMethod method = new PutMethod(session.getURI());
+            putMethod = new PutMethod(session.getURI());
             try {
-                utils.setHeaders(method, session.getHeaders());
-                method.setRequestEntity(this);
-                switch (utils.execute(method)) {
+                utils.setHeaders(putMethod, session.getHeaders());
+                putMethod.setRequestEntity(this);
+                switch (utils.execute(putMethod)) {
                 case 200:
                     break;
                 case 500:
-                    utils.writeError(method);
+                    utils.writeError(putMethod);
                     throw new StreamException(Boolean.TRUE,
                             "Could not upload stream.  {0}:{1}{2}{3}",
-                            method.getStatusCode(), method.getStatusLine(),
-                            "\n\t", method.getStatusText());
+                            putMethod.getStatusCode(),
+                            putMethod.getStatusLine(), "\n\t",
+                            putMethod.getStatusText());
                 default:
-                    utils.writeError(method);
+                    utils.writeError(putMethod);
                     throw new StreamException(
                             "Could not upload stream.  {0}:{1}{2}{3}",
-                            method.getStatusCode(), method.getStatusLine(),
-                            "\n\t", method.getStatusText());
+                            putMethod.getStatusCode(),
+                            putMethod.getStatusLine(), "\n\t",
+                            putMethod.getStatusText());
                 }
-            } catch (final ProtocolException px) {
-                utils.writeError(method);
-                throw new StreamException(Boolean.TRUE,
-                        "Could not upload stream.  {0}", px.getMessage());
+            } catch (final UnknownHostException uhx) {
+                utils.writeError(putMethod);
+                throw new NetworkException(uhx);
             } catch (final SocketException sx) {
-                utils.writeError(method);
-                throw new StreamException(Boolean.TRUE,
-                        "Could not upload stream.  {0}", sx.getMessage());
+                utils.writeError(putMethod);
+                throw new NetworkException(sx);
+            } catch (final SocketTimeoutException stx) {
+                utils.writeError(putMethod);
+                throw new NetworkException(stx);
+            } catch (final HttpException hx) {
+                utils.writeError(putMethod);
+                throw new NetworkException(hx);
             } finally {
-                method.releaseConnection();
+                putMethod.releaseConnection();
             }
         } finally {
             StreamClientMetrics.end("PUT", session);

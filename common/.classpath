@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="codebase/src/main/java"/>
-	<classpathentry kind="src" path="codebase/src/test/java"/>
+	<classpathentry kind="src" path="network/src/main/java"/>
 	<classpathentry kind="src" path="model/src/main/java"/>
-	<classpathentry kind="src" path="model/src/test/java"/>
-	<classpathentry kind="src" path="junitx/src/main/java"/>
 	<classpathentry kind="src" path="services/src/main/java"/>
-	<classpathentry kind="src" path="xdoclet/src/main/java"/>
-	<classpathentry kind="src" path="services/src/test/java"/>
 	<classpathentry kind="src" path="services/src/main/resources"/>
+	<classpathentry kind="src" path="xdoclet/src/main/java"/>
+	<classpathentry kind="src" path="junitx/src/main/java"/>
+	<classpathentry kind="src" path="junitx/src/main/resources"/>
+	<classpathentry kind="src" path="codebase/src/test/java"/>
+	<classpathentry kind="src" path="network/src/test/java"/>
+	<classpathentry kind="src" path="network/src/test/resources"/>
+	<classpathentry kind="src" path="model/src/test/java"/>
+	<classpathentry kind="src" path="services/src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/commons-codec/1.3/commons-codec.jar" sourcepath="/THINKPARITY_HOME/vendor/commons-codec/1.3/commons-codec-sources.jar"/>
 	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/dom4j/1.6.1/dom4j.jar" sourcepath="/THINKPARITY_HOME/vendor/dom4j/1.6.1/dom4j-sources.jar"/>

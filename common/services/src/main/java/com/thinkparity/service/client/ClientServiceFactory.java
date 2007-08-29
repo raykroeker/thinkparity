@@ -15,13 +15,13 @@ import com.thinkparity.service.client.http.HttpProxyFactory;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ServiceFactory {
+public final class ClientServiceFactory implements ServiceFactory {
 
     /** A singleton instance of the service factory. */
-    private static final ServiceFactory SINGLETON;
+    private static final ClientServiceFactory SINGLETON;
 
     static {
-        SINGLETON = new ServiceFactory();
+        SINGLETON = new ClientServiceFactory();
 
         System.setProperty("networkaddress.cache.ttl", String.valueOf(1));
         System.setProperty("networkaddress.cache.negative.ttl", String.valueOf(1));
@@ -32,7 +32,7 @@ public final class ServiceFactory {
      * 
      * @return A <code>ServiceFactory</code>.
      */
-    public static ServiceFactory getInstance() {
+    public static ClientServiceFactory getInstance() {
         return SINGLETON;
     }
 
@@ -43,7 +43,7 @@ public final class ServiceFactory {
      * Create ServiceFactory.
      *
      */
-    private ServiceFactory() {
+    private ClientServiceFactory() {
         super();
         this.proxyFactory = HttpProxyFactory.getInstance();
     }

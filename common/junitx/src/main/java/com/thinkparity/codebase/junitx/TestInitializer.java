@@ -131,7 +131,7 @@ class TestInitializer {
                 MessageFormat.format("{0}{1}{2}", loggingRoot,
                         File.separatorChar, "thinkParity XMPP.log"));
         // test logger
-        logging.setProperty("log4j.logger.TEST_LOGGER", "INFO, TEST_CONSOLE, TEST_FILE");
+        logging.setProperty("log4j.logger.TEST_LOGGER", "ALL, TEST_CONSOLE, TEST_FILE");
         logging.setProperty("log4j.additivity.TEST_LOGGER", "false");
         // ophelia loggers
         switch (mode) {
@@ -157,8 +157,8 @@ class TestInitializer {
         case DEVELOPMENT:
             logging.setProperty("log4j.rootLogger", "INFO, CONSOLE, DEFAULT");
 
-            logging.setProperty("log4j.logger.com.thinkparity.ophelia", "INFO, CONSOLE, DEFAULT");
-            logging.setProperty("log4j.additivity.com.thinkparity.ophelia", "false");
+            logging.setProperty("log4j.logger.com.thinkparity", "ALL, CONSOLE, DEFAULT");
+            logging.setProperty("log4j.additivity.com.thinkparity", "false");
 
             logging.setProperty("log4j.logger.METRIX_DEBUGGER", "TRACE, METRIX_DEBUGGER");
             logging.setProperty("log4j.additivity.METRIX_DEBUGGER", "false");

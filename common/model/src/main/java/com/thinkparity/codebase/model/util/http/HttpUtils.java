@@ -26,7 +26,8 @@ public final class HttpUtils {
     static {
         RFC_822_DATE_PATTERN = "EEE, dd MMM yyyy HH:mm:ss Z";
 
-        Protocol.registerProtocol("https", new Protocol("https", HttpSocketFactory.getInstance(), 443));
+        Protocol.registerProtocol("http", new Protocol("http", HttpSocketFactory.getInstance(), 80));
+        Protocol.registerProtocol("https", new Protocol("https", HttpsSocketFactory.getInstance(), 443));
     }
 
     /**

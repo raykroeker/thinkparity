@@ -4,16 +4,19 @@
 package com.thinkparity.ophelia.model.queue.notification;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Observable;
 
-import com.thinkparity.codebase.BytesFormat;
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
-import com.thinkparity.codebase.model.queue.notification.NotificationException;
-import com.thinkparity.codebase.model.queue.notification.NotificationMonitor;
-import com.thinkparity.codebase.model.queue.notification.NotificationReader;
+import com.thinkparity.codebase.model.queue.notification.NotificationHeader;
 import com.thinkparity.codebase.model.queue.notification.NotificationSession;
+
+import com.thinkparity.network.Network;
+import com.thinkparity.network.NetworkAddress;
+import com.thinkparity.network.NetworkConnection;
+import com.thinkparity.network.NetworkException;
+import com.thinkparity.network.NetworkProtocol;
 
 /**
  * <b>Title:</b>thinkParity Ophelia Model Queue Notification Client<br>
@@ -26,24 +29,27 @@ import com.thinkparity.codebase.model.queue.notification.NotificationSession;
  */
 public final class NotificationClient extends Observable implements Runnable {
 
-    /**
-     * Maximum number of attempts to open the notification reader before giving
-     * up.
-     */
-    private static final int MAX_OPEN_ATTEMPTS;
+    /** A number of retry attempts for a connect. */
+    private static final int CONNECT_RETRY;
 
     static {
-        MAX_OPEN_ATTEMPTS = 3;
+        CONNECT_RETRY = 3;
     }
+
+    /** A network connection. */
+    private NetworkConnection connection;
 
     /** A log4j wrapper. */
     private final Log4JWrapper logger;
 
-    /** A notify override. */
+    /** The network. */
+    private final Network network;
+
+    /** A notify flag. */
     private Boolean notify;
 
-    /** A notification reader. */
-    private NotificationReader reader;
+    /** An online flag. */
+    private Boolean online;
 
     /** A run indicator. */
     private boolean run;
@@ -61,63 +67,7 @@ public final class NotificationClient extends Observable implements Runnable {
     public NotificationClient() {
         super();
         this.logger = new Log4JWrapper(getClass());
-        this.run = true;
-    }
-
-    /**
-     * Disconnect the notification client.
-     * 
-     */
-    public void disconnect() {
-        run = false;
-        try {
-            reader.close(Boolean.FALSE);
-        } catch (final IOException iox) {
-            logger.logError(iox, "An error occured closing notification reader.");
-        }
-        if (reader.isOpen()) {
-            try {
-                reader.close(Boolean.TRUE);
-            } catch (final IOException iox) {
-                logger.logWarning(iox, "An error occured closing notification reader.");
-            }
-        }
-    }
-
-    /**
-     * Obtain the notification session.
-     * 
-     * @return A <code>NotificationSession</code>.
-     */
-    public NotificationSession getSession() {
-        return session;
-    }
-
-    /**
-     * Connect the notification client.
-     * 
-     */
-    public void connect() {
-        this.reader = new NotificationReader(newMonitor(), session);
-        int openAttempt = 0;
-        while (true) {
-            try {
-                reader.open();
-                break;
-            } catch (final Throwable t) {
-                openAttempt++;
-                logger.logWarning(t,
-                        "Could not connect notification reader {0}/{1}.",
-                        openAttempt, MAX_OPEN_ATTEMPTS);
-                if (openAttempt > MAX_OPEN_ATTEMPTS) {
-                    throw new NotificationException("Could not connect notification reader.");
-                } else {
-                    try {
-                        Thread.sleep(750);
-                    } catch (final InterruptedException ix) {}
-                }
-            }
-        }
+        this.network = new Network();
     }
 
     /**
@@ -125,39 +75,27 @@ public final class NotificationClient extends Observable implements Runnable {
      *
      */
     public void run() {
+        run = true;
+        if (null == connection || !connection.isConnected()) {
+            connect();
+        }
+        writeHeader();
+
         while (run) {
-            if (isConnected()) {
-                /* allow for a single use notification override */
+            if (online) {
                 if (notify) {
                     notify = Boolean.FALSE;
                     setChanged();
                     notifyPendingEvents();
                 } else {
-                    reader.waitForNotification();
-                    if (reader.didNotify()) {
-                        setChanged();
-                        notifyPendingEvents();
-                    }
+                    update();
                 }
             } else {
-                try {
-                    connect();
-                } catch (final NotificationException nx) {
-                    run = false;
-                    setChanged();
-                    notifyClientOffline();
-                }
+                run = false;
+                setChanged();
+                notifyOffline();
             }
         }
-    }
-
-    /**
-     * Determine if the client is connected.
-     * 
-     * @return True if the reader is not null and is open.
-     */
-    private boolean isConnected() {
-        return null != reader && reader.isOpen().booleanValue(); 
     }
 
     /**
@@ -181,74 +119,45 @@ public final class NotificationClient extends Observable implements Runnable {
     }
 
     /**
-     * Create a new notification monitor.
+     * Stop the notification client.
      * 
-     * @return A <code>NotificationMonitor</code>.
      */
-    private NotificationMonitor newMonitor() {
-        final BytesFormat bytesFormat = new BytesFormat();
-        return new NotificationMonitor() {
-
-            /**
-             * @see com.thinkparity.codebase.model.queue.notification.NotificationMonitor#chunkReceived(int)
-             *
-             */
-            public void chunkReceived(final int chunkSize) {
-                logger.logDebug("A notification client chunk ({0}) has been received.{1}    {2}",
-                        bytesFormat.format(Integer.valueOf(chunkSize)),
-                        Separator.SystemNewLine, session);
-            }
-
-            /**
-             * @see com.thinkparity.codebase.model.queue.notification.NotificationMonitor#chunkSent(int)
-             *
-             */
-            public void chunkSent(final int chunkSize) {
-                logger.logDebug("A notification client chunk ({0}) has been sent.{1}    {2}",
-                        bytesFormat.format(Integer.valueOf(chunkSize)),
-                        Separator.SystemNewLine, session);
-            }
-
-            /**
-             * @see com.thinkparity.codebase.model.queue.notification.NotificationMonitor#headerReceived(java.lang.String)
-             *
-             */
-            public void headerReceived(final String header) {
-                logger.logDebug("A notification client stream header {0} has been received.{1}    {2}",
-                        header, Separator.SystemNewLine, session);
-            }
-
-            /**
-             * @see com.thinkparity.codebase.model.queue.notification.NotificationMonitor#headerSent(java.lang.String)
-             *
-             */
-            public void headerSent(final String header) {
-                logger.logDebug("A notification client stream header {0} has been sent.{1}    {2}",
-                        header, Separator.SystemNewLine, session);
-            }
-
-            /**
-             * @see com.thinkparity.codebase.model.queue.notification.NotificationMonitor#streamError(com.thinkparity.codebase.model.queue.notification.NotificationException)
-             *
-             */
-            public void streamError(final NotificationException error) {
-                logger.logWarning(error, "A notification client stream error has occured.{0}    {1}",
-                        Separator.SystemNewLine, session);
-                try {
-                    reader.close(Boolean.TRUE);
-                } catch (final IOException iox) {
-                    logger.logWarning(iox, "An error occured closing notification client reader.");
-                }
-            }
-        };
+    public void stop() {
+        run = false;
     }
 
     /**
-     * Notify all observers that the client is offline.
-     *
+     * Connect the notification client.
+     * 
      */
-    private void notifyClientOffline() {
-        notifyObservableEvent(ObservableEvent.CLIENT_OFFLINE);
+    private void connect() {
+        online = Boolean.FALSE;
+        connection = network.newConnection(
+                NetworkProtocol.getProtocol("socket"), new NetworkAddress(
+                        session.getServerHost(), session.getServerPort()));
+        network.getConfiguration().setConnectTimeout(connection, 750 * 2);
+        network.getConfiguration().setSoTimeout(connection, 35 * 1000);
+
+        for (int i = 0; i < CONNECT_RETRY; i++) {
+            try {
+                connection.connect();
+                connection.write(getHeaderBytes());
+                online = Boolean.TRUE;
+                break;
+            } catch (final NetworkException nx) {
+                logger.logError("Cannot connect.", nx.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Obtain the header bytes to write to the connection.
+     * 
+     * @return A <code>byte[]</code>.
+     */
+    private byte[] getHeaderBytes() {
+        return new NotificationHeader(NotificationHeader.Type.SESSION_ID,
+                session.getId()).toHeader().getBytes(session.getCharset());
     }
 
     /**
@@ -267,6 +176,14 @@ public final class NotificationClient extends Observable implements Runnable {
     }
 
     /**
+     * Notify all observers that the client is offline.
+     *
+     */
+    private void notifyOffline() {
+        notifyObservableEvent(ObservableEvent.OFFLINE);
+    }
+
+    /**
      * Notify all observers that there are pending events.
      *
      */
@@ -274,6 +191,42 @@ public final class NotificationClient extends Observable implements Runnable {
         notifyObservableEvent(ObservableEvent.PENDING_EVENTS);
     }
 
+    /**
+     * Update. Read the connection and if any bytes are returned; we are online;
+     * if the bytes match the session id; we have new events.
+     * 
+     */
+    private void update() {
+        notify = online = Boolean.FALSE;
+        final String sessionId = session.getId();
+        final byte[] bytes = new byte[sessionId.getBytes().length];
+        try {
+            connection.read(bytes);
+            online = Boolean.TRUE;
+        } catch (final NetworkException nx) {
+            Arrays.fill(bytes, (byte) 0);
+            logger.logWarning("Network error reading connection.  {0}",
+                    nx.getMessage());
+        }
+        if (Arrays.equals(sessionId.getBytes(session.getCharset()), bytes)) {
+            notify = Boolean.TRUE;
+        }
+    }
+
+    /**
+     * Write the session id header.
+     * 
+     */
+    private void writeHeader() {
+        online = Boolean.FALSE;
+        try {
+            connection.write(getHeaderBytes());
+            online = Boolean.TRUE;
+        } catch (final NetworkException nx) {
+            logger.logError("Cannot write header.", nx.getMessage());
+        }
+    }
+
     /** <b>Title:</b>Observable Event<br> */
-    public enum ObservableEvent { CLIENT_OFFLINE, PENDING_EVENTS }
+    public enum ObservableEvent { OFFLINE, PENDING_EVENTS }
 }

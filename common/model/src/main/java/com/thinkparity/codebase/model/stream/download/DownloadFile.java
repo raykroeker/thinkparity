@@ -15,10 +15,12 @@ import com.thinkparity.codebase.delegate.CancelException;
 import com.thinkparity.codebase.delegate.Cancelable;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
-import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamReader;
+import com.thinkparity.codebase.model.stream.StreamRetryHandler;
 import com.thinkparity.codebase.model.stream.StreamSession;
+
+import com.thinkparity.network.NetworkException;
 
 /**
  * <b>Title:</b>thinkParity Model Codebase Stream Download File<br>
@@ -39,6 +41,9 @@ public final class DownloadFile implements Cancelable {
 
     /** A log4j wrapper. */
     private static final Log4JWrapper LOGGER;
+
+    /** The duration to wait between retry attempts. */
+    private static final long RETRY_PERIOD;
 
     static {
         BYTES_FORMAT = new BytesFormat();
@@ -68,13 +73,16 @@ public final class DownloadFile implements Cancelable {
             }
         };
         LOGGER = new Log4JWrapper(DownloadFile.class);
+        RETRY_PERIOD = 1 * 1000;
     }
+    /** The invocation count. */
+    private int invocation;
 
     /** The stream monitor. */
     private final StreamMonitor monitor;
 
-    /** The interpreted number of retry attempts. */
-    private final int retryAttempts;
+    /** A stream retry handler. */
+    private final StreamRetryHandler retryHandler;
 
     /** The stream session. */
     private final StreamSession session;
@@ -93,28 +101,30 @@ public final class DownloadFile implements Cancelable {
      * 
      * @param monitor
      *            A <code>StreamMonitor</code>.
+     * @param retryHandler
+     *            A <code>StreamRetryHandler</code>.
      * @param session
      *            A <code>StreamSession</code>.
      */
-    public DownloadFile(final StreamMonitor monitor, final StreamSession session) {
+    public DownloadFile(final StreamMonitor monitor,
+            final StreamRetryHandler retryHandler, final StreamSession session) {
         super();
         this.monitor = monitor;
+        this.retryHandler = retryHandler;
         this.session = session;
-        if (null == session.getRetryAttempts() || 1 > session.getRetryAttempts()) {
-            this.retryAttempts = 1;
-        } else {
-            this.retryAttempts = session.getRetryAttempts();
-        }
     }
 
     /**
      * Create DownloadFile.
      * 
+     * @param retryHandler
+     *            A <code>StreamRetryHandler</code>.
      * @param session
      *            A <code>StreamSession</code>.
      */
-    public DownloadFile(final StreamSession session) {
-        this(DEFAULT_MONITOR, session);
+    public DownloadFile(final StreamRetryHandler retryHandler,
+            final StreamSession session) {
+        this(DEFAULT_MONITOR, retryHandler, session);
     }
 
     /**
@@ -147,24 +157,31 @@ public final class DownloadFile implements Cancelable {
      *            A <code>File</code> to download to. The target must not be
      *            null; the file must exist and must be a file.
      */
-    public void download(final File target) throws IOException {
+    public void download(final File target) throws NetworkException, IOException {
         try {
             this.target = target;
-            for (int i = 0; i < retryAttempts; i++) {
+            invocation = 0;
+            while (true) {
+                LOGGER.logInfo("Download file attempt {0}.", ++invocation);
                 ensureDownload();
                 try {
-                    LOGGER.logInfo("Download attempt {0}/{1}.", i, retryAttempts);
                     attemptDownload();
                     break;
-                } catch (final StreamException sx) {
-                    if (sx.isRecoverable()) {
-                        LOGGER.logWarning("Could not download target.");
-                        Assert.assertTrue(target.delete(),
-                                "Could not delete download target {0}.", target);
-                        Assert.assertTrue(target.createNewFile(),
-                                "Could not delete download target {0}.", target);
+                } catch (final NetworkException nx) {
+                    LOGGER.logWarning("Could not download target.");
+                    Assert.assertTrue(target.delete(),
+                            "Could not delete download target {0}.", target);
+                    Assert.assertTrue(target.createNewFile(),
+                            "Could not delete download target {0}.", target);
+                    if (retry()) {
+                        try {
+                            Thread.sleep(RETRY_PERIOD);
+                        } catch (final InterruptedException ix) {
+                            LOGGER.logWarning("Upload file retry interruped.  {0}",
+                                    ix.getMessage());
+                        }
                     } else {
-                        throw sx;
+                        throw nx;
                     }
                 }
             }
@@ -182,7 +199,7 @@ public final class DownloadFile implements Cancelable {
      * 
      * @throws IOException
      */
-    private void attemptDownload() throws IOException {
+    private void attemptDownload() throws NetworkException, IOException {
         streamReader = new StreamReader(monitor, session);
         try {
             targetOutputStream = new FileOutputStream(target);
@@ -222,5 +239,13 @@ public final class DownloadFile implements Cancelable {
             throw new IllegalArgumentException(MessageFormat.format(error,
                     target, session));
         }
+    }
+    /**
+     * Determine whether or not to retry a download.
+     * 
+     * @return True if a retry should be attempted.
+     */
+    private boolean retry() {
+        return retryHandler.retry().booleanValue();
     }
 }

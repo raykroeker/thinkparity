@@ -16,7 +16,7 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 
 /**
- * <b>Title:</b>thinkParity Codebase Symmetric Encrypt File<br>
+ * <b>Title:</b>thinkParity Codebase Symmetric Encrypt Stream<br>
  * <b>Description:</b><br>
  * 
  * @author raymond@thinkparity.com
@@ -47,7 +47,7 @@ public final class EncryptStream {
     }
 
     /**
-     * Encrypt a file.
+     * Encrypt a stream.
      * 
      * @param key
      *            A <code>Key</code>.

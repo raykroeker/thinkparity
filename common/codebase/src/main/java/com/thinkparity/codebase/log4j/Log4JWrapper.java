@@ -3,8 +3,10 @@
  */
 package com.thinkparity.codebase.log4j;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.StackUtil;
@@ -12,6 +14,7 @@ import com.thinkparity.codebase.StackUtil;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.NDC;
+import org.apache.log4j.PropertyConfigurator;
 
 /**
  * @author raymond@thinkparity.com
@@ -35,6 +38,9 @@ public class Log4JWrapper {
     /** An apache logger. */
     private final Logger logger;
 
+    /** A set of renderers that have not yet been configured. */
+    private final Properties renderers;
+
     /**
      * Create Log4JWrapper.  This will create a logger for the instantiator
      * of this class.
@@ -53,7 +59,7 @@ public class Log4JWrapper {
      *            The class to use when creating the logger.
      * @see Logger#getLogger(Class)
      */
-    public Log4JWrapper(final Class clasz) {
+    public Log4JWrapper(final Class<?> clasz) {
         this(Logger.getLogger(clasz));
     }
 
@@ -66,6 +72,7 @@ public class Log4JWrapper {
     public Log4JWrapper(final Logger logger) {
         super();
         this.logger = logger;
+        this.renderers = new Properties();
     }
 
     /**
@@ -86,6 +93,14 @@ public class Log4JWrapper {
      */
     public final void clearContext() {
         NDC.clear();
+    }
+
+    /**
+     * Apply the renderer configuration.
+     * 
+     */
+    public void configureRenderers() {
+        PropertyConfigurator.configure(renderers);
     }
 
     public final String getErrorId(final String errorPattern,
@@ -391,6 +406,16 @@ public class Log4JWrapper {
      */
     public final void pushContext(final Log4JContext context) {
         NDC.push(context.getContext());
+    }
+
+    /**
+     * Set a renderer for a class.
+     * @param clasz
+     * @param render
+     */
+    public void setRenderer(final Class<?> render, final Class<?> renderer) {
+        renderers.setProperty(MessageFormat.format("log4j.renderer.{0}",
+                render.getName()), renderer.getName());
     }
 
     /**

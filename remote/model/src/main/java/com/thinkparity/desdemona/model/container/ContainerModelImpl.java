@@ -47,6 +47,7 @@ import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants.Versioning;
 import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
 import com.thinkparity.desdemona.model.artifact.RemoteArtifact;
+import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttachment;
@@ -102,6 +103,45 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             }
             userIds.add(version.getCreatedBy());
             enqueueEvents(userIds, event);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.container.ContainerModel#confirmRestore()
+     *
+     */
+    @Override
+    public void confirmRestoreBackup(final Calendar restoredOn) {
+        try {
+            final InternalBackupModel backupModel = getBackupModel();
+            if (backupModel.isBackupEnabled()) {
+                final List<Container> containers = backupModel.readContainers();
+                final List<ContainerVersion> versions = new ArrayList<ContainerVersion>();
+                final List<ArtifactReceipt> receipts = new ArrayList<ArtifactReceipt>();
+                for (final Container container : containers) {
+                    versions.clear();
+                    versions.addAll(backupModel.readContainerVersions(container.getUniqueId()));
+                    for (final ContainerVersion version : versions) {
+                        receipts.clear();
+                        receipts.addAll(backupModel.readPublishedTo(container.getUniqueId(), version.getVersionId()));
+                        for (final ArtifactReceipt receipt : receipts) {
+                            if (receipt.getUser().getId().equals(user.getId())) {
+                                /* the user matches the workflow user */
+                                if (!receipt.isSetReceivedOn()) {
+                                    /* the user has not confirmed */
+                                    confirmReceipt(version,
+                                            receipt.getPublishedOn(),
+                                            restoredOn);
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                logger.logWarning("Backup not enabled for user {0}.", user);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }

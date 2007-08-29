@@ -40,6 +40,17 @@ public interface ContainerService {
             Calendar publishedOn, Calendar receivedOn);
 
     /**
+     * Confirm restoration from backup.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param restoredOn
+     *            A <code>Calendar</code>.
+     */
+    @WebMethod
+    void confirmRestoreBackup(AuthToken authToken, Calendar restoredOn);
+
+    /**
      * Delete a container.
      * 
      * @param authToken

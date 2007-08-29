@@ -95,5 +95,14 @@ public interface ContainerModel {
      * 
      */
     public void publishWelcome();
+
+    /**
+     * Confirm restore from backup. For any container versions within the backup
+     * will be marked as received.
+     * 
+     * @param restoredOn
+     *            A <code>Calendar</code>.
+     */
+    void confirmRestoreBackup(final Calendar restoredOn);
 }
 

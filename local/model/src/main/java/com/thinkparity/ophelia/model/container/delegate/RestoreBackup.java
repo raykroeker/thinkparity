@@ -11,6 +11,7 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,9 @@ public final class RestoreBackup extends ContainerDelegate {
     /** The monitor data. */
     private final RestoreBackupData monitorData;
 
+    /** The date/time of restoration. */
+    private Calendar restoredOn;
+
     /**
      * Create RestoreBackup.
      *
@@ -80,6 +84,7 @@ public final class RestoreBackup extends ContainerDelegate {
     public void restoreBackup() throws CannotLockException, IOException,
             NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidKeyException {
+        restoredOn = getSessionModel().readDateTime();
         final List<Container> containers = read();
         monitorData.setDeleteContainers(containers);
         notifyStepBegin(monitor, RestoreBackupStep.DELETE_CONTAINERS, monitorData);
@@ -166,6 +171,33 @@ public final class RestoreBackup extends ContainerDelegate {
     }
 
     /**
+     * Create a crypto monitor that looks for decrypted bytes.
+     * 
+     * @return A <code>CryptoMonitor</code>.
+     */
+    private CryptoMonitor newCryptoMonitor() {
+        return new CryptoMonitor() {
+            /**
+             * @see com.thinkparity.codebase.crypto.CryptoMonitor#chunkDecrypted(int)
+             *
+             */
+            @Override
+            public void chunkDecrypted(final int chunkSize) {
+                monitorData.setBytes(chunkSize);
+                notifyStepBegin(monitor, RestoreBackupStep.RESTORE_DOCUMENT_VERSION_DECRYPT_BYTES, monitorData);
+                notifyStepEnd(monitor, RestoreBackupStep.RESTORE_DOCUMENT_VERSION_DECRYPT_BYTES);
+            }
+            /**
+             * @see com.thinkparity.codebase.crypto.CryptoMonitor#chunkEncrypted(int)
+             *
+             */
+            @Override
+            public void chunkEncrypted(final int chunkSize) {
+                Assert.assertUnreachable("Cannot encrypt from here.");
+            }
+        };
+    }
+    /**
      * Create a stream monitor for the download.
      * 
      * @return A <code>StreamMonitor</code>.
@@ -198,33 +230,6 @@ public final class RestoreBackup extends ContainerDelegate {
             public String getName() {
                 return MessageFormat.format("RestoreBackup#newStreamMonitor({0})",
                         version.getArtifactName());
-            }
-        };
-    }
-    /**
-     * Create a crypto monitor that looks for decrypted bytes.
-     * 
-     * @return A <code>CryptoMonitor</code>.
-     */
-    private CryptoMonitor newCryptoMonitor() {
-        return new CryptoMonitor() {
-            /**
-             * @see com.thinkparity.codebase.crypto.CryptoMonitor#chunkDecrypted(int)
-             *
-             */
-            @Override
-            public void chunkDecrypted(final int chunkSize) {
-                monitorData.setBytes(chunkSize);
-                notifyStepBegin(monitor, RestoreBackupStep.RESTORE_DOCUMENT_VERSION_DECRYPT_BYTES, monitorData);
-                notifyStepEnd(monitor, RestoreBackupStep.RESTORE_DOCUMENT_VERSION_DECRYPT_BYTES);
-            }
-            /**
-             * @see com.thinkparity.codebase.crypto.CryptoMonitor#chunkEncrypted(int)
-             *
-             */
-            @Override
-            public void chunkEncrypted(final int chunkSize) {
-                Assert.assertUnreachable("Cannot encrypt from here.");
             }
         };
     }
@@ -406,5 +411,7 @@ public final class RestoreBackup extends ContainerDelegate {
         }
         // index
         getIndexModel().indexContainer(container.getId());
+        /* restore */
+        containerService.confirmRestoreBackup(getAuthToken(), restoredOn);
     }
 }

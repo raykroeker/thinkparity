@@ -51,6 +51,16 @@ public class ContainerSEI extends ServiceSEI implements ContainerService {
     }
 
     /**
+     * @see com.thinkparity.service.ContainerService#confirmRestoreBackup(com.thinkparity.service.AuthToken)
+     * 
+     */
+    @Override
+    public void confirmRestoreBackup(final AuthToken authToken,
+            final Calendar restoredOn) {
+        getModel(authToken).confirmRestoreBackup(restoredOn);
+    }
+
+    /**
      * @see com.thinkparity.service.ContainerService#delete(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.container.Container)
      *
      */

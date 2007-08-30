@@ -51,7 +51,7 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
 		return id;
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getState()
      * 
      */
@@ -61,6 +61,24 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
 	}
 
 	/**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isAvatarBackgroundImage()
+     *
+	 */
+    @Override
+    public Boolean isAvatarBackgroundImage() {
+        // Default avatar background image is not required for tab avatars.
+        return Boolean.FALSE;
+    }
+
+	/**
+     * Re-initialize the tab.
+     *
+     */
+    public void reinitialize() {
+        model.reinitialize();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
      * 
      */
@@ -88,22 +106,12 @@ public abstract class TabAvatar<T extends TabModel> extends Avatar {
         super.setInput(input);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.ophelia.browser.platform.util.State)
      * 
      */
 	@Override
 	public final void setState(final State state) {}
-
-	/**
-     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isAvatarBackgroundImage()
-     *
-	 */
-    @Override
-    public Boolean isAvatarBackgroundImage() {
-        // Default avatar background image is not required for tab avatars.
-        return Boolean.FALSE;
-    }
 
     public enum DataKey { SEARCH_EXPRESSION }
 }

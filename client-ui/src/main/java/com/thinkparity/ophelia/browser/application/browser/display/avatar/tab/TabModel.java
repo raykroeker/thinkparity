@@ -182,6 +182,15 @@ public abstract class TabModel implements TabDelegate {
     protected abstract void initialize();
 
     /**
+     * Re-initialize the tab.
+     *
+     */
+    public void reinitialize() {
+        initialized = false;
+        reload();
+    }
+
+    /**
      * Reload the tab's model. Since a tab avatar contains a list of content
      * that is retreived once then manually synchronzied the reload is
      * controlled in the abstraction and initialization is done by the

@@ -468,7 +468,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             initialize();
 
             /* fire event */
-            notifyProfileUpdated(profile, localEventGenerator);
+            //notifyProfileUpdated(profile, localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }

@@ -141,7 +141,7 @@ public class Browser extends AbstractApplication {
         mainWindow.applyBusyIndicator();
     }
 
-	/**
+    /**
      * Apply a search expression to the current tab.
      * 
      * @param expression
@@ -180,7 +180,7 @@ public class Browser extends AbstractApplication {
         });
     }
 
-    /** Close the main window. */
+	/** Close the main window. */
     public void closeBrowserWindow() {
         Assert.assertNotNull(mainWindow, "Main window is null.");
         mainWindow.dispatchEvent(new WindowEvent(mainWindow, WindowEvent.WINDOW_CLOSING));
@@ -338,7 +338,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
         displayAvatar(AvatarId.DIALOG_CONTAINER_CREATE);
     }
-    
+
     /**
      * Handle a user error (show an error dialog).
      * 
@@ -348,7 +348,7 @@ public class Browser extends AbstractApplication {
     public void displayErrorDialog(final String errorMessageKey) {
         displayErrorDialog(errorMessageKey, null, null);
     }
-    
+
     /**
      * Display an error dialog
      * 
@@ -481,7 +481,7 @@ public class Browser extends AbstractApplication {
         setInput(AvatarId.DIALOG_CONTAINER_RENAME, input);
         displayAvatar(AvatarId.DIALOG_CONTAINER_RENAME);
     }
-    
+
     /**
      * Display a document rename dialog.
      * 
@@ -581,7 +581,7 @@ public class Browser extends AbstractApplication {
     public void displayUpdateProfileDialog() {
         displayAvatar(AvatarId.DIALOG_PROFILE_UPDATE);
     }
-    
+
     /**
      * Display the upgrade account dialog.
      */
@@ -910,7 +910,7 @@ public class Browser extends AbstractApplication {
         return getPlatform().isOnline();
     }
 
-	/**
+    /**
      * Maximize (or unmaximize) the browser application.
      * 
      * @param maximize
@@ -928,7 +928,7 @@ public class Browser extends AbstractApplication {
         }
     }
 
-	/**
+    /**
      * Move and resize the browser window.
      * (See moveBrowserWindow, resizeBrowserWindow)
      *
@@ -966,6 +966,25 @@ public class Browser extends AbstractApplication {
      *
      */
     public void moveToFront() { mainWindow.toFront(); }
+
+	/**
+     * Reload the status avatar.
+     *
+     */
+    public void reloadStatus() {
+        this.getAvatar(AvatarId.MAIN_STATUS).reload();
+    }
+
+	/**
+     * Reload a tab. This is an expensive operation; and should be used
+     * sparingly; ie don't call it in a loop.
+     * 
+     * @param tabId
+     *            A <code>TabId</code>.
+     */
+    public void reloadTab(final TabId tabId) {
+        getTabAvatar(tabId).reinitialize();
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#removeBusyIndicator()
@@ -1358,28 +1377,6 @@ public class Browser extends AbstractApplication {
     }    
 
     /**
-     * Run the restore backup action.
-     * 
-     * @param monitor
-     *            A <code>ThinkParitySwingMonitor</code> for updating the
-     *            dialogue for the long-running action.
-     * @param credentials
-     *            The user's <code>Credentials</code>.         
-     */
-    public void runRestoreBackup(final ThinkParitySwingMonitor monitor,
-            final Credentials credentials) {
-        final Data data = new Data(3);
-        data.set(Restore.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
-        data.set(Restore.DataKey.CREDENTIALS, credentials);
-        data.set(Restore.DataKey.MONITOR, monitor);
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                invoke(ActionId.BACKUP_RESTORE, data);
-            }
-        });
-    }
-
-    /**
      * Run the publish container version action.
      * 
      * @param containerId
@@ -1497,6 +1494,28 @@ public class Browser extends AbstractApplication {
         data.set(RenameDocument.DataKey.DOCUMENT_ID, documentId);
         data.set(RenameDocument.DataKey.DOCUMENT_NAME, documentName);
         invoke(ActionId.CONTAINER_RENAME_DOCUMENT, data);
+    }
+
+    /**
+     * Run the restore backup action.
+     * 
+     * @param monitor
+     *            A <code>ThinkParitySwingMonitor</code> for updating the
+     *            dialogue for the long-running action.
+     * @param credentials
+     *            The user's <code>Credentials</code>.         
+     */
+    public void runRestoreBackup(final ThinkParitySwingMonitor monitor,
+            final Credentials credentials) {
+        final Data data = new Data(3);
+        data.set(Restore.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
+        data.set(Restore.DataKey.CREDENTIALS, credentials);
+        data.set(Restore.DataKey.MONITOR, monitor);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                invoke(ActionId.BACKUP_RESTORE, data);
+            }
+        });
     }
 
     /**
@@ -1749,9 +1768,9 @@ public class Browser extends AbstractApplication {
      * @param remote
      *            True if the synchronization is the result of a remote event.
      */
-    public void syncContactTabContact(final Long contactId,
+    public void syncContactTabContact(final Contact contact,
             final Boolean remote) {
-        getTabContactAvatar().syncContact(contactId, remote);
+        getTabContactAvatar().syncContact(contact, remote);
     }
 
     /**

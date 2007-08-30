@@ -390,7 +390,7 @@ public final class BackupModelImpl extends Model<BackupListener> implements
     @Override
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
-        final ServiceFactory serviceFactory = workspace.getServiceFactory(environment);
+        final ServiceFactory serviceFactory = getServiceFactory();
         this.backupService = serviceFactory.getBackupService();
         this.sessionService = serviceFactory.getSessionService();
     }

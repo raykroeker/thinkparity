@@ -30,7 +30,6 @@ import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
-import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.jta.Transaction;
 
 import com.thinkparity.ophelia.model.Model;
@@ -40,6 +39,7 @@ import com.thinkparity.ophelia.model.Constants.Release;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.util.service.ServiceFactory;
+import com.thinkparity.ophelia.model.util.service.ServiceRetryHandler;
 import com.thinkparity.ophelia.model.workspace.CannotLockException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
@@ -382,16 +382,14 @@ public final class WorkspaceImpl implements Workspace {
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.workspace.Workspace#getServiceFactory(com.thinkparity.codebase.model.session.Environment)
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getServiceFactory(com.thinkparity.ophelia.model.util.service.ServiceRetryHandler)
      * 
      */
     @Override
-    public ServiceFactory getServiceFactory(final Environment environment) {
-        /* HACK - WorkspaceImpl#getServiceFactory - environment should be
-         * part of the workspace */
+    public ServiceFactory getServiceFactory(
+            final ServiceRetryHandler retryHandler) {
         final ServiceFactory serviceFactory = new ServiceFactory();
-        serviceFactory.setRetryHandler(new DefaultRetryHandler(
-                environment, this));
+        serviceFactory.setRetryHandler(retryHandler);
         return serviceFactory;
     }
 

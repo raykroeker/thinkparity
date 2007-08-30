@@ -32,11 +32,8 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
-import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.SecurityCredentials;
-import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -95,11 +92,11 @@ public final class SessionModelImpl extends Model<SessionListener>
     private ContactService contactService;
 
     /** A container web-service interface. */
-
     private ContainerService containerService;
 
     /** A migrator web-service interface. */
     private MigratorService migratorService;
+
     /** A profile web-service interface. */
     private ProfileService profileService;
 
@@ -219,58 +216,6 @@ public final class SessionModelImpl extends Model<SessionListener>
         try {
             contactService.createInvitation(getAuthToken(), invitation);
         } catch(final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfile(com.thinkparity.codebase.model.profile.UsernameReservation,
-     *      com.thinkparity.codebase.model.profile.EMailReservation,
-     *      com.thinkparity.codebase.model.session.Credentials,
-     *      com.thinkparity.codebase.model.profile.Profile,
-     *      com.thinkparity.codebase.email.EMail, java.lang.String,
-     *      java.lang.String)
-     * 
-     */
-    public void createProfile(final Product product, final Release release,
-            final UsernameReservation usernameReservation,
-            final EMailReservation emailReservation,
-            final Credentials credentials, final Profile profile,
-            final EMail email, final SecurityCredentials securityCredentials) {
-        try {
-            // HACK - SessionModelImpl#createProfile - no authentication required
-            profileService.create(newEmptyAuthToken(), product, release,
-                    usernameReservation, emailReservation, credentials,
-                    profile, email, securityCredentials);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfileEMailReservation(com.thinkparity.codebase.email.EMail)
-     *
-     */
-    public EMailReservation createProfileEMailReservation(
-            final EMail email) {
-        try {
-            return profileService.createEMailReservation(newEmptyAuthToken(),
-                    email);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-	/**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createProfileUsernameReservation(java.lang.String)
-     * 
-     */
-    public UsernameReservation createProfileUsernameReservation(
-            final String username) {
-        try {
-            return profileService.createUsernameReservation(
-                    newEmptyAuthToken(), username);
-        } catch (final Throwable t) {
             throw panic(t);
         }
     }
@@ -524,11 +469,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     public void login(final Credentials credentials)
             throws InvalidCredentialsException {
         try {
-            if (isServerMaintenance()) {
-                notifyServerMaintenance();
-                return;
-            }
-
             // login and save auth token
             setAuthToken(sessionService.login(credentials));
             // save credentials
@@ -553,11 +493,6 @@ public final class SessionModelImpl extends Model<SessionListener>
             throws InvalidCredentialsException, InvalidLocationException {
         try {
             if (isClientMaintenance()) {
-                return;
-            }
-
-            if (isServerMaintenance()) {
-                notifyServerMaintenance();
                 return;
             }
 
@@ -602,27 +537,26 @@ public final class SessionModelImpl extends Model<SessionListener>
             }
         } catch (final InvalidCredentialsException icx) {
             if (isOnline()) {
-                pushOfflineCode(OfflineCode.OFFLINE);
+                pushOfflineCode(OfflineCode.CLIENT_NETWORK_UNAVAILABLE);
                 getSessionModel().notifySessionTerminated();
             }
 
             throw icx;
         } catch (final InvalidLocationException ilx) {
             if (isOnline()) {
-                pushOfflineCode(OfflineCode.OFFLINE);
+                pushOfflineCode(OfflineCode.CLIENT_NETWORK_UNAVAILABLE);
                 getSessionModel().notifySessionTerminated();
             }
 
             throw ilx;
         } catch (final Throwable t) {
             if (isOnline()) {
-                pushOfflineCode(OfflineCode.OFFLINE);
+                pushOfflineCode(OfflineCode.CLIENT_NETWORK_UNAVAILABLE);
                 getSessionModel().notifySessionTerminated();
             }
 
             throw panic(t);
         } finally {
-
             notifyProcessEnd(monitor);
         }
     }
@@ -1122,7 +1056,7 @@ public final class SessionModelImpl extends Model<SessionListener>
     @Override
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
-        serviceFactory = workspace.getServiceFactory(environment);
+        serviceFactory = workspace.getServiceFactory(newDefaultRetryHandler());
         artifactService = serviceFactory.getArtifactService();
         backupService = serviceFactory.getBackupService();
         contactService = serviceFactory.getContactService();
@@ -1138,7 +1072,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         OfflineCodes offlineCodes = getOfflineCodes();
         if (null == offlineCodes) {
             offlineCodes = new OfflineCodes();
-            offlineCodes.push(OfflineCode.OFFLINE);
+            offlineCodes.push(OfflineCode.CLIENT_OFFLINE);
             setOfflineCodes(offlineCodes);
         }
     }
@@ -1191,20 +1125,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * Determine whether or not we are currently performing server maintenance.
-     * 
-     * @return True if we are performing server maintenance.
-     */
-    private boolean isServerMaintenance() {
-        final OfflineCodes offlineCodes = getOfflineCodes();
-        if (null == offlineCodes) {
-            return false;
-        } else {
-            return offlineCodes.contains(OfflineCode.SERVER_MAINTENANCE);
-        }
-    }
-
-    /**
      * Determine whether or not the authentication token has been set.
      * 
      * @return True if the authentication token has been set.
@@ -1221,27 +1141,6 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     private boolean isSetOfflineCode() {
         return 0 < getOfflineCodes().size();
-    }
-
-    /**
-     * Create an empty authentication token.
-     * 
-     * @return An <code>AuthToken</code>.
-     */
-    private AuthToken newEmptyAuthToken() {
-        return new AuthToken();
-    }
-
-    /**
-     * Set a server maintenance offline code and fire a session terminated
-     * event.
-     * 
-     */
-    private void notifyServerMaintenance() {
-        // set an offline state
-        pushOfflineCode(OfflineCode.SERVER_MAINTENANCE);
-        // fire event
-        notifySessionTerminated();
     }
 
     /**

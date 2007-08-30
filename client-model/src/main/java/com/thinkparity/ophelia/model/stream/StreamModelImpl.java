@@ -104,7 +104,7 @@ public final class StreamModelImpl extends Model<EventListener> implements
     @Override
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
-        final ServiceFactory serviceFactory = workspace.getServiceFactory(environment);
+        final ServiceFactory serviceFactory = getServiceFactory();
         this.streamService = serviceFactory.getStreamService();
     }
 

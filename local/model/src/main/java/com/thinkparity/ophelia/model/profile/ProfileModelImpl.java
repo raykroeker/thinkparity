@@ -147,7 +147,9 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             release.setName(Constants.Release.NAME);
             release.setOs(OSUtil.getOs());
 
-            getSessionModel().createProfile(product, release,
+            final ServiceFactory serviceFactory = workspace.getServiceFactory(newFiniteRetryHandler());
+            final ProfileService profileService = serviceFactory.getProfileService();
+            profileService.create(newEmptyAuthToken(), product, release,
                     usernameReservation, emailReservation, credentials, profile,
                     email, securityCredentials);
         } catch (final ReservationExpiredException rex) {
@@ -163,19 +165,24 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      */
     public EMailReservation createEMailReservation(final EMail email) {
         try {
-            return getSessionModel().createProfileEMailReservation(email);
+            final ServiceFactory serviceFactory = workspace.getServiceFactory(newFiniteRetryHandler());
+            final ProfileService profileService = serviceFactory.getProfileService();
+            return profileService.createEMailReservation(newEmptyAuthToken(), email);
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
+    
     /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#createUsernameReservation(java.lang.String)
      *
      */
     public UsernameReservation createUsernameReservation(final String username) {
         try {
-            return getSessionModel().createProfileUsernameReservation(username);
+            final ServiceFactory serviceFactory = workspace.getServiceFactory(newFiniteRetryHandler());
+            final ProfileService profileService = serviceFactory.getProfileService();
+            return profileService.createUsernameReservation(newEmptyAuthToken(), username);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -358,7 +365,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         }
     }
 
-
     /**
      * Read a list of profile email addresses.
      * 
@@ -373,6 +379,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             throw panic(t);
         }
     }
+
 
     /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#readFeatures()
@@ -595,7 +602,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final Workspace workspace) {
         this.profileIO = IOFactory.getDefault(workspace).createProfileHandler();
 
-        final ServiceFactory serviceFactory = workspace.getServiceFactory(environment);
+        final ServiceFactory serviceFactory = workspace.getServiceFactory(newDefaultRetryHandler());
         this.profileService = serviceFactory.getProfileService();
     }
 
@@ -681,6 +688,17 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      */
     private AuthToken getAuthToken() {
         return getSessionModel().getAuthToken();
+    }
+
+    /**
+     * Create an empty authentication token.
+     * 
+     * @return An <code>AuthToken</code>.
+     */
+    private AuthToken newEmptyAuthToken() {
+        /* HACK - ProfileModelImpl#newEmptyAuthToken() - here we need to ensure
+         * correct client id; client version */
+        return new AuthToken();
     }
 
     /**

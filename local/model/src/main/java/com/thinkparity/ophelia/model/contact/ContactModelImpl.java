@@ -1313,7 +1313,7 @@ public final class ContactModelImpl extends Model<ContactListener>
             final Workspace workspace) {
         this.contactIO = IOFactory.getDefault(workspace).createContactHandler();
 
-        final ServiceFactory serviceFactory = workspace.getServiceFactory(environment);
+        final ServiceFactory serviceFactory = getServiceFactory();
         this.contactService = serviceFactory.getContactService();
     }
 

@@ -151,7 +151,6 @@ public abstract class DefaultSignupPage extends Avatar
 
     /**
      * Determine if the system is online.
-     * Note that this call can take some time if the system is offline.
      * 
      * @return true if the system is online, false otherwise.
      */

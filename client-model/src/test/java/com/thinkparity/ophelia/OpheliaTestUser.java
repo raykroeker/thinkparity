@@ -28,6 +28,7 @@ import com.thinkparity.ophelia.model.workspace.CannotLockException;
 import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
+import com.thinkparity.ophelia.model.workspace.impl.DefaultRetryHandler;
 
 import com.thinkparity.service.AuthToken;
 import com.thinkparity.service.QueueService;
@@ -240,7 +241,7 @@ public class OpheliaTestUser extends User {
      * 
      */
     private void processOfflineQueue() throws InvalidCredentialsException {
-        final ServiceFactory factory = workspace.getServiceFactory(environment);
+        final ServiceFactory factory = workspace.getServiceFactory(new DefaultRetryHandler(environment, workspace));
         final SessionService sessionService = factory.getSessionService();
         final AuthToken authToken = sessionService.login(credentials);
         final QueueService queueService = factory.getQueueService();

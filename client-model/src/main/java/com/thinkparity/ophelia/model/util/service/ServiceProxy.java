@@ -75,10 +75,11 @@ public final class ServiceProxy implements InvocationHandler {
             try {
                 return method.invoke(service, args);
             } catch (final InvocationTargetException itx) {
-                if (isNetworkException(itx)) {
+                if (NetworkException.isAssignableFrom(itx)) {
+                    final NetworkException nx = NetworkException.getNetworkException(itx);
                     logger.logWarning(
                             "{0}:{1} - Service proxy invocation has encountered a network error.  {2}",
-                            id, invocation, itx.getTargetException().getMessage());
+                            id, invocation, nx.getMessage());
                     if (retry()) {
                         try {
                             Thread.sleep(RETRY_PERIOD);
@@ -87,7 +88,7 @@ public final class ServiceProxy implements InvocationHandler {
                                     id, invocation, ix.getMessage());
                         }
                     } else {
-                        throw itx.getTargetException();
+                        throw nx;
                     }
                 } else {
                     throw itx.getTargetException();
@@ -100,16 +101,6 @@ public final class ServiceProxy implements InvocationHandler {
         }
     }
 
-    /**
-     * Determine if the invocation target was caused by a network exception.
-     * 
-     * @param itx
-     *            An <code>InvocationTargetException</code>.
-     * @return True if the cause was a network error.
-     */
-    private boolean isNetworkException(final InvocationTargetException itx) {
-        return NetworkException.class.isAssignableFrom(itx.getTargetException().getClass());
-    }
     /**
      * Determine whether or not we should retry.
      * 

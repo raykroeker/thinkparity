@@ -1989,7 +1989,7 @@ public final class ContainerModelImpl extends
         this.containerIO = IOFactory.getDefault(workspace).createContainerHandler();
         this.documentIO = IOFactory.getDefault(workspace).createDocumentHandler();
 
-        final ServiceFactory serviceFactory = workspace.getServiceFactory(environment);
+        final ServiceFactory serviceFactory = getServiceFactory();
         this.containerService = serviceFactory.getContainerService();
     }
 

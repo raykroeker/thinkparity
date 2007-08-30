@@ -157,7 +157,7 @@ public final class QueueModelImpl extends Model<EventListener> implements
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
         // web-services
-        final ServiceFactory serviceFactory = workspace.getServiceFactory(environment);
+        final ServiceFactory serviceFactory = getServiceFactory();
         this.queueService = serviceFactory.getQueueService();
         // thread factory
         this.threadFactory = Executors.defaultThreadFactory();
@@ -238,7 +238,7 @@ public final class QueueModelImpl extends Model<EventListener> implements
                     break;
                 case OFFLINE:
                     if (getSessionModel().isOnline()) {
-                        getSessionModel().pushOfflineCode(OfflineCode.NETWORK_UNAVAILABLE);
+                        getSessionModel().pushOfflineCode(OfflineCode.CLIENT_NETWORK_UNAVAILABLE);
                         getSessionModel().notifySessionTerminated();
                     }
                     break;

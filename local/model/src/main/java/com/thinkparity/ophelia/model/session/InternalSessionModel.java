@@ -31,11 +31,8 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
-import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.SecurityCredentials;
-import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
@@ -104,11 +101,6 @@ public interface InternalSessionModel extends SessionModel {
      *            An <code>OutgoingUserInvitation</code>.
      */
     public void createInvitation(final OutgoingUserInvitation invitation);
-
-    public EMailReservation createProfileEMailReservation(final EMail email);
-
-    public UsernameReservation createProfileUsernameReservation(
-            final String username);
 
     /**
      * Decline an incoming e-mail invitation.
@@ -542,10 +534,4 @@ public interface InternalSessionModel extends SessionModel {
      *            A verification key <code>String</code>.
      */
     public void verifyProfileEmail(final ProfileEMail email, final String key);
-
-    void createProfile(Product product, Release release,
-            UsernameReservation usernameReservation,
-            EMailReservation emailReservation, Credentials credentials,
-            Profile profile, EMail email,
-            SecurityCredentials securityCredentials);
 }

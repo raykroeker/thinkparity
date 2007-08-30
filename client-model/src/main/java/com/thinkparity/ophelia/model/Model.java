@@ -70,8 +70,10 @@ import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.workspace.InternalWorkspaceModel;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.impl.DefaultRetryHandler;
+import com.thinkparity.ophelia.model.workspace.impl.FiniteRetryHandler;
 
 import com.thinkparity.network.NetworkException;
+import com.thinkparity.service.ServiceFactory;
 
 /**
  * <b>Title:</b>thinkParity Model<br>
@@ -248,7 +250,7 @@ public abstract class Model<T extends EventListener> extends
         monitor.endProcess();
     }
 
-	/**
+    /**
      * Notify a process monitor that a given step will begin.
      * 
      * @param monitor
@@ -289,7 +291,7 @@ public abstract class Model<T extends EventListener> extends
         monitor.endStep(step);
     }
 
-    /** The configuration io. */
+	/** The configuration io. */
     protected ConfigurationIOHandler configurationIO;
 
     /** A thinkParity <code>Environment</code>. */
@@ -333,7 +335,7 @@ public abstract class Model<T extends EventListener> extends
                 workspace, this, listener);
     }
 
-	/**
+    /**
      * Assert that the artifact does not exist.
      * 
      * @param uniqueId
@@ -349,7 +351,7 @@ public abstract class Model<T extends EventListener> extends
                 assertArguments);
     }
 
-    /**
+	/**
      * Assert that a container draft does not exist.
      * 
      * @param containerId
@@ -365,7 +367,7 @@ public abstract class Model<T extends EventListener> extends
                 assertion, assertionArguments);
     }
 
-	/**
+    /**
      * Assert that a container draft exists.
      * 
      * @param containerId
@@ -381,7 +383,7 @@ public abstract class Model<T extends EventListener> extends
                 assertion, assertionArguments);
     }
 
-    /**
+	/**
      * Assert that a latest version exists.
      * 
      * @param assertion
@@ -713,7 +715,7 @@ public abstract class Model<T extends EventListener> extends
         return getArtifactModel().doesVersionExist(artifactId, versionId);
     }
 
-	/**
+    /**
      * Assert the session is online. We are throwing a specific error here in
      * order to allow a client of the model an opportunity to display an
      * appropriate message.
@@ -724,7 +726,7 @@ public abstract class Model<T extends EventListener> extends
             throw new OfflineException();
     }
 
-    /**
+	/**
      * Copy the content of a file to a channel. Create a channel to read the
      * file.
      * 
@@ -955,6 +957,15 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
+     * Obtain a service factory with a default retry handler.
+     * 
+     * @return A <code>ServiceFactory</code>.
+     */
+    protected final ServiceFactory getServiceFactory() {
+        return workspace.getServiceFactory(newDefaultRetryHandler());
+    }
+
+    /**
      * Obtain an internal session model.
      * 
      * @return An instance of <code>InternalSessionModel</code>.
@@ -1091,6 +1102,15 @@ public abstract class Model<T extends EventListener> extends
     }
 
     /**
+     * Create a finite retry handler.
+     * 
+     * @return A <code>FiniteRetryHandler</code>.
+     */
+    protected final FiniteRetryHandler newFiniteRetryHandler() {
+        return new FiniteRetryHandler();
+    }
+
+    /**
      * Create a new instance of a daemon thread.
      * 
      * @param name
@@ -1143,7 +1163,7 @@ public abstract class Model<T extends EventListener> extends
      */
 	@Override
     protected ThinkParityException panic(final Throwable error) {
-	    if (isNetworkException(error)) {
+	    if (NetworkException.isAssignableFrom(error)) {
 	        /* NOTE - Model#panic(Throwable) - we do not care about logging
 	         * offline causing errors */
 	        logger.logError(error, "A network error has occured.");
@@ -1394,17 +1414,6 @@ public abstract class Model<T extends EventListener> extends
 			assertion.append(allowedState.toString());
 		}
 		return assertion.toString();
-	}
-
-    /**
-     * Determine if the error is a network exception.
-     * 
-     * @param error
-     *            A <code>Throwable</code>.
-     * @return True if it is a network exception
-     */
-	private boolean isNetworkException(final Throwable error) {
-	    return NetworkException.class.isAssignableFrom(error.getClass());
 	}
 
     /**

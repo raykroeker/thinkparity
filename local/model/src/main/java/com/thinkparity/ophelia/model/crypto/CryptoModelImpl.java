@@ -80,7 +80,7 @@ public final class CryptoModelImpl extends Model<EventListener> implements Crypt
     @Override
     protected void initializeModel(final Environment environment,
             final Workspace workspace) {
-        final ServiceFactory serviceFactory = workspace.getServiceFactory(environment);
+        final ServiceFactory serviceFactory = getServiceFactory();
         this.cryptoService = serviceFactory.getCryptoService();
     }
 

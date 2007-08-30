@@ -11,5 +11,13 @@ package com.thinkparity.ophelia.model.session;
  * @version 1.1.2.1
  */
 public enum OfflineCode {
-    CLIENT_MAINTENANCE, NETWORK_UNAVAILABLE, OFFLINE, SERVER_MAINTENANCE
+
+    /** The client is in a maintenance cycle. */
+    CLIENT_MAINTENANCE,
+
+    /** The client network is unavailable. */ 
+    CLIENT_NETWORK_UNAVAILABLE,
+
+    /** The client is offline. */
+    CLIENT_OFFLINE
 }

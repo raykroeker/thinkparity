@@ -10,10 +10,10 @@ import java.nio.charset.Charset;
 
 import javax.sql.DataSource;
 
-import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.jta.Transaction;
 
 import com.thinkparity.ophelia.model.util.ShutdownHook;
+import com.thinkparity.ophelia.model.util.service.ServiceRetryHandler;
 
 import com.thinkparity.service.ServiceFactory;
 
@@ -182,11 +182,12 @@ public interface Workspace {
     /**
      * Obtain a service factory.
      * 
-     * @param environment
-     *            An <code>Environment</code>.
+     * @param retryHandler
+     *            A <code>ServiceRetryHandler</code>.
      * @return A <code>ServiceFactory</code>.
      */
-    public ServiceFactory getServiceFactory(final Environment environment);
+    public ServiceFactory getServiceFactory(
+            final ServiceRetryHandler retryHandler);
 
     /**
      * Obtain a transaction.

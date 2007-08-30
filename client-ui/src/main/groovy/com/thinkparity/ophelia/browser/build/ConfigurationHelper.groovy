@@ -18,7 +18,7 @@ import com.thinkparity.codebase.model.session.Environment
 import com.thinkparity.service.MigratorService
 import com.thinkparity.service.SessionService
 import com.thinkparity.service.StreamService
-import com.thinkparity.service.client.ServiceFactory
+import com.thinkparity.service.client.ClientServiceFactory
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Build Task Configuration Helper<br>
@@ -99,15 +99,15 @@ class ConfigurationHelper {
     }
 
     MigratorService extractMigratorService() {
-        return ServiceFactory.getInstance().getMigratorService()
+        return ClientServiceFactory.getInstance().getMigratorService()
     }
 
     StreamService extractStreamService() {
-        return ServiceFactory.getInstance().getStreamService()
+        return ClientServiceFactory.getInstance().getStreamService()
     }
 
     SessionService extractSessionService() {
-        return ServiceFactory.getInstance().getSessionService()
+        return ClientServiceFactory.getInstance().getSessionService()
     }
 
     /**

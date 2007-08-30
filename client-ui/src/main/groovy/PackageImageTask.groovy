@@ -98,6 +98,12 @@ class PackageImageTask {
                     include(name:"xml/")
                 }
             }
+            // /core/network.jar
+            jar(destfile:new File(imageCoreDir,"network.jar"),duplicate:"fail",update:"false",whenempty:"fail") {
+                fileset(dir:classesDir) {
+                    include(name:"com/thinkparity/network/")
+                }
+            }
             // /core/services.jar
             jar(destfile:new File(imageCoreDir,"services.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
                 fileset(dir:classesDir) {
@@ -131,7 +137,7 @@ class PackageImageTask {
             writer.write("# thinkParity Image")
             // thinkparity.image-classpath
             newLine(writer)
-            writer.write("thinkparity.image-classpath:core/codebase.jar,core/model.jar,core/services.jar,core/ui.jar")
+            writer.write("thinkparity.image-classpath:core/codebase.jar,core/model.jar,core/network.jar,core/services.jar,core/ui.jar")
             for (dependency in dependencies) {
                 if (dependency.getType().equals(Dependency.Type.JAVA)) {
 	                writer.write(",")

@@ -463,13 +463,6 @@ public interface InternalSessionModel extends SessionModel {
     public List<OutgoingUserInvitation> readOutgoingUserInvitations();
 
     /**
-     * Read the user's profile.
-     * 
-     * @return A profile.
-     */
-    public Profile readProfile();
-
-    /**
      * Read the user's profile email addresses.
      * 
      * @return A list of profile email addresses.

@@ -11,6 +11,7 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.KeyStroke;
@@ -19,6 +20,7 @@ import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.model.help.HelpContent;
 import com.thinkparity.ophelia.model.help.HelpTopic;
+import com.thinkparity.ophelia.model.help.HelpTopicMovie;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -185,8 +187,10 @@ public class HelpTabPanel extends DefaultTabPanel {
         this.helpTopic = helpTopic;
         reload(collapsedTextJLabel, helpTopic.getName());
         reload(expandedTextJLabel, helpTopic.getName());
-        collapsedMovieJLabel.setVisible(helpTopic.isSetMovie());
-        expandedMovieJLabel.setVisible(helpTopic.isSetMovie());
+        final List<HelpTopicMovie> movies = helpTopic.getMovies();
+        final boolean isSetMovie = 0 < movies.size();
+        collapsedMovieJLabel.setVisible(isSetMovie);
+        expandedMovieJLabel.setVisible(isSetMovie);
     }
 
     /**

@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -19,6 +18,7 @@ import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.config.ConfigFactory;
+import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.l10n.LocaleManager;
 
 import com.thinkparity.codebase.model.session.Environment;
@@ -33,8 +33,8 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class HelpModelImpl extends Model implements HelpModel,
-        InternalHelpModel {
+public final class HelpModelImpl extends Model<EventListener> implements
+        HelpModel, InternalHelpModel {
 
     /** Help configuration key for the topic ids. */
     private static final String CFG_KEY_TOPIC_ID;
@@ -43,16 +43,28 @@ public final class HelpModelImpl extends Model implements HelpModel,
     private static final String CFG_KEY_TOPIC_IDS;
 
     /** Help configuration key for the topic ids. */
-    private static final String CFG_KEY_TOPIC_MOVIE;
+    private static final String CFG_KEY_TOPIC_MOVIES;
 
     /** Help configuration key for the topic ids. */
     private static final String CFG_KEY_TOPIC_NAME;
+
+    /** Help configuration key for the movie id. */
+    private static final String CFG_KEY_MOVIE_ID;
+
+    /** Help configuration key for the movie title. */
+    private static final String CFG_KEY_MOVIE_TITLE;
+
+    /** Help configuration key for the movie url. */
+    private static final String CFG_KEY_MOVIE_URL;
 
     static {
         CFG_KEY_TOPIC_ID = "id";
         CFG_KEY_TOPIC_IDS = "topic-ids";
         CFG_KEY_TOPIC_NAME = "name";
-        CFG_KEY_TOPIC_MOVIE = "movie";
+        CFG_KEY_TOPIC_MOVIES = "movies";
+        CFG_KEY_MOVIE_ID = "id";
+        CFG_KEY_MOVIE_TITLE = "title";
+        CFG_KEY_MOVIE_URL = "url";
     }
 
     /** A help configuration file. */
@@ -128,8 +140,24 @@ public final class HelpModelImpl extends Model implements HelpModel,
 
                 final HelpTopic topic = new HelpTopic();
                 topic.setId(Long.parseLong(topicBundle.getString(CFG_KEY_TOPIC_ID)));
-                if (topicBundle.containsKey(CFG_KEY_TOPIC_MOVIE))
-                    topic.setMovie(new URL(topicBundle.getString(CFG_KEY_TOPIC_MOVIE)));
+                if (topicBundle.containsKey(CFG_KEY_TOPIC_MOVIES)) {
+                    final StringTokenizer tokenizer = new StringTokenizer(
+                            topicBundle.getString(CFG_KEY_TOPIC_MOVIES), ",");
+                    final List<HelpTopicMovie> movies = new ArrayList<HelpTopicMovie>(tokenizer.countTokens());
+                    Long movieId;
+                    ResourceBundle movieBundle;
+                    HelpTopicMovie movie;
+                    while (tokenizer.hasMoreTokens()) {
+                        movieId = Long.parseLong(tokenizer.nextToken());
+                        movieBundle = getLocalizationBundle(resolveMovieBundleBaseName(movieId));
+                        movie = new HelpTopicMovie();
+                        movie.setId(Long.parseLong(movieBundle.getString(CFG_KEY_MOVIE_ID)));
+                        movie.setTitle(movieBundle.getString(CFG_KEY_MOVIE_TITLE));
+                        movie.setURL(movieBundle.getString(CFG_KEY_MOVIE_URL));
+                        movies.add(movie);
+                    }
+                    topic.setMovies(movies);
+                }
                 topic.setName(topicBundle.getString(CFG_KEY_TOPIC_NAME));
                 return topic;
             } else {
@@ -245,6 +273,18 @@ public final class HelpModelImpl extends Model implements HelpModel,
      */
     private String resolveContentBaseName(final Long id) {
         return new StringBuilder(18).append("help/HelpContent_")
+            .append(id).toString();
+    }
+
+    /**
+     * Resolve the help movie path for an id.
+     * 
+     * @param id
+     *            A help topic id <code>Long</code>.
+     * @return A help topic resource path <code>String</code>.
+     */
+    private String resolveMovieBundleBaseName(final Long id) {
+        return new StringBuilder(18).append("help/HelpMovie_")
             .append(id).toString();
     }
 

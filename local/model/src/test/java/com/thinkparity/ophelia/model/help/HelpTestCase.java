@@ -17,8 +17,7 @@ abstract class HelpTestCase extends ModelTestCase {
     protected static void assertNotNull(final String assertion, final HelpTopic topic) {
         assertNotNull(assertion + " (reference)", (Object) topic);
         assertNotNull(assertion + " (id)", topic.getId());
-        if (topic.isSetMovie())
-            assertNotNull(assertion + " (movie)", topic.getMovie());
+        assertNotNull(assertion + " (movie)", topic.getMovies());
         assertNotNull(assertion + " (name)", topic.getName());
     }
 

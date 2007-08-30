@@ -4,7 +4,7 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.help;
 
-import java.net.URL;
+import com.thinkparity.ophelia.model.help.HelpTopicMovie;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -36,13 +36,13 @@ public class ShowMovie extends AbstractBrowserAction  {
      */
     @Override
     public void invoke(final Data data) {
-        final URL url = (URL) data.get(DataKey.URL);
+        final HelpTopicMovie movie = (HelpTopicMovie) data.get(DataKey.MOVIE);
         try {
-            DesktopUtil.browse(url.toString());
+            DesktopUtil.browse(movie.getURL());
         } catch (final DesktopException dx) {
             throw new BrowserException("Cannot show movie.", dx);
         }
     }
 
-    public enum DataKey { URL }
+    public enum DataKey { MOVIE }
 }

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.ophelia.model.help.HelpTopic;
+import com.thinkparity.ophelia.model.help.HelpTopicMovie;
 
 import com.thinkparity.ophelia.browser.application.browser.DefaultBrowserPopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
@@ -47,11 +48,13 @@ public class HelpTabPopupDelegate extends DefaultBrowserPopupDelegate implements
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.help.PopupDelegate#showForHelpTopic(com.thinkparity.ophelia.model.help.HelpTopic)
      */
     public void showForHelpTopic(final HelpTopic helpTopic) {
-        if (helpTopic.isSetMovie()) {
-            final Data showMovieData = new Data(1);
-            showMovieData.set(ShowMovie.DataKey.URL, helpTopic.getMovie());
-            addWithExpand(ActionId.HELP_SHOW_MOVIE, showMovieData, helpTopic.getId());
-
+        final List<HelpTopicMovie> movies = helpTopic.getMovies();
+        if (0 < movies.size()) {
+            for (final HelpTopicMovie movie : movies) {
+                final Data showMovieData = new Data(1);
+                showMovieData.set(ShowMovie.DataKey.MOVIE, movie);
+                addWithExpand(ActionId.HELP_SHOW_MOVIE, showMovieData, helpTopic.getId());
+            }
             show();
         }
     }

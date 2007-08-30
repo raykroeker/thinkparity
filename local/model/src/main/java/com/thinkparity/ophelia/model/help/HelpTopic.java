@@ -3,7 +3,8 @@
  */
 package com.thinkparity.ophelia.model.help;
 
-import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <b>Title:</b><br>
@@ -16,7 +17,7 @@ public final class HelpTopic {
 
     private Long id;
 
-    private URL movie;
+    private final List<HelpTopicMovie> movies;
 
     private String name;
 
@@ -26,6 +27,7 @@ public final class HelpTopic {
      */
     public HelpTopic() {
         super();
+        this.movies = new ArrayList<HelpTopicMovie>();
     }
 
     /**
@@ -40,10 +42,10 @@ public final class HelpTopic {
     /**
      * Obtain movie.
      *
-     * @return A URL.
+     * @return A <code>List<HelpTopicMovie></code>.
      */
-    public URL getMovie() {
-        return movie;
+    public List<HelpTopicMovie> getMovies() {
+        return movies;
     }
 
     /**
@@ -53,15 +55,6 @@ public final class HelpTopic {
      */
     public String getName() {
         return name;
-    }
-
-    /**
-     * Determine whether or not the movie url is set.
-     * 
-     * @return True if the movie is set.
-     */
-    public Boolean isSetMovie() {
-        return null != movie;
     }
 
     /**
@@ -81,10 +74,10 @@ public final class HelpTopic {
      * @param movie
      *		A URL.
      */
-    public void setMovie(final URL movie) {
-        this.movie = movie;
+    public void setMovies(final List<HelpTopicMovie> movies) {
+        this.movies.clear();
+        this.movies.addAll(movies);
     }
-
 
     /**
      * Set name.

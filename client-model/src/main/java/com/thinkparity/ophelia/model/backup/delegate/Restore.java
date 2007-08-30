@@ -57,9 +57,6 @@ public final class Restore extends BackupDelegate {
         } finally {
             sessionModel.logout();
         }
-
-        /* login again to take care of auto-update issues */
-        sessionModel.login(monitor);
     }
 
     /**

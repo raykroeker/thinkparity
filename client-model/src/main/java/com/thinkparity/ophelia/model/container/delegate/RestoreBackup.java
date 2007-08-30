@@ -105,7 +105,7 @@ public final class RestoreBackup extends ContainerDelegate {
                 notifyStepBegin(monitor, RestoreBackupStep.DELETE_CONTAINER, monitorData);
                 deleteLocal(container.getId(), allDocuments.get(container),
                         allDocumentsLocks, allDocumentsVersionsLocks);
-                notifyContainerDeletedLocally(container);
+                // notifyContainerDeletedLocally(container);
                 notifyStepEnd(monitor, RestoreBackupStep.DELETE_CONTAINER);
             }
         } finally {
@@ -131,8 +131,13 @@ public final class RestoreBackup extends ContainerDelegate {
             // NOTE the model needs to apply the flag seen in this single case
             getArtifactModel().applyFlagSeen(backupContainer.getId());
             notifyStepEnd(monitor, RestoreBackupStep.RESTORE_CONTAINER);
-            notifyContainerCreatedLocally(read(backupContainer.getId()));
+            // notifyContainerCreatedLocally(read(backupContainer.getId()));
         }
+        notifyStepEnd(monitor, RestoreBackupStep.RESTORE_CONTAINERS);
+        /* restore */
+        notifyStepBegin(monitor, RestoreBackupStep.FINALIZE_RESTORE, monitorData);
+        containerService.confirmRestoreBackup(getAuthToken(), restoredOn);
+        notifyStepEnd(monitor, RestoreBackupStep.FINALIZE_RESTORE);
     }
 
     /**
@@ -199,6 +204,7 @@ public final class RestoreBackup extends ContainerDelegate {
             }
         };
     }
+
     /**
      * Create a stream monitor for the download.
      * 
@@ -413,7 +419,5 @@ public final class RestoreBackup extends ContainerDelegate {
         }
         // index
         getIndexModel().indexContainer(container.getId());
-        /* restore */
-        containerService.confirmRestoreBackup(getAuthToken(), restoredOn);
     }
 }

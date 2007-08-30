@@ -51,13 +51,17 @@ public class DefaultRetryHandler implements ServiceRetryHandler,
         /* if we are online; or if the model says we are offline because of a
          * pending restart; retry the invocation */
         final OfflineCode offlineCode = getSessionModel().getOfflineCode();
-        switch (offlineCode) {
-        case CLIENT_MAINTENANCE:
+        if (null == offlineCode) {
             return Boolean.TRUE;
-        case CLIENT_NETWORK_UNAVAILABLE:
-            return Boolean.FALSE;
-        default:
-            throw Assert.createUnreachable("Unknown offline code.");
+        } else {
+            switch (offlineCode) {
+            case CLIENT_MAINTENANCE:
+                return Boolean.TRUE;
+            case CLIENT_NETWORK_UNAVAILABLE:
+                return Boolean.FALSE;
+            default:
+                throw Assert.createUnreachable("Unknown offline code.");
+            }
         }
     }
 

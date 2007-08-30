@@ -20,6 +20,7 @@ import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.Step;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar.TabId;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -120,6 +121,9 @@ public final class Restore extends AbstractBrowserAction {
             try {
                 backupModel.restore(processMonitor, credentials);
                 monitor.complete();
+                action.browser.reloadTab(TabId.CONTAINER);
+                action.browser.reloadTab(TabId.CONTACT);
+                action.browser.reloadStatus();
             } catch (final InvalidCredentialsException icx) {
                 action.logger.logError(icx, "An invalid credentials error has occurred in restore.");
                 monitor.reset();
@@ -226,6 +230,10 @@ public final class Restore extends AbstractBrowserAction {
                         setSteps(step, data);
                         monitor.setStep(this.step, getStepNote(step, data));
                         break;
+                    case FINALIZE_RESTORE:
+                        this.step += 5;
+                        monitor.setStep(this.step, getStepNote(step, data));
+                        break;
                     case RESTORE_CONTAINER:
                         this.step++;
                         monitor.setStep(this.step, getStepNote(step, data));
@@ -289,6 +297,8 @@ public final class Restore extends AbstractBrowserAction {
                         return null;
                     case DELETE_CONTAINERS:
                         return getString("StepDeleteContainers");
+                    case FINALIZE_RESTORE:
+                        return getString("StepFinalize");
                     case RESTORE_CONTAINER:
                         return getString("StepRestoreContainer",
                                 data.getRestoreContainer().getName());
@@ -379,19 +389,20 @@ public final class Restore extends AbstractBrowserAction {
                     switch (step) {
                     case DELETE_CONTAINERS:
                         this.step = 0;
-                        this.steps = data.getDeleteContainers().size() + 8;
+                        this.steps = data.getDeleteContainers().size();
                         monitor.setSteps(this.steps);
                         monitor.setStep(this.step, getStepNote(step, data));
                         break;
-                    case RESTORE_DOCUMENT_VERSIONS:
-                    case RESTORE_CONTAINER:
-                    case DELETE_CONTAINER:
                     case RESTORE_CONTAINERS:
                         this.step = 0;
-                        this.steps = data.getRestoreContainers().size();
+                        this.steps = data.getRestoreContainers().size() + 5;
                         monitor.setSteps(this.steps);
                         monitor.setStep(this.step, getStepNote(step, data));
                         break;
+                    case DELETE_CONTAINER:
+                    case FINALIZE_RESTORE:
+                    case RESTORE_DOCUMENT_VERSIONS:
+                    case RESTORE_CONTAINER:
                     case RESTORE_DOCUMENT_VERSION:
                     case RESTORE_DOCUMENT_VERSION_DECRYPT_BYTES:
                     case RESTORE_DOCUMENT_VERSION_DOWNLOAD_BYTES:

@@ -4,6 +4,8 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.backup;
 
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 
 /**
@@ -35,7 +37,11 @@ public class RestoreBackupSwingMonitor implements ThinkParitySwingMonitor {
      */
     public void monitor() {
         // start the monitoring process
-        display.installProgressBar();
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                display.installProgressBar();
+            }
+        });
     }
 
     /**
@@ -45,14 +51,22 @@ public class RestoreBackupSwingMonitor implements ThinkParitySwingMonitor {
     public void reset() {
         this.step = 0;
         this.note = "";
-        display.resetProgressBar();
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                display.resetProgressBar();
+            }
+        });
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#setError(java.lang.String)
      */
     public void setError(final String errorMessageKey) {
-        display.setError(errorMessageKey);
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                display.setError(errorMessageKey);
+            }
+        });
     }
 
     /**
@@ -79,15 +93,23 @@ public class RestoreBackupSwingMonitor implements ThinkParitySwingMonitor {
      *
      */
     public void complete() {
-        display.dispose();
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                display.dispose();
+            }
+        });
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#setSteps(int)
      *
      */
-    public void setSteps(int steps) {
-        display.setDetermination(steps);
+    public void setSteps(final int steps) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                display.setDetermination(steps);
+            }
+        });
     }
 
     /**
@@ -95,6 +117,10 @@ public class RestoreBackupSwingMonitor implements ThinkParitySwingMonitor {
      *
      */
     private void updateProgressBar() {
-        display.updateProgress(step, note);
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                display.updateProgress(step, note);
+            }
+        });
     }
 }

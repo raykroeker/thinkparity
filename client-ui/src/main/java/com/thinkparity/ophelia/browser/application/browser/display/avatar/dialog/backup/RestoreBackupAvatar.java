@@ -109,12 +109,16 @@ public class RestoreBackupAvatar extends Avatar implements
      * 
      */
     public void reload() {
-        showBusyIndicators(Boolean.FALSE);
-        reloadExplanation();
-        reloadForgotPassword();
-        reloadProgressBar();
-        reloadCredentials();
-        validateInput();
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                showBusyIndicators(Boolean.FALSE);
+                reloadExplanation();
+                reloadForgotPassword();
+                reloadProgressBar();
+                reloadCredentials();
+                validateInput();
+            }
+        });
     }
 
     /**

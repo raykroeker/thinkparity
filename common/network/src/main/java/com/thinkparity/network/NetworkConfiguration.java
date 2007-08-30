@@ -48,7 +48,7 @@ public final class NetworkConfiguration {
 
     static {
         DEFAULTS = newConfigurationMap();
-        DEFAULTS.put(Names.Network.Connection.CONNECT_TIMEOUT, 750);
+        DEFAULTS.put(Names.Network.Connection.CONNECT_TIMEOUT, 2250);
         DEFAULTS.put(Names.Network.Connection.PROXIES, Collections.emptyList());
         DEFAULTS.put(Names.Network.Connection.SO_LINGER, -1);
         DEFAULTS.put(Names.Network.Connection.SO_TIMEOUT, 0);

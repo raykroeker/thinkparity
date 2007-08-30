@@ -68,6 +68,7 @@ public class HttpConnection extends
     @Override
     public void close() {
         connection.disconnect();
+        isOpen = false;
     }
 
     /**
@@ -215,7 +216,10 @@ public class HttpConnection extends
         if (null == address
                 || !getHost().equals(address.getHost())
                 || getPort() != address.getPort().intValue()) {
+            /* it is important that for the streaming addresses; no caching is
+             * done */
             address = new NetworkAddress(getHost(), getPort());
+            network.getConfiguration().setAddressCacheTTL(address, 1);
         }
         return address;
     }

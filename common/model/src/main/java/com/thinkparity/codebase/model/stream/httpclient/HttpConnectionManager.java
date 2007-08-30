@@ -31,7 +31,11 @@ public class HttpConnectionManager extends SimpleHttpConnectionManager {
     @Override
     public HttpConnection getConnectionWithTimeout(
             final HostConfiguration hostConfiguration, final long timeout) {
-        /* the simple http connection manager ignores timeout */
-        return new com.thinkparity.codebase.model.stream.httpclient.HttpConnection(hostConfiguration);
+        if (null == httpConnection || !httpConnection.isOpen()) {
+            httpConnection = new com.thinkparity.codebase.model.stream.httpclient.HttpConnection(hostConfiguration);
+            httpConnection.setHttpConnectionManager(this);
+            httpConnection.getParams().setDefaults(getParams());
+        }
+        return super.getConnectionWithTimeout(hostConfiguration, timeout);
     }
 }

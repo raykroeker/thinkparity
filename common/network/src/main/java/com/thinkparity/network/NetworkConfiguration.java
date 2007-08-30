@@ -53,6 +53,8 @@ public final class NetworkConfiguration {
         DEFAULTS.put(Names.Network.Connection.SO_LINGER, -1);
         DEFAULTS.put(Names.Network.Connection.SO_TIMEOUT, 0);
         DEFAULTS.put(Names.Network.Connection.TCP_NODELAY, Boolean.TRUE);
+        DEFAULTS.put(Names.Network.Address.CACHE_TTL, Integer.MAX_VALUE);
+        DEFAULTS.put(Names.Network.Address.LOOKUP_TIMEOUT, 3500);
         LOGGER = new Log4JWrapper("com.thinkparity.network.configuration");
         LOGGER.setRenderer(Network.class, NetworkRenderer.class);
         LOGGER.setRenderer(NetworkAddress.class, NetworkAddressRenderer.class);
@@ -113,6 +115,35 @@ public final class NetworkConfiguration {
         super();
     }
 
+    /**
+     * Obtain the address cache life time in ms.
+     * 
+     * @return An <code>Integer</code>.
+     */
+    public Integer getAddressCacheTTL() {
+        return (Integer) get(Names.Network.Address.CACHE_TTL);
+    }
+    
+    /**
+     * Obtain the address cache life time in ms.
+     * 
+     * @param address
+     *            A <code>NetworkAddress</code>.
+     * @return An <code>Integer</code>.
+     */
+    public Integer getAddressCacheTTL(final NetworkAddress address) {
+        return (Integer) get(address, Names.Network.Address.CACHE_TTL);
+    }
+
+    /**
+     * Obtain the address lookup timeout in ms.
+     * 
+     * @return An <code>Integer</code>.
+     */
+    public Integer getAddressLookupTimeout() {
+        return (Integer) get(Names.Network.Address.LOOKUP_TIMEOUT);
+    }
+    
     /**
      * Obtain the connect timeout.
      * 
@@ -411,6 +442,38 @@ public final class NetworkConfiguration {
     }
 
     /**
+     * Set the address cache life time in ms.
+     * 
+     * @param ttl
+     *            An <code>Integer</code>.
+     */
+    public void setAddressCacheTTL(final Integer ttl) {
+        set(Names.Network.Address.CACHE_TTL, ttl);
+    }
+
+    /**
+     * Set the address cache life time in ms.
+     * 
+     * @param address
+     *            A <code>NetworkAddress</code>.
+     * @param ttl
+     *            An <code>Integer</code>.
+     */
+    public void setAddressCacheTTL(final NetworkAddress address,
+            final Integer ttl) {
+        set(address, Names.Network.Address.CACHE_TTL, ttl);
+    }
+
+    /**
+     * Obtain the address lookup timeout in ms.
+     * 
+     * @return An <code>Integer</code>.
+     */
+    public void setAddressLookupTimeout(final Integer timeout) {
+        set(Names.Network.Address.LOOKUP_TIMEOUT, timeout);
+    }
+
+    /**
      * Set the connect timeout.
      * 
      * @param protocol
@@ -537,6 +600,35 @@ public final class NetworkConfiguration {
      */
     public void setSoTimeout(final NetworkProxy proxy, final Integer timeout) {
         set(proxy, Names.Network.Connection.SO_TIMEOUT, timeout);
+    }
+
+    /**
+     * Obtain a address configuration.
+     * 
+     * @param address
+     *            A <code>NetworkAddress</code>.
+     * @param name
+     *            A name <code>String</code>.
+     * @return An <code>Object</code>.
+     */
+    private synchronized Object get(final NetworkAddress address,
+            final String name) {
+        if (null == perAddress) {
+            return get(name);
+        } else {
+            if (perAddress.containsKey(address)) {
+                final Map<String, Object> values = perAddress.get(address);
+                if (values.containsKey(name)) {
+                    LOGGER.logInfo("Get \"{0}\":\"{1}\" for {2}.", name,
+                            values.get(name), address);
+                    return values.get(name);
+                } else {
+                    return get(name);
+                }
+            } else {
+                return get(name);
+            }
+        }
     }
 
     /**
@@ -793,6 +885,11 @@ public final class NetworkConfiguration {
     private static final class Names {
         /** <b>Title:</b>Network Configuration Entry Names:  Network<br> */
         private static final class Network {
+            /** <b>Title:</b>Network Configuration Entry Names:  Network:  Address<br> */
+            private static final class Address {
+                private static final String CACHE_TTL = "network.address.cache.ttl";
+                private static final String LOOKUP_TIMEOUT = "network.address.lookup.timeout";
+            }
             /** <b>Title:</b>Network Configuration Entry Names:  Network:  Connection<br> */
             private static final class Connection {
                 private static final String CONNECT_TIMEOUT = "network.connection.connecttimeout";

@@ -17,7 +17,6 @@ import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
@@ -322,14 +321,12 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
             serviceRequest = newServiceRequest(service, method, args);
 
             // execute the http post
-            final HttpClient httpClient;
             final PostMethod postMethod = newPostMethod();
             try {
                 postMethod.setRequestHeader("serviceId", serviceRequest.getService().getId());
                 postMethod.setRequestHeader("operationId", serviceRequest.getService().getId());
                 postMethod.setRequestEntity(this);
-                httpClient = context.getHttpClient();
-                httpClient.executeMethod(postMethod);
+                context.getHttpClient().executeMethod(postMethod);
 
                 /* extract the response; a 200 status code will be used even in the
                  * case of a remote error; the error will be serialized to the

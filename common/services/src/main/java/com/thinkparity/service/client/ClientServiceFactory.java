@@ -22,9 +22,6 @@ public final class ClientServiceFactory implements ServiceFactory {
 
     static {
         SINGLETON = new ClientServiceFactory();
-
-        System.setProperty("networkaddress.cache.ttl", String.valueOf(1));
-        System.setProperty("networkaddress.cache.negative.ttl", String.valueOf(1));
     }
 
     /**

@@ -5,11 +5,7 @@ package com.thinkparity.network;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.Proxy;
-import java.net.ProxySelector;
-import java.net.Socket;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +32,51 @@ class NetworkImpl {
 
     static {
         URI_PATTERN = "{0}://{1}";
+
+        System.setProperty("networkaddress.cache.ttl", String.valueOf(1));
+        System.setProperty("networkaddress.cache.negative.ttl", String.valueOf(1));
+    }
+
+    /**
+     * Create an address.
+     * 
+     * @param host
+     *            A <code>String</code>.
+     * @param port
+     *            A <code>Integer</code>.
+     * @return A <code>NetworkAddress</code>.
+     */
+    private static NetworkAddress newAddress(final String host,
+            final Integer port) {
+        return new NetworkAddress(host, port);
+    }
+
+    /**
+     * Create a proxy.
+     * 
+     * @param proxy
+     *            A <code>Proxy</code>.
+     * @return A <code>NetworkProxy</code>.
+     */
+    private static NetworkProxy newProxy(final Proxy proxy) {
+        if (Proxy.NO_PROXY == proxy) {
+            return NetworkProxy.NO_PROXY;
+        } else {
+            final NetworkProxy.Type type;
+            switch (proxy.type()) {
+            case HTTP:
+                type = NetworkProxy.Type.HTTP;
+                break;
+            case SOCKS:
+                type = NetworkProxy.Type.SOCKS;
+                break;
+            default:
+                throw new IllegalArgumentException("Unexpected proxy type.");
+            }
+            return new NetworkProxy(type, newAddress(
+                    ((InetSocketAddress) proxy.address()).getHostName(),
+                    ((InetSocketAddress) proxy.address()).getPort()));
+        }
     }
 
     /**
@@ -53,6 +94,9 @@ class NetworkImpl {
         return new URI(MessageFormat.format(URI_PATTERN, protocol.getName(),
                 address.getHost()));
     }
+
+    /** An address lookup. */
+    private NetworkAddressLookup addressLookup;
 
     /** The network configuration. */
     private NetworkConfiguration configuration;
@@ -120,6 +164,33 @@ class NetworkImpl {
     }
 
     /**
+     * Lookup a socket address for a network address.
+     * 
+     * @param address
+     *            A <code>NetworkAddress</code>.
+     * @return A <code>SocketAddress</code>.
+     * @throws UnknownHostException
+     *             if the network address cannot be resolved
+     */
+    SocketAddress lookupSocketAddress(final NetworkAddress address)
+            throws UnknownHostException {
+        if (null == addressLookup) {
+            addressLookup = new NetworkAddressLookup(getConfiguration());
+        }
+        SocketAddress socketAddress = addressLookup.lookup(address);
+        if (null == socketAddress) {
+            socketAddress = addressLookup.resolve(address);
+            if (null == socketAddress) {
+                throw new UnknownHostException(address.getHost());
+            } else {
+                return socketAddress;
+            }
+        } else {
+            return socketAddress;
+        }
+    }
+
+    /**
      * Create a network connection.
      * 
      * @param protocol
@@ -161,15 +232,21 @@ class NetworkImpl {
         logger.logVariable("connectionId", connectionId);
         logger.logVariable("address", proxy);
         logger.logVariable("address", address);
-        final Socket proxySocket = newSocket(connectionId, proxy);
         try {
-            proxySocket.connect(NetworkUtil.newSocketAddress(address));
-            return new SecureNetworkSocket(connectionId,
-                    (SSLSocket) getSecureSocketFactory().createSocket(
-                            proxySocket, address.getHost(), address.getPort(),
-                            true));
-        } catch (final IOException iox) {
-            throw new NetworkException(iox);
+            final Socket proxySocket = newSocket(connectionId, proxy);
+            try {
+                proxySocket.connect(lookupSocketAddress(address));
+                return new SecureNetworkSocket(connectionId,
+                        (SSLSocket) getSecureSocketFactory().createSocket(
+                                proxySocket, address.getHost(), address.getPort(),
+                                true));
+            } catch (final UnknownHostException uhx) {
+                throw new NetworkException(uhx);
+            } catch (final IOException iox) {
+                throw new NetworkException(iox);
+            }
+        } catch (final UnknownHostException uhx) {
+            throw new NetworkException(uhx);
         }
     }
 
@@ -182,11 +259,12 @@ class NetworkImpl {
      *            A <code>NetworkProxy</code>.
      * @return A <code>Socket</code>.
      */
-    Socket newSocket(final String connectionId, final NetworkProxy proxy) {
+    Socket newSocket(final String connectionId, final NetworkProxy proxy)
+            throws UnknownHostException {
         logger.logTraceId();
         logger.logVariable("connectionId", connectionId);
         logger.logVariable("proxy", proxy);
-        return new NetworkSocket(connectionId, NetworkUtil.newProxy(proxy));
+        return new NetworkSocket(connectionId, newProxy(proxy));
     }
 
     /**
@@ -268,6 +346,33 @@ class NetworkImpl {
     }
 
     /**
+     * Create a proxy.
+     * 
+     * @param proxy
+     *            A <code>NetworkProxy</code>.
+     * @return A <code>Proxy</code>.
+     */
+    private Proxy newProxy(final NetworkProxy proxy)
+            throws UnknownHostException {
+        if (NetworkProxy.NO_PROXY == proxy) {
+            return Proxy.NO_PROXY;
+        } else {
+            final Proxy.Type type;
+            switch (proxy.getType()) {
+            case HTTP:
+                type = Proxy.Type.HTTP;
+                break;
+            case SOCKS:
+                type = Proxy.Type.SOCKS;
+                break;
+            default:
+                throw new IllegalArgumentException("Cannot determine proxy type.");
+            }            
+            return new Proxy(type, lookupSocketAddress(proxy.getAddress()));
+        }
+    }
+
+    /**
      * Select an appropriate list of proxies for the protocol; and address.
      * 
      * @param protocol
@@ -283,7 +388,7 @@ class NetworkImpl {
         final List<Proxy> javaProxies = selector.select(newURI(protocol, address));
         final List<NetworkProxy> proxies = new ArrayList<NetworkProxy>(javaProxies.size());
         for (final Proxy javaProxy : javaProxies) {
-            proxies.add(NetworkUtil.newProxy(javaProxy));
+            proxies.add(newProxy(javaProxy));
         }
         return proxies;
     }

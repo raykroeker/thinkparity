@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.List;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -120,33 +120,36 @@ class NetworkConnectionImpl implements NetworkConnection {
     public void disconnect() {
         logger.logTraceId();
         logger.logInfo("{0} - Disconnect", getId());
-        ensureConnected();
-        try {
-            if (Boolean.FALSE == protocol.isSecure()) {
-                socket.shutdownInput();
-            }
-        } catch (final IOException iox) {
-            logger.logWarning(iox, "{0} - Error disconnecting.", getId());
-        } finally {
+        if (isConnected()) {
             try {
                 if (Boolean.FALSE == protocol.isSecure()) {
-                    socket.shutdownOutput();
+                    socket.shutdownInput();
                 }
             } catch (final IOException iox) {
                 logger.logWarning(iox, "{0} - Error disconnecting.", getId());
             } finally {
                 try {
-                    socket.close();
+                    if (Boolean.FALSE == protocol.isSecure()) {
+                        socket.shutdownOutput();
+                    }
                 } catch (final IOException iox) {
                     logger.logWarning(iox, "{0} - Error disconnecting.", getId());
                 } finally {
-                    socket = null;
-                    input = null;
-                    output = null;
-                    logger.logInfo("{0} - Disconnected", getId());
-                    connected = false;
+                    try {
+                        socket.close();
+                    } catch (final IOException iox) {
+                        logger.logWarning(iox, "{0} - Error disconnecting.", getId());
+                    } finally {
+                        socket = null;
+                        input = null;
+                        output = null;
+                        logger.logInfo("{0} - Disconnected", getId());
+                        connected = false;
+                    }
                 }
             }
+        } else {
+            logger.logWarning("{0} - Is not connected.", getId());
         }
     }
 
@@ -252,7 +255,8 @@ class NetworkConnectionImpl implements NetworkConnection {
         socket = newSocket();
         if (Boolean.FALSE == protocol.isSecure()) {
             /* secure sockets must already be connected */
-            socket.connect(newSocketAddress(), getConnectTimeout());
+            socket.connect(networkImpl.lookupSocketAddress(address),
+                    getConnectTimeout());
         }
     }
 
@@ -314,21 +318,12 @@ class NetworkConnectionImpl implements NetworkConnection {
      * 
      * @return A <code>Socket</code>.
      */
-    private Socket newSocket() throws NetworkException {
+    private Socket newSocket() throws NetworkException, UnknownHostException {
         if (protocol.isSecure()) {
             return networkImpl.newSecureSocket(id, proxy, address);
         } else {
             return networkImpl.newSocket(id, proxy);
         }
-    }
-
-    /**
-     * Create a socket address.
-     * 
-     * @return A <code>SocketAddress</code>.
-     */
-    private SocketAddress newSocketAddress() {
-        return NetworkUtil.newSocketAddress(address);
     }
 
     /**

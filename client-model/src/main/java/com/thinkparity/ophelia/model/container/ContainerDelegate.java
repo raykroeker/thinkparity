@@ -244,22 +244,6 @@ public abstract class ContainerDelegate extends
     }
 
     /**
-     * @see ContainerModelImpl#notifyContainerCreatedLocally(Container)
-     * 
-     */
-    protected final void notifyContainerCreatedLocally(final Container container) {
-        modelImplementation.notifyContainerCreatedLocally(container);
-    }
-
-    /**
-     * @see ContainerModelImpl#notifyContainerDeletedLocally(Container)
-     * 
-     */
-    protected final void notifyContainerDeletedLocally(final Container container) {
-        modelImplementation.notifyContainerDeletedLocally(container);
-    }
-
-    /**
      * @see ContainerModelImpl#read()
      * 
      */

@@ -105,7 +105,6 @@ public final class RestoreBackup extends ContainerDelegate {
                 notifyStepBegin(monitor, RestoreBackupStep.DELETE_CONTAINER, monitorData);
                 deleteLocal(container.getId(), allDocuments.get(container),
                         allDocumentsLocks, allDocumentsVersionsLocks);
-                // notifyContainerDeletedLocally(container);
                 notifyStepEnd(monitor, RestoreBackupStep.DELETE_CONTAINER);
             }
         } finally {
@@ -131,7 +130,6 @@ public final class RestoreBackup extends ContainerDelegate {
             // NOTE the model needs to apply the flag seen in this single case
             getArtifactModel().applyFlagSeen(backupContainer.getId());
             notifyStepEnd(monitor, RestoreBackupStep.RESTORE_CONTAINER);
-            // notifyContainerCreatedLocally(read(backupContainer.getId()));
         }
         notifyStepEnd(monitor, RestoreBackupStep.RESTORE_CONTAINERS);
         /* restore */

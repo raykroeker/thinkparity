@@ -2442,26 +2442,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Fire a container created notification using the local event generator.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     */
-    void notifyContainerCreatedLocally(final Container container) {
-        notifyContainerCreated(container, localEventGenerator);
-    }
-
-    /**
-     * Fire a container deleted notification using the local event generator.
-     * 
-     * @param container
-     *            A <code>Container</code>.
-     */
-    void notifyContainerDeletedLocally(final Container container) {
-        notifyContainerDeleted(container, localEventGenerator);
-    }
-
-    /**
      * Read a flat list of all documents for a container. This will look in the
      * draft as well as all versions.
      * 

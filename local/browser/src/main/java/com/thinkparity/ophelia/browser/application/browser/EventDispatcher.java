@@ -171,7 +171,7 @@ class EventDispatcher {
     private void syncContactTabContact(final ContactEvent e) {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
-                browser.syncContactTabContact(e.getContact().getLocalId(),
+                browser.syncContactTabContact(e.getContact(),
                         e.isRemote());
             }
         });

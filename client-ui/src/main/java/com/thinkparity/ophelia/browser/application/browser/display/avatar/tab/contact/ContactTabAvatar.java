@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 
 import com.thinkparity.ophelia.model.events.ContainerEvent;
@@ -141,15 +142,15 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
     /**
      * Synchronize the contact in the list, for example if it is deleted.
      * 
-     * @param contactId
-     *            The contact id.
+     * @param contact
+     *            A <code>Contact</code>.
      * @param remote
      *            Indicates whether the sync is the result of a remote event
      */
-    public void syncContact(final Long contactId, final Boolean remote) {
+    public void syncContact(final Contact contact, final Boolean remote) {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
-                model.syncContact(contactId, remote);
+                model.syncContact(contact.getLocalId(), remote);
             }
         });
     }

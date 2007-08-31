@@ -7,7 +7,7 @@ import com.thinkparity.codebase.model.session.Credentials
 
 import com.thinkparity.service.AuthToken
 import com.thinkparity.service.SessionService
-import com.thinkparity.service.client.ServiceFactory
+import com.thinkparity.service.client.ClientServiceFactory
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Build Task Session Helper<br>
@@ -30,7 +30,7 @@ class SessionHelper {
      */
     void init() {
         if (null == sessionService) {
-            sessionService = ServiceFactory.getInstance().getSessionService()
+            sessionService = ClientServiceFactory.getInstance().getSessionService()
             configuration["thinkparity.service-session"] = sessionService
         }
     }

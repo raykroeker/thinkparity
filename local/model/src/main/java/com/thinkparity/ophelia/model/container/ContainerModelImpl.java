@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.util.*;
 
 import javax.xml.transform.TransformerException;
@@ -1907,7 +1908,8 @@ public final class ContainerModelImpl extends
             try {
                 ContainerDraftDocument draftDocument;
                 DocumentDraft documentDraft;
-                File file;
+                FileChannel channel;
+                File tempFile;
                 InputStream stream;
                 for (final Document document : draft.getDocuments()) {
                     if (documentModel.isDraftModified(locks.get(document), document.getId())) {
@@ -1916,13 +1918,20 @@ public final class ContainerModelImpl extends
                                 containerId, document.getId());
                         draftDocument.setChecksum(documentDraft.getChecksum());
                         draftDocument.setSize(documentDraft.getSize());
-                        file = locks.get(document).getFile();
-                        stream = new FileInputStream(file);
+                        channel = locks.get(document).getFileChannel(0L);
+                        tempFile = workspace.createTempFile();
+                        channelToFile(channel, tempFile);
                         try {
-                            containerIO.updateDraftDocument(draftDocument,
-                                    stream, getBufferSize());
+                            stream = new FileInputStream(tempFile);
+                            try {
+                                containerIO.updateDraftDocument(draftDocument,
+                                        stream, getBufferSize());
+                            } finally {
+                                stream.close();
+                            }
                         } finally {
-                            stream.close();
+                            // TEMPFILE - ContainerModelImpl#saveDraft(Long)
+                            tempFile.delete();
                         }
                     }
                 }

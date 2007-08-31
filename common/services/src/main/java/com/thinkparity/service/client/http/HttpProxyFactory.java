@@ -9,6 +9,7 @@ import com.thinkparity.codebase.model.util.http.HttpUtils;
 
 import org.apache.commons.httpclient.HttpClient;
 
+import com.thinkparity.service.client.Constants;
 import com.thinkparity.service.client.Service;
 import com.thinkparity.service.client.ServiceProxyFactory;
 
@@ -45,9 +46,12 @@ public final class HttpProxyFactory implements ServiceProxyFactory {
     private static HttpClient newHttpClient() {
         final HttpClient httpClient = HttpUtils.newClient();
 
-        httpClient.getHttpConnectionManager().getParams().setMaxTotalConnections(3);
-        httpClient.getHttpConnectionManager().getParams().setSoTimeout(7 * 1000);
-        httpClient.getHttpConnectionManager().getParams().setTcpNoDelay(true);
+        httpClient.getHttpConnectionManager().getParams().setMaxTotalConnections(
+                Constants.HttpClient.ConnectionManager.MAX_TOTAL_CONNECTIONS);
+        httpClient.getHttpConnectionManager().getParams().setSoTimeout(
+                Constants.HttpClient.ConnectionManager.SO_TIMEOUT);
+        httpClient.getHttpConnectionManager().getParams().setTcpNoDelay(
+                Constants.HttpClient.ConnectionManager.TCP_NODELAY);
 
         return httpClient;
     }

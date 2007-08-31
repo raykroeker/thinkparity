@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.build
 
 import com.thinkparity.codebase.BytesFormat
+import com.thinkparity.codebase.TimeFormat
 import com.thinkparity.codebase.jabber.JabberId
 import com.thinkparity.codebase.nio.ChannelUtil
 
@@ -85,9 +86,15 @@ class DeployHelper {
         println "Archiving release ${imageArchiveFile.getName()}"
         ant.zip(destfile:imageArchiveFile,basedir:imageDir,level:9)
         // deploy
-        println "Deploying release ${imageArchiveFile.getName()}"
+        println "Uploading release ${imageArchiveFile.getName()}"
+		def preUpload = System.currentTimeMillis()
         upload(product, release, imageArchiveFile)
+        def timeFormat = new TimeFormat()
+        println "Upload:  ${timeFormat.format(System.currentTimeMillis() - preUpload)}"
+		println "Deploying release ${release.getName()}"
+		def preDeploy = System.currentTimeMillis()
         migratorService.deploy(authToken, product, release, resources)
+		println "Deploy:  ${timeFormat.format(System.currentTimeMillis() - preDeploy)}"
     }
 
     /**

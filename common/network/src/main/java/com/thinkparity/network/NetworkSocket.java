@@ -9,9 +9,6 @@ import java.io.OutputStream;
 import java.net.Proxy;
 import java.net.Socket;
 
-import com.thinkparity.network.io.NetworkInputStream;
-import com.thinkparity.network.io.NetworkOutputStream;
-
 /**
  * <b>Title:</b>thinkParity Network Socket<br>
  * <b>Description:</b><br>
@@ -52,7 +49,9 @@ class NetworkSocket extends Socket {
      */
     @Override
     public InputStream getInputStream() throws IOException {
-        return new NetworkInputStream(connectionId, super.getInputStream());
+        // NOCOMMIT
+        // return new NetworkInputStream(connectionId, super.getInputStream());
+        return super.getInputStream();
     }
 
     /**
@@ -61,6 +60,8 @@ class NetworkSocket extends Socket {
      */
     @Override
     public OutputStream getOutputStream() throws IOException {
-        return new NetworkOutputStream(connectionId, super.getOutputStream());
+        // NOCOMMIT
+        // return new NetworkOutputStream(connectionId, super.getOutputStream());
+        return super.getOutputStream();
     }
 }

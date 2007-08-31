@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.desdemona.web.service.*;
 
@@ -22,8 +23,9 @@ import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;
 
 /**
- * <b>Title:</b><br>
- * <b>Description:</b><br>
+ * <b>Title:</b>thinkParity Desdemona Web Service<br>
+ * <b>Description:</b>A servlet that services xml-rpc over http post.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
@@ -40,6 +42,9 @@ public final class WebService extends HttpServlet {
 
     /** The begin/end xml nodes for the error type. */
     private static final char[][] ERROR_XML_TYPE;
+
+    /** A log4j wrapper. */
+    private static final Log4JWrapper LOGGER;
 
     /** The service operation registry. */
     private static final OperationRegistry OPERATION_REGISTRY;
@@ -70,14 +75,18 @@ public final class WebService extends HttpServlet {
                 ">".toCharArray(),
                 "</service-error>".toCharArray()
         };
+
         ERROR_XML_MESSAGE = new char[][] {
                 " message=\"".toCharArray(),
                 "\"".toCharArray()
         };
+
         ERROR_XML_TYPE = new char[][] {
                 " type=\"".toCharArray(),
                 "\"".toCharArray()
         };
+
+        LOGGER = new Log4JWrapper("SERVICE_DEBUGGER");
 
         OPERATION_REGISTRY = OperationRegistry.getInstance();
 
@@ -449,10 +458,14 @@ public final class WebService extends HttpServlet {
             // service the response; write the result
             try {
                 final ServiceResponse response = service(request);
-                if (response.isErrorResponse()) {
-                    writeErrorResponse(resp.getOutputStream(), request, response);
-                } else {
-                    writeResponse(resp.getOutputStream(), request, response);
+                try {
+                    if (response.isErrorResponse()) {
+                        writeErrorResponse(resp.getOutputStream(), request, response);
+                    } else {
+                        writeResponse(resp.getOutputStream(), request, response);
+                    }
+                } catch (final Throwable t) {
+                    LOGGER.logFatal(t, "Could not write response.");
                 }
             } catch (final AuthException ax) {
                 resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);

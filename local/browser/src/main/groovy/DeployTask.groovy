@@ -47,8 +47,9 @@ class DeployTask {
             def resources = new ResourceBuilder(configuration:configuration,product:product,release:release).create()
             new DeployHelper(ant:ant,configuration:configuration).deploy(product, release, resources)
         } catch (final Throwable t) {
-            sessionHelper.logout()
             ant.fail(t.getMessage())
+        } finally {
+            sessionHelper.logout()
         }
     }
 }

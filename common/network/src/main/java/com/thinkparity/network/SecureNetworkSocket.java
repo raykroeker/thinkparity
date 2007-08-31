@@ -16,9 +16,6 @@ import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 
-import com.thinkparity.network.io.NetworkInputStream;
-import com.thinkparity.network.io.NetworkOutputStream;
-
 /**
  * <b>Title:</b>thinkParity Secure Network Socket<br>
  * <b>Description:</b><br>
@@ -156,7 +153,9 @@ class SecureNetworkSocket extends SSLSocket  {
      */
     @Override
     public InputStream getInputStream() throws IOException {
-        return new NetworkInputStream(connectionId, delegate.getInputStream());
+        // NOCOMMIT
+        // return new NetworkInputStream(connectionId, delegate.getInputStream());
+        return delegate.getInputStream();
     }
 
     /**
@@ -219,7 +218,9 @@ class SecureNetworkSocket extends SSLSocket  {
      */
     @Override
     public OutputStream getOutputStream() throws IOException {
-        return new NetworkOutputStream(connectionId, delegate.getOutputStream());
+        // NOCOMMIT
+        // return new NetworkOutputStream(connectionId, delegate.getOutputStream());
+        return delegate.getOutputStream();
     }
 
     /**

@@ -79,7 +79,24 @@ public final class NotificationClient extends Observable implements Runnable {
         if (null == connection || !connection.isConnected()) {
             connect();
         }
-        writeHeader();
+        try {
+            writeHeader();
+        } catch (final NetworkException nx) {
+            logger.logWarning("Could not write notification header.  {0}",
+                    nx.getMessage());
+            /* writing the header after a manual windows disconnect/reconnect of
+             * the network interface will err; therefore we check again */ 
+            connection.disconnect();
+            connection = null;
+            connect();
+            try {
+                writeHeader();
+            } catch (final NetworkException nx2) {
+                logger.logError(nx2, "Could not reconnect notification client.");
+                connection.disconnect();
+                connection = null;
+            }
+        }
 
         while (run) {
             if (online) {
@@ -216,15 +233,13 @@ public final class NotificationClient extends Observable implements Runnable {
     /**
      * Write the session id header.
      * 
+     * @throws NetworkException
+     *             if the id header cannot be written
      */
-    private void writeHeader() {
+    private void writeHeader() throws NetworkException {
         online = Boolean.FALSE;
-        try {
-            connection.write(getHeaderBytes());
-            online = Boolean.TRUE;
-        } catch (final NetworkException nx) {
-            logger.logError("Cannot write header.", nx.getMessage());
-        }
+        connection.write(getHeaderBytes());
+        online = Boolean.TRUE;
     }
 
     /** <b>Title:</b>Observable Event<br> */

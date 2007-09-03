@@ -6,6 +6,7 @@ package com.thinkparity.network;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -89,7 +90,7 @@ class NetworkConnectionImpl implements NetworkConnection {
     @Override
     public void connect() throws NetworkException {
         logger.logTraceId();
-        logger.logInfo("{0} - Connect", getId());
+        logger.logInfo("{0} - Connect.", getId());
         Exception lastX = null;
         connected = false;
         for (final NetworkProxy proxy : proxies) {
@@ -98,7 +99,15 @@ class NetworkConnectionImpl implements NetworkConnection {
                 connectViaProxy();
                 setSocketOptions();
                 setSocketStreams();
-                logger.logInfo("{0} - Connected", getId());
+                logger.logInfo("{0} - Connected.", getId());
+                logger.logDebug("{0} - Local:  {1}:{2}", getId(),
+                        socket.getLocalAddress().getHostAddress(),
+                        socket.getLocalPort());
+                final InetSocketAddress remoteSocketAddress =
+                    (InetSocketAddress) socket.getRemoteSocketAddress();
+                logger.logDebug("{0} - Remote:  {1}:{2}", getId(),
+                        remoteSocketAddress.getAddress().getHostAddress(),
+                        remoteSocketAddress.getPort());
                 connected = true;
                 break;
             } catch (final SocketException sx) {

@@ -18,6 +18,7 @@ import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.queue.notification.NotificationClient;
 import com.thinkparity.ophelia.model.queue.notification.NotificationClient.ObservableEvent;
 import com.thinkparity.ophelia.model.session.OfflineCode;
+import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -230,11 +231,28 @@ public final class QueueModelImpl extends Model<EventListener> implements
                 case PENDING_EVENTS:
                     final QueueProcessor queueProcessor = newQueueProcessor();
                     setQueueProcessor(queueProcessor);
-                    try {
-                        queueProcessor.run();
-                    } finally {
-                        removeQueueProcessor();
-                    }
+                    /* start the queue processor as a separate thread; if not
+                     * the notification client is blocked from determining
+                     * offline status while we are processing the queue */
+                    workspace.newThread("QueueProcessor",
+                            new Runnable() {
+                                /**
+                                 * @see java.lang.Runnable#run()
+                                 *
+                                 */
+                                @Override
+                                public void run() {
+                                    try {
+                                        queueProcessor.run();
+                                    } catch (final OfflineException ox) {
+                                        logger.logWarning("A network error has occured.  {0}",
+                                                ox.getMessage());
+                                    } finally {
+                                        removeQueueProcessor();
+                                    }
+                                }
+                        
+                    }).start();
                     break;
                 case OFFLINE:
                     if (getSessionModel().isOnline()) {

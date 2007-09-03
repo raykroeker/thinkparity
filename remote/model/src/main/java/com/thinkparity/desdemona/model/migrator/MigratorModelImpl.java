@@ -43,6 +43,7 @@ import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants;
 import com.thinkparity.desdemona.model.io.sql.MigratorSql;
+import com.thinkparity.desdemona.model.user.InternalUserModel;
 import com.thinkparity.desdemona.util.DefaultRetryHandler;
 import com.thinkparity.desdemona.util.smtp.SMTPService;
 
@@ -112,6 +113,20 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
                 }
             } finally {
                 tempFile.delete();
+            }
+            // purge
+            final List<Release> previousReleases =
+                migratorSql.readPreviousReleases(product.getName(),
+                        release.getDate(), release.getOs());
+            final InternalUserModel userModel = getUserModel();
+            for (final Release previousRelease : previousReleases) {
+                if (userModel.doesExistUser(localProduct, previousRelease)) {
+                    logger.logInfo("Previous release {0} is still referenced.",
+                            previousRelease);
+                } else {
+                    logger.logInfo("Deleting release {0}.", previousRelease);
+                    migratorSql.delete(previousRelease);
+                }
             }
         } catch (final Throwable t) {
             throw translateError(t);

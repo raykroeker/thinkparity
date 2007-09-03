@@ -58,6 +58,18 @@ public final class MigratorSql extends AbstractSql {
         .append("values (?,?,?,?)")
         .toString();
 
+    /** Sql to delete a release. */
+    private static final String SQL_DELETE_RELEASE =
+        new StringBuilder("delete from TPSD_PRODUCT_RELEASE ")
+        .append("where RELEASE_ID=?")
+        .toString();
+
+    /** Sql to delete release errors. */
+    private static final String SQL_DELETE_RELEASE_ERRORS =
+        new StringBuilder("delete from TPSD_PRODUCT_RELEASE_ERROR ")
+        .append("where RELEASE_ID=?")
+        .toString();
+
     /** Delete all resource relationships where the resource is specified. */
     private static final String SQL_DELETE_RESOURCE =
         new StringBuilder("delete from TPSD_PRODUCT_RELEASE_RESOURCE ")
@@ -142,6 +154,13 @@ public final class MigratorSql extends AbstractSql {
         .append("inner join TPSD_PRODUCT P on R.PRODUCT_ID=P.PRODUCT_ID ")
         .append("where P.PRODUCT_NAME=? and R.RELEASE_NAME=? ")
         .append("and R.RELEASE_OS=?")
+        .toString();
+
+    /** Sql to read a release error count. */
+    private static final String SQL_READ_RELEASE_ERROR_COUNT =
+        new StringBuilder("select count(PRE.ERROR_ID) \"ERROR_COUNT\" ")
+        .append("from TPSD_PRODUCT_RELEASE_ERROR PRE ")
+        .append("where PRE.RELEASE_ID=?")
         .toString();
 
     /** Read a release resource by its unique key. */
@@ -277,6 +296,32 @@ public final class MigratorSql extends AbstractSql {
             if (1 != session.executeUpdate())
                 throw panic("Could not create release.");
             resource.setId(session.getIdentity("TPSD_PRODUCT_RELEASE_RESOURCE"));
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Delete a release.
+     * 
+     * @param release
+     *            A <code>Release</code>.
+     */
+    public void delete(final Release release) {
+        final HypersonicSession session = openSession();
+        try {
+            final List<Resource> resources = readResources(release);
+            deleteResources(resources);
+
+            deleteReleaseErrors(session, release);
+
+            session.prepareStatement(SQL_DELETE_RELEASE);
+            session.setLong(1, release.getId());
+            if (1 != session.executeUpdate())
+                throw panic("Could not delete release.");
             session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);
@@ -469,6 +514,38 @@ public final class MigratorSql extends AbstractSql {
     }
 
     /**
+     * Read the previous release.
+     * 
+     * @param productName
+     *            An existing product name <code>String</code>.
+     * @param releaseName
+     *            An existing release name <code>String</code>.
+     * @param os
+     *            An <code>OS</code>.
+     * @return A <code>List<Release></code>.
+     */
+    public List<Release> readPreviousReleases(final String productName,
+            final Calendar releaseDate, final OS os) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_PREVIOUS_RELEASES);
+            session.setString(1, productName);
+            session.setString(2, os.name());
+            session.setCalendar(3, releaseDate);
+            session.executeQuery();
+            final List<Release> releases = new ArrayList<Release>();
+            while (session.nextResult()) {
+                releases.add(extractRelease(session));
+            }
+            return releases;
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Read a product.
      * 
      * @param name
@@ -643,6 +720,24 @@ public final class MigratorSql extends AbstractSql {
     }
 
     /**
+     * Delete all of the release errors.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @param release
+     *            A <code>Release</code>.
+     */
+    private void deleteReleaseErrors(final HypersonicSession session,
+            final Release release) {
+        final int errors = readReleaseErrorCount(session, release).intValue();
+        session.prepareStatement(SQL_DELETE_RELEASE_ERRORS);
+        session.setLong(1, release.getId());
+        if (errors != session.executeUpdate()) {
+            throw panic("Could not delete release errors.");
+        }
+    }
+
+    /**
      * Extract a product from a session.
      * 
      * @param session
@@ -703,5 +798,26 @@ public final class MigratorSql extends AbstractSql {
         resource.setReleaseName(session.getString("RELEASE_NAME"));
         resource.setSize(session.getLong("RESOURCE_SIZE"));
         return resource;
+    }
+
+    /**
+     * Read the release error count.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @param release
+     *            A <code>Release</code>.
+     * @return A <code>Integer</code>.
+     */
+    private Integer readReleaseErrorCount(final HypersonicSession session,
+            final Release release) {
+        session.prepareStatement(SQL_READ_RELEASE_ERROR_COUNT);
+        session.setLong(1, release.getId());
+        session.executeQuery();
+        if (session.nextResult()) {
+            return session.getInteger("ERROR_COUNT");
+        } else {
+            return null;
+        }
     }
 }

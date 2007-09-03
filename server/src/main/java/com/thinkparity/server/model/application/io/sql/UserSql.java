@@ -308,6 +308,13 @@ public final class UserSql extends AbstractSql {
         new StringBuilder("update TPSD_USER set VCARD=? where USER_ID=?")
         .toString();
         
+    /** Sql to determine a user count for a product release. */
+    private static final String SQL_USER_COUNT_BY_PRODUCT_RELEASE =
+        new StringBuilder("select count(UPRR.USER_ID) \"USER_COUNT\" ")
+        .append("from TPSD_USER_PRODUCT_RELEASE_REL UPRR ")
+        .append("where UPRR.PRODUCT_ID=? and UPRR.RELEASE_ID=?")
+        .toString();
+
     private static final String SQL_VERIFY_EMAIL =
         new StringBuilder("update TPSD_USER_EMAIL ")
         .append("set VERIFIED=?, VERIFICATION_KEY=?")
@@ -784,6 +791,39 @@ public final class UserSql extends AbstractSql {
     }
 
     /**
+     * Determine if any users exist (reference) the product release.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     * @return True if any users reference the product release.
+     */
+    public Boolean doesExistUser(final Product product, final Release release) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_USER_COUNT_BY_PRODUCT_RELEASE);
+            session.setLong(1, product.getId());
+            session.setLong(2, release.getId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int userCount = session.getInteger("USER_COUNT");
+                if (0 == userCount) {
+                    return Boolean.FALSE;
+                } else if (0 < userCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine .");
+                }
+            } else {
+                throw new HypersonicException("Could not determine .");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Determine whether or not a given reservation exists.
      * 
      * @param token
@@ -892,7 +932,6 @@ public final class UserSql extends AbstractSql {
             session.close();
         }
     }
-
     /**
      * Read a user id for an e-mail address.
      * 
@@ -938,6 +977,7 @@ public final class UserSql extends AbstractSql {
             session.close();
         }
     }
+
     public EMail readEmail(final Long userId, final EMail email,
             final VerificationKey key) {
         final HypersonicSession session = openSession();

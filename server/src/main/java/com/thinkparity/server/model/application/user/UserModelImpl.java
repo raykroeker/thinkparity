@@ -18,6 +18,8 @@ import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.VCardReader;
 import com.thinkparity.codebase.model.util.VCardWriter;
@@ -46,6 +48,20 @@ public class UserModelImpl extends AbstractModelImpl implements UserModel,
         super();
     }
 
+
+    /**
+     * @see com.thinkparity.desdemona.model.user.InternalUserModel#doesExistUser(com.thinkparity.codebase.model.migrator.Product,
+     *      com.thinkparity.codebase.model.migrator.Release)
+     * 
+     */
+    @Override
+    public Boolean doesExistUser(final Product product, final Release release) {
+        try {
+            return userSql.doesExistUser(product, release);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
 
     /**
      * @see com.thinkparity.desdemona.model.user.UserModel#read()
@@ -153,6 +169,7 @@ public class UserModelImpl extends AbstractModelImpl implements UserModel,
             throw translateError(t);
         }
     }
+
 
     /**
      * @see com.thinkparity.desdemona.model.user.UserModel#readVCard(com.thinkparity.codebase.model.user.UserVCard)

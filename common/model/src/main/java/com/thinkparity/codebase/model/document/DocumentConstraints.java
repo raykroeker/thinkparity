@@ -48,7 +48,7 @@ public class DocumentConstraints {
 
         this.size = new IntegerConstraint();
         this.size.setMaxValue(Integer.MAX_VALUE);
-        this.size.setMinValue(1);
+        this.size.setMinValue(0);
         this.size.setName("Document size");
         this.size.setNullable(Boolean.FALSE);
     }

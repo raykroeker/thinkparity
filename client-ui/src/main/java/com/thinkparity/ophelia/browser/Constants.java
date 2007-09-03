@@ -30,6 +30,11 @@ import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityCheckBoxMenuIt
  */
 public final class Constants {
 
+    public static final class BusyIndicator {
+        // TIMEOUT - Busy indicator cursor - 0.1s
+        public static final Integer ACTIVATION_DELAY = 100;
+    }
+
     /** Colour constants. */
     public static final class Colors {
         public static final class Browser {

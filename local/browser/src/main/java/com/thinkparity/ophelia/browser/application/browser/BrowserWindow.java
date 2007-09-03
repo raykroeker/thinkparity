@@ -7,22 +7,20 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Point;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowStateListener;
+import java.awt.event.*;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.Constants;
+import com.thinkparity.ophelia.browser.Constants.BusyIndicator;
 import com.thinkparity.ophelia.browser.Constants.Dimensions;
 import com.thinkparity.ophelia.browser.application.browser.display.DisplayId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
@@ -100,8 +98,14 @@ public class BrowserWindow extends AbstractJFrame {
     /** The browser application. */
 	private final Browser browser;
 
+    /** The busy cursor timer. */
+    private Timer busyCursorTimer;
+
     /** An boolean indicating whether the "busy" indicator is applied. */
     private boolean busyIndicator;
+
+    /** The not busy <code>Cursor</code>. */
+    private Cursor notBusyCursor;
 
     /**
 	 * Create BrowserWindow.
@@ -188,7 +192,8 @@ public class BrowserWindow extends AbstractJFrame {
      */
     @Override
     public void setCursor(final Cursor cursor) {
-        if (busyIndicator) {
+        if (busyIndicator
+                && (null == cursor || Cursor.WAIT_CURSOR != cursor.getType())) {
             logger.logInfo("Cursor has been disabled.");
         } else {
             super.setCursor(cursor);
@@ -283,8 +288,8 @@ public class BrowserWindow extends AbstractJFrame {
      *
      */
     void applyBusyIndicator() {
-        // set the window cursor to "wait"
-        SwingUtil.setCursor(this, Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        // apply the "busy" cursor
+        applyBusyCursor();
         // the the busy flag
         busyIndicator = true;
         // apply an intercept pane
@@ -325,8 +330,8 @@ public class BrowserWindow extends AbstractJFrame {
     void removeBusyIndicator() {
         // reset the "busy" indicator
         busyIndicator = false;
-        // set the "default" cursor
-        SwingUtil.setCursor(this, null);
+        // remove the "busy" cursor
+        removeBusyCursor();
         // remove the intercept pane
         removeInterceptPane();
         // put focus in the tab
@@ -349,6 +354,25 @@ browser.displayContactTabAvatar();
         browser.requestFocusInTab();
         applyRenderingHints();
         debug();
+    }
+
+    /**
+     * Apply the busy cursor.
+     */
+    private void applyBusyCursor() {
+        if (busyCursorTimer == null) {
+            busyCursorTimer = new Timer(BusyIndicator.ACTIVATION_DELAY, new ActionListener() {
+                public void actionPerformed(final ActionEvent timerEvent) {
+                    busyCursorTimer.stop();
+                    SwingUtil.setCursor(BrowserWindow.this, Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                }
+            });
+            notBusyCursor = BrowserWindow.this.getCursor();
+            busyCursorTimer.start();
+        }
+        else {
+            busyCursorTimer.restart();
+        }
     }
 
     /**
@@ -421,6 +445,16 @@ browser.displayContactTabAvatar();
             persistence.set("size", getSize());
             persistence.set("maximized", Boolean.FALSE);
         }
+    }
+
+    /**
+     * Remove the busy cursor.
+     */
+    private void removeBusyCursor() {
+        if (busyCursorTimer != null) {
+            busyCursorTimer.stop();
+        }
+        SwingUtil.setCursor(this, notBusyCursor);
     }
 
     /**

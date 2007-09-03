@@ -99,6 +99,11 @@ abstract class ComponentFactory {
                 SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), null);
             }
 		});
+        component.addMouseMotionListener(new MouseAdapter() {
+            public void mouseMoved(final MouseEvent e) {
+                SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+            }
+        });
 	}
 
 	protected void applyMinimumHeight(final JComponent jComponent,

@@ -397,6 +397,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
         reloadWindowTitle();
         page.validateInput();
         page.setDefaultFocus();
+        repaint();
     }
 
     /**

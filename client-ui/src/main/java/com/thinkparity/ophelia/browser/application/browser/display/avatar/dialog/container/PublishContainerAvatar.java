@@ -72,6 +72,7 @@ public final class PublishContainerAvatar extends Avatar implements
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPanel buttonBarJPanel = new javax.swing.JPanel();
+    private final javax.swing.JButton cancelJButton = ButtonFactory.create();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
     private final javax.swing.JButton publishJButton = ButtonFactory.create();
@@ -226,6 +227,15 @@ public final class PublishContainerAvatar extends Avatar implements
              * order to maintain vertical spacing. */
             statusJLabel.setText(" ");
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setCloseButtonEnabled(java.lang.Boolean)
+     */
+    @Override
+    protected void setCloseButtonEnabled(final Boolean closeButtonEnabled) {
+        super.setCloseButtonEnabled(closeButtonEnabled);
+        cancelJButton.setEnabled(closeButtonEnabled);
     }
 
     /**
@@ -423,8 +433,6 @@ public final class PublishContainerAvatar extends Avatar implements
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
-
-        final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
         versionNameJLabel.setFont(Fonts.DialogFont);
         versionNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.VersionName"));
@@ -734,6 +742,7 @@ public final class PublishContainerAvatar extends Avatar implements
                 errorMessageJLabel.setText(getInputErrors().get(0));
             } else {
                 publishJButton.setEnabled(false);
+                setCloseButtonEnabled(Boolean.FALSE);
                 publishContainer();
             }
         }

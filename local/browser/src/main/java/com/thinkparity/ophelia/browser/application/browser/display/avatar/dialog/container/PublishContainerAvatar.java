@@ -539,7 +539,7 @@ public final class PublishContainerAvatar extends Avatar implements
                 .addContainerGap()
                 .add(progressBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(publishJProgressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
-                    .add(statusJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE))
+                    .add(statusJLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 360, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         progressBarJPanelLayout.setVerticalGroup(

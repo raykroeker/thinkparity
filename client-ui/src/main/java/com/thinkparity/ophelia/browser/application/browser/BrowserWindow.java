@@ -346,7 +346,6 @@ public class BrowserWindow extends AbstractJFrame {
     void reOpen() {
         browser.displayMainTitleAvatar();
         browser.displayMainStatusAvatar();
-browser.displayContactTabAvatar();
         browser.displayContainerTabAvatar();
 
         setVisible(true);

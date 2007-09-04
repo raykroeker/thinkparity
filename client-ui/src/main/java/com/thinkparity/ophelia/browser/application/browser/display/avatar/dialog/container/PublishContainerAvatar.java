@@ -856,7 +856,7 @@ public final class PublishContainerAvatar extends Avatar implements
         }
 
         // adjust the size of the team member control
-        initComponentsAdjustVerticalSize(teamMembers.size());
+        initComponentsAdjustVerticalSize(teamMembersListModel.size());
 
         // if there are no team members then hide the team member list and adjust labels
         final boolean teamList = (PublishTypeSpecific.PUBLISH_FIRST_TIME != publishType &&

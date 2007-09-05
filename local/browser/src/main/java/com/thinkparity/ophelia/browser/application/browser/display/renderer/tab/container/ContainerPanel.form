@@ -332,14 +332,14 @@
 
                       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
                       <SubComponents>
-                        <Component class="javax.swing.JLabel" name="participantsTitleJLabel">
+                        <Component class="javax.swing.JLabel" name="latestVersionTitleJLabel">
                           <Properties>
                             <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                               <Connection code="Fonts.DialogFont" type="code"/>
                             </Property>
                             <Property name="horizontalAlignment" type="int" value="11"/>
                             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                              <ResourceString bundle="localization/Browser_Messages.properties" key="ContainerPanel.participantsJLabel" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+                              <ResourceString bundle="localization/Browser_Messages.properties" key="ContainerPanel.latestVersionLeft" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
                             </Property>
                           </Properties>
                           <AuxValues>
@@ -351,14 +351,14 @@
                             </Constraint>
                           </Constraints>
                         </Component>
-                        <Component class="javax.swing.JLabel" name="documentsTitleJLabel">
+                        <Component class="javax.swing.JLabel" name="firstPublishedTitleJLabel">
                           <Properties>
                             <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                               <Connection code="Fonts.DialogFont" type="code"/>
                             </Property>
                             <Property name="horizontalAlignment" type="int" value="11"/>
                             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-                              <ResourceString bundle="localization/Browser_Messages.properties" key="ContainerPanel.documentsJLabel" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+                              <ResourceString bundle="localization/Browser_Messages.properties" key="ContainerPanel.firstPublishedJLabel" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
                             </Property>
                           </Properties>
                           <AuxValues>
@@ -415,12 +415,14 @@
 
                       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
                       <SubComponents>
-                        <Component class="javax.swing.JLabel" name="participantsJLabel">
+                        <Component class="javax.swing.JLabel" name="latestVersionJLabel">
                           <Properties>
                             <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                               <Connection code="Fonts.DialogFont" type="code"/>
                             </Property>
-                            <Property name="text" type="java.lang.String" value="!number!"/>
+                            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                              <ResourceString bundle="localization/Browser_Messages.properties" key="ContainerPanel.latestVersionRight" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+                            </Property>
                           </Properties>
                           <AuxValues>
                             <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
@@ -431,12 +433,12 @@
                             </Constraint>
                           </Constraints>
                         </Component>
-                        <Component class="javax.swing.JLabel" name="documentsJLabel">
+                        <Component class="javax.swing.JLabel" name="firstPublishedJLabel">
                           <Properties>
                             <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                               <Connection code="Fonts.DialogFont" type="code"/>
                             </Property>
-                            <Property name="text" type="java.lang.String" value="!number!"/>
+                            <Property name="text" type="java.lang.String" value="!date!"/>
                           </Properties>
                           <AuxValues>
                             <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>

@@ -14,12 +14,7 @@ import java.util.Locale;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.sort.StringComparator;
 
-import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.ContactInvitation;
-import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
-import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
-import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
-import com.thinkparity.codebase.model.contact.OutgoingUserInvitation;
+import com.thinkparity.codebase.model.contact.*;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterBy;
@@ -88,6 +83,23 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     @Override
     public TabButtonActionDelegate getTabButtonActionDelegate() {
         return actionDelegate;
+    }
+
+    /**
+     * Get the topmost visible incoming invitation.
+     * 
+     * @return The topmost <code>IncomingInvitation</code>.
+     */
+    public IncomingInvitation getTopVisibleIncomingInvitation() {
+        for (final TabPanel visiblePanel : visiblePanels) {
+            final ContactTabPanel contactTabPanel = (ContactTabPanel)visiblePanel;
+            if (contactTabPanel.isSetIncomingEMail()) {
+                return contactTabPanel.getIncomingEMail();
+            } else if (contactTabPanel.isSetIncomingUser()) {
+                return contactTabPanel.getIncomingUser();
+            }
+        }
+        return null;
     }
 
     /**

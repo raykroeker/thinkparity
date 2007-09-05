@@ -23,8 +23,6 @@ import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
 
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
-import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -1672,54 +1670,6 @@ public class Browser extends AbstractApplication {
     /**
      * Show the contact invitation.
      * 
-     * @param invitationId
-     *            The invitationId.
-     */
-    public void showContactIncomingEMailInvitation(
-            final IncomingEMailInvitation incomingEMailInvitation) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().showContactInvitation(
-                        incomingEMailInvitation.getId());
-            }
-        });   
-    }
-
-    /**
-     * Show the contact invitation.
-     * 
-     * @param invitationId
-     *            The invitationId.
-     */
-    public void showContactIncomingUserInvitation(
-            final IncomingUserInvitation incomingUserInvitation) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().showContactInvitation(
-                        incomingUserInvitation.getId());
-            }
-        });   
-    }
-
-    /**
-     * Show the contact invitation.
-     * 
-     * @param invitationIds
-     *            The list of invitationIds.
-     * @param index
-     *            The index of the invitation to show (0 indicates the invitation displayed at top).   
-     */
-    public void showContactInvitation(final List<Long> invitationIds, final int index) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                getTabContactAvatar().showContactInvitation(invitationIds, index);
-            }
-        });   
-    }
-
-    /**
-     * Show the contact invitation.
-     * 
      * @param invitationIds
      *            The list of invitationIds.
      * @param index
@@ -1731,6 +1681,19 @@ public class Browser extends AbstractApplication {
                 getTabContactAvatar().showContactInvitation(invitationId);
             }
         });   
+    }
+
+    /**
+     * Show the topmost visible incoming invitation.
+     * 
+     * The panel is expanded (without animation) and scrolled so it is visible.
+     */
+    public void showTopVisibleIncomingInvitation() {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getTabContactAvatar().showTopVisibleIncomingInvitation();
+            }
+        }); 
     }
 
     /**

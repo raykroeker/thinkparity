@@ -11,6 +11,7 @@ import java.util.List;
 import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.IncomingInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 
 import com.thinkparity.ophelia.model.events.ContainerEvent;
@@ -137,6 +138,18 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
                 showPanel(newInvitationPanelId(invitationId), false);
             }
         });
+    }
+
+    /**
+     * Show the topmost visible incoming invitation.
+     * 
+     * The panel is expanded (without animation) and scrolled so it is visible.
+     */
+    public void showTopVisibleIncomingInvitation() {
+        final IncomingInvitation incomingInvitation = model.getTopVisibleIncomingInvitation();
+        if (null != incomingInvitation) {
+            showContactInvitation(incomingInvitation.getId());
+        }
     }
 
     /**

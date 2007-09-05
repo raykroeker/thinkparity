@@ -666,24 +666,13 @@ public class MainStatusAvatar extends Avatar {
                         // display invitation info/link
                         optionalTextJLabel.setText(Separator.Space + getString("OptionalText") + Separator.Space);
                         optionalLinkJLabel.setText(getString("InvitationLink", new Object[] {incomingEMail.size() + incomingUser.size()}));
-                        if (0 < incomingEMail.size()) {
-                            optionalLinkRunnable = new Runnable() {
-                                public void run() {
-                                    getController().selectTab(MainTitleAvatar.TabId.CONTACT);
-                                    getController().showAllTabPanels();
-                                    getController().showContactIncomingEMailInvitation(incomingEMail.get(0));
-                                }
-                            };
-                        }
-                        if (0 < incomingUser.size()) {
-                            optionalLinkRunnable = new Runnable() {
-                                public void run() {
-                                    getController().selectTab(MainTitleAvatar.TabId.CONTACT);
-                                    getController().showAllTabPanels();
-                                    getController().showContactIncomingUserInvitation(incomingUser.get(0));
-                                }
-                            };
-                        }
+                        optionalLinkRunnable = new Runnable() {
+                            public void run() {
+                                getController().selectTab(MainTitleAvatar.TabId.CONTACT);
+                                getController().showAllTabPanels();
+                                getController().showTopVisibleIncomingInvitation();
+                            }
+                        };
                     } else {
                         // display container info/link
                         textJLabel.setText(getString("Text") + Separator.Space);
@@ -700,24 +689,13 @@ public class MainStatusAvatar extends Avatar {
                     if (0 < incomingEMail.size() || 0 < incomingUser.size()) {
                         textJLabel.setText(getString("Text") + Separator.Space);
                         linkJLabel.setText(getString("InvitationLink", new Object[] {incomingEMail.size() + incomingUser.size()}));
-                        if (0 < incomingEMail.size()) {
-                            linkRunnable = new Runnable() {
-                                public void run() {
-                                    getController().selectTab(MainTitleAvatar.TabId.CONTACT);
-                                    getController().showAllTabPanels();
-                                    getController().showContactIncomingEMailInvitation(incomingEMail.get(0));
-                                }
-                            };
-                        }
-                        if (0 < incomingUser.size()) {
-                            linkRunnable = new Runnable() {
-                                public void run() {
-                                    getController().selectTab(MainTitleAvatar.TabId.CONTACT);
-                                    getController().showAllTabPanels();
-                                    getController().showContactIncomingUserInvitation(incomingUser.get(0));
-                                }
-                            };
-                        }
+                        linkRunnable = new Runnable() {
+                            public void run() {
+                                getController().selectTab(MainTitleAvatar.TabId.CONTACT);
+                                getController().showAllTabPanels();
+                                getController().showTopVisibleIncomingInvitation();
+                            }
+                        };
                     }
                 }
             }

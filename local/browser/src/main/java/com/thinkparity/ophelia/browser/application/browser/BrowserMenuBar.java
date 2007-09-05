@@ -29,17 +29,17 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
  */
 public class BrowserMenuBar extends JMenuBar {
 
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
-
-    /** The browser application. */
-    private final Browser browser;
-
     /** Close label icon. */
     private static final Icon CLOSE_ICON;
 
     /** Close label rollover icon. */
     private static final Icon CLOSE_ROLLOVER_ICON;
+
+    /** Maximize label icon. */
+    private static final Icon MAXIMIZE_ICON;
+
+    /** Maximize label rollover icon. */
+    private static final Icon MAXIMIZE_ROLLOVER_ICON;
 
     /** Minimize label icon. */
     private static final Icon MINIMIZE_ICON;
@@ -47,11 +47,8 @@ public class BrowserMenuBar extends JMenuBar {
     /** Minimize label rollover icon. */
     private static final Icon MINIMIZE_ROLLOVER_ICON;
 
-    /** Maximize label icon. */
-    private static final Icon MAXIMIZE_ICON;
-
-    /** Maximize label rollover icon. */
-    private static final Icon MAXIMIZE_ROLLOVER_ICON;
+    /** @see java.io.Serializable */
+    private static final long serialVersionUID = 1;
 
     /** Un-Maximize label icon. */
     private static final Icon UNMAXIMIZE_ICON;
@@ -82,6 +79,47 @@ public class BrowserMenuBar extends JMenuBar {
         UPGRADE_ROLLOVER_ICON = ImageIOUtil.readIcon("BrowserTitle_UpgradeRollover.png");
     }
 
+    /** The browser application. */
+    private final Browser browser;
+
+    /** The close <code>JButton</code>. */
+    private final javax.swing.JButton closeButton;
+
+    /** The maximize <code>JButton</code>. */
+    private final javax.swing.JButton maximizeButton;
+
+    /** The minimize <code>JButton</code>. */
+    private final javax.swing.JButton minimizeButton;
+
+    /** The upgrade <code>JButton</code>. */
+    private final javax.swing.JButton upgradeButton;
+
+    /**
+     * Create a Browser menu bar.
+     * @param browser
+     *          The Browser.
+     */
+    public BrowserMenuBar(final Browser browser,
+            final BrowserWindow browserWindow, final Boolean maximized) {
+        super();
+        this.browser = browser;
+        this.upgradeButton = getUpgradeButton();
+        this.minimizeButton = getMinimizeButton();
+        this.maximizeButton = getMaximizeButton(maximized);
+        this.closeButton = getCloseButton();
+        new Resizer(browser, this, Boolean.FALSE, Resizer.ResizeEdges.TOP);
+        initComponents();
+        installMouseListener();
+        installWindowStateListener(browserWindow, maximizeButton);
+    }
+
+    /**
+     * Reinitialize.
+     */
+    public void reinitialize() {
+        initComponents();
+    }
+
     /**
      * @see javax.swing.JMenuBar#paintBorder(java.awt.Graphics)
      */
@@ -89,7 +127,7 @@ public class BrowserMenuBar extends JMenuBar {
     protected void paintBorder(Graphics g) {
         // Prevent the drawing of the border.
     }
-    
+
     /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      * 
@@ -119,35 +157,136 @@ public class BrowserMenuBar extends JMenuBar {
         finally { g2.dispose(); }
     }
 
-    /**
-     * Create a Browser menu bar.
-     * @param browser
-     *          The Browser.
-     */
-    public BrowserMenuBar(final Browser browser,
-            final BrowserWindow browserWindow, final Boolean maximized) {
-        super();
-        this.browser = browser;
-        new Resizer(browser, this, Boolean.FALSE, Resizer.ResizeEdges.TOP);
-        installMouseListener();
+    private void closeJButtonActionPerformed(final java.awt.event.ActionEvent e) {        
+        browser.closeBrowserWindow();
+    }
 
-        // Create the upgrade button
+    private void closeJButtonMouseEntered(final java.awt.event.MouseEvent e) {
+        ((javax.swing.JButton) e.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
+    }
+
+    private void closeJButtonMouseExited(final java.awt.event.MouseEvent e) {
+        ((javax.swing.JButton) e.getSource()).setIcon(CLOSE_ICON);
+    }
+
+    /**
+     * Get a button sized for an icon.
+     * 
+     * @param icon
+     *          The icon.
+     * @return A JButton.
+     */
+    private javax.swing.JButton getButton(final Icon icon) {
+        final javax.swing.JButton button = ButtonFactory.create(icon);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
+        button.setFocusable(false);
+        final Dimension size = new java.awt.Dimension(icon.getIconWidth(), icon.getIconHeight());
+        button.setMaximumSize(size);
+        button.setMinimumSize(size);
+        button.setPreferredSize(size);
+        
+        return button;
+    }
+
+    private javax.swing.JButton getCloseButton() {
+        final javax.swing.JButton closeJButton = getButton(CLOSE_ICON);
+        closeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(final java.awt.event.MouseEvent e) {
+                closeJButtonMouseEntered(e);
+            }
+            public void mouseExited(final java.awt.event.MouseEvent e) {
+                closeJButtonMouseExited(e);
+            }
+        });
+        closeJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(final java.awt.event.ActionEvent e) {
+                closeJButtonActionPerformed(e);
+            }
+        });
+        
+        return closeJButton;        
+    }
+
+    private javax.swing.JButton getMaximizeButton(final Boolean maximized) {
+        final javax.swing.JButton maximizeJButton = getButton(MAXIMIZE_ICON);
+        setMaximizeJButtonIcon(maximizeJButton, maximized);
+        maximizeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(final java.awt.event.MouseEvent e) {
+                maximizeJButtonMouseEntered(e);
+            }
+            public void mouseExited(final java.awt.event.MouseEvent e) {
+                maximizeJButtonMouseExited(e);
+            }
+        });
+        maximizeJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(final java.awt.event.ActionEvent e) {
+                maximizeJButtonActionPerformed(e);
+            }
+        });
+
+        return maximizeJButton;        
+    }
+
+    private javax.swing.JButton getMinimizeButton() {
+        final javax.swing.JButton minimizeJButton = getButton(MINIMIZE_ICON);
+        minimizeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(final java.awt.event.MouseEvent e) {
+                minimizeJButtonMouseEntered(e);
+            }
+            public void mouseExited(final java.awt.event.MouseEvent e) {
+                minimizeJButtonMouseExited(e);
+            }
+        });
+        minimizeJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(final java.awt.event.ActionEvent e) {
+                minimizeJButtonActionPerformed(e);
+            }
+        });
+
+        return minimizeJButton;        
+    }
+
+    private javax.swing.JButton getUpgradeButton() {
+        final javax.swing.JButton upgradeJButton = getButton(UPGRADE_ICON);
+        upgradeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(final java.awt.event.MouseEvent e) {
+                upgradeJButtonMouseEntered(e);
+            }
+            public void mouseExited(final java.awt.event.MouseEvent e) {
+                upgradeJButtonMouseExited(e);
+            }
+        });
+        upgradeJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(final java.awt.event.ActionEvent e) {
+                upgradeJButtonActionPerformed(e);
+            }
+        });
+
+        return upgradeJButton;
+    }
+
+    /**
+     * Initialize the menu components.
+     */
+    private void initComponents() {
+        this.removeAll();
+
+        // Add the upgrade button
         this.add(Box.createHorizontalGlue());
         if (browser.getPlatform().isSignUpAvailable()) {
-            this.add(getUpgradeButton());
+            this.add(upgradeButton);
             this.add(Box.createRigidArea(new Dimension(2,0)));
         }
 
         // Add minimize, maximize and close buttons
-        this.add(getMinimizeButton());
+        this.add(minimizeButton);
         this.add(Box.createRigidArea(new Dimension(2,19)));
-        final javax.swing.JButton maximizeButton = getMaximizeButton(maximized);
         this.add(maximizeButton);
         this.add(Box.createRigidArea(new Dimension(2,19)));
-        this.add(getCloseButton());
+        this.add(closeButton);
         this.add(Box.createRigidArea(new Dimension(4,19)));
-
-        installWindowStateListener(browserWindow, maximizeButton);
     }
 
     /**
@@ -179,130 +318,6 @@ public class BrowserMenuBar extends JMenuBar {
         });
     }
 
-    /**
-     * Get a button sized for an icon.
-     * 
-     * @param icon
-     *          The icon.
-     * @return A JButton.
-     */
-    private javax.swing.JButton getButton(final Icon icon) {
-        final javax.swing.JButton button = ButtonFactory.create(icon);
-        button.setBorderPainted(false);
-        button.setContentAreaFilled(false);
-        button.setFocusPainted(false);
-        button.setFocusable(false);
-        final Dimension size = new java.awt.Dimension(icon.getIconWidth(), icon.getIconHeight());
-        button.setMaximumSize(size);
-        button.setMinimumSize(size);
-        button.setPreferredSize(size);
-        
-        return button;
-    }
-
-    private javax.swing.JButton getUpgradeButton() {
-        final javax.swing.JButton upgradeJButton = getButton(UPGRADE_ICON);
-        upgradeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(final java.awt.event.MouseEvent e) {
-                upgradeJButtonMouseEntered(e);
-            }
-            public void mouseExited(final java.awt.event.MouseEvent e) {
-                upgradeJButtonMouseExited(e);
-            }
-        });
-        upgradeJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(final java.awt.event.ActionEvent e) {
-                upgradeJButtonActionPerformed(e);
-            }
-        });
-
-        return upgradeJButton;
-    }
-
-    private javax.swing.JButton getMinimizeButton() {
-        final javax.swing.JButton minimizeJButton = getButton(MINIMIZE_ICON);
-        minimizeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(final java.awt.event.MouseEvent e) {
-                minimizeJButtonMouseEntered(e);
-            }
-            public void mouseExited(final java.awt.event.MouseEvent e) {
-                minimizeJButtonMouseExited(e);
-            }
-        });
-        minimizeJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(final java.awt.event.ActionEvent e) {
-                minimizeJButtonActionPerformed(e);
-            }
-        });
-
-        return minimizeJButton;        
-    }
-
-    private javax.swing.JButton getMaximizeButton(final Boolean maximized) {
-        final javax.swing.JButton maximizeJButton = getButton(MAXIMIZE_ICON);
-        setMaximizeJButtonIcon(maximizeJButton, maximized);
-        maximizeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(final java.awt.event.MouseEvent e) {
-                maximizeJButtonMouseEntered(e);
-            }
-            public void mouseExited(final java.awt.event.MouseEvent e) {
-                maximizeJButtonMouseExited(e);
-            }
-        });
-        maximizeJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(final java.awt.event.ActionEvent e) {
-                maximizeJButtonActionPerformed(e);
-            }
-        });
-
-        return maximizeJButton;        
-    }
-
-    private javax.swing.JButton getCloseButton() {
-        final javax.swing.JButton closeJButton = getButton(CLOSE_ICON);
-        closeJButton.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(final java.awt.event.MouseEvent e) {
-                closeJButtonMouseEntered(e);
-            }
-            public void mouseExited(final java.awt.event.MouseEvent e) {
-                closeJButtonMouseExited(e);
-            }
-        });
-        closeJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(final java.awt.event.ActionEvent e) {
-                closeJButtonActionPerformed(e);
-            }
-        });
-        
-        return closeJButton;        
-    }
-
-    private void upgradeJButtonActionPerformed(final java.awt.event.ActionEvent e) {
-        browser.runUpgradeAccount();
-    }
-
-    private void upgradeJButtonMouseEntered(final java.awt.event.MouseEvent e) {
-        SwingUtil.setCursor((javax.swing.JButton) e.getSource(), java.awt.Cursor.HAND_CURSOR);
-        ((javax.swing.JButton) e.getSource()).setIcon(UPGRADE_ROLLOVER_ICON);
-    }
-
-    private void upgradeJButtonMouseExited(final java.awt.event.MouseEvent e) {
-        SwingUtil.setCursor((javax.swing.JButton) e.getSource(), null);
-        ((javax.swing.JButton) e.getSource()).setIcon(UPGRADE_ICON);
-    }
-
-    private void minimizeJButtonActionPerformed(final java.awt.event.ActionEvent e) {
-        browser.iconify(Boolean.TRUE);
-    }
-
-    private void minimizeJButtonMouseEntered(final java.awt.event.MouseEvent e) {
-        ((javax.swing.JButton) e.getSource()).setIcon(MINIMIZE_ROLLOVER_ICON);
-    }
-
-    private void minimizeJButtonMouseExited(final java.awt.event.MouseEvent e) {
-        ((javax.swing.JButton) e.getSource()).setIcon(MINIMIZE_ICON);
-    }
-
     private void maximizeJButtonActionPerformed(final java.awt.event.ActionEvent e) {
         browser.maximize(!browser.isBrowserWindowMaximized());
         
@@ -320,16 +335,16 @@ public class BrowserMenuBar extends JMenuBar {
         setMaximizeJButtonIcon((javax.swing.JButton) e.getSource(), browser.isBrowserWindowMaximized());
     }
 
-    private void closeJButtonActionPerformed(final java.awt.event.ActionEvent e) {        
-        browser.closeBrowserWindow();
+    private void minimizeJButtonActionPerformed(final java.awt.event.ActionEvent e) {
+        browser.iconify(Boolean.TRUE);
     }
 
-    private void closeJButtonMouseEntered(final java.awt.event.MouseEvent e) {
-        ((javax.swing.JButton) e.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
+    private void minimizeJButtonMouseEntered(final java.awt.event.MouseEvent e) {
+        ((javax.swing.JButton) e.getSource()).setIcon(MINIMIZE_ROLLOVER_ICON);
     }
 
-    private void closeJButtonMouseExited(final java.awt.event.MouseEvent e) {
-        ((javax.swing.JButton) e.getSource()).setIcon(CLOSE_ICON);
+    private void minimizeJButtonMouseExited(final java.awt.event.MouseEvent e) {
+        ((javax.swing.JButton) e.getSource()).setIcon(MINIMIZE_ICON);
     }
 
     private void setMaximizeJButtonIcon(final javax.swing.JButton maximizeButton, final Boolean maximized) {
@@ -338,5 +353,19 @@ public class BrowserMenuBar extends JMenuBar {
         } else {
             maximizeButton.setIcon(MAXIMIZE_ICON);
         }
+    }
+
+    private void upgradeJButtonActionPerformed(final java.awt.event.ActionEvent e) {
+        browser.runUpgradeAccount();
+    }
+
+    private void upgradeJButtonMouseEntered(final java.awt.event.MouseEvent e) {
+        SwingUtil.setCursor((javax.swing.JButton) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+        ((javax.swing.JButton) e.getSource()).setIcon(UPGRADE_ROLLOVER_ICON);
+    }
+
+    private void upgradeJButtonMouseExited(final java.awt.event.MouseEvent e) {
+        SwingUtil.setCursor((javax.swing.JButton) e.getSource(), null);
+        ((javax.swing.JButton) e.getSource()).setIcon(UPGRADE_ICON);
     }
 }

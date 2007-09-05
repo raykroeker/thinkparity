@@ -967,6 +967,13 @@ public class Browser extends AbstractApplication {
      */
     public void moveToFront() { mainWindow.toFront(); }
 
+    /**
+     * Reload the menu bar.
+     */
+    public void reloadMenuBar() {
+        mainWindow.reloadMenuBar();
+    }
+
 	/**
      * Reload the status avatar.
      *

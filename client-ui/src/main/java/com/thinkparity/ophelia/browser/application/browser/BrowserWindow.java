@@ -187,6 +187,16 @@ public class BrowserWindow extends AbstractJFrame {
     }
 
     /**
+     * Reload the menu bar.
+     */
+    public void reloadMenuBar() {
+        final JMenuBar jMenuBar = getJMenuBar();
+        if (jMenuBar instanceof BrowserMenuBar) {
+            ((BrowserMenuBar)jMenuBar).reinitialize();
+        }
+    }
+
+    /**
      * @see java.awt.Window#setCursor(java.awt.Cursor)
      *
      */
@@ -290,7 +300,7 @@ public class BrowserWindow extends AbstractJFrame {
     void applyBusyIndicator() {
         // apply the "busy" cursor
         applyBusyCursor();
-        // the the busy flag
+        // apply the "busy" indicator
         busyIndicator = true;
         // apply an intercept pane
         applyInterceptPane();

@@ -124,6 +124,7 @@ public final class Restore extends AbstractBrowserAction {
                 action.browser.reloadTab(TabId.CONTAINER);
                 action.browser.reloadTab(TabId.CONTACT);
                 action.browser.reloadStatus();
+                action.browser.reloadMenuBar();
             } catch (final InvalidCredentialsException icx) {
                 action.logger.logError(icx, "An invalid credentials error has occurred in restore.");
                 monitor.reset();

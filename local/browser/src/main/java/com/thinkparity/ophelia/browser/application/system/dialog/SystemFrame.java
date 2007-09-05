@@ -121,6 +121,7 @@ public abstract class SystemFrame extends AbstractJDialog {
                     new Runnable() {
                         public void run() {
                             getRootPane().setBorder(getFinalBorder());
+                            setAlwaysOnTop(false);
                         }
             });
             setVisible(true);

@@ -679,6 +679,26 @@ public final class PublishContainerAvatar extends Avatar implements
     }
 
     /**
+     * Determine whether or not the published to email is a versin recipient.
+     * 
+     * @param publishedToEMail
+     *            A <code>publishedToEMail</code>.
+     * @param publishedToEMails
+     *            The published to list of <code>PublishedToEMail</code> of the previous version.
+     * @return True if the user is a version recipient.
+     */
+    private boolean isVersionRecipient(final PublishedToEMail publishedToEMail,
+            final List<PublishedToEMail> publishedToEMails) {
+        final EMail email = publishedToEMail.getEMail();
+        for (final PublishedToEMail versionPublishedToEMail : publishedToEMails) {
+            if (email.equals(versionPublishedToEMail.getEMail())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Handle mouse press on a list.
      * 
      * @param listModel
@@ -756,7 +776,9 @@ public final class PublishContainerAvatar extends Avatar implements
     }
 
     /**
-     * Read users that got this version.
+     * Read users that got the latest version.
+     * 
+     * @return A List of <code>ArtifactReceipt</code>.
      */
     private List<ArtifactReceipt> readLatestVersionPublishedTo() {
         return ((PublishContainerProvider) contentProvider).readLatestVersionPublishedTo(
@@ -764,7 +786,9 @@ public final class PublishContainerAvatar extends Avatar implements
     } 
 
     /**
-     * Read user emails that got this version.
+     * Read user emails that got the latest version.
+     * 
+     * @return A List of <code>PublishedToEMail</code>.
      */
     private List<PublishedToEMail> readLatestVersionPublishedToEMails() {
         return ((PublishContainerProvider) contentProvider).readLatestVersionPublishedToEMails(
@@ -776,6 +800,16 @@ public final class PublishContainerAvatar extends Avatar implements
      */
     private User readLatestVersionUpdatedBy() {
         return ((PublishContainerProvider) contentProvider).readLatestVersionUpdatedBy(
+                getInputContainerId());
+    }
+
+    /**
+     * Read user emails that got a version.
+     * 
+     * @return A List of <code>PublishedToEMail</code>.
+     */
+    private List<PublishedToEMail> readPublishedToEMails() {
+        return ((PublishContainerProvider) contentProvider).readPublishedToEMails(
                 getInputContainerId());
     }
 
@@ -832,15 +866,16 @@ public final class PublishContainerAvatar extends Avatar implements
         final PublishTypeSpecific publishType = getPublishTypeSpecific();
         teamMembersListModel.clear();
 
-        // read team members
+        // read team members and published to emails
         final List<TeamMember> teamMembers = readTeamMembers();
+        final List<PublishedToEMail> publishedToEMails = readPublishedToEMails();
 
         // populate team members
         if (PublishTypeSpecific.PUBLISH_NOT_FIRST_TIME == publishType) {
             final User updatedBy = readLatestVersionUpdatedBy();
             final List<ArtifactReceipt> publishedTo = readLatestVersionPublishedTo();
-            final List<PublishedToEMail> publishedToEMails = readLatestVersionPublishedToEMails();
-            // add selected team members first, then published to emails, then non-selected team members
+            final List<PublishedToEMail> latestVersionPublishedToEMails = readLatestVersionPublishedToEMails();
+            // add selected team members, then selected emails, then non-selected team members and emails
             for (final TeamMember teamMember : teamMembers) {
                 if (isVersionRecipient(teamMember, updatedBy, publishedTo)) {
                     teamMembersListModel.addElement(new PublishContainerAvatarUser(
@@ -848,8 +883,10 @@ public final class PublishContainerAvatar extends Avatar implements
                 }
             }
             for (final PublishedToEMail emailUser : publishedToEMails) {
-                teamMembersListModel.addElement(new PublishContainerAvatarUser(
-                        emailUser, Boolean.TRUE));
+                if (isVersionRecipient(emailUser, latestVersionPublishedToEMails)) {
+                    teamMembersListModel.addElement(new PublishContainerAvatarUser(
+                            emailUser, Boolean.TRUE));
+                }
             }
             for (final TeamMember teamMember : teamMembers) {
                 if (!isVersionRecipient(teamMember, updatedBy, publishedTo)) {
@@ -857,10 +894,20 @@ public final class PublishContainerAvatar extends Avatar implements
                             teamMember, Boolean.FALSE));
                 }
             }
+            for (final PublishedToEMail emailUser : publishedToEMails) {
+                if (!isVersionRecipient(emailUser, latestVersionPublishedToEMails)) {
+                    teamMembersListModel.addElement(new PublishContainerAvatarUser(
+                            emailUser, Boolean.FALSE));
+                }
+            }
         } else {
             for (final TeamMember teamMember : teamMembers) {
                 teamMembersListModel.addElement(new PublishContainerAvatarUser(
                         teamMember, Boolean.FALSE));
+            }
+            for (final PublishedToEMail emailUser : publishedToEMails) {
+                teamMembersListModel.addElement(new PublishContainerAvatarUser(
+                        emailUser, Boolean.FALSE));
             }
         }
 

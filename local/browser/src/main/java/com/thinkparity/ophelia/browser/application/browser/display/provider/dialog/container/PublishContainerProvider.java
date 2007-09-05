@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.dia
 
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -116,13 +117,13 @@ public class PublishContainerProvider extends ContentProvider {
     }
 
     /**
-     * Get the list of published to emails.
+     * Get the list of published to emails for the latest version.
      * 
      * @param containerId
      *            A container id <code>Long</code>.
      * @param versionId
      *            A version id <code>Long</code>.
-     * @return A List of <code><ArtifactReceipt></code>.
+     * @return A List of <code>PublishedToEMail</code>.
      */
     public List<PublishedToEMail> readLatestVersionPublishedToEMails(
             final Long containerId) {
@@ -142,6 +143,19 @@ public class PublishContainerProvider extends ContentProvider {
         final ContainerVersion latestVersion = containerModel.readLatestVersion(
                 containerId);
         return userModel.read(latestVersion.getUpdatedBy());
+    }
+
+    /**
+     * Get the list of published to emails for the package.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A List of <code>PublishedToEMail</code>.
+     */
+    public List<PublishedToEMail> readPublishedToEMails(
+            final Long containerId) {
+        // TODO
+        return Collections.emptyList();
     }
 
     /**

@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.dia
 
 
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
@@ -154,8 +153,7 @@ public class PublishContainerProvider extends ContentProvider {
      */
     public List<PublishedToEMail> readPublishedToEMails(
             final Long containerId) {
-        // TODO
-        return Collections.emptyList();
+        return containerModel.readPublishedToEMails(containerId);
     }
 
     /**

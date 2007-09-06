@@ -410,6 +410,15 @@ public interface ContainerIOHandler {
             final Long versionId);
 
     /**
+     * Read the published to list of e-mail addresses.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A <code>List<PublishedToEMail></code>.
+     */
+    public List<PublishedToEMail> readPublishedToEMails(final Long containerId);
+
+    /**
      * Read the published to receipt.
      * 
      * @param containerId

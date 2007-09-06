@@ -184,13 +184,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("where CONTAINER_ID=?")
         .toString();
 
-    /** Sql to read the draft artifact count. */
-    private static final String SQL_READ_DRAFT_ARTIFACT_COUNT =
-        new StringBuilder("select count(CDAR.ARTIFACT_ID) \"ARTIFACT_COUNT\" ")
-        .append("from CONTAINER_DRAFT_ARTIFACT_REL CDAR ")
-        .append("where CDAR.CONTAINER_ID=?")
-        .toString();
-
     /** Sql to delete the draft document. */
     private static final String SQL_DELETE_DRAFT_DOCUMENT =
         new StringBuilder("delete from CONTAINER_DRAFT_DOCUMENT ")
@@ -270,6 +263,21 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
         .append("inner join PARITY_USER UC on A.CREATED_BY=UC.USER_ID ")
         .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
+        .toString();
+
+    /** Sql to read the entire container published to e-mail list. */
+    private static final String SQL_READ_ALL_EMAIL_PUBLISHED_TO =
+        new StringBuilder("select CVPTE.CONTAINER_ID,CVPTE.PUBLISHED_ON,E.EMAIL ")
+        .append("from CONTAINER C ")
+        .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
+        .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
+        .append("inner join CONTAINER_VERSION CV on AV.ARTIFACT_ID=CV.CONTAINER_ID ")
+        .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
+        .append("inner join CONTAINER_VERSION_PUBLISHED_TO_EMAIL CVPTE ")
+        .append("on CV.CONTAINER_ID=CVPTE.CONTAINER_ID ")
+        .append("and CV.CONTAINER_VERSION_ID=CVPTE.CONTAINER_VERSION_ID ")
+        .append("inner join EMAIL E on E.EMAIL_ID=CVPTE.EMAIL_ID ")
+        .append("where CV.CONTAINER_ID=?")
         .toString();
 
     /** Sql to read the artifact delta count. */
@@ -372,6 +380,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("where CVAVR.CONTAINER_ID=? and CVAVR.CONTAINER_VERSION_ID=?")
         .toString();
 
+    /** Sql to read the draft artifact count. */
+    private static final String SQL_READ_DRAFT_ARTIFACT_COUNT =
+        new StringBuilder("select count(CDAR.ARTIFACT_ID) \"ARTIFACT_COUNT\" ")
+        .append("from CONTAINER_DRAFT_ARTIFACT_REL CDAR ")
+        .append("where CDAR.CONTAINER_ID=?")
+        .toString();
+
     /** Sql to read a draft count by its pk. */
     private static final String SQL_READ_DRAFT_COUNT_PK =
         new StringBuilder("select COUNT(CD.CONTAINER_ID) \"DRAFT_COUNT\" ")
@@ -437,7 +452,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("where CD.CONTAINER_ID=?")
         .toString();
 
-    /** Sql to read the container published to list. */
+    /** Sql to read the container published to e-mail list. */
     private static final String SQL_READ_EMAIL_PUBLISHED_TO =
         new StringBuilder("select CVPTE.CONTAINER_ID,CVPTE.PUBLISHED_ON,E.EMAIL ")
         .append("from CONTAINER C ")
@@ -1498,6 +1513,27 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readPublishedToEMails(java.lang.Long)
+     *
+     */
+    @Override
+    public List<PublishedToEMail> readPublishedToEMails(final Long containerId) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_ALL_EMAIL_PUBLISHED_TO);
+            session.setLong(1, containerId);
+            session.executeQuery();
+            final List<PublishedToEMail> publishedTo = new ArrayList<PublishedToEMail>();
+            while (session.nextResult()) {
+                publishedTo.add(extractPublishedToEMail(session));
+            }
+            return publishedTo;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#readPublishedToInvitations(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -2122,26 +2158,6 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * Obtain the draft document count.
-     * 
-     * @param session
-     *            A <code>Session</code>.
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @return The draft document count <code>Integer</code>.
-     */
-    private Integer readDraftDocumentCount(final Session session, final Long containerId) {
-        session.prepareStatement(SQL_READ_DRAFT_DOCUMENT_COUNT);
-        session.setLong(1, containerId);
-        session.executeQuery();
-        if (session.nextResult()) {
-            return session.getInteger("DOCUMENT_COUNT");
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Obtain the draft artifact count.
      * 
      * @param session
@@ -2156,6 +2172,26 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         session.executeQuery();
         if (session.nextResult()) {
             return session.getInteger("ARTIFACT_COUNT");
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Obtain the draft document count.
+     * 
+     * @param session
+     *            A <code>Session</code>.
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return The draft document count <code>Integer</code>.
+     */
+    private Integer readDraftDocumentCount(final Session session, final Long containerId) {
+        session.prepareStatement(SQL_READ_DRAFT_DOCUMENT_COUNT);
+        session.setLong(1, containerId);
+        session.executeQuery();
+        if (session.nextResult()) {
+            return session.getInteger("DOCUMENT_COUNT");
         } else {
             return null;
         }

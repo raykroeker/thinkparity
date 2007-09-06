@@ -1522,10 +1522,23 @@ public final class ContainerModelImpl extends
      * @see com.thinkparity.ophelia.model.container.ContainerModel#readPublishedToEMails(java.lang.Long, java.lang.Long)
      *
      */
-    public List<PublishedToEMail> readPublishedToEMails(
-            final Long containerId, final Long versionId) {
+    public List<PublishedToEMail> readPublishedToEMails(final Long containerId,
+            final Long versionId) {
         try {
             return containerIO.readPublishedToEMails(containerId, versionId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readPublishedToEMails(java.lang.Long)
+     *
+     */
+    @Override
+    public List<PublishedToEMail> readPublishedToEMails(final Long containerId) {
+        try {
+            return containerIO.readPublishedToEMails(containerId);
         } catch (final Throwable t) {
             throw panic(t);
         }

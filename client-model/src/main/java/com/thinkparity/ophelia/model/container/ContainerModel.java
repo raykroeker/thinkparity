@@ -595,9 +595,17 @@ public interface ContainerModel {
      *            A version id <code>Long</code>.
      * @return A <code>List<PublishedToEMail></code>.
      */
-    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<PublishedToEMail> readPublishedToEMails(final Long containerId,
             final Long versionId);
+
+    /**
+     * Read a list of outgoing e-mail invitations the version was published to.
+     * 
+     * @param containerId
+     *            A container id <code>Long</code>.
+     * @return A <code>List<PublishedToEMail></code>.
+     */
+    public List<PublishedToEMail> readPublishedToEMails(final Long containerId);
 
     /**
      * Read a list of team members that the user can publish to.

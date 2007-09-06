@@ -369,6 +369,7 @@ public class BrowserWindow extends AbstractJFrame {
      * Apply the busy cursor.
      */
     private void applyBusyCursor() {
+        notBusyCursor = BrowserWindow.this.getCursor();
         if (busyCursorTimer == null) {
             busyCursorTimer = new Timer(BusyIndicator.ACTIVATION_DELAY, new ActionListener() {
                 public void actionPerformed(final ActionEvent timerEvent) {
@@ -376,7 +377,6 @@ public class BrowserWindow extends AbstractJFrame {
                     SwingUtil.setCursor(BrowserWindow.this, Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 }
             });
-            notBusyCursor = BrowserWindow.this.getCursor();
             busyCursorTimer.start();
         }
         else {

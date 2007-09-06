@@ -2531,33 +2531,44 @@ public final class ContainerModelImpl extends
     void uploadDocumentVersions(final ProcessMonitor monitor,
             final List<DocumentVersion> versions,
             final Map<DocumentVersion, Delta> deltas) {
-        // set fixed progress determination
         final PublishData monitorData = new PublishData();
-        monitorData.setDocumentVersions(versions);
-        notifyStepBegin(monitor, PublishStep.UPLOAD_DOCUMENT_VERSIONS, monitorData);
-        // upload versions
-        final InternalDocumentModel documentModel = modelFactory.getDocumentModel();
+        /* determine whether or not the document version should be uploaded;
+         * only versions with a "none" delta are held back */
+        final Map<DocumentVersion, Boolean> upload =
+            new HashMap<DocumentVersion, Boolean>(versions.size());
         Delta delta;
-        String streamName;
         for (final DocumentVersion version : versions) {
             delta = deltas.get(version);
-            streamName = version.getArtifactName();
             switch (delta) {
             case ADDED:
             case MODIFIED:
-                monitorData.setDocumentVersion(version);
-                notifyStepBegin(monitor, PublishStep.UPLOAD_DOCUMENT_VERSION, monitorData);
-                documentModel.uploadStream(monitor, version);
-                notifyStepEnd(monitor, PublishStep.UPLOAD_DOCUMENT_VERSION);
+                upload.put(version, Boolean.TRUE);
+                monitorData.addDocumentVersion(version);
                 break;
             case NONE:
-                logger.logInfo("Document {0} is unchanged.  No upload required.",
-                        streamName);
+                upload.put(version, Boolean.FALSE);
                 break;
             default:
                 /* NOTE removed documents are not in the document version
                  * and therefore are not considered here */
                 Assert.assertUnreachable("Unsupported delta {0}.", delta);
+            }
+        }
+        notifyStepBegin(monitor, PublishStep.UPLOAD_DOCUMENT_VERSIONS, monitorData);
+        // upload versions
+        final InternalDocumentModel documentModel = modelFactory.getDocumentModel();
+        String streamName;
+        for (final DocumentVersion version : versions) {
+            streamName = version.getArtifactName();
+            if (upload.get(version).booleanValue()) {
+                monitorData.setDocumentVersion(version);
+                notifyStepBegin(monitor, PublishStep.UPLOAD_DOCUMENT_VERSION, monitorData);
+                documentModel.uploadStream(monitor, version);
+                notifyStepEnd(monitor, PublishStep.UPLOAD_DOCUMENT_VERSION);
+            } else {
+                logger.logInfo("Document {0} is unchanged.  No upload required.",
+                        streamName);
+                break;
             }
         }
         notifyStepEnd(monitor, PublishStep.UPLOAD_DOCUMENT_VERSIONS);

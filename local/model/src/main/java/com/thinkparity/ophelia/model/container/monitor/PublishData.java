@@ -94,4 +94,24 @@ public final class PublishData {
         this.documentVersions.clear();
         this.documentVersions.addAll(documentVersions);
     }
+
+    /**
+     * Add a document version.
+     * 
+     * @param documentVersion
+     *            A <code>DocumentVersion</code>.
+     */
+    public Boolean addDocumentVersion(final DocumentVersion documentVersion) {
+        return Boolean.valueOf(documentVersions.add(documentVersion));
+    }
+
+    /**
+     * Remove a document version.
+     * 
+     * @param documentVersion
+     *            A <code>DocumentVersion</code>.
+     */
+    public Boolean removeDocumentVersion(final DocumentVersion documentVersion) {
+        return Boolean.valueOf(documentVersions.remove(documentVersion));
+    }
 }

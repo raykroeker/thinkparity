@@ -435,6 +435,14 @@ public class HelpTabPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
         collapsedJPanel.add(collapsedTextJLabel, gridBagConstraints);
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        collapsedJPanel.add(collapsedFillerJLabel, gridBagConstraints);
+
         collapsedMovieJLabel.setFont(Fonts.DialogFont);
         collapsedMovieJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("HelpTabPanel.Movie"));
         collapsedMovieJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -444,18 +452,12 @@ public class HelpTabPanel extends DefaultTabPanel {
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 10, 4, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 4, 15);
         collapsedJPanel.add(collapsedMovieJLabel, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        collapsedJPanel.add(collapsedFillerJLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -518,6 +520,14 @@ public class HelpTabPanel extends DefaultTabPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 3, 4, 0);
         fixedSizeJPanel.add(expandedTextJLabel, gridBagConstraints);
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        fixedSizeJPanel.add(expandedFillerJLabel, gridBagConstraints);
+
         expandedMovieJLabel.setFont(Fonts.DialogFont);
         expandedMovieJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("HelpTabPanel.Movie"));
         expandedMovieJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -527,20 +537,12 @@ public class HelpTabPanel extends DefaultTabPanel {
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 10, 4, 0);
-        fixedSizeJPanel.add(expandedMovieJLabel, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.weightx = 1.0;
-        fixedSizeJPanel.add(expandedFillerJLabel, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 4, 15);
+        fixedSizeJPanel.add(expandedMovieJLabel, gridBagConstraints);
 
         expandedContentJPanel.setLayout(new java.awt.GridBagLayout());
 

@@ -50,11 +50,11 @@ public class HelpTabPopupDelegate extends DefaultBrowserPopupDelegate implements
     public void showForHelpTopic(final HelpTopic helpTopic) {
         final List<HelpTopicMovie> movies = helpTopic.getMovies();
         if (0 < movies.size()) {
-            for (final HelpTopicMovie movie : movies) {
-                final Data showMovieData = new Data(1);
-                showMovieData.set(ShowMovie.DataKey.MOVIE, movie);
-                addWithExpand(ActionId.HELP_SHOW_MOVIE, showMovieData, helpTopic.getId());
-            }
+            // NOTE Only one movie per help topic is supported in the UI for now.
+            final HelpTopicMovie movie = movies.get(0);
+            final Data showMovieData = new Data(1);
+            showMovieData.set(ShowMovie.DataKey.MOVIE, movie);
+            addWithExpand(ActionId.HELP_SHOW_MOVIE, showMovieData, helpTopic.getId());
             show();
         }
     }

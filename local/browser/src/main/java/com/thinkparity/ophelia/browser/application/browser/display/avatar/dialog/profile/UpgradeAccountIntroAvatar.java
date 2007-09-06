@@ -87,11 +87,8 @@ public class UpgradeAccountIntroAvatar extends DefaultUpgradeAccountPage {
         final javax.swing.JLabel welcomeJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel introJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel benefitsTitleJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel benefit1JLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel benefit2JLabel = new javax.swing.JLabel();
         final javax.swing.JLabel benefitLearnMoreJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
         final javax.swing.JLabel securityTitleJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel securityExplanationJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel securityLearnMoreJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
 
         setOpaque(false);
@@ -102,16 +99,9 @@ public class UpgradeAccountIntroAvatar extends DefaultUpgradeAccountPage {
         introJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Intro.Intro"));
         introJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        benefitsTitleJLabel.setFont(Fonts.DialogFontBold);
+        benefitsTitleJLabel.setFont(Fonts.DialogFont);
         benefitsTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Intro.BenefitsTitle"));
-
-        benefit1JLabel.setFont(Fonts.DialogFont);
-        benefit1JLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/CheckBoxMenuItemCheckIcon.png")));
-        benefit1JLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Intro.Benefit1"));
-
-        benefit2JLabel.setFont(Fonts.DialogFont);
-        benefit2JLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/CheckBoxMenuItemCheckIcon.png")));
-        benefit2JLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Intro.Benefit2"));
+        benefitsTitleJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         benefitLearnMoreJLabel.setFont(Fonts.DialogFont);
         benefitLearnMoreJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Intro.BenefitsLearnMore"));
@@ -121,12 +111,8 @@ public class UpgradeAccountIntroAvatar extends DefaultUpgradeAccountPage {
             }
         });
 
-        securityTitleJLabel.setFont(Fonts.DialogFontBold);
+        securityTitleJLabel.setFont(Fonts.DialogFont);
         securityTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Intro.SecurityTitle"));
-
-        securityExplanationJLabel.setFont(Fonts.DialogFont);
-        securityExplanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Intro.SecurityExplanation"));
-        securityExplanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         securityLearnMoreJLabel.setFont(Fonts.DialogFont);
         securityLearnMoreJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Intro.SecurityLearnMore"));
@@ -140,49 +126,41 @@ public class UpgradeAccountIntroAvatar extends DefaultUpgradeAccountPage {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(64, 64, 64)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(welcomeJLabel)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addComponent(benefitLearnMoreJLabel))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(welcomeJLabel)
+                        .addGroup(layout.createSequentialGroup()
+                            .addGap(10, 10, 10)
+                            .addComponent(introJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(benefitsTitleJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(securityTitleJLabel)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(benefitsTitleJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                    .addGap(10, 10, 10)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addComponent(benefit1JLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(benefit2JLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(benefitLearnMoreJLabel, javax.swing.GroupLayout.Alignment.LEADING)))
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(securityLearnMoreJLabel)
-                                    .addComponent(securityExplanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addComponent(introJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(50, Short.MAX_VALUE))
+                            .addComponent(securityLearnMoreJLabel))))
+                .addGap(50, 50, 50))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(128, 128, 128)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGap(139, 139, 139)
                 .addComponent(welcomeJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(introJLabel)
                 .addGap(33, 33, 33)
-                .addComponent(benefitsTitleJLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(benefit2JLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(benefit1JLabel)
+                .addComponent(benefitsTitleJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(benefitLearnMoreJLabel)
                 .addGap(33, 33, 33)
                 .addComponent(securityTitleJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(securityExplanationJLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(securityLearnMoreJLabel)
-                .addContainerGap(36, Short.MAX_VALUE))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

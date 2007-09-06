@@ -5,6 +5,8 @@ package com.thinkparity.ophelia.browser.platform.avatar;
 
 import java.awt.event.ActionEvent;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import javax.swing.AbstractAction;
 
@@ -86,6 +88,15 @@ public class ErrorAvatar extends Avatar {
     private void closeJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
         disposeWindow();
     }//GEN-LAST:event_closeJButtonActionPerformed
+
+    /**
+     * Get the current date.
+     * 
+     * @return The current date <code>String</code>.
+     */
+    private String getCurrentDate() {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm Z").format(Calendar.getInstance().getTime());
+    }
 
     /**
      * Get the error message key from the input.
@@ -175,7 +186,7 @@ public class ErrorAvatar extends Avatar {
             errorMessageJLabel.setText(MessageFormat.format("<html>{0}</html>", text));
         } else {
             errorMessageJLabel.setText(MessageFormat.format("<html>{0}</html>",
-                    getString("ErrorUnexpected")));
+                    getString("ErrorUnexpected", new Object[] {getCurrentDate()})));
         }
     }
 

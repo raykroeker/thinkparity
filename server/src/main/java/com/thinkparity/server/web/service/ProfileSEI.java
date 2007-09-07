@@ -12,12 +12,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
-import com.thinkparity.codebase.model.profile.EMailReservation;
-import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.profile.SecurityCredentials;
-import com.thinkparity.codebase.model.profile.UsernameReservation;
+import com.thinkparity.codebase.model.profile.*;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
@@ -44,14 +39,6 @@ public class ProfileSEI extends ServiceSEI implements ProfileService {
      */
     public ProfileSEI() {
         super();
-    }
-
-    /**
-     * @see com.thinkparity.service.ProfileService#addEMail(com.thinkparity.service.AuthToken, com.thinkparity.codebase.email.EMail)
-     *
-     */
-    public void addEMail(final AuthToken authToken, final EMail email) {
-        getModel(authToken).addEMail(email);
     }
 
     /**
@@ -121,8 +108,9 @@ public class ProfileSEI extends ServiceSEI implements ProfileService {
      * @see com.thinkparity.service.ProfileService#readEMails(com.thinkparity.service.AuthToken)
      *
      */
-    public List<ProfileEMail> readEMails(final AuthToken authToken) {
-        return getModel(authToken).readEMails();
+    @Override
+    public ProfileEMail readEMail(final AuthToken authToken) {
+        return getModel(authToken).readEMail();
     }
 
     /**
@@ -142,19 +130,22 @@ public class ProfileSEI extends ServiceSEI implements ProfileService {
     }
 
     /**
-     * @see com.thinkparity.service.ProfileService#removeEMail(com.thinkparity.service.AuthToken, com.thinkparity.codebase.email.EMail)
-     *
-     */
-    public void removeEMail(final AuthToken authToken, final EMail email) {
-        getModel(authToken).removeEMail(email);
-    }
-
-    /**
      * @see com.thinkparity.service.ProfileService#update(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.profile.ProfileVCard)
      *
      */
     public void update(final AuthToken authToken, final ProfileVCard vcard) {
         getModel(authToken).update(vcard);
+    }
+
+    /**
+     * @see com.thinkparity.service.ProfileService#updateEMail(com.thinkparity.service.AuthToken,
+     *      com.thinkparity.codebase.email.EMail)
+     * 
+     */
+    @Override
+    public void updateEMail(final AuthToken authToken, final EMail email)
+            throws EMailIntegrityException {
+        getModel(authToken).updateEMail(email);
     }
 
     /**

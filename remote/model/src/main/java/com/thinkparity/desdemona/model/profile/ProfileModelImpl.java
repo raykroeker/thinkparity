@@ -10,6 +10,7 @@ import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -49,6 +50,7 @@ import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants;
 import com.thinkparity.desdemona.model.Constants.Product.Ophelia;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
+import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.migrator.InternalMigratorModel;
@@ -66,6 +68,24 @@ import com.thinkparity.desdemona.util.smtp.SMTPService;
 public final class ProfileModelImpl extends AbstractModelImpl implements
         ProfileModel, InternalProfileModel {
 
+    /**
+     * Determine if the hypersonic (database layer) error was caused by an
+     * integrity constraint violation.
+     * 
+     * @param hypersonicException
+     *            A <code>HypersonicException</code>.
+     * @return True if the error is caused by an integrity constraint.
+     */
+    private static boolean isSQLIntegrityConstraintViolation(
+            final HypersonicException hypersonicException) {
+        if (SQLIntegrityConstraintViolationException.class.isAssignableFrom(
+                hypersonicException.getCause().getClass())) {
+            return "23503".equals(((SQLException) hypersonicException.getCause()).getSQLState());
+        } else {
+            return false;
+        }
+    }
+
     /** Contact db io. */
     private ContactSql contactSql;
 
@@ -82,29 +102,6 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     public ProfileModelImpl() {
         super();
         this.smtpService = SMTPService.getInstance();
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.profile.ProfileModel#addEmail(com.thinkparity.codebase.email.EMail)
-     * 
-     */
-    public void addEMail(final EMail email) {
-        try {
-            // create remote data
-            final VerificationKey key = VerificationKey.generate(email);
-            userSql.createEmail(user.getLocalId(), email, key);
-            // send verification email
-            final MimeMessage mimeMessage = smtpService.createMessage();
-            createVerification(mimeMessage, email, key);
-            addRecipient(mimeMessage, email);
-            final InternetAddress fromInternetAddress = new InternetAddress();
-            fromInternetAddress.setAddress(Constants.Internet.Mail.FROM_ADDRESS);
-            fromInternetAddress.setPersonal(Constants.Internet.Mail.FROM_PERSONAL);
-            mimeMessage.setFrom(fromInternetAddress);
-            smtpService.deliver(mimeMessage);
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
     }
 
     /**
@@ -357,9 +354,14 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#readEMails(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
-    public List<ProfileEMail> readEMails() {
+    public ProfileEMail readEMail() {
         try {
-            return userSql.readEMails(user);
+            final List<ProfileEMail> profileEMails = readEMails();
+            if (0 == profileEMails.size()) {
+                return null;
+            } else {
+                return profileEMails.get(0);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -402,20 +404,6 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.profile.ProfileModel#removeEmail(com.thinkparity.codebase.email.EMail)
-     * 
-     */
-    public void removeEMail(final EMail email) {
-        try {
-            // delete remote data
-            userSql.deleteEmail(user.getLocalId(), email);
-            notifyContactUpdated();
-        } catch (final Throwable t) {
-            throw translateError(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#update(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.profile.ProfileVCard)
      * 
@@ -429,6 +417,48 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             notifyContactUpdated();
         } catch (final Throwable t) {
             throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.profile.ProfileModel#updateEMail(com.thinkparity.codebase.email.EMail)
+     *
+     */
+    @Override
+    public void updateEMail(final EMail email) throws EMailIntegrityException {
+        try {
+            final List<ProfileEMail> profileEMails = readEMails();
+            for (final ProfileEMail profileEMail : profileEMails) {
+                try {
+                    userSql.deleteEmail(user.getLocalId(), profileEMail.getEmail());
+                } catch (final HypersonicException hx) {
+                    if (isSQLIntegrityConstraintViolation(hx)) {
+                        logger.logWarning("Cannot delete e-mail {0}.  {1}",
+                                profileEMail.getEmail(), hx.getMessage());
+                        throw new EMailIntegrityException(profileEMail.getEmail());
+                    } else {
+                        throw hx;
+                    }
+                }
+            }
+            // create remote data
+            final VerificationKey key = VerificationKey.generate(email);
+            userSql.createEmail(user.getLocalId(), email, key);
+            // send verification email
+            final MimeMessage mimeMessage = smtpService.createMessage();
+            createVerification(mimeMessage, email, key);
+            addRecipient(mimeMessage, email);
+            final InternetAddress fromInternetAddress = new InternetAddress();
+            fromInternetAddress.setAddress(Constants.Internet.Mail.FROM_ADDRESS);
+            fromInternetAddress.setPersonal(Constants.Internet.Mail.FROM_PERSONAL);
+            mimeMessage.setFrom(fromInternetAddress);
+            smtpService.deliver(mimeMessage);
+            // notify contacts
+            notifyContactUpdated();
+        } catch (final EMailIntegrityException emix) {
+            throw emix;
+        } catch (final Throwable t) {
+            throw translateError(t);
         }
     }
 
@@ -476,7 +506,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             throw panic(t);
         }
     }
-    
+
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#verifyEmail(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.email.EMail, java.lang.String)
@@ -512,7 +542,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             throw translateError(t);
         }
     }
-
+    
     /**
      * @see com.thinkparity.desdemona.model.AbstractModelImpl#initialize()
      *
@@ -681,6 +711,24 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         contactUpdated.setContactId(user.getId());
         contactUpdated.setUpdatedOn(currentDateTime());
         enqueueEvents(contactIds, contactUpdated);
+    }
+
+    /**
+     * Read the profile user's e-mail addresses.
+     * 
+     * @return A <code>List<ProfileEMail></code>.
+     */
+    private List<ProfileEMail> readEMails() {
+        try {
+            final List<ProfileEMail> profileEMails = userSql.readEMails(user);
+            if (1 < profileEMails.size()) {
+                logger.logWarning("Profile contains {0} e-mails.",
+                        profileEMails.size());
+            }
+            return profileEMails;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**

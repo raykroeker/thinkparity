@@ -10,12 +10,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
-import com.thinkparity.codebase.model.profile.EMailReservation;
-import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.profile.SecurityCredentials;
-import com.thinkparity.codebase.model.profile.UsernameReservation;
+import com.thinkparity.codebase.model.profile.*;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.util.Token;
@@ -28,16 +23,6 @@ import com.thinkparity.codebase.model.util.Token;
  * @version 1.1.2.10
  */
 public interface ProfileModel {
-
-    /**
-     * Add an email to a user's profile.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param email
-     *            An <code>EMail</code>.
-     */
-    void addEMail(EMail email);
 
     /**
      * Create a profile.
@@ -107,11 +92,11 @@ public interface ProfileModel {
     Profile read();
 
     /**
-     * Read all emails addresses for a model user.
+     * The profile e-mail address.
      * 
-     * @return A <code>List</code> of <code>ProfileEMail</code>s.
+     * @return A <code>ProfileEMail</code>.
      */
-    List<ProfileEMail> readEMails();
+    ProfileEMail readEMail();
 
     /**
      * Read all features for a user.
@@ -128,20 +113,22 @@ public interface ProfileModel {
     Token readToken();
 
     /**
-     * Remove an email from a user's profile.
-     * 
-     * @param email
-     *            An <code>EMail</code>.
-     */
-    void removeEMail(EMail email);
-
-    /**
      * Update a model user's profile.
      * 
      * @param vcard
      *            A <code>ProfileVCard</code>.
      */
     void update(ProfileVCard vcard);
+
+    /**
+     * Update an e-mail address.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     * @throws EMailReferenceException
+     *             if the e-mail cannot be updated
+     */
+    void updateEMail(EMail email) throws EMailIntegrityException;
 
     /**
      * Update a model user's password.

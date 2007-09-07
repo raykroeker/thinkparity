@@ -195,7 +195,7 @@ public final class PublishVersion extends ContainerDelegate {
      * </ol>
      */
     private void assertIsPublishable() {
-        final List<ProfileEMail> profileEMails = getProfileModel().readEmails();
+        final List<ProfileEMail> profileEMails = getProfileModel().readEMails();
         Assert.assertNotTrue(contains(profileEMails, emails), "The local user cannot be published to.");
         Assert.assertNotTrue(contains(teamMembers, localUser()), "The local user cannot be published to.");
         assertIsNotContact(emails);

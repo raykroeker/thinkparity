@@ -11,6 +11,7 @@ import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.model.annotation.ThinkParityConcurrency;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.profile.EMailIntegrityException;
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
@@ -34,15 +35,6 @@ import com.thinkparity.ophelia.model.events.ProfileListener;
  */
 @ThinkParityTransaction(TransactionType.REQUIRED)
 public interface ProfileModel {
-
-    /**
-     * Add an email to the profile.
-     * 
-     * @param email
-     *            An <code>EMail</code>.
-     */
-    @ThinkParityOnline
-	public void addEmail(final EMail email);
 
     /**
      * Add a profile event listener to the model.
@@ -116,23 +108,7 @@ public interface ProfileModel {
      */
     public BackupStatistics readBackupStatistics();
 
-    /**
-     * Read a profile email.
-     * 
-     * @param emailId
-     *            An email id <code>Long</code>.
-     * @return A <code>ProfileEmail</code>.
-     */
-    public ProfileEMail readEmail(final Long emailId);
-
 	/**
-     * Read a list of profile email addresses.
-     * 
-     * @return A list of email addresses.
-     */
-    public List<ProfileEMail> readEmails();
-
-    /**
      * Read a list of available features.
      * 
      * @return A <code>List</code> of <code>Feature</code>s.
@@ -145,15 +121,6 @@ public interface ProfileModel {
      * @return The <code>Statistics</code>.
      */
     public Statistics readStatistics();
-
-    /**
-     * Remove an email.
-     * 
-     * @param emailId
-     *            An email id <code>Long</code>.
-     */
-    @ThinkParityOnline
-	public void removeEmail(final Long emailId);
 
     /**
      * Remove a profile event listener from the model.
@@ -212,7 +179,14 @@ public interface ProfileModel {
      *            A verification key <code>String</code>.
      */
     @ThinkParityOnline
-    public void verifyEmail(final Long emailId, final String key);
+    public void verifyEMail(final Long emailId, final String key);
+
+    /**
+     * Read the profile's e-mail address.
+     * 
+     * @return A <code>ProfileEMail</code>.
+     */
+    ProfileEMail readEMail();
 
     /**
      * Read the profile's username.
@@ -220,4 +194,14 @@ public interface ProfileModel {
      * @return A <code>String</code>.
      */
     String readUsername();
+
+    /**
+     * Update an e-mail address.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     * @throws EMailIntegrityException
+     *             if the e-mail's integrity cannot be maintained
+     */
+    void updateEMail(EMail email) throws EMailIntegrityException;
 }

@@ -73,14 +73,6 @@ public interface InternalSessionModel extends SessionModel {
     public void acceptInvitation(final IncomingUserInvitation invitation,
             final Calendar acceptedOn);
 
-    /**
-     * Add an email to a user's profile.
-     * 
-     * @param email
-     *            A <code>ProfileEMail</code>.
-     */
-    public void addProfileEmail(final ProfileEMail email);
-
     // TODO-javadoc InternalSessionModel#createDraft()
     public void createDraft(final List<JabberId> team, final UUID uniqueId,
             final Long latestVersionId, final Calendar createdOn)
@@ -463,13 +455,6 @@ public interface InternalSessionModel extends SessionModel {
     public List<OutgoingUserInvitation> readOutgoingUserInvitations();
 
     /**
-     * Read the user's profile email addresses.
-     * 
-     * @return A list of profile email addresses.
-     */
-    public List<ProfileEMail> readProfileEMails();
-
-    /**
      * Read a user's profile features.
      * 
      * @return A <code>List</code> of <code>Feature</code>s.
@@ -485,16 +470,6 @@ public interface InternalSessionModel extends SessionModel {
      */
     public User readUser(final JabberId userId);
 
-	/**
-     * Remove an email from a user's profile.
-     * 
-     * @param userId
-     *            A user id <code>JabberId</code>.
-     * @param email
-     *            A <code>ProfileEMail</code>.
-     */
-    public void removeProfileEmail(final JabberId userId, final ProfileEMail email);
-	
     /**
      * Update the a user's profile.
      * 

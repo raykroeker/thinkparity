@@ -15,20 +15,12 @@ import com.thinkparity.codebase.event.EventListener;
 public interface ProfileListener extends EventListener {
 
     /**
-     * An e-mail was added to the user's profile.
+     * The e-mail was updated within the profile.
      *
      * @param e
      *      A <code>ProfileEvent</code>.
      */
-    public void emailAdded(final ProfileEvent e);
-
-    /**
-     * An e-mail was removed from the user's profile.
-     *
-     * @param e
-     *      A <code>ProfileEvent</code>.
-     */
-    public void emailRemoved(final ProfileEvent e);
+    public void emailUpdated(final ProfileEvent e);
 
     /**
      * An profile e-mail was verified.

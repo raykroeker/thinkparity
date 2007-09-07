@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.filter.Filter;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
@@ -16,7 +15,6 @@ import com.thinkparity.codebase.model.contact.IncomingUserInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.ophelia.model.contact.ContactModel;
 import com.thinkparity.ophelia.model.container.ContainerModel;
@@ -101,6 +99,15 @@ public final class MainStatusProvider extends ContentProvider {
     }
 
     /**
+     * Determine whether or not the profile's e-mail address has been verified.
+     * 
+     * @return True if it is verified.
+     */
+    public Boolean readIsEMailVerified() {
+        return profileModel.readEMail().isVerified();
+    }
+
+    /**
      * Read the user's profile.
      * 
      * @return A <code>Profile</code>.
@@ -130,22 +137,5 @@ public final class MainStatusProvider extends ContentProvider {
                     }));
         }
         return unseenContainerVersions;
-    }
-
-    /**
-     * Read a list of <code>EMail</code> addresses that have not yet been
-     * verified.
-     * 
-     * @return A <code>List</code> of <code>EMail</code> addresses.
-     */
-    public List<EMail> readUnverifiedEMails() {
-        // TODO use a filter
-        final List<ProfileEMail> emails = profileModel.readEmails();
-        final List<EMail> unverified = new ArrayList<EMail>(emails.size());
-        for (final ProfileEMail email : emails) {
-            if (!email.isVerified().booleanValue())
-                unverified.add(email.getEmail());
-        }
-        return unverified;
     }
 }

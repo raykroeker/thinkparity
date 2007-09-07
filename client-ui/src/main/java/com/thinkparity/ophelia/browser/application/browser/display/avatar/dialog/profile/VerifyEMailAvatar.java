@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile;
 
 import java.awt.event.ActionEvent;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.text.AbstractDocument;
@@ -36,7 +35,7 @@ import com.thinkparity.ophelia.browser.platform.util.State;
 public class VerifyEMailAvatar extends Avatar {
 
     /** The emails. */
-    private List<ProfileEMail> emails;
+    private ProfileEMail email;
 
     /** An instance of <code>ProfileConstraints</code>. */
     private final ProfileConstraints profileConstraints;
@@ -79,7 +78,7 @@ public class VerifyEMailAvatar extends Avatar {
     @Override
     public void reload() {
         keyJTextField.setText("");
-        this.emails = readEMails();
+        this.email = readEMail();
         validateInput();
     }
 
@@ -135,7 +134,7 @@ public class VerifyEMailAvatar extends Avatar {
      * @return A <code>ProfileEMail</code>.
      */
     private ProfileEMail getEMail() {
-        return 0 < emails.size() ? emails.get(0) : null;
+        return email;
     }
 
     /** This method is called from within the constructor to
@@ -222,12 +221,12 @@ public class VerifyEMailAvatar extends Avatar {
     }//GEN-LAST:event_keyJTextFieldActionPerformed
 
     /**
-     * Read the email addresses from the content provider.
+     * Read the profile e-mail address.
      * 
-     * @return A <code>List&lt;ProfileEMail&gt;</code>.
+     * @return A <code>ProfileEMail</code>.
      */
-    private List<ProfileEMail> readEMails() {
-        return ((VerifyEMailProvider) contentProvider).readEMails();
+    private ProfileEMail readEMail() {
+        return ((VerifyEMailProvider) contentProvider).readEMail();
     }
 
     /**

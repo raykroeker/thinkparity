@@ -20,7 +20,6 @@ import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
 import com.thinkparity.codebase.StringUtil.Separator;
-import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.TopBorder;
@@ -555,13 +554,12 @@ public class MainStatusAvatar extends Avatar {
     }
 
     /**
-     * Read a list of <code>EMail</code> addresses that have not yet been
-     * verified.
+     * Determine whether or not the profile's e-mail address has been verified.
      * 
-     * @return A <code>List</code> of <code>EMail</code> addresses.
+     * @return True if it is verified.
      */
-    private List<EMail> readUnverifiedEMails() {
-        return ((MainStatusProvider) contentProvider).readUnverifiedEMails();
+    private Boolean readIsEMailVerified() {
+        return ((MainStatusProvider) contentProvider).readIsEMailVerified();
     }
 
     /**
@@ -630,7 +628,7 @@ public class MainStatusAvatar extends Avatar {
             } else if (!isOnline() && OfflineCode.CLIENT_MAINTENANCE == getOfflineCode()) {
                 textJLabel.setForeground(Colors.Browser.MainStatus.CLIENT_MAINTENANCE_MESSAGE_FOREGROUND);
                 textJLabel.setText(getString("Text.ClientMaintenance"));
-            } else if (0 < readUnverifiedEMails().size()) {
+            } else if (Boolean.FALSE == readIsEMailVerified()) {
                 textJLabel.setForeground(Colors.Browser.MainStatus.MESSAGE_FOREGROUND);
                 if (isOnline()) {
                     /* if there is no verified e-mail address display a link about

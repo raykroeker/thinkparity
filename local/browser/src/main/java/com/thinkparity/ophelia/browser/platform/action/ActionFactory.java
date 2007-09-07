@@ -265,14 +265,11 @@ public class ActionFactory extends AbstractFactory {
             action = new com.thinkparity.ophelia.browser.platform.action.platform.Restart(getPlatform());
             break;
 
-        case PROFILE_ADD_EMAIL:
-            action = new com.thinkparity.ophelia.browser.platform.action.profile.AddEmail(getBrowser());
+        case PROFILE_UPDATE_EMAIL:
+            action = new com.thinkparity.ophelia.browser.platform.action.profile.UpdateEMail(getBrowser());
             break;
         case PROFILE_DOWNGRADE_ACCOUNT:
             action = new com.thinkparity.ophelia.browser.platform.action.profile.DowngradeAccount(getBrowser());
-            break;
-        case PROFILE_REMOVE_EMAIL:
-            action = new com.thinkparity.ophelia.browser.platform.action.profile.RemoveEmail(getBrowser());
             break;
         case PROFILE_UPDATE:
             action = new com.thinkparity.ophelia.browser.platform.action.profile.Update(getBrowser());
@@ -284,7 +281,7 @@ public class ActionFactory extends AbstractFactory {
             action = new com.thinkparity.ophelia.browser.platform.action.profile.UpgradeAccount(getBrowser());
             break;
         case PROFILE_VERIFY_EMAIL:
-            action = new com.thinkparity.ophelia.browser.platform.action.profile.VerifyEmail(getBrowser());
+            action = new com.thinkparity.ophelia.browser.platform.action.profile.VerifyEMail(getBrowser());
             break;
 
         default:

@@ -16,7 +16,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -426,6 +425,15 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Determine whether or not the profile's e-mail address has been verified.
+     * 
+     * @return True if it is verified.
+     */
+    Boolean readIsEMailVerified() {
+        return ((ContainerProvider) contentProvider).readIsEMailVerified();
+    }
+
+    /**
      * Determine whether or not the invite user interface is enabled.
      * 
      * @param user
@@ -458,16 +466,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
         checkThread();
         final Profile profile = readProfile();
         return user.getId().equals(profile.getId());
-    }
-
-    /**
-     * Read a list of <code>EMail</code> addresses that have not yet been
-     * verified.
-     * 
-     * @return A <code>List</code> of <code>EMail</code> addresses.
-     */
-    List<EMail> readUnverifiedEMails() {
-        return ((ContainerProvider) contentProvider).readUnverifiedEMails();
     }
 
     /**
@@ -535,6 +533,29 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Synchronize a version's receipts.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param receipts
+     *            A <code>List<ArtifactReceipt></code>.
+     */
+    void syncContainerVersionReceipts(final ContainerVersion version,
+            final List<ArtifactReceipt> receipts) {
+        if (isPanel(version.getArtifactId())) {
+            final ContainerPanel panel = lookupContainerPanel(version.getArtifactId());
+            final PublishedToView publishedTo = panel.getPublishedTo(version);
+            if (null == publishedTo) {
+                logger.logInfo("Published to panel data for {0} has not been retreived.", panel);
+            } else {
+                publishedTo.setArtifactReceipts(receipts);
+                panel.setPanelData(version, publishedTo);
+                synchronize();
+            }
+        }
+    }
+
+    /**
      * Synchronize a document.
      * Performance is a concern so unnecessary steps are avoided.
      * This method is called (for example) when a document is renamed
@@ -572,29 +593,6 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
             final Document document) {
         addContainerIdLookup(document.getId(), container.getId());
         syncDocumentModified(container, draft, document);
-    }
-
-    /**
-     * Synchronize a version's receipts.
-     * 
-     * @param version
-     *            A <code>ContainerVersion</code>.
-     * @param receipts
-     *            A <code>List<ArtifactReceipt></code>.
-     */
-    void syncContainerVersionReceipts(final ContainerVersion version,
-            final List<ArtifactReceipt> receipts) {
-        if (isPanel(version.getArtifactId())) {
-            final ContainerPanel panel = lookupContainerPanel(version.getArtifactId());
-            final PublishedToView publishedTo = panel.getPublishedTo(version);
-            if (null == publishedTo) {
-                logger.logInfo("Published to panel data for {0} has not been retreived.", panel);
-            } else {
-                publishedTo.setArtifactReceipts(receipts);
-                panel.setPanelData(version, publishedTo);
-                synchronize();
-            }
-        }
     }
 
     /**

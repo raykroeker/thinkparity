@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.profile;
 
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -19,12 +21,7 @@ import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
-import com.thinkparity.codebase.model.profile.EMailReservation;
-import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.profile.SecurityCredentials;
-import com.thinkparity.codebase.model.profile.UsernameReservation;
+import com.thinkparity.codebase.model.profile.*;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -36,6 +33,7 @@ import com.thinkparity.ophelia.model.Constants.Product.Features;
 import com.thinkparity.ophelia.model.events.ProfileEvent;
 import com.thinkparity.ophelia.model.events.ProfileListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
+import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.handler.ProfileIOHandler;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
@@ -61,6 +59,24 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         DU_BACKUP_ALLOTMENT = Long.valueOf(1024L * 1024L * 1024L * 10L);
     }
 
+    /**
+     * Determine if the hypersonic (database layer) error was caused by an
+     * integrity constraint violation.
+     * 
+     * @param hypersonicException
+     *            A <code>HypersonicException</code>.
+     * @return True if the error is caused by an integrity constraint.
+     */
+    private static boolean isSQLIntegrityConstraintViolation(
+            final HypersonicException hypersonicException) {
+        if (SQLIntegrityConstraintViolationException.class.isAssignableFrom(
+                hypersonicException.getCause().getClass())) {
+            return "23503".equals(((SQLException) hypersonicException.getCause()).getSQLState());
+        } else {
+            return false;
+        }
+    }
+
     /** A <code>ProfileEventGenerator</code> for local events. */
     private final ProfileEventGenerator localEventGenerator;
 
@@ -77,29 +93,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     public ProfileModelImpl() {
         super();
         this.localEventGenerator = new ProfileEventGenerator(ProfileEvent.Source.LOCAL);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.profile.ProfileModel#addEmail(com.thinkparity.codebase.email.EMail)
-     * 
-     */
-    public void addEmail(final EMail email) {
-        try {
-            final Profile profile = read();
-            // add email data
-            final ProfileEMail profileEMail = new ProfileEMail();
-            profileEMail.setEmail(email);
-            profileEMail.setProfileId(profile.getLocalId());
-            profileEMail.setVerified(Boolean.FALSE);
-            profileIO.createEmail(profile.getLocalId(), profileEMail);
-            // add email remotely
-            getSessionModel().addProfileEmail(profileEMail);
-            // fire event
-            notifyEmailAdded(read(), readEmail(profileEMail.getEmailId()),
-                    localEventGenerator);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
     }
 
     /**
@@ -197,7 +190,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             /* download */
             final AuthToken authToken = getAuthToken();
             final Profile profile = profileService.read(authToken);
-            final List<ProfileEMail> remoteEMails = profileService.readEMails(authToken);
+            final ProfileEMail remoteEMail = profileService.readEMail(authToken);
 
             /* create */
             final User profileUser = getUserModel().readLazyCreate(
@@ -206,14 +199,11 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             profileIO.create(profile);
 
             /* create e-mail */
-            ProfileEMail localEMail;
-            for (final ProfileEMail remoteEMail : remoteEMails) {
-                localEMail = new ProfileEMail();
-                localEMail.setEmail(remoteEMail.getEmail());
-                localEMail.setProfileId(profile.getLocalId());
-                localEMail.setVerified(remoteEMail.isVerified());
-                profileIO.createEmail(profile.getLocalId(), localEMail);
-            }
+            final ProfileEMail localEMail = new ProfileEMail();
+            localEMail.setEmail(remoteEMail.getEmail());
+            localEMail.setProfileId(profile.getLocalId());
+            localEMail.setVerified(remoteEMail.isVerified());
+            profileIO.createEmail(profile.getLocalId(), localEMail);
 
             /* index */
             getIndexModel().indexProfile();
@@ -347,39 +337,40 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         return super.readCredentials();
     }
 
+
     /**
-     * Read a profile email.
-     * 
-     * @param emailId
-     *            An email id <code>Long</code>.
-     * @return A <code>ProfileEmail</code>.
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#readEMail()
+     *
      */
-    public ProfileEMail readEmail(final Long emailId) {
-        logger.logApiId();
-        logger.logVariable("emailId", emailId);
+    @Override
+    public ProfileEMail readEMail() {
         try {
-            final Profile profile = read();
-            return profileIO.readEmail(profile.getLocalId(), emailId);
+            final List<ProfileEMail> profileEMails = readEMails();
+            return profileEMails.get(0);
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
 
     /**
-     * Read a list of profile email addresses.
-     * 
-     * @return A list of email addresses.
+     * @see com.thinkparity.ophelia.model.profile.InternalProfileModel#readEMails()
+     *
      */
-    public List<ProfileEMail> readEmails() {
-        logger.logApiId();
+    @Override
+    public  List<ProfileEMail> readEMails() {
         try {
             final Profile profile = read();
-            return profileIO.readEmails(profile.getLocalId());
+            final List<ProfileEMail> profileEMails = profileIO.readEmails(
+                    profile.getLocalId());
+            if (1 < profileEMails.size()) {
+                logger.logWarning("Profile contains {0} e-mails.",
+                        profileEMails.size());
+            }
+            return profileEMails;
         } catch (final Throwable t) {
             throw panic(t);
         }
     }
-
 
     /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#readFeatures()
@@ -415,24 +406,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     public String readUsername() {
         try {
             return readCredentials().getUsername();
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.profile.ProfileModel#removeEmail(java.lang.Long)
-     * 
-     */
-    public void removeEmail(final Long emailId) {
-        try {
-            final Profile profile = read();
-            final ProfileEMail email = profileIO.readEmail(profile.getLocalId(), emailId);
-            // remove email data
-            profileIO.deleteEmail(email.getProfileId(), email.getEmailId());
-            // remove email remotely
-            getSessionModel().removeProfileEmail(localUserId(), email);
-            notifyEmailRemoved(read(), email, localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -509,6 +482,50 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#updateEMail(com.thinkparity.codebase.email.EMail)
+     *
+     */
+    @Override
+    public void updateEMail(final EMail email) throws EMailIntegrityException {
+        try {
+            final Profile profile = read();
+            final List<ProfileEMail> profileEMails = readEMails();
+            if (1 < profileEMails.size()) {
+                logger.logWarning("Profile contains {0} e-mail addresses.",
+                        profileEMails.size());
+            }
+            for (final ProfileEMail profileEMail : profileEMails) {
+                try {
+                    profileIO.deleteEmail(profileEMail.getProfileId(),
+                            profileEMail.getEmailId());
+                } catch (final HypersonicException hx) {
+                    if (isSQLIntegrityConstraintViolation(hx)) {
+                        logger.logWarning("Could not delete e-mail {0}.  {1}",
+                                profileEMail.getEmail(), hx.getMessage());
+                        throw new EMailIntegrityException(profileEMail.getEmail());
+                    } else {
+                        throw hx;
+                    }
+                }
+            }
+            // add email data
+            final ProfileEMail profileEMail = new ProfileEMail();
+            profileEMail.setEmail(email);
+            profileEMail.setProfileId(profile.getLocalId());
+            profileEMail.setVerified(Boolean.FALSE);
+            profileIO.createEmail(profile.getLocalId(), profileEMail);
+            // update remote e-mail
+            profileService.updateEMail(getAuthToken(), email);
+            // fire event
+            notifyEmailUpdated(profile, profileEMail, localEventGenerator);
+        } catch (final EMailIntegrityException emix) {
+            throw emix;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#updatePassword(com.thinkparity.codebase.model.session.Credentials,
      *      java.lang.String)
      * 
@@ -576,18 +593,18 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.profile.ProfileModel#verifyEmail(java.lang.Long,
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#verifyEMail(java.lang.Long,
      *      java.lang.String)
      * 
      */
-    public void verifyEmail(final Long emailId, final String key) {
+    @Override
+    public void verifyEMail(final Long emailId, final String key) {
         try {
             final Profile profile = read();
             final ProfileEMail email = profileIO.readEmail(profile.getLocalId(), emailId);
             getSessionModel().verifyProfileEmail(email, key);
             profileIO.verifyEmail(email.getProfileId(), email.getEmailId(), Boolean.TRUE);
-            notifyEmailVerified(read(), readEmail(email.getEmailId()),
-                    localEventGenerator);
+            notifyEmailVerified(read(), readEMail(), localEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -702,26 +719,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * Notify that an email address has been added.
-     * 
-     * @param profile
-     *      A <code>Profile</code>.
-     * @param email
-     *      An <code>EMail</code> address.
-     * @param eventGenerator
-     *            An event generator.
-     */
-    private void notifyEmailAdded(final Profile profile,
-            final ProfileEMail email,
-            final ProfileEventGenerator eventGenerator) {
-        notifyListeners(new EventNotifier<ProfileListener>() {
-            public void notifyListener(final ProfileListener listener) {
-                listener.emailAdded(eventGenerator.generate(profile, email));
-            }
-        });
-    }
-
-    /**
      * Notify that an email address has been removed.
      * 
      * @param profile
@@ -731,12 +728,11 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      * @param eventGenerator
      *            An event generator.
      */
-    private void notifyEmailRemoved(final Profile profile,
-            final ProfileEMail email,
-            final ProfileEventGenerator eventGenerator) {
+    private void notifyEmailUpdated(final Profile profile,
+            final ProfileEMail email, final ProfileEventGenerator eventGenerator) {
         notifyListeners(new EventNotifier<ProfileListener>() {
             public void notifyListener(final ProfileListener listener) {
-                listener.emailRemoved(eventGenerator.generate(profile, email));
+                listener.emailUpdated(eventGenerator.generate(profile, email));
             }
         });
     }
@@ -793,14 +789,5 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
                 listener.profileUpdated(eventGenerator.generate(profile));
             }
         });
-    }
-
-    /**
-     * Read the profile e-mail addresses.
-     * 
-     * @return A <code>List<ProfileEMail</code>.
-     */
-    private List<ProfileEMail> readEMails() {
-        return readEmails();
     }
 }

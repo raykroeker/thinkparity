@@ -3,7 +3,10 @@
  */
 package com.thinkparity.ophelia.model.profile;
 
+import java.util.List;
+
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
@@ -32,6 +35,13 @@ public interface InternalProfileModel extends ProfileModel {
      * @return An instance of <code>Credentials</code>.
      */
     Credentials readCredentials();
+
+    /**
+     * Read a list of the profile e-mail addresses.
+     * 
+     * @return A <code>List<ProfileEMail></code>.
+     */
+    List<ProfileEMail> readEMails();
 
     /**
      * Restore backup.

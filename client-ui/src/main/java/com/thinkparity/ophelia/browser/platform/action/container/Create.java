@@ -7,7 +7,6 @@ import java.io.File;
 import java.util.List;
 
 import com.thinkparity.codebase.model.container.Container;
-import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
@@ -73,17 +72,12 @@ public class Create extends AbstractBrowserAction {
     }
 
     /**
-     * Determine if there are unverified emails.
+     * Determine if is an unverified email.
      * 
-     * @return A <code>Boolean</code>, true if there are unverified emails.
+     * @return A <code>Boolean</code>, true if the email is not verified.
      */
     private Boolean isUnverifiedEMails() {
-        final List<ProfileEMail> emails = getProfileModel().readEmails();
-        for (final ProfileEMail email : emails) {
-            if (!email.isVerified().booleanValue())
-                return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
+        return !getProfileModel().readEMail().isVerified();
     }
 
     public enum DataKey { NAME, FILES }

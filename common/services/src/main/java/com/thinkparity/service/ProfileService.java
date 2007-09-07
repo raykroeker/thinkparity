@@ -13,12 +13,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
-import com.thinkparity.codebase.model.profile.EMailReservation;
-import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.profile.ProfileEMail;
-import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.profile.SecurityCredentials;
-import com.thinkparity.codebase.model.profile.UsernameReservation;
+import com.thinkparity.codebase.model.profile.*;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.util.Token;
@@ -32,9 +27,6 @@ import com.thinkparity.codebase.model.util.Token;
  */
 @WebService(name = "Profile")
 public interface ProfileService {
-
-    @WebMethod
-    void addEMail(AuthToken authToken, EMail email);
 
     @WebMethod
     void create(AuthToken authToken, Product product, Release release,
@@ -60,7 +52,7 @@ public interface ProfileService {
     Profile read(AuthToken authToken);
 
     @WebMethod
-    List<ProfileEMail> readEMails(AuthToken authToken);
+    ProfileEMail readEMail(AuthToken authToken);
 
     @WebMethod
     List<Feature> readFeatures(AuthToken authToken);
@@ -69,10 +61,21 @@ public interface ProfileService {
     Token readToken(AuthToken authToken);
 
     @WebMethod
-    void removeEMail(AuthToken authToken, EMail email);
-
-    @WebMethod
     void update(AuthToken authToken, ProfileVCard vcard);
+
+    /**
+     * Update the profile e-mail address.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param email
+     *            An <code>EMail</code>.
+     * @throws EMailIntegrityException
+     *             if the e-mail cannot be updated
+     */
+    @WebMethod
+    void updateEMail(AuthToken authToken, EMail email)
+            throws EMailIntegrityException;
 
     @WebMethod
     void updatePassword(AuthToken authToken, Credentials credentials,

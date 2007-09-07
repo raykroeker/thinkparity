@@ -288,7 +288,7 @@ public final class Publish extends ContainerDelegate {
      * </ol>
      */
     private void assertIsPublishable() {
-        final List<ProfileEMail> profileEMails = getProfileModel().readEmails();
+        final List<ProfileEMail> profileEMails = getProfileModel().readEMails();
         Assert.assertNotTrue(contains(profileEMails, emails), "The local user cannot be published to.");
         Assert.assertNotTrue(contains(teamMembers, localUser()), "The local user cannot be published to.");
         Assert.assertTrue(doesExistLocalDraft(containerId), "A local draft does not exist.");

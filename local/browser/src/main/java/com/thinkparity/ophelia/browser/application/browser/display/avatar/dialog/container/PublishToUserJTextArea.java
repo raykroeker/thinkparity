@@ -76,8 +76,8 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
     /** The parent <code>Avatar</code>. */
     private final Avatar parent;
 
-    /** The profile email addresses. */
-    private List<String> profileEMailAddresses;
+    /** The profile email address. */
+    private String profileEMailAddresses;
 
     /** The <code>PublishToUserPopupDelegate</code> popup delegate. */
     private final PublishToUserPopupDelegate publishToUserPopupDelegate;
@@ -212,7 +212,7 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
         teamMembers = readTeamMembers();
         contactsNotOnTeam = readContactsNotOnTeam(teamMembers);
         contactsOnTeam = readContactsOnTeam(contactsNotOnTeam);
-        profileEMailAddresses = readEMailAddresses();
+        profileEMailAddresses = readEMailAddress();
     }
 
     /**
@@ -813,22 +813,17 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
      * 
      * @return A <code>List&lt;String&gt;</code>.
      */
-    private List<String> readEMailAddresses() {
-        final List<ProfileEMail> emails = readEMails();
-        final List<String> emailAddresses = new ArrayList<String>(emails.size());
-        for (final ProfileEMail email : emails) {
-            emailAddresses.add(email.getEmail().toString().toLowerCase());
-        }
-        return emailAddresses;
+    private String readEMailAddress() {
+        return readEMail().getEmail().toString().toLowerCase();
     }
 
     /**
-     * Read the profile emails from the content provider.
+     * Read the profile e-mail address.
      * 
-     * @return A <code>List&lt;ProfileEMail&gt;</code>.
+     * @return A <code>ProfileEMail</code>.
      */
-    private List<ProfileEMail> readEMails() {
-        return contentProvider.readEMails();
+    private ProfileEMail readEMail() {
+        return contentProvider.readEMail();
     }
 
     /**

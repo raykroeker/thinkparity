@@ -3,8 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile;
 
-import java.util.List;
-
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.ophelia.model.profile.ProfileModel;
@@ -28,11 +26,11 @@ public class VerifyEMailProvider extends ContentProvider {
     }
 
     /**
-     * Read emails.
+     * Read the profile e-mail address.
      * 
-     * @return A list of email addresses.
+     * @return A <code>ProfileEMail</code>.
      */
-    public List<ProfileEMail> readEMails() {
-        return profileModel.readEmails();
+    public ProfileEMail readEMail() {
+        return profileModel.readEMail();
     }
 }

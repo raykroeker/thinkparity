@@ -42,11 +42,7 @@ public final class MainTitleDispatcher implements
     public void addListeners(final MainTitleAvatar avatar) {
         profileListener = new ProfileAdapter() {
             @Override
-            public void emailAdded(final ProfileEvent e) {
-                avatar.fireProfileEMailEvent(e);
-            }
-            @Override
-            public void emailRemoved(final ProfileEvent e) {
+            public void emailUpdated(final ProfileEvent e) {
                 avatar.fireProfileEMailEvent(e);
             }
             @Override

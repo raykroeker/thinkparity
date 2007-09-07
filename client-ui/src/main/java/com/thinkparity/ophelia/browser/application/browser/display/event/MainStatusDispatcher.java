@@ -94,11 +94,7 @@ public final class MainStatusDispatcher implements
         migratorModel.addListener(migratorListener);
         profileListener = new ProfileAdapter() {
             @Override
-            public void emailAdded(final ProfileEvent e) {
-                avatar.fireProfileEMailEvent(e);
-            }
-            @Override
-            public void emailRemoved(final ProfileEvent e) {
+            public void emailUpdated(final ProfileEvent e) {
                 avatar.fireProfileEMailEvent(e);
             }
             @Override

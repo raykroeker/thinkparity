@@ -6,7 +6,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialo
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.List;
 import java.util.Locale;
 
 import javax.swing.AbstractAction;
@@ -90,7 +89,7 @@ public class UpdateProfileAvatar extends Avatar {
     private final DefaultComboBoxModel countryModel;
 
     /** The emails. */
-    private List<ProfileEMail> emails;
+    private ProfileEMail email;
 
     /** The profile. */
     private Profile profile;
@@ -122,7 +121,7 @@ public class UpdateProfileAvatar extends Avatar {
 
     public void reload() {
         this.profile = readProfile();
-        this.emails = readEMails();
+        this.email = readEMail();
         final boolean online = isOnline();
         reload(nameJTextField, profile.getName(), online);
         reload(titleJTextField, profile.getTitle(), online);
@@ -314,7 +313,7 @@ public class UpdateProfileAvatar extends Avatar {
      * @return A <code>ProfileEMail</code>.
      */
     private ProfileEMail getEMail() {
-        return 0 < emails.size() ? emails.get(0) : null;
+        return email;
     }
 
     /**
@@ -853,12 +852,12 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     /**
-     * Read the profile email addresses from the content provider.
+     * Read the profile e-mail address.
      * 
-     * @return A <code>List&lt;ProfileEMail&gt;</code>.
+     * @return A <code>ProfileEMail</code>.
      */
-    private List<ProfileEMail> readEMails() {
-        return ((UpdateProfileProvider) contentProvider).readEMails();
+    private ProfileEMail readEMail() {
+        return ((UpdateProfileProvider) contentProvider).readEMail();
     }
 
     /**
@@ -1016,13 +1015,13 @@ public class UpdateProfileAvatar extends Avatar {
     }//GEN-LAST:event_saveJButtonActionPerformed
 
     /**
-     * Update the email address.
+     * Update the profile e-mail address.
+     * 
      */
     private void updateEmail() {
         if (isChanged(extractInputEmail(), getEMailString())) {
             final EMail newEmail = EMailBuilder.parse(extractInputEmail());
-            getController().runAddProfileEmail(newEmail);
-            getController().runRemoveProfileEmail(emails.get(0).getEmailId());
+            getController().runUpdateProfileEMail(newEmail);
         }
     }
 

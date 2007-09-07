@@ -3,16 +3,15 @@
  */
 package com.thinkparity.ophelia.model.profile;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 
+import com.thinkparity.codebase.model.profile.EMailIntegrityException;
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
@@ -46,20 +45,6 @@ public final class ProfileTest extends ProfileTestCase {
      */
     public ProfileTest() {
         super(NAME);
-    }
-
-    /**
-     * Test adding an email address.
-     *
-     */
-    public void testAddEmail() {
-        final String emailInjection = "+" + String.valueOf(System.currentTimeMillis());
-        final EMail email = EMailBuilder.parse("junit" + emailInjection + "@thinkparity.com");
-        getModel(datum.junit).addListener(datum.add_email_listener);
-        getModel(datum.junit).addEmail(email);
-        datum.waitForEvents();
-        getModel(datum.junit).removeListener(datum.add_email_listener);
-        assertTrue("Email added event not fired.", datum.add_email_notify);
     }
 
     /**
@@ -119,13 +104,21 @@ public final class ProfileTest extends ProfileTestCase {
         // add an e-mail to a contact
         String emailInjection = "+" + String.valueOf(System.currentTimeMillis());
         EMail email = EMailBuilder.parse("junit" + emailInjection + "@thinkparity.com");
-        getModel(datum.junit).addEmail(email);
+        try {
+            getModel(datum.junit).updateEMail(email);
+        } catch (final EMailIntegrityException emix) {
+            fail(emix, "Cannot update e-mail.");
+        }
         assertFalse("Email availability incorrect.", getModel(datum.junit_x).isAvailable(email));
 
         // add an e-mail to a non-contact
         emailInjection = "+" + String.valueOf(System.currentTimeMillis());
         email = EMailBuilder.parse("junit" + emailInjection + "@thinkparity.com");
-        getModel(datum.junit_w).addEmail(email);
+        try {
+            getModel(datum.junit_w).updateEMail(email);
+        } catch (final EMailIntegrityException emix) {
+            fail(emix, "Cannot update e-mail.");
+        }
         assertFalse("Email availability incorrect.", getModel(datum.junit_x).isAvailable(email));
 
         emailInjection = "+" + String.valueOf(System.currentTimeMillis());
@@ -140,22 +133,6 @@ public final class ProfileTest extends ProfileTestCase {
     public void testRead() {
         final Profile profile = getModel(datum.junit).read();
         assertNotNull(profile);
-    }
-
-    /**
-     * Test removing an email address.
-     *
-     */
-    public void testRemoveEmail() {
-        final String emailInjection = "+" + String.valueOf(System.currentTimeMillis());
-        final EMail email = EMailBuilder.parse("junit" + emailInjection + "@thinkparity.com");
-        getModel(datum.junit).addEmail(email);
-        final List<ProfileEMail> emails = getModel(datum.junit).readEmails();
-        getModel(datum.junit).addListener(datum.remove_email_listener);
-        getModel(datum.junit).removeEmail(emails.get(emails.size() - 1).getEmailId());
-        datum.waitForEvents();
-        getModel(datum.junit).removeListener(datum.remove_email_listener);
-        assertTrue("Email removed event not fired.", datum.remove_email_notify);
     }
 
     /**
@@ -174,6 +151,24 @@ public final class ProfileTest extends ProfileTestCase {
         datum.waitForEvents();
         getModel(datum.junit).removeListener(datum.update_listener);
         assertTrue("Update event not fired.", datum.update_notify);
+    }
+
+    /**
+     * Test adding an email address.
+     *
+     */
+    public void testUpdateEMail() {
+        final String emailInjection = "+" + String.valueOf(System.currentTimeMillis());
+        final EMail email = EMailBuilder.parse("junit" + emailInjection + "@thinkparity.com");
+        getModel(datum.junit).addListener(datum.add_email_listener);
+        try {
+            getModel(datum.junit).updateEMail(email);
+        } catch (final EMailIntegrityException emix) {
+            fail(emix, "Cannot update e-mail.");
+        }
+        datum.waitForEvents();
+        getModel(datum.junit).removeListener(datum.add_email_listener);
+        assertTrue("Email added event not fired.", datum.update_email_notify);
     }
 
     /**
@@ -236,12 +231,10 @@ public final class ProfileTest extends ProfileTestCase {
      */
     private class Fixture extends ProfileTestCase.Fixture {
         private final ProfileListener add_email_listener;
-        private boolean add_email_notify;
         private final OpheliaTestUser junit;
         private final OpheliaTestUser junit_w;
         private final OpheliaTestUser junit_x;
-        private final ProfileListener remove_email_listener;
-        private boolean remove_email_notify;
+        private boolean update_email_notify;
         private final ProfileListener update_listener;
         private boolean update_notify;
         private final ProfileListener update_password_listener;
@@ -259,24 +252,14 @@ public final class ProfileTest extends ProfileTestCase {
             this.junit_x = OpheliaTestUser.JUNIT_X;
             this.add_email_listener = new ProfileAdapter() {
                 @Override
-                public void emailAdded(final ProfileEvent e) {
+                public void emailUpdated(final ProfileEvent e) {
                     assertNotNull("Profile event is null.", e);
                     assertNotNull("Profile event profile is null.", e.getProfile());
                     assertNotNull("Profile event email null.", e.getEmail());
-                    add_email_notify = true;
+                    update_email_notify = true;
                 }
             };
-            this.add_email_notify = false;
-            this.remove_email_listener = new ProfileAdapter() {
-                @Override
-                public void emailRemoved(final ProfileEvent e) {
-                    assertNotNull("Profile event is null.", e);
-                    assertNotNull("Profile event profile is null.", e.getProfile());
-                    assertNotNull("Profile event email null.", e.getEmail());
-                    remove_email_notify = true;
-                }
-            };
-            this.remove_email_notify = false;
+            this.update_email_notify = false;
             this.update_listener = new ProfileAdapter() {
                 @Override
                 public void profileUpdated(final ProfileEvent e) {

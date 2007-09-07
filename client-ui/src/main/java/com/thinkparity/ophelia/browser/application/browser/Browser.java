@@ -61,12 +61,11 @@ import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
 import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
-import com.thinkparity.ophelia.browser.platform.action.profile.AddEmail;
-import com.thinkparity.ophelia.browser.platform.action.profile.RemoveEmail;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
+import com.thinkparity.ophelia.browser.platform.action.profile.UpdateEMail;
 import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword;
 import com.thinkparity.ophelia.browser.platform.action.profile.UpgradeAccount;
-import com.thinkparity.ophelia.browser.platform.action.profile.VerifyEmail;
+import com.thinkparity.ophelia.browser.platform.action.profile.VerifyEMail;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
@@ -1129,16 +1128,6 @@ public class Browser extends AbstractApplication {
     }
     
     /**
-     * Run the profile's add email action.
-     *
-     */
-    public void runAddProfileEmail(final EMail email) {
-        final Data data = new Data(1);
-        data.set(AddEmail.DataKey.EMAIL, email);
-        invoke(ActionId.PROFILE_ADD_EMAIL, data);
-    }
-
-    /**
      * Run the contact us action.
      *
      */
@@ -1165,7 +1154,7 @@ public class Browser extends AbstractApplication {
     public void runCreateContainer(final List<File> files) {
         runCreateContainer(null, files);
     }
-    
+
     /**
      * Create a container (package) with a specified name.
      * 
@@ -1193,7 +1182,7 @@ public class Browser extends AbstractApplication {
             data.set(Create.DataKey.FILES, files);
         invoke(ActionId.CONTAINER_CREATE, data);
     }
-  
+    
     /**
      * Create a draft for the container.
      * 
@@ -1205,7 +1194,7 @@ public class Browser extends AbstractApplication {
         data.set(CreateDraft.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_CREATE_DRAFT, data);         
     }
-
+  
     /**
      * Run the create outgoing user invitation action.
      * 
@@ -1379,7 +1368,7 @@ public class Browser extends AbstractApplication {
                 invoke(ActionId.CONTAINER_PUBLISH, data);
             }
         });
-    }    
+    }
 
     /**
      * Run the publish container version action.
@@ -1410,8 +1399,8 @@ public class Browser extends AbstractApplication {
                 invoke(ActionId.CONTAINER_PUBLISH_VERSION, data);
             }
         });
-    }
-    
+    }    
+
     /**
      * Run the read container version action.
      * 
@@ -1439,7 +1428,7 @@ public class Browser extends AbstractApplication {
         data.set(RemoveBookmark.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_REMOVE_BOOKMARK, data);
     }
-
+    
     /**
      * Run the remove flag seen action.
      * 
@@ -1454,16 +1443,6 @@ public class Browser extends AbstractApplication {
         data.set(RemoveFlagSeen.DataKey.CONTAINER_ID, containerId);
         data.set(RemoveFlagSeen.DataKey.VERSION_ID, versionId);
         invoke(ActionId.CONTAINER_REMOVE_FLAG_SEEN, data);         
-    }
-
-    /**
-     * Run the profile's remove email action.
-     *
-     */
-    public void runRemoveProfileEmail(final Long emailId) {
-        final Data data = new Data(1);
-        data.set(RemoveEmail.DataKey.EMAIL_ID, emailId);
-        invoke(ActionId.PROFILE_REMOVE_EMAIL, data);
     }
 
     /**
@@ -1596,6 +1575,18 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Run the profile's update e-mail action.
+     * 
+     * @param email
+     *            An <code>EMail</code> address.
+     */
+    public void runUpdateProfileEMail(final EMail email) {
+        final Data data = new Data(1);
+        data.set(UpdateEMail.DataKey.EMAIL, email);
+        invoke(ActionId.PROFILE_UPDATE_EMAIL, data);
+    }
+
+    /**
      * Update the user's profile.
      * 
      * @param credentials
@@ -1638,11 +1629,11 @@ public class Browser extends AbstractApplication {
     public void runVerifyEmail(final Long emailId, final String key) {
         final Data data = new Data(3);
         if (null == emailId || null == key) {
-            data.set(VerifyEmail.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            data.set(VerifyEMail.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
         } else {
-            data.set(VerifyEmail.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
-            data.set(VerifyEmail.DataKey.EMAIL_ID, emailId);
-            data.set(VerifyEmail.DataKey.KEY, key);
+            data.set(VerifyEMail.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
+            data.set(VerifyEMail.DataKey.EMAIL_ID, emailId);
+            data.set(VerifyEMail.DataKey.KEY, key);
         }
         invoke(ActionId.PROFILE_VERIFY_EMAIL, data);
     }

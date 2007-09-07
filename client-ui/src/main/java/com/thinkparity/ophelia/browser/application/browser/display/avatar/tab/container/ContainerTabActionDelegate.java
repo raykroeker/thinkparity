@@ -3,10 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
 
-import java.util.List;
-
-import com.thinkparity.codebase.email.EMail;
-
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -233,8 +229,7 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate#isTabButtonActionAvailable()
      */
     public Boolean isTabButtonActionAvailable() {
-        final List<EMail> unVerifiedEMails = readUnverifiedEMails();
-        return (0 == unVerifiedEMails.size());
+        return readIsEMailVerified();
     }
 
     /**
@@ -249,15 +244,6 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
     }
 
     /**
-     * Determine if online.
-     * 
-     * @return True if online; false otherwise.
-     */
-    private boolean isOnline() {
-        return model.isOnline().booleanValue();
-    }
-
-    /**
      * Determine if the specified user is the local user.
      * 
      * @param user
@@ -269,12 +255,20 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
     }
 
     /**
-     * Read a list of <code>EMail</code> addresses that have not yet been
-     * verified.
+     * Determine if online.
      * 
-     * @return A <code>List</code> of <code>EMail</code> addresses.
+     * @return True if online; false otherwise.
      */
-    private List<EMail> readUnverifiedEMails() {
-        return model.readUnverifiedEMails();
+    private boolean isOnline() {
+        return model.isOnline().booleanValue();
+    }
+
+    /**
+     * Determine whether or not the profile's e-mail address has been verified.
+     * 
+     * @return True if the e-mail is verified.
+     */
+    private Boolean readIsEMailVerified() {
+        return model.readIsEMailVerified();
     }
 }

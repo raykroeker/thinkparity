@@ -4,8 +4,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile;
 
-import java.util.List;
-
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.codebase.model.profile.Profile;
@@ -78,21 +76,12 @@ public class UpdateProfileProvider extends ContentProvider {
     }
 
     /**
-     * Read the statistics.
+     * Read the profile e-mail address.
      * 
-     * @return The <code>Statistics</code>.
+     * @return A <code>ProfileEMail</code>.
      */
-    public Statistics readStatistics() {
-        return profileModel.readStatistics();
-    }
-
-    /**
-     * Read emails.
-     * 
-     * @return A list of email addresses.
-     */
-    public List<ProfileEMail> readEMails() {
-        return profileModel.readEmails();
+    public ProfileEMail readEMail() {
+        return profileModel.readEMail();
     }
 
     /**
@@ -113,5 +102,14 @@ public class UpdateProfileProvider extends ContentProvider {
      */
     public Profile readProfile() {
         return profileModel.read();
+    }
+
+    /**
+     * Read the statistics.
+     * 
+     * @return The <code>Statistics</code>.
+     */
+    public Statistics readStatistics() {
+        return profileModel.readStatistics();
     }
 }

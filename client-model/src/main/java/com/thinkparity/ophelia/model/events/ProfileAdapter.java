@@ -13,32 +13,30 @@ package com.thinkparity.ophelia.model.events;
 public class ProfileAdapter implements ProfileListener {
 
     /**
-     * @see com.thinkparity.ophelia.model.events.ProfileListener#emailAdded(com.thinkparity.ophelia.model.events.ProfileEvent)
-     *
+     * @see com.thinkparity.ophelia.model.events.ProfileListener#emailUpdated(com.thinkparity.ophelia.model.events.ProfileEvent)
+     * 
      */
-    public void emailAdded(final ProfileEvent e) {}
+    @Override
+    public void emailUpdated(final ProfileEvent e) {}
 
     /**
-     * @see com.thinkparity.ophelia.model.events.ProfileListener#emailRemoved(com.thinkparity.ophelia.model.events.ProfileEvent)
+     * @see com.thinkparity.ophelia.model.events.ProfileListener#emailVerified(com.thinkparity.ophelia.model.events.ProfileEvent)
      *
      */
-    public void emailRemoved(final ProfileEvent e) {}
+    @Override
+    public void emailVerified(final ProfileEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ProfileListener#passwordUpdated(com.thinkparity.ophelia.model.events.ProfileEvent)
      *
      */
+    @Override
     public void passwordUpdated(final ProfileEvent e) {}
 
     /**
      * @see com.thinkparity.ophelia.model.events.ProfileListener#profileUpdated(com.thinkparity.ophelia.model.events.ProfileEvent)
      *
      */
+    @Override
     public void profileUpdated(final ProfileEvent e) {}
-
-    /**
-     * @see com.thinkparity.ophelia.model.events.ProfileListener#emailVerified(com.thinkparity.ophelia.model.events.ProfileEvent)
-     *
-     */
-    public void emailVerified(final ProfileEvent e) {}
 }

@@ -77,12 +77,12 @@ public class PublishContainerProvider extends ContentProvider {
     }
 
     /**
-     * Read emails.
+     * Read the profile e-mail address.
      * 
-     * @return A list of email addresses.
+     * @return A <code>ProfileEMail</code>.
      */
-    public List<ProfileEMail> readEMails() {
-        return profileModel.readEmails();
+    public ProfileEMail readEMail() {
+        return profileModel.readEMail();
     }
 
     /**

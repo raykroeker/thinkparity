@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.profile;
 
-
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -12,10 +11,13 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
+ * <b>Title:</b>thinkParity Ophelia UI Update Verify E-Mail Action<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class VerifyEmail extends AbstractBrowserAction {
+public final class VerifyEMail extends AbstractBrowserAction {
 
     /** The browser application. */
     private final Browser browser;
@@ -26,7 +28,7 @@ public class VerifyEmail extends AbstractBrowserAction {
      * @param browser
      *            The thinkParity browser application.
      */
-    public VerifyEmail(final Browser browser) {
+    public VerifyEMail(final Browser browser) {
         super(ActionId.PROFILE_VERIFY_EMAIL);
         this.browser = browser;
     }
@@ -45,7 +47,7 @@ public class VerifyEmail extends AbstractBrowserAction {
             final String key = (String) data.get(DataKey.KEY);
             final ProfileModel profileModel = getProfileModel();
             try {
-                profileModel.verifyEmail(emailId, key);
+                profileModel.verifyEMail(emailId, key);
                 browser.displayStatusDialog("VerifyEmail.VerifyKeyCorrect");
             } catch (final Throwable t) {
                 logger.logError(t, "Could not verify e-mail address {0} with key {1}.",

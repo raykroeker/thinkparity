@@ -227,7 +227,7 @@ public class OpheliaTestUser extends User {
         setId(JabberIdBuilder.build(
                 credentials.getUsername(), "thinkparity.net"));
         final InternalProfileModel profileModel = getModelFactory().getProfileModel();
-        email = profileModel.readEmails().get(0).getEmail();
+        email = profileModel.readEMail().getEmail();
         final Profile profile = profileModel.read();
         setName(profile.getName());
         setOrganization(profile.getOrganization());

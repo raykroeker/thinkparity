@@ -165,18 +165,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#addProfileEmail(com.thinkparity.codebase.model.profile.ProfileEMail)
-     * 
-     */
-    public void addProfileEmail(final ProfileEMail email) {
-        try {
-            profileService.addEMail(getAuthToken(), email.getEmail());
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createDraft(java.util.List,
      *      java.util.UUID, java.util.Calendar)
      * 
@@ -937,18 +925,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readProfileEMails()
-     * 
-     */
-    public List<ProfileEMail> readProfileEMails() {
-        try {
-            return profileService.readEMails(getAuthToken());
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readProfileFeatures(com.thinkparity.codebase.jabber.JabberId)
      * 
      */
@@ -979,18 +955,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     @Override
     public void removeListener(final SessionListener listener) {
         super.removeListener(listener);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#removeProfileEmail(com.thinkparity.codebase.jabber.JabberId, com.thinkparity.codebase.model.profile.ProfileEMail)
-     *
-     */
-    public void removeProfileEmail(final JabberId userId, final ProfileEMail email) {
-        try {
-            profileService.removeEMail(getAuthToken(), email.getEmail());
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
     }
 
     /**

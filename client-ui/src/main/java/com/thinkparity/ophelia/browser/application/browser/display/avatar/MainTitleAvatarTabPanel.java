@@ -298,6 +298,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
                     if (!isSelectedTab()) {
                         getBrowser().selectTab(tabId);
                     } else if (isActionAvailable() && isInActiveRectangle(e.getPoint())) {
+                        applyHandCursor(Boolean.FALSE);
                         invokeTabButtonAction();
                     }
                 }

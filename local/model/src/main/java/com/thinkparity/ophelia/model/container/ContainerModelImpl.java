@@ -2568,7 +2568,6 @@ public final class ContainerModelImpl extends
             } else {
                 logger.logInfo("Document {0} is unchanged.  No upload required.",
                         streamName);
-                break;
             }
         }
         notifyStepEnd(monitor, PublishStep.UPLOAD_DOCUMENT_VERSIONS);

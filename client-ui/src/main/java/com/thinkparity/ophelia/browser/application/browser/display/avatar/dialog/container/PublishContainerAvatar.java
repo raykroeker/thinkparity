@@ -155,14 +155,19 @@ public final class PublishContainerAvatar extends Avatar implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerSwingDisplay#installProgressBar(java.lang.Long)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerSwingDisplay#installProgressBar(java.lang.Long, java.lang.String)
      *
      */
-    public void installProgressBar(final Long containerId) {
+    public void installProgressBar(final Long containerId, final String message) {
         publishJProgressBar.setIndeterminate(true);
         progressBarJPanel.setVisible(true);
         buttonBarJPanel.setVisible(false);
         setCloseButtonEnabled(Boolean.FALSE);
+        if (null != message) {
+            statusJLabel.setText(message);
+        } else {
+            statusJLabel.setText(" ");
+        }
         validate();
     }
 

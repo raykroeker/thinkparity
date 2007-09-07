@@ -117,7 +117,7 @@ public final class Restore extends AbstractBrowserAction {
          */
         @Override
         public Object run() {
-            monitor.monitor();
+            monitor.monitor(action.getString("StepInitializing"));
             try {
                 backupModel.restore(processMonitor, credentials);
                 monitor.complete();

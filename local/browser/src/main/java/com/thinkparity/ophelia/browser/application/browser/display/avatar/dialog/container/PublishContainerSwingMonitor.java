@@ -43,12 +43,12 @@ final class PublishContainerSwingMonitor implements ThinkParitySwingMonitor {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#monitor()
+     * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#monitor(java.lang.String)
      *
      */
-    public void monitor() {
+    public void monitor(final String message) {
         // start the monitoring process display
-        display.installProgressBar(containerId);
+        display.installProgressBar(containerId, message);
     }
 
     /**

@@ -92,15 +92,20 @@ public class RestoreBackupAvatar extends Avatar implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.backup.RestoreBackupSwingDisplay#installProgressBar()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.backup.RestoreBackupSwingDisplay#installProgressBar(java.lang.String)
      */
-    public void installProgressBar() {
+    public void installProgressBar(final String message) {
         restoreJProgressBar.setIndeterminate(true);
         progressBarJPanel.setVisible(true);
         buttonBarJPanel.setVisible(false);
         setCloseButtonEnabled(Boolean.FALSE);
         forgotPasswordExplanationJLabel.setText(" ");
         forgotPasswordJLabel.setText(null);
+        if (null != message) {
+            statusJLabel.setText(message);
+        } else {
+            statusJLabel.setText(" ");
+        }
         validate();
     }
 

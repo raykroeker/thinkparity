@@ -17,8 +17,11 @@ public interface RestoreBackupSwingDisplay {
 
     /**
      * Install a progress bar.
+     * 
+     * @param message
+     *            A custom message <code>String</code>.
      */
-    void installProgressBar();
+    void installProgressBar(final String message);
 
     /**
      * Reset the progress bar.

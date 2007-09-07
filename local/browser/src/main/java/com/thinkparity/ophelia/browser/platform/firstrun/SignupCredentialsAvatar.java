@@ -349,7 +349,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
     private void installProgressBar() {
         final LoginSwingDisplay display = SignupLoginHelper.getInstance().getLoginSwingDisplay();
         Assert.assertNotNull("The login swing display null.", display);
-        display.installProgressBar();
+        display.installProgressBar(null);
     }
 
     /**

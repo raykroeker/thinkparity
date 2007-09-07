@@ -32,14 +32,14 @@ public class RestoreBackupSwingMonitor implements ThinkParitySwingMonitor {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#monitor()
+     * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor#monitor(java.lang.String)
      *
      */
-    public void monitor() {
+    public void monitor(final String message) {
         // start the monitoring process
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
-                display.installProgressBar();
+                display.installProgressBar(message);
             }
         });
     }

@@ -13,7 +13,7 @@ package com.thinkparity.ophelia.browser.platform.action;
  */
 public interface ThinkParitySwingMonitor {
     public void complete();
-    public void monitor();
+    public void monitor(final String message);
     public void reset();
     public void setError(final String errorMessageKey);
     public void setStep(final int step);

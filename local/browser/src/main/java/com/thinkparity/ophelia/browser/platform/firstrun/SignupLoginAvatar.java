@@ -78,13 +78,19 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#installProgressBar()
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#installProgressBar(java.lang.String)
      */
-    public void installProgressBar() {
+    public void installProgressBar(final String message) {
         loginJProgressBar.setIndeterminate(indeterminate.booleanValue());
         if (signupDelegate.isCurrentPage(this)) {
             progressBarJPanel.setVisible(true);
         }
+        if (null != message) {
+            stepJLabel.setText(message);
+        } else {
+            stepJLabel.setText(" ");
+        }
+        validate();
     }
 
     /**

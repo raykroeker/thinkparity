@@ -82,11 +82,17 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#installProgressBar()
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#installProgressBar(java.lang.String)
      */
-    public void installProgressBar() {
+    public void installProgressBar(final String message) {
         loginJProgressBar.setIndeterminate(true);
         progressBarJPanel.setVisible(true);
+        if (null != message) {
+            stepJLabel.setText(message);
+        } else {
+            stepJLabel.setText(" ");
+        }
+        validate();
     }
 
     /**

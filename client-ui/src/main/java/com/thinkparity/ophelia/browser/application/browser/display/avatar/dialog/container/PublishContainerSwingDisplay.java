@@ -23,8 +23,10 @@ interface PublishContainerSwingDisplay {
      * 
      * @param containerId
      *            A container id <code>Long</code>.
+     * @param message
+     *            A custom message <code>String</code>.
      */
-    void installProgressBar(final Long containerId);
+    void installProgressBar(final Long containerId, final String message);
 
     /**
      * Reset the progress bar.

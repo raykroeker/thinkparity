@@ -3,9 +3,11 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.container;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 import com.thinkparity.codebase.BytesFormat;
+import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 
@@ -235,7 +237,7 @@ public class Publish extends AbstractBrowserAction {
 		}
         @Override
         public Object run() {
-            monitor.monitor();
+            monitor.monitor(action.getString("ProgressPublishStart"));
             final boolean restrictPublish;
             try {
                 restrictPublish = containerModel.isPublishRestricted(emails,
@@ -333,10 +335,10 @@ public class Publish extends AbstractBrowserAction {
          */
         private ProcessMonitor newPublishMonitor() {
             return new ProcessAdapter() {
-                /** A byte format. */
-                private final BytesFormat bytesFormat = new BytesFormat();
                 /** A running count of encrypted/uploaded bytes. */
                 private long encryptedBytes = 0, uploadedBytes = 0;
+                /** A <code>MessageFormat</code>. */
+                private final MessageFormat percentFormat = new MessageFormat("{0,number,0}");
                 /** The current step. */
                 private int step;
                 /** The number of determined steps. */
@@ -364,6 +366,7 @@ public class Publish extends AbstractBrowserAction {
                     case UPLOAD_DOCUMENT_VERSIONS:
                         /* where the progress is "determined" */
                         setSteps(publishData);
+                        setStep(publishStep, publishData);
                         break;
                     default:
                         Assert.assertUnreachable("Unknown publish step.");
@@ -377,6 +380,12 @@ public class Publish extends AbstractBrowserAction {
                 public void endStep(final Step step) {
                 }
                 /**
+                 * Format the number as a percent.
+                 */
+                private String formatPercent(final Double value) {
+                    return percentFormat.format(new Object[] {value});
+                }
+                /**
                  * Obtain the step note.
                  * 
                  * @return A <code>String</code>.
@@ -387,21 +396,27 @@ public class Publish extends AbstractBrowserAction {
                     case ENCRYPT_DOCUMENT_VERSION_BYTES:
                         encryptedBytes += data.getBytes();
                         return getString("ProgressEncryptStream",
-                                data.getDocumentVersion().getArtifactName(),
-                                bytesFormat.format(encryptedBytes),
-                                bytesFormat.format(data.getDocumentVersion().getSize()));
+                                data.getDocumentVersion().getArtifactName());
                     case PUBLISH:
-                        return getString("ProgressPublish");
+                        return getString("ProgressPublishFinish");
                     case UPLOAD_DOCUMENT_VERSION:
                         encryptedBytes = uploadedBytes = 0L;
                         return getString("ProgressUpload",
                                 data.getDocumentVersion().getArtifactName());
                     case UPLOAD_DOCUMENT_VERSION_BYTES:
                         uploadedBytes += data.getBytes();
-                        return getString("ProgressUploadStream",
-                                data.getDocumentVersion().getArtifactName(),
-                                bytesFormat.format(uploadedBytes),
-                                bytesFormat.format(data.getDocumentVersion().getSize()));
+                        // NOTE Don't bother showing the percent complete for small files.
+                        if (2048 >= uploadedBytes) {
+                            return getString("ProgressUpload",
+                                    data.getDocumentVersion().getArtifactName());
+                        } else {
+                            final Double percent = Math.min(100.0, (uploadedBytes * 100.0) / data.getDocumentVersion().getSize());
+                            return getString("ProgressUploadStream",
+                                    data.getDocumentVersion().getArtifactName(),
+                                    formatPercent(percent));
+                        }
+                    case UPLOAD_DOCUMENT_VERSIONS:
+                        return getString("ProgressPublishStart");
                     default:
                         throw Assert.createUnreachable("Unknown publish step.");
                     }
@@ -427,11 +442,14 @@ public class Publish extends AbstractBrowserAction {
                         final PublishData data) {
                     switch (step) {
                     case ENCRYPT_DOCUMENT_VERSION_BYTES:
-                        this.step += data.getBytes() / 1024;
+                        // NOTE Step just once during encryption
+                        if (0 == encryptedBytes) {
+                            this.step++;
+                        }
                         monitor.setStep(this.step, getStepNote(step, data));
                         break;
                     case PUBLISH:
-                        this.step = this.steps - 1;
+                        this.step = this.steps;
                         monitor.setStep(this.step, getStepNote(step, data));
                         break;
                     case UPLOAD_DOCUMENT_VERSION:
@@ -439,10 +457,14 @@ public class Publish extends AbstractBrowserAction {
                         monitor.setStep(this.step, getStepNote(step, data));
                         break;
                     case UPLOAD_DOCUMENT_VERSION_BYTES:
+                        // NOTE This works as long as the buffer used is a multiple
+                        // of 1024, otherwise rounding errors will creep in
                         this.step += data.getBytes() / 1024;
                         monitor.setStep(this.step, getStepNote(step, data));
                         break;
                     case UPLOAD_DOCUMENT_VERSIONS:
+                        this.step = 0;
+                        monitor.setStep(this.step, getStepNote(step, data));
                         break;
                     default:
                         Assert.assertUnreachable("Unknown publish step.");
@@ -456,18 +478,18 @@ public class Publish extends AbstractBrowserAction {
                  * <li>Upload document version(s).
                  * <li>Publish to e-mails/contacts.
                  * </ol>
-                 * 
-                 * @return A number of steps.
                  */
                 private void setSteps(final PublishData data) {
-                    long uploadSize = 0;
+                    step = 0;
+                    // One step for PUBLISH at the end
+                    steps = 1;
                     final List<DocumentVersion> uploadVersions = data.getDocumentVersions();
                     for (final DocumentVersion uploadVersion : uploadVersions) {
-                        uploadSize += uploadVersion.getSize();
+                        // One step each for UPLOAD_DOCUMENT_VERSION, ENCRYPT_DOCUMENT_VERSION_BYTES
+                        steps += 2;
+                        // Steps for UPLOAD_DOCUMENT_VERSION_BYTES, may be 0 for small files
+                        steps += uploadVersion.getSize() / 1024;
                     }
-                    step = 0;
-                    steps = ((int) (uploadSize / 1024)) * 2 + 1
-                            + data.getDocumentVersions().size();
                     monitor.setSteps(this.steps);
                     monitor.setStep(this.step);
                 }

@@ -141,7 +141,7 @@ public class Login extends AbstractAction {
          */
         @Override
         public Object run() {
-            monitor.monitor();
+            monitor.monitor(action.getString("StepInitializing"));
             try {
                 action.platform.initializeWorkspace(loginMonitor, mediator,
                         workspace, credentials);

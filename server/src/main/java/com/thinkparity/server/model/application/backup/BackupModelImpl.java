@@ -785,19 +785,23 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
             final List<ArtifactReceipt> receipts = new ArrayList<ArtifactReceipt>();
             final Iterator<ContainerVersion> iVersions = versions.iterator();
             ContainerVersion version;
-            boolean publishedTo;
+            boolean publishedBy, publishedTo;
             while (iVersions.hasNext()) {
                 version = iVersions.next();
                 receipts.clear();
                 receipts.addAll(containerModel.readPublishedTo(version.getArtifactId(), version.getVersionId()));
-                publishedTo = false;
-                for (final ArtifactReceipt receipt : receipts) {
-                    if (receipt.getUser().getId().equals(user.getId())) {
-                        publishedTo = true;
-                        break;
+                publishedBy = publishedTo = false;
+                if (version.getCreatedBy().equals(user.getId())) {
+                    publishedBy = true;
+                } else {
+                    for (final ArtifactReceipt receipt : receipts) {
+                        if (receipt.getUser().getId().equals(user.getId())) {
+                            publishedTo = true;
+                            break;
+                        }
                     }
                 }
-                if (!publishedTo) {
+                if (!publishedTo && !publishedBy) {
                     iVersions.remove();
                 }                
             }

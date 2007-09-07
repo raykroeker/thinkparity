@@ -1,7 +1,9 @@
-thinkParity comes with a built in search engine allowing you to find documents and packages quickly and easily. You may remember the name of a document that you have received in a package, or perhaps only the company of the person who sent it to you. Enter this text in the search control, and the contents of the tab will be updated.
+Your profile includes personal information including your name, title, company name, phone numbers, address, and e-mail address.
 
-Once you find a package you may decide to open and work with its documents or to bookmark it for future reference. By removing the search criteria, you can return to your default list.
+To see your profile, click on your name located in the bottom right of thinkParity.
 
-<p>If you are looking for packages you are currently working on, you can filter your list so you only see the packages that you have bookmarked or the packages with working versions. To do this, click the magnifying glass icon within the search control and select a filter from the menu that appears.
+Your profile information is shared with your contacts. Also, your name, title, and company name are visible to all participants of a package.
 
-You can also search for contacts or help topics in the same way.
+<p>You can change profile information by entering new details in the profile dialog and pressing the save button. When you save your changes, the updated profile information is immediately broadcast to all your contacts so that they are up-to-date.
+
+If you change your e-mail address, a verification key will be sent to the new e-mail address and your account will be temporarily placed in an inactive state. To reactivate your account, click the 'activate your account' link and enter the verification key.

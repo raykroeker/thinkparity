@@ -1,1 +1,12 @@
-When you start Windows, thinkParity starts automatically and connects to the server to download any waiting packages. When you close the thinkParity window, thinkParity will stay connected so that you can be alerted if important information arrives. Thinkparity can be re-opened at any time by clicking on the thinkParity icon in the taskbar.
+When you have made changes to documents and you want to send the documents to other people, you publish the package.
+
+To publish a package, right-click on it and select 'Publish' from the menu. In the dialog that appears, enter the names of people that will receive the package. If you want to publish to a person that is not your contact, enter the person's e-mail address instead.
+
+<p>When you publish to a person, what happens depends on whether the person is a thinkParity user and whether that person is your contact.
+  * If the person is not a thinkParity user then he will receive an e-mail inviting him to install and use thinkParity for free as your guest.
+  * If the person is already a member of thinkParity but not yet your contact then he receives an invitation to be your contact.
+  * Finally, the new package version is downloaded to the person's computer. A notification dialog appears on the person's screen alerting him that a new version has arrived.
+
+<p>It is important to note that unlike traditional e-mail, thinkParity communicates through a secure communications channel using industry standard levels of encryption. As such, when publishing packages all documents and related data are protected at all times to prevent unauthorized access.
+
+The documents that you publish are encrypted and backed up on a secure thinkParity server. This guarantees that you can restore all of your thinkParity data in the event that your computer is damaged or lost.

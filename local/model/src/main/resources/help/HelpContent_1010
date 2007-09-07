@@ -1,4 +1,7 @@
-When you create a new account or you change your email, your account is placed in an inactive state until you enter the activation code that is emailed to you. 
+thinkParity comes with a built in search engine that helps you to find documents and packages quickly and easily.
 
-To activate your account, click the link that appears on thinkPatity application status bar and enter the activation key in the dialog.
+To search for a package, type the name of a package, document or person in the search control. The contents of the tab will be updated. To clear the search, delete the text in the search control. You can search for contacts and help topics in the same way.
 
+thinkParity also has a filter feature so you can list only the packages that you need to see.
+
+<p>To list packages that you are currently working on, click the magnifying glass icon within the search control and select 'Working Versions' from the menu. Select 'Bookmarks' from the menu to show bookmarked packages. Select 'Show All Packages' to remove the filter and show all the packages.

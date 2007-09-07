@@ -1,0 +1,3 @@
+You can export the documents in a package to the file system.
+
+To export a package, right click on the package and select 'Export' from the menu. thinkParity wll create a folder in your 'My Documents\thinkParity' directory. The folder contains all versions of all documents in the package, as well as a summary report summarizing the history of the package. The name of the folder corresponds to the name of the package.

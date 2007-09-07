@@ -1,7 +1,5 @@
-You can include a note in any working version that will be published along with the version to all of its recipients. A note can include any short remark that is related to the version.
+The thinkParity taskbar icon is located on the Windows taskbar (usually on the lower right of your screen).
 
-You can edit notes in two different ways:
+If you close the thinkParity window, you can re-open it by right-clicking on the taskbar icon and selecting 'Open' from the menu. Alternatively, just left-click on the taskbar icon.
 
-1 - Right click on the Working Version and select "Edit Note" action.
-
-2 - Click on the Working Version icon. 
+To exit thinkParity, right-click on the taskbar icon and select 'Exit' from the menu.

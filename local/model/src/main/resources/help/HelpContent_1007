@@ -1,7 +1,5 @@
-You may want to make some changes to a document and publish those changes to your colleagues. To do this you first need to create a working version. A working version is a copy of the latest version of the package that you are allowed to modify.
+A notification is a small dialog that appears on the bottom right of your screen when something important arrives. You receive a notification when a new package arrives, when a package is updated, or when a person invites you to be their contact.
 
-When you create a working version, thinkParity immediately informs all of the participants that have the latest version of this package that you are updating the package. thinkParity does not allow two people to update documents at the same time.
+You can click on the notification title to view the package or invitation, or simply close the notification. You can also move between multiple notifications if they arrive at the same time by clicking on the 'next' and 'previous' links.
 
-<p>To create a working version, right-click on the package and select 'create working version'. Once you create a working version, you can update or delete any of the existing documents or add new ones. If you make a mistake, you can undelete documents that you deleted or discard changes that you made in a document. When you complete your changes, you are ready to publish a new version.
-
-<p>If the action 'Create working version' is not available, it is because you don't have the latest version of the package or because someone else has already created a working version and is working on it. In either case you see this information next to the package name.
+If you close the thinkParity window, thinkParity runs in the background so you continue to receive notifications.

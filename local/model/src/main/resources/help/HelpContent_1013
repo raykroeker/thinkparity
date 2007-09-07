@@ -1,1 +1,5 @@
-You can export a package which allows you to save it on your file-system. To export a package right-click the package and select Export. thinkParity will create a folder for you and save it to your local file system. The folder contains all versions of the package and a pdf-format summary of the history of the package.  This folder will be located in your 'My Documents\thinkParity' directory and the name will correspond to the name of the package.
+To create a working version, right-click on the package name and select 'Create Working Version'.
+
+Only one person can work on a new version at a time. You can tell if somebody else is working on the Working Version because their name appears on the right side of the package.
+
+To create a working version you must also have the most recent version of the package, and you must be online.

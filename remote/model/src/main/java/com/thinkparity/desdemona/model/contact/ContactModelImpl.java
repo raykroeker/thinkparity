@@ -95,10 +95,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                         invitation.getInvitationEMail());
             final List<Attachment> attachments = invitationSql.readAttachments(
                     outgoingEMailInvitation);
-            for (final Attachment attachment : attachments) {
-                invitationSql.deleteAttachment(attachment);
-                send(invitationUser, user, invitation, attachment);
-            }
+
             /* check for an attachments on an outgoing e-mail invitation in the
              * other direction; if it exists */
             final List<EMail> invitationUserEMails =
@@ -120,12 +117,17 @@ public final class ContactModelImpl extends AbstractModelImpl implements
             // delete all invitations
             deleteAllInvitations(user.getId(), user, invitationUser);
 
-            // fire event
+            // fire event invitation event
             final ContactInvitationAcceptedEvent event = new ContactInvitationAcceptedEvent();
             event.setAcceptedBy(user.getId());
             event.setAcceptedOn(acceptedOn);
             event.setDate(event.getAcceptedOn());
             enqueueEvent(invitationUser, event);
+            // send attachments
+            for (final Attachment attachment : attachments) {
+                invitationSql.deleteAttachment(attachment);
+                send(invitationUser, user, invitation, attachment);
+            }
         }
 		catch(final Throwable t) {
             throw translateError(t);

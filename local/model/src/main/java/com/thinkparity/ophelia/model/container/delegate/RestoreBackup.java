@@ -32,6 +32,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -81,11 +82,25 @@ public final class RestoreBackup extends ContainerDelegate {
 
     /**
      * Restore from a backup.
-     *
+     * 
+     * @throws CannotLockException
+     *             if a local document cannot be locked
+     * @throws NetworkException
+     *             if an unrecoverable network read error occurs
+     * @throws IOException
+     *             if an io error occurs
+     * @throws StreamException
+     *             if an unrecoverable stream protocol error occurs
+     * @throws NoSuchPaddingException
+     *             if a decryption error occurs
+     * @throws NoSuchAlgorithmException
+     *             if a decryption error occurs
+     * @throws InvalidKeyException
+     *             if a decryption error occurs
      */
     public void restoreBackup() throws CannotLockException, NetworkException,
-            IOException, NoSuchPaddingException, NoSuchAlgorithmException,
-            InvalidKeyException {
+            IOException, StreamException, NoSuchPaddingException,
+            NoSuchAlgorithmException, InvalidKeyException {
         restoredOn = getSessionModel().readDateTime();
         final List<Container> containers = read();
         monitorData.setDeleteContainers(containers);
@@ -149,15 +164,30 @@ public final class RestoreBackup extends ContainerDelegate {
     }
 
     /**
-     * Download a document version.
+     * Download a document version to a local file.
      * 
      * @param version
      *            A <code>DocumentVersion</code>.
+     * @param file
+     *            A <code>File</code>.
      * @return A version <code>File</code>.
+     * @throws NetworkException
+     *             if an unrecoverable network read error has occured
+     * @throws IOException
+     *             if a file write error has occured
+     * @throws StreamException
+     *             if an unercoverable stream protocol error has occured
+     * @throws NoSuchPaddingException
+     *             if a decryption error occurs
+     * @throws NoSuchAlgorithmException
+     *             if a decryption error occurs
+     * @throws InvalidKeyException
+     *             if a decryption error occurs
      */
     private void download(final DocumentVersion version, final File file)
-            throws NetworkException, IOException, NoSuchPaddingException,
-            NoSuchAlgorithmException, InvalidKeyException {
+            throws NetworkException, IOException, StreamException,
+            NoSuchPaddingException, NoSuchAlgorithmException,
+            InvalidKeyException {
         final String suffix = MessageFormat.format("-{0}",  version.getArtifactName());
         final File downloadFile = createTempFile(suffix);
         try {
@@ -262,13 +292,22 @@ public final class RestoreBackup extends ContainerDelegate {
      * 
      * @param container
      *            A container.
-     * @param archiveReader
-     *            An archive reader.
+     * @throws NetworkException
+     *             if an unrecoverable network read error occurs
      * @throws IOException
+     *             if an io error occurs writing local files
+     * @throws StreamException
+     *             if an unrecoverable stream protocol error occurs
+     * @throws NoSuchPaddingException
+     *             if a decryption error occurs
+     * @throws NoSuchAlgorithmException
+     *             if a decryption error occurs
+     * @throws InvalidKeyException
+     *             if a decryption error occurs
      */
     private void restore(final Container container) throws NetworkException,
-            IOException, NoSuchPaddingException, NoSuchAlgorithmException,
-            InvalidKeyException {
+            IOException, StreamException, NoSuchPaddingException,
+            NoSuchAlgorithmException, InvalidKeyException {
         final InternalBackupModel backupModel = getBackupModel();
         final InternalDocumentModel documentModel = getDocumentModel();
         final InternalUserModel userModel = getUserModel();

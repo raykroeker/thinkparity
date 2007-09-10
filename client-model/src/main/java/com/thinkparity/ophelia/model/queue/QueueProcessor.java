@@ -23,6 +23,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.stream.download.DownloadFile;
 import com.thinkparity.codebase.model.util.xmpp.event.*;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
@@ -262,6 +263,9 @@ public final class QueueProcessor implements Cancelable, Runnable {
         } catch (final IOException iox) {
             logger.logError(iox, "Could not download file for {0}.", version);
             return null;
+        } catch (final StreamException sx) {
+            logger.logError(sx, "Could not download file for {0}.", version);
+            return null;
         }
     }
 
@@ -272,9 +276,15 @@ public final class QueueProcessor implements Cancelable, Runnable {
      *            A <code>DocumentVersion</code>.
      * @param target
      *            A target <code>File</code>.
+     * @throws NetworkException
+     *             if an unrecoverable network read error occurs
+     * @throws IOException
+     *             if a target io error occurs
+     * @throws StreamException
+     *             if an unrecoverable stream protocol error occurs
      */
     private void download(final DocumentVersion version, final File target)
-            throws NetworkException, IOException {
+            throws NetworkException, IOException, StreamException {
         downloader = getDocumentModel().newDownloadFile(version);
         try {
             downloader.download(target);

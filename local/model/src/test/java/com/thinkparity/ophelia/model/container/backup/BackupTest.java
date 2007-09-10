@@ -17,6 +17,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerTestCase;
@@ -177,24 +178,11 @@ public final class BackupTest extends BackupTestCase {
                     fail(nx, "Cannot download document version.");
                 } catch (final IOException iox) {
                     fail(iox, "Cannot download document version.");
+                } catch (final StreamException sx) {
+                    fail(sx, "Cannot download document version.");
                 }
             }
         }
-    }
-
-    /**
-     * Download the document version.
-     * 
-     * @param version
-     *            A <code>DocumentVersion</code>.
-     * @return The <code>File</code>.
-     * @throws IOException
-     */
-    private File download(final DocumentVersion version)
-            throws NetworkException, IOException {
-        final File target = getOutputFile(version);
-        getDocumentModel(datum.junit_z).newDownloadFile(version).download(target);
-        return target;
     }
 
     /**
@@ -324,6 +312,8 @@ public final class BackupTest extends BackupTestCase {
                         fail(nx, "Cannot download document version.");
                     } catch (final IOException iox) {
                         fail(iox, "Cannot download document version.");
+                    } catch (final StreamException sx) {
+                        fail(sx, "Cannot download document version.");
                     }
                 }
             }
@@ -352,6 +342,26 @@ public final class BackupTest extends BackupTestCase {
         logout(datum.junit_z);
         datum = null;
         super.tearDown();
+    }
+
+    /**
+     * Download the document version.
+     * 
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @return The <code>File</code>.
+     * @throws NetworkException
+     *             if an unrecoverable network read error occurs
+     * @throws IOException
+     *             if a target write error occurs
+     * @throws StreamException
+     *             if a stream protocol error occurs
+     */
+    private File download(final DocumentVersion version)
+            throws NetworkException, IOException, StreamException {
+        final File target = getOutputFile(version);
+        getDocumentModel(datum.junit_z).newDownloadFile(version).download(target);
+        return target;
     }
 
     private class Fixture extends ContainerTestCase.Fixture {

@@ -33,6 +33,9 @@ public final class StreamReader implements Cancelable {
     /** A stream monitor. */
     private final StreamMonitor monitor;
 
+    /** A run indicator. */
+    private boolean running;
+
     /** A stream session. */
     private final StreamSession session;
 
@@ -40,9 +43,6 @@ public final class StreamReader implements Cancelable {
 
     /** A set of stream utilities. */
     private final StreamUtils utils;
-
-    /** A run indicator. */
-    private boolean running;
 
     /**
      * Create StreamReader.
@@ -83,16 +83,19 @@ public final class StreamReader implements Cancelable {
      * 
      * @param stream
      *            A target <code>OutputStream</code>.
-     *            
      * @throws NetworkException
+     *             if a network read error occurs
+     * @throws IOException
+     *             if a stream write error occurs
+     * @throws StreamException
+     *             if a stream protocol error occurs
      */
-    public void read(final OutputStream stream) throws NetworkException {
+    public void read(final OutputStream stream) throws NetworkException,
+            IOException, StreamException {
         this.stream = stream;
         running = true;
         try {
             executeGet();
-        } catch (final IOException iox) {
-            throw new StreamException(iox);
         } finally {
             running = false;
             synchronized (this) {
@@ -107,7 +110,8 @@ public final class StreamReader implements Cancelable {
      * @throws NetworkException
      * @throws IOException
      */
-    private void executeGet() throws NetworkException, IOException {
+    private void executeGet() throws NetworkException, IOException,
+            StreamException {
         StreamClientMetrics.begin(session);
         try {
             final GetMethod method = new GetMethod(session.getURI());

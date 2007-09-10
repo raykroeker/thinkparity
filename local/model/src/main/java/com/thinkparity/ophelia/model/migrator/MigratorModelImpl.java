@@ -26,6 +26,7 @@ import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.stream.StreamRetryHandler;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.stream.download.DownloadFile;
@@ -285,6 +286,9 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
                     } catch (final IOException iox) {
                         logger.logError(iox, "Could not download release {0}.",
                                 downloadRelease);
+                    } catch (final StreamException sx) {
+                        logger.logError(sx, "Could not download release {0}.",
+                                downloadRelease);
                     } finally {
                         workspace.removeAttribute(WS_ATTRIBUTE_KEY_DOWNLOAD);                    
                     }
@@ -401,7 +405,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
      */
     private File download(final Product product, final Release release,
             final List<Resource> resources) throws NetworkException,
-            IOException {
+            IOException, StreamException {
         final StreamRetryHandler retryHandler = newDefaultRetryHandler();
         final StreamSession session = getStreamModel().newDownstreamSession(product, release);
         final File tempFile = workspace.createTempFile();
@@ -416,7 +420,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
     private void downloadRelease(final ProcessMonitor monitor,
             final Product product, final Release release,
             final List<Resource> resources) throws NetworkException,
-            IOException {
+            IOException, StreamException {
         // the installed resources
         final List<Resource> localResources = readReleaseResources(
                 Constants.Release.NAME, new FileSystem(installDirectory));

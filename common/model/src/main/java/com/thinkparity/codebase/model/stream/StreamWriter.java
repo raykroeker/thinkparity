@@ -102,16 +102,18 @@ public final class StreamWriter implements RequestEntity {
      *            An <code>InputStream</code>.
      * @param streamSize
      *            The stream size <code>Long</code>.
+     * @throws NetworkException
+     *             if a network write error occurs
+     * @throws IOException
+     *             if a source read error occurs
+     * @throws StreamException
+     *             if a stream protocol error occurs
      */
     public void write(final InputStream stream, final Long streamSize)
-            throws NetworkException {
+            throws NetworkException, IOException, StreamException {
         this.stream = stream;
         this.streamSize = streamSize;
-        try {
-            executePut();
-        } catch (final IOException iox) {
-            throw new StreamException(iox);
-        }
+        executePut();
     }
 
     /**
@@ -135,10 +137,15 @@ public final class StreamWriter implements RequestEntity {
     /**
      * Execute a http put; writing the stream.
      * 
-     * @throws HttpException
+     * @throws NetworkException
+     *             if the network write operation fails
      * @throws IOException
+     *             if the source read fails
+     * @throws StreamException
+     *             if a stream protocol error occurs
      */
-    private void executePut() throws NetworkException, IOException {
+    private void executePut() throws NetworkException, IOException,
+            StreamException {
         StreamClientMetrics.begin(session);
         try {
             putMethod = new PutMethod(session.getURI());

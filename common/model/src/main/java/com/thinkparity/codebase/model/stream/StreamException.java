@@ -13,7 +13,7 @@ import java.text.MessageFormat;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class StreamException extends RuntimeException {
+public final class StreamException extends Exception {
 
     /**
      * A <code>boolean</code> flag indicating whether or not the client can
@@ -39,31 +39,9 @@ public final class StreamException extends RuntimeException {
      * @param cause
      *            The cause of the error.
      */
-    StreamException(final Boolean recoverable, final Throwable cause) {
-        super(cause);
-        this.recoverable = recoverable;
-    }
-
-    /**
-     * Create StreamException.
-     * 
-     * @param cause
-     *            The cause of the error.
-     */
     StreamException(final String messagePattern,
             final Object... messageArguments) {
         super(MessageFormat.format(messagePattern, messageArguments));
-        this.recoverable = Boolean.FALSE;
-    }
-
-    /**
-     * Create StreamException.
-     * 
-     * @param cause
-     *            The cause of the error.
-     */
-    StreamException(final Throwable cause) {
-        super(cause);
         this.recoverable = Boolean.FALSE;
     }
 

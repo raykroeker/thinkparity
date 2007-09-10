@@ -530,6 +530,7 @@ Examples:
     <!-- package -->   
     <target name="package" depends="compile">
         <property name="thinkparity.target.classes-dir" value="${target.classes.dir}"/>
+    	<property name="thinkparity.target.test-classes-dir" value="${target.test-classes.dir}"/>
         <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
         <property name="thinkparity.webapp-dir" value="${webapp-dir}"/>
 

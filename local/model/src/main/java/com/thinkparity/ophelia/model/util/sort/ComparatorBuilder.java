@@ -8,6 +8,7 @@ import java.util.Comparator;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
+import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 
@@ -22,7 +23,7 @@ public class ComparatorBuilder {
 	 */
 	public ComparatorBuilder() { super(); }
 
-    public Comparator<ArtifactReceipt> createArtifactReceiptByReceivedOnAscending() {
+	public Comparator<ArtifactReceipt> createArtifactReceiptByReceivedOnAscending() {
         return new ArtifactReceiptReceivedOn(Boolean.TRUE);
     }
 
@@ -62,6 +63,15 @@ public class ComparatorBuilder {
     public Comparator<HistoryItem> createIdDescending() {
         return new HistoryItemIdComparator(Boolean.FALSE);
     }
+
+    /**
+     * Create a published to e-mail published on comparator.
+     * 
+     * @return A <code>Comparator<PublishedToEMail></code>.
+     */
+    public Comparator<PublishedToEMail> createPublishedToEMailPublishedOnAscending() {
+	    return new PublishedToEMailPublishedOn(Boolean.TRUE);
+	}
 
 	/**
 	 * Create a version id comparator.

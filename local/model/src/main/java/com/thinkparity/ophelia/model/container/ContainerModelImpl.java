@@ -120,6 +120,12 @@ public final class ContainerModelImpl extends
     /** A default container filter. */
     private final Filter<? super Artifact> defaultFilter;
 
+    /** A default published to e-mail comparator. */
+    private final Comparator<PublishedToEMail> defaultPublishedToEMailComparator;
+
+    /** A default published to e-mail filter. */
+    private final Filter<PublishedToEMail> defaultPublishedToEMailFilter;
+
     /** A default artifact receipt comparator. */
     private final Comparator<ArtifactReceipt> defaultReceiptComparator;
 
@@ -155,6 +161,8 @@ public final class ContainerModelImpl extends
         this.defaultDocumentFilter = FilterManager.createDefault();
         this.defaultDocumentVersionComparator = new ComparatorBuilder().createVersionByName();
         this.defaultFilter = FilterManager.createDefault();
+        this.defaultPublishedToEMailComparator = new ComparatorBuilder().createPublishedToEMailPublishedOnAscending();
+        this.defaultPublishedToEMailFilter = FilterManager.createDefault();
         this.defaultReceiptComparator = new ComparatorBuilder().createArtifactReceiptByReceivedOnAscending();
         this.defaultReceiptFilter = FilterManager.createDefault();
         this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.FALSE);
@@ -1519,26 +1527,88 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.container.ContainerModel#readPublishedToEMails(java.lang.Long, java.lang.Long)
-     *
-     */
-    public List<PublishedToEMail> readPublishedToEMails(final Long containerId,
-            final Long versionId) {
-        try {
-            return containerIO.readPublishedToEMails(containerId, versionId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.container.ContainerModel#readPublishedToEMails(java.lang.Long)
      *
      */
     @Override
     public List<PublishedToEMail> readPublishedToEMails(final Long containerId) {
         try {
-            return containerIO.readPublishedToEMails(containerId);
+            final List<PublishedToEMail> publishedTo =
+                containerIO.readPublishedToEMails(containerId);
+            // sort by e-mail
+            ModelSorter.sortPublishedToEMails(publishedTo, new Comparator<PublishedToEMail>() {
+                /**
+                 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+                 *
+                 */
+                @Override
+                public int compare(final PublishedToEMail o1,
+                                final PublishedToEMail o2) {
+                    return o1.getEMail().toString().compareTo(o2.getEMail().toString());
+                }
+            });
+            // filter duplicates
+            PublishedToEMail current = null, previous= null;
+            for (final Iterator<PublishedToEMail> iPublishedTo =
+                publishedTo.iterator(); iPublishedTo.hasNext();) {
+                current = iPublishedTo.next();
+                if (null == previous) {
+                    logger.logInfo("First published to e-mail.");
+                } else {
+                    if (previous.getEMail().equals(current.getEMail())) {
+                        iPublishedTo.remove();
+                    }
+                }
+                previous = current;
+            }
+            FilterManager.filter(publishedTo, defaultPublishedToEMailFilter);
+            ModelSorter.sortPublishedToEMails(publishedTo,
+                    defaultPublishedToEMailComparator);
+            return publishedTo;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#readPublishedToEMails(java.lang.Long, java.lang.Long)
+     *
+     */
+    public List<PublishedToEMail> readPublishedToEMails(final Long containerId,
+            final Long versionId) {
+        try {
+            final List<PublishedToEMail> publishedTo =
+                containerIO.readPublishedToEMails(containerId, versionId);
+            // sort by e-mail
+            ModelSorter.sortPublishedToEMails(publishedTo, new Comparator<PublishedToEMail>() {
+                /**
+                 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+                 *
+                 */
+                @Override
+                public int compare(final PublishedToEMail o1,
+                                final PublishedToEMail o2) {
+                    return o1.getEMail().toString().compareTo(o2.getEMail().toString());
+                }
+            });
+            // filter duplicates
+            PublishedToEMail current = null, previous= null;
+            for (final Iterator<PublishedToEMail> iPublishedTo =
+                publishedTo.iterator(); iPublishedTo.hasNext();) {
+                current = iPublishedTo.next();
+                if (null == previous) {
+                    logger.logInfo("First published to e-mail.");
+                } else {
+                    if (previous.getEMail().equals(current.getEMail())) {
+                        iPublishedTo.remove();
+                    }
+                }
+                previous = current;
+            }
+            FilterManager.filter(publishedTo, defaultPublishedToEMailFilter);
+            ModelSorter.sortPublishedToEMails(publishedTo,
+                    defaultPublishedToEMailComparator);
+            return publishedTo;
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -2404,10 +2474,10 @@ public final class ContainerModelImpl extends
         final Map<Document, DocumentFileLock> locks = new HashMap<Document, DocumentFileLock>();
         for (final Document document : documents) {
             try {
-            	locks.put(document, lockDocument(document));
+                locks.put(document, lockDocument(document));
             } catch (final CannotLockException clx) {
-            	releaseLocks(locks.values());
-            	throw clx;
+                releaseLocks(locks.values());
+                throw clx;
             }
         }
         return locks;

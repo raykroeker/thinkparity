@@ -125,7 +125,6 @@ public final class ContactModelImpl extends AbstractModelImpl implements
             enqueueEvent(invitationUser, event);
             // send attachments
             for (final Attachment attachment : attachments) {
-                invitationSql.deleteAttachment(attachment);
                 send(invitationUser, user, invitation, attachment);
             }
         }

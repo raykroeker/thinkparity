@@ -65,6 +65,7 @@ class ConfigurationHelper {
         configuration["thinkparity.product-name"] = extractProductName()
         configuration["thinkparity.release-name"] = extractReleaseName()
         configuration["thinkparity.target.classes-dir"] = extractTargetClassesDir()
+        configuration["thinkparity.target.test-classes-dir"] = extractTargetTestClassesDir()
         configuration["thinkparity.target.package-dir"] = extractTargetPackageDir()
         configuration["thinkparity.war-name"] = extractWarName()
         configuration["thinkparity.webapp-dir"] = extractWebappDir()
@@ -137,6 +138,15 @@ class ConfigurationHelper {
      */
     File extractTargetClassesDir() {
         return new File(properties["thinkparity.target.classes-dir"])
+    }
+
+    /**
+     * Extract the test classes directory.
+     *
+     * @return A classes directory <code>File</code>.
+     */
+    File extractTargetTestClassesDir() {
+        return new File(properties["thinkparity.target.test-classes-dir"])
     }
 
     /**

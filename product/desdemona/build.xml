@@ -246,6 +246,12 @@ Local Configuration:                ${localconfig}
     <!-- test dependencies -->
     <antx:dependency type="java" scope="test" provider="junit.org" version="3.8.1"
         path="junit/3.8.1/junit.jar"/>
+    <antx:dependency type="java" scope="test" provider="apache.org" version="1.7.2"
+        path="apache.org/jakarta/cactus/j2ee1.3-1.7.2/cactus-1.7.2.jar"/>
+    <antx:dependency type="java" scope="test" provider="apache.org" version="1.7.2"
+        path="apache.org/jakarta/cactus/j2ee1.3-1.7.2/aspectjrt-1.2.1.jar"/>
+    <antx:dependency type="java" scope="test" provider="apache.org" version="1.7.2"
+        path="apache.org/jakarta/cactus/j2ee1.3-1.7.2/commons-logging-1.0.4.jar"/>
 
     <!-- checkout -->
     <target name="checkout">
@@ -531,6 +537,22 @@ Examples:
             classpathref="groovy.classpath"/>
         <property name="thinkparity.war-name" value="tps.war"/>
         <groovy src="${basedir}/remote/model/src/main/groovy/PackageWarTask.groovy"/>
+        <!-- zip -->
+        <property name="thinkparity.zip-name" value="${thinkparity.product-name}-${thinkparity.release-name}.zip"/>
+        <groovy src="${basedir}/remote/model/src/main/groovy/PackageZipTask.groovy"/>
+    </target>
+
+    <!-- test-package -->   
+    <target name="test-package" depends="test-compile">
+        <property name="thinkparity.target.classes-dir" value="${target.classes.dir}"/>
+        <property name="thinkparity.target.test-classes-dir" value="${target.test-classes.dir}"/>
+        <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
+        <property name="thinkparity.webapp-dir" value="${webapp-dir}"/>
+
+        <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy"
+            classpathref="groovy.classpath"/>
+        <property name="thinkparity.war-name" value="tps.war"/>
+        <groovy src="${basedir}/remote/model/src/main/groovy/PackageTestWarTask.groovy"/>
         <!-- zip -->
         <property name="thinkparity.zip-name" value="${thinkparity.product-name}-${thinkparity.release-name}.zip"/>
         <groovy src="${basedir}/remote/model/src/main/groovy/PackageZipTask.groovy"/>

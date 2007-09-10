@@ -110,4 +110,13 @@
         <servlet-name>WebService</servlet-name>
         <url-pattern>/service/*</url-pattern>
     </servlet-mapping>
+    <!-- Apache Cactus Test Servlet -->
+	<servlet>
+        <servlet-name>WebTest</servlet-name>
+        <servlet-class>org.apache.cactus.server.runner.ServletTestRunner</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>WebTest</servlet-name>
+        <url-pattern>/test</url-pattern>
+    </servlet-mapping>
 </web-app>

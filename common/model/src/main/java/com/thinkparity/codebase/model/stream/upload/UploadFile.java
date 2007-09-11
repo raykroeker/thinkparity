@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 
+import com.thinkparity.codebase.BytesFormat;
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.stream.StreamException;
@@ -27,6 +29,12 @@ import com.thinkparity.network.NetworkException;
  */
 public final class UploadFile {
 
+    /** A bytes format. */
+    private static final BytesFormat BYTES_FORMAT;
+
+    /** A default stream monitor. */
+    private static final StreamMonitor DEFAULT_MONITOR;
+
     /** A log4j wrapper. */
     private static final Log4JWrapper LOGGER;
 
@@ -34,6 +42,32 @@ public final class UploadFile {
     private static final long RETRY_PERIOD;
 
     static {
+        BYTES_FORMAT = new BytesFormat();
+        DEFAULT_MONITOR = new StreamMonitor () {
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkReceived(int)
+             *
+             */
+            public void chunkReceived(final int chunkSize) {
+                // not possbile in upload
+                Assert.assertUnreachable("");
+            }
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#chunkSent(int)
+             *
+             */
+            public void chunkSent(final int chunkSize) {
+                LOGGER.logDebug("Uploaded {0}.", BYTES_FORMAT.format(
+                        new Long(chunkSize)));
+            }
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#getName()
+             *
+             */
+            public String getName() {
+                return "UploadFile#defaultMonitor";
+            }
+        };
         LOGGER = new Log4JWrapper(UploadFile.class);
         RETRY_PERIOD = 1 * 1000;
     }
@@ -97,6 +131,19 @@ public final class UploadFile {
                 }
             }
         };
+    }
+
+    /**
+     * Create UploadFile.
+     * 
+     * @param retryHandler
+     *            A <code>StreamRetryHandler</code>.
+     * @param session
+     *            A <code>StreamSession</code>.
+     */
+    public UploadFile(final StreamRetryHandler retryHandler,
+            final StreamSession session) {
+        this(DEFAULT_MONITOR, retryHandler, session);
     }
 
     /**

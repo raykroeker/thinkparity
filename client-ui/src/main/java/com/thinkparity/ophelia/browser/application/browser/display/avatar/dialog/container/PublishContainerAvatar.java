@@ -176,6 +176,7 @@ public final class PublishContainerAvatar extends Avatar implements
         if (input != null) {
             showBusyIndicators(Boolean.FALSE);
             reloadVersionName();
+            reloadPublishButton();
             reloadPublishToTeamMembersList();
             reloadPublishToUserControl();
             teamMembersJScrollPane.getViewport().setViewPosition(new Point(0,0));
@@ -495,7 +496,7 @@ public final class PublishContainerAvatar extends Avatar implements
         errorMessageJLabel.setPreferredSize(new java.awt.Dimension(3, 14));
 
         publishJButton.setFont(Fonts.DialogButtonFont);
-        publishJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.Publish"));
+        publishJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.PublishVersion"));
         publishJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 publishJButtonActionPerformed(evt);
@@ -524,6 +525,9 @@ public final class PublishContainerAvatar extends Avatar implements
                         .add(cancelJButton)))
                 .addContainerGap())
         );
+
+        buttonBarJPanelLayout.linkSize(new java.awt.Component[] {cancelJButton, publishJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         buttonBarJPanelLayout.setVerticalGroup(
             buttonBarJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonBarJPanelLayout.createSequentialGroup()
@@ -862,6 +866,18 @@ public final class PublishContainerAvatar extends Avatar implements
          * order to maintain vertical spacing. */
         statusJLabel.setText(" ");
         validate();
+    }
+
+    /**
+     * Reload the publish button.
+     */
+    private void reloadPublishButton() {
+        final PublishType publishType = getInputPublishType();
+        if (publishType==PublishType.PUBLISH_VERSION) {
+            publishJButton.setText(getString("PublishVersion"));
+        } else {
+            publishJButton.setText(getString("Publish")); 
+        }
     }
 
     /**

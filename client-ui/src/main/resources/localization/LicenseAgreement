@@ -121,12 +121,12 @@ commission in connection with thinkParity's Services as provided under this
 Agreement.
 
 5. User DATA
-  (a) thinkParity store User's documents  for Backup purposes. The User's Data is 
-the property of the User.  The parties hereby acknowledge and agree that the 
-storage of the User's Data on the System and any use and disclosure of the User's 
-Data by the User does not constitute use or disclosure of the Data by thinkParity. 
-The User will permit thinkParity to have access to the Data only for the limited 
-purposes of providing the Service.
+  (a) thinkParity stores User's documents for Backup purposes in an encrypted
+format. The User's Data is the property of the User.  The parties hereby
+acknowledge and agree that the storage of the User's Data on the System and any
+use and disclosure of the User's Data by the User does not constitute use or
+disclosure of the Data by thinkParity. The User will permit thinkParity to have
+access to the Data only for the limited purposes of providing the Service.
 
 6. PRIVACY
   (a) The User represents and warrants that the use, publication or display of the 
@@ -184,8 +184,7 @@ Agreement.
 availability of access to the Service to the User via Internet for the Term, in 
 accordance with and subject to the terms and conditions of this Agreement; 
   (c) thinkParity provides the System Service Support, Hosting, and Data Backup 
-(if applicable) in accordance with and subject to the terms and conditions of this 
-Agreement.
+in accordance with and subject to the terms and conditions of this Agreement.
 
 9. TRANSFER RESTRICTIONS
   (a) The Service is licensed only to User and may not be transferred to anyone 
@@ -357,6 +356,8 @@ or Renewal Term then the remaining, unpaid costs for the agreed Term are due
 immediately. There are no partial refunds or credits for early cancellations. All 
 payments to thinkParity are final and non-refundable except as otherwise set out 
 herein.
+  (b) Guest accounts that are inactive for a period longer than 6 months are
+terminated without notice.
 
 This product includes software developed by the Apache Software Foundation 
 (http://www.apache.org/).
@@ -378,5 +379,5 @@ THE THINKPARITY USER SOFTWARE, YOU EXPRESSLY CONSENT TO BE BOUND BY ITS
 TERMS AND CONDITIONS AND GRANT TO THINKPARITY THE RIGHTS SET FORTH 
 HEREIN.
 
-(c) thinkParity  Solutions Inc. - Last updated: July 28, 2007.     
+(c) thinkParity  Solutions Inc. - Last updated: September 12, 2007.  
 

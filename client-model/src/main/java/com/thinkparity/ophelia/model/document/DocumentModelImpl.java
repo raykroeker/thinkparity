@@ -1366,7 +1366,7 @@ public final class DocumentModelImpl extends
             lock.setFileChannel(channel);
             lock.setFileLock(fileLock);
         } catch (final IOException iox) {
-            throw new CannotLockException(name);
+            throw new CannotLockException(name, iox);
         }
     }
 

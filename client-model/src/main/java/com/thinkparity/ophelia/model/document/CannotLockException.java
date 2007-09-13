@@ -28,4 +28,12 @@ public final class CannotLockException extends Exception {
     CannotLockException(final String lock) {
         super(MessageFormat.format(PATTERN, lock));
     }
+
+    /**
+     * Create CannotLockException.
+     *
+     */
+    CannotLockException(final String lock, final Throwable cause) {
+        super(MessageFormat.format(PATTERN, lock), cause);
+    }
 }

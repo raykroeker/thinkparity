@@ -6,8 +6,6 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 import java.text.MessageFormat;
 import java.util.List;
 
-import com.thinkparity.codebase.BytesFormat;
-import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 
@@ -275,6 +273,8 @@ public class Publish extends AbstractBrowserAction {
                 try {
                     containerModel.saveDraft(container.getId());
                 } catch (final CannotLockException clx) {
+                    action.logger.logWarning("Cannot lock container document.  {0}",
+                            clx.getMessage());
                     monitor.reset();
                     action.browser.retry(action, container.getName());
                     return null;
@@ -298,8 +298,8 @@ public class Publish extends AbstractBrowserAction {
                     monitor.setError("ErrorOffline");
                     return null;
                 } catch (final CannotLockException clx) {
-                    action.logger.logError(clx,
-                            "Could not publish {0}.", container.getName());
+                    action.logger.logWarning("Cannot lock container document.  {0}",
+                            clx.getMessage());
                     try {
                         containerModel.restoreDraft(container.getId());
                     } catch (final CannotLockException clx2) {

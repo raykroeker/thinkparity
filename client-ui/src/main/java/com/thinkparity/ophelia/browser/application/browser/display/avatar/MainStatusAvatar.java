@@ -60,6 +60,7 @@ public class MainStatusAvatar extends Avatar {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel connectionJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel linkJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel memoryJLabel = LabelFactory.create(Fonts.DefaultFont);
     private final javax.swing.JLabel optionalLinkJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel optionalTextJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel resizeJLabel = new javax.swing.JLabel();
@@ -114,6 +115,11 @@ public class MainStatusAvatar extends Avatar {
         initComponentListener();
         restarting = Boolean.FALSE;
         productInstalled = Boolean.FALSE;
+        if (getController().isDevelopmentMode()) {
+            new MainStatusAvatarMemoryInfo(memoryJLabel);
+        } else {
+            memoryJLabel.setText(null);
+        }
     }
 
     /**
@@ -342,8 +348,8 @@ public class MainStatusAvatar extends Avatar {
         linkJLabel.setFont(Fonts.DefaultFont);
         linkJLabel.setText("1 new package");
         linkJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                linkJLabelMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                linkJLabelMousePressed(e);
             }
         });
 
@@ -360,8 +366,8 @@ public class MainStatusAvatar extends Avatar {
 
         optionalLinkJLabel.setText("1 contact invitation.");
         optionalLinkJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                optionalLinkJLabelMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                optionalLinkJLabelMousePressed(e);
             }
         });
 
@@ -382,7 +388,7 @@ public class MainStatusAvatar extends Avatar {
         connectionJLabel.setForeground(Colors.Browser.MainStatus.CONNECTION_FOREGROUND_OFFLINE);
         connectionJLabel.setText("Offline");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
         add(connectionJLabel, gridBagConstraints);
@@ -390,43 +396,51 @@ public class MainStatusAvatar extends Avatar {
         userJLabel.setFont(Fonts.DefaultFont);
         userJLabel.setText("Dr. Who");
         userJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                userJLabelMousePressed(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
-        add(userJLabel, gridBagConstraints);
-
-        resizeJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserStatus_Resize.png")));
-        resizeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                resizeJLabelMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                resizeJLabelMouseExited(evt);
-            }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                resizeJLabelMousePressed(evt);
-            }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                resizeJLabelMouseReleased(evt);
-            }
-        });
-        resizeJLabel.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseDragged(java.awt.event.MouseEvent evt) {
-                resizeJLabelMouseDragged(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                userJLabelMousePressed(e);
             }
         });
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 7;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        add(userJLabel, gridBagConstraints);
+
+        resizeJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/BrowserStatus_Resize.png")));
+        resizeJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                resizeJLabelMouseEntered(e);
+            }
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                resizeJLabelMouseExited(e);
+            }
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                resizeJLabelMousePressed(e);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                resizeJLabelMouseReleased(e);
+            }
+        });
+        resizeJLabel.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent e) {
+                resizeJLabelMouseDragged(e);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 8;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
         add(resizeJLabel, gridBagConstraints);
+
+        memoryJLabel.setText("Memory Usage");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 2, 0, 0);
+        add(memoryJLabel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
 

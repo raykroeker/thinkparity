@@ -5,7 +5,6 @@ package com.thinkparity.network;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
@@ -14,8 +13,6 @@ import java.net.Socket;
 import java.util.concurrent.Executors;
 
 import javax.net.ssl.SSLServerSocketFactory;
-
-import com.thinkparity.codebase.ResourceUtil;
 
 /**
  * <b>Title:</b>thinkParity Network Secure Test Server<br>
@@ -53,7 +50,6 @@ class SecureSocketTestServer implements Runnable {
         if (isRunning()) {
             throw new IllegalStateException();
         }
-        final InputStream stream = ResourceUtil.getInputStream("keystore");
         System.setProperty("javax.net.ssl.keyStore", "keystore");
         System.setProperty("javax.net.ssl.keyStorePassword", "password");
         SINGLETON = new SecureSocketTestServer(bindAddress);

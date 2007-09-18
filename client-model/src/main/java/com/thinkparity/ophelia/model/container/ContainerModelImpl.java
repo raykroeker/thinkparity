@@ -59,6 +59,7 @@ import com.thinkparity.ophelia.model.container.monitor.PublishStep;
 import com.thinkparity.ophelia.model.document.CannotLockException;
 import com.thinkparity.ophelia.model.document.DocumentFileLock;
 import com.thinkparity.ophelia.model.document.DocumentNameGenerator;
+import com.thinkparity.ophelia.model.document.DocumentUtil;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.events.ContainerDraftListener;
 import com.thinkparity.ophelia.model.events.ContainerListener;
@@ -141,6 +142,9 @@ public final class ContainerModelImpl extends
     /** The document io layer. */
     private DocumentIOHandler documentIO;
 
+    /** A set of document utility methods. */
+    private final DocumentUtil documentUtil;
+
     /** A local event generator. */
     private final ContainerEventGenerator localEventGenerator;
 
@@ -167,6 +171,7 @@ public final class ContainerModelImpl extends
         this.defaultReceiptFilter = FilterManager.createDefault();
         this.defaultVersionComparator = new ComparatorBuilder().createVersionById(Boolean.FALSE);
         this.defaultVersionFilter = FilterManager.createDefault();
+        this.documentUtil = DocumentUtil.getInstance();
         this.localEventGenerator = new ContainerEventGenerator(Source.LOCAL);
         this.remoteEventGenerator = new ContainerEventGenerator(Source.REMOTE);
     }
@@ -1302,13 +1307,19 @@ public final class ContainerModelImpl extends
                 FilterManager.filter(documents, filter);
                 ModelSorter.sortDocuments(documents, comparator);
                 draft.setDocuments(documents);
-            }
-    
-            if (null != draft) {
-                for (final Document document : draft.getDocuments()) {
-                    if (ContainerDraft.ArtifactState.NONE == draft.getState(document)) {
-                        if (documentModel.isDraftModified(document.getId())) {
-                            draft.putState(document, ContainerDraft.ArtifactState.MODIFIED);
+
+                final Long latestVersionId = getArtifactModel().readLatestVersionId(containerId);
+                if (null == latestVersionId) {
+                    logger.logInfo("Initial draft.");
+                } else {
+                    final List<DocumentVersion> documentVersionList = readDocumentVersions(containerId, latestVersionId);
+                    DocumentVersion documentVersion;
+                    for (final Document document : draft.getDocuments()) {
+                        if (ContainerDraft.ArtifactState.NONE == draft.getState(document)) {
+                            documentVersion = documentUtil.findVersion(document, documentVersionList);
+                            if (documentModel.isModified(document, documentVersion)) {
+                                draft.putState(document, ContainerDraft.ArtifactState.MODIFIED);
+                            }
                         }
                     }
                 }

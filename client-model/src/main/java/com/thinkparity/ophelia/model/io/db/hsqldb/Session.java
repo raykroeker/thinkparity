@@ -80,7 +80,10 @@ public final class Session {
     /** The session's prepared statement. */
 	private PreparedStatement preparedStatement;
 
-	/** The session's query. */
+	/** A prepared statement cache. */
+    private final PreparedStatementCache preparedStatementCache;
+
+    /** The session's query. */
     private String query;
 
     /** The prepared statement's result set. */
@@ -101,6 +104,7 @@ public final class Session {
 		super();
 		this.connection = connection;
 		this.id = JVMUniqueId.nextId();
+		this.preparedStatementCache = new PreparedStatementCache(connection);
         this.sessionManager = sessionManager;
 	}
 
@@ -151,7 +155,7 @@ public final class Session {
         }
     }
 
-    /**
+	/**
      * Execute a sequence of sql.
      * 
      * @param sql
@@ -174,7 +178,7 @@ public final class Session {
         }
     }
 
-	/**
+    /**
      * Execute the SQL query in the session's prepared statement and set the
      * result set.
      * 
@@ -287,7 +291,7 @@ public final class Session {
         }
     }
 
-    public byte[] getBytes(final String columnName) {
+	public byte[] getBytes(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -299,7 +303,7 @@ public final class Session {
 		}
 	}
 
-	public Calendar getCalendar(final String columnName) {
+    public Calendar getCalendar(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -322,7 +326,7 @@ public final class Session {
 		}
 	}
 
-    public ContainerDraft.ArtifactState getContainerStateFromString(
+	public ContainerDraft.ArtifactState getContainerStateFromString(
             final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
@@ -335,7 +339,7 @@ public final class Session {
         }
     }
 
-	public EMail getEMail(final String columnName) {
+    public EMail getEMail(final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
         try {
@@ -497,7 +501,7 @@ public final class Session {
 		}
 	}
 
-    public String getString(final String columnName) {
+	public String getString(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -615,7 +619,7 @@ public final class Session {
 		}
 	}
 
-	/**
+    /**
 	 * Obtain the database metadata.
 	 * 
 	 * @return The database metadata.
@@ -637,7 +641,10 @@ public final class Session {
 		close(preparedStatement, resultSet);
 		try {
             this.query = query;
-			preparedStatement = connection.prepareStatement(query);
+            preparedStatement = preparedStatementCache.get(query);
+            if (null == preparedStatement) {
+                preparedStatement = preparedStatementCache.prepareStatement(query);
+            }
 		} catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
 		}
@@ -1046,11 +1053,48 @@ public final class Session {
     }
 
     private void close(final DatabaseMetaData databaseMetaData,
-            final Statement statement, final ResultSet resultSet) {
+            final PreparedStatement preparedStatement, final ResultSet resultSet) {
         try {
             close(databaseMetaData);
         } finally {
-            close(statement, resultSet);
+            close(preparedStatement, resultSet);
+        }
+    }
+
+    /**
+     * Close a prepared statement. This will simply clear the statement's
+     * parameters without closing the statement since they are cached.
+     * 
+     * @param preparedStatement
+     *            A <code>PreparedStatement</code>.
+     */
+    private void close(final PreparedStatement preparedStatement) {
+        if(null != preparedStatement) {
+            try {
+                preparedStatement.clearParameters();
+            } catch (final SQLException sqlx) {
+                throw panic(sqlx);
+            }
+        }
+    }
+
+    /**
+     * Close a statement as well as a result set.
+     * 
+     * @param preparedStatement
+     *            A <code>PreparedStatement</code>.
+     * @param resultSet
+     *            A <code>ResultSet</code>.
+     * 
+     * @see HypersonicSession#close(Statement)
+     * @see HypersonicSession#close(ResultSet)
+     */
+    private void close(final PreparedStatement preparedStatement,
+            final ResultSet resultSet) {
+        try {
+            close(preparedStatement);
+        } finally {
+            close(resultSet);
         }
     }
 
@@ -1087,25 +1131,6 @@ public final class Session {
             } finally {
                 statement = null;
             }
-        }
-    }
-
-    /**
-     * Close a statement as well as a result set.
-     * 
-     * @param statement
-     *            A <code>Statement</code>.
-     * @param resultSet
-     *            A <code>ResultSet</code>.
-     * 
-     * @see HypersonicSession#close(Statement)
-     * @see HypersonicSession#close(ResultSet)
-     */
-    private void close(final Statement statement, final ResultSet resultSet) {
-        try {
-            close(statement);
-        } finally {
-            close(resultSet);
         }
     }
 

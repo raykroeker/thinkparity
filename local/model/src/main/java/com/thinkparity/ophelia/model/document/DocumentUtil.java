@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.document;
 
+import java.util.List;
+
 import com.thinkparity.codebase.FileUtil;
 
 import com.thinkparity.codebase.model.document.Document;
@@ -38,6 +40,27 @@ public final class DocumentUtil {
      */
     private DocumentUtil() {
         super();
+    }
+
+    /**
+     * Find a document's matching version. If there exists more than one
+     * matching version; the first one is returned. If there exists no matching
+     * version; null is returned.
+     * 
+     * @param document
+     *            A <code>Document</code>.
+     * @param versionList
+     *            A <code>List<DocumentVersion></code>.
+     * @return A <code>DocumentVersion</code>.
+     */
+    public DocumentVersion findVersion(final Document document,
+            final List<? extends DocumentVersion> versionList) {
+        for (final DocumentVersion version : versionList) {
+            if (version.getArtifactId().equals(document.getId())) {
+                return version;
+            }
+        }
+        return null;
     }
 
     /**

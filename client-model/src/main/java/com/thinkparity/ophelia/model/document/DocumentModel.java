@@ -68,7 +68,19 @@ public interface DocumentModel {
     @ThinkParityConcurrency(Lock.LOCAL_READ)
     public Boolean isDraftModified(final Long documentId);
 
-	/**
+    /**
+     * Determine whether or not the document is different from the version.
+     * 
+     * @param document
+     *            A <code>Document</code>.
+     * @param version
+     *            A <code>DocumentVersion</code>.
+     * @return True if the document is different.
+     */
+    public Boolean isModified(final Document document,
+            final DocumentVersion version);
+
+    /**
 	 * Open a document.
 	 * 
 	 * @param documentId

@@ -412,29 +412,41 @@ public final class DocumentModelImpl extends
     }
 
     /**
-     * Determine whether or not the draft of the document is different from the
-     * latest version.
+     * @see com.thinkparity.ophelia.model.document.DocumentModel#isDraftModified(java.lang.Long)
      * 
-     * @return True if the draft is different from the latest version.
      */
+    @Override
     public Boolean isDraftModified(final Long documentId) {
         try {
-            final File draftFile = getDraftFile(read(documentId));
+            return isModified(read(documentId), readLatestVersion(documentId));
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.document.DocumentModel#isModified(com.thinkparity.codebase.model.document.Document,
+     *      com.thinkparity.codebase.model.document.DocumentVersion)
+     * 
+     */
+    @Override
+    public Boolean isModified(final Document document,
+            final DocumentVersion version) {
+        try {
+            final File draftFile = getDraftFile(document);
             if (draftFile.exists()) {
-                final DocumentVersion latestVersion = readLatestVersion(documentId);
-                if (null == latestVersion) {
+                if (null == version) {
                     return Boolean.TRUE;
                 } else {
-                    final long latestVersionCreatedOn =
-                        latestVersion.getCreatedOn().getTimeInMillis();
+                    final long versionCreatedOn =
+                        version.getCreatedOn().getTimeInMillis();
                     /* the time stamp is checked first because it is fast;
                      * however documents are considered different only if the
                      * checksums are different */
-                    if (draftFile.lastModified() == latestVersionCreatedOn) {
+                    if (draftFile.lastModified() == versionCreatedOn) {
                         return Boolean.FALSE;
                     } else {
-                        return !latestVersion.getChecksum().equals(
-                                checksum(draftFile));
+                        return !version.getChecksum().equals(checksum(draftFile));
                     }
                 }
             } else {

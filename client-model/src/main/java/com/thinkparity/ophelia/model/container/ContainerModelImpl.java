@@ -2673,13 +2673,13 @@ public final class ContainerModelImpl extends
     private void addExportResource(final FileSystem fileSystem,
             final Map<String, File> resources, final String name,
             final String path) throws IOException {
+        /* if export has already been run; re-use the file-system image */
         final File file;
-        if (null != fileSystem.find(path)) {
-            final File existingFile = fileSystem.find(path);
-            Assert.assertTrue(existingFile.delete(),
-                    "Cannot delete existing export resource.", existingFile);
+        if (null == fileSystem.find(path)) {
+            file = fileSystem.createFile(path);
+        } else {
+            file = fileSystem.find(path);
         }
-        file = fileSystem.createFile(path);
         final InputStream stream = ResourceUtil.getInputStream(path);
         try {
             streamToFile(stream, file);
@@ -3598,17 +3598,10 @@ public final class ContainerModelImpl extends
         /* the export image resources are stored within a specific location
          * within the workspace that is reused; not to say that the images are
          * re-used */
-        final File images = new File(workspace.getExportDirectory(), "images");
-        if (!images.exists()) {
-            Assert.assertTrue(images.mkdir(),
-                    "Could not create export images directory {0}.", images);
-        }
-        final FileSystem imagesFS = new FileSystem(images);
+        final FileSystem exportFS = new FileSystem(workspace.getExportDirectory());
         final Map<String, File> resources = new HashMap<String, File>();
-        addExportResource(imagesFS, resources, "header-image",
-                "images/PDFHeader.jpg");
-        addExportResource(imagesFS, resources, "footer-image",
-                "images/PDFFooter.jpg");
+        addExportResource(exportFS, resources, "header-image", "images/PDFHeader.jpg");
+        addExportResource(exportFS, resources, "footer-image", "images/PDFFooter.jpg");
 
         // generate a pdf
         final PDFWriter pdfWriter = new PDFWriter(workspace.getCharset(),

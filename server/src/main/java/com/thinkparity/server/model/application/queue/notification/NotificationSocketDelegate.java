@@ -91,14 +91,16 @@ final class NotificationSocketDelegate implements Runnable {
                     wait(30 * 1000);
                 }
             } catch (final InterruptedException ix) {}
-            logger.logInfo("Waking up notification delegate {0}.", sessionId.getValue());
+            logger.logInfo("{0} - Waking up notification delegate.",
+                    sessionId.getValue());
             if (isWritable()) {
                 try {
                     socketOutput.write(getWriteBytes());
                 } catch (final IOException iox) {
-                    logger.logError(iox,
-                            "Could not write to notification delegate {0}.",
-                            getRemoteAddress());
+                    logger.logWarning(
+                            "{0} - Notification delegate peer disconnected.",
+                            sessionId.getValue());
+                    break;
                 }
             } else {
                 break;

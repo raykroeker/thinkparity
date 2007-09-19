@@ -89,9 +89,16 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /** Sql to create a draft document. */
     private static final String SQL_CREATE_DRAFT_DOCUMENT =
         new StringBuilder("insert into CONTAINER_DRAFT_DOCUMENT ")
-        .append("(CONTAINER_ID,DOCUMENT_ID,CONTENT,CONTENT_SIZE,")
+        .append("(CONTAINER_ID,DOCUMENT_ID,CONTENT_SIZE,")
         .append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM) ")
-        .append("values(?,?,?,?,?,?)")
+        .append("values(?,?,?,?,?)")
+        .toString();
+
+    /** Sql to create a draft document. */
+    private static final String SQL_CREATE_DRAFT_DOCUMENT_CONTENT =
+        new StringBuilder("insert into CONTAINER_DRAFT_DOCUMENT_CONTENT ")
+        .append("(CONTAINER_ID,DOCUMENT_ID,CONTENT) ")
+        .append("values(?,?,?)")
         .toString();
 
     /** Sql to read the container published to list. */
@@ -191,8 +198,20 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .toString();
 
     /** Sql to delete the draft document. */
+    private static final String SQL_DELETE_DRAFT_DOCUMENT_CONTENT =
+        new StringBuilder("delete from CONTAINER_DRAFT_DOCUMENT_CONTENT ")
+        .append("where CONTAINER_ID=? and DOCUMENT_ID=?")
+        .toString();
+
+    /** Sql to delete the draft document. */
     private static final String SQL_DELETE_DRAFT_DOCUMENTS =
         new StringBuilder("delete from CONTAINER_DRAFT_DOCUMENT ")
+        .append("where CONTAINER_ID=?")
+        .toString();
+
+    /** Sql to delete the draft document. */
+    private static final String SQL_DELETE_DRAFT_DOCUMENTS_CONTENT =
+        new StringBuilder("delete from CONTAINER_DRAFT_DOCUMENT_CONTENT ")
         .append("where CONTAINER_ID=?")
         .toString();
 
@@ -247,9 +266,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Sql to open a draft document input stream. */
     private static final String SQL_OPEN_DRAFT_DOCUMENT =
-        new StringBuilder("select CONTENT ")
-        .append("from CONTAINER_DRAFT_DOCUMENT ")
-        .append("where CONTAINER_ID=? and DOCUMENT_ID=?")
+        new StringBuilder("select CDDC.CONTENT ")
+        .append("from CONTAINER_DRAFT_DOCUMENT_CONTENT CDDC ")
+        .append("where CDDC.CONTAINER_ID=? and CDDC.DOCUMENT_ID=?")
         .toString();
 
     /** Sql to read a container. */
@@ -632,7 +651,14 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     /** Sql to update a draft document. */
     private static final String SQL_UPDATE_DRAFT_DOCUMENT =
         new StringBuilder("update CONTAINER_DRAFT_DOCUMENT ")
-        .append("set CONTENT=?,CONTENT_SIZE=?,CONTENT_CHECKSUM=? ")
+        .append("set CONTENT_SIZE=?,CONTENT_CHECKSUM=? ")
+        .append("where CONTAINER_ID=? and DOCUMENT_ID=?")
+        .toString();
+
+    /** Sql to update a draft document. */
+    private static final String SQL_UPDATE_DRAFT_DOCUMENT_CONTENT =
+        new StringBuilder("update CONTAINER_DRAFT_DOCUMENT_CONTENT ")
+        .append("set CONTENT=? ")
         .append("where CONTAINER_ID=? and DOCUMENT_ID=?")
         .toString();
 
@@ -802,12 +828,20 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_CREATE_DRAFT_DOCUMENT);
             session.setLong(1, draftDocument.getContainerDraftId());
             session.setLong(2, draftDocument.getDocumentId());
-            session.setBinaryStream(3, stream, draftDocument.getSize(), bufferSize);
-            session.setLong(4, draftDocument.getSize());
-            session.setString(5, draftDocument.getChecksum());
-            session.setString(6, draftDocument.getChecksumAlgorithm());
-            if (1 != session.executeUpdate())
+            session.setLong(3, draftDocument.getSize());
+            session.setString(4, draftDocument.getChecksum());
+            session.setString(5, draftDocument.getChecksumAlgorithm());
+            if (1 != session.executeUpdate()) {
                 throw new HypersonicException("Could not create draft document.");
+            }
+
+            session.prepareStatement(SQL_CREATE_DRAFT_DOCUMENT_CONTENT);
+            session.setLong(1, draftDocument.getContainerDraftId());
+            session.setLong(2, draftDocument.getDocumentId());
+            session.setBinaryStream(3, stream, draftDocument.getSize(), bufferSize);
+            if (1 != session.executeUpdate()) {
+                throw new HypersonicException("Could not create draft document content.");
+            }
         } finally {
             session.close();
         }
@@ -971,8 +1005,9 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         try {
             session.prepareStatement(SQL_DELETE_DRAFT);
             session.setLong(1, containerId);
-            if(1 != session.executeUpdate())
+            if (1 != session.executeUpdate()) {
                 throw new HypersonicException("Could not delete draft.");
+            }
         } finally {
             session.close();
         }
@@ -1023,11 +1058,19 @@ public class ContainerIOHandler extends AbstractIOHandler implements
             final Long documentId) {
         final Session session = openSession();
         try {
+            session.prepareStatement(SQL_DELETE_DRAFT_DOCUMENT_CONTENT);
+            session.setLong(1, containerDraftId);
+            session.setLong(2, documentId);
+            if (1 != session.executeUpdate()) {
+                throw new HypersonicException("Could not delete draft document content.");
+            }
+
             session.prepareStatement(SQL_DELETE_DRAFT_DOCUMENT);
             session.setLong(1, containerDraftId);
             session.setLong(2, documentId);
-            if (1 != session.executeUpdate())
+            if (1 != session.executeUpdate()) {
                 throw new HypersonicException("Could not delete draft document.");
+            }
         } finally {
             session.close();
         }
@@ -1040,11 +1083,18 @@ public class ContainerIOHandler extends AbstractIOHandler implements
     public void deleteDraftDocuments(final Long containerDraftId) {
         final Session session = openSession();
         try {
+            final int draftDocumentCount = readDraftDocumentCount(session, containerDraftId);
+            session.prepareStatement(SQL_DELETE_DRAFT_DOCUMENTS_CONTENT);
+            session.setLong(1, containerDraftId);
+            if (draftDocumentCount != session.executeUpdate()) {
+                throw new HypersonicException("Could not delete draft documents' content.");
+            }
+
             session.prepareStatement(SQL_DELETE_DRAFT_DOCUMENTS);
             session.setLong(1, containerDraftId);
-            session.executeUpdate();
-            if (0 != readDraftDocumentCount(session, containerDraftId).intValue())
+            if (draftDocumentCount != session.executeUpdate()) {
                 throw new HypersonicException("Could not delete draft documents.");
+            }
         } finally {
             session.close();
         }
@@ -1774,13 +1824,21 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_UPDATE_DRAFT_DOCUMENT);
-            session.setBinaryStream(1, stream, draftDocument.getSize(), bufferSize);
-            session.setLong(2, draftDocument.getSize());
-            session.setString(3, draftDocument.getChecksum());
-            session.setLong(4, draftDocument.getContainerDraftId());
-            session.setLong(5, draftDocument.getDocumentId());
-            if (1 != session.executeUpdate())
+            session.setLong(1, draftDocument.getSize());
+            session.setString(2, draftDocument.getChecksum());
+            session.setLong(3, draftDocument.getContainerDraftId());
+            session.setLong(4, draftDocument.getDocumentId());
+            if (1 != session.executeUpdate()) {
                 throw new HypersonicException("Could not update draft document.");
+            }
+
+            session.prepareStatement(SQL_UPDATE_DRAFT_DOCUMENT_CONTENT);
+            session.setBinaryStream(1, stream, draftDocument.getSize(), bufferSize);
+            session.setLong(2, draftDocument.getContainerDraftId());
+            session.setLong(3, draftDocument.getDocumentId());
+            if (1 != session.executeUpdate()) {
+                throw new HypersonicException("Could not update draft document content.");
+            }
         } finally {
             session.close();
         }

@@ -37,12 +37,19 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 		.toString();
 
     /** Sql to create a document version. */
-	private static final String SQL_CREATE_VERSION =
+    private static final String SQL_CREATE_VERSION =
         new StringBuffer("insert into DOCUMENT_VERSION ")
-		.append("(DOCUMENT_ID,DOCUMENT_VERSION_ID,CONTENT,CONTENT_SIZE,")
+        .append("(DOCUMENT_ID,DOCUMENT_VERSION_ID,CONTENT_SIZE,")
         .append("CONTENT_CHECKSUM,CHECKSUM_ALGORITHM) ")
-		.append("values (?,?,?,?,?,?)")
-		.toString();
+        .append("values (?,?,?,?,?)")
+        .toString();
+
+    /** Sql to create a document version. */
+    private static final String SQL_CREATE_VERSION_CONTENT =
+        new StringBuffer("insert into DOCUMENT_VERSION_CONTENT ")
+        .append("(DOCUMENT_ID,DOCUMENT_VERSION_ID,CONTENT) ")
+        .append("values (?,?,?)")
+        .toString();
 
     private static final String SQL_DELETE =
 		new StringBuffer("delete from DOCUMENT ")
@@ -50,9 +57,14 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 		.toString();
 
     private static final String SQL_DELETE_VERSION =
-		new StringBuffer("delete from DOCUMENT_VERSION ")
-		.append("where DOCUMENT_ID=? and DOCUMENT_VERSION_ID=?")
-		.toString();
+        new StringBuilder("delete from DOCUMENT_VERSION ")
+        .append("where DOCUMENT_ID=? and DOCUMENT_VERSION_ID=?")
+        .toString();
+
+    private static final String SQL_DELETE_VERSION_CONTENT =
+        new StringBuilder("delete from DOCUMENT_VERSION_CONTENT ")
+        .append("where DOCUMENT_ID=? and DOCUMENT_VERSION_ID=?")
+        .toString();
 
     /** Sql to read a document version. */
     private static final String SQL_GET_VERSION =
@@ -86,10 +98,10 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 
 	/** Sql to open a stream to the document version's content. */
     private static final String SQL_OPEN_STREAM =
-            new StringBuffer("select DV.CONTENT ")
-            .append("from DOCUMENT_VERSION DV ")
-            .append("where DV.DOCUMENT_ID=? and DV.DOCUMENT_VERSION_ID=?")
-            .toString();
+        new StringBuilder("select DVC.CONTENT ")
+        .append("from DOCUMENT_VERSION_CONTENT DVC ")
+        .append("where DVC.DOCUMENT_ID=? and DVC.DOCUMENT_VERSION_ID=?")
+        .toString();
 
     /** Sql to read documents. */
 	private static final String SQL_READ =
@@ -188,15 +200,23 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 		try {
 			artifactIO.createVersion(session, version);
 
-			session.prepareStatement(SQL_CREATE_VERSION);
-			session.setLong(1, version.getArtifactId());
-			session.setLong(2, version.getVersionId());
-            session.setBinaryStream(3, content, version.getSize(), bufferSize);
-            session.setLong(4, version.getSize());
-			session.setString(5, version.getChecksum());
-			session.setString(6, version.getChecksumAlgorithm());
-			if(1 != session.executeUpdate())
+            session.prepareStatement(SQL_CREATE_VERSION);
+            session.setLong(1, version.getArtifactId());
+            session.setLong(2, version.getVersionId());
+            session.setLong(3, version.getSize());
+            session.setString(4, version.getChecksum());
+            session.setString(5, version.getChecksumAlgorithm());
+            if (1 != session.executeUpdate()) {
                 throw new HypersonicException("Could not create document version.");
+            }
+
+            session.prepareStatement(SQL_CREATE_VERSION_CONTENT);
+            session.setLong(1, version.getArtifactId());
+            session.setLong(2, version.getVersionId());
+            session.setBinaryStream(3, content, version.getSize(), bufferSize);
+            if (1 != session.executeUpdate()) {
+                throw new HypersonicException("Could not create document version.");
+            }
 
 			version.setVersionId(version.getVersionId());
 		} finally {
@@ -230,11 +250,19 @@ public final class DocumentIOHandler extends AbstractIOHandler implements
 			throws HypersonicException {
 		final Session session = openSession();
 		try {
-			session.prepareStatement(SQL_DELETE_VERSION);
-			session.setLong(1, documentId);
-			session.setLong(2, versionId);
-			if(1 != session.executeUpdate())
-				throw new HypersonicException("Could not delete version.");
+            session.prepareStatement(SQL_DELETE_VERSION_CONTENT);
+            session.setLong(1, documentId);
+            session.setLong(2, versionId);
+            if (1 != session.executeUpdate()) {
+                throw new HypersonicException("Could not delete version content.");
+            }
+
+            session.prepareStatement(SQL_DELETE_VERSION);
+            session.setLong(1, documentId);
+            session.setLong(2, versionId);
+            if (1 != session.executeUpdate()) {
+                throw new HypersonicException("Could not delete version.");
+            }
 			
 			artifactIO.deleteVersion(session, documentId, versionId);
 		} finally {

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.browser.application.system;
 
+import java.awt.AWTException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -74,8 +75,12 @@ class SystemApplicationImpl extends Thread {
 	public synchronized void start() {
 		running = Boolean.TRUE;
 
-		sysTray = new Tray(sysApp, sysApp.getProfile());
-        sysTray.install();
+        try {
+    		sysTray = new Tray(sysApp, sysApp.getProfile());
+            sysTray.install();
+        } catch (final AWTException awtx) {
+            running = Boolean.FALSE;
+        }
 
 		super.start();
 	}
@@ -100,7 +105,12 @@ class SystemApplicationImpl extends Thread {
         sysTray.unInstall();
         sysTray = null;
 
-        NotifyFrame.close();
+        if (NotifyFrame.isDisplayed()) {
+            NotifyFrame.close();
+        }
+        if (DisplayInfoFrame.isDisplayed()) {
+            DisplayInfoFrame.close();
+        }
 
         synchronized (this) {
             notifyAll();

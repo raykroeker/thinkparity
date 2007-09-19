@@ -117,11 +117,6 @@ class PackageImageTask {
             }
             // /lib/${native}/*
             copy(todir:imageLibNativeDir) {
-                fileset(refid:"run.dependencies-native")
-                mapper(type:"flatten")
-            }
-            // /lib/${native}/*
-            copy(todir:imageLibNativeDir) {
                 fileset(dir:nativeDir) {
                     include(name:"Win32WindowUtil.dll")
                     include(name:"Win32FirewallUtil.dll")

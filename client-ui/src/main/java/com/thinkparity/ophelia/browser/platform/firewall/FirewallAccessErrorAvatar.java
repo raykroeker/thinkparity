@@ -5,6 +5,8 @@ package com.thinkparity.ophelia.browser.platform.firewall;
 
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 import javax.swing.AbstractAction;
 
@@ -17,9 +19,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
 import com.thinkparity.ophelia.browser.util.firewall.FirewallAccessException;
-import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
-
-import org.jdesktop.jdic.desktop.DesktopException;
+import com.thinkparity.ophelia.browser.util.swing.DesktopUtil;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Platform Firewall Access Error<br>
@@ -188,9 +188,13 @@ public final class FirewallAccessErrorAvatar extends Avatar {
 
     private void learnMoreJLabelMousePressed(java.awt.event.MouseEvent e) {//GEN-FIRST:event_learnMoreJLabelMousePressed
         try {
+            // HACK - FirewallAccessErrorAvatar - Not using action.
+            // HACK - FirewallAccessErrorAvatar - Hard coded url.
             DesktopUtil.browse("http://thinkparity.com/help/topic/windows_xp_firewall");
-        } catch (final DesktopException dx) {
-            throw new BrowserException("Cannot open Learn More web page", dx);
+        } catch (final URISyntaxException urisx) {
+            throw new BrowserException("Cannot open Learn More web page", urisx);
+        } catch (final IOException iox) {
+            throw new BrowserException("Cannot open Learn More web page", iox);
         }
     }//GEN-LAST:event_learnMoreJLabelMousePressed
 

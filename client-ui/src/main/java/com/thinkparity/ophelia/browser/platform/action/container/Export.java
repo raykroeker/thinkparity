@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.platform.action.container;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 
 import com.thinkparity.codebase.FileUtil;
@@ -19,9 +20,7 @@ import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
-
-import org.jdesktop.jdic.desktop.DesktopException;
+import com.thinkparity.ophelia.browser.util.swing.DesktopUtil;
 
 /**
  * @author rob_masako@shaw.ca
@@ -104,8 +103,8 @@ public class Export extends AbstractBrowserAction {
     private void openExportRoot(final File exportRoot) {
         try {
             DesktopUtil.open(exportRoot);
-        } catch (final DesktopException dx) {
-            logger.logError(dx, "Cannot open file {0}.", exportRoot);
+        } catch (final IOException iox) {
+            logger.logError(iox, "Cannot open file {0}.", exportRoot);
         }
     }
 

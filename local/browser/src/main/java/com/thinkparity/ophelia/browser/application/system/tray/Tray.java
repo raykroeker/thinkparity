@@ -3,23 +3,25 @@
  */
 package com.thinkparity.ophelia.browser.application.system.tray;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.AWTException;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.profile.Profile;
 
-import com.thinkparity.ophelia.browser.Constants.Icons;
+import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.system.SystemApplication;
 
-import org.jdesktop.jdic.tray.SystemTray;
-import org.jdesktop.jdic.tray.TrayIcon;
-
-
 /**
- * @author raykroeker@gmail.com
- * @version 1.1
+ * <b>Title:</b>thinkParity Ophelia UI Application System Tray<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
 public final class Tray {
 
@@ -73,33 +75,27 @@ public final class Tray {
      * Install the system tray.
      * 
      */
-	public void install() {
-		systemTrayIcon = new TrayIcon(Icons.Tray.TRAY_ICON_OFFLINE);
-        systemTrayIcon.addBalloonActionListener(new ActionListener() {
-			public void actionPerformed(final ActionEvent e) {
+	public void install() throws AWTException {
+		systemTrayIcon = new TrayIcon(Images.Tray.TRAY_ICON_OFFLINE);
+		systemTrayIcon.addMouseListener(new MouseAdapter() {
+            /**
+             * @see java.awt.event.MouseAdapter#mousePressed(java.awt.event.MouseEvent)
+             *
+             */
+            @Override
+            public void mousePressed(final MouseEvent e) {
                 if(systemApplication.isBrowserRunning()) {
                     systemApplication.runIconify(Boolean.FALSE);
                     systemApplication.runMoveBrowserToFront();
                 } else {
                     systemApplication.runRestoreBrowser();
                 }
-			}
-		});
-		systemTrayIcon.addActionListener(new ActionListener() {
-			public void actionPerformed(final ActionEvent e) {
-                if(systemApplication.isBrowserRunning()) {
-                    systemApplication.runIconify(Boolean.FALSE);
-                    systemApplication.runMoveBrowserToFront();
-                } else {
-                    systemApplication.runRestoreBrowser();
-                }
-			}
-		});
+            }
+        });
         systemTrayIcon.setPopupMenu(menuBuilder.createPopup());
-		systemTrayIcon.setIconAutoSize(true);
 
-		systemTray  = SystemTray.getDefaultSystemTray();
-		systemTray.addTrayIcon(systemTrayIcon);
+		systemTray  = SystemTray.getSystemTray();
+		systemTray.add(systemTrayIcon);
 		isInstalled = Boolean.TRUE;
 
         setCaption();
@@ -108,7 +104,7 @@ public final class Tray {
 
     /** Uninstall the system tray. */
 	public void unInstall() {
-		systemTray.removeTrayIcon(systemTrayIcon);
+		systemTray.remove(systemTrayIcon);
 		systemTrayIcon = null;
 		systemTray = null;
 
@@ -156,7 +152,7 @@ public final class Tray {
      * 
      */
     private void setCaption() {
-        systemTrayIcon.setCaption(createCaption().toString());
+        systemTrayIcon.setToolTip(createCaption().toString());
     }
     
     /**
@@ -166,10 +162,10 @@ public final class Tray {
     private void setIcon() {
         switch (systemApplication.getConnection()) {
         case OFFLINE:
-            systemTrayIcon.setIcon(Icons.Tray.TRAY_ICON_OFFLINE);
+            systemTrayIcon.setImage(Images.Tray.TRAY_ICON_OFFLINE);
             break;
         case ONLINE:
-            systemTrayIcon.setIcon(Icons.Tray.TRAY_ICON_ONLINE);
+            systemTrayIcon.setImage(Images.Tray.TRAY_ICON_ONLINE);
             break;
         default:
             throw Assert.createUnreachable("Unknown connection.");

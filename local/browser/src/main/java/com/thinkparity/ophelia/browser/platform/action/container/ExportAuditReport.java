@@ -19,9 +19,7 @@ import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
-
-import org.jdesktop.jdic.desktop.DesktopException;
+import com.thinkparity.ophelia.browser.util.swing.DesktopUtil;
 
 /**
  * <b>Title:</b>thinkParity Ophelia UI Export Audit Report<br>
@@ -121,8 +119,8 @@ public final class ExportAuditReport extends AbstractBrowserAction {
     private void openAuditReport(final File file) {
         try {
             DesktopUtil.open(file);
-        } catch (final DesktopException dx) {
-            logger.logError(dx, "Cannot open file {0}.", file);
+        } catch (final IOException iox) {
+            logger.logError(iox, "Cannot open file {0}.", file);
         }
     }
 

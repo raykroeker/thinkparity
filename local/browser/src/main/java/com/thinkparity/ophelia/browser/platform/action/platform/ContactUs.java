@@ -4,6 +4,9 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.platform;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import com.thinkparity.codebase.model.util.http.Link;
 import com.thinkparity.codebase.model.util.http.LinkFactory;
 
@@ -12,9 +15,7 @@ import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
-
-import org.jdesktop.jdic.desktop.DesktopException;
+import com.thinkparity.ophelia.browser.util.swing.DesktopUtil;
 
 /**
  * @author rob_masako@shaw.ca
@@ -40,9 +41,12 @@ public class ContactUs extends AbstractAction {
     public void invoke(final Data data) {
         final Link contactUsLink = LinkFactory.getInstance().create(CONTACT_US_LINK);
         try {
+            // HACK - ContactUs - Not using action.
             DesktopUtil.browse(contactUsLink.toString());
-        } catch (final DesktopException dx) {
-            throw new BrowserException("Cannot open Contact Us web page", dx);
+        } catch (final URISyntaxException urisx) {
+            throw new BrowserException("Cannot open contact us web page.", urisx);
+        } catch (final IOException iox) {
+            throw new BrowserException("Cannot open contact us web page.", iox);
         }
     }
 }

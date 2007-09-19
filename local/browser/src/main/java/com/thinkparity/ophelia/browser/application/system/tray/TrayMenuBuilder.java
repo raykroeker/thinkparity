@@ -3,14 +3,12 @@
  */
 package com.thinkparity.ophelia.browser.application.system.tray;
 
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JPopupMenu;
-
-
-import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.system.SystemApplication;
 
 /**
@@ -22,16 +20,16 @@ import com.thinkparity.ophelia.browser.application.system.SystemApplication;
 class TrayMenuBuilder {
 
     /** The browser action. */
-    final Action browser;
+    final MenuItem browser;
 
     /** The display info action. */
-    final Action displayInfo;
+    final MenuItem displayInfo;
 
     /** The exit action. */
-    final Action exit;
+    final MenuItem exit;
 
     /** The restart action. */
-    final Action restart;
+    final MenuItem restart;
 
     /** System application. */
     private final SystemApplication application;
@@ -40,37 +38,58 @@ class TrayMenuBuilder {
     TrayMenuBuilder(final SystemApplication application) {
         super();
         this.application = application;
-        this.browser = new AbstractAction(getString("Menu.Browser")) {
-            private static final long serialVersionUID = 1;
+        this.browser = new MenuItem(getString("Menu.Browser"));
+        this.browser.addActionListener(new ActionListener() {
+            /**
+             * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+             *
+             */
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 application.runRestoreBrowser();
-            }};
-        this.browser.putValue(Action.MNEMONIC_KEY, Integer.valueOf(getString("Menu.BrowserMnemonic").charAt(0)));
+            }
+        });
+        this.browser.setFont(Fonts.DefaultFontBold);
 
-        this.displayInfo = new AbstractAction(getString("Menu.DisplayInfo")) {
-            private static final long serialVersionUID = 1;
+        this.displayInfo = new MenuItem(getString("Menu.DisplayInfo"));
+        this.displayInfo.addActionListener(new ActionListener() {
+            /**
+             * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+             *
+             */
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 application.displayInfo();
-            }};
-        this.displayInfo.putValue(Action.MNEMONIC_KEY, Integer.valueOf(getString("Menu.DisplayInfoMnemonic").charAt(0)));
+            }
+        });
 
         if(application.isDevelopmentMode()) {
-            this.restart = new AbstractAction(getString("Menu.Restart")) {
-                private static final long serialVersionUID = 1;
+            this.restart = new MenuItem(getString("Menu.Restart"));
+            this.restart.addActionListener(new ActionListener() {
+                /**
+                 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+                 *
+                 */
+                @Override
                 public void actionPerformed(final ActionEvent e) {
                     application.runRestartPlatform();
                 }
-            };
-            this.restart.putValue(Action.MNEMONIC_KEY, Integer.valueOf(getString("Menu.RestartMnemonic").charAt(0)));
+            });
+        } else {
+            this.restart = null;
         }
-        else { this.restart = null; }
 
-        this.exit = new AbstractAction(getString("Menu.Exit")) {
-            private static final long serialVersionUID = 1;
+        this.exit = new MenuItem(getString("Menu.Exit"));
+        this.exit.addActionListener(new ActionListener() {
+            /**
+             * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+             *
+             */
+            @Override
             public void actionPerformed(final ActionEvent e) {
                 application.runQuitPlatform();
-            }};
-        this.exit.putValue(Action.MNEMONIC_KEY, Integer.valueOf(getString("Menu.ExitMnemonic").charAt(0)));
+            }
+        });
     }
 
     /**
@@ -78,16 +97,17 @@ class TrayMenuBuilder {
      * 
      * @return The system tray popup menu.
      */
-    JPopupMenu createPopup() {
-        final JPopupMenu jPopupMenu = MenuFactory.createPopup();
-        jPopupMenu.add(browser);
+    PopupMenu createPopup() {
+        final PopupMenu popupMenu = new PopupMenu();
+        popupMenu.setFont(Fonts.DefaultFont);
+        popupMenu.add(browser);
         if (application.isDevelopmentMode()) {
-            jPopupMenu.add(restart);
+            popupMenu.add(restart);
         }
-        jPopupMenu.add(displayInfo);
-        jPopupMenu.addSeparator();
-        jPopupMenu.add(exit);
-        return jPopupMenu;
+        popupMenu.add(displayInfo);
+        popupMenu.addSeparator();
+        popupMenu.add(exit);
+        return popupMenu;
     }
 
     /**

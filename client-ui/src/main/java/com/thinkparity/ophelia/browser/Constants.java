@@ -60,12 +60,12 @@ public final class Constants {
             public static final class MainStatus {
                 public static final Color BG_GRAD_FINISH = new Color(183, 190, 196, 255);
                 public static final Color BG_GRAD_START = Color.WHITE;
+                public static final Color CLIENT_MAINTENANCE_MESSAGE_FOREGROUND = new Color(255, 96, 6, 255);
                 public static final Color CONNECTION_FOREGROUND_OFFLINE = new Color(255, 96, 6, 255);
                 public static final Color CONNECTION_FOREGROUND_ONLINE = Color.BLACK;
                 public static final Color MESSAGE_FOREGROUND = Color.BLACK;
                 public static final Color TOP_BORDER = new Color(130, 130, 130, 255);
                 public static final Color USER_NAME_FOREGROUND = Color.BLACK;
-                public static final Color CLIENT_MAINTENANCE_MESSAGE_FOREGROUND = new Color(255, 96, 6, 255);
             }
             public static final class MainTitle {
                 public static final Color BG_GRAD_FINISH = new Color(192, 197, 205, 255);
@@ -78,11 +78,13 @@ public final class Constants {
             }
             public static final class Panel {
                 public static final Color PANEL_ADDITIONAL_TEXT_FG = new Color(13, 65, 140, 255);
-                public static final Color PANEL_COLLAPSED_BORDER = new Color(212, 212, 212, 255);
                 public static final Color PANEL_COLLAPSED_BACKGROUND = new Color(234, 234, 234, 255);
+                public static final Color PANEL_COLLAPSED_BORDER = new Color(212, 212, 212, 255);
                 public static final Color PANEL_COLLAPSED_SELECTED_BACKGROUND = new Color(196, 198, 208, 255);
                 public static final Color PANEL_COLLAPSED_SELECTED_BORDER = Color.WHITE;
-                public static final Color PANEL_EXPANDED_BORDER = new Color(157, 143, 130, 255);
+                public static final Color PANEL_CONTACT_TEXT_FG = Color.BLACK;
+                public static final Color PANEL_CONTAINER_TEXT_FG = Color.BLACK;
+                public static final Color PANEL_DISABLED_TEXT_FG = new Color(100, 100, 100, 255);
                 public static final Color PANEL_EAST_SELECTION_BACKGROUND[] = new Color[] {
                     new Color(252, 239, 222, 255),
                     new Color(252, 233, 210, 255),
@@ -90,9 +92,7 @@ public final class Constants {
                     new Color(250, 222, 188, 255),
                     new Color(250, 218, 180, 255)
                 };
-                public static final Color PANEL_CONTACT_TEXT_FG = Color.BLACK;
-                public static final Color PANEL_CONTAINER_TEXT_FG = Color.BLACK;
-                public static final Color PANEL_DISABLED_TEXT_FG = new Color(100, 100, 100, 255);
+                public static final Color PANEL_EXPANDED_BORDER = new Color(157, 143, 130, 255);
             }
             public static final class ProgressBar {
                 public static final Color BORDER = new Color(115, 106, 96, 255);
@@ -106,14 +106,14 @@ public final class Constants {
                 public static final Color TEXT_MOUSEOVER = new Color(0, 0, 120, 255);
             }
             public static final class Window {
-                public static final Color BORDER_BOTTOM = new Color(206, 215, 226, 255);
-                public static final Color BORDER_BOTTOM_LEFT = new Color(206, 215, 226, 255); 
+                public static final Color ALPHA_PANEL_COLOR = new Color(239, 241, 242, 255);
+                public static final Color BORDER_BOTTOM = new Color(206, 215, 226, 255); 
+                public static final Color BORDER_BOTTOM_LEFT = new Color(206, 215, 226, 255);
                 public static final Color BORDER_BOTTOM_RIGHT= new Color(212, 220, 229, 255);
                 public static final Color BORDER_TOP = new Color(242, 245, 248, 255);
                 public static final Color BORDER_TOP_LEFT = new Color(239, 242, 247, 255);
                 public static final Color BORDER_TOP_RIGHT = new Color(242, 245, 248, 255);
                 public static final Color TITLE_BOTTOM_LINE = new Color(203, 213, 222, 255);
-                public static final Color ALPHA_PANEL_COLOR = new Color(239, 241, 242, 255);
             }
         }
         public static final class Swing {
@@ -222,12 +222,6 @@ public final class Constants {
             public static final Icon TAB_SELECTED =
                 ImageIOUtil.readIcon("BrowserTitle_TabSelected.png");
         }
-        public static final class Tray {
-            public static final Icon TRAY_ICON_OFFLINE =
-                ImageIOUtil.readIcon("ThinkParityGray16x16.png");
-            public static final Icon TRAY_ICON_ONLINE =
-                ImageIOUtil.readIcon("ThinkParity16x16.png");
-        }
         public static final class Swing {
             public static final Icon CHECK_BOX_MENU_ITEM_CHECK_ICON =
                 new ThinkParityCheckBoxMenuItemIcon();
@@ -235,6 +229,17 @@ public final class Constants {
     }
     public static final class Images {
         public static final BufferedImage WINDOW_ICON_IMAGE = ImageIOUtil.read("ThinkParity32x32.png");
+        public static final class Browser {
+            public static final class Window {
+                public static final Image WINDOW_TITLE;
+                static {
+                    final Rectangle bounds = SwingUtil.getPrimaryDesktopBounds();
+                    final BufferedImage buffer = ImageIOUtil.read("WindowTitle.png");
+                    WINDOW_TITLE = buffer.getScaledInstance(bounds.width,
+                            buffer.getHeight(), Image.SCALE_SMOOTH);
+                }
+            }
+        }
         public static final class BrowserTitle {
             public static final BufferedImage BROWSER_BOTTOM_LEFT_INNER =
                 ImageIOUtil.read("BrowserBottomLeftInner.png");
@@ -254,18 +259,6 @@ public final class Constants {
                 ImageIOUtil.read("BrowserTopRightOuter.png");
             public static final BufferedImage DIALOG_BACKGROUND =
                 ImageIOUtil.read("DialogBackground.png");
-            public static final BufferedImage SYSTEM_DIALOG_BOTTOM_LEFT_INNER =
-                ImageIOUtil.read("SystemDialogBottomLeft.png");
-            public static final BufferedImage SYSTEM_DIALOG_BOTTOM_RIGHT_INNER =
-                ImageIOUtil.read("SystemDialogBottomRight.png");
-            public static final BufferedImage SYSTEM_DIALOG_TOP_LEFT_INNER =
-                ImageIOUtil.read("SystemDialogTopLeft.png");
-            public static final BufferedImage SYSTEM_DIALOG_TOP_RIGHT_INNER =
-                ImageIOUtil.read("SystemDialogTopRight.png");
-            public static final BufferedImage SYSTEM_DIALOG_NO_TITLE_TOP_LEFT_INNER =
-                ImageIOUtil.read("BrowserTopLeftInner.png"); // same as browser top left inner
-            public static final BufferedImage SYSTEM_DIALOG_NO_TITLE_TOP_RIGHT_INNER =
-                ImageIOUtil.read("BrowserTopRightInner.png"); // same as browser top right inner
             public static final BufferedImage DIALOG_TOP_LEFT =
                 ImageIOUtil.read("DialogTopLeft.png");
             public static final BufferedImage DIALOG_TOP_RIGHT =
@@ -278,17 +271,24 @@ public final class Constants {
                 ImageIOUtil.read("thinkParityLogoLarge.png");
             public static final BufferedImage SEARCH_BACKGROUND =
                 ImageIOUtil.read("BrowserTitle_SearchBackground.png");
+            public static final BufferedImage SYSTEM_DIALOG_BOTTOM_LEFT_INNER =
+                ImageIOUtil.read("SystemDialogBottomLeft.png");
+            public static final BufferedImage SYSTEM_DIALOG_BOTTOM_RIGHT_INNER =
+                ImageIOUtil.read("SystemDialogBottomRight.png");
+            public static final BufferedImage SYSTEM_DIALOG_NO_TITLE_TOP_LEFT_INNER =
+                ImageIOUtil.read("BrowserTopLeftInner.png"); // same as browser top left inner
+            public static final BufferedImage SYSTEM_DIALOG_NO_TITLE_TOP_RIGHT_INNER =
+                ImageIOUtil.read("BrowserTopRightInner.png"); // same as browser top right inner
+            public static final BufferedImage SYSTEM_DIALOG_TOP_LEFT_INNER =
+                ImageIOUtil.read("SystemDialogTopLeft.png");
+            public static final BufferedImage SYSTEM_DIALOG_TOP_RIGHT_INNER =
+                ImageIOUtil.read("SystemDialogTopRight.png");
         }
-        public static final class Browser {
-            public static final class Window {
-                public static final Image WINDOW_TITLE;
-                static {
-                    final Rectangle bounds = SwingUtil.getPrimaryDesktopBounds();
-                    final BufferedImage buffer = ImageIOUtil.read("WindowTitle.png");
-                    WINDOW_TITLE = buffer.getScaledInstance(bounds.width,
-                            buffer.getHeight(), Image.SCALE_SMOOTH);
-                }
-            }
+        public static final class Tray {
+            public static final Image TRAY_ICON_OFFLINE =
+                ImageIOUtil.read("ThinkParityGray16x16.png");
+            public static final Image TRAY_ICON_ONLINE =
+                ImageIOUtil.read("ThinkParity16x16.png");
         }
     }
     public static final class InsetFactors {
@@ -346,8 +346,8 @@ public final class Constants {
     }
 
     public static final class Sundry {
-        public static final String FIREWALL_RULE_NAME = "thinkParity(TM) Platform";
         public static final Float ALPHA_PANEL_ALPHA = 0.30F;
+        public static final String FIREWALL_RULE_NAME = "thinkParity(TM) Platform";
     }
 
     public static final class WindowUtil {

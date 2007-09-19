@@ -4,6 +4,9 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.help;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import com.thinkparity.ophelia.model.help.HelpTopicMovie;
 
 import com.thinkparity.ophelia.browser.BrowserException;
@@ -11,9 +14,7 @@ import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
-
-import org.jdesktop.jdic.desktop.DesktopException;
+import com.thinkparity.ophelia.browser.util.swing.DesktopUtil;
 
 /**
  * @author rob_masako@shaw.ca
@@ -38,9 +39,12 @@ public class ShowMovie extends AbstractBrowserAction  {
     public void invoke(final Data data) {
         final HelpTopicMovie movie = (HelpTopicMovie) data.get(DataKey.MOVIE);
         try {
+            // HACK - ShowMovie - Not using action.
             DesktopUtil.browse(movie.getURL());
-        } catch (final DesktopException dx) {
-            throw new BrowserException("Cannot show movie.", dx);
+        } catch (final URISyntaxException urisx) {
+            throw new BrowserException("Cannot show movie.", urisx);
+        } catch (final IOException iox) {
+            throw new BrowserException("Cannot show movie.", iox);
         }
     }
 

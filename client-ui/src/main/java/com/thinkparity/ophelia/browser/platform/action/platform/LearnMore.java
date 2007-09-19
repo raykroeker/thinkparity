@@ -4,6 +4,9 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.platform;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.util.http.Link;
@@ -14,9 +17,7 @@ import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.util.jdic.DesktopUtil;
-
-import org.jdesktop.jdic.desktop.DesktopException;
+import com.thinkparity.ophelia.browser.util.swing.DesktopUtil;
 
 /**
  * @author rob_masako@shaw.ca
@@ -84,9 +85,12 @@ public class LearnMore extends AbstractAction {
     private void browse(final String topicLink) {
         final Link learnMoreLink = LinkFactory.getInstance().create(topicLink);
         try {
+            // HACK - LearnMore - Not using action.
             DesktopUtil.browse(learnMoreLink.toString());
-        } catch (final DesktopException dx) {
-            throw new BrowserException("Cannot open Learn More web page", dx);
+        } catch (final URISyntaxException urisx) {
+            throw new BrowserException("Cannot open learn more web page.", urisx);
+        } catch (final IOException iox) {
+            throw new BrowserException("Cannot open learn more web page.", iox);
         }
     }
 

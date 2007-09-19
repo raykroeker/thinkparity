@@ -177,7 +177,7 @@ final class NotificationServer {
     void send(final User user) {
         final ServerNotificationSession session = getSession(user);
         if (null == session) {
-            logger.logWarning("Session for user {0} has been disconnected.",
+            logger.logWarning("Session for user {0} does not exist.",
                     user.getUsername());
         } else {
             final NotificationSocketDelegate delegate = session.getDelegate();

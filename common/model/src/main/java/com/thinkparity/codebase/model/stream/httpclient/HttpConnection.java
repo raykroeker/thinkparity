@@ -220,6 +220,7 @@ public class HttpConnection extends
              * done */
             address = new NetworkAddress(getHost(), getPort());
             network.getConfiguration().setAddressCacheTTL(address, 1);
+            network.getConfiguration().setSoTimeout(address, 7 * 1000);
         }
         return address;
     }

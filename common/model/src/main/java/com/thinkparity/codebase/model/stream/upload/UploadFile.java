@@ -130,6 +130,15 @@ public final class UploadFile {
                     return Boolean.FALSE;
                 }
             }
+
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamRetryHandler#period()
+             *
+             */
+            @Override
+            public Long waitPeriod() {
+                return RETRY_PERIOD;
+            }
         };
     }
 
@@ -185,14 +194,14 @@ public final class UploadFile {
             } catch (final StreamException sx) {
                 LOGGER.logWarning("Could not upload target.  {0}", sx.getMessage());
                 if (retry(sx)) {
-                    waitBeforeRetry();
+                    waitBeforeRetry(sx);
                 } else {
                     throw sx;
                 }
             } catch (final NetworkException nx) {
                 LOGGER.logWarning("Could not upload target.  {0}", nx.getMessage());
                 if (retry(nx)) {
-                    waitBeforeRetry();
+                    waitBeforeRetry(nx);
                 } else {
                     throw nx;
                 }
@@ -274,12 +283,31 @@ public final class UploadFile {
     }
 
     /**
-     * Wait a pre-determined duration before attempting a retry.
+     * Wait a pre-determined duration before attempting a retry after a network
+     * error.
      * 
+     * @param nx
+     *            A <code>NetworkException</code>.
      */
-    private void waitBeforeRetry() {
+    private void waitBeforeRetry(final NetworkException nx) {
         try {
-            Thread.sleep(RETRY_PERIOD);
+            Thread.sleep(networkRetryHandler.waitPeriod());
+        } catch (final InterruptedException ix) {
+            LOGGER.logWarning("Upload file retry interruped.  {0}",
+                    ix.getMessage());
+        }
+    }
+
+    /**
+     * Wait a pre-determined duration before attempting a retry after a stream
+     * error.
+     * 
+     * @param sx
+     *            A <code>StreamException</code>.
+     */
+    private void waitBeforeRetry(final StreamException sx) {
+        try {
+            Thread.sleep(streamRetryHandler.waitPeriod());
         } catch (final InterruptedException ix) {
             LOGGER.logWarning("Upload file retry interruped.  {0}",
                     ix.getMessage());

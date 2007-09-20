@@ -24,6 +24,14 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 public class DefaultRetryHandler implements ServiceRetryHandler,
         StreamRetryHandler {
 
+    /** A the retry wait period. */
+    private static final Long PERIOD;
+
+    static {
+        // PERIOD - DefaultRetryHandler#<cinit> - Retry - 1s
+        PERIOD = Long.valueOf(1L * 1000L);
+    }
+
     /** A model factory. */
     private final ModelFactory modelFactory;
 
@@ -64,6 +72,15 @@ public class DefaultRetryHandler implements ServiceRetryHandler,
                 throw Assert.createUnreachable("Unknown offline code.");
             }
         }
+    }
+
+    /**
+     * @see com.thinkparity.codebase.model.stream.StreamRetryHandler#period()
+     *
+     */
+    @Override
+    public Long waitPeriod() {
+        return PERIOD;
     }
 
     /**

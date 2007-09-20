@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.util.service;
 
+import com.thinkparity.codebase.RetryHandler;
+
 /**
  * <b>Title:</b>thinkParity Ophelia Model Service Client Retry Handler<br>
  * <b>Description:</b><br>
@@ -10,12 +12,4 @@ package com.thinkparity.ophelia.model.util.service;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public interface ServiceRetryHandler {
-
-    /**
-     * Determine service should be retried.
-     * 
-     * @return True if the service call should be retried.
-     */
-    Boolean retry();
-}
+public interface ServiceRetryHandler extends RetryHandler {}

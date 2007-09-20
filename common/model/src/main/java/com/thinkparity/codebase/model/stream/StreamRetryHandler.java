@@ -3,6 +3,8 @@
  */
 package com.thinkparity.codebase.model.stream;
 
+import com.thinkparity.codebase.RetryHandler;
+
 /**
  * <b>Title:</b>thinkParity Common Model Stream Retry Handler<br>
  * <b>Description:</b><br>
@@ -10,13 +12,4 @@ package com.thinkparity.codebase.model.stream;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public interface StreamRetryHandler {
-
-    /**
-     * Determine whether or not an attempt should be made to retry a stream
-     * upload/download.
-     * 
-     * @return True if a retry should be attempted.
-     */
-    Boolean retry();
-}
+public interface StreamRetryHandler extends RetryHandler {}

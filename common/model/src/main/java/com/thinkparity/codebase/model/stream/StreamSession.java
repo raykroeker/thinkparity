@@ -22,9 +22,6 @@ public final class StreamSession {
     /** The http headers. */
     private final Map<String, String> headers;
 
-    /** The http port. */
-    private Integer port;
-
     /** Number of times to retry upon failure. */
     private Integer retryAttempts;
 
@@ -56,15 +53,6 @@ public final class StreamSession {
      */
     public Map<String, String> getHeaders() {
         return headers;
-    }
-
-    /**
-     * Obtain port.
-     *
-     * @return A Integer.
-     */
-    public Integer getPort() {
-        return port;
     }
 
     /**
@@ -104,16 +92,6 @@ public final class StreamSession {
     public void setHeaders(final Map<String, String> headers) {
         this.headers.clear();
         this.headers.putAll(headers);
-    }
-
-    /**
-     * Set port.
-     *
-     * @param port
-     *		A Integer.
-     */
-    public void setPort(final Integer port) {
-        this.port = port;
     }
 
     /**

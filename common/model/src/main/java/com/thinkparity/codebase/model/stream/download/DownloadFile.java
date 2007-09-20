@@ -44,7 +44,7 @@ public final class DownloadFile implements Cancelable {
     private static final Log4JWrapper LOGGER;
 
     /** The duration to wait between retry attempts. */
-    private static final long RETRY_PERIOD;
+    private static final Long RETRY_PERIOD;
 
     static {
         BYTES_FORMAT = new BytesFormat();
@@ -74,8 +74,9 @@ public final class DownloadFile implements Cancelable {
             }
         };
         LOGGER = new Log4JWrapper(DownloadFile.class);
-        RETRY_PERIOD = 1 * 1000;
+        RETRY_PERIOD = Long.valueOf(1L * 1000L);
     }
+
     /** The invocation count. */
     private int invocation;
 
@@ -136,6 +137,15 @@ public final class DownloadFile implements Cancelable {
                 } else {
                     return Boolean.FALSE;
                 }
+            }
+
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamRetryHandler#period()
+             *
+             */
+            @Override
+            public Long waitPeriod() {
+                return RETRY_PERIOD;
             }
         };
     }
@@ -207,7 +217,7 @@ public final class DownloadFile implements Cancelable {
                     Assert.assertTrue(target.createNewFile(),
                             "Could not delete download target {0}.", target);
                     if (retry(sx)) {
-                        waitBeforeRetry();
+                        waitBeforeRetry(sx);
                     } else {
                         throw sx;
                     }
@@ -218,7 +228,7 @@ public final class DownloadFile implements Cancelable {
                     Assert.assertTrue(target.createNewFile(),
                             "Could not delete download target {0}.", target);
                     if (retry(nx)) {
-                        waitBeforeRetry();
+                        waitBeforeRetry(nx);
                     } else {
                         throw nx;
                     }
@@ -312,14 +322,33 @@ public final class DownloadFile implements Cancelable {
     }
 
     /**
-     * Wait a pre-determined duration before attempting a retry.
+     * Wait a pre-determined duration before attempting a retry after a network
+     * error.
      * 
+     * @param nx
+     *            A <code>NetworkException</code>.
      */
-    private void waitBeforeRetry() {
+    private void waitBeforeRetry(final NetworkException nx) {
         try {
-            Thread.sleep(RETRY_PERIOD);
+            Thread.sleep(networkRetryHandler.waitPeriod());
         } catch (final InterruptedException ix) {
-            LOGGER.logWarning("Download file retry interruped.  {0}",
+            LOGGER.logWarning("Upload file retry interruped.  {0}",
+                    ix.getMessage());
+        }
+    }
+
+    /**
+     * Wait a pre-determined duration before attempting a retry after a stream
+     * error.
+     * 
+     * @param sx
+     *            A <code>StreamException</code>.
+     */
+    private void waitBeforeRetry(final StreamException sx) {
+        try {
+            Thread.sleep(streamRetryHandler.waitPeriod());
+        } catch (final InterruptedException ix) {
+            LOGGER.logWarning("Upload file retry interruped.  {0}",
                     ix.getMessage());
         }
     }

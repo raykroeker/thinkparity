@@ -18,6 +18,14 @@ import com.thinkparity.ophelia.model.util.service.ServiceRetryHandler;
 public final class FiniteRetryHandler implements ServiceRetryHandler,
         StreamRetryHandler {
 
+    /** A retry wait period. */
+    private static final Long PERIOD;
+
+    static {
+        // PERIOD - FiniteRetryHandler#<cinit> - Retry - 1s
+        PERIOD = Long.valueOf(1L * 1000L);
+    }
+
     /** The current attempt. */
     private int retryAttempt;
 
@@ -45,5 +53,14 @@ public final class FiniteRetryHandler implements ServiceRetryHandler,
         } else {
             return Boolean.FALSE;
         }
+    }
+
+    /**
+     * @see com.thinkparity.codebase.model.stream.StreamRetryHandler#period()
+     *
+     */
+    @Override
+    public Long waitPeriod() {
+        return PERIOD;
     }
 }

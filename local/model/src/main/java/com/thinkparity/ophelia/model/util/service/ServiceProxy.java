@@ -22,13 +22,6 @@ import com.thinkparity.network.NetworkException;
  */
 public final class ServiceProxy implements InvocationHandler {
 
-    /** The duration to wait between retry attempts. */
-    private static final long RETRY_PERIOD;
-
-    static {
-        RETRY_PERIOD = 1 * 1000;
-    }
-
     /** An invocation id. */
     private final String id;
 
@@ -81,12 +74,7 @@ public final class ServiceProxy implements InvocationHandler {
                             "{0}:{1} - Service proxy invocation has encountered a network error.  {2}",
                             id, invocation, nx.getMessage());
                     if (retry()) {
-                        try {
-                            Thread.sleep(RETRY_PERIOD);
-                        } catch (final InterruptedException ix) {
-                            logger.logWarning("{0}:{1} - Service proxy retry interruped.  {2}",
-                                    id, invocation, ix.getMessage());
-                        }
+                        waitBeforeRetry();
                     } else {
                         throw nx;
                     }
@@ -108,5 +96,18 @@ public final class ServiceProxy implements InvocationHandler {
      */
     private boolean retry() {
         return retryHandler.retry().booleanValue();
+    }
+
+    /**
+     * Wait for a period before attemting a retry.
+     * 
+     */
+    private void waitBeforeRetry() {
+        try {
+            Thread.sleep(retryHandler.waitPeriod());
+        } catch (final InterruptedException ix) {
+            logger.logWarning("{0}:{1} - Service proxy retry interruped.  {2}",
+                    id, invocation, ix.getMessage());
+        }
     }
 }

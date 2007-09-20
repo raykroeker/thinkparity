@@ -4,12 +4,15 @@
  * Created on December 6, 2006, 10:09 AM
  */
 
-package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact;
+package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
 
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import com.thinkparity.codebase.assertion.Assert;
+
+import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -17,7 +20,6 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
-import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.contact.UserInfoProvider;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
@@ -29,7 +31,7 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class UserInfoAvatar extends Avatar {
+public final class TeamMemberInfoAvatar extends Avatar {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JTextField companyJTextField = new javax.swing.JTextField();
@@ -42,14 +44,14 @@ public final class UserInfoAvatar extends Avatar {
      * Create UserInfoAvatar.
      * 
      */
-    public UserInfoAvatar() {
+    public TeamMemberInfoAvatar() {
         super("UserInfoAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
         bindKeys();
     }
 
     public AvatarId getId() {
-        return AvatarId.DIALOG_CONTACT_INFO;
+        return AvatarId.DIALOG_CONTAINER_TEAM_MEMBER_INFO;
     }
 
     public State getState() {
@@ -58,11 +60,19 @@ public final class UserInfoAvatar extends Avatar {
 
     public void reload() {
         if (input != null) {
-            final User inputUser = getInputUser();
-            reloadInvite(inputUser);
-            nameJTextField.setText(inputUser.getName());
-            companyJTextField.setText(inputUser.getOrganization());
-            titleJTextField.setText(inputUser.getTitle());
+            final User user;
+            if (isSetInputUser()) {
+                user = getInputUser();
+            } else if (isSetInputContact()) {
+                user = getInputContact();
+            } else {
+                throw Assert.createUnreachable(
+                        "Either contact or user must be set.");
+            }
+            reloadInvite();
+            nameJTextField.setText(user.getName());
+            companyJTextField.setText(user.getOrganization());
+            titleJTextField.setText(user.getTitle());
             nameJTextField.setCaretPosition(0);
             companyJTextField.setCaretPosition(0);
             titleJTextField.setCaretPosition(0);
@@ -93,25 +103,12 @@ public final class UserInfoAvatar extends Avatar {
     }//GEN-LAST:event_closeJButtonActionPerformed
 
     /**
-     * Determine if the specified user is a contact.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @return True if the specified user is a contact; false otherwise.
+     * Obtain the input contact.
+     *
+     * @return A <code>Contact</code>.
      */
-    private boolean doesExistContact(final User user) {
-        return ((UserInfoProvider)contentProvider).readDoesExistContact(user.getLocalId()).booleanValue();
-    }
-
-    /**
-     * Determine if the specified user is an outgoing user invitation.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @return True if the specified user is an outgoing user invitation; false otherwise.
-     */
-    private boolean doesExistOutgoingUserInvitation(final User user) {
-        return ((UserInfoProvider)contentProvider).readDoesExistOutgoingUserInvitationForUser(user.getLocalId()).booleanValue();
+    private Contact getInputContact() {
+        return null == input ? null : (Contact) ((Data) input).get(DataKey.CONTACT);
     }
 
     /**
@@ -120,11 +117,34 @@ public final class UserInfoAvatar extends Avatar {
      * @return A <code>User</code>.
      */
     private User getInputUser() {
-        if (input != null) {
-            return (User) ((Data) input).get(DataKey.USER);
-        } else {
-            return null;
-        }
+        return null == input ? null : (User) ((Data) input).get(DataKey.USER);
+    }
+
+    /**
+     * Obtain the input user allow invite.
+     * 
+     * @return A <code>Boolean</code>.
+     */
+    private Boolean getInputUserAllowInvite() {
+        return null == input ? null : (Boolean) ((Data) input).get(DataKey.USER_ALLOW_INVITE);
+    }
+
+    /**
+     * Determine if the input user is set.
+     * 
+     * @return True if the user is set.
+     */
+    private boolean isSetInputContact() {
+        return null == input ? false : ((Data) input).isSet(DataKey.CONTACT);
+    }
+
+    /**
+     * Determine if the input user is set.
+     * 
+     * @return True if the user is set.
+     */
+    private boolean isSetInputUser() {
+        return null == input ? false : ((Data) input).isSet(DataKey.USER);
     }
 
     /** This method is called from within the constructor to
@@ -228,17 +248,6 @@ public final class UserInfoAvatar extends Avatar {
     }//GEN-LAST:event_inviteJLabelMousePressed
 
     /**
-     * Determine whether or not the invite user interface is enabled.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @return True if the invite user interface is enabled.
-     */
-    private Boolean isInviteAvailable(final User user) {
-        return ((UserInfoProvider)contentProvider).readIsInviteAvailable(user);
-    }
-
-    /**
      * Determine if we are online.
      * 
      * @return True if we are online.
@@ -248,16 +257,19 @@ public final class UserInfoAvatar extends Avatar {
     }
 
     /**
-     * Set the invite link visible or not as appropriate.
+     * Set the invite link visible or not as appropriate. The link is visible if
+     * the contact input is not set; and the user is allowed to invite other
+     * users.
      * 
-     * @param user
-     *            The <code>User</code>.
      */
-    private void reloadInvite(final User user) {
-        inviteJLabel.setVisible(isOnline() && !doesExistContact(user)
-                && !doesExistOutgoingUserInvitation(user)
-                && isInviteAvailable(user));
+    private void reloadInvite() {
+        boolean visible = false;
+        final Contact contact = getInputContact();
+        if (null == contact) {
+            visible = getInputUserAllowInvite().booleanValue();
+        }
+        inviteJLabel.setVisible(isOnline() && visible);
     }
 
-    public enum DataKey { USER }
+    public enum DataKey { CONTACT, USER, USER_ALLOW_INVITE }
 }

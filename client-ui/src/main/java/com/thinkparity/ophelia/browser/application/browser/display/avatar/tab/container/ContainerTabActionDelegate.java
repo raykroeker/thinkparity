@@ -20,7 +20,6 @@ import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
@@ -71,8 +70,8 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
     /** The profile update <code>AbstractAction</code>. */
     private final ActionInvocation profileUpdate;
 
-    /** The user <code>AbstractAction</code>. */
-    private final ActionInvocation userRead;
+    /** The read team member action. */
+    private final ActionInvocation teamMemberRead;
 
     /** A <code>ContainerVersion</code> <code>AbstractAction</code>. */
     private final ActionInvocation versionRead;
@@ -95,7 +94,7 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
         this.documentOpenDraft = getInstance(ActionId.DOCUMENT_OPEN);
         this.documentOpenVersion = getInstance(ActionId.DOCUMENT_OPEN_VERSION);
         this.profileUpdate = getInstance(ActionId.PROFILE_UPDATE);
-        this.userRead = getInstance(ActionId.CONTACT_READ);
+        this.teamMemberRead = getInstance(ActionId.CONTAINER_READ_TEAM_MEMBER);
         this.versionRead = getInstance(ActionId.CONTAINER_READ_VERSION);
     }
 
@@ -200,8 +199,8 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
             invoke(profileUpdate, getApplication(), data);
         } else {
             final Data data = new Data(1);
-            data.set(Read.DataKey.CONTACT_ID, user.getLocalId());
-            invoke(userRead, getApplication(), data);
+            data.set(ReadTeamMember.DataKey.USER_ID, user.getLocalId());
+            invoke(teamMemberRead, getApplication(), data);
         }
     }
 

@@ -38,13 +38,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTi
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ConfirmAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.FileChooserAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.StatusAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.UserInfoAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ContainerVersionCommentAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameContainerAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameDocumentAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.UpdateDraftCommentAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.*;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
@@ -285,6 +279,36 @@ public class Browser extends AbstractApplication {
      */
     public void displayContainerTabAvatar() {
         displayTab(AvatarId.TAB_CONTAINER);
+    }
+
+    /**
+     * Display the team member info avatar for a contact.
+     * 
+     * @param contact
+     *            A <code>Contact</code>.
+     */
+    public void displayContainerTeamMemberInfoAvatar(final Contact contact) {
+        final Data input = new Data(1);
+        input.set(TeamMemberInfoAvatar.DataKey.CONTACT, contact);
+        setInput(AvatarId.DIALOG_CONTAINER_TEAM_MEMBER_INFO, input);
+        displayAvatar(AvatarId.DIALOG_CONTAINER_TEAM_MEMBER_INFO);        
+    }
+
+    /**
+     * Display the team member info avatar for a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param allowInvite
+     *            A <code>Boolean</code>.
+     */
+    public void displayContainerTeamMemberInfoAvatar(final User user,
+            final Boolean allowInvite) {
+        final Data input = new Data(2);
+        input.set(TeamMemberInfoAvatar.DataKey.USER, user);
+        input.set(TeamMemberInfoAvatar.DataKey.USER_ALLOW_INVITE, allowInvite);
+        setInput(AvatarId.DIALOG_CONTAINER_TEAM_MEMBER_INFO, input);
+        displayAvatar(AvatarId.DIALOG_CONTAINER_TEAM_MEMBER_INFO);        
     }
 
     /**
@@ -584,19 +608,6 @@ public class Browser extends AbstractApplication {
      */
     public void displayUpgradeAccountDialog() {
         displayAvatar(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT);
-    }
-
-    /**
-     * Display the contact info dialogue.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     */
-    public void displayUserInfoAvatar(final User user) {
-        final Data input = new Data(1);
-        input.set(UserInfoAvatar.DataKey.USER, user);
-        setInput(AvatarId.DIALOG_CONTACT_INFO, input);
-        displayAvatar(AvatarId.DIALOG_CONTACT_INFO);        
     }
 
     /**

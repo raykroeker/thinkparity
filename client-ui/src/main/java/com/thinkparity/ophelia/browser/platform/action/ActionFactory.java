@@ -125,9 +125,6 @@ public class ActionFactory extends AbstractFactory {
         case CONTACT_EXPAND:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.Expand(getBrowser());
             break;
-		case CONTACT_READ:
-            action = new com.thinkparity.ophelia.browser.platform.action.contact.Read(getBrowser());
-            break;
         case CONTACT_SHOW:
             action = new com.thinkparity.ophelia.browser.platform.action.contact.Show(getBrowser());
             break;
@@ -170,6 +167,9 @@ public class ActionFactory extends AbstractFactory {
             break;
         case CONTAINER_EXPORT_AUDIT_REPORT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.ExportAuditReport(getBrowser());
+            break;
+        case CONTAINER_READ_TEAM_MEMBER:
+            action = new com.thinkparity.ophelia.browser.platform.action.container.ReadTeamMember(getBrowser());
             break;
         case CONTAINER_PRINT_DRAFT:
             action = new com.thinkparity.ophelia.browser.platform.action.container.PrintDraft(getBrowser());

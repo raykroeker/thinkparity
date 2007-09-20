@@ -35,7 +35,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingUserInvitation;
-import com.thinkparity.ophelia.browser.platform.action.contact.Read;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
@@ -391,8 +390,8 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             add(ActionId.PROFILE_UPDATE, data);
         } else {
             final Data data = new Data(1);
-            data.set(Read.DataKey.CONTACT_ID, user.getLocalId());
-            add(ActionId.CONTACT_READ, data);
+            data.set(ReadTeamMember.DataKey.USER_ID, user.getLocalId());
+            add(ActionId.CONTAINER_READ_TEAM_MEMBER, data);
         }
 
         show();

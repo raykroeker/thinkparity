@@ -12,13 +12,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ShowLicenseAgreementAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.StatusAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.backup.RestoreBackupAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.UserInfoAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.ContainerVersionCommentAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.CreateContainerAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.PublishContainerAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameContainerAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.RenameDocumentAvatar;
-import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.UpdateDraftCommentAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.*;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.*;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabAvatar;
@@ -164,11 +158,6 @@ public final class AvatarFactory {
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
 
-        case DIALOG_CONTACT_INFO:
-            avatar = newAvatar(UserInfoAvatar.class);
-            avatar.setContentProvider(ProviderFactory.getProvider(id));
-            break;
-
         case DIALOG_CONTAINER_CREATE:
             avatar = newAvatar(CreateContainerAvatar.class);
             break;
@@ -182,6 +171,9 @@ public final class AvatarFactory {
         case DIALOG_CONTAINER_RENAME_DOCUMENT:
             avatar = newAvatar(RenameDocumentAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
+        case DIALOG_CONTAINER_TEAM_MEMBER_INFO:
+            avatar = newAvatar(TeamMemberInfoAvatar.class);
             break;
         case DIALOG_CONTAINER_UPDATE_DRAFT_COMMENT:
             avatar = newAvatar(UpdateDraftCommentAvatar.class);

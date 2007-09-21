@@ -153,8 +153,7 @@ class SecureNetworkSocket extends SSLSocket  {
      */
     @Override
     public InputStream getInputStream() throws IOException {
-        // NOCOMMIT
-        // return new NetworkInputStream(connectionId, delegate.getInputStream());
+        // TODO - SecureNetworkSocket#getInputStream() - Wrap with a counting stream.
         return delegate.getInputStream();
     }
 
@@ -218,8 +217,7 @@ class SecureNetworkSocket extends SSLSocket  {
      */
     @Override
     public OutputStream getOutputStream() throws IOException {
-        // NOCOMMIT
-        // return new NetworkOutputStream(connectionId, delegate.getOutputStream());
+        // TODO - SecureNetworkSocket#getOutputStream() - Wrap with a counting stream.
         return delegate.getOutputStream();
     }
 

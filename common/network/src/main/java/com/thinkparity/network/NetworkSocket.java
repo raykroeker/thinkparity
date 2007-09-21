@@ -49,8 +49,7 @@ class NetworkSocket extends Socket {
      */
     @Override
     public InputStream getInputStream() throws IOException {
-        // NOCOMMIT
-        // return new NetworkInputStream(connectionId, super.getInputStream());
+        // TODO - NetworkSocket#getInputStream() - Wrap with a counting stream.
         return super.getInputStream();
     }
 
@@ -60,8 +59,7 @@ class NetworkSocket extends Socket {
      */
     @Override
     public OutputStream getOutputStream() throws IOException {
-        // NOCOMMIT
-        // return new NetworkOutputStream(connectionId, super.getOutputStream());
+        // TODO - NetworkSocket#getOutputStream() - Wrap with a counting stream.
         return super.getOutputStream();
     }
 }

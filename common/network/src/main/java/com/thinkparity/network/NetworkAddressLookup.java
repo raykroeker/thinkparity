@@ -98,15 +98,18 @@ class NetworkAddressLookup {
                  */
                 @Override
                 public void run() {
-                    final CacheValue value = new CacheValue();
-                    value.address = new InetSocketAddress(address.getHost(),
-                            address.getPort());
-                    value.timeout = System.currentTimeMillis()
-                            + getCacheTTL(address);
-
-                    RESOLVED.put(this, value.address);
-                    CACHE.put(address, value);
-                    RESOLVE_THREADS.remove(address);
+                    try {
+                        final CacheValue value = new CacheValue();
+                        value.address = new InetSocketAddress(address.getHost(),
+                                address.getPort());
+                        value.timeout = System.currentTimeMillis()
+                                + getCacheTTL(address);
+    
+                        RESOLVED.put(this, value.address);
+                        CACHE.put(address, value);
+                    } finally {
+                        RESOLVE_THREADS.remove(address);
+                    }
                     synchronized (this) {
                         notifyAll();
                     }

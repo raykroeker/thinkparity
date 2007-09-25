@@ -200,8 +200,6 @@ public final class Ticket1028Test extends TicketTestCase {
      * 
      */
     private void verify() {
-        final List<EMail> emails = new ArrayList<EMail>();
-
         final List<PublishedToEMail> firstVersionPublishedToEMails =
             datum.getBackupModel(datum.publishAs).readPublishedToEMails(
                     datum.firstVersion.getArtifactUniqueId(),
@@ -209,11 +207,12 @@ public final class Ticket1028Test extends TicketTestCase {
         assertNotNull("First version published to e-mail list is null.", firstVersionPublishedToEMails);
         assertFalse("First version published to e-mail list is invalid.", firstVersionPublishedToEMails.isEmpty());
 
+        final List<EMail> firstEMails = new ArrayList<EMail>();
         for (final PublishedToEMail publishedToEMail : firstVersionPublishedToEMails) {
-            if (emails.contains(publishedToEMail.getEMail())) {
+            if (firstEMails.contains(publishedToEMail.getEMail())) {
                 fail("Published to e-mail list contains duplicate e-mail.");
             } else {
-                emails.add(publishedToEMail.getEMail());
+                firstEMails.add(publishedToEMail.getEMail());
             }
 
             if (datum.firstVersionPublishedTo.contains(publishedToEMail.getEMail())) {
@@ -223,6 +222,18 @@ public final class Ticket1028Test extends TicketTestCase {
             }
         }
 
+        boolean found;
+        for (final EMail email : datum.firstVersionPublishedTo) {
+            found = false;
+            for (final PublishedToEMail publishedToEMail : firstVersionPublishedToEMails) {
+                if (publishedToEMail.getEMail().equals(email)) {
+                    found = true;
+                    break;
+                }
+            }
+            assertTrue("Could not find e-mail " + email + " in first version published to e-mail list.", found);
+        }
+
         final List<PublishedToEMail> secondVersionPublishedToEMails =
             datum.getBackupModel(datum.publishAs).readPublishedToEMails(
                     datum.secondVersion.getArtifactUniqueId(),
@@ -230,11 +241,12 @@ public final class Ticket1028Test extends TicketTestCase {
         assertNotNull("Second version published to e-mail list is null.", secondVersionPublishedToEMails);
         assertFalse("Second version published to e-mail list is invalid.", secondVersionPublishedToEMails.isEmpty());
 
+        final List<EMail> secondEMails = new ArrayList<EMail>();
         for (final PublishedToEMail publishedToEMail : secondVersionPublishedToEMails) {
-            if (emails.contains(publishedToEMail.getEMail())) {
+            if (secondEMails.contains(publishedToEMail.getEMail())) {
                 fail("Second published to e-mail list contains duplicate e-mail.");
             } else {
-                emails.add(publishedToEMail.getEMail());
+                secondEMails.add(publishedToEMail.getEMail());
             }
 
             if (datum.secondVersionPublishedTo.contains(publishedToEMail.getEMail())) {
@@ -242,6 +254,17 @@ public final class Ticket1028Test extends TicketTestCase {
             } else {
                 fail("Second version published to e-mail not as expected.");
             }
+        }
+
+        for (final EMail email : datum.secondVersionPublishedTo) {
+            found = false;
+            for (final PublishedToEMail publishedToEMail : secondVersionPublishedToEMails) {
+                if (publishedToEMail.getEMail().equals(email)) {
+                    found = true;
+                    break;
+                }
+            }
+            assertTrue("Could not find e-mail " + email + " in second version published to e-mail list.", found);
         }
     }
 

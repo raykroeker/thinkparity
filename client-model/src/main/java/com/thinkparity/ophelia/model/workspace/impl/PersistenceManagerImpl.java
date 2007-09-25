@@ -4,21 +4,14 @@
 package com.thinkparity.ophelia.model.workspace.impl;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 
 import javax.sql.DataSource;
-import javax.transaction.NotSupportedException;
-import javax.transaction.SystemException;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
-import com.thinkparity.codebase.model.util.jta.Transaction;
-import com.thinkparity.codebase.model.util.jta.TransactionManager;
-import com.thinkparity.codebase.model.util.xapool.XADataSource;
-import com.thinkparity.codebase.model.util.xapool.XADataSourceConfiguration;
-import com.thinkparity.codebase.model.util.xapool.XADataSourcePool;
-import com.thinkparity.codebase.model.util.xapool.XADataSourceConfiguration.Key;
 
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
@@ -26,8 +19,11 @@ import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaDataType;
 import com.thinkparity.ophelia.model.workspace.CannotLockException;
+import com.thinkparity.ophelia.model.workspace.Transaction;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
+
+import org.apache.commons.dbcp.BasicDataSource;
 
 /**
  * <b>Title:</b>thinkParity OpheliaModel Persistence Manager Implementation<br>
@@ -38,15 +34,11 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceException;
  */
 class PersistenceManagerImpl {
 
-    /** The user transaction timeout <code>int</code> in seconds. */
-    private static final int XA_TIMEOUT;
+    /** A tread-local transaction. */
+    private static final ThreadLocal<Transaction> transaction;
 
     static {
-        /* TIMEOUT - PersistenceManagerImpl#<cinit>
-         * SYNC - PersistenceManagerImpl#<cinit> - when a "multi-threaded"
-         * model is required; the timeout will need to drop in order to release
-         * resources from the transaction if it ceases to respond */
-        XA_TIMEOUT = Integer.MAX_VALUE;
+        transaction = new ThreadLocal<Transaction>();
     }
 
     /** A <code>DataSource</code>. */
@@ -63,9 +55,6 @@ class PersistenceManagerImpl {
 
     /** A persistence <code>SessionManager</code>. */
     private SessionManager sessionManager;
-
-    /** A <code>TransactionManager</code>. */
-    private TransactionManager transactionManager;
 
     /**
      * Create SessionManagerImpl.
@@ -141,7 +130,7 @@ class PersistenceManagerImpl {
      * @return The <code>DataSource</code>.
      */
     DataSource getDataSource() {
-        return dataSource;
+        return ((TransactionImpl) getTransaction()).getDataSource();
     }
 
     /**
@@ -150,15 +139,12 @@ class PersistenceManagerImpl {
      * @return A <code>Transaction</code>.
      */
     Transaction getTransaction() {
-        final Transaction tx = transactionManager.getTransaction();
-        try {
-            tx.setTransactionTimeout(XA_TIMEOUT);
-        } catch (final SystemException sx) {
-            logger.logError(sx, "Could not set timeout for transaction.",
-                    XA_TIMEOUT);
-            throw new WorkspaceException("Cannot set transaction timeout.", sx);
+        final Transaction currentTransaction = transaction.get();
+        if (null == currentTransaction) {
+            return createTransaction();
+        } else {
+            return currentTransaction;
         }
-        return tx;
     }
 
     /**
@@ -180,32 +166,28 @@ class PersistenceManagerImpl {
             System.setProperty("derby.storage.pageCacheSize", "64");
             System.setProperty("derby.stream.error.file", persistenceLogFile.getAbsolutePath());
 
-            // create the data source
-            final XADataSourceConfiguration xaDataSourceConfiguration;
-            // create datasource configuration
-            xaDataSourceConfiguration = new XADataSourceConfiguration();
-            xaDataSourceConfiguration.setProperty(Key.DRIVER,
-                    "org.apache.derby.jdbc.EmbeddedDriver");
-            final StringBuilder url = new StringBuilder("jdbc:derby:")
-                .append(persistenceRoot.getAbsolutePath());
-            if (!persistenceRoot.exists())
-                url.append(";create=true");
-            xaDataSourceConfiguration.setProperty(Key.URL, url.toString());
-            xaDataSourceConfiguration.setProperty(Key.USER, "sa");
-            dataSource = new XADataSourcePool(new XADataSource(
-                    xaDataSourceConfiguration));
+            final String url = new StringBuilder("jdbc:derby:")
+                .append(persistenceRoot.getAbsolutePath())
+                .append(persistenceRoot.exists() ? "" : ";create=true")
+                .toString();
 
-            // create the transaction manager
-            transactionManager = TransactionManager.getInstance();
-            transactionManager.start();
-            transactionManager.setTransactionTimeout(XA_TIMEOUT);
-            // bind the transaction manager to the data source
-            transactionManager.bind((XADataSourcePool) dataSource);
+            final BasicDataSource basicDataSource = new BasicDataSource();
+            basicDataSource.setDefaultAutoCommit(false);
+            basicDataSource.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+            basicDataSource.setDriverClassName("org.apache.derby.jdbc.EmbeddedDriver");
+            basicDataSource.setInitialSize(5);
+            basicDataSource.setMaxActive(5);
+            basicDataSource.setPoolPreparedStatements(true);
+            basicDataSource.setUrl(url);
+            basicDataSource.setUsername("sa");
+
+            dataSource = new DataSourceImpl(basicDataSource, "sa", null);
+
             sessionManager = new SessionManager(dataSource);
 
             // check to ensure the database is not locked
             if (isLocked()) {
-                throw new CannotLockException(url.toString());
+                throw new CannotLockException(persistenceRoot.getAbsolutePath());
             }
         } catch (final CannotLockException clx) {
             throw clx;
@@ -227,16 +209,16 @@ class PersistenceManagerImpl {
             session.close();
         }
 
-        ((XADataSourcePool) dataSource).shutdown(true);
+        final String url = new StringBuilder("jdbc:derby:")
+            .append(persistenceRoot.getAbsolutePath())
+            .append(";shutdown=true")
+            .toString();
         try {
-            ((XADataSourcePool) dataSource).getShutdownConnection();
+            DriverManager.getConnection(url);
         } catch (final SQLException sqlx) {
         } catch (final Throwable t) {
             throw new WorkspaceException("Cannot stop persistence manager.", t);
         }
-
-        transactionManager.stop();
-        transactionManager = null;
     }
 
     /**
@@ -244,11 +226,21 @@ class PersistenceManagerImpl {
      * 
      * @return A <code>Transaction</code>.
      */
-    private Transaction beginTransaction() throws NotSupportedException,
-            SystemException {
+    private Transaction beginTransaction() {
         final Transaction transaction = getTransaction();
         transaction.begin();
         return transaction;
+    }
+
+    /**
+     * Create a transaction.
+     * 
+     * @return A <code>Transaction</code>.
+     */
+    private Transaction createTransaction() {
+        final Transaction currentTransaction = new TransactionImpl(dataSource);
+        transaction.set(currentTransaction);
+        return currentTransaction;
     }
 
     /**

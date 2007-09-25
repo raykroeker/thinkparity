@@ -9,13 +9,6 @@ import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.Map;
 
-import javax.naming.NamingException;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -23,13 +16,12 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.annotation.ThinkParityConcurrency;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.util.concurrent.Lock;
-import com.thinkparity.codebase.model.util.jta.Transaction;
-import com.thinkparity.codebase.model.util.jta.TransactionContext;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.annotation.ThinkParityOnline;
-import com.thinkparity.ophelia.model.util.jta.TransactionContextImpl;
 import com.thinkparity.ophelia.model.util.jta.XidFactory;
+import com.thinkparity.ophelia.model.workspace.Transaction;
+import com.thinkparity.ophelia.model.workspace.TransactionContext;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 /**
@@ -154,13 +146,10 @@ final class ModelInvocationHandler implements InvocationHandler {
      *            A <code>TransactionContext</code>.
      * @throws NamingException
      * @throws NotSupportedException
-     * @throws SystemException
      */
     private void beginXA(final Transaction transaction,
-            final TransactionContext context) throws NotSupportedException,
-            SystemException {
+            final TransactionContext context) {
         XA_LOGGER.logVariable("transaction", transaction);
-        XA_LOGGER.logVariable("transaction.getStatus()", transaction.getStatus());
         XA_LOGGER.logVariable("context", context);
         /* when the transaction context is set, nothing is done
          * 
@@ -194,7 +183,6 @@ final class ModelInvocationHandler implements InvocationHandler {
                 setXAContext(context);
                 transaction.begin();
                 XA_LOGGER.logInfo("Begin transaction-{0}.", context);
-                XA_LOGGER.logVariable("transaction.getStatus()", transaction.getStatus());
                 break;
             case NEVER:
                 XA_LOGGER.logInfo("{0}No transaction participation-{1}.", "\t\t", context);
@@ -220,11 +208,9 @@ final class ModelInvocationHandler implements InvocationHandler {
      * @throws HeuristicMixedException
      * @throws HeuristicRollbackException
      * @throws RollbackException
-     * @throws SystemException
      */
     private void completeXA(final Transaction transaction,
-            final TransactionContext context) throws HeuristicMixedException,
-            HeuristicRollbackException, RollbackException, SystemException {
+            final TransactionContext context) {
         if (isSetXAContext() && getXAContext().equals(context)) {
             unsetXAContext();
             if (transaction.isRollbackOnly()) {
@@ -344,12 +330,12 @@ final class ModelInvocationHandler implements InvocationHandler {
      * @return A <code>TransactionContext</code>.
      */
     private TransactionContext newXAContext(final Method method) {
-        final TransactionContextImpl context = new TransactionContextImpl();
+        final TransactionContext context = new TransactionContext();
         final String xid = new StringBuffer(method.getDeclaringClass().getName())
             .append('_')
             .append(method.getName())
             .toString();
-        context.setXid(xidFactory.createXid(xid));
+        context.setXid(xidFactory.createXid(xid).toString());
         context.setType(extractXAType(method));
         return context;
     }
@@ -363,10 +349,9 @@ final class ModelInvocationHandler implements InvocationHandler {
      *            A <code>Transaction</code>.
      * @param transactionContext
      *            A <code>TransactionContext</code>.
-     * @throws SystemException
      */
     private void rollbackXA(final Transaction transaction,
-            final TransactionContext context) throws SystemException {
+            final TransactionContext context) {
         switch (context.getType()) {
         case REQUIRES_NEW:
         case REQUIRED:

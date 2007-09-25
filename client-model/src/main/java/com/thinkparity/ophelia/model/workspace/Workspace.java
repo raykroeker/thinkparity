@@ -10,8 +10,6 @@ import java.nio.charset.Charset;
 
 import javax.sql.DataSource;
 
-import com.thinkparity.codebase.model.util.jta.Transaction;
-
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.util.service.ServiceRetryHandler;
 

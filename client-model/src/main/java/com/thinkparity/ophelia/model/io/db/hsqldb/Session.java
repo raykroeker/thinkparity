@@ -80,9 +80,6 @@ public final class Session {
     /** The session's prepared statement. */
 	private PreparedStatement preparedStatement;
 
-	/** A prepared statement cache. */
-    private final PreparedStatementCache preparedStatementCache;
-
     /** The session's query. */
     private String query;
 
@@ -104,7 +101,6 @@ public final class Session {
 		super();
 		this.connection = connection;
 		this.id = JVMUniqueId.nextId();
-		this.preparedStatementCache = new PreparedStatementCache(connection);
         this.sessionManager = sessionManager;
 	}
 
@@ -397,14 +393,10 @@ public final class Session {
     public Long getIdentity(final String table) {
         final String sql = new StringBuffer(SQL_GET_IDENTITY_PRE)
             .append(table).toString();
-        try {
-            prepareStatement(sql);
-            executeQuery();
-            nextResult();
-            return getLong("ID");
-        } finally {
-            close(preparedStatement, resultSet);
-        }
+        prepareStatement(sql);
+        executeQuery();
+        nextResult();
+        return getLong("ID");
     }
 
     public Integer getInteger(final String columnName) {
@@ -641,10 +633,7 @@ public final class Session {
 		close(preparedStatement, resultSet);
 		try {
             this.query = query;
-            preparedStatement = preparedStatementCache.get(query);
-            if (null == preparedStatement) {
-                preparedStatement = preparedStatementCache.prepareStatement(query);
-            }
+            preparedStatement = connection.prepareStatement(query);
 		} catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
 		}
@@ -1071,7 +1060,7 @@ public final class Session {
     private void close(final PreparedStatement preparedStatement) {
         if(null != preparedStatement) {
             try {
-                preparedStatement.clearParameters();
+                preparedStatement.close();
             } catch (final SQLException sqlx) {
                 throw panic(sqlx);
             }

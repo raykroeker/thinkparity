@@ -30,8 +30,6 @@ import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
-import com.thinkparity.codebase.model.util.jta.Transaction;
-
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.FileNames;
@@ -41,6 +39,7 @@ import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.util.service.ServiceFactory;
 import com.thinkparity.ophelia.model.util.service.ServiceRetryHandler;
 import com.thinkparity.ophelia.model.workspace.CannotLockException;
+import com.thinkparity.ophelia.model.workspace.Transaction;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
 

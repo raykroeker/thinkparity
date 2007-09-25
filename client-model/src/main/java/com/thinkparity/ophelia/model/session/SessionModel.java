@@ -39,6 +39,7 @@ public interface SessionModel {
      *         online.
      */
     @ThinkParityTransaction(TransactionType.SUPPORTED)
+    @ThinkParityConcurrency(Lock.NONE)
     public OfflineCode getOfflineCode();
 
     /**

@@ -648,7 +648,8 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
                         contactModel.readContainerVersionInvitationAttachments(
                                 user.getId(), invitation));
                 for (final ContainerVersionAttachment attachment : attachments) {
-                    if (attachment.getUniqueId().equals(uniqueId)) {
+                    if (attachment.getUniqueId().equals(uniqueId)
+                            && attachment.getVersionId().equals(versionId)) {
                         final PublishedToEMail pte = new PublishedToEMail();
                         pte.setEMail(invitation.getInvitationEMail());
                         pte.setPublishedOn(invitation.getCreatedOn());

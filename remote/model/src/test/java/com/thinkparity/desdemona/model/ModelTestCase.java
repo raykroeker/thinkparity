@@ -37,6 +37,8 @@ import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 
+import com.thinkparity.desdemona.model.artifact.ArtifactModel;
+import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.model.container.ContainerModel;
 import com.thinkparity.desdemona.model.migrator.MigratorModel;
@@ -263,6 +265,28 @@ public abstract class ModelTestCase extends TestCase {
             }
         }
         return null;
+    }
+
+    /**
+     * Obtain an artifact model.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @return An instance of <code>ArtifactModel</code>.
+     */
+    private ArtifactModel getArtifactModel(final AuthToken authToken) {
+        return getModelFactory(authToken).getArtifactModel();
+    }
+
+    /**
+     * Obtain a backup model.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @return An instance of <code>BackupModel</code>.
+     */
+    private BackupModel getBackupModel(final AuthToken authToken) {
+        return getModelFactory(authToken).getBackupModel();
     }
 
     /**
@@ -565,6 +589,22 @@ public abstract class ModelTestCase extends TestCase {
                 final EMail email) {
             return ModelTestCase.this.findIncomingEMailInvitation(
                     getContactModel(authToken), createdBy, email);
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#getArtifactModel(AuthToken)
+         * 
+         */
+        public ArtifactModel getArtifactModel(final AuthToken authToken) {
+            return ModelTestCase.this.getArtifactModel(authToken);
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#getBackupModel(AuthToken)
+         * 
+         */
+        public BackupModel getBackupModel(final AuthToken authToken) {
+            return ModelTestCase.this.getBackupModel(authToken);
         }
 
         /**

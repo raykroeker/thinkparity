@@ -24,6 +24,7 @@ public final class WebTestSuite {
         final TestSuite suite = new TestSuite();
         suite.addTestSuite(com.thinkparity.desdemona.model.contact.AcceptInvitationTest.class);
         suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1008Test.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1028Test.class);
         return suite;
     }
 

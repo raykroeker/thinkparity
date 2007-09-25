@@ -67,7 +67,10 @@ public class HttpConnection extends
      */
     @Override
     public void close() {
-        connection.disconnect();
+        /* connection can be null if the first attempt at open fails */
+        if (null != connection) {
+            connection.disconnect();
+        }
         isOpen = false;
     }
 
@@ -129,7 +132,7 @@ public class HttpConnection extends
             return false;
         }
     }
-    
+
     /**
      * @see org.apache.commons.httpclient.HttpConnection#open()
      *
@@ -147,6 +150,29 @@ public class HttpConnection extends
         outputStream = socket.getOutputStream();
         inputStream = socket.getInputStream();
         isOpen = true;
+    }
+
+    /**
+     * @see org.apache.commons.httpclient.HttpConnection#readLine()
+     * @deprecated
+     *
+     */
+    @Override
+    @Deprecated
+    public String readLine() throws IOException, IllegalStateException {
+        assertOpen();
+        return HttpParser.readLine(inputStream);
+    }
+
+    /**
+     * @see org.apache.commons.httpclient.HttpConnection#readLine(java.lang.String)
+     *
+     */
+    @Override
+    public String readLine(final String charset) throws IOException,
+            IllegalStateException {
+        assertOpen();
+        return HttpParser.readLine(inputStream, charset);
     }
 
     /**
@@ -240,28 +266,5 @@ public class HttpConnection extends
                 return false;
             }
         }
-    }
-
-    /**
-     * @see org.apache.commons.httpclient.HttpConnection#readLine()
-     * @deprecated
-     *
-     */
-    @Override
-    @Deprecated
-    public String readLine() throws IOException, IllegalStateException {
-        assertOpen();
-        return HttpParser.readLine(inputStream);
-    }
-
-    /**
-     * @see org.apache.commons.httpclient.HttpConnection#readLine(java.lang.String)
-     *
-     */
-    @Override
-    public String readLine(final String charset) throws IOException,
-            IllegalStateException {
-        assertOpen();
-        return HttpParser.readLine(inputStream, charset);
     }
 }

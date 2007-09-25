@@ -182,11 +182,37 @@ public final class StreamWriter implements RequestEntity {
             } catch (final HttpException hx) {
                 utils.writeError(putMethod);
                 throw new NetworkException(hx);
+            } catch (final IOException iox) {
+                /* an io exception can be thrown with a network exception cause
+                 * by the stream's http connection object; and since we want to
+                 * differentiate between network and local io errors we examine
+                 * the causality */
+                utils.writeError(putMethod);
+                if (isNetworkException(iox.getCause())) {
+                    throw (NetworkException) iox.getCause();
+                } else {
+                    throw iox;
+                }
             } finally {
                 putMethod.releaseConnection();
             }
         } finally {
             StreamClientMetrics.end("PUT", session);
+        }
+    }
+
+    /**
+     * Determine whether or not the throwable error is a network error.
+     * 
+     * @param cause
+     *            A <code>Throwable</code>.
+     * @return True if the cause is a network error.
+     */
+    private static Boolean isNetworkException(final Throwable cause) {
+        if (null == cause) {
+            return Boolean.FALSE;
+        } else {
+            return NetworkException.isAssignableFrom(cause);
         }
     }
 

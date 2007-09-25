@@ -179,6 +179,7 @@ class PersistenceManagerImpl {
             basicDataSource.setMaxActive(5);
             basicDataSource.setPoolPreparedStatements(true);
             basicDataSource.setUrl(url);
+basicDataSource.setAccessToUnderlyingConnectionAllowed(true);
             basicDataSource.setUsername("sa");
 
             dataSource = new DataSourceImpl(basicDataSource, "sa", null);

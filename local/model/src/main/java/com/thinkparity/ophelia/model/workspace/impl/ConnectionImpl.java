@@ -7,6 +7,10 @@ import java.sql.*;
 import java.util.Map;
 import java.util.Properties;
 
+import com.thinkparity.codebase.log4j.Log4JWrapper;
+
+import org.apache.commons.dbcp.DelegatingConnection;
+
 /**
  * <b>Title:</b>thinkParity Ophelia Model Workspace Connection Impl<br>
  * <b>Description:</b>A wrapper around a connection that does not close the
@@ -17,8 +21,18 @@ import java.util.Properties;
  */
 class ConnectionImpl implements Connection {
 
+    /** A log4j wrapper. */
+    private static final Log4JWrapper logger;
+
+    static {
+        logger = new Log4JWrapper("SQL_DEBBUGER");
+    }
+
     /** A connection. */
     private final Connection connection;
+
+    /** A statement cache. */
+    private final StatementCache statementCache;
 
     /**
      * Create ConnectionImpl.
@@ -27,6 +41,7 @@ class ConnectionImpl implements Connection {
     ConnectionImpl(final Connection connection) {
         super();
         this.connection = connection;
+        this.statementCache = new StatementCache(this);
     }
 
     /**
@@ -306,7 +321,15 @@ class ConnectionImpl implements Connection {
     @Override
     public PreparedStatement prepareStatement(final String sql)
             throws SQLException {
-        return connection.prepareStatement(sql);
+        final PreparedStatement cached = statementCache.get(sql);
+        if (null == cached) {
+            logger.logInfo("Cache miss.");
+            return statementCache.prepareStatement(sql);
+        } else {
+            logger.logInfo("Cache hit.");
+            cached.clearParameters();
+            return cached;
+        }
     }
 
     /**
@@ -490,6 +513,15 @@ class ConnectionImpl implements Connection {
     @Override
     public <T> T unwrap(final Class<T> iface) throws SQLException {
         return connection.unwrap(iface);
+    }
+
+    /**
+     * Obtain the connection delegate.
+     * 
+     * @return A <code>Connection</code>.
+     */
+    Connection getConnectionDelegate() {
+        return ((DelegatingConnection) connection).getInnermostDelegate();
     }
 
     /**

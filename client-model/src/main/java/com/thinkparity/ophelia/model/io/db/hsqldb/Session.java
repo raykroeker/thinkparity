@@ -1060,7 +1060,7 @@ public final class Session {
     private void close(final PreparedStatement preparedStatement) {
         if(null != preparedStatement) {
             try {
-                preparedStatement.close();
+                preparedStatement.clearParameters();
             } catch (final SQLException sqlx) {
                 throw panic(sqlx);
             }

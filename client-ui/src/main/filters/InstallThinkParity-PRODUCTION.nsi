@@ -45,11 +45,20 @@
   !insertmacro MUI_PAGE_INSTFILES
   !insertmacro MUI_UNPAGE_CONFIRM
   !insertmacro MUI_UNPAGE_INSTFILES
-  
+
 ;--------------------------------
 ;Languages
  
   !insertmacro MUI_LANGUAGE "English"
+
+;--------------------------------
+;File Properties
+VIProductVersion "1.0.0.0"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "thinkParity ™"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "thinkParity Solutions Inc."
+VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "© thinkParity Solutions Inc."
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "thinkParity Binary"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${thinkparity.release-name}"
 
 ;--------------------------------
 ;Installer Sections

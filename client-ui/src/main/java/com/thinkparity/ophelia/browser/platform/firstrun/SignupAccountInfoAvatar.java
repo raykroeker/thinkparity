@@ -679,14 +679,18 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      * Initialize the focus listener.
      */
     private void initFocusListener() {
-        emailJTextField.addFocusListener(new FocusListener() {
+        final FocusListener focusListener = new FocusListener() {
             public void focusGained(FocusEvent e) {
                 validateInput();
             }
             public void focusLost(FocusEvent e) {
                 validateInput();
             }
-        });
+        };
+        emailJTextField.addFocusListener(focusListener);
+        usernameJTextField.addFocusListener(focusListener);
+        passwordJPasswordField.addFocusListener(focusListener);
+        confirmPasswordJPasswordField.addFocusListener(focusListener);
     }
 
     /**
@@ -800,7 +804,9 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         if (null == username) {
             addInputError(Separator.Space.toString());
         } else if (username.length() < minimumUsernameLength) {
-            addInputError(getString("ErrorUsernameTooShort", new Object[] {minimumUsernameLength}));
+            if (ignoreFocus || !usernameJTextField.isFocusOwner()) {
+                addInputError(getString("ErrorUsernameTooShort", new Object[] {minimumUsernameLength}));
+            }
         }
         if (null != username && null != unacceptableUsername
                 && username.equalsIgnoreCase(unacceptableUsername)) {
@@ -811,13 +817,17 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         if (null == password) {
             addInputError(Separator.Space.toString());
         } else if (password.length() < minimumPasswordLength) {
-            addInputError(getString("ErrorPasswordTooShort", new Object[] {minimumPasswordLength}));
+            if (ignoreFocus || !passwordJPasswordField.isFocusOwner()) {
+                addInputError(getString("ErrorPasswordTooShort", new Object[] {minimumPasswordLength}));
+            }
         }
 
         if (null == confirmPassword) {
             addInputError(Separator.Space.toString());
         } else if (null != password && !password.equals(confirmPassword)) {
-            addInputError(getString("ErrorPasswordsDoNotMatch"));
+            if (ignoreFocus || !confirmPasswordJPasswordField.isFocusOwner()) {
+                addInputError(getString("ErrorPasswordsDoNotMatch"));
+            }
         }
 
         if (null == securityQuestion) {

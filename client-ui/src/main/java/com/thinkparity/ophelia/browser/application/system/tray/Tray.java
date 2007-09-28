@@ -84,11 +84,13 @@ public final class Tray {
              */
             @Override
             public void mousePressed(final MouseEvent e) {
-                if(systemApplication.isBrowserRunning()) {
-                    systemApplication.runIconify(Boolean.FALSE);
-                    systemApplication.runMoveBrowserToFront();
-                } else {
-                    systemApplication.runRestoreBrowser();
+                if (e.getButton() == MouseEvent.BUTTON1 ) {
+                    if(systemApplication.isBrowserRunning()) {
+                        systemApplication.runIconify(Boolean.FALSE);
+                        systemApplication.runMoveBrowserToFront();
+                    } else {
+                        systemApplication.runRestoreBrowser();
+                    }
                 }
             }
         });

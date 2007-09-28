@@ -631,9 +631,10 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
      * Initialize the email delimiters.
      */
     private void initEmailDelimiters() {
-        this.delimiters = new ArrayList<String>(2);
+        this.delimiters = new ArrayList<String>(3);
         delimiters.add(",");
         delimiters.add(";");
+        delimiters.add("\n");
     }
 
     /**

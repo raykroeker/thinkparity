@@ -144,8 +144,12 @@ public class VerifyEMailAvatar extends Avatar {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel keyJLabel = new javax.swing.JLabel();
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
+
+        explanationJLabel.setFont(Fonts.DialogFont);
+        explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("VerifyEMailAvatar.Explanation"));
 
         keyJLabel.setFont(Fonts.DialogFont);
         keyJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("VerifyEMailAvatar.VerificationKey"));
@@ -185,6 +189,7 @@ public class VerifyEMailAvatar extends Avatar {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
                     .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(verifyJButton)
@@ -202,7 +207,9 @@ public class VerifyEMailAvatar extends Avatar {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(24, 24, 24)
+                .add(27, 27, 27)
+                .add(explanationJLabel)
+                .add(15, 15, 15)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(keyJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(keyJLabel))
@@ -215,6 +222,15 @@ public class VerifyEMailAvatar extends Avatar {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Determine if the model is online.
+     * 
+     * @return True if the model is online.
+     */
+    private boolean isOnline() {
+        return ((VerifyEMailProvider) contentProvider).isOnline().booleanValue();
+    }
 
     private void keyJTextFieldActionPerformed(final java.awt.event.ActionEvent e) {//GEN-FIRST:event_keyJTextFieldActionPerformed
         verifyJButtonActionPerformed(e);
@@ -237,14 +253,18 @@ public class VerifyEMailAvatar extends Avatar {
         if (null != email) {
             final Long emailId = email.getEmailId();
             final String verificationKey = extractInputKey();
-            getController().runVerifyEmail(emailId, verificationKey);
+            getController().runVerifyEMail(emailId, verificationKey);
         }
     }
 
     private void verifyJButtonActionPerformed(final java.awt.event.ActionEvent e) {//GEN-FIRST:event_verifyJButtonActionPerformed
         if (isInputValid()) {
-            disposeWindow();
-            verifyEMail();
+            if (isOnline()) {
+                disposeWindow();
+                verifyEMail();
+            } else {
+                errorMessageJLabel.setText(getString("ErrorOffline"));
+            }
         }
     }//GEN-LAST:event_verifyJButtonActionPerformed
 }

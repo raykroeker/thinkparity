@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.platform.action.profile;
 
 import com.thinkparity.ophelia.model.profile.ProfileModel;
+import com.thinkparity.ophelia.model.session.OfflineException;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
@@ -39,16 +40,20 @@ public final class VerifyEMail extends AbstractBrowserAction {
     @Override
     public void invoke(final Data data) {
         final Boolean displayAvatar = (Boolean) data.get(DataKey.DISPLAY_AVATAR);
+        final ProfileModel profileModel = getProfileModel();
 
         if (displayAvatar) {
-            getBrowserApplication().displayVerifyEmailDialog();
+            if (!profileModel.readEMail().isVerified()) {
+                getBrowserApplication().displayVerifyEMailDialog();
+            }
         } else {
             final Long emailId = (Long) data.get(DataKey.EMAIL_ID);
             final String key = (String) data.get(DataKey.KEY);
-            final ProfileModel profileModel = getProfileModel();
             try {
                 profileModel.verifyEMail(emailId, key);
                 browser.displayStatusDialog("VerifyEmail.VerifyKeyCorrect");
+            } catch (final OfflineException ox) {
+                browser.displayErrorDialog("ErrorOffline");
             } catch (final Throwable t) {
                 logger.logError(t, "Could not verify e-mail address {0} with key {1}.",
                         emailId, key);

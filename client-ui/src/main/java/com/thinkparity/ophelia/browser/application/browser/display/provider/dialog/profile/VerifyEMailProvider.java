@@ -6,6 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.dia
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.ophelia.model.profile.ProfileModel;
+import com.thinkparity.ophelia.model.session.SessionModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
 
@@ -15,14 +16,30 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.Cont
  */
 public class VerifyEMailProvider extends ContentProvider {
 
+    /** An instance of <code>SessionModel</code>. */
+    private final SessionModel sessionModel;
+
     /**
      * Create VerifyEMailProvider.
      * 
      * @param profileModel
      *            An instance of <code>ProfileModel</code>.
+     * @param sessionModel
+     *            An instance of <code>SessionModel</code>.
      */
-    public VerifyEMailProvider(final ProfileModel profileModel) {
+    public VerifyEMailProvider(final ProfileModel profileModel,
+            final SessionModel sessionModel) {
         super(profileModel);
+        this.sessionModel = sessionModel;
+    }
+
+    /**
+     * Determine if the model is online.
+     * 
+     * @return True if the model is online.
+     */
+    public Boolean isOnline() {
+        return sessionModel.isOnline();
     }
 
     /**

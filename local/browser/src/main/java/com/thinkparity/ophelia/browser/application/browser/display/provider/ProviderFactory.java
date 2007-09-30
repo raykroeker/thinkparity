@@ -152,7 +152,7 @@ public class ProviderFactory {
             provider = new UpdatePasswordProvider(profileModel);
             break;
         case DIALOG_PROFILE_VERIFY_EMAIL:
-            provider = new VerifyEMailProvider(profileModel);
+            provider = new VerifyEMailProvider(profileModel, sessionModel);
             break;
         case MAIN_STATUS:
             provider = new MainStatusProvider(profileModel, contactModel, containerModel, sessionModel);

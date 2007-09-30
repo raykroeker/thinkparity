@@ -613,7 +613,7 @@ public class Browser extends AbstractApplication {
     /**
      * Display the verify email dialog.
      */
-    public void displayVerifyEmailDialog() {
+    public void displayVerifyEMailDialog() {
         displayAvatar(AvatarId.DIALOG_PROFILE_VERIFY_EMAIL);        
     }
 
@@ -1631,13 +1631,20 @@ public class Browser extends AbstractApplication {
 
     /**
      * Run the verify email action.
+     */
+    public void runVerifyEMail() {
+        runVerifyEMail(null, null);
+    }
+
+    /**
+     * Run the verify email action.
      * 
      * @param emailId
      *            An email id <code>Long</code>.
      * @param key
      *            An email verification key <code>String</code>.
      */
-    public void runVerifyEmail(final Long emailId, final String key) {
+    public void runVerifyEMail(final Long emailId, final String key) {
         final Data data = new Data(3);
         if (null == emailId || null == key) {
             data.set(VerifyEMail.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
@@ -2115,6 +2122,7 @@ public class Browser extends AbstractApplication {
 		displayHelper.setBrowserWindow(mainWindow);
         keyboardHelper.bindKeys();
 		mainWindow.open();
+        runVerifyEMail();
 	}
 
 	private void reOpenMainWindow() {

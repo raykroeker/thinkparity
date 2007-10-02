@@ -618,6 +618,13 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Display the verify email summary dialog.
+     */
+    public void displayVerifyEMailSummaryDialog() {
+        displayAvatar(AvatarId.DIALOG_PROFILE_VERIFY_EMAIL_SUMMARY); 
+    }
+
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#end()
 	 * 
 	 */
@@ -1511,6 +1518,13 @@ public class Browser extends AbstractApplication {
                 invoke(ActionId.BACKUP_RESTORE, data);
             }
         });
+    }
+
+    /**
+     * Run the show getting started movie action.
+     */
+    public void runShowGettingStartedMovie() {
+        invoke(ActionId.HELP_SHOW_GETTING_STARTED_MOVIE, Data.emptyData());
     }
 
     /**

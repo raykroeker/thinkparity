@@ -252,6 +252,9 @@ public final class AvatarFactory {
             avatar = newAvatar(VerifyEMailAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
+        case DIALOG_PROFILE_VERIFY_EMAIL_SUMMARY:
+            avatar = newAvatar(VerifyEMailSummaryAvatar.class);
+            break;
 		default:
             throw Assert.createUnreachable("UNKNOWN AVATAR");
 		}

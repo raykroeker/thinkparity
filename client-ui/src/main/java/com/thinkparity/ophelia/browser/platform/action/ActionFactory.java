@@ -233,6 +233,9 @@ public class ActionFactory extends AbstractFactory {
         case HELP_EXPAND:
             action = new com.thinkparity.ophelia.browser.platform.action.help.Expand(getBrowser());
             break;
+        case HELP_SHOW_GETTING_STARTED_MOVIE:
+            action = new com.thinkparity.ophelia.browser.platform.action.help.ShowGettingStartedMovie(getBrowser());
+            break;
         case HELP_SHOW_MOVIE:
             action = new com.thinkparity.ophelia.browser.platform.action.help.ShowMovie(getBrowser());
             break;

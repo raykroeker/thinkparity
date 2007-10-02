@@ -72,12 +72,8 @@ public class DisplayInfoPanel extends SystemPanel {
 
         final javax.swing.JButton closeJButton = new javax.swing.JButton();
         final javax.swing.JLabel logoJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel thinkParityJLabel = LabelFactory.create("", Fonts.DialogFontBold);
         final javax.swing.JLabel copyrightJLabel = LabelFactory.create("", Fonts.DialogFont);
-        webPageJPanel = new javax.swing.JPanel();
-        fillWestJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel webPageJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-        fillEastJLabel = new javax.swing.JLabel();
 
         closeJButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Dialog_CloseButton.png")));
         closeJButton.setBorderPainted(false);
@@ -104,9 +100,6 @@ public class DisplayInfoPanel extends SystemPanel {
         logoJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         logoJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/thinkParityLogo.png")));
         logoJLabel.setFocusable(false);
-
-        thinkParityJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        thinkParityJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SystemApplication.DisplayInfoPanel.thinkParity"));
 
         copyrightJLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         copyrightJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SystemApplication.DisplayInfoPanel.Copyright"));
@@ -140,7 +133,6 @@ public class DisplayInfoPanel extends SystemPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(closeJButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(logoJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
-                    .addComponent(thinkParityJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
                     .addComponent(copyrightJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
                     .addComponent(webPageJPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE))
                 .addContainerGap())
@@ -153,35 +145,33 @@ public class DisplayInfoPanel extends SystemPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(logoJLabel)
                 .addGap(21, 21, 21)
-                .addComponent(thinkParityJLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(copyrightJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(webPageJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(30, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void closeJButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJButtonMouseEntered
+    private void closeJButtonMouseEntered(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJButtonMouseEntered
         ((javax.swing.JButton) evt.getSource()).setIcon(CLOSE_ROLLOVER_ICON);
     }//GEN-LAST:event_closeJButtonMouseEntered
 
-    private void closeJButtonMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJButtonMouseExited
+    private void closeJButtonMouseExited(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_closeJButtonMouseExited
         ((javax.swing.JButton) evt.getSource()).setIcon(CLOSE_ICON);
     }//GEN-LAST:event_closeJButtonMouseExited
 
-    private void closeJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
+    private void closeJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
         ((javax.swing.JButton) evt.getSource()).setIcon(CLOSE_ICON);
         closeDisplayInfoPanel();
     }//GEN-LAST:event_closeJButtonActionPerformed
 
-    private void webPageJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMousePressed
+    private void webPageJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_webPageJLabelMousePressed
         systemApplication.runOpenWebsite();
     }//GEN-LAST:event_webPageJLabelMousePressed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel fillEastJLabel;
-    private javax.swing.JLabel fillWestJLabel;
-    private javax.swing.JPanel webPageJPanel;
+    private final javax.swing.JLabel fillEastJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel fillWestJLabel = new javax.swing.JLabel();
+    private final javax.swing.JPanel webPageJPanel = new javax.swing.JPanel();
     // End of variables declaration//GEN-END:variables
 }

@@ -197,6 +197,14 @@ public final class Constants {
         }
     }
 
+    /** <b>Title:</b>Environment Variable:  thinkParity<br> */
+    public static final class EnvironmentVariable {
+        public static final class ThinkParity {
+            public static final String KEY = "thinkParity";
+            public static final String VALUE_INTERNAL = "internal";
+        }
+    }
+
     /** thinkParity file extensions. */
     public static final class FileExtensions {
         public static final String JAR = ".jar";

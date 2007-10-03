@@ -10,6 +10,7 @@ import com.thinkparity.codebase.model.session.Environment;
 
 import com.thinkparity.ophelia.model.workspace.CannotLockException;
 
+import com.thinkparity.ophelia.browser.Constants.EnvironmentVariable;
 import com.thinkparity.ophelia.browser.environment.EnvironmentManager;
 import com.thinkparity.ophelia.browser.mode.ModeManager;
 import com.thinkparity.ophelia.browser.mode.demo.DemoManager;
@@ -19,18 +20,19 @@ import com.thinkparity.ophelia.browser.profile.ProfileManager;
 import com.thinkparity.ophelia.browser.util.Swing;
 
 /**
- * The browser entry point.
+ * <b>Title:</b>thinkParity Ophelia UI Browser<br>
+ * <b>Description:</b>The ui main class.<br>
  * 
  * @author raymond@thinkparity.com
  * @version $Revision$
  */
-public class Browser {
+public final class Browser {
 
     /**
-     * Run Browser
+     * Browser entry point.
      * 
      * @param args
-     *            Command line arguments.
+     *            A <code>String[]</code>.
      */
     public static void main(String[] args) {
         Swing.init();
@@ -38,8 +40,9 @@ public class Browser {
         if (Mode.DEMO == mode) {
             new DemoManager().execute();
         } else {
-            final Environment environment = new EnvironmentManager().select();
-            final Profile profile = new ProfileManager(mode, environment).select();
+            final Boolean internal = isInternal();
+            final Environment environment = new EnvironmentManager(internal).select();
+            final Profile profile = new ProfileManager(!internal, environment).select();
             if (null != mode && null != environment && null != profile) {
                 try {
                     BrowserPlatform.create(mode, environment, profile).start();
@@ -48,6 +51,22 @@ public class Browser {
                     System.exit(1);
                 }
             }
+        }
+    }
+
+    /**
+     * Determine whether or not this is an internal build. We are running an
+     * internal build if the correct flag is set; as well as a checksum of the
+     * build id.
+     * 
+     * @return True if this is an internal build.
+     */
+    private static Boolean isInternal() {
+        final String value = System.getenv(EnvironmentVariable.ThinkParity.KEY);
+        if (null == value) {
+            return Boolean.FALSE;
+        } else {
+            return EnvironmentVariable.ThinkParity.VALUE_INTERNAL.equals(value);
         }
     }
 

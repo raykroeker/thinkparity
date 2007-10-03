@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thinkparity.codebase.FileSystem;
-import com.thinkparity.codebase.Mode;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -19,7 +18,14 @@ import com.thinkparity.ophelia.browser.Constants.DirectoryNames;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 
-public class ProfileManager {
+/**
+ * <b>Title:</b>thinkParity Ophelia UI Profile Manager<br>
+ * <b>Description:</b>Used to select a profile.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
+ */
+public final class ProfileManager {
 
     /**
      * Initialize the profile file system.
@@ -92,6 +98,9 @@ public class ProfileManager {
         return new FileSystem(fileSystemRoot);
     }
 
+    /** An auto selection flag. */
+    private final Boolean autoselect;
+
     /** The profile manager dialog. */
     private ProfileManagerDialog dialog;
 
@@ -101,17 +110,21 @@ public class ProfileManager {
     /** The profile manager avatar. */
     private ProfileManagerAvatar managerAvatar;
 
-    /** The <code>Mode</code>. */
-    private final Mode mode;
-
     /** The profile manager window. */
     private ProfileManagerWindow window;
 
-    /** Create ProfileManager. */
-    public ProfileManager(final Mode mode, final Environment environment) {
+    /**
+     * Create ProfileManager.
+     * 
+     * @param autoselect
+     *            A <code>Boolean</code>.
+     * @param environment
+     *            An <code>Environment</code>.
+     */
+    public ProfileManager(final Boolean autoselect, final Environment environment) {
         super();
         this.environment = environment;
-        this.mode = mode;
+        this.autoselect = autoselect;
     }
 
     /**
@@ -120,26 +133,20 @@ public class ProfileManager {
      * @return A profile.
      */
     public Profile select() {
-        final Profile selectedProfile;
-        switch (mode) {
-        case DEMO:
-        case DEVELOPMENT:
-        case TESTING:
+        final Profile profile;
+        if (autoselect) {
+            profile = readDefaultProfile();
+        } else {
             managerAvatar = new ProfileManagerAvatar(this);
             managerAvatar.setInput(readProfiles());
             openWindow(managerAvatar.getTitle(), managerAvatar);
-            selectedProfile = managerAvatar.getSelectedProfile();
-            break;
-        case PRODUCTION:
-            selectedProfile = readDefaultProfile();
-            break;
-        default:
-            throw Assert.createUnreachable("UNKNOWN MODE");
+            profile = managerAvatar.getSelectedProfile();
         }
-        if (null != selectedProfile) {
-            selectedProfile.setLastModified();
+        /* no selection was made */
+        if (null != profile) {
+            profile.setLastModified();
         }
-        return selectedProfile;
+        return profile;
     }
 
     /**

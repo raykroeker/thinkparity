@@ -87,7 +87,8 @@ final class ContactTabActionDelegate extends DefaultBrowserActionDelegate implem
                 acceptIncomingEMailInvitation.invokeAction(getApplication(), acceptData);
                 break;
             case DECLINE:
-                final Data declineData = new Data(1);
+                final Data declineData = new Data(2);
+                declineData.set(DeclineIncomingEMailInvitation.DataKey.CONFIRM, Boolean.TRUE);
                 declineData.set(DeclineIncomingEMailInvitation.DataKey.INVITATION_ID, invitation.getId());
                 declineIncomingEMailInvitation.invokeAction(getApplication(), declineData);
                 break;
@@ -111,7 +112,8 @@ final class ContactTabActionDelegate extends DefaultBrowserActionDelegate implem
                 acceptIncomingUserInvitation.invokeAction(getApplication(), acceptData);
                 break;
             case DECLINE:
-                final Data declineData = new Data(1);
+                final Data declineData = new Data(2);
+                declineData.set(DeclineIncomingUserInvitation.DataKey.CONFIRM, Boolean.TRUE);
                 declineData.set(DeclineIncomingUserInvitation.DataKey.INVITATION_ID, invitation.getId());
                 declineIncomingUserInvitation.invokeAction(getApplication(), declineData);
                 break;

@@ -81,4 +81,13 @@ public interface Notification {
      *
      */
     void invokeAction();
+
+    /**
+     * Determine if the specified id is a matching id.
+     * 
+     * @param id
+     *            An id <code>String</code>.
+     * @return true if the specified id is a matching id.
+     */
+    Boolean isMatchingId(final String id);
 }

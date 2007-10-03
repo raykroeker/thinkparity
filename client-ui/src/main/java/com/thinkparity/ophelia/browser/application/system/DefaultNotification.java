@@ -100,4 +100,11 @@ class DefaultNotification implements Notification {
      *
      */
     public void invokeAction() {}
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#isMatchingId(java.lang.String)
+     */
+    public Boolean isMatchingId(final String id) {
+        return getId().equals(id) || getGroupId().equals(id);
+    }
 }

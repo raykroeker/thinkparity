@@ -87,13 +87,13 @@ class EventDispatcher {
             @Override
             public void incomingEMailInvitationCreated(final ContactEvent e) {
                 if (e.isRemote()) {
-                    systemApplication.fireContactIncomingInvitationCreated(e);                    
+                    systemApplication.fireContactIncomingEMailInvitationCreated(e);                    
                 }
             }
             @Override
             public void incomingUserInvitationCreated(final ContactEvent e) {
                 if (e.isRemote()) {
-                    systemApplication.fireContactIncomingInvitationCreated(e);                    
+                    systemApplication.fireContactIncomingUserInvitationCreated(e);                    
                 }
             }
             @Override

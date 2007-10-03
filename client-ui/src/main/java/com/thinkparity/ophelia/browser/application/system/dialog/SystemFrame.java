@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.browser.application.system.dialog;
 
 import java.awt.AWTException;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 
@@ -24,13 +26,16 @@ import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2
 public abstract class SystemFrame extends AbstractJDialog {
 
     /** The <code>Border</code>. */
-    final Border border;
+    private final Border border;
 
     /** The animating <code>Border</code>. */
-    final Border borderAnimating;
+    private final Border borderAnimating;
 
     /** The system frame's <code>FrameAnimator</code>. */
     private final FrameAnimator frameAnimator;
+
+    /** The <code>SystemPanel</code>. */
+    protected SystemPanel panel;
 
     /**
      * Create SystemFrame.
@@ -105,6 +110,23 @@ public abstract class SystemFrame extends AbstractJDialog {
     }
 
     /**
+     * Initialize components.
+     */
+    protected void initComponents() {
+        setAlwaysOnTop(true);
+        setUndecorated(true);
+        setLayout(new GridBagLayout());
+        final GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.weightx = 1.0F;
+        constraints.weighty = 1.0F;
+        constraints.gridx = GridBagConstraints.RELATIVE;
+        constraints.gridy = GridBagConstraints.RELATIVE;
+        add(panel, constraints);
+        pack();
+    }
+
+    /**
      * Show the frame.
      * 
      * @param animate
@@ -121,7 +143,6 @@ public abstract class SystemFrame extends AbstractJDialog {
                     new Runnable() {
                         public void run() {
                             getRootPane().setBorder(getFinalBorder());
-                            setAlwaysOnTop(true);
                         }
             });
             setVisible(true);

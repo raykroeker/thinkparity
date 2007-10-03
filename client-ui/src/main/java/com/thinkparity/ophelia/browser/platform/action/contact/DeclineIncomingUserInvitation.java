@@ -40,23 +40,34 @@ public final class DeclineIncomingUserInvitation extends AbstractBrowserAction {
 	 * 
 	 */
 	public void invoke(final Data data) {
+        final Boolean confirm = (Boolean) data.get(DataKey.CONFIRM);
 	    final Long invitationId = (Long) data.get(DataKey.INVITATION_ID);
 
         final ContactModel contactModel = getContactModel();
         final IncomingUserInvitation invitation = contactModel.readIncomingUserInvitation(invitationId);
         if (null == invitation) {
             logger.logInfo("Invitation no longer exists.");
+            clearDisplayedNotifications(invitationId);
         } else {
-            if (browser.confirm("DeclineIncomingUserInvitation.ConfirmDecline",
+            if (!confirm || browser.confirm("DeclineIncomingUserInvitation.ConfirmDecline",
                     new Object[] { invitation.getExtendedBy().getName() })) {
                 contactModel.declineInvitation(invitation);
+                clearDisplayedNotifications(invitationId);
             }
         }
-        // clear any displayed notifications
+	}
+
+    /**
+     * Clear displayed notifications.
+     * 
+     * @param invitationId
+     *            The <code>Long</code> invitation id.
+     */
+    private void clearDisplayedNotifications(final Long invitationId) {
         final Data clearData = new Data(1);
         clearData.set(ClearIncomingUserInvitationNotifications.DataKey.INVITATION_ID, invitationId);
         invoke(ActionId.CONTACT_CLEAR_INCOMING_USER_INVITATION_NOTIFICATIONS, clearData);
-	}
+    }
 
-	public enum DataKey { INVITATION_ID }
+	public enum DataKey { CONFIRM, INVITATION_ID }
 }

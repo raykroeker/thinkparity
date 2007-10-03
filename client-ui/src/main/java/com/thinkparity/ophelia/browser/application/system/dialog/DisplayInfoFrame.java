@@ -5,8 +5,6 @@
 package com.thinkparity.ophelia.browser.application.system.dialog;
 
 import java.awt.AWTException;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.system.SystemApplication;
@@ -27,18 +25,12 @@ public class DisplayInfoFrame extends SystemFrame {
         ANIMATION_Y_LOCATION_ADJUSTMENT = -5;
     }
 
-    /** The <code>DisplayInfoPanel</code>. */
-    private DisplayInfoPanel panel;
-
-    /** The system application. */
-    private final SystemApplication systemApplication;
-
     /**
      * @throws AWTException
      */
     public DisplayInfoFrame(final SystemApplication systemApplication) throws AWTException {
         super();
-        this.systemApplication = systemApplication;
+        panel = new DisplayInfoPanel(systemApplication);
         initComponents();
     }
 
@@ -119,23 +111,5 @@ public class DisplayInfoFrame extends SystemFrame {
     @Override
     protected int getAnimationAdjustmentY() {
         return ANIMATION_Y_LOCATION_ADJUSTMENT;
-    }
-
-    /**
-     * Initialize components.
-     */
-    private void initComponents() {
-        panel = new DisplayInfoPanel(systemApplication);
-        setAlwaysOnTop(true);
-        setUndecorated(true);
-        setLayout(new GridBagLayout());
-        final GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.weightx = 1.0F;
-        constraints.weighty = 1.0F;
-        constraints.gridx = GridBagConstraints.RELATIVE;
-        constraints.gridy = GridBagConstraints.RELATIVE;
-        add(panel, constraints);
-        pack();
     }
 }

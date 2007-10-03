@@ -50,7 +50,11 @@ import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.*;
 import com.thinkparity.ophelia.browser.platform.action.backup.Restore;
-import com.thinkparity.ophelia.browser.platform.action.contact.*;
+import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingEMailInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingUserInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingUserInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingEMailInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
@@ -1223,30 +1227,6 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, userId);
         invoke(ActionId.CONTACT_CREATE_OUTGOING_USER_INVITATION, data);
-    }
-
-    /**
-     * Decline an invitation.
-     * 
-     * @param systemMessageId
-     *            The system message id.
-     */
-    public void runDeclineContactIncomingEMailInvitation(final Long invitationId) {
-        final Data data = new Data(1);
-        data.set(DeclineIncomingEMailInvitation.DataKey.INVITATION_ID, invitationId);
-        invoke(ActionId.CONTACT_DECLINE_INCOMING_EMAIL_INVITATION, data);
-    }
-
-    /**
-     * Decline an invitation.
-     * 
-     * @param systemMessageId
-     *            The system message id.
-     */
-    public void runDeclineContactIncomingUserInvitation(final Long invitationId) {
-        final Data data = new Data(1);
-        data.set(DeclineIncomingUserInvitation.DataKey.INVITATION_ID, invitationId);
-        invoke(ActionId.CONTACT_DECLINE_INCOMING_USER_INVITATION, data);
     }
 
     /**

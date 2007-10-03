@@ -66,7 +66,8 @@ final class ContactTabPopupDelegate extends DefaultBrowserPopupDelegate
             acceptData.set(AcceptIncomingEMailInvitation.DataKey.INVITATION_ID, invitation.getId());
             add(ActionId.CONTACT_ACCEPT_INCOMING_EMAIL_INVITATION, acceptData);
 
-            final Data declineData = new Data(1);
+            final Data declineData = new Data(2);
+            declineData.set(DeclineIncomingEMailInvitation.DataKey.CONFIRM, Boolean.TRUE);
             declineData.set(DeclineIncomingEMailInvitation.DataKey.INVITATION_ID, invitation.getId());
             add(ActionId.CONTACT_DECLINE_INCOMING_EMAIL_INVITATION, declineData);
             show();
@@ -83,7 +84,8 @@ final class ContactTabPopupDelegate extends DefaultBrowserPopupDelegate
             acceptData.set(AcceptIncomingUserInvitation.DataKey.INVITATION_ID, invitation.getId());
             add(ActionId.CONTACT_ACCEPT_INCOMING_USER_INVITATION, acceptData);
 
-            final Data declineData = new Data(1);
+            final Data declineData = new Data(2);
+            declineData.set(DeclineIncomingUserInvitation.DataKey.CONFIRM, Boolean.TRUE);
             declineData.set(DeclineIncomingUserInvitation.DataKey.INVITATION_ID, invitation.getId());
             add(ActionId.CONTACT_DECLINE_INCOMING_USER_INVITATION, declineData);
             show();

@@ -3,11 +3,13 @@
  */
 package com.thinkparity.ophelia.browser.application.system;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJFrame;
 
 import com.thinkparity.codebase.model.contact.ContactInvitation;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.http.Link;
 import com.thinkparity.codebase.model.util.http.LinkFactory;
 
@@ -16,6 +18,7 @@ import com.thinkparity.ophelia.model.events.ContainerEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
+import com.thinkparity.ophelia.browser.application.system.dialog.Invitation;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
@@ -23,9 +26,12 @@ import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.ActionInvocation;
 import com.thinkparity.ophelia.browser.platform.action.ActionRegistry;
 import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingEMailInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.ClearIncomingEMailInvitationNotifications;
 import com.thinkparity.ophelia.browser.platform.action.contact.ClearIncomingUserInvitationNotifications;
-import com.thinkparity.ophelia.browser.platform.action.contact.Show;
+import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingEMailInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.platform.browser.Iconify;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
@@ -103,7 +109,7 @@ public final class SystemApplication extends AbstractApplication {
      *            An invitation id <code>Long</code>.
      */
     public void clearInvitationNotifications(final Long invitationId) {
-        impl.fireClearNotifications(newNotificationId(ContactInvitation.class,
+        impl.fireClearInvitations(newNotificationId(ContactInvitation.class,
                 invitationId));
     }
 
@@ -130,6 +136,13 @@ public final class SystemApplication extends AbstractApplication {
 
 		notifyEnd();
 	}
+
+    /**
+     * Notify the system that the invitation window has been closed.
+     */
+    public void fireInvitationWindowClosed() {
+        impl.fireInvitationWindowClosed();
+    }
 
 	/**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getBuildId()
@@ -367,6 +380,16 @@ public final class SystemApplication extends AbstractApplication {
     }
 
     /**
+     * Fire an incoming contact email invitation created event.
+     * 
+     * @param e
+     *            A <code>ContactEvent</code>.
+     */
+    void fireContactIncomingEMailInvitationCreated(final ContactEvent e) {
+        fireContactIncomingInvitationCreated(e, IncomingInvitationType.EMAIL);
+    }
+
+    /**
      * Fire a contact incoming e-mail invitation deleted event.
      * 
      * @param e
@@ -379,46 +402,13 @@ public final class SystemApplication extends AbstractApplication {
     }
 
     /**
-     * Fire an incoming contact invitation created event.
+     * Fire an incoming contact user invitation created event.
      * 
      * @param e
      *            A <code>ContactEvent</code>.
      */
-    void fireContactIncomingInvitationCreated(final ContactEvent e) {
-        final Data data = new Data(2);
-        final Long id = e.getIncomingInvitation().getId();
-        data.set(Show.DataKey.INVITATION_ID, id);
-        data.set(Show.DataKey.CLEAR_SEARCH, Boolean.TRUE);
-        impl.fireNotification(new DefaultNotification() {
-            @Override
-            public String getContentLine1() {
-                return e.getIncomingInvitation().getExtendedBy().getName();
-            }
-            @Override
-            public String getGroupId() {
-                return newNotificationId(ContactInvitation.class, id);
-            }
-            @Override
-            public String getHeadingLine1() {
-                return getString("Notification.ContactIncomingInvitationCreated.HeadingLine1");
-            }
-            @Override
-            public String getId() {
-                return newNotificationId(ContactInvitation.class, id);
-            }
-            @Override
-            public String getLinkTitle() {
-                return getString("Notification.ContactIncomingInvitationCreated.Title");
-            }
-            @Override
-            public int getNumberLines() {
-                return 1;
-            }
-            @Override
-            public void invokeAction() {
-                invoke(ActionId.CONTACT_SHOW, data);
-            }
-        });
+    void fireContactIncomingUserInvitationCreated(final ContactEvent e) {
+        fireContactIncomingInvitationCreated(e, IncomingInvitationType.USER);
     }
 
     /**
@@ -530,6 +520,61 @@ public final class SystemApplication extends AbstractApplication {
     }
 
     /**
+     * Fire an incoming contact invitation created event.
+     * 
+     * @param e
+     *            A <code>ContactEvent</code>.
+     * @param incomingInvitationType
+     *            The <code>IncomingInvitationType</code>.        
+     */
+    private void fireContactIncomingInvitationCreated(final ContactEvent e,
+            final IncomingInvitationType incomingInvitationType) {
+        final Long id = e.getIncomingInvitation().getId();
+        impl.fireInvitationReceived(new Invitation() {
+            public String getId() {
+                return newNotificationId(ContactInvitation.class, id);
+            }
+            public String getMessage() {
+                final User user = e.getIncomingInvitation().getExtendedBy();
+                return getString("Invitation.Message",
+                        new Object[] { user.getName(), user.getTitle(), user.getOrganization() });
+            }
+            public void invokeAccept() {
+                final Data data = new Data(1);
+                switch(incomingInvitationType) {
+                case EMAIL:
+                    data.set(AcceptIncomingEMailInvitation.DataKey.INVITATION_ID, id);
+                    invoke(ActionId.CONTACT_ACCEPT_INCOMING_EMAIL_INVITATION, data);
+                    break;
+                case USER:
+                    data.set(AcceptIncomingUserInvitation.DataKey.INVITATION_ID, id);
+                    invoke(ActionId.CONTACT_ACCEPT_INCOMING_USER_INVITATION, data);
+                    break;
+                default:
+                    Assert.assertUnreachable("Unknown contact invitation type.");
+                }
+            }
+            public void invokeDecline() {
+                final Data data = new Data(2);
+                switch(incomingInvitationType) {
+                case EMAIL:
+                    data.set(DeclineIncomingEMailInvitation.DataKey.CONFIRM, Boolean.FALSE);
+                    data.set(DeclineIncomingEMailInvitation.DataKey.INVITATION_ID, id);
+                    invoke(ActionId.CONTACT_DECLINE_INCOMING_EMAIL_INVITATION, data);
+                    break;
+                case USER:
+                    data.set(DeclineIncomingUserInvitation.DataKey.CONFIRM, Boolean.FALSE);
+                    data.set(DeclineIncomingUserInvitation.DataKey.INVITATION_ID, id);
+                    invoke(ActionId.CONTACT_DECLINE_INCOMING_USER_INVITATION, data);
+                    break;
+                default:
+                    Assert.assertUnreachable("Unknown contact invitation type.");
+                }
+            }
+        });
+    }
+
+    /**
      * Obtain the action from the controller's cache. If the action does not
      * exist in the cache it is created and stored.
      * 
@@ -586,4 +631,6 @@ public final class SystemApplication extends AbstractApplication {
     private String newNotificationId(final Class<?> type, final Long typeId1, final Long typeId2) {
         return new StringBuilder(type.getName()).append("//").append(typeId1).append("//").append(typeId2).toString();
     }
+
+    private enum IncomingInvitationType { EMAIL, USER }
 }

@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.thinkparity.ophelia.browser.application.system.dialog.DisplayInfoFrame;
+import com.thinkparity.ophelia.browser.application.system.dialog.Invitation;
+import com.thinkparity.ophelia.browser.application.system.dialog.InvitationFrame;
 import com.thinkparity.ophelia.browser.application.system.dialog.Notification;
 import com.thinkparity.ophelia.browser.application.system.dialog.NotifyFrame;
 import com.thinkparity.ophelia.browser.application.system.tray.Tray;
@@ -29,8 +31,11 @@ class SystemApplicationImpl extends Thread {
 	/** Flag indicating the DisplayInfo dialog has been requested. */
     private Boolean displayInfoRequested = Boolean.FALSE;
 
+    /** Queue of invitations not yet displayed. */
+    private final List<Invitation> invitationQueue;
+
 	/** Queue of notifications not yet displayed. */
-	private final List<Notification> queue;
+	private final List<Notification> notificationQueue;
 
 	/** The system application. */
 	private final SystemApplication sysApp;
@@ -41,7 +46,8 @@ class SystemApplicationImpl extends Thread {
 	SystemApplicationImpl(final SystemApplication sysApp) {
 		super("TPS-OpheliaUI-SystemApplication");
 		this.sysApp = sysApp;
-        this.queue = new LinkedList<Notification>();
+        this.invitationQueue = new LinkedList<Invitation>();
+        this.notificationQueue = new LinkedList<Notification>();
 	}
 
 	/**
@@ -60,7 +66,8 @@ class SystemApplicationImpl extends Thread {
             if (running) {
     			try {
                     processDisplayInfo();
-                    processQueue();
+                    processInvitationQueue();
+                    processNotificationQueue();
     			} catch (final RuntimeException rx) {
     				throw sysApp.translateError(rx);
     			}
@@ -97,7 +104,6 @@ class SystemApplicationImpl extends Thread {
 
 	/**
 	 * End the application.
-	 *
 	 */
 	void end() {
 		running = Boolean.FALSE;
@@ -105,6 +111,9 @@ class SystemApplicationImpl extends Thread {
         sysTray.unInstall();
         sysTray = null;
 
+        if (InvitationFrame.isDisplayed()) {
+            InvitationFrame.close();
+        }
         if (NotifyFrame.isDisplayed()) {
             NotifyFrame.close();
         }
@@ -117,6 +126,18 @@ class SystemApplicationImpl extends Thread {
         }
 	}
 
+    /**
+     * Fire a clear invitation event.
+     * 
+     * @param invitationId
+     *            An invitation id <code>String</code>.
+     */
+    void fireClearInvitations(final String invitationId) {
+        synchronized (this) {
+            InvitationFrame.close(invitationId);
+        }
+    }
+
 	/**
      * Fire a clear notification event.
      * 
@@ -125,6 +146,18 @@ class SystemApplicationImpl extends Thread {
      */
     void fireClearNotifications(final String notificationId) {
         synchronized (this) {
+            // remove queued notifications that match the id
+            if (0 < getNotificationQueueTotal()) {
+                Notification notification;
+                for (final Iterator<Notification> i = notificationQueue.iterator();
+                        i.hasNext();) {
+                    notification = i.next();
+                    if (notification.isMatchingId(notificationId)) {
+                        i.remove();
+                    }
+                }
+            }
+            // remove displayed notifications that match the id
             NotifyFrame.close(notificationId);
         }
     }
@@ -136,6 +169,7 @@ class SystemApplicationImpl extends Thread {
     void fireConnectionOffline() {
         synchronized (this) {
             sysTray.fireConnectionOffline();
+            InvitationFrame.fireConnectionOffline();
         }
     }
 
@@ -146,21 +180,44 @@ class SystemApplicationImpl extends Thread {
     void fireConnectionOnline() {
         synchronized (this) {
             sysTray.fireConnectionOnline();
+            InvitationFrame.fireConnectionOnline();
         }
     }
 
     /**
-	 * Notification that an artifact has been received.
+	 * Notification that an invitation has been received.
 	 * 
-	 * @param artifact
-	 *            The artifact.
+	 * @param invitation
+     *            An <code>Invitation</code>.
 	 */
-	void fireNotification(final Notification notification) {
+	void fireInvitationReceived(final Invitation invitation) {
 		synchronized (this) {
-			queue.add(notification);
+            invitationQueue.add(invitation);
 			notifyAll();
 		}
 	}
+
+    /**
+     * Notification that the invitation window has been closed.
+     */
+    public void fireInvitationWindowClosed() {
+        synchronized (this) {
+            notifyAll();
+        }
+    }
+
+    /**
+     * Notification that an artifact has been received.
+     * 
+     * @param notification
+     *            A <code>Notification</code>.
+     */
+    void fireNotification(final Notification notification) {
+        synchronized (this) {
+            notificationQueue.add(notification);
+            notifyAll();
+        }
+    }
 
     String getString(final String localKey) {
 		return sysApp.getString(localKey);
@@ -171,22 +228,29 @@ class SystemApplicationImpl extends Thread {
 	}
 
     /**
-	 * Reset the number of queue items.
-	 *
+	 * Reset the queue items.
 	 */
 	void resetQueue() {
 		synchronized(this) {
-			queue.clear();
+            invitationQueue.clear();
+            notificationQueue.clear();
 			notifyAll();
 		}
 	}
 
+    /**
+     * Obtain the total number of queued invitation events.
+     * 
+     * @return The total number of queued invitation events.
+     */
+    private Integer getInvitationQueueTotal() { return invitationQueue.size(); }
+
 	/**
-	 * Obtain the total number of queued events.
+	 * Obtain the total number of queued notification events.
 	 * 
-	 * @return The total number of queued artifacts and artifact versions.
+	 * @return The total number of queued notification events.
 	 */
-	private Integer getQueueTotal() { return queue.size(); }
+	private Integer getNotificationQueueTotal() { return notificationQueue.size(); }
 
     /**
      * Process a request for the display info dialog.
@@ -200,15 +264,32 @@ class SystemApplicationImpl extends Thread {
         }
     }
 
+    /**
+     * Process pending invitation queue events.
+     */
+    private void processInvitationQueue() {
+        if (0 < getInvitationQueueTotal()) {
+            synchronized (this) {
+                Invitation invitation;
+                for (final Iterator<Invitation> i = invitationQueue.iterator();
+                        i.hasNext();) {
+                    invitation = i.next();
+                    InvitationFrame.display(invitation, sysApp);
+                    i.remove();
+                }
+            }
+        }
+    }
+
 	/**
-	 * Process pending queue events.
-	 *
+	 * Process pending notification queue events.
+     * Notifications are ignored while an invitation is displayed.
 	 */
-	private void processQueue() {
-        if (0 < getQueueTotal()) {
+	private void processNotificationQueue() {
+        if (0 < getNotificationQueueTotal() && !InvitationFrame.isDisplayed()) {
             synchronized (this) {
                 Notification notification;
-                for (final Iterator<Notification> i = queue.iterator();
+                for (final Iterator<Notification> i = notificationQueue.iterator();
                         i.hasNext();) {
                     notification = i.next();
                     NotifyFrame.display(notification);

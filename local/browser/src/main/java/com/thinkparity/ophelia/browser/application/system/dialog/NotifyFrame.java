@@ -7,8 +7,6 @@
 package com.thinkparity.ophelia.browser.application.system.dialog;
 
 import java.awt.AWTException;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 
@@ -28,15 +26,13 @@ public class NotifyFrame extends SystemFrame {
         ANIMATION_Y_LOCATION_ADJUSTMENT = -3;
     }
 
-    /** The <code>NotifyPanel</code>. */
-    private NotifyPanel panel;
-
     /**
      * Create NotifyFrame.
      * 
      */
     private NotifyFrame() throws AWTException {
         super();
+        panel = new NotifyPanel();
         initComponents();
     }
 
@@ -144,7 +140,7 @@ public class NotifyFrame extends SystemFrame {
      *            A notification id or group id <code>String</code>.
      */
     private void doClose(final String notificationId) {
-        panel.close(notificationId);
+        ((NotifyPanel)panel).close(notificationId);
     }
 
     /**
@@ -157,24 +153,6 @@ public class NotifyFrame extends SystemFrame {
         // The call to pack() ensures that components in the
         // panel are displayable. See NotifyPanel#reloadNotificationTitle.
         pack();
-        panel.display(notification);
-    }
-
-    /**
-     * Initialize components.
-     */
-    private void initComponents() {
-        panel = new NotifyPanel();
-        setAlwaysOnTop(true);
-        setUndecorated(true);
-        setLayout(new GridBagLayout());
-        final GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.weightx = 1.0F;
-        constraints.weighty = 1.0F;
-        constraints.gridx = GridBagConstraints.RELATIVE;
-        constraints.gridy = GridBagConstraints.RELATIVE;
-        add(panel, constraints);
-        pack();
+        ((NotifyPanel)panel).display(notification);
     }
 }

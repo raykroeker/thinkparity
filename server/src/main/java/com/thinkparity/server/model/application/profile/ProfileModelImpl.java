@@ -1524,7 +1524,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      */
     private boolean isAccessiblePaymentInfo(final Object xaContext) {
         final PaymentPlan plan = paymentSql.readPlan(user);
-        return plan.getOwner().getLocalId().equals(user.getLocalId());
+        return null == plan ? false : plan.getOwner().getLocalId().equals(
+                user.getLocalId());
     }
 
     /**

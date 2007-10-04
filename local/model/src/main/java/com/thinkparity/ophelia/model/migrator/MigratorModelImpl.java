@@ -479,11 +479,12 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
         int index = -1;
         for (int i = 0; i < RELEASE_NAMES.length; i++) {
             if (RELEASE_NAMES[i].equals(release)) {
-                index = i;
+                index = i + 1;  /* we want to run the script starting with the
+                                 * next release */
                 break;
             }
         }
-        if (-1 < index && RELEASE_NAMES.length > index) {
+        if (-1 < index) {
             for (int i = index; i < RELEASE_NAMES.length; i++) {
                 // migrate the schema
                 logger.logInfo("Migrating schema to {0}.", Constants.Release.NAME);

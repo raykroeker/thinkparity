@@ -51,9 +51,7 @@ public final class PaymentService {
      */
     public void start() throws PaymentException {
         invoiceProcessor = new PaymentInvoiceProcessor();
-        // NOCOMMIT
-        // invoiceProcessor.setSleep(23L * 60L * 60L * 10000L); // TIMEOUT 23H
-        invoiceProcessor.setSleep(30L * 1000L);
+        invoiceProcessor.setSleep(23L * 60L * 60L * 10000L); // TIMEOUT 23H
         try {
             Thread.sleep(20L * 1000L);
         } catch (final InterruptedException ix) {
@@ -62,9 +60,7 @@ public final class PaymentService {
         startInvoiceProcessor();
 
         queueProcessor = new PaymentQueueProcessor();
-        // NOCOMMIT
-        // queueProcessor.setSleep(5L * 60L * 1000L);  // TIMEOUT 5m
-        queueProcessor.setSleep(30L * 1000L);
+        queueProcessor.setSleep(23L * 60L * 1000L);  // TIMEOUT 23H
         startQueueProcessor();
     }
 

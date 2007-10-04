@@ -6,6 +6,8 @@
 
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -54,8 +56,10 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel errorJLabel = LabelFactory.create(Fonts.DialogFont, Colours.DIALOG_ERROR_TEXT_FG);
+    private final javax.swing.JRadioButton infoJRadioButton = new javax.swing.JRadioButton();
+    private final javax.swing.JTextField nameJTextField = TextFactory.create(Fonts.DialogFont);
     private final javax.swing.JPasswordField passwordJPasswordField = TextFactory.createPassword(Fonts.DialogFont);
-    private final javax.swing.JTextField usernameJTextField = TextFactory.create(Fonts.DialogFont);
+    private final javax.swing.JRadioButton planJRadioButton = new javax.swing.JRadioButton();
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -67,6 +71,7 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
         initComponents();
         initComponentFocusListeners();
         addValidationListeners();
+        addSelectionListeners();
     }
 
     /**
@@ -85,7 +90,13 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
      */
     @Override
     public String getNextPageName() {
-        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_SUMMARY);
+        if (infoJRadioButton.isSelected()) {
+            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT);
+        } else if (planJRadioButton.isSelected()) {
+            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_SUMMARY);
+        } else {
+            throw Assert.createUnreachable("Unexpected radio selection.");
+        }
     }
     /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getPreviousPageName()
@@ -116,12 +127,22 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
             if (containsInputErrors()) {
                 return Boolean.FALSE;
             } else {
-                createProfile();
+                if (infoJRadioButton.isSelected()) {
+                    if (containsInputErrors()) {
+                        return Boolean.FALSE;
+                    } else {
+                        return Boolean.TRUE;
+                    }
+                } else if (planJRadioButton.isSelected()) {
+                    createProfile();
 
-                if (containsInputErrors()) {
-                    return Boolean.FALSE;
+                    if (containsInputErrors()) {
+                        return Boolean.FALSE;
+                    } else {
+                        return Boolean.TRUE;
+                    }
                 } else {
-                    return Boolean.TRUE;
+                    throw Assert.createUnreachable("Unexpected radio selection.");
                 }
             }
         } else {
@@ -130,12 +151,27 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
+     *
+     */
+    @Override
+    public void reload() {
+        infoJRadioButton.setSelected(true);
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#saveData()
      *
      */
     @Override
     public void saveData() {
-        ((Data) input).set(DataKey.PAYMENT_CREDENTIALS, extractCredentials());
+        if (infoJRadioButton.isSelected()) {
+            /* do nothing */
+        } else if (planJRadioButton.isSelected()) {
+            ((Data) input).set(DataKey.PAYMENT_CREDENTIALS, extractCredentials());
+        } else {
+            Assert.assertUnreachable("Unexpected radio selection.");
+        }
     }
 
     /**
@@ -144,7 +180,7 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
      */
     @Override
     public void setDefaultFocus() {
-        usernameJTextField.requestFocusInWindow();
+        planJRadioButton.requestFocusInWindow();
     }
 
     /**
@@ -165,52 +201,58 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
     public void validateInput() {
         super.validateInput();
 
-        final String username = extractUsername();
-        final String password = extractPassword();
-        if (null == username) {
-            addInputError(getString("ErrorNoUsername"));
-        } else {
-            try {
-                constraints.getName().validate(username);
-            } catch (final IllegalValueException ivx) {
-                switch (ivx.getReason()) {
-                case TOO_SHORT:
-                    addInputError("ErrorUsernameTooShort",
-                            constraints.getName().getMinLength());
-                    break;
-                case FORMAT:
-                case ILLEGAL:
-                case NULL:
-                case TOO_LARGE:
-                case TOO_LONG:
-                case TOO_SMALL:
-                default:
-                    Assert.assertUnreachable("Unexpected reason {0}.", ivx.getReason());
+        if (infoJRadioButton.isSelected()) {
+            /* no checking required */
+        } else if (planJRadioButton.isSelected()) {
+            final String username = extractName();
+            final String password = extractPassword();
+            if (null == username) {
+                addInputError(getString("ErrorNoUsername"));
+            } else {
+                try {
+                    constraints.getName().validate(username);
+                } catch (final IllegalValueException ivx) {
+                    switch (ivx.getReason()) {
+                    case TOO_SHORT:
+                        addInputError("ErrorUsernameTooShort",
+                                constraints.getName().getMinLength());
+                        break;
+                    case FORMAT:
+                    case ILLEGAL:
+                    case NULL:
+                    case TOO_LARGE:
+                    case TOO_LONG:
+                    case TOO_SMALL:
+                    default:
+                        Assert.assertUnreachable("Unexpected reason {0}.", ivx.getReason());
+                    }
                 }
             }
-        }
-        if (null == password) {
-            addInputError(getString("ErrorNoPassword"));
-        } else {
-            try {
-                constraints.getPassword().validate(password);
-            } catch (final IllegalValueException ivx) {
-                switch (ivx.getReason()) {
-                case TOO_SHORT:
-                    addInputError("ErrorUsernameTooShort",
-                            constraints.getPassword().getMinLength());
-                    break;
-                case FORMAT:
-                case ILLEGAL:
-                case NULL:
-                case TOO_LARGE:
-                case TOO_LONG:
-                case TOO_SMALL:
-                default:
-                    Assert.assertUnreachable("Unexpected reason {0}.", ivx.getReason());
+            if (null == password) {
+                addInputError(getString("ErrorNoPassword"));
+            } else {
+                try {
+                    constraints.getPassword().validate(password);
+                } catch (final IllegalValueException ivx) {
+                    switch (ivx.getReason()) {
+                    case TOO_SHORT:
+                        addInputError("ErrorUsernameTooShort",
+                                constraints.getPassword().getMinLength());
+                        break;
+                    case FORMAT:
+                    case ILLEGAL:
+                    case NULL:
+                    case TOO_LARGE:
+                    case TOO_LONG:
+                    case TOO_SMALL:
+                    default:
+                        Assert.assertUnreachable("Unexpected reason {0}.", ivx.getReason());
+                    }
                 }
+    
             }
-
+        } else {
+            Assert.assertUnreachable("Unexpected radio selection.");
         }
 
         /* note that we only disable the button; we do not write error text */
@@ -224,11 +266,32 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
     }
 
     /**
+     * Add radio button selection listeners.
+     * 
+     */
+    private void addSelectionListeners() {
+        infoJRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                reloadPlanEnabled();
+                validateInput();
+            }
+        });
+        planJRadioButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                reloadPlanEnabled();
+                validateInput();
+            }
+        });
+    }
+
+    /**
      * Add validation listeners to the input controls.
      * 
      */
     private void addValidationListeners() {
-        addValidationListener(usernameJTextField);
+        addValidationListener(nameJTextField);
         addValidationListener(passwordJPasswordField);
     }
 
@@ -276,9 +339,9 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
      */
     private PaymentPlanCredentials extractCredentials() {
         final PaymentPlanCredentials credentials;
-        if (isSetUsername() && isSetPassword()) {
+        if (isSetName() && isSetPassword()) {
             credentials = new PaymentPlanCredentials();
-            credentials.setName(extractUsername());
+            credentials.setName(extractName());
             credentials.setPassword(extractPassword());
         } else {
             credentials = null;
@@ -296,12 +359,12 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
     }
 
     /**
-     * Extract the username.
+     * Extract the name.
      * 
      * @return A <code>String</code>.
      */
-    private String extractUsername() {
-        return SwingUtil.extract(usernameJTextField, Boolean.TRUE);
+    private String extractName() {
+        return SwingUtil.extract(nameJTextField, Boolean.TRUE);
     }
 
     /**
@@ -328,7 +391,7 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
                 validateInput();
             }
         };
-        usernameJTextField.addFocusListener(listener);
+        nameJTextField.addFocusListener(listener);
         passwordJPasswordField.addFocusListener(listener);
     }
 
@@ -339,17 +402,20 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JLabel usernameJLabel = LabelFactory.create(Fonts.DialogFont);
+        javax.swing.ButtonGroup optionButtonGroup;
+
+        optionButtonGroup = new javax.swing.ButtonGroup();
+        final javax.swing.JLabel nameJLabel = LabelFactory.create(Fonts.DialogFont);
         final javax.swing.JLabel passwordJLabel = LabelFactory.create(Fonts.DialogFont);
         final javax.swing.JLabel eaJLabel = LabelFactory.create(Fonts.DialogFont);
 
         setOpaque(false);
-        usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PaymentPlan.UsernameLabel"));
+        nameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PaymentPlan.NameLabel"));
 
         passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PaymentPlan.PasswordLabel"));
 
-        usernameJTextField.setPreferredSize(new java.awt.Dimension(300, 20));
-        ((AbstractDocument) usernameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getName()));
+        nameJTextField.setPreferredSize(new java.awt.Dimension(300, 20));
+        ((AbstractDocument) nameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getName()));
 
         passwordJPasswordField.setPreferredSize(new java.awt.Dimension(300, 20));
         ((AbstractDocument) passwordJPasswordField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getPassword()));
@@ -359,6 +425,20 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
 
         errorJLabel.setText("!Error!");
 
+        optionButtonGroup.add(infoJRadioButton);
+        infoJRadioButton.setFont(Fonts.DialogFont);
+        infoJRadioButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PaymentPlan.OptionInfo"));
+        infoJRadioButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        infoJRadioButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        infoJRadioButton.setOpaque(false);
+
+        optionButtonGroup.add(planJRadioButton);
+        planJRadioButton.setFont(Fonts.DialogFont);
+        planJRadioButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PaymentPlan.OptionPlan"));
+        planJRadioButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        planJRadioButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        planJRadioButton.setOpaque(false);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -366,32 +446,47 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(eaJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE)
+                            .addComponent(errorJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(12, 12, 12)
+                                .addComponent(infoJRadioButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 122, Short.MAX_VALUE))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(24, 24, 24)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(usernameJLabel)
-                            .addComponent(passwordJLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(usernameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(passwordJPasswordField, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(eaJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(errorJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(17, 17, 17)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(passwordJLabel)
+                                    .addComponent(nameJLabel))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addComponent(passwordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addComponent(nameJTextField, 0, 0, Short.MAX_VALUE)))
+                            .addComponent(planJRadioButton, javax.swing.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE))))
                 .addContainerGap())
         );
+
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {nameJTextField, passwordJPasswordField});
+
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(eaJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(15, 15, 15)
+                .addComponent(infoJRadioButton)
+                .addGap(19, 19, 19)
+                .addComponent(planJRadioButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(usernameJLabel)
-                    .addComponent(usernameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(nameJLabel)
+                    .addComponent(nameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(passwordJLabel)
@@ -412,11 +507,31 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
     }
 
     /**
-     * Determine if the username is set.
+     * Determine if the name is set.
      * 
      * @return True if it is set.
      */
-    private boolean isSetUsername() {
-        return null != SwingUtil.extract(usernameJTextField);
+    private boolean isSetName() {
+        return null != SwingUtil.extract(nameJTextField);
+    }
+
+    /**
+     * Reload the plan enabled based upon the selected radio button.
+     * 
+     */
+    private void reloadPlanEnabled() {
+        if (planJRadioButton.isSelected()) {
+            nameJTextField.setEnabled(true);
+
+            passwordJPasswordField.setEnabled(true);
+        } else if (infoJRadioButton.isSelected()) {
+            nameJTextField.setText(null);
+            nameJTextField.setEnabled(false);
+
+            passwordJPasswordField.setText(null);
+            passwordJPasswordField.setEnabled(false);
+        } else {
+            Assert.assertUnreachable("Unexpected selection.");
+        }
     }
 }

@@ -61,6 +61,14 @@
         <param-value>TESTING</param-value>
     </context-param>
     <context-param>
+        <param-name>thinkparity.node.username</param-name>
+        <param-value>tps-yxx-0.thinkparity.org-0</param-value>
+    </context-param>
+    <context-param>
+        <param-name>thinkparity.node.password</param-name>
+        <param-value>password</param-value>
+    </context-param>
+    <context-param>
         <param-name>thinkparity.product-name</param-name>
         <param-value>DesdemonaProduct</param-value>
     </context-param>

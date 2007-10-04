@@ -27,6 +27,8 @@ import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
+import com.thinkparity.codebase.filter.Filter;
+import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.migrator.Error;
@@ -71,7 +73,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
         super();
         this.smtpService = SMTPService.getInstance();
     }
-   
+
     /**
      * @see com.thinkparity.desdemona.model.migrator.MigratorModel#deploy(com.thinkparity.codebase.model.migrator.Product,
      *      com.thinkparity.codebase.model.migrator.Release, java.util.List)
@@ -185,6 +187,47 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
             } finally {
                 tempErrorFile.delete();
             }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+   
+    /**
+     * @see com.thinkparity.desdemona.model.migrator.InternalMigratorModel#readFeatures(com.thinkparity.codebase.model.migrator.Product, com.thinkparity.codebase.filter.Filter)
+     *
+     */
+    @Override
+    public List<Feature> readFeatures(final Product product,
+            final Filter<? super Feature> filter) {
+        try {
+            final List<Feature> features = migratorSql.readProductFeatures(product.getName());
+            FilterManager.filter(features, filter);
+            return features;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.migrator.InternalMigratorModel#readFees()
+     *
+     */
+    public List<Fee> readFees(final List<Feature> featureList) {
+        try {
+            return migratorSql.readFees(featureList);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.migrator.InternalMigratorModel#readIsPaymentRequired(com.thinkparity.codebase.model.migrator.Feature)
+     *
+     */
+    @Override
+    public Boolean readIsPaymentRequired(final Feature feature) {
+        try {
+            return migratorSql.readIsPaymentRequired(feature);
         } catch (final Throwable t) {
             throw panic(t);
         }

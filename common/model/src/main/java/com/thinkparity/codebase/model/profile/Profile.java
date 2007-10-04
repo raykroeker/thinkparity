@@ -28,6 +28,9 @@ import com.thinkparity.service.adapter.LocaleXmlAdapter;
  */
 public class Profile extends User {
 
+    /** An active flag. */
+    private Boolean active;
+
     /** A list of <code>Feature</code>s the user has enabled. */
     private final List<Feature> features;
 
@@ -174,6 +177,15 @@ public class Profile extends User {
     }
 
     /**
+     * Determine if the profile is active.
+     * 
+     * @return A <code>Boolean</code>.
+     */
+    public Boolean isActive() {
+        return active;
+    }
+
+    /**
      * Determine whether or not the user's mobile phone number is set.
      * 
      * @return True if it is set; false otherwise.
@@ -191,6 +203,16 @@ public class Profile extends User {
      */
     public boolean remove(final Feature feature) {
         return this.features.remove(feature);
+    }
+
+    /**
+     * Set active.
+     *
+     * @param active
+     *		A <code>Boolean</code>.
+     */
+    public void setActive(final Boolean active) {
+        this.active = active;
     }
 
     /**
@@ -212,7 +234,7 @@ public class Profile extends User {
     public void setCity(final String city) {
         vcard.setCity(city);
     }
-
+   
     /**
      * Set the country.
      * 
@@ -222,7 +244,7 @@ public class Profile extends User {
     public void setCountry(final String country) {
         vcard.setCountry(country);
     }
-   
+
     /**
      * Set the features for the profile.
      * 

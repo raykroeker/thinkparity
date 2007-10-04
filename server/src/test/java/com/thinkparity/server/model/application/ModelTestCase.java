@@ -14,6 +14,7 @@ import java.util.TimeZone;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
+import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
@@ -32,6 +33,7 @@ import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.profile.VerificationKey;
+import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
@@ -63,6 +65,9 @@ public abstract class ModelTestCase extends TestCase {
 
     /** A shared buffer. */
     private static final Buffer BUFFER;
+
+    /** The ophelia product name. */
+    private static final String OPHELIA_PRODUCT_NAME = "OpheliaProduct";
 
     static {
         BUFFER = new Buffer();
@@ -173,18 +178,15 @@ public abstract class ModelTestCase extends TestCase {
      * @return A <code>Profile</code>.
      */
     private Profile createProfile(final String username) {
-        final MigratorModel migratorModel = getMigratorModel();
         /* product */
-        final Product product = migratorModel.readProduct("OpheliaProduct");
+        final Product product = readOpheliaProduct();
         /* release */
-        final Release release = migratorModel.readLatestRelease(
-                product.getName(), OSUtil.getOs());
+        final Release release = readOpheliaLatestRelease();
         /* features */
-        final List<Feature> features = migratorModel.readProductFeatures(
-                product.getName());
+        final List<Feature> features = readOpheliaFeatures();
 
         final ProfileModel profileModel = getProfileModel();
-        final EMail email = EMailBuilder.parse("application+" + username + "@thinkparity.com");
+        final EMail email = newEMail(username);
         final UsernameReservation usernameReservation = profileModel.createUsernameReservation(username);
         final EMailReservation emailReservation = profileModel.createEMailReservation(email);
         final Credentials credentials = new Credentials();
@@ -465,6 +467,32 @@ public abstract class ModelTestCase extends TestCase {
     }
 
     /**
+     * Instantiate an e-mail address for a username.
+     * 
+     * @param username
+     *            A <code>String</code>.
+     * @return An <code>EMail</code>.
+     */
+    private EMail newEMail(final String username) {
+        return EMailBuilder.parse("application+" + username + "@thinkparity.com");
+    }
+
+    /**
+     * Instantiate valid payment info.
+     * 
+     * @return A <code>PaymentInfo</code>.
+     */
+    private PaymentInfo newPaymentInfo() {
+        final PaymentInfo paymentInfo = new PaymentInfo();
+        final Calendar now = now();
+        paymentInfo.setCardExpiryMonth(Short.valueOf(Integer.valueOf(now.get(Calendar.MONTH) + 1).shortValue()));
+        paymentInfo.setCardExpiryYear(Short.valueOf(Integer.valueOf(now.get(Calendar.YEAR)).shortValue()));
+        paymentInfo.setCardName(PaymentInfo.CardName.MASTER_CARD);
+        paymentInfo.setCardNumber("5454545454545454");
+        return paymentInfo;
+    }
+
+    /**
      * Create a new unique username.
      * 
      * @return A <code>String</code>.
@@ -491,6 +519,44 @@ public abstract class ModelTestCase extends TestCase {
      */
     private EMail readEMail(final AuthToken authToken) {
         return getModelFactory(authToken).getProfileModel().readEMail().getEmail();
+    }
+
+    /**
+     * Read the features for the product.
+     * 
+     * @return A <code>List<Feature></code>.
+     */
+    private List<Feature> readOpheliaFeatures() {
+        return getMigratorModel().readProductFeatures(OPHELIA_PRODUCT_NAME);
+    }
+
+    /**
+     * Read the latest release for the ophelia product on the os.
+     * 
+     * @return A <code>Release</code>.
+     */
+    private Release readOpheliaLatestRelease() {
+        return readOpheliaLatestRelease(OSUtil.getOS());
+    }
+
+    /**
+     * Read the latest release for the ophelia product for the os.
+     * 
+     * @param os
+     *            An <code>OS</code>.
+     * @return A <code>Release</code>.
+     */
+    private Release readOpheliaLatestRelease(final OS os) {
+        return getMigratorModel().readLatestRelease(OPHELIA_PRODUCT_NAME, os);
+    }
+
+    /**
+     * Read the ophelia product.
+     * 
+     * @return A <code>Product</code>.
+     */
+    private Product readOpheliaProduct() {
+        return getMigratorModel().readProduct(OPHELIA_PRODUCT_NAME);
     }
 
     /**
@@ -632,6 +698,14 @@ public abstract class ModelTestCase extends TestCase {
         }
 
         /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#getProfileModel(AuthToken)
+         * 
+         */
+        public ProfileModel getProfileModel(final AuthToken authToken) {
+            return ModelTestCase.this.getProfileModel(authToken);
+        }
+
+        /**
          * @see com.thinkparity.desdemona.model.ModelTestCase#getContactModel(AuthToken)
          * 
          */
@@ -656,6 +730,14 @@ public abstract class ModelTestCase extends TestCase {
         }
 
         /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#lookupPassword(String)
+         * 
+         */
+        public String lookupPassword(final String username) {
+            return ModelTestCase.this.lookupPassword(username);
+        }
+
+        /**
          * @see com.thinkparity.desdemona.model.ModelTestCase#lookupUser(AuthToken)
          * 
          */
@@ -664,7 +746,23 @@ public abstract class ModelTestCase extends TestCase {
         }
 
         /**
-         * @see com.thinkparity.desdemona.model.ModelTestcase#newUniqueUsername()
+         * @see com.thinkparity.desdemona.model.ModelTestCase#newEMail(String)
+         * 
+         */
+        public EMail newEMail(final String username) {
+            return ModelTestCase.this.newEMail(username);
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#newPaymentInfo()
+         * 
+         */
+        public PaymentInfo newPaymentInfo() {
+            return ModelTestCase.this.newPaymentInfo();
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#newUniqueUsername()
          * 
          */
         public String newUniqueUsername() {
@@ -677,6 +775,30 @@ public abstract class ModelTestCase extends TestCase {
          */
         public Calendar now() {
             return ModelTestCase.this.now();
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#readOpheliaFeatures()
+         * 
+         */
+        public List<Feature> readOpheliaFeatures() {
+            return ModelTestCase.this.readOpheliaFeatures();
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#readOpheliaLatestRelease()
+         * 
+         */
+        public Release readOpheliaLatestRelease() {
+            return ModelTestCase.this.readOpheliaLatestRelease();
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#readOpheliaProduct()
+         * 
+         */
+        public Product readOpheliaProduct() {
+            return ModelTestCase.this.readOpheliaProduct();
         }
 
         /**

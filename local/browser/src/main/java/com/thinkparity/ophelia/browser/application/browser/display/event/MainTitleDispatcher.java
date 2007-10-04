@@ -13,7 +13,19 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTi
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.EventDispatcher;
 
 /**
- * @author rob_masako@shaw.ca
+ * <b>Title:</b>thinkParity Ophelia UI Main Title Dispatcher<br>
+ * <b>Description:</b>Registers event listeners within the model for updating
+ * the main title avatar. The events monitored are:
+ * <ul>
+ * <li>E-Mail updated.
+ * <li>E-Mail verified.
+ * <li>Profile updated.
+ * <li>Profile disabled.
+ * <li>Profile enabled.
+ * </ul>
+ * <br>
+ * 
+ * @author robert@thinkparity.com
  * @version $Revision$
  */
 public final class MainTitleDispatcher implements
@@ -53,6 +65,14 @@ public final class MainTitleDispatcher implements
             public void profileUpdated(final ProfileEvent e) {
                 removeListeners(avatar);
                 addListeners(avatar);
+            }
+            @Override
+            public void profileActivated(final ProfileEvent e) {
+                avatar.fireProfileEvent(e.getProfile());
+            }
+            @Override
+            public void profilePassivated(final ProfileEvent e) {
+                avatar.fireProfileEvent(e.getProfile());
             }
         };
         profileModel.addListener(profileListener);

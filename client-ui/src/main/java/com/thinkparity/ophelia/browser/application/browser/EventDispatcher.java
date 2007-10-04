@@ -5,11 +5,7 @@ package com.thinkparity.ophelia.browser.application.browser;
 
 import com.thinkparity.codebase.swing.SwingUtil;
 
-import com.thinkparity.ophelia.model.events.ContactAdapter;
-import com.thinkparity.ophelia.model.events.ContactEvent;
-import com.thinkparity.ophelia.model.events.ContactListener;
-import com.thinkparity.ophelia.model.events.SessionAdapter;
-import com.thinkparity.ophelia.model.events.SessionListener;
+import com.thinkparity.ophelia.model.events.*;
 
 /**
  * The browser's event dispatcher.
@@ -22,11 +18,14 @@ class EventDispatcher {
 	/** The browser application. */
 	protected final Browser browser;
     
-    /** A thinkParity contact interface listener. */
+    /** A contact listener. */
     private ContactListener contactListener;
 
-	/** A thinkParity session interface listener.*/
+	/** A session listener.*/
 	private SessionListener sessionListener;
+
+	/** A profile listener. */
+	private ProfileListener profileListener;
 
 	/**
      * Create an EventDispatcher.
@@ -46,7 +45,10 @@ class EventDispatcher {
 	void end() {
         browser.removeListener(contactListener);
         contactListener = null;
-        
+
+        browser.removeListener(profileListener);
+        profileListener = null;
+
 		browser.getSessionModel().removeListener(sessionListener);
 		sessionListener = null;
 	}
@@ -58,6 +60,14 @@ class EventDispatcher {
 	void start() {
         contactListener = createContactListener();
         browser.addListener(contactListener);
+
+        profileListener = new ProfileAdapter() {
+            @Override
+            public void profileUpdated(final ProfileEvent e) {
+                browser.reloadMenuBar();
+            }
+        };
+        browser.addListener(profileListener);
 
 		sessionListener = createSessionListener();
 		browser.getSessionModel().addListener(sessionListener);

@@ -11,6 +11,7 @@ import java.util.List;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
+import com.thinkparity.codebase.model.annotation.ThinkParityFilterEvent;
 import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
@@ -25,6 +26,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
  * @version 1.1.2.1
  */
 @ThinkParityBackupEvent
+@ThinkParityFilterEvent
 public final class VersionPublishedNotificationEvent extends XMPPEvent {
 
     /** The published by <code>User</code>. */

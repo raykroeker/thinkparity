@@ -28,7 +28,7 @@ public interface ProfileIOHandler extends IOHandler {
      * @param profile
      *            A <code>Profile</code>.
      */
-    public void create(final Profile profile);
+    void create(Profile profile);
 
     /**
      * Create a profile email.
@@ -38,7 +38,15 @@ public interface ProfileIOHandler extends IOHandler {
      * @param email
      *            A <code>ProfileEMail</code>.
      */
-    public void createEmail(final Long profileId, final ProfileEMail email);
+    void createEmail(Long profileId, final ProfileEMail email);
+
+    /**
+     * Delete the profile.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     */
+    void delete(Profile profile);
 
     /**
      * Delete a profile email.
@@ -48,7 +56,16 @@ public interface ProfileIOHandler extends IOHandler {
      * @param emailId
      *            An email id <code>Long</code>.
      */
-    public void deleteEmail(final Long profileId, final Long emailId);
+    void deleteEmail(Long profileId, final Long emailId);
+
+    /**
+     * Determine if the profile is active.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     * @return True if it is active.
+     */
+    Boolean isActive(Profile profile);
 
     /**
      * Read a profile.
@@ -57,14 +74,14 @@ public interface ProfileIOHandler extends IOHandler {
      *            A profile id <code>JabberId</code>.
      * @return A <code>Profile</code>.
      */
-    public Profile read(final JabberId profileId);
+    Profile read(JabberId profileId);
 
     /**
      * Read the disk usage of the profile.
      * 
      * @return A number of bytes <code>Long</code>.
      */
-    public Long readDiskUsage();
+    Long readDiskUsage();
 
     /**
      * Read a profile email.
@@ -75,7 +92,7 @@ public interface ProfileIOHandler extends IOHandler {
      *            An email id <code>Long</code>.
      * @return A <code>ProfileEMail</code>.
      */
-    public ProfileEMail readEmail(final Long profileId, final Long emailId);
+    ProfileEMail readEmail(Long profileId, final Long emailId);
 
     /**
      * Read the profile emails.
@@ -84,7 +101,7 @@ public interface ProfileIOHandler extends IOHandler {
      *            A profile id <code>Long</code>.
      * @return A <code>List&lt;ProfileEMail&gt;</code>.
      */
-    public List<ProfileEMail> readEmails(final Long profileId);
+    List<ProfileEMail> readEmails(Long profileId);
 
     /**
      * Read the features for the profile.
@@ -93,7 +110,7 @@ public interface ProfileIOHandler extends IOHandler {
      *            A profile id <code>Long</code>.
      * @return A <code>List</code> of <code>Feature</code>s.
      */
-    public List<Feature> readFeatures(final Long profileId);
+    List<Feature> readFeatures(Long profileId);
 
     /**
      * Update a profile.
@@ -101,7 +118,23 @@ public interface ProfileIOHandler extends IOHandler {
      * @param profile
      *            A <code>Profile</code>.
      */
-    public void update(final Profile profile);
+    void update(Profile profile);
+
+    /**
+     * Update the profile's active state.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     */
+    void updateActive(Profile profile);
+
+    /**
+     * Update the profile features.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     */
+    void updateFeatures(Profile profile);
 
     /**
      * Verify a profile email.
@@ -113,14 +146,6 @@ public interface ProfileIOHandler extends IOHandler {
      * @param verified
      *            The verification <code>Boolean</code> flag.
      */
-    public void verifyEmail(final Long profileId, final Long emailId,
+    void verifyEmail(Long profileId, final Long emailId,
             final Boolean verified);
-
-    /**
-     * Delete the profile.
-     * 
-     * @param profile
-     *            A <code>Profile</code>.
-     */
-    void delete(Profile profile);
 }

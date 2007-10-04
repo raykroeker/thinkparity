@@ -37,6 +37,7 @@ import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.Constants.Directories;
+import com.thinkparity.ophelia.browser.Constants.EnvironmentVariable;
 import com.thinkparity.ophelia.browser.Constants.Files;
 import com.thinkparity.ophelia.browser.Constants.ShutdownHooks;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarFactory;
@@ -265,7 +266,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         displayErrorDialog(applicationId, input);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#displayErrorDialog(com.thinkparity.ophelia.browser.platform.application.ApplicationId)
      * 
      */
@@ -282,7 +283,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         displayErrorDialog(applicationId, input);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#displayErrorDialog(java.lang.Throwable)
      *
      */
@@ -413,7 +414,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
 	 * @see com.thinkparity.ophelia.browser.platform.Platform#getLogger(java.lang.Class)
 	 * 
 	 */
-	public Logger getLogger(final Class clasz) {
+	public Logger getLogger(final Class<?> clasz) {
 		return Logger.getLogger(clasz);
 	}
 
@@ -439,7 +440,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         return null;
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getReleaseName()
      *
      */
@@ -447,7 +448,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         return Version.getReleaseName();
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getTimeZone()
      *
      */
@@ -463,7 +464,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
 		applicationRegistry.get(applicationId).hibernate(this);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#initializeWorkspace(com.thinkparity.ophelia.model.util.ProcessMonitor,
      *      com.thinkparity.ophelia.model.workspace.InitializeMediator,
      *      com.thinkparity.ophelia.model.workspace.Workspace,
@@ -476,7 +477,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
                 workspace, credentials);
     }
 
-    /** @see com.thinkparity.ophelia.browser.platform.Platform#isDevelopmentMode() */
+	/** @see com.thinkparity.ophelia.browser.platform.Platform#isDevelopmentMode() */
 	public Boolean isDevelopmentMode() {
         switch (mode) {
         case DEMO:
@@ -496,6 +497,20 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      */
     public Boolean isFirewallEnabled() {
         return firewallUtil.isEnabled();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#isInternal()
+     *
+     */
+    @Override
+    public Boolean isInternal() {
+        final String value = System.getenv(EnvironmentVariable.ThinkParity.KEY);
+        if (null == value) {
+            return Boolean.FALSE;
+        } else {
+            return EnvironmentVariable.ThinkParity.VALUE_INTERNAL.equals(value);
+        }
     }
 
     /**

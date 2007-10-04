@@ -10,6 +10,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.MessageFormat;
 
 /**
  * @author raymond@thinkparity.com
@@ -107,7 +108,9 @@ public class BeanUtils {
                 throw new BeanException(itx);
             }
         } else {
-            throw new BeanException("NO SUCH METHOD");
+            throw new BeanException(MessageFormat.format(
+                    "Could not invoke read for property {1} on {0}.", bean,
+                    descriptor));
         }
     }
 }

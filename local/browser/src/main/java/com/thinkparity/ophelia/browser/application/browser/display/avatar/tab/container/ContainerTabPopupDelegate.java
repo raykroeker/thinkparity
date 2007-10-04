@@ -38,7 +38,6 @@ import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingUse
 import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
-import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
 
 /**
@@ -385,9 +384,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
 
         // open
         if (isLocalUser(user)) {
-            final Data data = new Data(1);
-            data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            add(ActionId.PROFILE_UPDATE, data);
+            add(ActionId.PROFILE_UPDATE, Data.emptyData());
         } else {
             final Data data = new Data(1);
             data.set(ReadTeamMember.DataKey.USER_ID, user.getLocalId());

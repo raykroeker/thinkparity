@@ -14,7 +14,10 @@ import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
+import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
+import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
 import com.thinkparity.ophelia.model.Constants.Product;
 import com.thinkparity.ophelia.model.profile.ReservationExpiredException;
@@ -23,10 +26,13 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.firstrun.SignupData.DataKey;
 
 /**
- * @author rob_masako@shaw.ca
+ * <b>Title:</b>thinkParity Ophelia UI Platform First Run Helper<br>
+ * <b>Description:</b>Common utilities for the first run wizard.<br>
+ * 
+ * @author robert@thinkparity.com
  * @version $Revision$
  */
-public class SignupHelper {
+final class SignupHelper {
 
     /** Input <code>Data</code>. */
     private final Data input;
@@ -49,7 +55,30 @@ public class SignupHelper {
     }
 
     /**
-     * Create a new profile.
+     * Create a payment plan profile.
+     * 
+     */
+    public void createPlanProfile() throws ReservationExpiredException,
+            InvalidCredentialsException {
+        final UsernameReservation usernameReservation = (UsernameReservation) ((Data) input).get(SignupData.DataKey.USERNAME_RESERVATION);
+        final EMailReservation emailReservation = (EMailReservation) ((Data) input).get(SignupData.DataKey.EMAIL_RESERVATION);
+        final Credentials credentials = (Credentials) ((Data) input).get(SignupData.DataKey.CREDENTIALS);
+        final Profile profile = (Profile) ((Data) input).get(SignupData.DataKey.PROFILE);
+        final EMail email = (EMail) ((Data) input).get(SignupData.DataKey.EMAIL);
+        final SecurityCredentials securityCredentials = new SecurityCredentials();
+        securityCredentials.setQuestion((String) ((Data) input).get(SignupData.DataKey.SECURITY_QUESTION));
+        securityCredentials.setAnswer((String) ((Data) input).get(SignupData.DataKey.SECURITY_ANSWER));
+        profile.setFeatures(extractFeatures());
+        final PaymentPlanCredentials paymentPlanCredentials = (PaymentPlanCredentials) ((Data) input).get(SignupData.DataKey.PAYMENT_CREDENTIALS);
+
+        signupProvider.createProfile(usernameReservation, emailReservation,
+                credentials, profile, email,securityCredentials,
+                paymentPlanCredentials);
+    }
+
+    /**
+     * Create a profile.
+     * 
      */
     public void createProfile() throws ReservationExpiredException {
         final UsernameReservation usernameReservation = (UsernameReservation) ((Data) input).get(SignupData.DataKey.USERNAME_RESERVATION);
@@ -61,35 +90,28 @@ public class SignupHelper {
         securityCredentials.setQuestion((String) ((Data) input).get(SignupData.DataKey.SECURITY_QUESTION));
         securityCredentials.setAnswer((String) ((Data) input).get(SignupData.DataKey.SECURITY_ANSWER));
         profile.setFeatures(extractFeatures());
-        createProfile(usernameReservation, emailReservation, credentials,
-                profile, email, securityCredentials);
+        final PaymentInfo paymentInfo = (PaymentInfo) ((Data) input).get(SignupData.DataKey.PAYMENT_INFO);
+
+        signupProvider.createProfile(usernameReservation, emailReservation,
+                credentials, profile, email,securityCredentials, paymentInfo);
     }
 
     /**
-     * Create a new profile.
+     * Determine if the payment info is required.
      * 
-     * @param usernameReservation
-     *            A <code>UsernameReservation</code>.
-     * @param emailReservation
-     *            An <code>EMailReservation</code>.
-     * @param credentials
-     *            A set of user <code>Credentials</code>.
-     * @param profile
-     *            A <code>Profile</code>.
-     * @param email
-     *            An <code>EMail</code> address.
-     * @param securityCredentials
-     *            A set of security credentials.
-     * @throws ReservationExpiredException
+     * @return True if the payment info is requried.
      */
-    private void createProfile(final UsernameReservation usernameReservation,
-            final EMailReservation emailReservation,
-            final Credentials credentials, final Profile profile,
-            final EMail email, final SecurityCredentials securityCredentials)
-            throws ReservationExpiredException {
-        signupProvider.createProfile(usernameReservation,
-                emailReservation, credentials, profile, email,
-                securityCredentials);
+    public Boolean isRequiredPaymentInfo() {
+        return signupProvider.isRequiredPaymentInfo();
+    }
+
+    /**
+     * Determine if the payment is set.
+     * 
+     * @return True if the payment info is set.
+     */
+    public Boolean isSetPaymentInfo() {
+        return signupProvider.isSetPaymentInfo();
     }
 
     /**

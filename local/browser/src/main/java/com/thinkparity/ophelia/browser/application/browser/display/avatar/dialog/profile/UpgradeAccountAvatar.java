@@ -26,7 +26,6 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.util.State;
 
 /**
- *
  * <b>Title:</b>thinkParity OpheliaUI Upgrade Account Avatar<br>
  * <b>Description:</b><br>
  * 

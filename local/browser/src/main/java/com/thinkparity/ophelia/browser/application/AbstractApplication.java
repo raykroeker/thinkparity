@@ -37,8 +37,6 @@ import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.util.localization.BrowserLocalization;
@@ -51,13 +49,13 @@ import com.thinkparity.ophelia.browser.util.localization.Localization;
 public abstract class AbstractApplication implements Application {
 
 	/** Application listeners. */
-	private static final Map<Class, Set<ApplicationListener>> APPLICATION_LISTENERS;
+	private static final Map<Class<?>, Set<ApplicationListener>> APPLICATION_LISTENERS;
 
     /** A list of stack filters for {@link #logApiId()}. */
 	private static final List<StackUtil.Filter> LOG_API_ID_STACK_FILTERS;
 
     static {
-		APPLICATION_LISTENERS = new HashMap<Class, Set<ApplicationListener>>();
+		APPLICATION_LISTENERS = new HashMap<Class<?>, Set<ApplicationListener>>();
         LOG_API_ID_STACK_FILTERS = new ArrayList<StackUtil.Filter>(1);
         LOG_API_ID_STACK_FILTERS.add(new StackUtil.Filter() {
             public Boolean accept(final StackTraceElement stackElement) {
@@ -144,8 +142,8 @@ public abstract class AbstractApplication implements Application {
     /**
      * Add a profile listener.
      * 
-     * @param profileListener
-     *            A profile listener.
+     * @param listener
+     *            A <code>ProfileListener</code>.
      */
     public void addListener(final ProfileListener listener) {
         platform.getModelFactory().getProfileModel(getClass()).addListener(listener);
@@ -205,7 +203,7 @@ public abstract class AbstractApplication implements Application {
         return platform.getModelFactory().getMigratorModel(getClass());
     }
 
-    /**
+	/**
 	 * Obtain the parity session interface.
 	 * 
 	 * @return The parity session interface.
@@ -235,7 +233,7 @@ public abstract class AbstractApplication implements Application {
 		}
 	}
 
-	/**
+    /**
      * Remove a contact listener.
      * 
      * @param contactListener
@@ -334,36 +332,6 @@ public abstract class AbstractApplication implements Application {
             return AvatarFactory.create(id);
 		}
 	}
-
-	/**
-     * Obtain an avatar for a tab list extension.
-     * 
-     * @param tabExtension
-     *            A <code>TabExtension</code>.
-     * @return An avatar.
-     */
-    protected Avatar getAvatar(final TabListExtension tabListExtension) {
-        if (avatarRegistry.contains(tabListExtension)) {
-            return avatarRegistry.get(tabListExtension);
-        } else {
-            return AvatarFactory.create(tabListExtension);
-        }
-    }
-
-    /**
-     * Obtain an avatar for a tab panel extension.
-     * 
-     * @param tabExtension
-     *            A <code>TabExtension</code>.
-     * @return An avatar.
-     */
-    protected Avatar getAvatar(final TabPanelExtension tabPanelExtension) {
-        if (avatarRegistry.contains(tabPanelExtension)) {
-            return avatarRegistry.get(tabPanelExtension);
-        } else {
-            return AvatarFactory.create(tabPanelExtension);
-        }
-    }
 
     /**
      * Obtain the build id.

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityFilterEvent;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
@@ -19,6 +20,7 @@ import com.thinkparity.codebase.model.migrator.Resource;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
+@ThinkParityFilterEvent
 public class ProductReleaseDeployedEvent extends XMPPEvent {
 
     /** A <code>Product</code>. */

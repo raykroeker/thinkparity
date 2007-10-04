@@ -8,7 +8,6 @@ import java.util.List;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
-import com.thinkparity.codebase.model.annotation.ThinkParityConcurrency;
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.EMailIntegrityException;
@@ -17,10 +16,11 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
+import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
+import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.util.concurrent.Lock;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.annotation.ThinkParityOnline;
@@ -45,15 +45,16 @@ public interface ProfileModel {
     @ThinkParityTransaction(TransactionType.NEVER)
     public void addListener(final ProfileListener listener);
 
-    public void create(final UsernameReservation usernameReservation,
-            final EMailReservation emailReservation,
-            final Credentials credentials, final Profile profile,
-            final EMail email, final SecurityCredentials securityCredentials)
-            throws ReservationExpiredException;
-
     public EMailReservation createEMailReservation(final EMail email);
 
     public UsernameReservation createUsernameReservation(final String username);
+
+    /**
+     * Determine if the payment info is accessible.
+     * 
+     * @return True if payment info is accessible.
+     */
+    public Boolean isAccessiblePaymentInfo();
 
     /**
      * Determine whether or not an e-mail address is available.
@@ -87,6 +88,20 @@ public interface ProfileModel {
     public Boolean isInviteAvailable(final User user);
 
     /**
+     * Determine if payment info is required.
+     * 
+     * @return True if payment info is required.
+     */
+    public Boolean isRequiredPaymentInfo();
+
+    /**
+     * Determine if payment info is set.
+     * 
+     * @return True if payment info is set.
+     */
+    public Boolean isSetPaymentInfo();
+
+    /**
      * Determine if sign up is available.
      * 
      * @return True if sign up is available.
@@ -94,11 +109,16 @@ public interface ProfileModel {
     public Boolean isSignUpAvailable();
 
     /**
+     * Sign up.
+     * 
+     */
+    public void signUp(final PaymentInfo paymentInfo);
+
+    /**
      * Read the logged in user's profile.
      * 
      * @return A profile.
      */
-    @ThinkParityConcurrency(Lock.LOCAL_READ)
     public Profile read();
 
     /**
@@ -108,7 +128,7 @@ public interface ProfileModel {
      */
     public BackupStatistics readBackupStatistics();
 
-	/**
+    /**
      * Read a list of available features.
      * 
      * @return A <code>List</code> of <code>Feature</code>s.
@@ -182,11 +202,93 @@ public interface ProfileModel {
     public void verifyEMail(final Long emailId, final String key);
 
     /**
+     * Create a profile.
+     * 
+     * @param usernameReservation
+     *            A <code>UsernameReservation</code>.
+     * @param emailReservation
+     *            An <code>EMailReservation</code>.
+     * @param credentials
+     *            A set of <code>Credentials</code>.
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param email
+     *            An <code>EMail</code> address.
+     * @param securityCredentials
+     *            A set of <code>SecurityCredentials</code>.
+     * @throws ReservationExpiredException
+     */
+    void create(UsernameReservation usernameReservation,
+            EMailReservation emailReservation, Credentials credentials,
+            Profile profile, EMail email,
+            SecurityCredentials securityCredentials)
+            throws ReservationExpiredException;
+
+    /**
+     * Create a profile.
+     * 
+     * @param usernameReservation
+     *            A <code>UsernameReservation</code>.
+     * @param emailReservation
+     *            An <code>EMailReservation</code>.
+     * @param credentials
+     *            A set of <code>Credentials</code>.
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param email
+     *            An <code>EMail</code> address.
+     * @param securityCredentials
+     *            A set of <code>SecurityCredentials</code>.
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
+     * @throws ReservationExpiredException
+     */
+    void create(UsernameReservation usernameReservation,
+            EMailReservation emailReservation, Credentials credentials,
+            Profile profile, EMail email,
+            SecurityCredentials securityCredentials, PaymentInfo paymentInfo)
+            throws ReservationExpiredException;
+
+    /**
+     * Create a profile.
+     * 
+     * @param usernameReservation
+     *            A <code>UsernameReservation</code>.
+     * @param emailReservation
+     *            An <code>EMailReservation</code>.
+     * @param credentials
+     *            A set of <code>Credentials</code>.
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param email
+     *            An <code>EMail</code> address.
+     * @param securityCredentials
+     *            A set of <code>SecurityCredentials</code>.
+     * @param paymentPlanCredentials
+     *            A set of <code>PaymentPlanCredentials</code>.
+     * @throws ReservationExpiredException
+     * @throws InvalidCredentialsException
+     */
+    void create(UsernameReservation usernameReservation,
+            EMailReservation emailReservation, Credentials credentials,
+            Profile profile, EMail email,
+            SecurityCredentials securityCredentials,
+            PaymentPlanCredentials paymentPlanCredentials)
+            throws ReservationExpiredException, InvalidCredentialsException;
+
+    /**
      * Read the profile's e-mail address.
      * 
      * @return A <code>ProfileEMail</code>.
      */
     ProfileEMail readEMail();
+
+    /**
+     * Read the profile's active flag.
+     * 
+     * @return A <code>Boolean</code>.
+     */
+    Boolean readIsActive();
 
     /**
      * Read the profile's username.
@@ -204,4 +306,12 @@ public interface ProfileModel {
      *             if the e-mail's integrity cannot be maintained
      */
     void updateEMail(EMail email) throws EMailIntegrityException;
+
+    /**
+     * Update the payment info.
+     * 
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
+     */
+    void updatePaymentInfo(PaymentInfo paymentInfo);
 }

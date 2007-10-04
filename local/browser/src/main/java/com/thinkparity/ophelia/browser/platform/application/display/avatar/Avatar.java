@@ -9,6 +9,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,11 +57,14 @@ public abstract class Avatar extends AbstractJPanel {
     /** Localization helper utility. */
     protected final Localization localization;
 
-	/** The thinkParity <code>PluginRegistry</code>. */
+    /** The thinkParity <code>PluginRegistry</code>. */
     protected final PluginRegistry pluginRegistry;
 
 	/** The Resizer */
     protected Resizer resizer;
+
+	/** A set of avatar object utilities. */
+    protected final AvatarUtils utils;
 
 	/** The thinkparity application registry. */
     private final ApplicationRegistry applicationRegistry;
@@ -72,7 +76,7 @@ public abstract class Avatar extends AbstractJPanel {
     private Boolean closeButtonEnabled;
 
 	/** An avatar's <code>EventDispatcher</code>. */
-    private EventDispatcher eventDispatcher;
+    private EventDispatcher<?> eventDispatcher;
 
     /** A list of the avatar's input error messages. */
     private final List<String> inputErrors;
@@ -129,11 +133,12 @@ public abstract class Avatar extends AbstractJPanel {
 	protected Avatar(final String l18nContext, final ScrollPolicy scrollPolicy) {
 		super();
         this.applicationRegistry = new ApplicationRegistry();
+        this.closeButtonEnabled = Boolean.TRUE;
 		this.inputErrors = new LinkedList<String>();
         this.localization = new BrowserLocalization(l18nContext);
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
-        this.closeButtonEnabled = Boolean.TRUE;
+		this.utils = new AvatarUtils(this);
 	}
 
     /**
@@ -155,6 +160,7 @@ public abstract class Avatar extends AbstractJPanel {
         this.pluginRegistry = new PluginRegistry();
 		this.scrollPolicy = scrollPolicy;
         this.closeButtonEnabled = Boolean.TRUE;
+        this.utils = new AvatarUtils(this);
 	}
 
     /**
@@ -189,7 +195,7 @@ public abstract class Avatar extends AbstractJPanel {
      * 
      * @return An <code>EventDispatcher</code>.
      */
-    public EventDispatcher getEventDispatcher() {
+    public EventDispatcher<?> getEventDispatcher() {
         return eventDispatcher;
     }
 
@@ -237,19 +243,19 @@ public abstract class Avatar extends AbstractJPanel {
     }
 
     /**
-     * Install the request focus listener so the avatar gets focus when
-     * the user clicks on it.
-     */
-    public void installRequestFocusListener() {
-        addRequestFocusListener(this);
-    }
-
-    /**
      * Install the move listener so the mouse can be used to
      * move the avatar.
      */
 	public void installMoveListener() {
         addMoveListener(this);
+    }
+
+    /**
+     * Install the request focus listener so the avatar gets focus when
+     * the user clicks on it.
+     */
+    public void installRequestFocusListener() {
+        addRequestFocusListener(this);
     }
 
     /**
@@ -314,13 +320,13 @@ public abstract class Avatar extends AbstractJPanel {
      * @param eventDispatcher
      *            An <code>EventDispatcher</code>.
      */
-    public void setEventDispatcher(final EventDispatcher eventDispatcher) {
+    public void setEventDispatcher(final EventDispatcher<?> eventDispatcher) {
         Assert.assertNotNull(eventDispatcher,
                 "Cannot set a null event dispatcher for avatar:  {0}", getId());
         if (this.eventDispatcher == eventDispatcher
                 || eventDispatcher.equals(this.eventDispatcher))
             return;
-        final EventDispatcher oldEventDispatcher = this.eventDispatcher;
+        final EventDispatcher<?> oldEventDispatcher = this.eventDispatcher;
         this.eventDispatcher = eventDispatcher;
         firePropertyChange("eventDispatcher", oldEventDispatcher, eventDispatcher);
     }
@@ -372,6 +378,17 @@ public abstract class Avatar extends AbstractJPanel {
     }
 
     /**
+     * Set an error for display.
+     *
+     * @param error
+     *            The error.
+     */
+    protected final void addInputError(final String inputError,
+            final Object... arguments) {
+        inputErrors.add(MessageFormat.format(inputError, arguments));
+    }
+
+    /**
      * Add an avatar validation listener to the text component.
      *
      * @param jTextComponent
@@ -416,20 +433,6 @@ public abstract class Avatar extends AbstractJPanel {
 	}
 
     /**
-     * Enable or disable text entry for a text component.
-     * 
-     * @param jTextComponent
-     *            A swing <code>JTextComponent</code>.
-     * @param enable
-     *            The enable <code>Boolean</code>.
-     */
-    protected void setEditable(final JTextComponent jTextComponent, final Boolean enable) {
-        jTextComponent.setEditable(enable);
-        jTextComponent.setFocusable(enable);
-        jTextComponent.setOpaque(enable);
-    }
-
-	/**
 	 * Obtain the error.
 	 * 
 	 * @return The error.
@@ -475,7 +478,7 @@ public abstract class Avatar extends AbstractJPanel {
         return getController().getSession(getId());
     }
 
-    /**
+	/**
      * Obtain a browser session.
      * 
      * @return A <code>BrowserSession</code>.
@@ -483,7 +486,7 @@ public abstract class Avatar extends AbstractJPanel {
     protected BrowserSession getSession(final Boolean create) {
         return getController().getSession(getId(), create);
     }
-    
+
     /**
      * @see Localization#getString(String)
      * 
@@ -491,18 +494,7 @@ public abstract class Avatar extends AbstractJPanel {
     protected String getString(final String localKey) {
     	return localization.getString(localKey);
     }
-
-    /**
-     * Open a localized resource.
-     * 
-     * @param name
-     *            The resource name.
-     * @return An <code>InputStream</code>.
-     */
-    protected final InputStream openResource(final String name) {
-        return localization.openResource(name);
-    }
-
+    
     /**
      * @see Localization#getString(String, Object[])
      * 
@@ -511,7 +503,7 @@ public abstract class Avatar extends AbstractJPanel {
     	return localization.getString(localKey, arguments);
     }
 
-	/**
+    /**
      * Causes <i>doRun.run()</i> to be executed asynchronously on the AWT event
      * dispatching thread.
      * 
@@ -523,7 +515,7 @@ public abstract class Avatar extends AbstractJPanel {
         SwingUtilities.invokeLater(doRun);
     }
 
-	/**
+    /**
 	 * Determine whether or not the platform is running in test mode.
 	 * 
 	 * @return True if the platform is in test mode; false otherwise.
@@ -532,7 +524,7 @@ public abstract class Avatar extends AbstractJPanel {
 		return getController().getPlatform().isDevelopmentMode();
 	}
 
-    /**
+	/**
      * Determine whether the user input for the frame is valid.
      * 
      * @return True if the input is valid; false otherwise.
@@ -541,8 +533,8 @@ public abstract class Avatar extends AbstractJPanel {
         validateInput();
         return !containsInputErrors();
     }
-    
-    /**
+
+	/**
      * These get and set methods are used by classes that intend to do their own
      * mouse dragging. (For example, the bottom right resize control.)
      * 
@@ -563,6 +555,17 @@ public abstract class Avatar extends AbstractJPanel {
 	protected final Boolean isTestMode() {
 		return getController().getPlatform().isTestingMode();
 	}
+    
+    /**
+     * Open a localized resource.
+     * 
+     * @param name
+     *            The resource name.
+     * @return An <code>InputStream</code>.
+     */
+    protected final InputStream openResource(final String name) {
+        return localization.openResource(name);
+    }
 
     /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
@@ -624,6 +627,20 @@ public abstract class Avatar extends AbstractJPanel {
         if (null != windowTitleButtons) {
             windowTitleButtons.setCloseButtonEnabled(closeButtonEnabled);
         }
+    }
+
+    /**
+     * Enable or disable text entry for a text component.
+     * 
+     * @param jTextComponent
+     *            A swing <code>JTextComponent</code>.
+     * @param enable
+     *            The enable <code>Boolean</code>.
+     */
+    protected void setEditable(final JTextComponent jTextComponent, final Boolean enable) {
+        jTextComponent.setEditable(enable);
+        jTextComponent.setFocusable(enable);
+        jTextComponent.setOpaque(enable);
     }
 
     /**

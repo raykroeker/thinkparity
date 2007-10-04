@@ -14,6 +14,8 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.*;
+import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
+import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.util.Token;
@@ -28,6 +30,28 @@ import com.thinkparity.codebase.model.util.Token;
 @WebService(name = "Profile")
 public interface ProfileService {
 
+    /**
+     * Create a profile creating a new payment plan.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     * @param usernameReservation
+     *            A <code>UsernameReservation</code>.
+     * @param emailReservation
+     *            An <code>EMailReservation</code>.
+     * @param credentials
+     *            A set of <code>Credentials</code>.
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param email
+     *            An <code>EMail</code> address.
+     * @param securityCredentials
+     *            A set of <code>SecurityCredentials</code>.
+     */
     @WebMethod
     void create(AuthToken authToken, Product product, Release release,
             UsernameReservation usernameReservation,
@@ -35,8 +59,87 @@ public interface ProfileService {
             Profile profile, EMail email,
             SecurityCredentials securityCredentials);
 
+    /**
+     * Create a profile creating a new payment plan.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     * @param usernameReservation
+     *            A <code>UsernameReservation</code>.
+     * @param emailReservation
+     *            An <code>EMailReservation</code>.
+     * @param credentials
+     *            A set of <code>Credentials</code>.
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param email
+     *            An <code>EMail</code> address.
+     * @param securityCredentials
+     *            A set of <code>SecurityCredentials</code>.
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
+     */
+    @WebMethod
+    void create(AuthToken authToken, Product product, Release release,
+            UsernameReservation usernameReservation,
+            EMailReservation emailReservation, Credentials credentials,
+            Profile profile, EMail email,
+            SecurityCredentials securityCredentials, PaymentInfo paymentInfo);
+
+    /**
+     * Create a profile selecting an existing payment plan.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     * @param usernameReservation
+     *            A <code>UsernameReservation</code>.
+     * @param emailReservation
+     *            An <code>EMailReservation</code>.
+     * @param credentials
+     *            A set of <code>Credentials</code>.
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param email
+     *            An <code>EMail</code> address.
+     * @param securityCredentials
+     *            A set of <code>SecurityCredentials</code>.
+     * @param paymentPlanCredentials
+     *            A set of <code>PaymentPlanCredentials</code>.
+     * @throws InvalidCredentialsException
+     *             if the payment plan credentials are invalid
+     */
+    @WebMethod
+    void create(AuthToken authToken, Product product, Release release,
+            UsernameReservation usernameReservation,
+            EMailReservation emailReservation, Credentials credentials,
+            Profile profile, EMail email,
+            SecurityCredentials securityCredentials,
+            PaymentPlanCredentials paymentPlanCredentials)
+            throws InvalidCredentialsException;
+
     @WebMethod
     EMailReservation createEMailReservation(AuthToken authToken, EMail email);
+
+    /**
+     * Update the profile.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
+     */
+    @WebMethod
+    void update(AuthToken authToken, Profile profile, PaymentInfo paymentInfo);
 
     @WebMethod
     Token createToken(AuthToken authToken);
@@ -45,8 +148,31 @@ public interface ProfileService {
     UsernameReservation createUsernameReservation(AuthToken authToken,
             String username);
 
+    /**
+     * Determine if the payment info can be accessed.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @return True if the payment info can be accessed.
+     */
+    @WebMethod
+    Boolean isAccessiblePaymentInfo(AuthToken authToken);
+
     @WebMethod
     Boolean isEMailAvailable(AuthToken authToken, EMail email);
+
+    @WebMethod
+    Boolean isRequiredPaymentInfo(AuthToken authToken);
+
+    /**
+     * Determine whether or not the payment has been set.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @return True if the payment info has been set.
+     */
+    @WebMethod
+    Boolean isSetPaymentInfo(AuthToken authToken);
 
     @WebMethod
     Profile read(AuthToken authToken);
@@ -80,6 +206,17 @@ public interface ProfileService {
     @WebMethod
     void updatePassword(AuthToken authToken, Credentials credentials,
             String password) throws InvalidCredentialsException;
+
+    /**
+     * Update the payment info for the profile.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
+     */
+    @WebMethod
+    void updatePaymentInfo(AuthToken authToken, PaymentInfo paymentInfo);
 
     /**
      * Update the product release for the profile.

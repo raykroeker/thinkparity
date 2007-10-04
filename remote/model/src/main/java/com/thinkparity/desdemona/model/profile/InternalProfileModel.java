@@ -21,11 +21,11 @@ import com.thinkparity.codebase.model.user.User;
 public interface InternalProfileModel extends ProfileModel {
 
     /**
-     * Determine whether or not the model user's profile has been verified.
+     * Determine whether or not the model user's queue is readable.
      * 
-     * @return True if the profile is verified.
+     * @return True if the profile's queue is readable.
      */
-    public Boolean isVerified();
+    Boolean isQueueReadable();
 
     /**
      * Read a user's e-mail addresses.
@@ -36,5 +36,5 @@ public interface InternalProfileModel extends ProfileModel {
      *            A <code>User</code>.
      * @return A <code>List</code> of <code>EMail</code> addresses.
      */
-    public List<EMail> readEMails(final JabberId userId, final User user);
+    List<EMail> readEMails(JabberId userId, User user);
 }

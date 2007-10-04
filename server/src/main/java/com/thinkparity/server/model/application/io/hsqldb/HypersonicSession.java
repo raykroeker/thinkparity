@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -43,6 +44,9 @@ public final class HypersonicSession {
     /** An <code>XStreamUtil</code> instance. */
     protected static final XStreamUtil XSTREAM_UTIL;
 
+    /** A simple date format. */
+    private static final SimpleDateFormat SDF;
+
     private static final String SQL_GET_IDENTITY_PRE = "select IDENTITY_VAL_LOCAL() \"ID\" from ";
 
     /** The local <code>TimeZone</code>. */
@@ -52,7 +56,8 @@ public final class HypersonicSession {
     private static final TimeZone UNIVERSAL_TIME_ZONE;
 
     static {
-        LOGGER = new Log4JWrapper("DESDEMONA_SQL_DEBUGGER");
+        LOGGER = new Log4JWrapper("SQL_DEBUGGER");
+        SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
         TIME_ZONE = TimeZone.getDefault();
         UNIVERSAL_TIME_ZONE = TimeZone.getTimeZone("Universal");
         XSTREAM_UTIL = XStreamUtil.getInstance();
@@ -60,6 +65,9 @@ public final class HypersonicSession {
 
     /** A <code>Connection</code>. */
 	private Connection connection;
+
+    /** Whether or not to enable commit. */
+    private Boolean enableCommit;
 
     /** A session unique id <code>JVMUniqueId</code>. */
 	private final JVMUniqueId id;
@@ -73,19 +81,24 @@ public final class HypersonicSession {
     /** A <code>ResultSet</code>. */
 	private ResultSet resultSet;
 
-    /** A <code>HypersonicSessionManager</code>. */
+	/** A <code>HypersonicSessionManager</code>. */
     private final HypersonicSessionManager sessionManager;
 
-	/**
-	 * Create a Session.
-	 * 
-	 * @param connection
-	 *            The sql connection.
-	 */
+    /**
+     * Create a Session.
+     * 
+     * @param sessionManager
+     *            The <code>HypersonicSessionManager</code>.
+     * @param connection
+     *            A <code>Connection</code>.
+     * @param enableCommit
+     *            A commit <code>Boolean</code>.
+     */
 	HypersonicSession(final HypersonicSessionManager sessionManager,
-            final Connection connection) {
+            final Connection connection, final Boolean enableCommit) {
 		super();
 		this.connection = connection;
+		this.enableCommit = enableCommit;
 		this.id = JVMUniqueId.nextId();
         this.sessionManager = sessionManager;
 	}
@@ -115,15 +128,19 @@ public final class HypersonicSession {
      *
      */
 	public void commit() {
-		assertConnectionIsOpen();
-		try {
-            connection.commit();
-		} catch (final SQLException sqlx) {
-            throw panic(sqlx);
-		}
+	    if (enableCommit.booleanValue()) {
+    		assertConnectionIsOpen();
+    		try {
+                connection.commit();
+    		} catch (final SQLException sqlx) {
+                throw panic(sqlx);
+    		}
+	    } else {
+	        LOGGER.logInfo("Commit disabled.");
+	    }
 	}
 
-    /**
+	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 * 
 	 */
@@ -133,7 +150,7 @@ public final class HypersonicSession {
 		return false;
 	}
 
-	/**
+    /**
      * Execute sql.
      * 
      * @param sql
@@ -223,7 +240,7 @@ public final class HypersonicSession {
         }
     }
 
-    public Boolean getBoolean(final String columnName) {
+	public Boolean getBoolean(final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
         try {
@@ -234,7 +251,7 @@ public final class HypersonicSession {
         catch(final SQLException sqlx) { throw panic(sqlx); }
     }
 
-	public byte[] getBytes(final String columnName) {
+    public byte[] getBytes(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -352,7 +369,7 @@ public final class HypersonicSession {
         }
 	}
 
-    /**
+	/**
      * Obtain the input stream from the result.
      * 
      * @param columnName
@@ -396,7 +413,7 @@ public final class HypersonicSession {
         }
 	}
 
-	/**
+    /**
      * Load the meta data tables into the result set.
      *
      */
@@ -420,7 +437,7 @@ public final class HypersonicSession {
         }
     }
 
-    public JabberId getQualifiedUsername(final String columnName) {
+	public JabberId getQualifiedUsername(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -487,7 +504,7 @@ public final class HypersonicSession {
         }
 	}
 
-	public <T extends UserVCard> T getVCard(final String columnName,
+    public <T extends UserVCard> T getVCard(final String columnName,
             final T vcard, final VCardReader<T> reader) throws IOException {
         assertConnectionIsOpen();
         assertResultSetIsSet();
@@ -566,12 +583,16 @@ public final class HypersonicSession {
      * 
      */
 	public void rollback() {
-		assertConnectionIsOpen();
-		try {
-            connection.commit();
-		} catch (final SQLException sqlx) {
-            throw panic(sqlx);
-		}
+	    if (enableCommit.booleanValue()) {
+    		assertConnectionIsOpen();
+    		try {
+                connection.rollback();
+    		} catch (final SQLException sqlx) {
+                throw panic(sqlx);
+    		}
+	    } else {
+	        LOGGER.logInfo("Commit is disabled.");
+	    }
 	}
 
     /**
@@ -597,7 +618,7 @@ public final class HypersonicSession {
         }
     }
 
-    /**
+	/**
      * Set a blob column value.
      * 
      * @param index
@@ -631,7 +652,7 @@ public final class HypersonicSession {
         }
     }
 
-	public void setBytes(final Integer index, final byte[] value) {
+    public void setBytes(final Integer index, final byte[] value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -642,25 +663,43 @@ public final class HypersonicSession {
 		}
 	}
 
-	public void setCalendar(final Integer index, final Calendar value) {
-		assertConnectionIsOpen();
-		assertPreparedStatementIsSet();
-        logColumnInjection(index, value);
-		try {
-		    /* HACK - HypersonicSession#setCalendar - the calendar object does
-		     * not update its internal state until a get call is made */
+    public void setCalendar(final Integer index, final Calendar value) {
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
+        try {
+            /* HACK - HypersonicSession#setCalendar - the calendar object does
+             * not update its internal state until a get call is made */
             value.getTime();
 
             final Calendar universalCalendar = (Calendar) value.clone();
             universalCalendar.setTimeZone(UNIVERSAL_TIME_ZONE);
-			preparedStatement.setTimestamp(index,
-					new Timestamp(universalCalendar.getTimeInMillis()), universalCalendar);
-		} catch (final SQLException sqlx) {
+            logColumnInjection(index, universalCalendar);
+            preparedStatement.setTimestamp(index,
+                    new Timestamp(universalCalendar.getTimeInMillis()), universalCalendar);
+        } catch (final SQLException sqlx) {
             throw panic(sqlx);
-		}
-	}
+        }
+    }
 
-	public void setEMail(final Integer index, final EMail value) {
+	public void setDate(final Integer index, final Calendar value) {
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
+        try {
+            /* HACK - HypersonicSession#setCalendar - the calendar object does
+             * not update its internal state until a get call is made */
+            value.getTime();
+
+            final Calendar universalCalendar = (Calendar) value.clone();
+            universalCalendar.setTimeZone(UNIVERSAL_TIME_ZONE);
+            logColumnInjection(index, universalCalendar);
+            preparedStatement.setDate(index,
+                    new Date(universalCalendar.getTimeInMillis()), universalCalendar);
+        } catch (final SQLException sqlx) {
+            throw panic(sqlx);
+        }
+    }
+
+    public void setEMail(final Integer index, final EMail value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -675,7 +714,7 @@ public final class HypersonicSession {
         }
     }
 
-    public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
+	public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -711,7 +750,7 @@ public final class HypersonicSession {
 		}
 	}
 
-	public void setLong(final Integer index, final Long value) {
+    public void setLong(final Integer index, final Long value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -792,7 +831,7 @@ public final class HypersonicSession {
         }
 	}
 
-    public <T extends UserVCard> void setVCard(final Integer index,
+	public <T extends UserVCard> void setVCard(final Integer index,
             final T value, final VCardWriter<T> valueWriter) throws IOException {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
@@ -836,7 +875,7 @@ public final class HypersonicSession {
         }
 	}
 
-	/**
+    /**
      * Assert the meta data is set.
      *
      */
@@ -899,7 +938,7 @@ public final class HypersonicSession {
         }
 	}
 
-    /**
+	/**
      * Close a statement as well as a result set.
      * 
      * @param statement
@@ -918,7 +957,7 @@ public final class HypersonicSession {
         }
 	}
 
-	/**
+    /**
      * Log the column name and value.
      * 
      * @param columnName
@@ -928,6 +967,19 @@ public final class HypersonicSession {
      */
     private void logColumnExtraction(final String columnName, final Object columnValue) {
         LOGGER.logDebug("Extract {0}:{1}", columnName, columnValue);
+    }
+
+    /**
+     * Log the column name and value.
+     * 
+     * @param columnName
+     *            The column name <code>String</code>.
+     * @param columnValue
+     *            The column value <code>Object</code>.
+     */
+    private void logColumnInjection(final Integer index,
+            final Calendar columnValue) {
+        LOGGER.logDebug("Inject {0}:{1}", index, SDF.format(columnValue.getTime()));
     }
 
     /**

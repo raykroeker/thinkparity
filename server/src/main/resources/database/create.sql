@@ -1,10 +1,25 @@
+create table TPSD_NODE(
+    NODE_ID smallint generated always as identity(start with 100),
+    NODE_USERNAME varchar(32) not null,
+    NODE_PASSWORD varchar(64) not null,
+    primary key(NODE_ID),
+    unique(NODE_USERNAME)
+);
+create table TPSD_NODE_SESSION(
+    NODE_ID smallint not null,
+    TOKEN varchar(64) not null,
+    CREATED_ON timestamp not null,
+    primary key(NODE_ID),
+    unique(TOKEN),
+    foreign key(NODE_ID) references TPSD_NODE(NODE_ID)
+);
 create table TPSD_EMAIL_RESERVATION(
     EMAIL varchar(512) not null,
     TOKEN varchar(64) not null,
     EXPIRES_ON timestamp not null,
     CREATED_ON timestamp not null,
     primary key (EMAIL),
-    unique (TOKEN)
+    unique(TOKEN)
 );
 create table TPSD_EMAIL(
     EMAIL_ID bigint generated always as identity(start with 5000),
@@ -19,7 +34,7 @@ create table TPSD_USERNAME_RESERVATION(
     EXPIRES_ON timestamp not null,
     CREATED_ON timestamp not null,
     primary key (USERNAME),
-    unique (TOKEN)
+    unique(TOKEN)
 );
 create table TPSD_USER(
     USER_ID bigint generated always as identity(start with 7000),
@@ -28,12 +43,18 @@ create table TPSD_USER(
     SECURITY_QUESTION varchar(64) not null,
     SECURITY_ANSWER varchar(128) not null,
     DISABLED char not null,
+    ACTIVE char not null,
     TOKEN varchar(64),
     VCARD clob not null,
     CREATED_ON timestamp not null,
     primary key(USER_ID),
     unique(USERNAME)
 );
+create index TPSD_USER_IX_0 on TPSD_USER(PASSWORD);
+create index TPSD_USER_IX_1 on TPSD_USER(SECURITY_QUESTION);
+create index TPSD_USER_IX_2 on TPSD_USER(SECURITY_ANSWER);
+create index TPSD_USER_IX_3 on TPSD_USER(DISABLED);
+create index TPSD_USER_IX_4 on TPSD_USER(ACTIVE);
 create table TPSD_USER_EMAIL(
     USER_ID bigint not null,
     EMAIL_ID bigint not null,
@@ -48,6 +69,7 @@ create table TPSD_USER_EVENT_QUEUE(
     EVENT_ID varchar(32) not null,
     EVENT_DATE timestamp not null,
     EVENT_PRIORITY smallint not null,
+    EVENT_FILTER character not null,
     EVENT_XML clob not null,
     primary key(EVENT_ID),
     foreign key(USER_ID) references TPSD_USER(USER_ID)
@@ -59,6 +81,7 @@ create table TPSD_AUDIT_USER_EVENT_QUEUE(
     EVENT_ID varchar(32) not null,
     EVENT_DATE timestamp not null,
     EVENT_PRIORITY smallint not null,
+    EVENT_FILTER character not null,
     EVENT_XML clob not null,
     primary key(EVENT_ID),
     foreign key(USER_ID) references TPSD_USER(USER_ID)
@@ -71,7 +94,7 @@ create table TPSD_USER_TEMPORARY_CREDENTIAL(
     EXPIRES_ON timestamp not null,
     CREATED_ON timestamp not null,
     primary key (USER_ID),
-    unique (TOKEN)
+    unique(TOKEN)
 );
 
 create table TPSD_CONTACT(
@@ -154,6 +177,13 @@ create table TPSD_SESSION(
     unique(TOKEN),
     foreign key(USER_ID) references TPSD_USER(USER_ID)
 );
+create table TPSD_AUDIT_SESSION(
+    USER_ID bigint not null,
+    CREATED_ON timestamp not null,
+    DELETED_ON timestamp,
+    primary key(USER_ID,CREATED_ON,DELETED_ON),
+    foreign key(USER_ID) references TPSD_USER(USER_ID)
+);
 create table TPSD_NOTIFICATION_SESSION(
     USER_ID bigint not null,
     TOKEN varchar(64) not null,
@@ -180,12 +210,12 @@ create table TPSD_ARTIFACT(
     foreign key(UPDATED_BY) references TPSD_USER(USER_ID)
 );
 create table TPSD_ARTIFACT_VERSION(
-	ARTIFACT_ID bigint not null,
-	ARTIFACT_VERSION_ID bigint not null,
-	ARTIFACT_UNIQUE_ID varchar(256) not null,
-	primary key(ARTIFACT_ID, ARTIFACT_VERSION_ID),
-	foreign key(ARTIFACT_ID) references TPSD_ARTIFACT(ARTIFACT_ID),
-	foreign key(ARTIFACT_UNIQUE_ID) references TPSD_ARTIFACT(ARTIFACT_UNIQUE_ID)
+    ARTIFACT_ID bigint not null,
+    ARTIFACT_VERSION_ID bigint not null,
+    ARTIFACT_UNIQUE_ID varchar(256) not null,
+    primary key(ARTIFACT_ID, ARTIFACT_VERSION_ID),
+    foreign key(ARTIFACT_ID) references TPSD_ARTIFACT(ARTIFACT_ID),
+    foreign key(ARTIFACT_UNIQUE_ID) references TPSD_ARTIFACT(ARTIFACT_UNIQUE_ID)
 );
 create table TPSD_ARTIFACT_VERSION_SECRET(
     ARTIFACT_ID bigint not null,
@@ -193,8 +223,8 @@ create table TPSD_ARTIFACT_VERSION_SECRET(
     SECRET blob not null,
     SECRET_ALGORITHM varchar(8) not null,
     SECRET_FORMAT varchar(8) not null,
-	primary key(ARTIFACT_ID, ARTIFACT_VERSION_ID),
-	foreign key(ARTIFACT_ID, ARTIFACT_VERSION_ID) references TPSD_ARTIFACT_VERSION(ARTIFACT_ID,ARTIFACT_VERSION_ID)
+    primary key(ARTIFACT_ID, ARTIFACT_VERSION_ID),
+    foreign key(ARTIFACT_ID, ARTIFACT_VERSION_ID) references TPSD_ARTIFACT_VERSION(ARTIFACT_ID,ARTIFACT_VERSION_ID)
 );
 create table TPSD_ARTIFACT_TEAM_REL(
     ARTIFACT_ID bigint not null,
@@ -273,4 +303,128 @@ create table TPSD_USER_PRODUCT_RELEASE_REL(
     foreign key(USER_ID) references TPSD_USER(USER_ID),
     foreign key(PRODUCT_ID) references TPSD_PRODUCT(PRODUCT_ID),
     foreign key(RELEASE_ID) references TPSD_PRODUCT_RELEASE(RELEASE_ID)
+);
+
+create table TPSD_PAYMENT_CURRENCY(
+    CURRENCY_ID smallint generated always as identity(start with 300),
+    CURRENCY_NAME varchar(4) not null,
+    primary key(CURRENCY_ID),
+    unique(CURRENCY_NAME)
+);
+create table TPSD_PAYMENT_PROVIDER(
+    PROVIDER_ID smallint generated always as identity(start with 200),
+    PROVIDER_NAME varchar(8) not null,
+    PROVIDER_CLASS varchar(256) not null,
+    primary key(PROVIDER_ID),
+    unique(PROVIDER_NAME),
+    unique(PROVIDER_CLASS)
+);
+create table TPSD_PAYMENT_PROVIDER_CONFIGURATION(
+    PROVIDER_ID smallint not null,
+    CONFIGURATION_KEY varchar(64) not null,
+    CONFIGURATION_VALUE varchar(256) not null,
+    primary key(PROVIDER_ID,CONFIGURATION_KEY)
+);
+create table TPSD_PAYMENT_INFO(
+    PROVIDER_ID smallint not null,
+    INFO_ID bigint generated always as identity(start with 12000),
+    INFO_CARD_NAME varchar(24) not null,
+    INFO_CARD_NUMBER varchar(32) not null,
+    INFO_CARD_EXPIRY_MONTH varchar(4) not null,
+    INFO_CARD_EXPIRY_YEAR varchar(8) not null,
+    primary key(INFO_ID),
+    foreign key(PROVIDER_ID) references TPSD_PAYMENT_PROVIDER(PROVIDER_ID)
+);
+create table TPSD_PAYMENT_PLAN(
+    PLAN_ID bigint generated always as identity(start with 2000),
+    PLAN_UNIQUE_ID varchar(256) not null,
+    PLAN_NAME varchar(64) not null,
+    PLAN_CURRENCY smallint not null,
+    PLAN_PASSWORD varchar(32),
+    PLAN_BILLABLE char not null,
+    PLAN_OWNER bigint not null,
+    PLAN_ARREARS character not null,
+    INVOICE_PERIOD varchar(8) not null,
+    INVOICE_PERIOD_OFFSET smallint not null,
+    primary key(PLAN_ID),
+    unique(PLAN_UNIQUE_ID),
+    foreign key(PLAN_CURRENCY) references TPSD_PAYMENT_CURRENCY(CURRENCY_ID),
+    foreign key(PLAN_OWNER) references TPSD_USER(USER_ID)
+);
+create table TPSD_PAYMENT_PLAN_LOCK(
+    PLAN_ID bigint not null,
+    NODE_ID smallint,
+    primary key(PLAN_ID),
+    foreign key(PLAN_ID) references TPSD_PAYMENT_PLAN(PLAN_ID),
+    foreign key(NODE_ID) references TPSD_NODE(NODE_ID)
+);
+create table TPSD_PAYMENT_PLAN_PAYMENT_INFO(
+    PLAN_ID bigint not null,
+    INFO_ID bigint not null,
+    primary key(PLAN_ID,INFO_ID),
+    foreign key(PLAN_ID) references TPSD_PAYMENT_PLAN(PLAN_ID),
+    foreign key(INFO_ID) references TPSD_PAYMENT_INFO(INFO_ID)
+);
+create table TPSD_PAYMENT_PLAN_INVOICE(
+    PLAN_ID bigint not null,
+    INVOICE_ID bigint generated always as identity(start with 13000),
+    INVOICE_NUMBER smallint not null,
+    INVOICE_DATE date not null,
+    PAYMENT_DATE date,
+    primary key(INVOICE_ID),
+    unique(PLAN_ID,INVOICE_NUMBER),
+    unique(PLAN_ID,INVOICE_DATE),
+    foreign key(PLAN_ID) references TPSD_PAYMENT_PLAN(PLAN_ID)
+);
+create index TPSD_PAYMENT_PLAN_INVOICE_IX_0 on TPSD_PAYMENT_PLAN_INVOICE(INVOICE_DATE);
+create table TPSD_PAYMENT_PLAN_INVOICE_ITEM(
+    INVOICE_ID bigint not null,
+    ITEM_NUMBER smallint not null,
+    ITEM_DESCRIPTION varchar(1024) not null,
+    ITEM_AMOUNT bigint not null,
+    primary key(INVOICE_ID,ITEM_NUMBER),
+    foreign key(INVOICE_ID) references TPSD_PAYMENT_PLAN_INVOICE(INVOICE_ID)
+);
+create table TPSD_PAYMENT_PLAN_INVOICE_LOCK(
+    INVOICE_ID bigint not null,
+    NODE_ID smallint,
+    primary key(INVOICE_ID),
+    foreign key(INVOICE_ID) references TPSD_PAYMENT_PLAN_INVOICE(INVOICE_ID),
+    foreign key(NODE_ID) references TPSD_NODE(NODE_ID)
+);
+create table TPSD_PAYMENT_PLAN_INVOICE_TX(
+    INVOICE_ID bigint not null,
+    TX_ID bigint generated always as identity(start with 15000),
+    TX_UNIQUE_ID varchar(256) not null,
+    TX_DATE timestamp not null,
+    TX_SUCCESS character,
+    primary key(TX_ID),
+    unique(TX_UNIQUE_ID),
+    foreign key(INVOICE_ID) references TPSD_PAYMENT_PLAN_INVOICE(INVOICE_ID)
+);
+create index TPSD_PAYMENT_PLAN_INVOICE_TX_IX_0 on TPSD_PAYMENT_PLAN_INVOICE_TX(TX_DATE);
+create index TPSD_PAYMENT_PLAN_INVOICE_TX_IX_1 on TPSD_PAYMENT_PLAN_INVOICE_TX(TX_SUCCESS);
+create table TPSD_PAYMENT_PLAN_INVOICE_TX_ERROR(
+    TX_ID bigint not null,
+    TX_ERROR clob not null,
+    foreign key(TX_ID) references TPSD_PAYMENT_PLAN_INVOICE_TX(TX_ID)
+);
+
+create table TPSD_USER_PAYMENT_PLAN(
+    USER_ID bigint not null,
+    PLAN_ID bigint not null,
+    primary key(USER_ID),
+    foreign key(USER_ID) references TPSD_USER(USER_ID),
+    foreign key(PLAN_ID) references TPSD_PAYMENT_PLAN(PLAN_ID)
+);
+create table TPSD_PRODUCT_FEATURE_FEE(
+    FEE_ID smallint generated always as identity(start with 200),
+    FEATURE_ID bigint not null,
+    CURRENCY_ID smallint not null,
+    FEE_DESCRIPTION varchar(1024) not null,
+    FEE_PERIOD varchar(8),
+    FEE_AMOUNT bigint not null,
+    primary key(FEE_ID),
+    foreign key(FEATURE_ID) references TPSD_PRODUCT_FEATURE(FEATURE_ID),
+    foreign key(CURRENCY_ID) references TPSD_PAYMENT_CURRENCY(CURRENCY_ID)
 );

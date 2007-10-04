@@ -30,7 +30,7 @@
     </context-param>
     <context-param>
         <param-name>thinkparity.datasource-password</param-name>
-        <param-value>sa</param-value>
+        <param-value>tpsd_dl</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.environment</param-name>
@@ -59,6 +59,14 @@
     <context-param>
         <param-name>thinkparity.mode</param-name>
         <param-value>DEVELOPMENT</param-value>
+    </context-param>
+    <context-param>
+        <param-name>thinkparity.node.username</param-name>
+        <param-value>tpsd-localhost-0</param-value>
+    </context-param>
+    <context-param>
+        <param-name>thinkparity.node.password</param-name>
+        <param-value>password</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.product-name</param-name>
@@ -129,5 +137,14 @@
     <servlet-mapping>
         <servlet-name>WebService</servlet-name>
         <url-pattern>/service/*</url-pattern>
+    </servlet-mapping>
+    <!-- Apache Cactus Test Servlet -->
+    <servlet>
+        <servlet-name>WebTest</servlet-name>
+        <servlet-class>org.apache.cactus.server.runner.ServletTestRunner</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>WebTest</servlet-name>
+        <url-pattern>/test</url-pattern>
     </servlet-mapping>
 </web-app>

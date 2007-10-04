@@ -95,7 +95,7 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
     /**
      * Refresh the selected tab.
      */
-    void refreshSelectedTab() {
+    void reload() {
         selectedTab.setActionAvailable(tabButtonActionDelegate.isTabButtonActionAvailable());
         repaint();
     }

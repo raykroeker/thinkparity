@@ -3,6 +3,8 @@
  */
 package com.thinkparity.desdemona.model.io.sql;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.ErrorHelper;
 import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -63,10 +65,32 @@ public abstract class AbstractSql {
      *
      */
 	protected AbstractSql() {
-        super();
-        this.sessionManager = new HypersonicSessionManager(
-                PersistenceManager.getInstance().getDataSource());
+        this(PersistenceManager.getInstance().getDataSource(), Boolean.TRUE);
     }
+
+    /**
+     * Create AbstractSql.
+     * 
+     * @param dataSource
+     *            A <code>DataSource</code>.
+     */
+    protected AbstractSql(final DataSource dataSource) {
+        this(dataSource, Boolean.FALSE);
+    }
+
+    /**
+     * Create AbstractSql.
+     * 
+     * @param dataSource
+     *            A <code>DataSource</code>.
+     * @param commit
+     *            A commit <code>Boolean</code>.
+     */
+    protected AbstractSql(final DataSource dataSource, final Boolean commit) {
+        super();
+        this.sessionManager = new HypersonicSessionManager(dataSource, commit);
+    }
+
 
     /**
      * Open a hypersonic session.

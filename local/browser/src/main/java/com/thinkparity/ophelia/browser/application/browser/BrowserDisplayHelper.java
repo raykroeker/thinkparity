@@ -10,8 +10,6 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.Display;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 
 /**
  * The browser display helper is used by the browser application to display
@@ -52,42 +50,6 @@ final class BrowserDisplayHelper extends BrowserHelper {
     void displayTab(final AvatarId id) {
         logger.logApiId();
         displayAvatar(id, DisplayId.CONTENT);
-    }
-
-    /**
-     * Display a tab list extension on the content display.
-     * 
-     * @param tabListExtension
-     *            A tab list extension.
-     */
-    void displayTab(final TabListExtension tabListExtension) {
-        logger.logApiId();
-        try {
-            final Avatar avatar = browserApplication.getAvatar(tabListExtension);
-
-            displayAvatar(avatar, null, DisplayId.CONTENT);
-        } catch (final Throwable t) {
-            browserApplication.displayErrorDialog(
-                    "PluginError", new Object[] { tabListExtension }, t);
-        }
-    }
-
-    /**
-     * Display a tab panel extension on the content display.
-     * 
-     * @param tabPanelExtension
-     *            A tab panel extension.
-     */
-    void displayTab(final TabPanelExtension tabPanelExtension) {
-        logger.logApiId();
-        try {
-            final Avatar avatar = browserApplication.getAvatar(tabPanelExtension);
-
-            displayAvatar(avatar, null, DisplayId.CONTENT);
-        } catch (final Throwable t) {
-            browserApplication.displayErrorDialog(
-                    "PluginError", new Object[] { tabPanelExtension }, t);
-        }
     }
 
     /**

@@ -132,11 +132,18 @@ public interface Platform extends ApplicationListener {
      */
     public Locale getLocale();
 
-    public Logger getLogger(final Class clasz);
+    /**
+     * Obtain a logger.
+     * 
+     * @param clasz
+     *            A <code>Class<?></code>.
+     * @return A <code>Logger</code>.
+     */
+    public Logger getLogger(final Class<?> clasz);
 
     public ModelFactory getModelFactory();
 
-	public BrowserPlatformPersistence getPersistence();
+    public BrowserPlatformPersistence getPersistence();
 
 	/**
      * Obtain the plugin registry for the platform.
@@ -145,21 +152,21 @@ public interface Platform extends ApplicationListener {
      */
     public PluginRegistry getPluginRegistry();
 
-    /**
+	/**
      * Obtain the release name.
      * 
      * @return The platform release name <code>String</code>.
      */
     public String getReleaseName();
 
-	/**
+    /**
      * Obtain the time zone.
      * 
      * @return The <code>TimeZone</code>.
      */
     public TimeZone getTimeZone();
 
-    /**
+	/**
 	 * Request that the application hibernate.
 	 * 
 	 * @param applicationId
@@ -184,7 +191,7 @@ public interface Platform extends ApplicationListener {
             final Workspace workspace, final Credentials credentials)
             throws InvalidCredentialsException;
 
-	/**
+    /**
 	 * Indicates whether or not the platform is running in debug mode.
 	 * 
 	 * @return True if the application is in debug mode; false otherwise.
@@ -192,6 +199,13 @@ public interface Platform extends ApplicationListener {
 	 * @see #isTestingMode()
 	 */
 	public Boolean isDevelopmentMode();
+
+	/**
+     * Determine if we are running internal.
+     * 
+     * @return True if we are internal.
+     */
+    public Boolean isInternal();
 
     /**
      * Determine whether or not the platform is online.

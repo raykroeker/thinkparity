@@ -11,6 +11,7 @@ import java.util.List;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
+import com.thinkparity.codebase.model.annotation.ThinkParityFilterEvent;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -26,6 +27,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
  * @version 1.1.2.1
  */
 @ThinkParityBackupEvent
+@ThinkParityFilterEvent
 public final class PublishedEvent extends XMPPEvent {
 
     /**The <code>DocumentVersion</code>s. */

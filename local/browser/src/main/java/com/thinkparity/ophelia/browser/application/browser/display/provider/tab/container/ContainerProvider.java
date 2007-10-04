@@ -299,6 +299,15 @@ public class ContainerProvider extends CompositeFlatSingleContentProvider {
     }
 
     /**
+     * Determine whether or not the profile is active.
+     * 
+     * @return True if it is active.
+     */
+    public Boolean readIsActive() {
+        return profileModel.readIsActive();
+    }
+
+    /**
      * Read a the latest container version.
      * 
      * @param containerId

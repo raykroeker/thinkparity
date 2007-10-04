@@ -6,14 +6,14 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile;
 
-import java.text.DecimalFormat;
-
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.AbstractDocument;
 
+import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
-import com.thinkparity.codebase.model.profile.ProfileConstraints;
+import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
+import com.thinkparity.codebase.model.profile.payment.PaymentInfoConstraints;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -21,45 +21,57 @@ import com.thinkparity.ophelia.browser.application.browser.component.LabelFactor
 import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
+import com.thinkparity.ophelia.browser.util.swing.CardNameCellRenderer;
 
 /**
- *
- * @author robert@thinkparity.com
+ * <b>Title:</b>thinkParity Ophelia UI Browser Profile Signup<br>
+ * <b>Description:</b><br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
  */
 public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
 
+    /** An instance of payment info constraints. */
+    private static final PaymentInfoConstraints constraints;
+
+    static {
+        constraints = PaymentInfoConstraints.getInstance();
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel cardholderNameJLabel;
+    private javax.swing.JTextField cardholderNameJTextField;
     private final javax.swing.JComboBox cardMonthJComboBox = new javax.swing.JComboBox();
-    private final javax.swing.JTextField cardNameJTextField = TextFactory.create();
     private final javax.swing.JTextField cardNumberJTextField = TextFactory.create();
-    private final javax.swing.JTextField cardSecurityCodeJTextField = TextFactory.create();
     private final javax.swing.JComboBox cardTypeJComboBox = new javax.swing.JComboBox();
     private final javax.swing.JComboBox cardYearJComboBox = new javax.swing.JComboBox();
     // End of variables declaration//GEN-END:variables
 
     /** The country <code>DefaultComboBoxModel</code>. */
-    private final DefaultComboBoxModel cardMonthModel;
+    private final DefaultComboBoxModel cardExpiryMonthModel;
 
     /** The country <code>DefaultComboBoxModel</code>. */
-    private final DefaultComboBoxModel cardTypeModel;
+    private final DefaultComboBoxModel cardExpiryYearModel;
 
     /** The country <code>DefaultComboBoxModel</code>. */
-    private final DefaultComboBoxModel cardYearModel;
+    private final DefaultComboBoxModel cardNameModel;
 
-    /** An instance of <code>ProfileConstraints</code>. */
-    private final ProfileConstraints profileConstraints;
-
-    /** Creates new form UpgradeAccountPaymentAvatar */
+    /**
+     * Create UpgradeAccountPaymentAvatar.
+     *
+     */
     public UpgradeAccountPaymentAvatar() {
         super("UpgradeAccountAvatar.Payment", BrowserConstants.DIALOGUE_BACKGROUND);
-        this.profileConstraints = ProfileConstraints.getInstance();
-        this.cardMonthModel = new DefaultComboBoxModel();
-        this.cardTypeModel = new DefaultComboBoxModel();
-        this.cardYearModel = new DefaultComboBoxModel();
-        initCardMonthModel();
-        initCardTypeModel();
-        initCardYearModel();
+        this.cardExpiryMonthModel = new DefaultComboBoxModel();
+        this.cardNameModel = new DefaultComboBoxModel();
+        this.cardExpiryYearModel = new DefaultComboBoxModel();
+        initCardNameModel();
+        initExpiryMonthModel();
+        initExpiryYearModel();
         initComponents();
+        addValidationListeners();
+        cardTypeJComboBox.setRenderer(new CardNameCellRenderer("CardName", getLocalization()));
     }
 
     /**
@@ -92,6 +104,25 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.DefaultUpgradeAccountPage#isNextOk()
+     *
+     */
+    @Override
+    public Boolean isNextOk() {
+        if (super.isNextOk()) {
+            signUp();
+
+            if (containsInputErrors()) {
+                return Boolean.FALSE;
+            } else {
+                return Boolean.TRUE;
+            }
+        } else {
+            return Boolean.FALSE;
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
      */
     @Override
@@ -105,42 +136,74 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
     @Override
     public void validateInput() {
         super.validateInput();
+
+        final String cardNumber = extractCardNumber();
+        if (null == cardNumber) {
+            addInputError(getString("ErrorNoNumber"));
+        }
+        
         if (isUpgradeAccountDelegateInitialized()) {
             upgradeAccountDelegate.enableNextButton(Boolean.TRUE);
         }
     }
 
     /**
-     * Initialize the list of credit card months.
+     * Add validation listeners.
+     * 
      */
-    private void initCardMonthModel() {
-        final Long minValue = profileConstraints.getCreditCardMonth().getMinValue();
-        final Long maxValue = profileConstraints.getCreditCardMonth().getMaxValue();
-        final DecimalFormat formatter = new DecimalFormat("00");
-        for (long month = minValue; month <= maxValue; month++) {
-            this.cardMonthModel.addElement(formatter.format(month));
+    private void addValidationListeners() {
+        addValidationListener(cardholderNameJTextField);
+        addValidationListener(cardNumberJTextField);
+    }
+
+    /**
+     * Extract the card number.
+     * 
+     * @return A <code>String</code>.
+     */
+    private String extractCardNumber() {
+        return SwingUtil.extract(cardNumberJTextField);
+    }
+
+    /**
+     * Extract the payment info.
+     * 
+     * @return A <code>PaymentInfo</code>.
+     */
+    private PaymentInfo extractPaymentInfo() {
+        return utils.extractPaymentInfo(cardMonthJComboBox,
+                cardYearJComboBox, cardNumberJTextField, cardTypeJComboBox);
+    }
+
+    /**
+     * Initialize the list of expiry months.
+     * 
+     */
+    private void initExpiryMonthModel() {
+        final short min = constraints.getCardExpiryMonth().getMinValue().shortValue();
+        final short max = constraints.getCardExpiryMonth().getMaxValue().shortValue();
+        for (short month = min; month <= max; month++) {
+            cardExpiryMonthModel.addElement(Short.valueOf(month));
         }
     }
 
     /**
      * Initialize the list of credit card types.
      */
-    private void initCardTypeModel() {
-        for (final CardType cardType : CardType.values()) {
-            final StringBuffer key = new StringBuffer("CreditCardType.").append(cardType.nameKey);
-            this.cardTypeModel.addElement(getString(key.toString()));
+    private void initCardNameModel() {
+        for (final PaymentInfo.CardName cardName : PaymentInfo.CardName.values()) {
+            cardNameModel.addElement(cardName);
         }
     }
 
     /**
      * Initialize the list of credit card years.
      */
-    private void initCardYearModel() {
-        final Long minValue = profileConstraints.getCreditCardYear().getMinValue();
-        final Long maxValue = profileConstraints.getCreditCardYear().getMaxValue();
-        final DecimalFormat formatter = new DecimalFormat("0000");
-        for (long year = minValue; year <= maxValue; year++) {
-            this.cardYearModel.addElement(formatter.format(year));
+    private void initExpiryYearModel() {
+        final short min = constraints.getCardExpiryYear().getMinValue().shortValue();
+        final short max = constraints.getCardExpiryYear().getMaxValue().shortValue();
+        for (short year = min; year <= max; year++) {
+            cardExpiryYearModel.addElement(Short.valueOf(year));
         }
     }
 
@@ -154,11 +217,11 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
         final javax.swing.JLabel creditInfoTitleJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel cardTypeJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel cardNumberJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel cardNameJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel cardExpiryDateJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel cardSecurityCodeJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel privacyLearnMoreJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
         final javax.swing.JLabel proceedJLabel = new javax.swing.JLabel();
+        cardholderNameJLabel = LabelFactory.create(Fonts.DialogFont);
+        cardholderNameJTextField = new javax.swing.JTextField();
 
         setOpaque(false);
         creditInfoTitleJLabel.setFont(Fonts.DialogFont);
@@ -168,44 +231,34 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
         cardTypeJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.CardType"));
 
         cardTypeJComboBox.setFont(Fonts.DialogTextEntryFont);
-        cardTypeJComboBox.setModel(cardTypeModel);
+        cardTypeJComboBox.setModel(cardNameModel);
 
         cardNumberJLabel.setFont(Fonts.DialogFont);
         cardNumberJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.CardNumber"));
 
-        cardNameJLabel.setFont(Fonts.DialogFont);
-        cardNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.CardName"));
-
         cardExpiryDateJLabel.setFont(Fonts.DialogFont);
         cardExpiryDateJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.CardDate"));
 
-        cardSecurityCodeJLabel.setFont(Fonts.DialogFont);
-        cardSecurityCodeJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.SecurityCode"));
-
         cardNumberJTextField.setFont(Fonts.DialogTextEntryFont);
-        ((AbstractDocument) cardNumberJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getCreditCardNumber()));
-
-        cardNameJTextField.setFont(Fonts.DialogTextEntryFont);
-        ((AbstractDocument) cardNameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getCreditCardName()));
+        ((AbstractDocument) cardNumberJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getCardNumber()));
 
         cardMonthJComboBox.setFont(Fonts.DialogTextEntryFont);
-        cardMonthJComboBox.setModel(cardMonthModel);
+        cardMonthJComboBox.setModel(cardExpiryMonthModel);
 
         cardYearJComboBox.setFont(Fonts.DialogTextEntryFont);
-        cardYearJComboBox.setModel(cardYearModel);
-
-        cardSecurityCodeJTextField.setFont(Fonts.DialogTextEntryFont);
-        ((AbstractDocument) cardSecurityCodeJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getCreditCardSecurityCode()));
+        cardYearJComboBox.setModel(cardExpiryYearModel);
 
         privacyLearnMoreJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.PrivacyLearnMore"));
         privacyLearnMoreJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                privacyLearnMoreJLabelMousePressed(evt);
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                privacyLearnMoreJLabelMousePressed(e);
             }
         });
 
         proceedJLabel.setFont(Fonts.DialogFont);
         proceedJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.Proceed"));
+
+        cardholderNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.Cardholder"));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -214,26 +267,23 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(creditInfoTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
+                    .addComponent(creditInfoTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(10, 10, 10)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(cardTypeJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(cardNumberJLabel)
-                            .addComponent(cardNameJLabel)
                             .addComponent(cardExpiryDateJLabel)
-                            .addComponent(cardSecurityCodeJLabel))
+                            .addComponent(cardholderNameJLabel))
                         .addGap(21, 21, 21)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cardNameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
-                            .addComponent(cardNumberJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
-                            .addComponent(cardTypeJComboBox, 0, 292, Short.MAX_VALUE)
+                            .addComponent(cardholderNameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE)
+                            .addComponent(cardNumberJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE)
+                            .addComponent(cardTypeJComboBox, 0, 234, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(cardSecurityCodeJTextField, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(cardMonthJComboBox, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(cardMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cardYearJComboBox, 0, 181, Short.MAX_VALUE)))
+                                .addComponent(cardYearJComboBox, 0, 123, Short.MAX_VALUE)))
                         .addGap(36, 36, 36))
                     .addComponent(privacyLearnMoreJLabel)
                     .addComponent(proceedJLabel))
@@ -254,18 +304,14 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
                     .addComponent(cardNumberJLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cardNameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cardNameJLabel))
+                    .addComponent(cardholderNameJLabel)
+                    .addComponent(cardholderNameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cardExpiryDateJLabel)
                     .addComponent(cardMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cardYearJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cardSecurityCodeJLabel)
-                    .addComponent(cardSecurityCodeJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(17, 17, 17)
+                .addGap(42, 42, 42)
                 .addComponent(privacyLearnMoreJLabel)
                 .addGap(15, 15, 15)
                 .addComponent(proceedJLabel)
@@ -278,22 +324,10 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
     }//GEN-LAST:event_privacyLearnMoreJLabelMousePressed
 
     /**
-     * Credit card types
+     * Sign up.
+     * 
      */
-    private enum CardType {
-        NONE("None"),
-        AMERICAN_EXPRESS("AmericanExpress"),
-        DINERS_CLUB("DinersClub"),
-        DISCOVER("Discover"),
-        JCB("JCB"),
-        MASTERCARD("MasterCard"),
-        VISA("Visa");
-
-        /** The credit card name localization key */
-        private final String nameKey;
-
-        private CardType(final String nameKey) {
-            this.nameKey = nameKey;
-        }
+    private void signUp() {
+        getController().runSignup(extractPaymentInfo());
     }
 }

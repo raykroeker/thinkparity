@@ -3,13 +3,19 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.profile;
 
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
+
+import com.thinkparity.ophelia.model.profile.BackupStatistics;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
+import com.thinkparity.ophelia.model.profile.Statistics;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
-import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 /**
  * @author raymond@thinkparity.com
@@ -36,32 +42,29 @@ public class Update extends AbstractBrowserAction {
      */
     @Override
     public void invoke(final Data data) {
-        final Boolean displayAvatar = (Boolean) data.get(DataKey.DISPLAY_AVATAR);
-        if (displayAvatar) {
-            browser.displayUpdateProfileDialog();
+        final Profile profile = (Profile) data.get(DataKey.PROFILE);
+        final ProfileModel profileModel = getProfileModel();
+        if (null == profile) {
+            /* display profile dialog */
+            final Boolean backupEnabled = profileModel.isBackupEnabled();
+            final Boolean paymentInfoAccessible = profileModel.isAccessiblePaymentInfo();
+            final BackupStatistics backupStatistics = profileModel.readBackupStatistics();
+            final ProfileEMail email = profileModel.readEMail();
+            final Profile existingProfile = profileModel.read();
+            final Statistics statistics = profileModel.readStatistics();
+            SwingUtil.ensureDispatchThread(new Runnable() {
+                public void run() {
+                    browser.displayUpdateProfileDialog(backupEnabled,
+                            paymentInfoAccessible, backupStatistics, email,
+                            existingProfile, statistics);
+                }
+            });
         } else {
-            final ProfileModel profileModel = getProfileModel();
-            final Profile profile = profileModel.read();
-
-            // update profile
-            profile.setAddress((String) data.get(DataKey.ADDRESS));
-            profile.setCity((String) data.get(DataKey.CITY));
-            profile.setCountry((String) data.get(DataKey.COUNTRY));
-            profile.setMobilePhone((String) data.get(DataKey.MOBILE_PHONE));
-            profile.setName((String) data.get(DataKey.NAME));
-            profile.setOrganization((String) data.get(DataKey.ORGANIZATION));
-            profile.setOrganizationCountry(profile.getOrganizationCountry());
-            profile.setPhone((String) data.get(DataKey.PHONE));
-            profile.setPostalCode((String) data.get(DataKey.POSTAL_CODE));
-            profile.setProvince((String) data.get(DataKey.PROVINCE));
-            profile.setTitle((String) data.get(DataKey.TITLE));
+            /* update profile */
             profileModel.update(profile);
         }
     }
 
-    /** Data keys. */
-    public enum DataKey {
-        ADDRESS, CITY, COUNTRY, DISPLAY_AVATAR, MOBILE_PHONE, NAME,
-        ORGANIZATION, PHONE, POSTAL_CODE, PROVINCE, TITLE
-    }
+    /** <b>Title:</b>Update Data Key<br> */
+    public enum DataKey { PROFILE }
 }

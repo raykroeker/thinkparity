@@ -769,7 +769,7 @@ public class MainStatusAvatar extends Avatar {
     }//GEN-LAST:event_resizeJLabelMouseReleased
 
     private void userJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_userJLabelMousePressed
-        getController().displayUpdateProfileDialog();
+        getController().runUpdateProfile();
     }//GEN-LAST:event_userJLabelMousePressed
 
     public enum DataKey { CLEAR_LINK, LINK }

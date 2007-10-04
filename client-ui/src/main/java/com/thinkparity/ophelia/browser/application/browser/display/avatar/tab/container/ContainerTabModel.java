@@ -434,6 +434,15 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Determine whether or not the profile is enabled.
+     * 
+     * @return True if it is enabled.
+     */
+    Boolean readIsProfileActive() {
+        return ((ContainerProvider) contentProvider).readIsActive();
+    }
+
+    /**
      * Determine whether or not the invite user interface is enabled.
      * 
      * @param user

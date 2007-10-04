@@ -20,25 +20,7 @@ import com.thinkparity.ophelia.browser.Constants.Colors;
  */
 public class LabelFactory extends ComponentFactory {
 
-    /**
-     * <b>Title:</b>thinkParity OpheliaUI Underline JLabel<br>
-     * <b>Description:</b>A label that displays its text with a graphical
-     * underline.<br>
-     */
-    private static class UnderlinedJLabel extends JLabel {
-        @Override
-        protected void paintComponent(final Graphics g) {
-            super.paintComponent(g);
-            if (getText().length() > 0) {
-                final int iconWidth = (null == getIcon() ? 0 : getIcon().getIconWidth() + getIconTextGap());
-                final FontMetrics fontMetrics = getFontMetrics(getFont());
-                final int y = fontMetrics.getMaxAscent() + 1;
-                g.drawLine(0, y, fontMetrics.stringWidth(getText()) + iconWidth, y);
-            }
-        }
-    }
-
-	/** A singleton instance of <code>LabelFactory</code>. */
+    /** A singleton instance of <code>LabelFactory</code>. */
 	private static final LabelFactory singleton;
 
 	/** The singleton instance synchronization lock <code>Object</code>. */
@@ -61,25 +43,31 @@ public class LabelFactory extends ComponentFactory {
 	}
 
 	public static JLabel create(final Font font) {
-		synchronized (singletonLock) {
-			return singleton.doCreate(font);
-		}
-	}
+        synchronized (singletonLock) {
+            return singleton.doCreate(font);
+        }
+    }
 
-	public static JLabel create(final Icon icon) {
+    public static JLabel create(final Font font, final Color foreground) {
+        synchronized (singletonLock) {
+            return singleton.doCreate(font, foreground);
+        }
+    }
+
+    public static JLabel create(final Icon icon) {
 		synchronized (singletonLock) {
 			return singleton.doCreate(icon);
 		}
+	}
+
+	public static JLabel create(final String text) {
+		synchronized(singletonLock) { return singleton.doCreate(text); }
 	}
 
 	public static JLabel create(final String text, final Font font) {
 		synchronized (singletonLock) {
 			return singleton.doCreate(text, font);
 		}
-	}
-
-	public static JLabel create(final String text) {
-		synchronized(singletonLock) { return singleton.doCreate(text); }
 	}
 
 	public static JLabel create(final String text, final Font font,
@@ -145,19 +133,34 @@ public class LabelFactory extends ComponentFactory {
 	}
 
 	/**
-	 * Create a JLabel with a Font applied.
-	 * 
-	 * @param font
-	 *            The font to apply.
-	 * @return The JLabel.
-	 */
-	private JLabel doCreate(final Font font) {
-		final JLabel jLabel = doCreate();
-		applyFont(jLabel, font);
-		return jLabel;
-	}
+     * Create a JLabel with a Font applied.
+     * 
+     * @param font
+     *            The font to apply.
+     * @return The JLabel.
+     */
+    private JLabel doCreate(final Font font) {
+        final JLabel jLabel = doCreate();
+        applyFont(jLabel, font);
+        return jLabel;
+    }
 
-	private JLabel doCreate(final Icon icon) {
+    /**
+     * Create a JLabel with a Font applied.
+     * 
+     * @param font
+     *            The font to apply.
+     * @param foreground
+     *            A <code>Color</code>.
+     * @return The JLabel.
+     */
+    private JLabel doCreate(final Font font, final Color foreground) {
+        final JLabel jLabel = doCreate(font);
+        applyForeground(jLabel, foreground);
+        return jLabel;
+    }
+
+    private JLabel doCreate(final Icon icon) {
 		final JLabel jLabel = doCreate();
 		applyIcon(jLabel, icon);
 		return jLabel;
@@ -289,4 +292,22 @@ public class LabelFactory extends ComponentFactory {
 			return swingConstant;
 		}
 	}
+
+	/**
+     * <b>Title:</b>thinkParity OpheliaUI Underline JLabel<br>
+     * <b>Description:</b>A label that displays its text with a graphical
+     * underline.<br>
+     */
+    private static class UnderlinedJLabel extends JLabel {
+        @Override
+        protected void paintComponent(final Graphics g) {
+            super.paintComponent(g);
+            if (getText().length() > 0) {
+                final int iconWidth = (null == getIcon() ? 0 : getIcon().getIconWidth() + getIconTextGap());
+                final FontMetrics fontMetrics = getFontMetrics(getFont());
+                final int y = fontMetrics.getMaxAscent() + 1;
+                g.drawLine(0, y, fontMetrics.stringWidth(getText()) + iconWidth, y);
+            }
+        }
+    }
 }

@@ -18,28 +18,24 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="creditInfoTitleJLabel" alignment="0" pref="455" max="32767" attributes="0"/>
+                  <Component id="creditInfoTitleJLabel" alignment="0" pref="424" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="10" pref="10" max="10" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="cardTypeJLabel" alignment="0" min="-2" pref="92" max="-2" attributes="0"/>
                           <Component id="cardNumberJLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="cardNameJLabel" min="-2" max="-2" attributes="0"/>
                           <Component id="cardExpiryDateJLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="cardSecurityCodeJLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="cardholderNameJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" pref="21" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="cardNameJTextField" pref="292" max="32767" attributes="1"/>
-                          <Component id="cardNumberJTextField" pref="292" max="32767" attributes="1"/>
-                          <Component id="cardTypeJComboBox" alignment="0" pref="292" max="32767" attributes="1"/>
+                          <Component id="cardholderNameJTextField" pref="234" max="32767" attributes="0"/>
+                          <Component id="cardNumberJTextField" pref="234" max="32767" attributes="1"/>
+                          <Component id="cardTypeJComboBox" alignment="0" pref="234" max="32767" attributes="1"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                  <Component id="cardSecurityCodeJTextField" alignment="0" max="32767" attributes="1"/>
-                                  <Component id="cardMonthJComboBox" alignment="0" min="-2" pref="105" max="-2" attributes="1"/>
-                              </Group>
+                              <Component id="cardMonthJComboBox" min="-2" pref="105" max="-2" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="cardYearJComboBox" pref="181" max="32767" attributes="0"/>
+                              <Component id="cardYearJComboBox" pref="123" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace min="-2" pref="36" max="-2" attributes="0"/>
@@ -66,23 +62,18 @@
                   <Component id="cardNumberJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="cardNumberJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="cardNameJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="cardNameJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="cardholderNameJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="cardholderNameJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="cardExpiryDateJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="cardMonthJComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="cardYearJComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="cardSecurityCodeJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="cardSecurityCodeJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="42" max="-2" attributes="0"/>
               <Component id="privacyLearnMoreJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
               <Component id="proceedJLabel" min="-2" max="-2" attributes="0"/>
@@ -126,7 +117,7 @@
           <Connection code="Fonts.DialogTextEntryFont" type="code"/>
         </Property>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="cardTypeModel" type="code"/>
+          <Connection code="cardNameModel" type="code"/>
         </Property>
       </Properties>
       <AuxValues>
@@ -140,20 +131,6 @@
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="localization/Browser_Messages.properties" key="UpgradeAccountAvatar.Payment.CardNumber" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
-      </AuxValues>
-    </Component>
-    <Component class="javax.swing.JLabel" name="cardNameJLabel">
-      <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogFont" type="code"/>
-        </Property>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="localization/Browser_Messages.properties" key="UpgradeAccountAvatar.Payment.CardName" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <AuxValues>
@@ -175,20 +152,6 @@
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
       </AuxValues>
     </Component>
-    <Component class="javax.swing.JLabel" name="cardSecurityCodeJLabel">
-      <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogFont" type="code"/>
-        </Property>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="localization/Browser_Messages.properties" key="UpgradeAccountAvatar.Payment.SecurityCode" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
-      </AuxValues>
-    </Component>
     <Component class="javax.swing.JTextField" name="cardNumberJTextField">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
@@ -197,19 +160,7 @@
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) cardNumberJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getCreditCardNumber()));"/>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
-      </AuxValues>
-    </Component>
-    <Component class="javax.swing.JTextField" name="cardNameJTextField">
-      <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogTextEntryFont" type="code"/>
-        </Property>
-      </Properties>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) cardNameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getCreditCardName()));"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) cardNumberJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getCardNumber()));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -219,7 +170,7 @@
           <Connection code="Fonts.DialogTextEntryFont" type="code"/>
         </Property>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="cardMonthModel" type="code"/>
+          <Connection code="cardExpiryMonthModel" type="code"/>
         </Property>
       </Properties>
       <AuxValues>
@@ -232,22 +183,10 @@
           <Connection code="Fonts.DialogTextEntryFont" type="code"/>
         </Property>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="cardYearModel" type="code"/>
+          <Connection code="cardExpiryYearModel" type="code"/>
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
-      </AuxValues>
-    </Component>
-    <Component class="javax.swing.JTextField" name="cardSecurityCodeJTextField">
-      <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="Fonts.DialogTextEntryFont" type="code"/>
-        </Property>
-      </Properties>
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) cardSecurityCodeJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getCreditCardSecurityCode()));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -279,6 +218,18 @@
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
       </AuxValues>
+    </Component>
+    <Component class="javax.swing.JLabel" name="cardholderNameJLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="localization/Browser_Messages.properties" key="UpgradeAccountAvatar.Payment.Cardholder" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="LabelFactory.create(Fonts.DialogFont);"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JTextField" name="cardholderNameJTextField">
     </Component>
   </SubComponents>
 </Form>

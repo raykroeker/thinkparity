@@ -667,7 +667,24 @@ public abstract class AbstractModelImpl
         return InternalModelFactory.getInstance(getContext(), user).getMigratorModel();
     }
 
+    protected final InternalMigratorModel getMigratorModel(final User user) {
+        return InternalModelFactory.getInstance(getContext(), user).getMigratorModel();
+    }
+
+    /**
+     * Obtain the product name.
+     * 
+     * @return A <code>String</code>.
+     */
+    protected final String getProductName() {
+        return getProperty("thinkparity.product-name");
+    }
+
     protected final InternalProfileModel getProfileModel() {
+        return InternalModelFactory.getInstance(getContext(), user).getProfileModel();
+    }
+
+    protected final InternalProfileModel getProfileModel(final User user) {
         return InternalModelFactory.getInstance(getContext(), user).getProfileModel();
     }
 
@@ -684,7 +701,7 @@ public abstract class AbstractModelImpl
     }
 
     /**
-     * Obtain a jive property.
+     * Obtain a property.
      * 
      * @param name
      *            A property name.
@@ -695,7 +712,7 @@ public abstract class AbstractModelImpl
     }
 
     /**
-     * Obtain a jive property.
+     * Obtain a property.
      * 
      * @param name
      *            A property name.

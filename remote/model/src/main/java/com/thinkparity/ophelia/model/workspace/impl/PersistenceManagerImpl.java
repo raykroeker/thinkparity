@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model.workspace.impl;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -191,13 +190,9 @@ class PersistenceManagerImpl {
             session.close();
         }
 
+        /* NOTE - PersistenceManager#stop() - obtaining the shutdown connection
+         * disabled *all* connections after this point */
         ((XADataSourcePool) dataSource).shutdown(true);
-        try {
-            ((XADataSourcePool) dataSource).getShutdownConnection();
-        } catch (final SQLException sqlx) {
-        } catch (final Throwable t) {
-            throw new WorkspaceException("Cannot stop persistence manager.", t);
-        }
 
         transactionManager.stop();
         transactionManager = null;

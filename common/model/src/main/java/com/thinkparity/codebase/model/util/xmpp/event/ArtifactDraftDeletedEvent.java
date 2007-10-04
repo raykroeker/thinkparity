@@ -6,14 +6,17 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
+import com.thinkparity.codebase.model.annotation.ThinkParityFilterEvent;
 
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
 @ThinkParityBackupEvent
+@ThinkParityFilterEvent
 public final class ArtifactDraftDeletedEvent extends XMPPEvent {
 
     /** The creator. */

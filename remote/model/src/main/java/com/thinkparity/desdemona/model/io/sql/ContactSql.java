@@ -7,6 +7,8 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
@@ -48,11 +50,21 @@ public final class ContactSql extends AbstractSql {
 		.toString();
 
 	/**
-	 * Create a InvitationSql.
-	 * 
-	 */
+     * Create ContactSql.
+     * 
+     */
 	public ContactSql() {
         super();
+	}
+
+	/**
+     * Create ContactSql.
+     * 
+     * @param dataSource
+     *            A <code>DataSource</code>.
+     */
+	public ContactSql(final DataSource dataSource) {
+	    super(dataSource);
 	}
 
     public void create(final User user, final User contact,

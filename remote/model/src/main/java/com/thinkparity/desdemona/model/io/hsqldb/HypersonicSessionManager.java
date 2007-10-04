@@ -34,15 +34,22 @@ public class HypersonicSessionManager {
     /** A <code>DataSource</code>. */
     private final DataSource dataSource;
 
+    /** A commit flag. */
+    private final Boolean enableCommit;
+
     /**
      * Create SessionManager.
      * 
      * @param dataSource
      *            A sql <code>DataSource</code>.
+     * @param enableCommit
+     *            A <code>Boolean</code>.
      */
-    public HypersonicSessionManager(final DataSource dataSource) {
+    public HypersonicSessionManager(final DataSource dataSource,
+            final Boolean enableCommit) {
         super();
         this.dataSource = dataSource;
+        this.enableCommit = enableCommit;
     }
 
     /**
@@ -110,7 +117,8 @@ public class HypersonicSessionManager {
     private HypersonicSession openSessionImpl(final StackTraceElement caller) {
         synchronized (SESSIONS) {
             try {
-                final HypersonicSession session = new HypersonicSession(this, dataSource.getConnection());
+                final HypersonicSession session = new HypersonicSession(this,
+                        dataSource.getConnection(), enableCommit);
                 SESSIONS.add(session);
                 SESSION_CALLERS.put(session, caller);
                 return session;

@@ -11,6 +11,8 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.*;
+import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
+import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.util.Token;
@@ -51,6 +53,66 @@ public interface ProfileModel {
             SecurityCredentials securityCredentials);
 
     /**
+     * Create a profile.
+     * 
+     * @param product
+     *            The <code>Product</code> the user is running.
+     * @param release
+     *            The <code>Release</code> the user is running.
+     * @param usernameReservation
+     *            A <code>UsernameReservation</code>.
+     * @param emailReservation
+     *            A <code>EMailReservation</code>.
+     * @param credentials
+     *            A <code>Credentials</code>.
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param email
+     *            An <code>EMail</code> address.
+     * @param securityCredentials
+     *            A <code>SecurityCredentials</code>.
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
+     */
+    void create(Product product, Release release,
+            UsernameReservation usernameReservation,
+            EMailReservation emailReservation, Credentials credentials,
+            Profile profile, EMail email,
+            SecurityCredentials securityCredentials, PaymentInfo paymentInfo);
+
+    /**
+     * Create a profile.
+     * 
+     * @param product
+     *            The <code>Product</code> the user is running.
+     * @param release
+     *            The <code>Release</code> the user is running.
+     * @param usernameReservation
+     *            A <code>UsernameReservation</code>.
+     * @param emailReservation
+     *            A <code>EMailReservation</code>.
+     * @param credentials
+     *            A <code>Credentials</code>.
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param email
+     *            An <code>EMail</code> address.
+     * @param securityCredentials
+     *            A <code>SecurityCredentials</code>.
+     * @param paymentPlanCredentials
+     *            A <code>PaymentPlanCredentials</code>.
+     * @throws InvalidCredentialsException
+     *             if the payment plan credentials are invalid
+     */
+    void create(Product product, Release release,
+            UsernameReservation usernameReservation,
+            EMailReservation emailReservation, Credentials credentials,
+            Profile profile, EMail email,
+            SecurityCredentials securityCredentials,
+            PaymentPlanCredentials paymentPlanCredentials)
+            throws InvalidCredentialsException;
+
+    /**
      * Create an e-mail address reservation.
      * 
      * @param email
@@ -76,6 +138,13 @@ public interface ProfileModel {
     UsernameReservation createUsernameReservation(String username);
 
     /**
+     * Determine if payment is accessible.
+     * 
+     * @return True if payment is accessible.
+     */
+    Boolean isAccessiblePaymentInfo();
+
+    /**
      * Determine whether or not an e-mail address is available.
      * 
      * @param email
@@ -85,6 +154,34 @@ public interface ProfileModel {
     Boolean isEmailAvailable(EMail email);
 
     /**
+     * Determine if payment is required.
+     * 
+     * @return True if payment is required.
+     */
+    Boolean isRequiredPaymentInfo();
+
+    /**
+     * Determine if the profile's payment has been set.
+     * 
+     * @return True if the payment info is set.
+     */
+    Boolean isSetPaymentInfo();
+
+    /**
+     * Process the invoice queue. Iterate all payment plans and generate
+     * required invoices.
+     * 
+     */
+    void processInvoiceQueue();
+
+    /**
+     * Process the pending payment queue.  Iterate all invoices and generate
+     * payments.
+     * 
+     */
+    void processPaymentQueue();
+
+    /**
      * Read a profile.
      * 
      * @return A <code>Profile</code>.
@@ -92,7 +189,7 @@ public interface ProfileModel {
     Profile read();
 
     /**
-     * The profile e-mail address.
+     * Read a profile's e-mail address.
      * 
      * @return A <code>ProfileEMail</code>.
      */
@@ -113,20 +210,30 @@ public interface ProfileModel {
     Token readToken();
 
     /**
-     * Update a model user's profile.
-     * 
-     * @param vcard
-     *            A <code>ProfileVCard</code>.
-     */
-    void update(ProfileVCard vcard);
-
-    /**
      * Update an e-mail address.
      * 
      * @param email
      *            An <code>EMail</code>.
      * @throws EMailReferenceException
      *             if the e-mail cannot be updated
+     */
+    void update(ProfileVCard vcard);
+
+    /**
+     * Update a profile.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
+     */
+    void update(Profile profile, PaymentInfo paymentInfo);
+
+    /**
+     * Update a profile's e-mail address.
+     * 
+     * @param email
+     *            An <code>EMail</code> address.
      */
     void updateEMail(EMail email) throws EMailIntegrityException;
 
@@ -142,6 +249,16 @@ public interface ProfileModel {
      */
     void updatePassword(Credentials credentials, String newPassword)
             throws InvalidCredentialsException;
+
+    /**
+     * Update payment info for the profile.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
+     */
+    void updatePaymentInfo(PaymentInfo paymentInfo);
 
     /**
      * Update the model user's product release.

@@ -4,9 +4,9 @@
 package com.thinkparity.desdemona.model.queue;
 
 import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.List;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityFilterEvent;
 import com.thinkparity.codebase.model.queue.notification.NotificationSession;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
@@ -108,7 +108,8 @@ public class QueueModelImpl extends AbstractModelImpl implements QueueModel,
             event.setDate(currentDateTime());
             event.setId(newEventId());
             event.setPriority(priority);
-            queueSql.createEvent(user.getLocalId(), event);
+            queueSql.createEvent(user.getLocalId(), event,
+                    isFiltered(event.getClass()));
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -129,10 +130,10 @@ public class QueueModelImpl extends AbstractModelImpl implements QueueModel,
      */
     public List<XMPPEvent> readEvents() {
         try {
-            if (getProfileModel().isVerified()) {
-                return queueSql.readEvents(user.getLocalId());
+            if (getProfileModel().isQueueReadable()) {
+                return queueSql.readEvents(user);
             } else {
-                return Collections.emptyList();
+                return queueSql.readFilteredEvents(user, Boolean.FALSE);
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -150,7 +151,7 @@ public class QueueModelImpl extends AbstractModelImpl implements QueueModel,
             throw panic(t);
         }
     }
-    
+
     /**
      * @see com.thinkparity.desdemona.model.AbstractModelImpl#initialize()
      *
@@ -160,6 +161,18 @@ public class QueueModelImpl extends AbstractModelImpl implements QueueModel,
         properties = DesdemonaProperties.getInstance();
         notificationService = NotificationService.getInstance();
         queueSql = new QueueSql();
+    }
+    
+    /**
+     * Determine the filterability of an event.
+     * 
+     * @param eventClass
+     *            A <code>Class<? extends XMPPEvent></code>.
+     * @return True if the filter annotation is present.
+     */
+    private Boolean isFiltered(final Class<? extends XMPPEvent> eventClass) {
+        return Boolean.valueOf(
+                eventClass.isAnnotationPresent(ThinkParityFilterEvent.class));
     }
 
     /**

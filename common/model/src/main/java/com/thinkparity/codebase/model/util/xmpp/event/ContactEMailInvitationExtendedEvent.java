@@ -8,12 +8,16 @@ import java.util.Calendar;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityFilterEvent;
+
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
+@ThinkParityFilterEvent
 public final class ContactEMailInvitationExtendedEvent extends XMPPEvent {
 
     /** The original invitation <code>EMail</code>. */

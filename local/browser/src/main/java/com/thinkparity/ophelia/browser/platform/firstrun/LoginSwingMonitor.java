@@ -7,10 +7,13 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 
 /**
+ * <b>Title:</b>thinkParity Ophelia UI First Run Login Swing Monitor<br>
+ * <b>Description:</b>A swing progress monitor for login.<br>
+ * 
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class LoginSwingMonitor implements ThinkParitySwingMonitor {
+class LoginSwingMonitor implements ThinkParitySwingMonitor {
 
     private final LoginSwingDisplay display;
 

@@ -11,6 +11,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
 import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.codebase.beans.BeanException;
 import com.thinkparity.codebase.beans.BeanUtils;
 
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
@@ -50,7 +51,11 @@ public final class XMPPEventRenderer implements ObjectRenderer {
             memberData.add(((XMPPEvent) o).getId());
             for (int i = 0; i < properties.length; i++) {
                 memberData.add(properties[i].getName());
-                memberData.add(beanUtils.readProperty(properties[i]));
+                try {
+                    memberData.add(beanUtils.readProperty(properties[i]));
+                } catch (final BeanException bx) {
+                    memberData.add("UnableToRead");
+                }
             }
             return StringUtil.toString(o.getClass(),
                     memberData.toArray(new Object[] {}));

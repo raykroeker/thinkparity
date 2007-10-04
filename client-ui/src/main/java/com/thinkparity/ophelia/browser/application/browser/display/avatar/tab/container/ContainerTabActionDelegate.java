@@ -23,7 +23,6 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.action.container.*;
 import com.thinkparity.ophelia.browser.platform.action.document.Open;
 import com.thinkparity.ophelia.browser.platform.action.document.OpenVersion;
-import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 
 /**
  * <b>Title:</b><br>
@@ -194,9 +193,7 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
      */
     public void invokeForUser(final User user) {        
         if (isLocalUser(user)) {
-            final Data data = new Data(1);
-            data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            invoke(profileUpdate, getApplication(), data);
+            invoke(profileUpdate, getApplication(), Data.emptyData());
         } else {
             final Data data = new Data(1);
             data.set(ReadTeamMember.DataKey.USER_ID, user.getLocalId());
@@ -228,7 +225,7 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate#isTabButtonActionAvailable()
      */
     public Boolean isTabButtonActionAvailable() {
-        return readIsEMailVerified();
+        return readIsProfileActive() && readIsEMailVerified();
     }
 
     /**
@@ -269,5 +266,14 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
      */
     private Boolean readIsEMailVerified() {
         return model.readIsEMailVerified();
+    }
+
+    /**
+     * Determine whether or not the profile is active.
+     * 
+     * @return True if the profile is active.
+     */
+    private Boolean readIsProfileActive() {
+        return model.readIsProfileActive();
     }
 }

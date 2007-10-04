@@ -24,9 +24,15 @@ import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
 
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.profile.Profile;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.model.profile.BackupStatistics;
+import com.thinkparity.ophelia.model.profile.Statistics;
 
 import com.thinkparity.ophelia.browser.Constants.Keys;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
@@ -39,6 +45,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.FileChooserAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.StatusAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.*;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpdateProfileAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
@@ -62,20 +69,17 @@ import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
 import com.thinkparity.ophelia.browser.platform.action.profile.Update;
 import com.thinkparity.ophelia.browser.platform.action.profile.UpdateEMail;
 import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePassword;
+import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePaymentInfo;
 import com.thinkparity.ophelia.browser.platform.action.profile.UpgradeAccount;
 import com.thinkparity.ophelia.browser.platform.action.profile.VerifyEMail;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 import com.thinkparity.ophelia.browser.platform.application.L18nContext;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 import com.thinkparity.ophelia.browser.platform.util.persistence.Persistence;
 import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFactory;
 import com.thinkparity.ophelia.browser.platform.window.Window;
 import com.thinkparity.ophelia.browser.platform.window.WindowFactory;
-
-import org.apache.log4j.Logger;
 
 /**
  * The controller is used to manage state as well as control display of the
@@ -96,25 +100,25 @@ public class Browser extends AbstractApplication {
 	 */
 	private final Map<AvatarId, Object> avatarInputMap;
 
-	/** The browser controller's display helper. */
+    /** The browser controller's display helper. */
     private final BrowserDisplayHelper displayHelper;
 
 	/** The browser's event dispatcher. */
 	private EventDispatcher ed;
 
-    /** The browser controller's keyboard helper. */
+	/** The browser controller's keyboard helper. */
     private final BrowserKeyboardHelper keyboardHelper;
 
     /** The thinkParity browser application window. */
 	private BrowserWindow mainWindow;
 
-	/** A persistence for browser settings. */
+    /** A persistence for browser settings. */
     private final Persistence persistence;
 
 	/** The browser's session implementation. */
 	private final BrowserSessionImpl sessionImpl;
 
-    /**
+	/**
 	 * Create Browser.
 	 * 
 	 */
@@ -175,13 +179,13 @@ public class Browser extends AbstractApplication {
         });
     }
 
-	/** Close the main window. */
+    /** Close the main window. */
     public void closeBrowserWindow() {
         Assert.assertNotNull(mainWindow, "Main window is null.");
         mainWindow.dispatchEvent(new WindowEvent(mainWindow, WindowEvent.WINDOW_CLOSING));
     }
 
-    /**
+	/**
      * Collapse the contact.
      *
      * @param contactId
@@ -536,6 +540,14 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Display the sign up dialog.
+     * 
+     */
+    public void displaySignUpDialog() {
+        displayAvatar(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT);
+    }
+
+    /**
      * Display a status dialog.
      * 
      * @param statusMessageKey
@@ -562,23 +574,6 @@ public class Browser extends AbstractApplication {
         open(AvatarId.DIALOG_STATUS, input);
     }
 
-    /** Display a tab list extension. */
-    public void displayTabExtension(final TabListExtension tabListExtension) {
-        displayTab(tabListExtension);
-    }
-
-    /** Display a tab panel extension. */
-    public void displayTabExtension(final TabPanelExtension tabPanelExtension) {
-        displayTab(tabPanelExtension);
-    }
-
-    /**
-     * Display the update account dialog.
-     */
-    public void displayUpdateAccountDialog() {
-        displayAvatar(AvatarId.DIALOG_PROFILE_UPDATE_ACCOUNT);
-    }
-
     /**
      * Display the update draft comment dialog.
      * 
@@ -603,15 +598,27 @@ public class Browser extends AbstractApplication {
      * Display the update profile dialog.
      *
      */
-    public void displayUpdateProfileDialog() {
+    public void displayUpdateProfileDialog(final Boolean backupEnabled,
+            final Boolean paymentInfoAccessible,
+            final BackupStatistics backupStatistics, final ProfileEMail email,
+            final Profile profile, final Statistics statistics) {
+        final Data data = new Data(7);
+        data.set(UpdateProfileAvatar.DataKey.BACKUP_ENABLED, backupEnabled);
+        data.set(UpdateProfileAvatar.DataKey.PAYMENT_INFO_ACCESSIBLE, paymentInfoAccessible);
+        data.set(UpdateProfileAvatar.DataKey.BACKUP_STATISTICS, backupStatistics);
+        data.set(UpdateProfileAvatar.DataKey.EMAIL, email);
+        data.set(UpdateProfileAvatar.DataKey.PROFILE, profile);
+        data.set(UpdateProfileAvatar.DataKey.STATISTICS, statistics);
+        setInput(AvatarId.DIALOG_PROFILE_UPDATE, data);
         displayAvatar(AvatarId.DIALOG_PROFILE_UPDATE);
     }
 
     /**
-     * Display the upgrade account dialog.
+     * Display the update profile payment info dialog.
+     * 
      */
-    public void displayUpgradeAccountDialog() {
-        displayAvatar(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT);
+    public void displayUpdateProfilePaymentInfo() {
+        displayAvatar(AvatarId.DIALOG_PROFILE_UPDATE_PAYMENT_INFO);
     }
 
     /**
@@ -757,17 +764,6 @@ public class Browser extends AbstractApplication {
      */
     public Locale getLocale() {
         return getPlatform().getLocale();
-    }
-
-    /**
-     * Obtain a logger for the class from the applilcation.
-     *
-     *
-     * @param clasz The class for which to obtain the logger.
-     * @return An apache logger.
-     */
-    public Logger getLogger(final Class clasz) {
-        return getPlatform().getLogger(clasz);
     }
 
     /**
@@ -967,7 +963,7 @@ public class Browser extends AbstractApplication {
         mainWindow.setMainWindowSizeAndLocation(newL, newS);
     }
 
-	/**
+    /**
 	 * Move the browser window.
 	 * 
 	 * @param l
@@ -1012,7 +1008,7 @@ public class Browser extends AbstractApplication {
         getTabAvatar(tabId).reinitialize();
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#removeBusyIndicator()
      *
      */
@@ -1115,7 +1111,7 @@ public class Browser extends AbstractApplication {
         invoke(ActionId.CONTAINER_ADD_BOOKMARK, data);
     }
 
-	/**
+    /**
      * Run the create document action, browse to select the document.
      * 
      * @param containerId
@@ -1133,8 +1129,8 @@ public class Browser extends AbstractApplication {
             runAddContainerDocuments(containerId, jFileChooser.getSelectedFiles());
         }
     }
-    
-    /**
+
+	/**
      * Run the add document action. This adds and/or updates documents.
      * 
      * @param containerId
@@ -1500,11 +1496,32 @@ public class Browser extends AbstractApplication {
         });
     }
 
-    /**
+	/**
      * Run the show getting started movie action.
+	 *
      */
     public void runShowGettingStartedMovie() {
         invoke(ActionId.HELP_SHOW_GETTING_STARTED_MOVIE, Data.emptyData());
+    }
+
+    /**
+     * Run the sign up action.
+     * 
+     */
+    public void runSignup() {
+        invoke(ActionId.PROFILE_UPGRADE_ACCOUNT, Data.emptyData());
+    }
+
+    /**
+     * Run the sign up action.
+     * 
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
+     */
+    public void runSignup(final PaymentInfo paymentInfo) {
+        final Data data = new Data(1);
+        data.set(UpgradeAccount.DataKey.PAYMENT_INFO, paymentInfo);
+        invoke(ActionId.PROFILE_UPGRADE_ACCOUNT, data);
     }
 
     /**
@@ -1526,56 +1543,34 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Update the user's profile.
-     *
-     * @param name
-     *            The user's name <code>String</code>.
-     * @param address
-     *            The user's address <code>String</code>. 
-     * @param city
-     *            The user's city <code>String</code>.   
-     * @param country
-     *            The user's country <code>String</code>.       
-     * @param mobilePhone
-     *            The user's mobile phone <code>String</code>.
-     * @param organization
-     *            The user's organization <code>String</code>.
-     * @param phone
-     *            The user's phone <code>String</code>.
-     * @param postalCode
-     *            The user's postal code <code>String</code>.
-     * @param province
-     *            The user's province <code>String</code>.
-     * @param title
-     *            The user's title <code>String</code>.
+     * Update the payment info.
+     * 
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
      */
-    public void runUpdateProfile(final String name,
-            final String address, final String city,
-            final String country, final String mobilePhone,
-            final String organization, final String phone,
-            final String postalCode, final String province,
-            final String title) {
-        final Data data = new Data(11);
-        data.set(Update.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
-        data.set(Update.DataKey.NAME, name);
-        if (null != address)
-            data.set(Update.DataKey.ADDRESS, address);
-        if (null != city)
-            data.set(Update.DataKey.CITY, city);
-        if (null != country)
-            data.set(Update.DataKey.COUNTRY, country);
-        if (null != mobilePhone)
-            data.set(Update.DataKey.MOBILE_PHONE, mobilePhone);
-        if (null != organization)
-            data.set(Update.DataKey.ORGANIZATION, organization);
-        if (null != phone)
-            data.set(Update.DataKey.PHONE, phone);
-        if (null != postalCode)
-            data.set(Update.DataKey.POSTAL_CODE, postalCode);
-        if (null != province)
-            data.set(Update.DataKey.PROVINCE, province);
-        if (null != title)
-            data.set(Update.DataKey.TITLE, title);
+    public void runUpdatePaymentInfo(final PaymentInfo paymentInfo) {
+        final Data data = new Data(1);
+        data.set(UpdatePaymentInfo.DataKey.PAYMENT_INFO, paymentInfo);
+        invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, data);
+    }
+
+    /**
+     * Update the user's profile.
+     * 
+     */
+    public void runUpdateProfile() {
+        invoke(ActionId.PROFILE_UPDATE, Data.emptyData());
+    }
+
+    /**
+     * Update the user's profile.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     */
+    public void runUpdateProfile(final Profile profile) {
+        final Data data = new Data(1);
+        data.set(Update.DataKey.PROFILE, profile);
         invoke(ActionId.PROFILE_UPDATE, data);
     }
 
@@ -1612,15 +1607,11 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Run the upgrade account action.
+     * Run the update profile payment info action.
+     * 
      */
-    public void runUpgradeAccount() {
-        // NOCOMMIT Remove the "if" test
-        if (isDevelopmentMode()) {
-            final Data data = new Data(1);
-            data.set(UpgradeAccount.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            invoke(ActionId.PROFILE_UPGRADE_ACCOUNT, data);
-        }
+    public void runUpdateProfilePaymentInfo() {
+        invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, Data.emptyData());
     }
 
     /**
@@ -1811,22 +1802,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getAvatar(com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension)
-     */
-    @Override
-    protected Avatar getAvatar(final TabListExtension tabListExtension) {
-        return super.getAvatar(tabListExtension);
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getAvatar(com.thinkparity.ophelia.browser.platform.plugin.extension.TabExtension)
-     */
-    @Override
-    protected Avatar getAvatar(final TabPanelExtension tabPanelExtension) {
-        return super.getAvatar(tabPanelExtension);
-    }
-    
-    /**
      * Display the status avatar.
      *
      */
@@ -1929,26 +1904,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Display a tab.
-     * 
-     * @param tabListExtension
-     *            A tab list extension.
-     */
-    private void displayTab(final TabListExtension tabListExtension) {
-        displayHelper.displayTab(tabListExtension);
-    }
-
-    /**
-     * Display a tab.
-     * 
-     * @param tabExtension
-     *            A tab panel extension.
-     */
-    private void displayTab(final TabPanelExtension tabPanelExtension) {
-        displayHelper.displayTab(tabPanelExtension);
-    }
-
-    /**
      * Display an avatar on the title display.
      * 
      * @param id
@@ -2039,7 +1994,7 @@ public class Browser extends AbstractApplication {
      *            A <code>MainTitleAvatar.TabId</code>.
      * @return A <code>TabPanelAvatar</code>.
      */
-    private TabPanelAvatar getTabAvatar(final MainTitleAvatar.TabId tabId) {
+    private TabPanelAvatar<?> getTabAvatar(final MainTitleAvatar.TabId tabId) {
         switch(tabId) {
         case CONTACT:
             return getTabContactAvatar();

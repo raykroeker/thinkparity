@@ -17,8 +17,11 @@ import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
+import com.thinkparity.desdemona.model.migrator.Fee;
 import com.thinkparity.desdemona.model.migrator.ResourceOpener;
+import com.thinkparity.desdemona.model.migrator.Fee.FeePeriod;
 
 /**
  * <b>Title:</b>thinkParity Migrator SQL<br>
@@ -101,6 +104,22 @@ public final class MigratorSql extends AbstractSql {
         new StringBuilder("select R.RESOURCE ")
         .append("from TPSD_PRODUCT_RELEASE_RESOURCE R ")
         .append("where R.RESOURCE_ID=?")
+        .toString();
+
+    /** Sql to determine the number of fees associated with a feature. */
+    private static final String SQL_READ_FEATURE_FEE_COUNT =
+        new StringBuilder("select count(FEE_ID) \"FEE_COUNT\" ")
+        .append("from TPSD_PRODUCT_FEATURE_FEE PFF ")
+        .append("where PFF.FEATURE_ID=?")
+        .toString();
+
+    /** Sql to read the feature fees. */
+    private static final String SQL_READ_FEES =
+        new StringBuilder("select PFF.FEE_ID,PFF.FEE_DESCRIPTION,")
+        .append("PFF.FEE_PERIOD,PFF.FEE_AMOUNT ")
+        .append("from TPSD_PRODUCT_FEATURE_FEE PFF ")
+        .append("where PFF.FEATURE_ID=? ")
+        .append("order by PFF.FEATURE_ID asc,PFF.FEE_DESCRIPTION asc")
         .toString();
 
     /** Sql to read a release. */
@@ -452,6 +471,61 @@ public final class MigratorSql extends AbstractSql {
     }
 
     /**
+     * Read the fees for the feature list.
+     * 
+     * @param featureList
+     *            A <code>List<Featur></code>.
+     * @return A <code>List<Fee></code>.
+     */
+    public List<Fee> readFees(final List<Feature> featureList) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_FEES);
+            final List<Fee> feeList = new ArrayList<Fee>();
+            for (final Feature feature : featureList) {
+                session.setLong(1, feature.getFeatureId());
+                session.executeQuery();
+                while (session.nextResult()) {
+                    feeList.add(extractFee(session));
+                }
+            }
+            return feeList;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Determine whether or not a feature requires payment.
+     * 
+     * @param feature
+     *            A <code>Feature</code>.
+     * @return True if it requires payment.
+     */
+    public Boolean readIsPaymentRequired(final Feature feature) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_FEATURE_FEE_COUNT);
+            session.setLong(1, feature.getFeatureId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int feeCount = session.getInteger("FEE_COUNT");
+                if (0 == feeCount) {
+                    return Boolean.FALSE;
+                } else if (0 < feeCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine payment requirement.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine payment requirement.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Read a release.
      * 
      * @param productUniqueId
@@ -735,6 +809,23 @@ public final class MigratorSql extends AbstractSql {
         if (errors != session.executeUpdate()) {
             throw panic("Could not delete release errors.");
         }
+    }
+
+    /**
+     * Extract the fee from a session.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @return A <code>Fee</code>.
+     */
+    private Fee extractFee(final HypersonicSession session) {
+        final Fee fee = new Fee();
+        fee.setAmount(session.getLong("FEE_AMOUNT"));
+        fee.setDescription(session.getString("FEE_DESCRIPTION"));
+        fee.setId(session.getLong("FEE_ID"));
+        final String periodString = session.getString("FEE_PERIOD");
+        fee.setPeriod(null == periodString ? null : FeePeriod.valueOf(periodString));
+        return fee;
     }
 
     /**

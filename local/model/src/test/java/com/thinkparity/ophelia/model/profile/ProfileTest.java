@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
+import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
@@ -85,9 +86,16 @@ public final class ProfileTest extends ProfileTestCase {
         final SecurityCredentials securityCredentials = new SecurityCredentials();
         securityCredentials.setQuestion("What is my username?");
         securityCredentials.setAnswer(profile.getSimpleUsername());
+        
+        final PaymentPlanCredentials paymentPlanCredentials = new PaymentPlanCredentials();
+        paymentPlanCredentials.setName("Test Payment Plan");
+        paymentPlanCredentials.setPassword("Test Payment Plan");
         try {
             getModel(datum.junit).create(usernameReservation, emailReservation,
-                    credentials, profile, email, securityCredentials);
+                    credentials, profile, email, securityCredentials,
+                    paymentPlanCredentials);
+        } catch (final InvalidCredentialsException icx) {
+            fail(icx, "Profile payment plan credentials are invalid.");
         } catch (final ReservationExpiredException rex) {
             fail(rex, "Profile reservation has expired.");
         }

@@ -22,10 +22,17 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.*;
+import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
+import com.thinkparity.codebase.model.profile.payment.PaymentInfoConstraints;
+import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials;
+import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentialsConstraints;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.xmpp.event.profile.ActiveEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.profile.payment.PaymentEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.profile.payment.PaymentPlanArrearsEvent;
 
 import com.thinkparity.ophelia.model.Constants;
 import com.thinkparity.ophelia.model.Model;
@@ -41,6 +48,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.service.AuthToken;
 import com.thinkparity.service.ProfileService;
 import com.thinkparity.service.ServiceFactory;
+import com.thinkparity.service.SessionService;
 
 /**
  * <b>Title:</b>thinkParity Profile Model Implementation<br>
@@ -77,8 +85,8 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         }
     }
 
-    /** A <code>ProfileEventGenerator</code> for local events. */
-    private final ProfileEventGenerator localEventGenerator;
+    /** A local profile event generator. */
+    private final ProfileEventGenerator localEventGen;
 
     /** The profile db io. */
     private ProfileIOHandler profileIO;
@@ -86,13 +94,20 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     /** The profile web-service. */
     private ProfileService profileService;
 
+    /** A remote profile event generator. */
+    private final ProfileEventGenerator remoteEventGen;
+
+    /** The session web-service. */
+    private SessionService sessionService;
+
     /**
      * Create ProfileModelImpl.
      *
      */
     public ProfileModelImpl() {
         super();
-        this.localEventGenerator = new ProfileEventGenerator(ProfileEvent.Source.LOCAL);
+        this.localEventGen = new ProfileEventGenerator(ProfileEvent.Source.LOCAL);
+        this.remoteEventGen = new ProfileEventGenerator(ProfileEvent.Source.REMOTE);
     }
 
     /**
@@ -105,20 +120,55 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.profile.ProfileModel#create(com.thinkparity.codebase.model.profile.Reservation,
-     *      com.thinkparity.codebase.model.session.Credentials,
-     *      com.thinkparity.codebase.model.profile.Profile,
-     *      com.thinkparity.codebase.email.EMail)
-     * 
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#create(com.thinkparity.codebase.model.profile.UsernameReservation, com.thinkparity.codebase.model.profile.EMailReservation, com.thinkparity.codebase.model.session.Credentials, com.thinkparity.codebase.model.profile.Profile, com.thinkparity.codebase.email.EMail, com.thinkparity.codebase.model.profile.SecurityCredentials)
+     *
      */
+    @Override
     public void create(final UsernameReservation usernameReservation,
             final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
             final EMail email, final SecurityCredentials securityCredentials)
             throws ReservationExpiredException {
         try {
-            assertIsValid(profile);
-            assertIsValid(securityCredentials);
+            validate(profile);
+            validate(securityCredentials);
+
+            final Product product = new Product();
+            product.setName(Constants.Product.NAME);
+
+            final Release release = new Release();
+            release.setName(Constants.Release.NAME);
+            release.setOs(OSUtil.getOs());
+
+            final ServiceFactory serviceFactory = workspace.getServiceFactory(newFiniteRetryHandler());
+            final ProfileService profileService = serviceFactory.getProfileService();
+            profileService.create(newEmptyAuthToken(), product, release,
+                    usernameReservation, emailReservation, credentials, profile,
+                    email, securityCredentials);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#create(com.thinkparity.codebase.model.profile.UsernameReservation,
+     *      com.thinkparity.codebase.model.profile.EMailReservation,
+     *      com.thinkparity.codebase.model.session.Credentials,
+     *      com.thinkparity.codebase.model.profile.Profile,
+     *      com.thinkparity.codebase.email.EMail,
+     *      com.thinkparity.codebase.model.profile.SecurityCredentials,
+     *      com.thinkparity.codebase.model.profile.payment.PaymentInfo)
+     * 
+     */
+    public void create(final UsernameReservation usernameReservation,
+            final EMailReservation emailReservation,
+            final Credentials credentials, final Profile profile,
+            final EMail email, final SecurityCredentials securityCredentials,
+            final PaymentInfo paymentInfo) throws ReservationExpiredException {
+        try {
+            validate(profile);
+            validate(securityCredentials);
+            validate(paymentInfo);
 
             final long now = currentDateTime().getTimeInMillis();
             if (now > usernameReservation.getExpiresOn().getTimeInMillis())
@@ -144,7 +194,57 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final ProfileService profileService = serviceFactory.getProfileService();
             profileService.create(newEmptyAuthToken(), product, release,
                     usernameReservation, emailReservation, credentials, profile,
-                    email, securityCredentials);
+                    email, securityCredentials, paymentInfo);
+        } catch (final ReservationExpiredException rex) {
+            throw rex;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#create(com.thinkparity.codebase.model.profile.UsernameReservation, com.thinkparity.codebase.model.profile.EMailReservation, com.thinkparity.codebase.model.session.Credentials, com.thinkparity.codebase.model.profile.Profile, com.thinkparity.codebase.email.EMail, com.thinkparity.codebase.model.profile.SecurityCredentials, com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials)
+     *
+     */
+    @Override
+    public void create(final UsernameReservation usernameReservation,
+            final EMailReservation emailReservation, final Credentials credentials,
+            final Profile profile, final EMail email,
+            final SecurityCredentials securityCredentials,
+            final PaymentPlanCredentials paymentPlanCredentials)
+            throws ReservationExpiredException, InvalidCredentialsException {
+        try {
+            validate(profile);
+            validate(securityCredentials);
+            validate(paymentPlanCredentials);
+
+            final long now = currentDateTime().getTimeInMillis();
+            if (now > usernameReservation.getExpiresOn().getTimeInMillis())
+                throw new ReservationExpiredException(usernameReservation.getExpiresOn());
+            if (now > emailReservation.getExpiresOn().getTimeInMillis())
+                throw new ReservationExpiredException(emailReservation.getExpiresOn());
+
+            Assert.assertTrue(usernameReservation.getUsername().equals(credentials.getUsername()),
+                    "Reservation username {0} does not match credentials username {1}.",
+                    usernameReservation.getUsername(), credentials.getUsername());
+            Assert.assertTrue(emailReservation.getEMail().equals(email),
+                    "Reservation e-mail address {0} does not match e-mail address {1}.",
+                    emailReservation.getEMail(), email);
+
+            final Product product = new Product();
+            product.setName(Constants.Product.NAME);
+
+            final Release release = new Release();
+            release.setName(Constants.Release.NAME);
+            release.setOs(OSUtil.getOs());
+
+            final ServiceFactory serviceFactory = workspace.getServiceFactory(newFiniteRetryHandler());
+            final ProfileService profileService = serviceFactory.getProfileService();
+            profileService.create(newEmptyAuthToken(), product, release,
+                    usernameReservation, emailReservation, credentials, profile,
+                    email, securityCredentials, paymentPlanCredentials);
+        } catch (final InvalidCredentialsException icx) {
+            throw icx;
         } catch (final ReservationExpiredException rex) {
             throw rex;
         } catch (final Throwable t) {
@@ -166,7 +266,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         }
     }
 
-    
     /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#createUsernameReservation(java.lang.String)
      *
@@ -176,6 +275,111 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final ServiceFactory serviceFactory = workspace.getServiceFactory(newFiniteRetryHandler());
             final ProfileService profileService = serviceFactory.getProfileService();
             return profileService.createUsernameReservation(newEmptyAuthToken(), username);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.InternalProfileModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.profile.DisabledEvent)
+     *
+     */
+    @Override
+    public void handleEvent(final ActiveEvent event) {
+        try {
+            final Profile profile = profileIO.read(localUserId());
+            if (profile.isActive()) {
+                if (event.isActive()) {
+                    /* the profile is already active */
+                    return;
+                } else {
+                    profile.setActive(Boolean.FALSE);
+                    profileIO.updateActive(profile);
+                }
+            } else {
+                if (event.isActive()) {
+                    profile.setActive(Boolean.TRUE);
+                    profileIO.updateActive(profile);
+                } else {
+                    /* the profile is already passive */
+                    return;
+                }
+            }
+            if (profile.isActive()) {
+                notifyActivated(profile, remoteEventGen);
+            } else {
+                notifyPassivated(profile, remoteEventGen);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.InternalProfileModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.profile.payment.PaymentFailedEvent)
+     *
+     */
+    @Override
+    public void handleEvent(final PaymentEvent event) {
+        try {
+            final Profile profile = profileIO.read(localUserId());
+            if (profile.isActive()) {
+                if (event.isSuccess()) {
+                    /* the profile is already passive; do nothing */
+                    return;
+                } else {
+                    profile.setActive(Boolean.FALSE);
+                    profileIO.updateActive(profile);
+                }
+            } else {
+                if (event.isSuccess()) {
+                    profile.setActive(Boolean.TRUE);
+                    profileIO.updateActive(profile);
+                } else {
+                    /* the profile is already active; do nothing */
+                    return;
+                }
+            }
+            if (profile.isActive()) {
+                notifyActivated(profile, remoteEventGen);
+            } else {
+                notifyPassivated(profile, remoteEventGen);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.InternalProfileModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.profile.payment.PaymentPlanInArrearsEvent)
+     *
+     */
+    @Override
+    public void handleEvent(final PaymentPlanArrearsEvent event) {
+        try {
+            final Profile profile = profileIO.read(localUserId());
+            if (profile.isActive()) {
+                if (event.isInArrears()) {
+                    profile.setActive(Boolean.FALSE);
+                    profileIO.updateActive(profile);
+                } else {
+                    /* the profile is already passive */
+                    return;
+                }
+            } else {
+                if (event.isInArrears()) {
+                    /* the profile is already active */
+                    return;
+                } else {
+                    profile.setActive(Boolean.TRUE);
+                    profileIO.updateActive(profile);
+                }
+            }
+            if (profile.isActive()) {
+                notifyActivated(profile, remoteEventGen);
+            } else {
+                notifyPassivated(profile, remoteEventGen);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -207,6 +411,19 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
 
             /* index */
             getIndexModel().indexProfile();
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#isAccessiblePaymentInfo()
+     *
+     */
+    @Override
+    public Boolean isAccessiblePaymentInfo() {
+        try {
+            return profileService.isAccessiblePaymentInfo(getAuthToken());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -284,12 +501,54 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#isRequiredPaymentInfo()
+     *
+     */
+    @Override
+    public Boolean isRequiredPaymentInfo() {
+        try {
+            /* NOTE - ProfileModelImpl#isRequiredPaymentInfo - should only be called
+             * prior to initializing the workspace; but after creating the
+             * profile; therefore a manual login is required */
+            final AuthToken authToken = sessionService.login(readCredentials());
+            try {
+                return profileService.isRequiredPaymentInfo(authToken);
+            } finally {
+                sessionService.logout(authToken);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#isSetPaymentInfo()
+     *
+     */
+    @Override
+    public Boolean isSetPaymentInfo() {
+        try {
+            /* NOTE - ProfileModelImpl#isSetPaymentInfo - should only be called
+             * prior to initializing the workspace; but after creating the
+             * profile; therefore a manual login is required */
+            final AuthToken authToken = sessionService.login(readCredentials());
+            try {
+                return profileService.isSetPaymentInfo(getAuthToken());
+            } finally {
+                sessionService.logout(authToken);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#isSignUpAvailable()
      * 
      */
     public Boolean isSignUpAvailable() {
         try {
-            return Boolean.valueOf(!isCoreEnabled().booleanValue());
+            return Boolean.valueOf(!isBackupEnabled().booleanValue());
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -336,7 +595,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     public Credentials readCredentials() {
         return super.readCredentials();
     }
-
 
     /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#readEMail()
@@ -385,6 +643,19 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#readIsActive()
+     *
+     */
+    @Override
+    public Boolean readIsActive() {
+        try {
+            return profileIO.isActive(profileIO.read(localUserId()));
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#readStatistics()
      *
      */
@@ -411,6 +682,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         }
     }
 
+
     /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#removeListener(com.thinkparity.ophelia.model.events.ProfileListener)
      *
@@ -419,6 +691,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     public void removeListener(final ProfileListener listener) {
         super.removeListener(listener);
     }
+
 
     /**
      * @see com.thinkparity.ophelia.model.profile.InternalProfileModel#restoreBackup(com.thinkparity.ophelia.model.util.ProcessMonitor)
@@ -441,7 +714,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             initialize();
 
             /* fire event */
-            //notifyProfileUpdated(profile, localEventGenerator);
+            //notifyProfileUpdated(profile, localEventGen);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -460,6 +733,33 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#signUp(com.thinkparity.codebase.model.profile.payment.PaymentInfo)
+     *
+     */
+    @Override
+    public void signUp(final PaymentInfo paymentInfo) {
+        try {
+            validate(paymentInfo);
+
+            final List<Feature> featureList = getSessionModel().readMigratorProductFeatures(Constants.Product.NAME);
+            final Profile profile = profileIO.read(localUserId());
+            final List<Feature> existingFeatureList = profile.getFeatures();
+            for (final Feature feature : featureList) {
+                if (existingFeatureList.contains(feature)) {
+                    continue;
+                } else {
+                    profile.add(feature);
+                }
+            }
+            profileIO.updateFeatures(profile);
+            profileService.update(getAuthToken(), profile, paymentInfo);
+            notifyProfileUpdated(profile, localEventGen);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Update the logged in user's profile.
      * 
      * @param profile
@@ -469,13 +769,13 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         logger.logApiId();
         logger.logVariable("profile", profile);
         try {
-            assertIsValid(profile);
+            validate(profile);
             
             // update local data
             profileIO.update(profile);
             getIndexModel().indexProfile();
             getSessionModel().updateProfile(localUserId(), profile);
-            notifyProfileUpdated(read(), localEventGenerator);
+            notifyProfileUpdated(read(), localEventGen);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -517,7 +817,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             // update remote e-mail
             profileService.updateEMail(getAuthToken(), email);
             // fire event
-            notifyEmailUpdated(profile, profileEMail, localEventGenerator);
+            notifyEmailUpdated(profile, profileEMail, localEventGen);
         } catch (final EMailIntegrityException emix) {
             throw emix;
         } catch (final Throwable t) {
@@ -545,9 +845,26 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
 
             // update remote data.
             getSessionModel().updateProfilePassword(orginalCredentials, newPassword);
-            notifyPasswordUpdated(read(), localEventGenerator);
+            notifyPasswordUpdated(read(), localEventGen);
         } catch (final InvalidCredentialsException icx) {
             throw icx;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#updatePaymentInfo(com.thinkparity.codebase.model.profile.payment.PaymentInfo)
+     *
+     */
+    @Override
+    public void updatePaymentInfo(final PaymentInfo paymentInfo) {
+        try {
+            Assert.assertTrue(isAccessiblePaymentInfo(),
+                    "Cannot access payment info.");
+            validate(paymentInfo);
+
+            profileService.updatePaymentInfo(getAuthToken(), paymentInfo);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -604,7 +921,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final ProfileEMail email = profileIO.readEmail(profile.getLocalId(), emailId);
             getSessionModel().verifyProfileEmail(email, key);
             profileIO.verifyEmail(email.getProfileId(), email.getEmailId(), Boolean.TRUE);
-            notifyEmailVerified(read(), readEMail(), localEventGenerator);
+            notifyEmailVerified(read(), readEMail(), localEventGen);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -621,6 +938,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
 
         final ServiceFactory serviceFactory = workspace.getServiceFactory(newDefaultRetryHandler());
         this.profileService = serviceFactory.getProfileService();
+        this.sessionService = serviceFactory.getSessionService();
     }
 
     /**
@@ -635,10 +953,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
        Assert.assertNotNull(value, "Profile field {0} is not set.", name);
     }
 
-    private void assertIsValid(final Profile profile) {
-        assertIsValid(profile.getVCard());
-    }
-
     private void assertIsValid(final ProfileVCard vcard) {
         assertIsSet("country", vcard.getCountry());
         assertIsValidCountry("country", vcard.getCountry());
@@ -651,12 +965,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         assertIsSet("timeZone", vcard.getTimeZone());
         assertIsValidTimeZone("timeZone", vcard.getTimeZone());
         assertIsSet("title", vcard.getTitle());
-    }
-
-    private void assertIsValid(final SecurityCredentials securityCredentials) {
-        Assert.assertNotNull(securityCredentials, "Security question cannot be null.");
-        Assert.assertNotNull(securityCredentials.getQuestion(), "Security question cannot be null.");
-        Assert.assertNotNull(securityCredentials.getAnswer(), "Security question answer cannot be null.");
     }
 
     private void assertIsValidCountry(final String name, final String value) {
@@ -719,6 +1027,23 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
+     * Fire an event indicating that the profile was activated.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param peg
+     *            A <code>ProfileEventGenerator</code>.
+     */
+    private void notifyActivated(final Profile profile,
+            final ProfileEventGenerator peg) {
+        notifyListeners(new EventNotifier<ProfileListener>() {
+            public void notifyListener(final ProfileListener listener) {
+                listener.profileActivated(peg.generate(profile));
+            }
+        });
+    }
+
+    /**
      * Notify that an email address has been removed.
      * 
      * @param profile
@@ -758,6 +1083,23 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
+     * Fire an event indicating that the profile was passivated.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param peg
+     *            A <code>ProfileEventGenerator</code>.
+     */
+    private void notifyPassivated(final Profile profile,
+            final ProfileEventGenerator peg) {
+        notifyListeners(new EventNotifier<ProfileListener>() {
+            public void notifyListener(final ProfileListener listener) {
+                listener.profilePassivated(peg.generate(profile));
+            }
+        });
+    }
+
+    /**
      * Notify that the password has been updated.
      * 
      * @param profile
@@ -789,5 +1131,42 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
                 listener.profileUpdated(eventGenerator.generate(profile));
             }
         });
+    }
+
+    /**
+     * Validate the payment info.
+     * 
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
+     */
+    private void validate(final PaymentInfo paymentInfo) {
+        final PaymentInfoConstraints constraints = PaymentInfoConstraints.getInstance();
+        constraints.getCardExpiryMonth().validate(paymentInfo.getCardExpiryMonth());
+        constraints.getCardExpiryYear().validate(paymentInfo.getCardExpiryYear());
+        constraints.getCardNumber().validate(paymentInfo.getCardNumber());
+        constraints.getCardName().validate(paymentInfo.getCardName());
+    }
+
+    /**
+     * Validate the payment plan credentials.
+     * 
+     * @param paymentPlanCredentials
+     *            A set of <code>PaymentPlanCredentials</code>.
+     */
+    private void validate(
+            final PaymentPlanCredentials paymentPlanCredentials) {
+        final PaymentPlanCredentialsConstraints constraints = PaymentPlanCredentialsConstraints.getInstance();
+        constraints.getName().validate(paymentPlanCredentials.getName());
+        constraints.getPassword().validate(paymentPlanCredentials.getName());
+    }
+
+    private void validate(final Profile profile) {
+        assertIsValid(profile.getVCard());
+    }
+
+    private void validate(final SecurityCredentials securityCredentials) {
+        Assert.assertNotNull(securityCredentials, "Security question cannot be null.");
+        Assert.assertNotNull(securityCredentials.getQuestion(), "Security question cannot be null.");
+        Assert.assertNotNull(securityCredentials.getAnswer(), "Security question answer cannot be null.");
     }
 }

@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -17,6 +19,7 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.EMailReservation;
+import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
@@ -31,6 +34,7 @@ import com.thinkparity.codebase.model.util.VCardWriter;
 
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
+import com.thinkparity.desdemona.model.profile.payment.PaymentPlan;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel User SQL<br>
@@ -44,9 +48,9 @@ public final class UserSql extends AbstractSql {
     /** Sql to create a user. */
     private static final String SQL_CREATE =
         new StringBuilder("insert into TPSD_USER ")
-        .append("(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,")
-        .append("VCARD,CREATED_ON) ")
-        .append("values (?,?,?,?,?,?,?)")
+        .append("(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,ACTIVE,")
+        .append("DISABLED,VCARD,CREATED_ON) ")
+        .append("values (?,?,?,?,?,?,?,?)")
         .toString();
 
     /** Sql to create an email address. */
@@ -67,6 +71,13 @@ public final class UserSql extends AbstractSql {
     private static final String SQL_CREATE_FEATURE_REL =
         new StringBuilder("insert into TPSD_USER_FEATURE_REL ")
         .append("(USER_ID,FEATURE_ID) ")
+        .append("values (?,?)")
+        .toString();
+
+    /** Sql to create a payment plan. */
+    private static final String SQL_CREATE_PAYMENT_PLAN =
+        new StringBuilder("insert into TPSD_USER_PAYMENT_PLAN ")
+        .append("(USER_ID,PLAN_ID) ")
         .append("values (?,?)")
         .toString();
 
@@ -221,6 +232,20 @@ public final class UserSql extends AbstractSql {
         .append("where U.USER_ID=? ")
         .toString();
 
+    /** Sql to read the active flag. */
+    private static final String SQL_READ_ACTIVE =
+        new StringBuilder("select U.ACTIVE ")
+        .append("from TPSD_USER U ")
+        .append("where U.USER_ID=?")
+        .toString();
+
+    /** Sql to read an e-mail count. */
+    private static final String SQL_READ_EMAIL_COUNT =
+        new StringBuilder("select count(EMAIL_ID) \"EMAIL_COUNT\" ")
+        .append("from TPSD_USER_EMAIL UE ")
+        .append("where UE.USER_ID=? and UE.VERIFIED=?")
+        .toString();
+
     /** Sql to read email addresses. */
     private static final String SQL_READ_EMAIL_UK =
         new StringBuilder("select E.EMAIL ")
@@ -246,7 +271,8 @@ public final class UserSql extends AbstractSql {
         .append("from TPSD_USER U ")
         .append("inner join TPSD_USER_FEATURE_REL UFR on U.USER_ID=UFR.USER_ID ")
         .append("inner join TPSD_PRODUCT_FEATURE PF on UFR.FEATURE_ID=PF.FEATURE_ID ")
-        .append("where U.USER_ID=? and PF.PRODUCT_ID=?")
+        .append("where U.USER_ID=? ")
+        .append("order by PF.PRODUCT_ID")
         .toString();
 
     /** Sql to read the user id. */
@@ -254,6 +280,16 @@ public final class UserSql extends AbstractSql {
         new StringBuilder("select U.USER_ID ")
         .append("from TPSD_USER U ")
         .append("where U.USERNAME=?")
+        .toString();
+
+    /** Read all custom features for the user. */
+    private static final String SQL_READ_PRODUCT_FEATURES =
+        new StringBuilder("select PF.PRODUCT_ID,PF.FEATURE_ID,")
+        .append("PF.FEATURE_NAME ")
+        .append("from TPSD_USER U ")
+        .append("inner join TPSD_USER_FEATURE_REL UFR on U.USER_ID=UFR.USER_ID ")
+        .append("inner join TPSD_PRODUCT_FEATURE PF on UFR.FEATURE_ID=PF.FEATURE_ID ")
+        .append("where U.USER_ID=? and PF.PRODUCT_ID=?")
         .toString();
 
     /** Sql to read the user profile's security answer. */
@@ -283,6 +319,12 @@ public final class UserSql extends AbstractSql {
         .append("where U.USER_ID=?")
         .toString();
 
+    /** Sql to activate/deactivate a user. */
+    private static final String SQL_UPDATE_ACTIVE =
+        new StringBuilder("update TPSD_USER ")
+        .append("set ACTIVE=? where USER_ID=?")
+        .toString();
+
     /** Sql to update the password. */
     private static final String SQL_UPDATE_PASSWORD =
         new StringBuilder("update TPSD_USER ")
@@ -307,7 +349,7 @@ public final class UserSql extends AbstractSql {
     private static final String SQL_UPDATE_VCARD =
         new StringBuilder("update TPSD_USER set VCARD=? where USER_ID=?")
         .toString();
-        
+
     /** Sql to determine a user count for a product release. */
     private static final String SQL_USER_COUNT_BY_PRODUCT_RELEASE =
         new StringBuilder("select count(UPRR.USER_ID) \"USER_COUNT\" ")
@@ -334,10 +376,23 @@ public final class UserSql extends AbstractSql {
     }
 
     /**
+     * Create UserSql.
+     * 
+     * @param dataSource
+     *            A <code>DataSource</code>.
+     */
+    public UserSql(final DataSource dataSource) {
+        super(dataSource);
+        this.emailSql = new EMailSql(dataSource);
+    }
+
+    /**
      * Create a user.
      * 
      * @param T
      *            The <code>UserVCard</code> type.
+     * @param active
+     *            A <code>Boolean</code>.
      * @param credentials
      *            A user's <code>Credentials</code>.
      * @param securityQuestion
@@ -347,7 +402,8 @@ public final class UserSql extends AbstractSql {
      * @param vcard
      *            The vcard <code>T</code>.
      */
-    public <T extends UserVCard> Long create(final Credentials credentials,
+    public <T extends UserVCard> Long create(final Boolean active,
+            final Boolean disabled, final Credentials credentials,
             final SecurityCredentials securityCredentials, final T vcard,
             final VCardWriter<T> vcardWriter, final Calendar createdOn) {
         final HypersonicSession session = openSession();
@@ -357,9 +413,10 @@ public final class UserSql extends AbstractSql {
             session.setString(2, credentials.getPassword());
             session.setString(3, securityCredentials.getQuestion());
             session.setString(4, securityCredentials.getAnswer());
-            session.setBoolean(5, Boolean.FALSE);
-            session.setVCard(6, vcard, vcardWriter);
-            session.setCalendar(7, createdOn);
+            session.setBoolean(5, active);
+            session.setBoolean(6, disabled);
+            session.setVCard(7, vcard, vcardWriter);
+            session.setCalendar(8, createdOn);
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create user.");
             final Long userId = session.getIdentity("TPSD_USER");
@@ -418,7 +475,7 @@ public final class UserSql extends AbstractSql {
             session.close();
         }
     }
-
+        
     /**
      * Create a feature relationship for a user.
      * 
@@ -435,6 +492,74 @@ public final class UserSql extends AbstractSql {
             session.setLong(2, feature.getFeatureId());
             if (1 != session.executeUpdate())
                 throw new HypersonicException("Could not create feature relationship.");
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /** Sql to delete a feature relationship. */
+    private static final String SQL_DELETE_FEATURE_REL =
+        new StringBuilder("delete from TPSD_USER_FEATURE_REL ")
+        .append("where USER_ID=? and FEATURE_ID=?")
+        .toString();
+
+    /**
+     * Update the user features.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param featureList
+     *            A <code>List<Feature></code>.
+     */
+    public void updateFeatures(final User user, final List<Feature> featureList) {
+        final HypersonicSession session = openSession();
+        try {
+            final List<Feature> existingFeatureList = readFeatures(user);
+            session.prepareStatement(SQL_DELETE_FEATURE_REL);
+            session.setLong(1, user.getLocalId());
+            for (final Feature feature : existingFeatureList) {
+                session.setLong(2, feature.getFeatureId());
+                if (1 != session.executeUpdate()) {
+                    throw panic("Cannot delete feature.");
+                }
+            }
+
+            session.prepareStatement(SQL_CREATE_FEATURE_REL);
+            session.setLong(1, user.getLocalId());
+            for (final Feature feature : featureList) {
+                session.setLong(2, feature.getFeatureId());
+                if (1 != session.executeUpdate()) {
+                    throw panic("Cannot create feature.");
+                }
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Create a payment plan relationship for a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param plan
+     *            A <code>PaymentPlan</code>.
+     */
+    public void createPaymentPlan(final User user, final PaymentPlan plan) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_CREATE_PAYMENT_PLAN);
+            session.setLong(1, user.getLocalId());
+            session.setLong(2, plan.getId());
+            if (1 != session.executeUpdate()) {
+                throw panic("Could not create payment plan.");
+            }
 
             session.commit();
         } catch (final Throwable t) {
@@ -854,6 +979,53 @@ public final class UserSql extends AbstractSql {
     }
 
     /**
+     * Activate a list of profiles.
+     * 
+     * @param profileList
+     *            A <code>List<Profile></code>.
+     */
+    public void updateActive(final List<Profile> profileList) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_ACTIVE);
+            for (final Profile profile : profileList) {
+                session.setBoolean(1, profile.isActive());
+                session.setLong(2, profile.getLocalId());
+                if (1 != session.executeUpdate()) {
+                    throw panic("Could not update active.");
+                }
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Determine if a user is active.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if the user is active.
+     */
+    public Boolean isActive(final User user) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_ACTIVE);
+            session.setLong(1, user.getLocalId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getBoolean("ACTIVE");
+            } else {
+                return null;
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Read a list of users.
      * 
      * @return A list of users.
@@ -932,6 +1104,7 @@ public final class UserSql extends AbstractSql {
             session.close();
         }
     }
+
     /**
      * Read a user id for an e-mail address.
      * 
@@ -996,7 +1169,6 @@ public final class UserSql extends AbstractSql {
             session.close();
         }
     }
-
     public List<ProfileEMail> readEMails(final User user) {
         final HypersonicSession session = openSession();
         try {
@@ -1016,9 +1188,32 @@ public final class UserSql extends AbstractSql {
     public List<Feature> readFeatures(final Long userId, final Long productId) {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_READ_FEATURES);
+            session.prepareStatement(SQL_READ_PRODUCT_FEATURES);
             session.setLong(1, userId);
             session.setLong(2, productId);
+            session.executeQuery();
+            final List<Feature> features = new ArrayList<Feature>();
+            while (session.nextResult()) {
+                features.add(extractFeature(session));
+            }
+            return features;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read all features across all products for the user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return A <code>List<Feature></code>.
+     */
+    public List<Feature> readFeatures(final User user) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_FEATURES);
+            session.setLong(1, user.getLocalId());
             session.executeQuery();
             final List<Feature> features = new ArrayList<Feature>();
             while (session.nextResult()) {
@@ -1114,6 +1309,32 @@ public final class UserSql extends AbstractSql {
             } else {
                 return null;
             }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read the verified e-mail address count for a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return An <code>Integer</code>.
+     */
+    public Integer readVerifiedEMailCount(final User user) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_EMAIL_COUNT);
+            session.setLong(1, user.getLocalId());
+            session.setBoolean(2, Boolean.TRUE);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getInteger("EMAIL_COUNT");
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
         } finally {
             session.close();
         }

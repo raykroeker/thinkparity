@@ -12,6 +12,11 @@ package com.thinkparity.desdemona.model;
  */
 public interface Constants {
 
+    /** <b>Title:</b>Currency Constants:  USD<br> */
+    public static final class Currency {
+        public static final String USD = "USD";
+    }
+
     /** <b>Title:</b>Internet Constants:  Mail<br> */
     public static final class Internet {
 
@@ -21,6 +26,11 @@ public interface Constants {
             public static final String FROM_PERSONAL = "thinkParity Team";
         }
     }
+
+    public static final class Invoicing {
+	    public static final Integer INCREMENT = 1;
+	    public static final Integer START = 1;
+	}
 
     /** Jabber Constants */
     public static final class Jabber {
@@ -46,6 +56,8 @@ public interface Constants {
         public static final class Ophelia {
             /** Ophelia Product Id Constant */
             public static final Long PRODUCT_ID = 1000L;
+            /** Ophelia Product Name Constant */
+            public static final String PRODUCT_NAME = "OpheliaProduct";
             /** Ophelia Product Feature Constants */
             public static final class Feature {
                 /** Ophelia Product Feature Backup */
@@ -53,6 +65,11 @@ public interface Constants {
                 /** Ophelia Product Feature Core */
                 public static final String CORE = "CORE";
             }
+        }
+        /** Desdemona Product Constants */
+        public static final class Desdemona {
+            /** Desdemona Product Id Constant */
+            public static final Long PRODUCT_ID = 1001L;
         }
     }
 
@@ -73,7 +90,7 @@ public interface Constants {
         }
     }
 
-    /**
+	/**
      * <b>Title:</b>Stream Constants: UPSTREAM_RETRY_ATTEMPTS,
      * DOWNSTREAM_RETRY_ATTEMPTS<br>
      */

@@ -6,6 +6,9 @@ package com.thinkparity.desdemona.model.io.sql;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
@@ -17,18 +20,20 @@ import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
  */
 public class QueueSql extends AbstractSql {
 
-    /** Sql to create an event. */
-    private static final String SQL_CREATE_EVENT =
-        new StringBuilder("insert into TPSD_USER_EVENT_QUEUE ")
-        .append("(USER_ID,EVENT_ID,EVENT_DATE,EVENT_PRIORITY,EVENT_XML) ")
-        .append("values (?,?,?,?,?)")
-        .toString();
-
     /** Sql to create an audit event. */
     private static final String SQL_CREATE_AUDIT_EVENT =
         new StringBuilder("insert into TPSD_AUDIT_USER_EVENT_QUEUE ")
-        .append("(USER_ID,EVENT_ID,EVENT_DATE,EVENT_PRIORITY,EVENT_XML) ")
-        .append("values (?,?,?,?,?)")
+        .append("(USER_ID,EVENT_ID,EVENT_DATE,EVENT_PRIORITY,EVENT_FILTER,")
+        .append("EVENT_XML) ")
+        .append("values (?,?,?,?,?,?)")
+        .toString();
+
+    /** Sql to create an event. */
+    private static final String SQL_CREATE_EVENT =
+        new StringBuilder("insert into TPSD_USER_EVENT_QUEUE ")
+        .append("(USER_ID,EVENT_ID,EVENT_DATE,EVENT_PRIORITY,EVENT_FILTER,")
+        .append("EVENT_XML) ")
+        .append("values (?,?,?,?,?,?)")
         .toString();
 
     /** Sql to delete an event. */
@@ -51,10 +56,19 @@ public class QueueSql extends AbstractSql {
         .toString();
 
     /** Sql to read events. */
-	private static final String SQL_READ_EVENTS =
+    private static final String SQL_READ_EVENTS =
         new StringBuilder("select UEQ.EVENT_XML ")
         .append("from TPSD_USER_EVENT_QUEUE UEQ ")
         .append("where UEQ.USER_ID=? ")
+        .append("order by UEQ.EVENT_PRIORITY asc,UEQ.EVENT_DATE asc")
+        .toString();
+
+    /** Sql to read events. */
+    private static final String SQL_READ_FILTERED_EVENTS =
+        new StringBuilder("select UEQ.EVENT_XML ")
+        .append("from TPSD_USER_EVENT_QUEUE UEQ ")
+        .append("where UEQ.USER_ID=? ")
+        .append("and UEQ.EVENT_FILTER=? ")
         .append("order by UEQ.EVENT_PRIORITY asc,UEQ.EVENT_DATE asc")
         .toString();
 
@@ -73,7 +87,18 @@ public class QueueSql extends AbstractSql {
         super();
 	}
 
-    public void createEvent(final Long userId, final XMPPEvent event) {
+	/**
+     * Create QueueSql.
+     * 
+     * @param dataSource
+     *            A <code>DataSource</code>.
+     */
+	public QueueSql(final DataSource dataSource) { 
+	    super(dataSource);
+	}
+
+    public void createEvent(final Long userId, final XMPPEvent event,
+            final Boolean filter) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_CREATE_EVENT);
@@ -81,18 +106,22 @@ public class QueueSql extends AbstractSql {
             session.setString(2, event.getId());
             session.setCalendar(3, event.getDate());
             session.setInt(4, event.getPriority().priority());
-            session.setEvent(5, event);
-            if (1 != session.executeUpdate())
+            session.setBoolean(5, filter);
+            session.setEvent(6, event);
+            if (1 != session.executeUpdate()) {
                 throw panic("Could not create queue event.");
+            }
 
             session.prepareStatement(SQL_CREATE_AUDIT_EVENT);
             session.setLong(1, userId);
             session.setString(2, event.getId());
             session.setCalendar(3, event.getDate());
             session.setInt(4, event.getPriority().priority());
-            session.setEvent(5, event);
-            if (1 != session.executeUpdate())
+            session.setBoolean(5, filter);
+            session.setEvent(6, event);
+            if (1 != session.executeUpdate()) {
                 throw panic("Could not create queue event.");
+            }
 
             session.commit();
         } catch (final Throwable t) {
@@ -147,11 +176,39 @@ public class QueueSql extends AbstractSql {
      *            An <code>EventOpener</code>.
      * @return A <code>List</code> of <code>XMPPEvent</code>.
      */
-    public List<XMPPEvent> readEvents(final Long userId) {
+    public List<XMPPEvent> readEvents(final User user) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_EVENTS);
-            session.setLong(1, userId);
+            session.setLong(1, user.getLocalId());
+            session.executeQuery();
+            final List<XMPPEvent> events = new ArrayList<XMPPEvent>();
+            while (session.nextResult()) {
+                events.add(session.getEvent("EVENT_XML"));
+            }
+            return events;
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Obtain a list of xmpp events for a user.
+     * 
+     * @param userId
+     *            A user id <code>JabberId</code>.
+     * @param opener
+     *            An <code>EventOpener</code>.
+     * @return A <code>List</code> of <code>XMPPEvent</code>.
+     */
+    public List<XMPPEvent> readFilteredEvents(final User user, final Boolean filter) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_FILTERED_EVENTS);
+            session.setLong(1, user.getLocalId());
+            session.setBoolean(2, filter);
             session.executeQuery();
             final List<XMPPEvent> events = new ArrayList<XMPPEvent>();
             while (session.nextResult()) {

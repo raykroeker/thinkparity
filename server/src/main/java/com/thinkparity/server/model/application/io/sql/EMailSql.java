@@ -3,6 +3,8 @@
  */
 package com.thinkparity.desdemona.model.io.sql;
 
+import javax.sql.DataSource;
+
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
@@ -46,6 +48,16 @@ public class EMailSql extends AbstractSql {
      */
     public EMailSql() {
         super();
+    }
+
+    /**
+     * Create EMailSql.
+     * 
+     * @param dataSource
+     *            A <code>DataSource</code>.
+     */
+    public EMailSql(final DataSource dataSource) {
+        super(dataSource);
     }
 
     /**

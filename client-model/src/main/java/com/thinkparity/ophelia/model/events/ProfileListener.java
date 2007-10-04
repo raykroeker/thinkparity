@@ -20,7 +20,7 @@ public interface ProfileListener extends EventListener {
      * @param e
      *      A <code>ProfileEvent</code>.
      */
-    public void emailUpdated(final ProfileEvent e);
+    void emailUpdated(ProfileEvent e);
 
     /**
      * An profile e-mail was verified.
@@ -28,7 +28,7 @@ public interface ProfileListener extends EventListener {
      * @param e
      *      A <code>ProfileEvent</code>.
      */
-    public void emailVerified(final ProfileEvent e);
+    void emailVerified(ProfileEvent e);
 
     /**
      * The profile password was updated.
@@ -36,13 +36,29 @@ public interface ProfileListener extends EventListener {
      * @param e
      *      A <code>ProfileEvent</code>.
      */
-    public void passwordUpdated(final ProfileEvent e);
+    void passwordUpdated(ProfileEvent e);
 
     /**
-     * The profile was updated.
+     * The profile was disabled.
+     * 
+     * @param e
+     *            A <code>ProfileEvent</code>.
+     */
+    void profileActivated(ProfileEvent e);
+
+    /**
+     * The profile was passivated.
      *
      * @param e
      *      A <code>ProfileEvent</code>.
      */
-    public void profileUpdated(final ProfileEvent e);
+    void profilePassivated(ProfileEvent e);
+
+    /**
+     * The profile was updated.
+     * 
+     * @param e
+     *            A <code>ProfileEvent</code>.
+     */
+    void profileUpdated(ProfileEvent e);
 }

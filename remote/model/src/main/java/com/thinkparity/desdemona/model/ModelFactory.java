@@ -20,6 +20,8 @@ import com.thinkparity.desdemona.model.crypto.CryptoModel;
 import com.thinkparity.desdemona.model.crypto.CryptoModelImpl;
 import com.thinkparity.desdemona.model.migrator.MigratorModel;
 import com.thinkparity.desdemona.model.migrator.MigratorModelImpl;
+import com.thinkparity.desdemona.model.node.NodeModel;
+import com.thinkparity.desdemona.model.node.NodeModelImpl;
 import com.thinkparity.desdemona.model.profile.ProfileModel;
 import com.thinkparity.desdemona.model.profile.ProfileModelImpl;
 import com.thinkparity.desdemona.model.queue.QueueModel;
@@ -99,7 +101,6 @@ public final class ModelFactory {
             throw new ThinkParityException("Cannot instantiate model.", x);
         }
     }
-
     /** The proxy <code>ClassLoader</code>. */
     private final ClassLoader loader;
 
@@ -182,6 +183,16 @@ public final class ModelFactory {
     public final MigratorModel getMigratorModel() {
         return (MigratorModel) newModelProxy(
                 MigratorModel.class, MigratorModelImpl.class);
+    }
+
+    /**
+     * Obtain a node model.
+     * 
+     * @return An instance of <code>NodeModel</code>.
+     */
+    public final NodeModel getNodeModel() {
+        return (NodeModel) newModelProxy(
+                NodeModel.class, NodeModelImpl.class);
     }
 
     /**

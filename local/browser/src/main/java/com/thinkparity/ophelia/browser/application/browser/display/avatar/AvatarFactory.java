@@ -4,7 +4,6 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.swing.AbstractJPanel;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ConfirmAvatar;
@@ -25,9 +24,6 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.avatar.ErrorAvatar;
 import com.thinkparity.ophelia.browser.platform.avatar.ErrorDetailsAvatar;
 import com.thinkparity.ophelia.browser.platform.firstrun.*;
-import com.thinkparity.ophelia.browser.platform.plugin.PluginExtension;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabListExtension;
-import com.thinkparity.ophelia.browser.platform.plugin.extension.TabPanelExtension;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Avatar Factory<br>
@@ -56,28 +52,6 @@ public final class AvatarFactory {
 	public static Avatar create(final AvatarId id) {
 		return SINGLETON.doCreate(id);
 	}
-
-    /**
-     * Create an avatar.
-     * 
-     * @param tabExtension
-     *            A <code>TabExtension</code>.
-     * @return An <code>Avatar</code>.
-     */
-    public static Avatar create(final TabListExtension tabListExtension) {
-        return SINGLETON.doCreate(tabListExtension);
-    }
-
-    /**
-     * Create an avatar.
-     * 
-     * @param tabExtension
-     *            A <code>TabExtension</code>.
-     * @return An <code>Avatar</code>.
-     */
-    public static Avatar create(final TabPanelExtension tabPanelExtension) {
-        return SINGLETON.doCreate(tabPanelExtension);
-    }
 
 	/** The <code>AvatarRegistry</code>. */
 	private final AvatarRegistry avatarRegistry;
@@ -212,6 +186,10 @@ public final class AvatarFactory {
             avatar = newAvatar(SignupPaymentInfoAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
+        case DIALOG_PLATFORM_SIGNUP_PAYMENT_PLAN:
+            avatar = newAvatar(SignupPaymentPlanAvatar.class);
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
         case DIALOG_PLATFORM_SIGNUP_PROFILE:
             avatar = newAvatar(SignupProfileInfoAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
@@ -225,8 +203,8 @@ public final class AvatarFactory {
             avatar = newAvatar(UpdateProfileAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
-        case DIALOG_PROFILE_UPDATE_ACCOUNT:
-            avatar = newAvatar(UpdateAccountAvatar.class);
+        case DIALOG_PROFILE_UPDATE_PAYMENT_INFO:
+            avatar = newAvatar(UpdatePaymentInfoAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
         case DIALOG_PROFILE_UPDATE_PASSWORD:
@@ -264,34 +242,6 @@ public final class AvatarFactory {
     /**
      * Create an avatar.
      * 
-     * @param tabExtension
-     *            A <code>TabExtension</code>.
-     * @return An <code>Avatar</code>.
-     */
-    private Avatar doCreate(final TabListExtension tabListExtension) {
-        final Avatar avatar = tabListExtension.createAvatar();
-        avatar.setContentProvider(tabListExtension.getProvider());
-        register(avatar, tabListExtension);
-        return avatar;
-    }
-
-    /**
-     * Create an avatar.
-     * 
-     * @param tabExtension
-     *            A <code>TabExtension</code>.
-     * @return An <code>Avatar</code>.
-     */
-    private Avatar doCreate(final TabPanelExtension tabPanelExtension) {
-        final Avatar avatar = tabPanelExtension.createAvatar();
-        avatar.setContentProvider(tabPanelExtension.getProvider());
-        register(avatar, tabPanelExtension);
-        return avatar;
-    }
-
-    /**
-     * Create an avatar.
-     * 
      * @param avatarImplementation
      *            An avatar implementation <code>Class</code>.
      * @return An instance of the avatar.
@@ -308,20 +258,6 @@ public final class AvatarFactory {
         } catch (final InstantiationException ix) {
             throw new BrowserException("Could not create instance of " + avatarImplementation.getName() + ".", ix);
         }
-    }
-
-    /**
-     * Register an avatar in the registry.
-     * 
-     * @param avatar
-     *            The avatar to register.
-     * @param tabExtension
-     *            The <code>TabExtension</code> the avatar belongs to.
-     */
-    private void register(final AbstractJPanel avatar, final PluginExtension extension) {
-        Assert.assertNotTrue(avatarRegistry.contains(extension),
-                "Avatar for tab extension {0} already registered.", extension);
-        avatarRegistry.put(extension, avatar);
     }
 
     /**

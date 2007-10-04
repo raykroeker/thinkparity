@@ -7,15 +7,19 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
+ * <b>Title:</b>thinkParity Ophelia UI Platform First Run Data<br>
+ * <b>Description:</b>A holder for data keys.<br>
+ * 
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
-public class SignupData extends Data {
+final class SignupData extends Data {
 
     /**
      * Create SignupData.
+     *
      */
-    public SignupData() {
+    SignupData() {
         super();
     }
 
@@ -25,7 +29,7 @@ public class SignupData extends Data {
      */
     public enum DataKey {
         CREDENTIALS, EMAIL, EMAIL_RESERVATION, EXISTING_ACCOUNT,
-        FEATURES, FEATURE_SET, PROFILE, SECURITY_ANSWER, SECURITY_QUESTION,
-        USERNAME_RESERVATION
+        FEATURE_SET, FEATURES, PAYMENT_CREDENTIALS, PAYMENT_INFO, PROFILE,
+        SECURITY_ANSWER, SECURITY_QUESTION, USERNAME_RESERVATION
     }
 }

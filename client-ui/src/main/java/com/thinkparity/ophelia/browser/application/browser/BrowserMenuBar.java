@@ -356,7 +356,7 @@ public class BrowserMenuBar extends JMenuBar {
     }
 
     private void upgradeJButtonActionPerformed(final java.awt.event.ActionEvent e) {
-        browser.runUpgradeAccount();
+        browser.runSignup();
     }
 
     private void upgradeJButtonMouseEntered(final java.awt.event.MouseEvent e) {

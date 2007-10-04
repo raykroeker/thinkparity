@@ -7,10 +7,13 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 import com.thinkparity.codebase.assertion.Assert;
 
 /**
- * @author rob_masako@shaw.ca
+ * <b>Title:</b>thinkParity Ophelia UI Platform First Run Login Helper<br>
+ * <b>Description:</b>A singleton helper for login.<br>
+ * 
+ * @author robert@thinkparity.com
  * @version $Revision$
  */
-public class SignupLoginHelper {
+final class SignupLoginHelper {
 
     /** A singleton instance. */
     private static SignupLoginHelper SINGLETON;

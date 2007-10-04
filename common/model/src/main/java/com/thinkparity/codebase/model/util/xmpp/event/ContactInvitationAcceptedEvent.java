@@ -7,12 +7,16 @@ import java.util.Calendar;
 
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.annotation.ThinkParityFilterEvent;
+
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
+@ThinkParityFilterEvent
 public final class ContactInvitationAcceptedEvent extends XMPPEvent {
 
     /** The accepted by user id <code>JabberId</code>. */

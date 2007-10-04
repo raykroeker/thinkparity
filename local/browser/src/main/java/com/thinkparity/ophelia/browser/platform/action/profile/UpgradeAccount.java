@@ -4,6 +4,8 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.profile;
 
+import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
+
 import com.thinkparity.ophelia.browser.application.browser.Browser;
 import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -34,13 +36,13 @@ public class UpgradeAccount extends AbstractBrowserAction {
      */
     @Override
     public void invoke(final Data data) {
-        final Boolean displayAvatar = (Boolean) data.get(DataKey.DISPLAY_AVATAR);
-        if (displayAvatar) {
-            browser.displayUpgradeAccountDialog();
+        final PaymentInfo paymentInfo = (PaymentInfo) data.get(DataKey.PAYMENT_INFO);
+        if (null == paymentInfo) {
+            browser.displaySignUpDialog();
         } else {
-            // TODO
+            getProfileModel().signUp(paymentInfo);
         }
     }
 
-    public enum DataKey { DISPLAY_AVATAR }
+    public enum DataKey { PAYMENT_INFO }
 }

@@ -30,6 +30,9 @@ import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedNotificationEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.profile.ActiveEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.profile.payment.PaymentEvent;
+import com.thinkparity.codebase.model.util.xmpp.event.profile.payment.PaymentPlanArrearsEvent;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;
 import com.thinkparity.ophelia.model.LocalContentEvent;
@@ -41,6 +44,7 @@ import com.thinkparity.ophelia.model.container.event.LocalVersionPublishedEvent;
 import com.thinkparity.ophelia.model.crypto.InternalCryptoModel;
 import com.thinkparity.ophelia.model.document.InternalDocumentModel;
 import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
+import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -357,6 +361,15 @@ public final class QueueProcessor implements Cancelable, Runnable {
     }
 
     /**
+     * Obtain an internal profile model.
+     * 
+     * @return An instance of <code>InternalProfileModel</code>.
+     */
+    private InternalProfileModel getProfileModel() {
+        return getModelFactory().getProfileModel();
+    }
+
+    /**
      * Obtain queueModel.
      *
      * @return A InternalQueueModel.
@@ -525,6 +538,15 @@ public final class QueueProcessor implements Cancelable, Runnable {
         } else if (event.getClass() == VersionPublishedNotificationEvent.class) {
             logger.logInfo("Handling container version published notification.");
             getContainerModel().handleEvent((VersionPublishedNotificationEvent) event);
+        } else if (event.getClass() == PaymentEvent.class) {
+            logger.logInfo("Handling profile payment event.");
+            getProfileModel().handleEvent((PaymentEvent) event);
+        } else if (event.getClass() == PaymentPlanArrearsEvent.class) {
+            logger.logInfo("Handling profile payment plan arrears event.");
+            getProfileModel().handleEvent((PaymentPlanArrearsEvent) event);
+        } else if (event.getClass() == ActiveEvent.class) {
+            logger.logInfo("Handling profile disabled.");
+            getProfileModel().handleEvent((ActiveEvent) event);
         } else if (event.getClass() == ProductReleaseDeployedEvent.class) {
             logger.logInfo("Handling migrator product release deployed.");
             getMigratorModel().handleProductReleaseDeployed((ProductReleaseDeployedEvent) event);

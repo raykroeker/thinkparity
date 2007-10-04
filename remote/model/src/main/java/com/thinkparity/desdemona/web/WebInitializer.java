@@ -4,6 +4,8 @@
 package com.thinkparity.desdemona.web;
 
 import java.text.MessageFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -12,13 +14,42 @@ import javax.servlet.ServletContextListener;
 
 import com.thinkparity.codebase.PropertiesUtil;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
+import com.thinkparity.codebase.log4j.or.CalendarRenderer;
+import com.thinkparity.codebase.log4j.or.DateRenderer;
+
+import com.thinkparity.codebase.model.container.Container;
+import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.document.DocumentVersion;
+import com.thinkparity.codebase.model.migrator.Product;
+import com.thinkparity.codebase.model.migrator.Release;
+import com.thinkparity.codebase.model.migrator.Resource;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
+import com.thinkparity.codebase.model.user.User;
+import com.thinkparity.codebase.model.util.logging.or.*;
+import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.desdemona.model.Version;
 import com.thinkparity.desdemona.model.backup.BackupService;
+import com.thinkparity.desdemona.model.io.jta.TransactionService;
 import com.thinkparity.desdemona.model.migrator.MigratorService;
+import com.thinkparity.desdemona.model.node.NodeCredentials;
+import com.thinkparity.desdemona.model.node.NodeException;
+import com.thinkparity.desdemona.model.node.NodeService;
+import com.thinkparity.desdemona.model.profile.payment.Currency;
+import com.thinkparity.desdemona.model.profile.payment.PaymentException;
+import com.thinkparity.desdemona.model.profile.payment.PaymentPlan;
+import com.thinkparity.desdemona.model.profile.payment.PaymentService;
+import com.thinkparity.desdemona.model.queue.QueueItem;
 import com.thinkparity.desdemona.model.queue.notification.NotificationService;
 import com.thinkparity.desdemona.util.DesdemonaProperties;
+import com.thinkparity.desdemona.util.logging.or.CurrencyRenderer;
+import com.thinkparity.desdemona.util.logging.or.OperationRenderer;
+import com.thinkparity.desdemona.util.logging.or.PaymentPlanRenderer;
+import com.thinkparity.desdemona.util.logging.or.QueueItemRenderer;
+import com.thinkparity.desdemona.util.logging.or.ServiceRenderer;
 import com.thinkparity.desdemona.util.logging.or.ServiceRequestRenderer;
+import com.thinkparity.desdemona.web.service.Operation;
+import com.thinkparity.desdemona.web.service.Service;
 import com.thinkparity.desdemona.web.service.Services;
 import com.thinkparity.desdemona.wildfire.util.PersistenceManager;
 
@@ -40,6 +71,8 @@ public final class WebInitializer implements ServletContextListener {
     /** A reference to the <code>PersistenceManager</code>. */
     private PersistenceManager persistenceService;
 
+    private TransactionService transactionService;
+
     /**
      * Create WebListener.
      *
@@ -58,9 +91,12 @@ public final class WebInitializer implements ServletContextListener {
         logger.logVariable("e", e);
         logger.logInfo("Stopping thinkParity {0}.", getVersionString());
         stopServices();
+        stopPayment();
         stopBackup();
         stopMigrator();
         stopNotification();
+        stopNode();
+        stopTransaction();
         stopPersistence();
         logger.logInfo("thinkParity {0} stopped.", getVersionString());
     }
@@ -77,7 +113,22 @@ public final class WebInitializer implements ServletContextListener {
 
         // TODO - WebServiceListener#contextInitialized - create logging service
         final Properties loggingProperties = new Properties();
+        setRenderer(loggingProperties, Calendar.class, CalendarRenderer.class);
+        setRenderer(loggingProperties, Container.class, ContainerRenderer.class);
+        setRenderer(loggingProperties, Document.class, DocumentRenderer.class);
+        setRenderer(loggingProperties, DocumentVersion.class, DocumentVersionRenderer.class);
+        setRenderer(loggingProperties, Date.class, DateRenderer.class);
+        setRenderer(loggingProperties, Currency.class, CurrencyRenderer.class);
+        setRenderer(loggingProperties, Operation.class, OperationRenderer.class);
+        setRenderer(loggingProperties, PaymentPlan.class, PaymentPlanRenderer.class);
+        setRenderer(loggingProperties, Product.class, ProductRenderer.class);
+        setRenderer(loggingProperties, QueueItem.class, QueueItemRenderer.class);
+        setRenderer(loggingProperties, Release.class, ReleaseRenderer.class);
+        setRenderer(loggingProperties, Resource.class, ResourceRenderer.class);
+        setRenderer(loggingProperties, Service.class, ServiceRenderer.class);
         setRenderer(loggingProperties, ServiceRequest.class, ServiceRequestRenderer.class);
+        setRenderer(loggingProperties, User.class, UserRenderer.class);
+        setRenderer(loggingProperties, XMPPEvent.class, XMPPEventRenderer.class);
         PropertyConfigurator.configure(loggingProperties);
 
         // TODO create a configuration service
@@ -97,6 +148,8 @@ public final class WebInitializer implements ServletContextListener {
         setProperty(properties, "thinkparity.migrator.logerror.notify.to", servletContext);
         setProperty(properties, "thinkparity.migrator.logerror.notify.cc", servletContext);
         setProperty(properties, "thinkparity.mode", servletContext);
+        setProperty(properties, "thinkparity.node.username", servletContext);
+        setProperty(properties, "thinkparity.node.password", servletContext);
         setProperty(properties, "thinkparity.product-name", servletContext);
         setProperty(properties, "thinkparity.queue.notification.bind-host", servletContext);
         setProperty(properties, "thinkparity.queue.notification.bind-port", servletContext);
@@ -107,17 +160,41 @@ public final class WebInitializer implements ServletContextListener {
         setProperty(properties, "thinkparity.temp.root", servletContext);
         setProperty(properties, "xmpp.domain", servletContext);
         setSystemProperty(properties, "thinkparity.release-name");
+        setSystemProperty(properties, "thinkparity.datasource-driver");
+        setSystemProperty(properties, "thinkparity.datasource-url");
+        setSystemProperty(properties, "thinkparity.datasource-user");
+        setSystemProperty(properties, "thinkparity.datasource-password");
+        
         properties.println(System.out);
         final StringBuffer buffer = new StringBuffer();
         PropertiesUtil.print(buffer, System.getProperties());
         System.out.println(buffer);
 
         startPersistence(properties);
+        startTransaction(properties);
+        startNode(properties);
         startNotification(properties);
         startMigrator(properties);
         startBackup(properties);
-        startServices(properties, servletContext);
+        startPayment(properties);
+        startServices(properties);
         logger.logInfo("thinkParity {0} started.", getVersionString());
+    }
+
+    /**
+     * Fail startup of the application.
+     * 
+     * @param cause
+     *            A <code>Throwable</code>.
+     * @param message
+     *            A <code>String</code>.
+     * @param messageArguments
+     *            Optional <code>Object[]</code>.
+     */
+    private void failStart(final Throwable cause, final String message,
+            final Object... messageArguments) {
+        logger.logFatal(cause, message, messageArguments);
+        System.exit(1);
     }
 
     /**
@@ -177,7 +254,7 @@ public final class WebInitializer implements ServletContextListener {
             final Class<?> renderable, final Class<?> renderer) {
         final String key = MessageFormat.format("log4j.renderer.{0}",
                 renderable.getName());
-        final String value = MessageFormat.format("{1}", renderer.getName());
+        final String value = MessageFormat.format("{0}", renderer.getName());
         properties.setProperty(key, value);
     }
 
@@ -222,6 +299,28 @@ public final class WebInitializer implements ServletContextListener {
     }
 
     /**
+     * Start the node.
+     * 
+     * @param properties
+     *            A <code>DesdemonaProperties</code>.
+     */
+    private void startNode(final DesdemonaProperties properties) {
+        logger.logTraceId();
+        logger.logInfo("Starting node service.");
+        final NodeCredentials credentials = new NodeCredentials();
+        credentials.setUsername(properties.getProperty("thinkparity.node.username"));
+        credentials.setPassword(properties.getProperty("thinkparity.node.password"));
+        try {
+            NodeService.getInstance().start(credentials);
+        } catch (final InvalidCredentialsException icx) {
+            failStart(icx, "Cannot start node {0}.", credentials.getUsername());
+        } catch (final NodeException nx) {
+            failStart(nx, "Cannot start node {0}.", credentials.getUsername());
+        }
+        logger.logInfo("Node service started.");
+    }
+
+    /**
      * Start the notification service.
      * 
      * @param properties
@@ -237,18 +336,34 @@ public final class WebInitializer implements ServletContextListener {
     }
 
     /**
+     * Start the payment service.
+     * 
+     * @param properties
+     *            A <code>DesdemonaProperties</code>.
+     * @throws PaymentException
+     *             if the service cannot be started
+     */
+    private void startPayment(final DesdemonaProperties properties) {
+        logger.logTraceId();
+        logger.logInfo("Starting payment service.");
+        final PaymentService paymentService = PaymentService.getInstance();
+        try {
+            paymentService.start();
+        } catch (final PaymentException px) {
+            failStart(px, "Could not start payment service.");
+        }
+        logger.logInfo("Payment service started.");
+    }
+
+    /**
      * Start the persistence service.
      * 
-     * @param servletContext
-     *            A <code>ServletContext</code>.
+     * @param properties
+     *            A <code>DesdemonaProperties</code>.
      */
     private void startPersistence(final DesdemonaProperties properties) {
         logger.logTraceId();
         logger.logInfo("Starting persistence service.");
-        System.setProperty("thinkparity.datasource-driver", properties.getProperty("thinkparity.datasource-driver"));
-        System.setProperty("thinkparity.datasource-url", properties.getProperty("thinkparity.datasource-url"));
-        System.setProperty("thinkparity.datasource-user", properties.getProperty("thinkparity.datasource-user"));
-        System.setProperty("thinkparity.datasource-password", properties.getProperty("thinkparity.datasource-password"));
         persistenceService = PersistenceManager.getInstance();
         persistenceService.start();
         logger.logInfo("Persistence service started.");
@@ -260,12 +375,25 @@ public final class WebInitializer implements ServletContextListener {
      * @param properties
      *            A <code>DesdemonaProperties</code>.
      */
-    private void startServices(final DesdemonaProperties properties,
-            final ServletContext servletContext) {
+    private void startServices(final DesdemonaProperties properties) {
         logger.logTraceId();
         logger.logInfo("Starting services.");
         Services.getInstance().start();
         logger.logInfo("Services started.");
+    }
+
+    /**
+     * Start the transaction service.
+     * 
+     * @param properties
+     *            A <code>DesdemonaProperties</code>.
+     */
+    private void startTransaction(final DesdemonaProperties properties) {
+        logger.logTraceId();
+        logger.logInfo("Starting transaction service.");
+        transactionService = TransactionService.getInstance();
+        transactionService.start();
+        logger.logInfo("Transaction service started.");
     }
 
     /**
@@ -291,6 +419,17 @@ public final class WebInitializer implements ServletContextListener {
     }
 
     /**
+     * Stop the node.
+     * 
+     */
+    private void stopNode() {
+        logger.logTraceId();
+        logger.logInfo("Stopping node service.");
+        NodeService.getInstance().stop();
+        logger.logInfo("Node service stopped.");        
+    }
+
+    /**
      * Stop the notification service.
      * 
      * @param properties
@@ -306,20 +445,32 @@ public final class WebInitializer implements ServletContextListener {
     }
 
     /**
+     * Stop the payment service.
+     * 
+     */
+    private void stopPayment() {
+        logger.logTraceId();
+        logger.logInfo("Stopping payment service.");
+        final PaymentService paymentService = PaymentService.getInstance();
+        paymentService.stop();
+        logger.logInfo("Payment service stopped.");
+    }
+
+    /**
      * Start the persistence service.
      * 
      */
     private void stopPersistence() {
         logger.logTraceId();
-        logger.logInfo("Stopping persistence.");
+        logger.logInfo("Stopping persistence service.");
         try {
             /* TODO refactor persistence service to behave like other services;
              * do not require a local instance */
             persistenceService.stop();
         } finally {
             persistenceService = null;
+            logger.logInfo("Persistence service stopped.");
         }
-        logger.logInfo("Persistence stopped.");
     }
 
     /**
@@ -331,5 +482,20 @@ public final class WebInitializer implements ServletContextListener {
         logger.logInfo("Stopping services.");
         Services.getInstance().stop();
         logger.logInfo("Services stopped.");
+    }
+
+    /**
+     * Stop the transaction service.
+     * 
+     */
+    private void stopTransaction() {
+        logger.logTraceId();
+        logger.logInfo("Stopping transaction service.");
+        try {
+            transactionService.stop();
+        } finally {
+            transactionService = null;
+            logger.logInfo("Transaction service stopped.");
+        }
     }
 }

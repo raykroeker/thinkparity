@@ -34,6 +34,20 @@ public class ProfileAdapter implements ProfileListener {
     public void passwordUpdated(final ProfileEvent e) {}
 
     /**
+     * @see com.thinkparity.ophelia.model.events.ProfileListener#profileActivated(com.thinkparity.ophelia.model.events.ProfileEvent)
+     * 
+     */
+    @Override
+    public void profileActivated(final ProfileEvent e) {}
+
+    /**
+     * @see com.thinkparity.ophelia.model.events.ProfileListener#profilePassivated(com.thinkparity.ophelia.model.events.ProfileEvent)
+     * 
+     */
+    @Override
+    public void profilePassivated(final ProfileEvent e) {}
+
+    /**
      * @see com.thinkparity.ophelia.model.events.ProfileListener#profileUpdated(com.thinkparity.ophelia.model.events.ProfileEvent)
      *
      */

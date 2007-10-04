@@ -83,7 +83,7 @@ public class PersistenceManager {
         conf.setProperty(Key.USER, System.getProperty("thinkparity.datasource-user"));
         try {
             dataSource = new XADataSourcePool(new XADataSource(conf));
-            sessionManager = new HypersonicSessionManager(dataSource);
+            sessionManager = new HypersonicSessionManager(dataSource, Boolean.TRUE);
         } catch (final SQLException sqlx) {
             throw new ThinkParityException("Could not start persistence manager.", sqlx);
         }

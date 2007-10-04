@@ -12,6 +12,8 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.GradientPainter;
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.codebase.model.profile.Profile;
+
 import com.thinkparity.ophelia.model.events.ProfileEvent;
 
 import com.thinkparity.ophelia.browser.Constants.Images;
@@ -91,6 +93,16 @@ public final class MainTitleAvatar extends Avatar {
     }
 
     /**
+     * Fire a profile event.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     */
+    public void fireProfileEvent(final Profile profile) {
+        reload();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getId()
      */
     @Override
@@ -101,6 +113,15 @@ public final class MainTitleAvatar extends Avatar {
      */
     @Override
     public State getState() { return null; }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isAvatarBackgroundImage()
+     */
+    @Override
+    public Boolean isAvatarBackgroundImage() {
+        // Default avatar background image is not required for this avatar.
+        return Boolean.FALSE;
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
@@ -170,15 +191,6 @@ public final class MainTitleAvatar extends Avatar {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isAvatarBackgroundImage()
-     */
-    @Override
-    public Boolean isAvatarBackgroundImage() {
-        // Default avatar background image is not required for this avatar.
-        return Boolean.FALSE;
-    }
-
-    /**
      * Obtain the input tab.
      * 
      * @return The input tab.
@@ -237,7 +249,7 @@ public final class MainTitleAvatar extends Avatar {
         final TabId tabId = getInputTabId();
         if (null != tabId) {
             if (tabPanel.isTabSelected(tabId)) {
-                tabPanel.refreshSelectedTab();
+                tabPanel.reload();
             } else {
                 tabPanel.selectTab(tabId);
                 switch (tabId) {

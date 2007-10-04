@@ -3,9 +3,6 @@
  */
 package com.thinkparity.codebase.model.profile;
 
-import java.util.Calendar;
-
-import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.constraint.*;
 import com.thinkparity.codebase.constraint.IllegalValueException.Reason;
 
@@ -41,21 +38,6 @@ public final class ProfileConstraints {
 
     /** The profile country <code>CountryConstraint</code>. */
     private final CountryConstraint country;
-
-    /** The profile credit card month <code>LongConstraint</code>. */
-    private final LongConstraint creditCardMonth;
-
-    /** The profile credit card name <code>StringConstraint</code>. */
-    private final StringConstraint creditCardName;
-
-    /** The profile credit card number <code>StringConstraint</code>. */
-    private final StringConstraint creditCardNumber;
-
-    /** The profile credit card security code <code>StringConstraint</code>. */
-    private final StringConstraint creditCardSecurityCode;
-
-    /** The profile credit card year <code>LongConstraint</code>. */
-    private final LongConstraint creditCardYear;
 
     /** The profile e-mail address <code>EMailConstraint</code>. */
     private final EMailConstraint email;
@@ -126,34 +108,6 @@ public final class ProfileConstraints {
         this.country = new CountryConstraint();
         this.country.setName("Country");
         this.country.setNullable(Boolean.FALSE);
-
-        this.creditCardMonth = new LongConstraint();
-        this.creditCardMonth.setMaxValue(12L);
-        this.creditCardMonth.setMinValue(1L);
-
-        this.creditCardName = new StringConstraint();
-        this.creditCardName.setMaxLength(64);
-        this.creditCardName.setMinLength(1);
-        this.creditCardName.setName("Credit card name");
-        this.creditCardName.setNullable(Boolean.FALSE);
-
-        this.creditCardNumber = new StringConstraint();
-        this.creditCardNumber.setMaxLength(19);
-        this.creditCardNumber.setMinLength(1);
-        this.creditCardNumber.setName("Credit card number");
-        this.creditCardNumber.setNullable(Boolean.FALSE);
-
-        this.creditCardSecurityCode = new StringConstraint();
-        this.creditCardSecurityCode.setMaxLength(4);
-        this.creditCardSecurityCode.setMinLength(3);
-        this.creditCardSecurityCode.setName("Credit card security code");
-        this.creditCardSecurityCode.setNullable(Boolean.FALSE);
-
-        final Calendar calendar = DateUtil.getInstance();
-        this.creditCardYear = new LongConstraint();
-        this.creditCardYear.setMinValue((long)calendar.get(Calendar.YEAR));
-        calendar.add(Calendar.YEAR, 10);
-        this.creditCardYear.setMaxValue((long)calendar.get(Calendar.YEAR));
 
         this.email = new EMailConstraint();
         this.email.setMaxLength(512);
@@ -287,51 +241,6 @@ public final class ProfileConstraints {
      */
     public CountryConstraint getCountry() {
         return country;
-    }
-
-    /**
-     * Obtain credit card month.
-     *
-     * @return A LongConstraint.
-     */
-    public LongConstraint getCreditCardMonth() {
-        return creditCardMonth;
-    }
-
-    /**
-     * Obtain credit card name.
-     *
-     * @return A StringConstraint.
-     */
-    public StringConstraint getCreditCardName() {
-        return creditCardName;
-    }
-
-    /**
-     * Obtain credit card number.
-     *
-     * @return A StringConstraint.
-     */
-    public StringConstraint getCreditCardNumber() {
-        return creditCardNumber;
-    }
-
-    /**
-     * Obtain credit card security code.
-     *
-     * @return A StringConstraint.
-     */
-    public StringConstraint getCreditCardSecurityCode() {
-        return creditCardSecurityCode;
-    }
-
-    /**
-     * Obtain credit card year.
-     *
-     * @return A LongConstraint.
-     */
-    public LongConstraint getCreditCardYear() {
-        return creditCardYear;
     }
 
     /**

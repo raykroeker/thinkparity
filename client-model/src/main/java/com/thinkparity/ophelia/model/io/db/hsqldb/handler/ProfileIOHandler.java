@@ -31,8 +31,8 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
     /** Sql to create a profile. */
     private static final String SQL_CREATE =
         new StringBuilder("insert into PROFILE ")
-        .append("(PROFILE_ID,PROFILE_VCARD) ")
-        .append("values (?,?)")
+        .append("(PROFILE_ID,PROFILE_ACTIVE,PROFILE_VCARD) ")
+        .append("values (?,?,?)")
         .toString();
 
     /** Sql to create an e-mail address. */
@@ -70,11 +70,18 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the profile. */
     private static final String SQL_READ =
-        new StringBuilder("select P.PROFILE_ID,U.JABBER_ID,U.NAME,")
-        .append("U.ORGANIZATION,U.TITLE,U.FLAGS,P.PROFILE_VCARD ")
+        new StringBuilder("select P.PROFILE_ID,P.PROFILE_ACTIVE,U.JABBER_ID,")
+        .append("U.NAME,U.ORGANIZATION,U.TITLE,U.FLAGS,P.PROFILE_VCARD ")
         .append("from PROFILE P ")
         .append("inner join PARITY_USER U on P.PROFILE_ID=U.USER_ID ")
         .append("order by P.PROFILE_ID desc")
+        .toString();
+
+    /** Sql to read the active state. */
+    private static final String SQL_READ_ACTIVE =
+        new StringBuilder("select P.PROFILE_ACTIVE ")
+        .append("from PROFILE P ")
+        .append("where P.PROFILE_ID=?")
         .toString();
 
     /** Sql to read the total disk usage. */
@@ -104,6 +111,13 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
         .append("where P.PROFILE_ID=?")
         .toString();
 
+    /** Sql to read a feature count. */
+    private static final String SQL_READ_FEATURE_COUNT =
+        new StringBuilder("select count(PF.FEATURE_ID) \"FEATURE_COUNT\" ")
+        .append("from PROFILE_FEATURE PF ")
+        .append("where PF.PROFILE_ID=?")
+        .toString();
+
     /** Sql to read the profile features. */
     private static final String SQL_READ_FEATURES =
         new StringBuilder("select PF.FEATURE_ID,PF.FEATURE_NAME ")
@@ -114,8 +128,8 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
 
     /** Sql to read the profile by its unique key. */
     private static final String SQL_READ_UK =
-        new StringBuilder("select P.PROFILE_ID,U.JABBER_ID,U.NAME,")
-        .append("U.ORGANIZATION,U.TITLE,U.FLAGS,P.PROFILE_VCARD ")
+        new StringBuilder("select P.PROFILE_ID,P.PROFILE_ACTIVE,U.JABBER_ID,")
+        .append("U.NAME,U.ORGANIZATION,U.TITLE,U.FLAGS,P.PROFILE_VCARD ")
         .append("from PROFILE P ")
         .append("inner join PARITY_USER U on P.PROFILE_ID=U.USER_ID ")
         .append("where U.JABBER_ID=?")
@@ -125,6 +139,13 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
     private static final String SQL_UPDATE =
         new StringBuilder("update PROFILE ")
         .append("set PROFILE_VCARD=? ")
+        .append("where PROFILE_ID=?")
+        .toString();
+
+    /** Sql to update the active state. */
+    private static final String SQL_UPDATE_ACTIVE =
+        new StringBuilder("update PROFILE ")
+        .append("set PROFILE_ACTIVE=? ")
         .append("where PROFILE_ID=?")
         .toString();
 
@@ -162,18 +183,21 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
         try {
             session.prepareStatement(SQL_CREATE);
             session.setLong(1, profile.getLocalId());
-            session.setVCard(2, profile.getVCard());
-            if(1 != session.executeUpdate())
+            session.setBoolean(2, profile.isActive());
+            session.setVCard(3, profile.getVCard());
+            if(1 != session.executeUpdate()) {
                 throw translateError("Could not create user profile {0}.", profile);
+            }
 
             session.prepareStatement(SQL_CREATE_FEATURE);
             session.setLong(1, profile.getLocalId());
             for (final Feature feature : profile.getFeatures()) {
                 session.setString(2, feature.getName());
-                if (1 != session.executeUpdate())
+                if (1 != session.executeUpdate()) {
                     throw translateError(
                             "Could not create feature {0} for profile {1}.",
                             feature, profile);
+                }
             }
 
             userIO.update(session, profile);
@@ -239,6 +263,27 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
                 throw new HypersonicException("COULD NOT DELETE EMAIL");
             emailIO.delete(session, emailId);
         } finally { 
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ProfileIOHandler#isActive(com.thinkparity.codebase.model.profile.Profile)
+     *
+     */
+    @Override
+    public Boolean isActive(final Profile profile) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_ACTIVE);
+            session.setLong(1, profile.getLocalId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getBoolean("PROFILE_ACTIVE");
+            } else {
+                return null;
+            }
+        } finally {
             session.close();
         }
     }
@@ -351,6 +396,56 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.io.handler.ProfileIOHandler#updateActive(com.thinkparity.codebase.model.profile.Profile,
+     *      java.lang.Boolean)
+     * 
+     */
+    @Override
+    public void updateActive(final Profile profile) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_ACTIVE);
+            session.setBoolean(1, profile.isActive());
+            session.setLong(2, profile.getLocalId());
+            if (1 != session.executeUpdate()) {
+                throw new HypersonicException("Could not update profile active.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ProfileIOHandler#updateFeatures(com.thinkparity.codebase.model.profile.Profile)
+     * 
+     */
+    @Override
+    public void updateFeatures(final Profile profile) {
+        final Session session = openSession();
+        try {
+            final int featureCount = readFeatureCount(session, profile);
+            session.prepareStatement(SQL_DELETE_FEATURES);
+            session.setLong(1, profile.getLocalId());
+            if (featureCount != session.executeUpdate()) {
+                throw new HypersonicException("Could not delete profile features.");
+            }
+
+            session.prepareStatement(SQL_CREATE_FEATURE);
+            session.setLong(1, profile.getLocalId());
+            for (final Feature feature : profile.getFeatures()) {
+                session.setString(2, feature.getName());
+                if (1 != session.executeUpdate()) {
+                    throw translateError(
+                            "Could not create feature {0} for profile {1}.",
+                            feature, profile);
+                }
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ProfileIOHandler#verifyEmail(java.lang.Long, java.lang.Long)
      */
     public void verifyEmail(final Long profileId, final Long emailId,
@@ -393,6 +488,7 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
      */
     Profile extractProfile(final Session session) {
         final Profile profile = new Profile();
+        profile.setActive(session.getBoolean("PROFILE_ACTIVE"));
         profile.setVCard(session.getVCard("PROFILE_VCARD", new ProfileVCard()));
         profile.setFlags(session.getUserFlags("FLAGS"));
         profile.setId(session.getQualifiedUsername("JABBER_ID"));
@@ -425,7 +521,6 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
         }
     }
 
-
     /**
      * Extract the feature from the session.
      * 
@@ -438,6 +533,24 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
         feature.setFeatureId(session.getLong("FEATURE_ID"));
         feature.setName(session.getString("FEATURE_NAME"));
         return feature;
+    }
+
+
+    /**
+     * Read a feature count.
+     * @param session A <code>Session</code>.
+     * @param profile A <code>Profile</code>.
+     * @return An <code>Integer</code>.
+     */
+    private Integer readFeatureCount(final Session session, final Profile profile) {
+        session.prepareStatement(SQL_READ_FEATURE_COUNT);
+        session.setLong(1, profile.getLocalId());
+        session.executeQuery();
+        if (session.nextResult()) {
+            return session.getInteger("FEATURE_COUNT");
+        } else {
+            return null;
+        }
     }
 
     /**

@@ -9,6 +9,7 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 import java.awt.Component;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,11 +28,15 @@ import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.EMailReservation;
+import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileConstraints;
+import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 
+import com.thinkparity.ophelia.model.profile.ReservationExpiredException;
 import com.thinkparity.ophelia.model.session.OfflineException;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
@@ -45,7 +50,22 @@ import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Sign-Up Account Info Avatar<br>
- * <b>Description:</b><br>
+ * <b>Description:</b>Collects the following information from the user:
+ * <ol>
+ * <li>Feature set [FREE,PREMIUM]
+ * <li>Username
+ * <li>Password
+ * <li>Security question
+ * <li>Security answer
+ * </ol>
+ * Then moves to one of the following pages:
+ * <ul>
+ * <li>Payment - If a standard account is selected.
+ * <li>Payment Plan - If a standard account is selected and we are running
+ * internal.
+ * <li>Login - If a guest account is selected.
+ * </ul>
+ * <br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.12
@@ -124,47 +144,101 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getNextPageName()
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupAccountInfoAvatar#isNextOk()
+     * 
      */
     public String getNextPageName() {
-        // TODO for beta, all versions go to the payment page. When beta is done, change this
-        // so guest accounts don't go to payment tab. (enable the commented out code)
-        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT);
-        /*
         final FeatureSet featureSet = extractFeatureSet();
-        if (featureSet == FeatureSet.FREE) {
+        switch (featureSet) {
+        case FREE:
             return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_SUMMARY);
-        } else {
-            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT);
-        }*/
+        case PREMIUM:
+            if (platform.isInternal()) {
+                return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT_PLAN);
+            } else {
+                return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT);
+            }
+        default:
+            throw Assert.createUnreachable("Unknown feature set {0}.", featureSet);
+        }
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getPreviousPageName()
+     * 
      */
     public String getPreviousPageName() {
         return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PROFILE);
     }
 
     /**
+     * The next page is determined by the feature set; if the feature set is
+     * "free"; a guest profile is created here and the next page should be the
+     * login page; otherwise nothing is done here and the next page should be
+     * the payment info page
+     * 
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isNextOk()
      */
     public Boolean isNextOk() {
         if (!isInputValid()) {
             return Boolean.FALSE;
         }
-        checkOnline();
-        if (!isOnline(Boolean.FALSE)) {
-            errorMessageJLabel.setText(getSharedString("ErrorOffline"));
-            return Boolean.FALSE;
-        }
         createReservations();
-        // TODO When beta is done, restore these lines of code
-        /*
-        if (!containsInputErrors() && accountTypeGuestJRadioButton.isSelected()) {
-            signupGuest();
+        if (containsInputErrors()) {
+            return Boolean.FALSE;
+        } else {
+            switch (extractFeatureSet()) {
+            case FREE:
+                createGuestProfile();
+                if (containsInputErrors()) {
+                    return Boolean.FALSE;
+                }
+                break;
+            case PREMIUM:
+                break;
+            default:
+                throw Assert.createUnreachable("Unknown feature set {0}.",
+                        extractFeatureSet());
+            }
         }
-        */
-        return !containsInputErrors();
+        return Boolean.TRUE;
+    }
+
+    /**
+     * Create a guest profile.
+     * 
+     */
+    private void createGuestProfile() {
+        final String username = extractUsername();
+        final EMail email = extractEMail();
+        final UsernameReservation usernameReservation = usernameReservations.get(username);
+        final EMailReservation emailReservation = emailReservations.get(email);
+        final Credentials credentials = extractCredentials();
+        final Profile profile = (Profile) ((Data) input).get(SignupData.DataKey.PROFILE);
+        profile.setFeatures(Collections.<Feature>emptyList());
+        final SecurityCredentials securityCredentials = new SecurityCredentials();
+        securityCredentials.setQuestion(extractSecurityQuestion());
+        securityCredentials.setAnswer(extractSecurityAnswer());
+        try {
+            errorMessageJLabel.setText(getString("CreateGuestProfile"));
+            errorMessageJLabel.paintImmediately(0, 0,
+                    errorMessageJLabel.getWidth(),
+                    errorMessageJLabel.getHeight());
+            ((SignupProvider) contentProvider).createProfile(
+                    usernameReservation, emailReservation, credentials, profile,
+                    email, securityCredentials);
+        } catch (final OfflineException ox) {
+            logger.logError(ox, "An offline error has occured.");
+            addInputError(getSharedString("ErrorOffline"));
+        } catch (final ReservationExpiredException rex) {
+            logger.logWarning(rex, "The username/e-mail reservation has expired.");
+            addInputError(getString("ErrorReservationExpired"));
+        } catch (final Throwable t) {
+            logger.logFatal(t, "An unexpected error has occured.");
+            addInputError(getSharedString("ErrorUnexpected"));
+        } finally {
+            errorMessageJLabel.setText(" ");
+        }
     }
 
     /**
@@ -255,22 +329,6 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
             return ((SignupProvider) contentProvider).createEMailReservation(email);
         }
     }
-
-    // TODO Add this code back after beta.
-    /**
-     * Create a new profile.
-     */
-    /*
-    private void createProfile() {
-        try {
-            getSignupHelper().createProfile();
-        } catch (final ReservationExpiredException rex) {
-            addInputError(getString("ErrorReservationExpired"));
-        } catch (final Throwable t) {
-            addInputError(getString("ErrorCreateAccount"));
-        }
-    }
-    */
 
     /**
      * Create the username and e-mail address reservations.
@@ -753,25 +811,6 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
     private void reloadAccountTypeRadioButtons() {
         accountTypeStandardJRadioButton.setSelected(true);
     }
-
-    /**
-     * Sign up guest.
-     */
-    // TODO Add this code back after beta.
-    /*
-    private void signupGuest() {
-        saveData();
-        SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
-        errorMessageJLabel.setText(getString("SigningUpGuest"));
-        errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(), errorMessageJLabel.getHeight());
-        createProfile();
-        errorMessageJLabel.setText(" ");
-        if (containsInputErrors()) {
-            errorMessageJLabel.setText(getInputErrors().get(0));
-        }
-        SwingUtil.setCursor(this, null);
-    }
-    */
 
     /**
      * Validate input.

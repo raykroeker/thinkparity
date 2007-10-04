@@ -138,6 +138,7 @@ public class ProviderFactory {
         case DIALOG_PLATFORM_SIGNUP_INTRO:
         case DIALOG_PLATFORM_SIGNUP_LOGIN:
         case DIALOG_PLATFORM_SIGNUP_PAYMENT:
+        case DIALOG_PLATFORM_SIGNUP_PAYMENT_PLAN:
         case DIALOG_PLATFORM_SIGNUP_PROFILE:
         case DIALOG_PLATFORM_SIGNUP_SUMMARY:
             provider = new SignupProvider(profileModel);
@@ -145,7 +146,7 @@ public class ProviderFactory {
         case DIALOG_PROFILE_UPDATE:
             provider = new UpdateProfileProvider(profileModel, sessionModel);
             break;
-        case DIALOG_PROFILE_UPDATE_ACCOUNT:
+        case DIALOG_PROFILE_UPDATE_PAYMENT_INFO:
             provider = new UpdateAccountProvider(profileModel, sessionModel);
             break;
         case DIALOG_PROFILE_UPDATE_PASSWORD:

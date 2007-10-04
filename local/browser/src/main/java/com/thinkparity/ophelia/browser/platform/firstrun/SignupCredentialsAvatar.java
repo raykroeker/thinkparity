@@ -115,12 +115,6 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
         if (!isInputValid()) {
             return Boolean.FALSE;
         }
-        checkOnline();
-        if (!isOnline(Boolean.FALSE)) {
-            errorMessageJLabel.setText(getSharedString("ErrorOffline"));
-            return Boolean.FALSE;
-        }
-
         login();
         // Don't change to the next page the normal way. Instead, let the
         // SignupLoginHelper direct the change to the next page.

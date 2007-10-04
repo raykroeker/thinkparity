@@ -59,6 +59,9 @@ public class Constants {
         public static final String MAX_BACKUP_INDEX = "1";
         public static final String MAX_FILE_SIZE = "3MB";
         public static final String METRICS_LAYOUT_CONVERSION_PATTERN = "%d{ISO8601} %m%n";
+        public static final String SDF_DATE_PATTERN = "yyyy-MM-dd Z";
+        public static final String SDF_TIME_PATTERN = "HH:mm:ss.SSS Z";
+        public static final String SDF_TIMESTAMP_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS Z";
         public static final String SERVICE_CONVERSION_PATTERN = "%d{ISO8601} %x %t %m%n";
     }
 

@@ -11,12 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
 
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
@@ -116,6 +111,22 @@ public class SwingUtil {
     }
 
     /**
+     * Extract the selected object from the combo box.
+     * 
+     * @param <T>
+     *            An object type.
+     * @param jComboBox
+     *            A <code>JComboBox</code>.
+     * @param defaultValue
+     *            A <code>T</code>.
+     * @return An <code>T</code>.
+     */
+    public static <T extends Object> T extractSelection(
+            final JComboBox jComboBox, final T defaultValue) {
+        return SINGLETON.doExtractSelection(jComboBox, defaultValue);
+    }
+
+    /**
      * Obtain the primary desktop bounds.
      * 
      * @return The primary desktop bounds <code>Rectangle</code>.
@@ -212,12 +223,12 @@ public class SwingUtil {
         SINGLETON.doSetCursor(component, cursor);
     }
 
-    public static void setCursor(final java.awt.Window window, final Cursor cursor) {
-        SINGLETON.doSetCursor(window, cursor);
-    }
-
     public static void setCursor(final java.awt.Component component, final int cursor) {
         SINGLETON.doSetCursor(component, cursor);
+    }
+
+    public static void setCursor(final java.awt.Window window, final Cursor cursor) {
+        SINGLETON.doSetCursor(window, cursor);
     }
 
     /**
@@ -352,6 +363,27 @@ public class SwingUtil {
             }
         }
 	}
+
+    /**
+     * Extract the selected object from the combo box.
+     * 
+     * @param <T>
+     *            An object type.
+     * @param jComboBox
+     *            A <code>JComboBox</code>.
+     * @param defaultValue
+     *            A <code>T</code>.
+     * @return An <code>T</code>.
+     */
+    @SuppressWarnings("unchecked")
+    private <T extends Object> T doExtractSelection(final JComboBox jComboBox,
+            final T defaultValue) {
+        if (-1 == jComboBox.getSelectedIndex()) {
+            return defaultValue;
+        } else {
+            return (T) jComboBox.getSelectedItem();
+        }
+    }
 
     /**
      * Insert the stream into the text area using the buffer.

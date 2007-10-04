@@ -13,7 +13,10 @@ import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
+import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
+import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.profile.ReservationExpiredException;
@@ -21,10 +24,13 @@ import com.thinkparity.ophelia.model.profile.ReservationExpiredException;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
 
 /**
- * @author rob_masako@shaw.ca
+ * <b>Title:</b>thinkParity Ophelia UI Platform First Run Provider<br>
+ * <b>Description:</b>A facade into the model for the first run wizard.<br>
+ * 
+ * @author robert@thinkparity.com
  * @version $Revision$
  */
-public class SignupProvider extends ContentProvider {
+public final class SignupProvider extends ContentProvider {
 
     /**
      * Create SignupProvider.
@@ -49,22 +55,20 @@ public class SignupProvider extends ContentProvider {
     }
 
     /**
-     * Create a profile (account).
+     * Create a profile.
      * 
      * @param usernameReservation
      *            A <code>UsernameReservation</code>.
      * @param emailReservation
      *            An <code>EMailReservation</code>.
      * @param credentials
-     *            A <code>Credentials</code>.
+     *            A set of <code>Credentials</code>.
      * @param profile
      *            A <code>Profile</code>.
      * @param email
-     *            An <code>EMail</code>.
-     * @param securityQuestion
-     *            A security question <code>String</code>.
-     * @param securityAnswer
-     *            A security answer <code>String</code>.
+     *            An <code>EMail</code> address.
+     * @param securityCredentials
+     *            A set of <code>SecurityCredentials</code>.
      * @throws ReservationExpiredException
      */
     public void createProfile(final UsernameReservation usernameReservation,
@@ -72,8 +76,70 @@ public class SignupProvider extends ContentProvider {
             final Credentials credentials, final Profile profile,
             final EMail email, final SecurityCredentials securityCredentials)
             throws ReservationExpiredException {
-    	profileModel.create(usernameReservation, emailReservation, credentials,
+        profileModel.create(usernameReservation, emailReservation, credentials,
                 profile, email, securityCredentials);
+    }
+
+    /**
+     * Create a profile.
+     * 
+     * @param usernameReservation
+     *            A <code>UsernameReservation</code>.
+     * @param emailReservation
+     *            An <code>EMailReservation</code>.
+     * @param credentials
+     *            A set of <code>Credentials</code>.
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param email
+     *            An <code>EMail</code> address.
+     * @param securityCredentials
+     *            A set of <code>SecurityCredentials</code>.
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
+     * @throws ReservationExpiredException
+     */
+    public void createProfile(final UsernameReservation usernameReservation,
+            final EMailReservation emailReservation,
+            final Credentials credentials, final Profile profile,
+            final EMail email, final SecurityCredentials securityCredentials,
+            final PaymentInfo paymentInfo) throws ReservationExpiredException {
+        profileModel.create(usernameReservation, emailReservation, credentials,
+                profile, email, securityCredentials, paymentInfo);
+    }
+
+    /**
+     * Create a profile.
+     * 
+     * @param usernameReservation
+     *            A <code>UsernameReservation</code>.
+     * @param emailReservation
+     *            An <code>EMailReservation</code>.
+     * @param credentials
+     *            A set of <code>Credentials</code>.
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param email
+     *            An <code>EMail</code> address.
+     * @param securityCredentials
+     *            A set of <code>SecurityCredentials</code>.
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
+     * @param paymentPlanCredentials
+     *            A <code>PaymentPlanCredentials</code>.
+     * @throws ReservationExpiredException
+     *             if either the username/e-mail reservation have expired
+     * @throws InvalidCredentialsException
+     *             if the plan credentials are invalid
+     */
+    public void createProfile(final UsernameReservation usernameReservation,
+            final EMailReservation emailReservation,
+            final Credentials credentials, final Profile profile,
+            final EMail email, final SecurityCredentials securityCredentials,
+            final PaymentPlanCredentials paymentPlanCredentials)
+            throws ReservationExpiredException, InvalidCredentialsException {
+        profileModel.create(usernameReservation, emailReservation, credentials,
+                profile, email, securityCredentials, paymentPlanCredentials);
     }
 
     /**
@@ -86,6 +152,24 @@ public class SignupProvider extends ContentProvider {
      */
     public UsernameReservation createUsernameReservation(final String username) {
         return profileModel.createUsernameReservation(username);
+    }
+
+    /**
+     * Determine if the payment info is required.
+     * 
+     * @return True if the payement info is required.
+     */
+    public Boolean isRequiredPaymentInfo() {
+        return profileModel.isRequiredPaymentInfo();
+    }
+
+    /**
+     * Determine if the payment info is set.
+     * 
+     * @return True if the payement info is set.
+     */
+    public Boolean isSetPaymentInfo() {
+        return profileModel.isSetPaymentInfo();
     }
 
     /**

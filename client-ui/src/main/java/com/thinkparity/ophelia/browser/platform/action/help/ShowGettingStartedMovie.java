@@ -24,8 +24,7 @@ public class ShowGettingStartedMovie extends AbstractBrowserAction {
     private static String GETTING_STARTED_MOVIE_URL;
 
     static {
-        // NOCOMMIT should be "start"
-        GETTING_STARTED_MOVIE_URL = "http://movie.thinkParity.com/en/intro";
+        GETTING_STARTED_MOVIE_URL = "http://movie.thinkParity.com/en/start";
     }
 
     /**

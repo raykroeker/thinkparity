@@ -700,8 +700,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         try {
             beginXA(xaContext);
             try {
-                return userSql.readFeatures(user.getLocalId(),
-                        Ophelia.PRODUCT_ID);
+                return userSql.readProductFeatures(user, Ophelia.PRODUCT_NAME);
             } catch (final Throwable t) {
                 rollbackXA();
                 throw t;
@@ -1191,7 +1190,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         for (final User user : userList) {
             profile = new Profile();
             profile.setVCard(getUserModel(user).readVCard(new ProfileVCard()));
-            profile.setFeatures(userSql.readFeatures(user.getLocalId(), Ophelia.PRODUCT_ID));
+            profile.setFeatures(userSql.readProductFeatures(user, Ophelia.PRODUCT_NAME));
             inject(profile, getUserModel(user).read(user.getId()));
             profile.setActive(userSql.isActive(user));
             profileList.add(profile);
@@ -1651,8 +1650,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         final Profile profile = new Profile();
         profile.setVCard(getUserModel(user).readVCard(
                 new ProfileVCard()));
-        profile.setFeatures(userSql.readFeatures(user.getLocalId(),
-                Ophelia.PRODUCT_ID));
+        profile.setFeatures(userSql.readProductFeatures(user, Ophelia.PRODUCT_NAME));
         inject(profile, user);
         profile.setActive(userSql.isActive(user));
         return profile;

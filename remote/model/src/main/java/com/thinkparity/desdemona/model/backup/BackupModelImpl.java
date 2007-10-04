@@ -452,7 +452,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     private boolean isBackupEnabledImpl(final User user) {
         /* NOTE the product id/name should be read from the interface once the
          * migrator code is complete */
-        final List<Feature> features = getUserModel(user).readFeatures(Ophelia.PRODUCT_ID);
+        final List<Feature> features = getUserModel(user).readProductFeatures(Ophelia.PRODUCT_NAME);
         for (final Feature feature : features) {
             if (Ophelia.Feature.BACKUP.equals(feature.getName())) {
                 return Boolean.TRUE;

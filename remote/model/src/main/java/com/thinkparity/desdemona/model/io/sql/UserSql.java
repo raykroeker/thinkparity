@@ -126,6 +126,12 @@ public final class UserSql extends AbstractSql {
         .append("where EXPIRES_ON < ?")
         .toString();
 
+    /** Sql to delete a feature relationship. */
+    private static final String SQL_DELETE_FEATURE_REL =
+        new StringBuilder("delete from TPSD_USER_FEATURE_REL ")
+        .append("where USER_ID=? and FEATURE_ID=?")
+        .toString();
+
     /** Sql to delete temporary credentials. */
     private static final String SQL_DELETE_TEMPORARY_CREDENTIALS =
         new StringBuilder("delete from TPSD_USER_TEMPORARY_CREDENTIAL ")
@@ -195,6 +201,13 @@ public final class UserSql extends AbstractSql {
         .append("order by U.USERNAME asc")
         .toString();
 
+    /** Sql to read the active flag. */
+    private static final String SQL_READ_ACTIVE =
+        new StringBuilder("select U.ACTIVE ")
+        .append("from TPSD_USER U ")
+        .append("where U.USER_ID=?")
+        .toString();
+
     /** Sql to read a user. */
     private static final String SQL_READ_BY_CREDENTIALS =
         new StringBuilder("select U.USERNAME,U.USER_ID ")
@@ -230,13 +243,6 @@ public final class UserSql extends AbstractSql {
         new StringBuilder("select U.USERNAME,U.PASSWORD ")
         .append("from TPSD_USER U ")
         .append("where U.USER_ID=? ")
-        .toString();
-
-    /** Sql to read the active flag. */
-    private static final String SQL_READ_ACTIVE =
-        new StringBuilder("select U.ACTIVE ")
-        .append("from TPSD_USER U ")
-        .append("where U.USER_ID=?")
         .toString();
 
     /** Sql to read an e-mail count. */
@@ -289,7 +295,8 @@ public final class UserSql extends AbstractSql {
         .append("from TPSD_USER U ")
         .append("inner join TPSD_USER_FEATURE_REL UFR on U.USER_ID=UFR.USER_ID ")
         .append("inner join TPSD_PRODUCT_FEATURE PF on UFR.FEATURE_ID=PF.FEATURE_ID ")
-        .append("where U.USER_ID=? and PF.PRODUCT_ID=?")
+        .append("inner join TPSD_PRODUCT P on P.PRODUCT_ID=PF.PRODUCT_ID ")
+        .append("where U.USER_ID=? and P.PRODUCT_NAME=?")
         .toString();
 
     /** Sql to read the user profile's security answer. */
@@ -451,7 +458,7 @@ public final class UserSql extends AbstractSql {
            session.close();
         }
     }
-
+        
     /**
      * Create a reservation.
      * 
@@ -475,7 +482,7 @@ public final class UserSql extends AbstractSql {
             session.close();
         }
     }
-        
+
     /**
      * Create a feature relationship for a user.
      * 
@@ -494,48 +501,6 @@ public final class UserSql extends AbstractSql {
                 throw new HypersonicException("Could not create feature relationship.");
 
             session.commit();
-        } catch (final Throwable t) {
-            throw translateError(session, t);
-        } finally {
-            session.close();
-        }
-    }
-
-    /** Sql to delete a feature relationship. */
-    private static final String SQL_DELETE_FEATURE_REL =
-        new StringBuilder("delete from TPSD_USER_FEATURE_REL ")
-        .append("where USER_ID=? and FEATURE_ID=?")
-        .toString();
-
-    /**
-     * Update the user features.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     * @param featureList
-     *            A <code>List<Feature></code>.
-     */
-    public void updateFeatures(final User user, final List<Feature> featureList) {
-        final HypersonicSession session = openSession();
-        try {
-            final List<Feature> existingFeatureList = readFeatures(user);
-            session.prepareStatement(SQL_DELETE_FEATURE_REL);
-            session.setLong(1, user.getLocalId());
-            for (final Feature feature : existingFeatureList) {
-                session.setLong(2, feature.getFeatureId());
-                if (1 != session.executeUpdate()) {
-                    throw panic("Cannot delete feature.");
-                }
-            }
-
-            session.prepareStatement(SQL_CREATE_FEATURE_REL);
-            session.setLong(1, user.getLocalId());
-            for (final Feature feature : featureList) {
-                session.setLong(2, feature.getFeatureId());
-                if (1 != session.executeUpdate()) {
-                    throw panic("Cannot create feature.");
-                }
-            }
         } catch (final Throwable t) {
             throw translateError(session, t);
         } finally {
@@ -979,30 +944,6 @@ public final class UserSql extends AbstractSql {
     }
 
     /**
-     * Activate a list of profiles.
-     * 
-     * @param profileList
-     *            A <code>List<Profile></code>.
-     */
-    public void updateActive(final List<Profile> profileList) {
-        final HypersonicSession session = openSession();
-        try {
-            session.prepareStatement(SQL_UPDATE_ACTIVE);
-            for (final Profile profile : profileList) {
-                session.setBoolean(1, profile.isActive());
-                session.setLong(2, profile.getLocalId());
-                if (1 != session.executeUpdate()) {
-                    throw panic("Could not update active.");
-                }
-            }
-        } catch (final Throwable t) {
-            throw translateError(session, t);
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
      * Determine if a user is active.
      * 
      * @param user
@@ -1169,6 +1110,7 @@ public final class UserSql extends AbstractSql {
             session.close();
         }
     }
+
     public List<ProfileEMail> readEMails(final User user) {
         final HypersonicSession session = openSession();
         try {
@@ -1180,23 +1122,6 @@ public final class UserSql extends AbstractSql {
                 emails.add(extractEMail(session));
             }
             return emails;
-        } finally {
-            session.close();
-        }
-    }
-
-    public List<Feature> readFeatures(final Long userId, final Long productId) {
-        final HypersonicSession session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_PRODUCT_FEATURES);
-            session.setLong(1, userId);
-            session.setLong(2, productId);
-            session.executeQuery();
-            final List<Feature> features = new ArrayList<Feature>();
-            while (session.nextResult()) {
-                features.add(extractFeature(session));
-            }
-            return features;
         } finally {
             session.close();
         }
@@ -1214,6 +1139,22 @@ public final class UserSql extends AbstractSql {
         try {
             session.prepareStatement(SQL_READ_FEATURES);
             session.setLong(1, user.getLocalId());
+            session.executeQuery();
+            final List<Feature> features = new ArrayList<Feature>();
+            while (session.nextResult()) {
+                features.add(extractFeature(session));
+            }
+            return features;
+        } finally {
+            session.close();
+        }
+    }
+    public List<Feature> readProductFeatures(final User user, final String name) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_PRODUCT_FEATURES);
+            session.setLong(1, user.getLocalId());
+            session.setString(2, name);
             session.executeQuery();
             final List<Feature> features = new ArrayList<Feature>();
             while (session.nextResult()) {
@@ -1332,6 +1273,66 @@ public final class UserSql extends AbstractSql {
                 return session.getInteger("EMAIL_COUNT");
             } else {
                 return null;
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Activate a list of profiles.
+     * 
+     * @param profileList
+     *            A <code>List<Profile></code>.
+     */
+    public void updateActive(final List<Profile> profileList) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_ACTIVE);
+            for (final Profile profile : profileList) {
+                session.setBoolean(1, profile.isActive());
+                session.setLong(2, profile.getLocalId());
+                if (1 != session.executeUpdate()) {
+                    throw panic("Could not update active.");
+                }
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Update the user features.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @param featureList
+     *            A <code>List<Feature></code>.
+     */
+    public void updateFeatures(final User user, final List<Feature> featureList) {
+        final HypersonicSession session = openSession();
+        try {
+            final List<Feature> existingFeatureList = readFeatures(user);
+            session.prepareStatement(SQL_DELETE_FEATURE_REL);
+            session.setLong(1, user.getLocalId());
+            for (final Feature feature : existingFeatureList) {
+                session.setLong(2, feature.getFeatureId());
+                if (1 != session.executeUpdate()) {
+                    throw panic("Cannot delete feature.");
+                }
+            }
+
+            session.prepareStatement(SQL_CREATE_FEATURE_REL);
+            session.setLong(1, user.getLocalId());
+            for (final Feature feature : featureList) {
+                session.setLong(2, feature.getFeatureId());
+                if (1 != session.executeUpdate()) {
+                    throw panic("Cannot create feature.");
+                }
             }
         } catch (final Throwable t) {
             throw translateError(session, t);

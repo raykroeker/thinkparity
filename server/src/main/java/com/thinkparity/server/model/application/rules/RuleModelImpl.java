@@ -218,7 +218,6 @@ public final class RuleModelImpl extends AbstractModelImpl implements
     private List<Feature> readFeatures(final User user) {
         /* NOTE the product id/name should be read from the interface once the
          * migrator code is complete */
-        final Long productId = Ophelia.PRODUCT_ID;
-        return getUserModel(user).readFeatures(productId);
+        return getUserModel(user).readProductFeatures(Ophelia.PRODUCT_NAME);
     }
 }

@@ -31,11 +31,11 @@ public interface InternalUserModel extends UserModel {
     /**
      * Read the product features for the model user.
      * 
-     * @param productId
-     *            A product id <code>Long</code>.
-     * @return A <code>List&lt;Feature&gt</code>.
+     * @param name
+     *            A <code>String</code>.
+     * @return A <code>List<Feature></code>.
      */
-    public List<Feature> readFeatures(final Long productId);
+    public List<Feature> readProductFeatures(final String name);
 
     /**
      * Determine if a user is referencing the product/release.

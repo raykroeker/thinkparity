@@ -54,8 +54,6 @@ public interface Constants {
     public static final class Product {
         /** Ophelia Product Constants */
         public static final class Ophelia {
-            /** Ophelia Product Id Constant */
-            public static final Long PRODUCT_ID = 1000L;
             /** Ophelia Product Name Constant */
             public static final String PRODUCT_NAME = "OpheliaProduct";
             /** Ophelia Product Feature Constants */

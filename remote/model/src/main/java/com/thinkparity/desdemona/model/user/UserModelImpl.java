@@ -40,7 +40,7 @@ public class UserModelImpl extends AbstractModelImpl implements UserModel,
     /** User sql interface. */
     private UserSql userSql;
 
-	/**
+    /**
      * Create UserModelImpl.
      *
      */
@@ -48,8 +48,7 @@ public class UserModelImpl extends AbstractModelImpl implements UserModel,
         super();
     }
 
-
-    /**
+	/**
      * @see com.thinkparity.desdemona.model.user.InternalUserModel#doesExistUser(com.thinkparity.codebase.model.migrator.Product,
      *      com.thinkparity.codebase.model.migrator.Release)
      * 
@@ -62,6 +61,7 @@ public class UserModelImpl extends AbstractModelImpl implements UserModel,
             throw panic(t);
         }
     }
+
 
     /**
      * @see com.thinkparity.desdemona.model.user.UserModel#read()
@@ -159,17 +159,16 @@ public class UserModelImpl extends AbstractModelImpl implements UserModel,
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.user.InternalUserModel#readFeatures(java.lang.Long)
-     * 
+     * @see com.thinkparity.desdemona.model.user.InternalUserModel#readProductFeatures(java.lang.String)
+     *
      */
-    public List<Feature> readFeatures(final Long productId) {
+    public List<Feature> readProductFeatures(final String name) {
         try {
-            return userSql.readFeatures(user.getLocalId(), productId);
+            return userSql.readProductFeatures(user, name);
         } catch (final Throwable t) {
-            throw translateError(t);
+            throw panic(t);
         }
     }
-
 
     /**
      * @see com.thinkparity.desdemona.model.user.UserModel#readVCard(com.thinkparity.codebase.model.user.UserVCard)

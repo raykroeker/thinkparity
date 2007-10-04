@@ -9,7 +9,6 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 import java.awt.Component;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,11 +27,8 @@ import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
-import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.EMailReservation;
-import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileConstraints;
-import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.session.Credentials;
 
@@ -209,24 +205,14 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
      * 
      */
     private void createGuestProfile() {
-        final String username = extractUsername();
-        final EMail email = extractEMail();
-        final UsernameReservation usernameReservation = usernameReservations.get(username);
-        final EMailReservation emailReservation = emailReservations.get(email);
-        final Credentials credentials = extractCredentials();
-        final Profile profile = (Profile) ((Data) input).get(SignupData.DataKey.PROFILE);
-        profile.setFeatures(Collections.<Feature>emptyList());
-        final SecurityCredentials securityCredentials = new SecurityCredentials();
-        securityCredentials.setQuestion(extractSecurityQuestion());
-        securityCredentials.setAnswer(extractSecurityAnswer());
+        saveData();
+        signupDelegate.enableNextButton(Boolean.FALSE);
+        SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
+        errorMessageJLabel.setText(getString("SigningUp"));
+        errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(),
+                errorMessageJLabel.getHeight());
         try {
-            errorMessageJLabel.setText(getString("CreateGuestProfile"));
-            errorMessageJLabel.paintImmediately(0, 0,
-                    errorMessageJLabel.getWidth(),
-                    errorMessageJLabel.getHeight());
-            ((SignupProvider) contentProvider).createProfile(
-                    usernameReservation, emailReservation, credentials, profile,
-                    email, securityCredentials);
+            getSignupHelper().createGuestProfile();
         } catch (final OfflineException ox) {
             logger.logError(ox, "An offline error has occured.");
             addInputError(getSharedString("ErrorOffline"));

@@ -548,7 +548,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      */
     public Boolean isSignUpAvailable() {
         try {
-            return Boolean.valueOf(!isBackupEnabled().booleanValue());
+            return Boolean.valueOf(!isCoreEnabled().booleanValue());
         } catch (final Throwable t) {
             throw panic(t);
         }

@@ -55,6 +55,25 @@ final class SignupHelper {
     }
 
     /**
+     * Create a guest profile.
+     * 
+     */
+    public void createGuestProfile() throws ReservationExpiredException {
+        final UsernameReservation usernameReservation = (UsernameReservation) ((Data) input).get(SignupData.DataKey.USERNAME_RESERVATION);
+        final EMailReservation emailReservation = (EMailReservation) ((Data) input).get(SignupData.DataKey.EMAIL_RESERVATION);
+        final Credentials credentials = (Credentials) ((Data) input).get(SignupData.DataKey.CREDENTIALS);
+        final Profile profile = (Profile) ((Data) input).get(SignupData.DataKey.PROFILE);
+        final EMail email = (EMail) ((Data) input).get(SignupData.DataKey.EMAIL);
+        final SecurityCredentials securityCredentials = new SecurityCredentials();
+        securityCredentials.setQuestion((String) ((Data) input).get(SignupData.DataKey.SECURITY_QUESTION));
+        securityCredentials.setAnswer((String) ((Data) input).get(SignupData.DataKey.SECURITY_ANSWER));
+        profile.setFeatures(extractFeatures());
+
+        signupProvider.createProfile(usernameReservation, emailReservation,
+                credentials, profile, email, securityCredentials);
+    }
+
+    /**
      * Create a payment plan profile.
      * 
      */

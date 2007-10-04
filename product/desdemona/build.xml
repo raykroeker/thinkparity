@@ -424,7 +424,6 @@ Examples:
             <fileset dir="${thinkparity.common.home}/codebase/src/main/resources"/>
             <fileset dir="${thinkparity.common.home}/model/src/main/resources"/>
             <fileset dir="${thinkparity.common.home}/services/src/main/resources"/>
-        	<fileset dir="${basedir}/payment/moneris/src/main/resources"/>
             <fileset dir="${basedir}/remote/model/src/main/resources"/>
         </copy>
         <copy todir="${target.classes.dir}">

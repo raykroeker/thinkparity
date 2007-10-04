@@ -96,6 +96,8 @@ public final class ProcessInvoiceQueue extends ProfileDelegate {
             /* unlock plans */
             unlockPlans();
         }
+        /* wake up the payment processor */
+        wakePaymentProcessor();
     }
 
     /**

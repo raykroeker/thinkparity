@@ -77,13 +77,20 @@ public final class PaymentService {
     }
 
     /**
-     * Wake the service.
+     * Wake the invoice processor.
      * 
      */
-    public void wake() {
+    public void wakeInvoiceProcessor() {
         synchronized (invoiceProcessor) {
             invoiceProcessor.notify();
         }
+    }
+
+    /**
+     * Wake the payment processor.
+     * 
+     */
+    public void wakePaymentProcessor() {
         synchronized (queueProcessor) {
             queueProcessor.notify();
         }

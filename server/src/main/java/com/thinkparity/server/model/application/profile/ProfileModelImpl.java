@@ -237,8 +237,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                 final Currency currency = paymentSql.readCurrency(
                         Constants.Currency.USD);
                 createPaymentPlan(currency, paymentInfo, profile, now);
-                /* wake the payment service */
-                wakePaymentService();
+                /* wake the invoice processor */
+                wakeInvoiceProcessor();
                 /* verify e-mail address */
                 verifyCreate(email, key);
             } catch (final Throwable t) {
@@ -288,8 +288,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                     throw new InvalidCredentialsException();
                 }
                 userSql.createPaymentPlan(profile, paymentPlan);
-                /* wake the payment service */
-                wakePaymentService();
+                /* wake the invoice processor */
+                wakeInvoiceProcessor();
                 /* verify creation */
                 verifyCreate(email, key);
             } catch (final Throwable t) {
@@ -751,8 +751,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                 final Currency currency = paymentSql.readCurrency(
                         Constants.Currency.USD);
                 createPaymentPlan(currency, paymentInfo, user, now);
-                /* wake the payment service */
-                wakePaymentService();
+                /* wake the invoice processor */
+                wakeInvoiceProcessor();
             } catch (final Throwable t) {
                 rollbackXA();
                 throw t;
@@ -1248,6 +1248,22 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             profile.setActive(active);
         }
         userSql.updateActive(profileList);
+    }
+
+    /**
+     * Wake up the invoice processor.
+     * 
+     */
+    void wakeInvoiceProcessor() {
+        paymentService.wakeInvoiceProcessor();
+    }
+
+    /**
+     * Wake up the payment processor.
+     * 
+     */
+    void wakePaymentProcessor() {
+        paymentService.wakePaymentProcessor();
     }
 
     /**
@@ -1774,14 +1790,6 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         fromInternetAddress.setPersonal(Constants.Internet.Mail.FROM_PERSONAL);
         mimeMessage.setFrom(fromInternetAddress);
         smtpService.deliver(mimeMessage);
-    }
-
-    /**
-     * Wake up the payment service.
-     * 
-     */
-    private void wakePaymentService() {
-        paymentService.wake();
     }
 
     /** <b>Title:</b>XA Context Id<br> */

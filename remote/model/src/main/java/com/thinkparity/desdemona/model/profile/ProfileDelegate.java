@@ -172,4 +172,12 @@ public abstract class ProfileDelegate extends DefaultDelegate<ProfileModelImpl> 
             final Boolean active) {
         modelImplementation.updateProfilesActive(profileList, active);
     }
+
+    /**
+     * @see com.thinkparity.desdemona.model.profile.ProfileModelImpl#wakePaymentProcessor()
+     * 
+     */
+    protected final void wakePaymentProcessor() {
+        modelImplementation.wakePaymentProcessor();
+    }
 }

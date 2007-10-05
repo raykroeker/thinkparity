@@ -214,13 +214,13 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         try {
             getSignupHelper().createGuestProfile();
         } catch (final OfflineException ox) {
-            logger.logError(ox, "An offline error has occured.");
+            logger.logError(ox, "An offline error has occurred.");
             addInputError(getSharedString("ErrorOffline"));
         } catch (final ReservationExpiredException rex) {
             logger.logWarning(rex, "The username/e-mail reservation has expired.");
             addInputError(getString("ErrorReservationExpired"));
         } catch (final Throwable t) {
-            logger.logFatal(t, "An unexpected error has occured.");
+            logger.logFatal(t, "An unexpected error has occurred.");
             addInputError(getSharedString("ErrorUnexpected"));
         } finally {
             errorMessageJLabel.setText(" ");
@@ -349,10 +349,10 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
                     emailReservations.put(email, emailReservation);
                 }
             } catch (final OfflineException ox) {
-                logger.logError(ox, "An offline error has occured.");
+                logger.logError(ox, "An offline error has occurred.");
                 temporaryError = getSharedString("ErrorOffline");
             } catch (final Throwable t) {
-                logger.logError(t, "An unexpected error has occured.");
+                logger.logError(t, "An unexpected error has occurred.");
                 temporaryError = getSharedString("ErrorUnexpected");
             } finally {
                 SwingUtil.setCursor(this, null);

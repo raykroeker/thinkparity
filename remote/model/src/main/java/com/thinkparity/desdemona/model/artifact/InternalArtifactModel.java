@@ -72,15 +72,29 @@ public interface InternalArtifactModel extends ArtifactModel {
     public void createVersion(final ArtifactVersion version);
 
     /**
-     * Delete a draft.  The draft ownership is reverted back to the system user;
-     * and all team members are sent a "draft deleted" event.
+     * Delete a draft. The draft ownership is reverted back to the system user;
+     * if requested all team members are sent a "draft deleted" event.
      * 
      * @param artifact
      *            An <code>Artifact</code>.
      * @param deletedOn
      *            The deleted on <code>Calendar</code>.
+     * @param enqueueEvents
+     *            A <code>Boolean</code>.
      */
-    public void deleteDraft(final Artifact artifact, final Calendar deletedOn);
+    public void deleteDraft(final Artifact artifact, final Calendar deletedOn,
+            final Boolean enqueueEvents);
+
+    /**
+     * Enqueue draft deleted events for all team members of the artifact.
+     * 
+     * @param artifact
+     *            An <code>Artifact</code>.
+     * @param deletedOn
+     *            A <code>Calendar</code>.
+     */
+    public void enqueueDeleteDraftEvents(final Artifact artifact,
+            final Calendar deletedOn);
 
     /**
      * Delete all drafts for the model user.

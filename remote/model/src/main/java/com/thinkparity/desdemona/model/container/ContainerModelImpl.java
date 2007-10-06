@@ -159,7 +159,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             // delete draft
             final InternalArtifactModel artifactModel = getArtifactModel();
             if (artifactModel.isDraftOwner(artifact)) {
-                artifactModel.deleteDraft(artifact, deletedOn);
+                artifactModel.deleteDraft(artifact, deletedOn, Boolean.TRUE);
             }
             // remove team member
             artifactModel.removeTeamMember(artifact);
@@ -185,8 +185,8 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             // create if required
             handleResolution(version);
 
-            // delete draft
-            deleteDraft(version);
+            /* enqueue delete draft events */
+            enqueueDeleteDraft(version);
 
             // enqueue container published events
             enqueueContainerPublished(version, documentVersions, publishToUsers);
@@ -199,6 +199,9 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
 
             // update the latest version
             updateLatestVersion(version);
+
+            // delete draft
+            deleteDraft(version);
 
             // enqueue invitation events
             createInvitations(user.getId(), version, publishToEMails,
@@ -419,7 +422,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
 
     /**
      * Delete a draft.  The draft ownership is reverted back to the system user;
-     * and all team members are sent a "draft deleted" event.
+     * no team members are sent a "draft deleted" event.
      * 
      * @param version
      *            A <code>ContainerVersion</code>.
@@ -427,7 +430,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
     private void deleteDraft(final ContainerVersion version) {
         final InternalArtifactModel artifactModel = getArtifactModel();
         final Artifact artifact = artifactModel.read(version.getArtifactUniqueId());
-        getArtifactModel().deleteDraft(artifact, version.getCreatedOn());
+        getArtifactModel().deleteDraft(artifact, version.getCreatedOn(), Boolean.FALSE);
     }
 
     /**
@@ -548,6 +551,18 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
         final List<TeamMember> team = getArtifactModel().readTeam(localArtifact.getId());
         // enqueue to the new team
         enqueueEvents(getIds(team, new ArrayList<JabberId>()), event);
+    }
+
+    /**
+     * Enqueue delete draft events for all team members.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     */
+    private void enqueueDeleteDraft(final ContainerVersion version) {
+        final InternalArtifactModel artifactModel = getArtifactModel();
+        final Artifact artifact = artifactModel.read(version.getArtifactUniqueId());
+        artifactModel.enqueueDeleteDraftEvents(artifact, version.getCreatedOn());
     }
 
     /**

@@ -149,19 +149,6 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * Determine whether or not the version id is the latest version id.
-     * 
-     * @param artifactId
-     *            An artifact id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @return True if the version id is equal to the latest version id.
-     */
-    private boolean isLatestVersionId(final Long artifactId, final Long versionId) {
-        return artifactSql.readLatestVersionId(artifactId).equals(versionId);
-    }
-
-    /**
      * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#createSecret(com.thinkparity.codebase.model.artifact.ArtifactVersion,
      *      com.thinkparity.codebase.model.crypto.Secret)
      * 
@@ -188,10 +175,12 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
 
     /**
      * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#deleteDraft(com.thinkparity.codebase.model.artifact.Artifact,
-     *      java.util.Calendar)
+     *      java.util.Calendar, java.lang.Boolean)
      * 
      */
-    public void deleteDraft(final Artifact artifact, final Calendar deletedOn) {
+    @Override
+    public void deleteDraft(final Artifact artifact, final Calendar deletedOn,
+            final Boolean enqueueEvents) {
         try {
             Assert.assertTrue(isDraftOwner(artifact),
                     "User {0} is not the draft owner.", user.getId());
@@ -202,18 +191,10 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
             artifactSql.updateDraftOwner(artifact, latestVersionId, user,
                     newOwner, deletedOn);
 
-            // fire notification
-            final ArtifactDraftDeletedEvent draftDeleted = new ArtifactDraftDeletedEvent();
-            draftDeleted.setUniqueId(artifact.getUniqueId());
-            draftDeleted.setDeletedBy(user.getId());
-            draftDeleted.setDeletedOn(deletedOn);
-
-            final List<TeamMember> team = artifactSql.readTeamRel(artifact.getId());
-            final List<JabberId> teamIds = new ArrayList<JabberId>(team.size());
-            for (final TeamMember teamMember : team) {
-                teamIds.add(teamMember.getId());
+            if (enqueueEvents) {
+                /* enqueue events */
+                enqueueDeleteDraftEvents(artifact, deletedOn);
             }
-            enqueueEvents(teamIds, draftDeleted);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -289,6 +270,30 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
     public Boolean doesExistVersion(final Artifact artifact, final Long versionId) {
         try {
             return artifactSql.doesExistVersion(artifact, versionId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.artifact.InternalArtifactModel#enqueueDeleteDraftEvents(com.thinkparity.codebase.model.artifact.Artifact, java.util.Calendar)
+     *
+     */
+    @Override
+    public void enqueueDeleteDraftEvents(final Artifact artifact,
+            final Calendar deletedOn) {
+        try {
+            final ArtifactDraftDeletedEvent draftDeleted = new ArtifactDraftDeletedEvent();
+            draftDeleted.setUniqueId(artifact.getUniqueId());
+            draftDeleted.setDeletedBy(user.getId());
+            draftDeleted.setDeletedOn(deletedOn);
+
+            final List<TeamMember> team = artifactSql.readTeamRel(artifact.getId());
+            final List<JabberId> teamIds = new ArrayList<JabberId>(team.size());
+            for (final TeamMember teamMember : team) {
+                teamIds.add(teamMember.getId());
+            }
+            enqueueEvents(teamIds, draftDeleted);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -497,6 +502,19 @@ public final class ArtifactModelImpl extends AbstractModelImpl implements
         draftDeleted.setDeletedBy(user.getId());
         draftDeleted.setDeletedOn(currentDateTime());
         enqueueEvents(team, draftDeleted);
+    }
+
+    /**
+     * Determine whether or not the version id is the latest version id.
+     * 
+     * @param artifactId
+     *            An artifact id <code>Long</code>.
+     * @param versionId
+     *            A version id <code>Long</code>.
+     * @return True if the version id is equal to the latest version id.
+     */
+    private boolean isLatestVersionId(final Long artifactId, final Long versionId) {
+        return artifactSql.readLatestVersionId(artifactId).equals(versionId);
     }
 
     /**

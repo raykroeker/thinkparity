@@ -2,4 +2,5 @@ select U.USERNAME,PP.*,O.USERNAME
 from TPSD_PAYMENT_PLAN PP 
     inner join TPSD_USER_PAYMENT_PLAN UPP on UPP.PLAN_ID=PP.PLAN_ID
     inner join TPSD_USER U on U.USER_ID=UPP.USER_ID
-    inner join TPSD_USER O on O.USER_ID=PP.PLAN_OWNER;
+    inner join TPSD_USER O on O.USER_ID=PP.PLAN_OWNER
+order by PP.PLAN_ID desc;

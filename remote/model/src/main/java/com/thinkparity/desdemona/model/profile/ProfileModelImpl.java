@@ -3,8 +3,7 @@
  * TODO - Check the state of the previous invoice transaction prior to charging
  * a new transaction.
  * TODO - Figure out who needs to be notified within notify complete so that
- * we're not spamming the client.  Need to know "join dates" of people to the
- * plan.
+ * we're not spamming the client.
  * TODO - Switch xa to be cx based.
  * TODO - Test xa boundaries.
  */
@@ -35,6 +34,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.sql.DataSource;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.NotSupportedException;
@@ -76,6 +76,8 @@ import com.thinkparity.desdemona.model.Constants;
 import com.thinkparity.desdemona.model.Delegate;
 import com.thinkparity.desdemona.model.Constants.Product.Ophelia;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
+import com.thinkparity.desdemona.model.io.IOFactory;
+import com.thinkparity.desdemona.model.io.IOService;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.jta.TransactionManager;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
@@ -110,11 +112,15 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     /** A set of profile constraints. */
     private static final ProfileConstraints constraints;
 
+    /** An io factory. */
+    private static final IOFactory ioFactory;
+
     /** Payment plan constraints. */
     private static final PaymentPlanConstraints planConstraints;
 
     static {
         constraints = ProfileConstraints.getInstance();
+        ioFactory = IOService.getInstance().getFactory();
         planConstraints = PaymentPlanConstraints.getInstance();
     }
 
@@ -299,7 +305,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                 if (null == paymentPlan) {
                     throw new InvalidCredentialsException();
                 }
-                userSql.createPaymentPlan(profile, paymentPlan);
+                userSql.createPaymentPlan(profile, paymentPlan, now);
                 /* wake the invoice processor */
                 wakeInvoiceProcessor();
                 /* verify creation */
@@ -420,8 +426,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         try {
             beginXA(xaContext);
             try {
-                userSql.deleteReservations(DateTimeProvider
-                        .getCurrentDateTime());
+                userSql.deleteReservations(
+                        DateTimeProvider.getCurrentDateTime());
 
                 // expire in an hour
                 final Calendar createdOn = DateTimeProvider
@@ -1007,10 +1013,11 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     protected void initialize() {
         this.transactionManager = TransactionManager.getInstance();
 
-        this.contactSql = new ContactSql(transactionManager.getDataSource());
-        this.userSql = new UserSql(transactionManager.getDataSource());
-        this.paymentSql = new PaymentSql(transactionManager.getDataSource());
-        this.queueSql = new QueueSql(transactionManager.getDataSource());
+        final DataSource dataSource = transactionManager.getDataSource();
+        this.contactSql = ioFactory.newContactIO(dataSource);
+        this.userSql = ioFactory.newUserIO(dataSource);
+        this.paymentSql = ioFactory.newPaymentIO(dataSource);
+        this.queueSql = ioFactory.newQueueIO(dataSource);
     }
 
     /**
@@ -1437,14 +1444,16 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      */
     private void createPaymentPlan(final Currency currency,
             final PaymentInfo paymentInfo, final User createdBy,
-            final Calendar createdOn) {
+            final Calendar createdOn) throws BadPaddingException, IOException,
+            IllegalBlockSizeException, InvalidKeyException,
+            NoSuchAlgorithmException, NoSuchPaddingException {
         final PaymentPlan paymentPlan = newPaymentPlan(currency, createdOn,
                 createdBy);
         validate(paymentPlan, createdOn);
         paymentSql.createPlan(paymentPlan);
         paymentSql.createInfo(paymentPlan, readPaymentProvider(paymentInfo),
                 paymentInfo);
-        userSql.createPaymentPlan(createdBy, paymentPlan);
+        userSql.createPaymentPlan(createdBy, paymentPlan, createdOn);
     }
 
     /**
@@ -1592,7 +1601,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         }
         plan.setInvoicePeriodOffset(invoicePeriodOffset);
         plan.setName(MessageFormat.format("{1,date,yyyy.MM} - {0}",
-                owner.getOrganization(), createdOn.getTime()));
+                owner.getUsername(), createdOn.getTime()));
         plan.setOwner(owner);
         plan.setPassword(null);
         plan.setUniqueId(UUIDGenerator.nextUUID());

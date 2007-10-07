@@ -328,10 +328,10 @@ create table TPSD_PAYMENT_PROVIDER_CONFIGURATION(
 create table TPSD_PAYMENT_INFO(
     PROVIDER_ID smallint not null,
     INFO_ID bigint generated always as identity(start with 12000),
-    INFO_CARD_NAME varchar(24) not null,
-    INFO_CARD_NUMBER varchar(32) not null,
-    INFO_CARD_EXPIRY_MONTH varchar(4) not null,
-    INFO_CARD_EXPIRY_YEAR varchar(8) not null,
+    INFO_CARD_NAME varchar(48) not null,
+    INFO_CARD_NUMBER varchar(48) not null,
+    INFO_CARD_EXPIRY_MONTH varchar(32) not null,
+    INFO_CARD_EXPIRY_YEAR varchar(32) not null,
     primary key(INFO_ID),
     foreign key(PROVIDER_ID) references TPSD_PAYMENT_PROVIDER(PROVIDER_ID)
 );
@@ -348,6 +348,7 @@ create table TPSD_PAYMENT_PLAN(
     INVOICE_PERIOD_OFFSET smallint not null,
     primary key(PLAN_ID),
     unique(PLAN_UNIQUE_ID),
+    unique(PLAN_NAME),
     foreign key(PLAN_CURRENCY) references TPSD_PAYMENT_CURRENCY(CURRENCY_ID),
     foreign key(PLAN_OWNER) references TPSD_USER(USER_ID)
 );
@@ -409,10 +410,10 @@ create table TPSD_PAYMENT_PLAN_INVOICE_TX_ERROR(
     TX_ERROR clob not null,
     foreign key(TX_ID) references TPSD_PAYMENT_PLAN_INVOICE_TX(TX_ID)
 );
-
 create table TPSD_USER_PAYMENT_PLAN(
     USER_ID bigint not null,
     PLAN_ID bigint not null,
+    CREATED_ON timestamp not null,
     primary key(USER_ID),
     foreign key(USER_ID) references TPSD_USER(USER_ID),
     foreign key(PLAN_ID) references TPSD_PAYMENT_PLAN(PLAN_ID)

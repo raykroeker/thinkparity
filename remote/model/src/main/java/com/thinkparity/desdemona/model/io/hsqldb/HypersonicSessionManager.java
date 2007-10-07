@@ -14,6 +14,8 @@ import javax.sql.DataSource;
 
 import com.thinkparity.codebase.StackUtil;
 
+import com.thinkparity.desdemona.util.crypto.CryptoProvider;
+
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
@@ -31,6 +33,9 @@ public class HypersonicSessionManager {
         SESSION_CALLERS = new HashMap<HypersonicSession, Object>();
     }
 
+    /** A <code>CryptoProvider</code>. */
+    private CryptoProvider cryptoProvider;
+
     /** A <code>DataSource</code>. */
     private final DataSource dataSource;
 
@@ -41,7 +46,7 @@ public class HypersonicSessionManager {
      * Create SessionManager.
      * 
      * @param dataSource
-     *            A sql <code>DataSource</code>.
+     *            A <code>DataSource</code>.
      * @param enableCommit
      *            A <code>Boolean</code>.
      */
@@ -95,6 +100,16 @@ public class HypersonicSessionManager {
     }
 
     /**
+     * Set the crypto provider.
+     *
+     * @param cryptoProvider
+     *		A <code>CryptoProvider</code>.
+     */
+    public void setCryptoProvider(final CryptoProvider cryptoProvider) {
+        this.cryptoProvider = cryptoProvider;
+    }
+
+    /**
      * Close the session.
      * 
      * @param session
@@ -118,7 +133,8 @@ public class HypersonicSessionManager {
         synchronized (SESSIONS) {
             try {
                 final HypersonicSession session = new HypersonicSession(this,
-                        dataSource.getConnection(), enableCommit);
+                        dataSource.getConnection(), enableCommit,
+                        cryptoProvider, cryptoProvider);
                 SESSIONS.add(session);
                 SESSION_CALLERS.put(session, caller);
                 return session;

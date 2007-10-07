@@ -17,6 +17,10 @@
         <param-value>${thinkparity.home}/var/backup</param-value>
     </context-param>
     <context-param>
+        <param-name>thinkparity.crypto.providerimpl</param-name>
+        <param-value>com.thinkparity.desdemona.util.crypto.CryptoProviderImpl</param-value>
+    </context-param>
+    <context-param>
         <param-name>thinkparity.datasource-driver</param-name>
         <param-value>org.apache.derby.jdbc.ClientDriver</param-value>
     </context-param>
@@ -35,6 +39,10 @@
     <context-param>
         <param-name>thinkparity.environment</param-name>
         <param-value>DEVELOPMENT</param-value>
+    </context-param>
+    <context-param>
+        <param-name>thinkparity.io.factoryimpl</param-name>
+        <param-value>com.thinkparity.desdemona.model.io.IOFactoryImpl</param-value>
     </context-param>
     <context-param>
         <param-name>thinkparity.mail.transport-host</param-name>

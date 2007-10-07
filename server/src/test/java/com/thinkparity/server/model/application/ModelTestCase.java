@@ -34,6 +34,7 @@ import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.profile.VerificationKey;
 import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
+import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
@@ -486,6 +487,18 @@ public abstract class ModelTestCase extends TestCase {
     }
 
     /**
+     * Instantiate valid payment plan credentials.
+     * 
+     * @return A set of <code>PaymentPlanCredentials</code>.
+     */
+    private PaymentPlanCredentials newPaymentPlanCredentials() {
+        final PaymentPlanCredentials paymentPlanCredentials = new PaymentPlanCredentials();
+        paymentPlanCredentials.setName("thinkParity Solutions Inc.");
+        paymentPlanCredentials.setPassword("password");
+        return paymentPlanCredentials;
+    }
+
+    /**
      * Instantiate a profile with the bare minimum field values set in order for
      * creation.
      * 
@@ -778,6 +791,14 @@ public abstract class ModelTestCase extends TestCase {
          */
         public PaymentInfo newPaymentInfo() {
             return ModelTestCase.this.newPaymentInfo();
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#newPaymentPlanCredentials()
+         * 
+         */
+        public PaymentPlanCredentials newPaymentPlanCredentials() {
+            return ModelTestCase.this.newPaymentPlanCredentials();
         }
 
         /**

@@ -77,8 +77,8 @@ public final class UserSql extends AbstractSql {
     /** Sql to create a payment plan. */
     private static final String SQL_CREATE_PAYMENT_PLAN =
         new StringBuilder("insert into TPSD_USER_PAYMENT_PLAN ")
-        .append("(USER_ID,PLAN_ID) ")
-        .append("values (?,?)")
+        .append("(USER_ID,PLAN_ID,CREATED_ON) ")
+        .append("values (?,?,?)")
         .toString();
 
     /** Sql to create a user release relationship. */
@@ -515,13 +515,17 @@ public final class UserSql extends AbstractSql {
      *            A <code>User</code>.
      * @param plan
      *            A <code>PaymentPlan</code>.
+     * @param createdOn
+     *            A <code>Calendar</code>.
      */
-    public void createPaymentPlan(final User user, final PaymentPlan plan) {
+    public void createPaymentPlan(final User user, final PaymentPlan plan,
+            final Calendar createdOn) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_CREATE_PAYMENT_PLAN);
             session.setLong(1, user.getLocalId());
             session.setLong(2, plan.getId());
+            session.setCalendar(3, createdOn);
             if (1 != session.executeUpdate()) {
                 throw panic("Could not create payment plan.");
             }

@@ -18,7 +18,9 @@ import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
+import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials;
 import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
 import com.thinkparity.desdemona.model.Constants;
 
@@ -48,12 +50,12 @@ public final class CreateTest extends ProfileTestCase {
     }
 
     /**
-     * Test creating a profile.
+     * Test creating a profile with all features and payment info.
      * 
      */
-    public void testCreateAllFeatures() {
+    public void testCreateAllFeaturesInfo() {
         TEST_LOGGER.logTraceId();
-        TEST_LOGGER.logInfo("Test create profile.");
+        TEST_LOGGER.logInfo("Test create all features info.");
         setUpCreate();
         try {
             final String username = datum.newUniqueUsername();
@@ -84,9 +86,9 @@ public final class CreateTest extends ProfileTestCase {
      * Test creating a profile without specifying payment info.
      * 
      */
-    public void testCreateAllFeaturesNoPayment() {
+    public void testCreateAllFeaturesNoInfo() {
         TEST_LOGGER.logTraceId();
-        TEST_LOGGER.logInfo("Test create profile without payment info.");
+        TEST_LOGGER.logInfo("Test create all features no info.");
         setUpCreate();
         try {
             final String username = datum.newUniqueUsername();
@@ -115,6 +117,85 @@ public final class CreateTest extends ProfileTestCase {
             }
 
             assertTrue("Create user did not fail without payment info.", didFail);
+        } finally {
+            tearDownCreate();
+        }
+    }
+
+
+    /**
+     * Test creating a profile with all features and a payment plan.
+     * 
+     */
+    public void testCreateAllFeaturesPlan() {
+        TEST_LOGGER.logTraceId();
+        TEST_LOGGER.logInfo("Test create all features plan.");
+        setUpCreate();
+        try {
+            final String username = datum.newUniqueUsername();
+            final EMail email = datum.newEMail(username);
+            final UsernameReservation usernameReservation =
+                datum.getProfileModel(datum.create).createUsernameReservation(username);
+            final EMailReservation emailReservation =
+                datum.getProfileModel(datum.create).createEMailReservation(email);
+            final Credentials credentials = new Credentials();
+            credentials.setPassword(datum.lookupPassword(username));
+            credentials.setUsername(username);
+            final Profile profile = datum.newProfile(datum.allFeatures);
+            final SecurityCredentials securityCredentials = new SecurityCredentials();
+            securityCredentials.setAnswer(username);
+            securityCredentials.setQuestion(username);
+            final PaymentPlanCredentials paymentPlanCredentials = datum.newPaymentPlanCredentials();
+
+            try {
+                datum.getProfileModel(datum.create).create(datum.product,
+                        datum.release, usernameReservation, emailReservation,
+                        credentials, profile, email, securityCredentials,
+                        paymentPlanCredentials);
+            } catch (final InvalidCredentialsException icx) {
+                fail(icx, "Could not create profile with payment plan.");
+            }
+        } finally {
+            tearDownCreate();
+        }
+    }
+
+    /**
+     * Test creating a profile with all features and a payment plan.
+     * 
+     */
+    public void testCreateAllFeaturesPlanInvalidCredentials() {
+        TEST_LOGGER.logTraceId();
+        TEST_LOGGER.logInfo("Test create all features plan; invalid credentials.");
+        setUpCreate();
+        try {
+            final String username = datum.newUniqueUsername();
+            final EMail email = datum.newEMail(username);
+            final UsernameReservation usernameReservation =
+                datum.getProfileModel(datum.create).createUsernameReservation(username);
+            final EMailReservation emailReservation =
+                datum.getProfileModel(datum.create).createEMailReservation(email);
+            final Credentials credentials = new Credentials();
+            credentials.setPassword(datum.lookupPassword(username));
+            credentials.setUsername(username);
+            final Profile profile = datum.newProfile(datum.allFeatures);
+            final SecurityCredentials securityCredentials = new SecurityCredentials();
+            securityCredentials.setAnswer(username);
+            securityCredentials.setQuestion(username);
+            final PaymentPlanCredentials paymentPlanCredentials = new PaymentPlanCredentials();
+            paymentPlanCredentials.setName(String.valueOf(System.currentTimeMillis()));
+            paymentPlanCredentials.setPassword(paymentPlanCredentials.getName());
+
+            boolean didThrow = false;
+            try {
+                datum.getProfileModel(datum.create).create(datum.product,
+                        datum.release, usernameReservation, emailReservation,
+                        credentials, profile, email, securityCredentials,
+                        paymentPlanCredentials);
+            } catch (final InvalidCredentialsException icx) {
+                didThrow = true;
+            }
+            assertTrue("Did not throw expected invalid credentials exception.", didThrow);
         } finally {
             tearDownCreate();
         }

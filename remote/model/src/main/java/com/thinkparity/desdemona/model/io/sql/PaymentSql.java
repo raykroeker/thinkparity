@@ -424,10 +424,10 @@ public final class PaymentSql extends AbstractSql {
         try {
             session.prepareStatement(SQL_CREATE_INFO);
             session.setLong(1, lookupId(provider));
-            session.setString(2, info.getCardName().name());
-            session.setString(3, info.getCardNumber());
-            session.setString(4, String.valueOf(info.getCardExpiryMonth()));
-            session.setString(5, String.valueOf(info.getCardExpiryYear()));
+            session.setEncryptedString(2, info.getCardName().name());
+            session.setEncryptedString(3, info.getCardNumber());
+            session.setEncryptedString(4, info.getCardExpiryMonth().toString());
+            session.setEncryptedString(5, info.getCardExpiryYear().toString());
             if (1 != session.executeUpdate()) {
                 throw panic("Could not create payment info.");
             }
@@ -506,7 +506,7 @@ public final class PaymentSql extends AbstractSql {
             session.setUniqueId(1, plan.getUniqueId());
             session.setString(2, plan.getName());
             session.setInt(3, plan.getCurrency().getId());
-            session.setString(4, plan.getPassword());
+            session.setEncryptedString(4, plan.getPassword());
             session.setBoolean(5, plan.isBillable());
             session.setLong(6, plan.getOwner().getLocalId());
             session.setString(7, plan.getInvoicePeriod().name());
@@ -1060,7 +1060,7 @@ public final class PaymentSql extends AbstractSql {
         try {
             session.prepareStatement(SQL_READ_PLAN_UK);
             session.setString(1, planCredentials.getName());
-            session.setString(2, planCredentials.getPassword());
+            session.setEncryptedString(2, planCredentials.getPassword());
             session.executeQuery();
             if (session.nextResult()) {
                 return extractPlan(session);
@@ -1355,10 +1355,10 @@ public final class PaymentSql extends AbstractSql {
      */
     private PaymentInfo extractInfo(final HypersonicSession session) {
         final PaymentInfo info = new PaymentInfo();
-        info.setCardExpiryMonth(Short.valueOf(session.getString("INFO_CARD_EXPIRY_MONTH")));
-        info.setCardExpiryYear(Short.valueOf(session.getString("INFO_CARD_EXPIRY_YEAR")));
-        info.setCardName(CardName.valueOf(session.getString("INFO_CARD_NAME")));
-        info.setCardNumber(session.getString("INFO_CARD_NUMBER"));
+        info.setCardExpiryMonth(Short.valueOf(session.getDecryptedString("INFO_CARD_EXPIRY_MONTH")));
+        info.setCardExpiryYear(Short.valueOf(session.getDecryptedString("INFO_CARD_EXPIRY_YEAR")));
+        info.setCardName(CardName.valueOf(session.getDecryptedString("INFO_CARD_NAME")));
+        info.setCardNumber(session.getDecryptedString("INFO_CARD_NUMBER"));
         info.setLocalId(session.getLong("INFO_ID"));
         return info;
     }
@@ -1412,7 +1412,7 @@ public final class PaymentSql extends AbstractSql {
         plan.setInvoicePeriodOffset(session.getInteger("INVOICE_PERIOD_OFFSET"));
         plan.setName(session.getString("PLAN_NAME"));
         plan.setOwner(extractUser(session));
-        plan.setPassword(session.getString("PLAN_PASSWORD"));
+        plan.setPassword(session.getDecryptedString("PLAN_PASSWORD"));
         plan.setUniqueId(session.getUniqueId("PLAN_UNIQUE_ID"));
         return plan;
     }

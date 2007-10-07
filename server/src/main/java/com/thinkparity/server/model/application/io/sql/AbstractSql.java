@@ -12,6 +12,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSessionManager;
+import com.thinkparity.desdemona.util.crypto.CryptoProvider;
 import com.thinkparity.desdemona.wildfire.util.PersistenceManager;
 
 /**
@@ -60,7 +61,7 @@ public abstract class AbstractSql {
 	/** A <code>HypersonicSessionManager</code>. */
     private final HypersonicSessionManager sessionManager;
 
-    /**
+	/**
      * Create AbstractSql.
      *
      */
@@ -91,6 +92,15 @@ public abstract class AbstractSql {
         this.sessionManager = new HypersonicSessionManager(dataSource, commit);
     }
 
+    /**
+     * Set the crypto provider.
+     * 
+     * @param cryptoProvider
+     *            A <code>CryptoProvider</code>.
+     */
+    public void setCryptoProvider(final CryptoProvider cryptoProvider) {
+        this.sessionManager.setCryptoProvider(cryptoProvider);
+    }
 
     /**
      * Open a hypersonic session.

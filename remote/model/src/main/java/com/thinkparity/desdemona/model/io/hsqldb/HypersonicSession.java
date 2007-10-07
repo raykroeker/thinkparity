@@ -7,11 +7,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.security.GeneralSecurityException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.UUID;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.JVMUniqueId;
@@ -26,6 +30,8 @@ import com.thinkparity.codebase.model.artifact.ArtifactType;
 import com.thinkparity.codebase.model.user.UserVCard;
 import com.thinkparity.codebase.model.util.VCardReader;
 import com.thinkparity.codebase.model.util.VCardWriter;
+import com.thinkparity.codebase.model.util.crypto.Decrypter;
+import com.thinkparity.codebase.model.util.crypto.Encrypter;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
@@ -47,6 +53,7 @@ public final class HypersonicSession {
     /** A simple date format. */
     private static final SimpleDateFormat SDF;
 
+    /** Sql to obtain the identity value of a table. */
     private static final String SQL_GET_IDENTITY_PRE = "select IDENTITY_VAL_LOCAL() \"ID\" from ";
 
     /** The local <code>TimeZone</code>. */
@@ -66,8 +73,14 @@ public final class HypersonicSession {
     /** A <code>Connection</code>. */
 	private Connection connection;
 
+    /** An decrypter. */
+    private final Decrypter decrypter;
+
     /** Whether or not to enable commit. */
     private Boolean enableCommit;
+
+    /** An encrypter. */
+    private final Encrypter encrypter;
 
     /** A session unique id <code>JVMUniqueId</code>. */
 	private final JVMUniqueId id;
@@ -75,13 +88,13 @@ public final class HypersonicSession {
     /** The connection meta data. */
     private DatabaseMetaData metaData;
 
-    /** A <code>PreparedStatement</code>. */
+	/** A <code>PreparedStatement</code>. */
 	private PreparedStatement preparedStatement;
 
     /** A <code>ResultSet</code>. */
 	private ResultSet resultSet;
 
-	/** A <code>HypersonicSessionManager</code>. */
+    /** A <code>HypersonicSessionManager</code>. */
     private final HypersonicSessionManager sessionManager;
 
     /**
@@ -93,17 +106,24 @@ public final class HypersonicSession {
      *            A <code>Connection</code>.
      * @param enableCommit
      *            A commit <code>Boolean</code>.
+     * @param decrtyper
+     *            A <code>Decrypter</code>.
+     * @param encrypter
+     *            An <code>Encrypter</code>.
      */
 	HypersonicSession(final HypersonicSessionManager sessionManager,
-            final Connection connection, final Boolean enableCommit) {
+            final Connection connection, final Boolean enableCommit,
+            final Decrypter decrypter, final Encrypter encrypter) {
 		super();
 		this.connection = connection;
+		this.decrypter = decrypter;
 		this.enableCommit = enableCommit;
+		this.encrypter = encrypter;
 		this.id = JVMUniqueId.nextId();
         this.sessionManager = sessionManager;
 	}
 
-    /**
+	/**
      * Close the session.
      *
      */
@@ -140,7 +160,7 @@ public final class HypersonicSession {
 	    }
 	}
 
-	/**
+    /**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 * 
 	 */
@@ -205,7 +225,7 @@ public final class HypersonicSession {
 		}
 	}
 
-    /**
+	/**
      * Execute the SQL query in the session's prepared statement and set the
      * result set. Return the number of rows updated.
      * 
@@ -240,7 +260,7 @@ public final class HypersonicSession {
         }
     }
 
-	public Boolean getBoolean(final String columnName) {
+    public Boolean getBoolean(final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
         try {
@@ -304,6 +324,25 @@ public final class HypersonicSession {
         }
     }
 
+    /**
+     * Obtain a decrypted string from the result set.
+     * 
+     * @param columnName
+     *            A <code>String</code>.
+     * @return A <code>String</code>.
+     */
+    public String getDecryptedString(final String columnName) {
+        assertConnectionIsOpen();
+        assertResultSetIsSet();
+        try {
+            final String value = resultSet.getString(columnName);
+            logColumnExtraction(columnName, value);
+            return resultSet.wasNull() ? null : decrypt(value);
+        } catch (final SQLException sqlx) {
+            throw panic(sqlx);
+        }
+    }
+
     public EMail getEMail(final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
@@ -323,7 +362,7 @@ public final class HypersonicSession {
         }
     }
 
-    public XMPPEvent getEvent(final String columnName) {
+	public XMPPEvent getEvent(final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
         try {
@@ -342,7 +381,7 @@ public final class HypersonicSession {
         }
     }
 
-    /**
+	/**
 	 * Obtain the session id.
 	 * 
 	 * @return The session id.
@@ -351,7 +390,7 @@ public final class HypersonicSession {
         return id;
 	}
 
-    /**
+	/**
      * Execute a query to obtain the identity created.
      * 
      * @return The identity value.
@@ -369,7 +408,7 @@ public final class HypersonicSession {
         }
 	}
 
-	/**
+    /**
      * Obtain the input stream from the result.
      * 
      * @param columnName
@@ -389,7 +428,7 @@ public final class HypersonicSession {
         }
     }
 
-	public Integer getInteger(final String columnName) {
+    public Integer getInteger(final String columnName) {
         assertConnectionIsOpen();
         assertResultSetIsSet();
         try {
@@ -413,7 +452,7 @@ public final class HypersonicSession {
         }
 	}
 
-    /**
+	/**
      * Load the meta data tables into the result set.
      *
      */
@@ -421,7 +460,7 @@ public final class HypersonicSession {
         getMetaDataTables(null);
     }
 
-    /**
+	/**
      * Load the meta data tables for a specific table.
      * 
      * @param tableName
@@ -468,7 +507,7 @@ public final class HypersonicSession {
 		}
 	}
 
-	public ArtifactType getTypeFromInteger(final String columnName) {
+    public ArtifactType getTypeFromInteger(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -480,7 +519,7 @@ public final class HypersonicSession {
 		}
 	}
 
-	public ArtifactType getTypeFromString(final String columnName) {
+    public ArtifactType getTypeFromString(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
 		try {
@@ -492,7 +531,7 @@ public final class HypersonicSession {
 		}
 	}
 
-	public UUID getUniqueId(final String columnName) {
+    public UUID getUniqueId(final String columnName) {
 		assertConnectionIsOpen();
 		assertResultSetIsSet();
         try {
@@ -562,7 +601,7 @@ public final class HypersonicSession {
         }
     }
 
-    /**
+	/**
      * Prepare a statement.
      * 
      * @param sql
@@ -578,7 +617,7 @@ public final class HypersonicSession {
 		}
 	}
 
-    /**
+	/**
      * Rollback any changes made within this session.
      * 
      */
@@ -618,7 +657,7 @@ public final class HypersonicSession {
         }
     }
 
-	/**
+    /**
      * Set a blob column value.
      * 
      * @param index
@@ -663,7 +702,7 @@ public final class HypersonicSession {
 		}
 	}
 
-    public void setCalendar(final Integer index, final Calendar value) {
+	public void setCalendar(final Integer index, final Calendar value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         try {
@@ -714,7 +753,27 @@ public final class HypersonicSession {
         }
     }
 
-	public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
+    /**
+     * Set the prepared statement value as an encrypted string.
+     * 
+     * @param index
+     *            An <code>Integer</code>.
+     * @param value
+     *            A <code>String</code>.
+     */
+    public void setEncryptedString(final Integer index, final String value) {
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
+        final String encryptedValue = encrypt(value);
+        logColumnInjection(index, encryptedValue);
+        try {
+            preparedStatement.setString(index, encryptedValue);
+        } catch(final SQLException sqlx) {
+            throw panic(sqlx);
+        }
+    }
+
+    public void setEnumTypeAsString(final Integer index, final Enum<?> value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -725,7 +784,7 @@ public final class HypersonicSession {
         }
     }
 
-	public <T extends XMPPEvent> void setEvent(final Integer index,
+    public <T extends XMPPEvent> void setEvent(final Integer index,
             final T value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
@@ -739,7 +798,7 @@ public final class HypersonicSession {
         }
     }
 
-	public void setInt(final Integer index, final Integer value) {
+    public void setInt(final Integer index, final Integer value) {
 		assertConnectionIsOpen();
 		assertPreparedStatementIsSet();
         logColumnInjection(index, value);
@@ -776,16 +835,24 @@ public final class HypersonicSession {
 		}
 	}
 
+    /**
+     * Set the prepared statement value as a string.
+     * 
+     * @param index
+     *            An <code>Integer</code>.
+     * @param value
+     *            A <code>String</code>.
+     */
     public void setString(final Integer index, final String value) {
-		assertConnectionIsOpen();
-		assertPreparedStatementIsSet();
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
         logColumnInjection(index, value);
-		try {
+        try {
             preparedStatement.setString(index, value);
-		} catch(final SQLException sqlx) {
+        } catch(final SQLException sqlx) {
             throw panic(sqlx);
-		}
-	}
+        }
+    }
 
     public void setTypeAsInteger(final Integer index, final ArtifactType value) {
 		assertConnectionIsOpen();
@@ -831,7 +898,7 @@ public final class HypersonicSession {
         }
 	}
 
-	public <T extends UserVCard> void setVCard(final Integer index,
+    public <T extends UserVCard> void setVCard(final Integer index,
             final T value, final VCardWriter<T> valueWriter) throws IOException {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
@@ -845,7 +912,7 @@ public final class HypersonicSession {
         }
     }
 
-	/**
+    /**
 	 * Obtain the database metadata.
 	 * 
 	 * @return The database metadata.
@@ -875,7 +942,7 @@ public final class HypersonicSession {
         }
 	}
 
-    /**
+	/**
      * Assert the meta data is set.
      *
      */
@@ -884,7 +951,7 @@ public final class HypersonicSession {
             throw new HypersonicException("Meta data is null.");
     }
 
-    /**
+	/**
      * Assert the prepared statement is set.
      *
      */
@@ -938,7 +1005,7 @@ public final class HypersonicSession {
         }
 	}
 
-	/**
+    /**
      * Close a statement as well as a result set.
      * 
      * @param statement
@@ -958,6 +1025,46 @@ public final class HypersonicSession {
 	}
 
     /**
+     * Decrypt the cipher text into clear text.
+     * 
+     * @param cipherText
+     *            A <code>String</code>.
+     * @return A <code>String</code>.
+     */
+    private String decrypt(final String cipherText) {
+        validateDecrypter();
+        try {
+            return decrypter.decrypt(cipherText);
+        } catch (final IllegalBlockSizeException ibsx) {
+            throw panic(ibsx);
+        } catch (final BadPaddingException bpx) {
+            throw panic(bpx);
+        }
+    }
+
+    /**
+     * Encrypt the clear text into cipher text.
+     * 
+     * @param clearText
+     *            A <code>String</code>.
+     * @return A <code>String</code>.
+     */
+    private String encrypt(final String clearText) {
+        validateEncrypter();
+        if (null == clearText) {
+            return null;
+        } else {
+            try {
+                return encrypter.encrypt(clearText);
+            } catch (final IllegalBlockSizeException ibsx) {
+                throw panic(ibsx);
+            } catch (final BadPaddingException bpx) {
+                throw panic(bpx);
+            }
+        }
+    }
+
+    /**
      * Log the column name and value.
      * 
      * @param columnName
@@ -969,7 +1076,7 @@ public final class HypersonicSession {
         LOGGER.logDebug("Extract {0}:{1}", columnName, columnValue);
     }
 
-    /**
+	/**
      * Log the column name and value.
      * 
      * @param columnName
@@ -1018,10 +1125,40 @@ public final class HypersonicSession {
     /**
      * Panic. Create a hypersonic runtime exception.
      * 
+     * @param gsx
+     *            A <code>GeneralSecurityException</code>.
+     */
+    private HypersonicException panic(final GeneralSecurityException gsx) {
+        return new HypersonicException(gsx);
+    }
+
+    /**
+     * Panic. Create a hypersonic runtime exception.
+     * 
      * @param sqlx
      *            An <code>SQLException</code>.
      */
     private HypersonicException panic(final SQLException sqlx) {
         return new HypersonicException(sqlx);
+    }
+
+    /**
+     * Validate the presence of a decrypter.
+     * 
+     */
+    private void validateDecrypter() {
+        if (null == decrypter) {
+            throw new HypersonicException("Decrypter is null.");
+        }
+    }
+
+    /**
+     * Validate the presence of an encrypter.
+     * 
+     */
+    private void validateEncrypter() {
+        if (null == encrypter) {
+            throw new HypersonicException("Encrypter is null.");
+        }
     }
 }

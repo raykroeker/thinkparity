@@ -47,7 +47,7 @@ public final class CreateLoadTest extends ProfileTestCase {
                 final CreateTest createTest = new CreateTest();
                 createTest.setUp();
                 try {
-                    createTest.testCreateAllFeatures();
+                    createTest.testCreateAllFeaturesInfo();
                 } finally {
                     createTest.tearDown();
                 }

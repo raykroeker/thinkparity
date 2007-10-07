@@ -30,6 +30,8 @@ import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.desdemona.model.Version;
 import com.thinkparity.desdemona.model.backup.BackupService;
+import com.thinkparity.desdemona.model.io.IOService;
+import com.thinkparity.desdemona.model.io.IOServiceException;
 import com.thinkparity.desdemona.model.io.jta.TransactionService;
 import com.thinkparity.desdemona.model.migrator.MigratorService;
 import com.thinkparity.desdemona.model.node.NodeCredentials;
@@ -96,6 +98,7 @@ public final class WebInitializer implements ServletContextListener {
         stopMigrator();
         stopNotification();
         stopNode();
+        stopIO();
         stopTransaction();
         stopPersistence();
         logger.logInfo("thinkParity {0} stopped.", getVersionString());
@@ -137,11 +140,13 @@ public final class WebInitializer implements ServletContextListener {
         setProperty(properties, "thinkparity.amazon.accesskeyid-file", servletContext);
         setProperty(properties, "thinkparity.amazon.secretaccesskey-file", servletContext);
         setProperty(properties, "thinkparity.backup.root", servletContext);
+        setProperty(properties, "thinkparity.crypto.providerimpl", servletContext);
         setProperty(properties, "thinkparity.datasource-driver", servletContext);
         setProperty(properties, "thinkparity.datasource-url", servletContext);
         setProperty(properties, "thinkparity.datasource-user", servletContext);
         setProperty(properties, "thinkparity.datasource-password", servletContext);
         setProperty(properties, "thinkparity.environment", servletContext);
+        setProperty(properties, "thinkparity.io.factoryimpl", servletContext);
         setProperty(properties, "thinkparity.mail.transport-host", servletContext);
         setProperty(properties, "thinkparity.mail.transport-port", servletContext);
         setProperty(properties, "thinkparity.migrator.logerror.notify", servletContext);
@@ -172,6 +177,7 @@ public final class WebInitializer implements ServletContextListener {
 
         startPersistence(properties);
         startTransaction(properties);
+        startIO(properties);
         startNode(properties);
         startNotification(properties);
         startMigrator(properties);
@@ -282,6 +288,23 @@ public final class WebInitializer implements ServletContextListener {
         logger.logInfo("Starting backup service.");
         BackupService.getInstance().start();
         logger.logInfo("Backup service started.");
+    }
+
+    /**
+     * Start the io service.
+     * 
+     * @param properties
+     *            A <code>DesdemonaProperties</code>.
+     */
+    private void startIO(final DesdemonaProperties properties) {
+        logger.logTraceId();
+        logger.logInfo("Starting io service.");
+        try {
+            IOService.getInstance().start(properties);
+        } catch (final IOServiceException iosx) {
+            failStart(iosx, "Cannot start io servce.");
+        }
+        logger.logInfo("IO service started.");
     }
 
     /**
@@ -405,6 +428,17 @@ public final class WebInitializer implements ServletContextListener {
         logger.logInfo("Stopping backup service.");
         BackupService.getInstance().stop();
         logger.logInfo("Backup service stopped.");
+    }
+
+    /**
+     * Stop the io service.
+     * 
+     */
+    private void stopIO() {
+        logger.logTraceId();
+        logger.logInfo("Stopping io service.");
+        IOService.getInstance().stop();
+        logger.logInfo("IO service stopped.");
     }
 
     /**

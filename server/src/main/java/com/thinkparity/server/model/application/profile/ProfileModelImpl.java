@@ -25,7 +25,6 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -42,8 +41,8 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 
-import com.thinkparity.codebase.LocaleUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.constraint.IllegalValueException;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
@@ -89,6 +88,7 @@ import com.thinkparity.desdemona.model.profile.delegate.ProcessInvoiceQueue;
 import com.thinkparity.desdemona.model.profile.delegate.ProcessPaymentQueue;
 import com.thinkparity.desdemona.model.profile.payment.Currency;
 import com.thinkparity.desdemona.model.profile.payment.PaymentPlan;
+import com.thinkparity.desdemona.model.profile.payment.PaymentPlanConstraints;
 import com.thinkparity.desdemona.model.profile.payment.PaymentService;
 import com.thinkparity.desdemona.model.profile.payment.PaymentPlan.InvoicePeriod;
 import com.thinkparity.desdemona.model.profile.payment.provider.PaymentProvider;
@@ -106,6 +106,17 @@ import com.thinkparity.desdemona.util.smtp.SMTPService;
  */
 public final class ProfileModelImpl extends AbstractModelImpl implements
         ProfileModel, InternalProfileModel {
+
+    /** A set of profile constraints. */
+    private static final ProfileConstraints constraints;
+
+    /** Payment plan constraints. */
+    private static final PaymentPlanConstraints planConstraints;
+
+    static {
+        constraints = ProfileConstraints.getInstance();
+        planConstraints = PaymentPlanConstraints.getInstance();
+    }
 
     /**
      * Determine if the hypersonic (database layer) error was caused by an
@@ -226,6 +237,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             final PaymentInfo paymentInfo) {
         final Object xaContext = newXAContext(XAContextId.PROFILE_CREATE);
         try {
+            validate(profile.getVCard());
             beginXA(xaContext);
             try {
                 final Calendar now = DateTimeProvider.getCurrentDateTime();
@@ -397,6 +409,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         }
     }
 
+    
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#createUsernameReservation(com.thinkparity.codebase.jabber.JabberId,
      *      java.lang.String, java.util.Calendar)
@@ -455,7 +468,6 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         }
     }
 
-    
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#isAccessiblePaymentInfo()
      * 
@@ -1267,49 +1279,6 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * Assert that a named value is set.
-     * 
-     * @param name
-     *            A value name <code>String</code>..
-     * @param value
-     *            A value <code>String</code>.
-     */
-    private void assertIsSet(final String name, final String value) {
-        Assert.assertNotNull(value, "Profile field {0} is not set.", name);
-    }
-
-    private void assertIsValidCountry(final String name, final String value) {
-        final Locale[] locales = LocaleUtil.getInstance().getAvailableLocales();
-        boolean found = false;
-        for (final Locale locale : locales) {
-            if (locale.getISO3Country().equals(value)) {
-                found = true;
-                break;
-            }
-        }
-        Assert.assertTrue(found, "Profile field {0} is invalid.", name, value);
-    }
-
-    private void assertIsValidLanguage(final String name, final String value) {
-        final Locale[] locales = LocaleUtil.getInstance().getAvailableLocales();
-        boolean found = false;
-        for (final Locale locale : locales) {
-            if (locale.getISO3Language().equals(value)) {
-                found = true;
-                break;
-            }
-        }
-        Assert.assertTrue(found,
-                "Profile field {0} contains invalid value {1}.", name, value);
-    }
-
-    private void assertIsValidTimeZone(final String name, final String value) {
-        final TimeZone timeZone = TimeZone.getTimeZone(value);
-        Assert.assertTrue(timeZone.getID().equals(value),
-                "Profile field {0} contains invalid value {1}.", name, value);
-    }
-
-    /**
      * Create a profile.
      * 
      * @param product
@@ -1342,6 +1311,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             final Credentials credentials, final Profile profile,
             final EMail email, final SecurityCredentials securityCredentials)
             throws GeneralSecurityException, IOException {
+        validate(profile.getVCard());
         validate(usernameReservation, emailReservation, credentials, email);
 
         // delete expired reservations
@@ -1470,6 +1440,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             final Calendar createdOn) {
         final PaymentPlan paymentPlan = newPaymentPlan(currency, createdOn,
                 createdBy);
+        validate(paymentPlan, createdOn);
         paymentSql.createPlan(paymentPlan);
         paymentSql.createInfo(paymentPlan, readPaymentProvider(paymentInfo),
                 paymentInfo);
@@ -1620,11 +1591,19 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                     plan.getInvoicePeriod());
         }
         plan.setInvoicePeriodOffset(invoicePeriodOffset);
-        plan.setName(MessageFormat.format("{0} - {1,date,yyyy.MM}",
+        plan.setName(MessageFormat.format("{1,date,yyyy.MM} - {0}",
                 owner.getOrganization(), createdOn.getTime()));
         plan.setOwner(owner);
         plan.setPassword(null);
         plan.setUniqueId(UUIDGenerator.nextUUID());
+
+        /* ensure the name is within constraints */
+        try {
+            planConstraints.getName().validate(plan.getName());
+        } catch (final IllegalValueException ivx) {
+            plan.setName(plan.getName().substring(0,
+                    planConstraints.getName().getMaxLength() - 1));
+        }
         return plan;
     }
 
@@ -1665,8 +1644,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      */
     private Profile read(final Object xaContext) {
         final Profile profile = new Profile();
-        profile.setVCard(getUserModel(user).readVCard(
-                new ProfileVCard()));
+        profile.setVCard(getUserModel(user).readVCard(new ProfileVCard()));
         profile.setFeatures(userSql.readProductFeatures(user, Ophelia.PRODUCT_NAME));
         inject(profile, user);
         profile.setActive(userSql.isActive(user));
@@ -1712,6 +1690,26 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * Validate a payment plan.
+     * 
+     * @param paymentPlan
+     *            A <code>PaymentPlan</code>.
+     * @param now
+     *            A <code>Calendar</code>.
+     */
+    private void validate(final PaymentPlan paymentPlan, final Calendar now) {
+        planConstraints.getName().validate(paymentPlan.getName());
+        planConstraints.getCurrency().validate(paymentPlan.getCurrency());
+        planConstraints.getInvoicePeriod().validate(paymentPlan.getInvoicePeriod());
+        planConstraints.getInvoicePeriodOffset(now,
+                paymentPlan.getInvoicePeriod()).validate(
+                        paymentPlan.getInvoicePeriodOffset());
+        planConstraints.getOwner().validate(paymentPlan.getOwner());
+        planConstraints.getPassword().validate(paymentPlan.getPassword());
+        planConstraints.getUniqueId().validate(paymentPlan.getUniqueId());
+    }
+
+    /**
      * Validate a profile.
      * 
      * @param profile
@@ -1726,23 +1724,33 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             Assert.assertNotTrue(readIsPaymentRequired(localFeature),
                     "Payment required for {0}.", localFeature.getName());
         }
-
-        validate(profile.getVCard());
     }
 
+    /**
+     * Validate the profile's VCard.
+     * 
+     * @param vcard
+     *            A <code>ProfileVCard</code>.
+     */
     private void validate(final ProfileVCard vcard) {
-        assertIsSet("country", vcard.getCountry());
-        assertIsValidCountry("country", vcard.getCountry());
-        assertIsSet("language", vcard.getLanguage());
-        assertIsValidLanguage("language", vcard.getLanguage());
-        assertIsSet("name", vcard.getName());
-        assertIsSet("organization", vcard.getOrganization());
-        assertIsSet("organization country", vcard.getOrganizationCountry());
-        assertIsValidCountry("organization country", vcard
-                .getOrganizationCountry());
-        assertIsSet("timeZone", vcard.getTimeZone());
-        assertIsValidTimeZone("timeZone", vcard.getTimeZone());
-        assertIsSet("title", vcard.getTitle());
+        constraints.getAddress().validate(vcard.getAddress());
+        constraints.getCity().validate(vcard.getCity());
+        constraints.getCountry().validate(vcard.getCountry());
+        constraints.getLanguage().validate(vcard.getLanguage());
+        constraints.getMobilePhone().validate(vcard.getMobilePhone());
+        constraints.getName().validate(vcard.getName());
+        constraints.getOrganization().validate(vcard.getOrganization());
+        constraints.getOrganizationAddress().validate(vcard.getOrganizationAddress());
+        constraints.getOrganizationCity().validate(vcard.getOrganizationCity());
+        constraints.getOrganizationCountry().validate(vcard.getOrganizationCountry());
+        constraints.getOrganizationPhone().validate(vcard.getOrganizationPhone());
+        constraints.getOrganizationPostalCode().validate(vcard.getOrganizationPostalCode());
+        constraints.getOrganizationProvince().validate(vcard.getOrganizationProvince());
+        constraints.getPhone().validate(vcard.getPhone());
+        constraints.getPostalCode().validate(vcard.getPostalCode());
+        constraints.getProvince().validate(vcard.getProvince());
+        constraints.getTimeZone().validate(vcard.getTimeZone());
+        constraints.getTitle().validate(vcard.getTitle());
     }
 
     /**

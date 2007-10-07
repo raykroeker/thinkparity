@@ -192,22 +192,15 @@ public abstract class ModelTestCase extends TestCase {
         final Credentials credentials = new Credentials();
         credentials.setPassword(lookupPassword(username));
         credentials.setUsername(username);
-        final Profile profile = new Profile();
-        profile.setVCard(new ProfileVCard());
-        profile.setFeatures(features);
-        profile.setLocale(Locale.getDefault());
-        profile.setName("Test User:" + getName());
-        profile.setOrganization("thinkParity Solutions Inc.");
-        profile.setOrganizationCountry(profile.getCountry());
-        profile.setTimeZone(TimeZone.getDefault());
-        profile.setTitle("Test User");
+        final Profile profile = newProfile(features);
         final SecurityCredentials securityCredentials = new SecurityCredentials();
         securityCredentials.setAnswer(username);
         securityCredentials.setQuestion(username);
+        final PaymentInfo paymentInfo = newPaymentInfo();
 
         profileModel.create(product, release, usernameReservation,
                 emailReservation, credentials, profile, email,
-                securityCredentials);
+                securityCredentials, paymentInfo);
         return profile;
     }
 
@@ -402,7 +395,6 @@ public abstract class ModelTestCase extends TestCase {
         }
     }
 
-
     /**
      * Logout.
      * 
@@ -412,6 +404,7 @@ public abstract class ModelTestCase extends TestCase {
     private void logout(final AuthToken authToken) {
         logout(authToken.getSessionId());
     }
+
 
     /**
      * Logout.
@@ -490,6 +483,32 @@ public abstract class ModelTestCase extends TestCase {
         paymentInfo.setCardName(PaymentInfo.CardName.MASTER_CARD);
         paymentInfo.setCardNumber("5454545454545454");
         return paymentInfo;
+    }
+
+    /**
+     * Instantiate a profile with the bare minimum field values set in order for
+     * creation.
+     * 
+     * @param features
+     *            A <code>List<Feature></code>.
+     * @return A <code>Profile</code>.
+     */
+    private Profile newProfile(final List<Feature> featureList) {
+        final Profile profile = new Profile();
+        profile.setFeatures(featureList);
+        profile.setVCard(new ProfileVCard());
+
+        profile.setAddress("Address");
+        profile.setCity("City");
+        profile.setLocale(Locale.getDefault());
+        profile.setName(MessageFormat.format("Name_{0}", getName()));
+        profile.setOrganization("Organization");
+        profile.setOrganizationCountry(profile.getCountry());
+        profile.setPostalCode("PostalCode");
+        profile.setProvince("Province");
+        profile.setTimeZone(TimeZone.getDefault());
+        profile.setTitle("Title");
+        return profile;
     }
 
     /**
@@ -759,6 +778,14 @@ public abstract class ModelTestCase extends TestCase {
          */
         public PaymentInfo newPaymentInfo() {
             return ModelTestCase.this.newPaymentInfo();
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#newProfile(List)
+         * 
+         */
+        public Profile newProfile(final List<Feature> featureList) {
+            return ModelTestCase.this.newProfile(featureList);
         }
 
         /**

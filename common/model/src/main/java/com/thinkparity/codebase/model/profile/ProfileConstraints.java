@@ -54,8 +54,23 @@ public final class ProfileConstraints {
     /** The profile organization <code>StringConstraint</code>. */
     private final StringConstraint organization;
 
+    /** The profile organization addresss string constraint. */
+    private final StringConstraint organizationAddress;
+
+    /** The profile organization city sring constraint. */
+    private final StringConstraint organizationCity;
+
     /** The profile organization country <code>CountryConstraint</code>. */
     private final CountryConstraint organizationCountry;
+
+    /** The profile organization phone number constraint. */
+    private final PhoneNumberConstraint organizationPhone;
+
+    /** The profile organization postal code string constraint. */
+    private final StringConstraint organizationPostalCode;
+
+    /** The profile organization province string constraint. */
+    private final StringConstraint organizationProvince;
 
     /** The profile password <code>PasswordConstraint</code>. */
     private final PasswordConstraint password;
@@ -89,7 +104,7 @@ public final class ProfileConstraints {
 
     /**
      * Create ProfileConstraints.
-     *
+     * 
      */
     public ProfileConstraints() {
         super();
@@ -125,8 +140,10 @@ public final class ProfileConstraints {
         this.language.setName("Language");
         this.language.setNullable(Boolean.FALSE);
 
-        /* HACK - ProfileConstraints#<init> - the requirement to filter out
-         * the characters for ease of parsing is incorrect */
+        /*
+         * HACK - ProfileConstraints#<init> - the requirement to filter out the
+         * characters for ease of parsing is incorrect
+         */
         final char[] invalidChars = new char[] { '@', '(', ')' };
         this.name = new StringConstraint() {
             @Override
@@ -153,9 +170,39 @@ public final class ProfileConstraints {
         this.organization.setName("Organization");
         this.organization.setNullable(Boolean.FALSE);
 
+        this.organizationAddress = new StringConstraint();
+        this.organizationAddress.setMaxLength(64);
+        this.organizationAddress.setMinLength(1);
+        this.organizationAddress.setName("Organization address");
+        this.organizationAddress.setNullable(Boolean.TRUE);
+
+        this.organizationCity = new StringConstraint();
+        this.organizationCity.setMaxLength(64);
+        this.organizationCity.setMinLength(1);
+        this.organizationCity.setName("Organization city");
+        this.organizationCity.setNullable(Boolean.TRUE);
+
         this.organizationCountry = new CountryConstraint();
         this.organizationCountry.setName("Organization country");
         this.organizationCountry.setNullable(Boolean.FALSE);
+
+        this.organizationPhone = new PhoneNumberConstraint();
+        this.organizationPhone.setMaxLength(64);
+        this.organizationPhone.setMinLength(1);
+        this.organizationPhone.setName("Organization phone");
+        this.organizationPhone.setNullable(Boolean.TRUE);
+
+        this.organizationPostalCode = new StringConstraint();
+        this.organizationPostalCode.setMaxLength(64);
+        this.organizationPostalCode.setMinLength(1);
+        this.organizationPostalCode.setName("Organization postal code");
+        this.organizationPostalCode.setNullable(Boolean.TRUE);
+
+        this.organizationProvince = new StringConstraint();
+        this.organizationProvince.setMaxLength(64);
+        this.organizationProvince.setMinLength(1);
+        this.organizationProvince.setName("Organization province");
+        this.organizationProvince.setNullable(Boolean.TRUE);
 
         this.password = new PasswordConstraint();
         this.password.setMaxLength(32);
@@ -218,7 +265,7 @@ public final class ProfileConstraints {
 
     /**
      * Obtain address.
-     *
+     * 
      * @return A StringConstraint.
      */
     public StringConstraint getAddress() {
@@ -227,7 +274,7 @@ public final class ProfileConstraints {
 
     /**
      * Obtain city.
-     *
+     * 
      * @return A StringConstraint.
      */
     public StringConstraint getCity() {
@@ -236,7 +283,7 @@ public final class ProfileConstraints {
 
     /**
      * Obtain country.
-     *
+     * 
      * @return A CountryConstraint.
      */
     public CountryConstraint getCountry() {
@@ -245,7 +292,7 @@ public final class ProfileConstraints {
 
     /**
      * Obtain email.
-     *
+     * 
      * @return A EMailConstraint.
      */
     public EMailConstraint getEmail() {
@@ -254,7 +301,7 @@ public final class ProfileConstraints {
 
     /**
      * Obtain language.
-     *
+     * 
      * @return A LanguageConstraint.
      */
     public LanguageConstraint getLanguage() {
@@ -263,7 +310,7 @@ public final class ProfileConstraints {
 
     /**
      * Obtain mobilePhone.
-     *
+     * 
      * @return A PhoneNumberConstraint.
      */
     public PhoneNumberConstraint getMobilePhone() {
@@ -272,7 +319,7 @@ public final class ProfileConstraints {
 
     /**
      * Obtain name.
-     *
+     * 
      * @return A StringConstraint.
      */
     public StringConstraint getName() {
@@ -281,7 +328,7 @@ public final class ProfileConstraints {
 
     /**
      * Obtain organization.
-     *
+     * 
      * @return A StringConstraint.
      */
     public StringConstraint getOrganization() {
@@ -289,12 +336,57 @@ public final class ProfileConstraints {
     }
 
     /**
-     * Obtain organizationCountry.
+     * Obtain the organizationAddress.
+     * 
+     * @return A <code>StringConstraint</code>.
+     */
+    public StringConstraint getOrganizationAddress() {
+        return organizationAddress;
+    }
+
+    /**
+     * Obtain the organizationCity.
      *
+     * @return A <code>StringConstraint</code>.
+     */
+    public StringConstraint getOrganizationCity() {
+        return organizationCity;
+    }
+
+    /**
+     * Obtain organizationCountry.
+     * 
      * @return A CountryConstraint.
      */
     public CountryConstraint getOrganizationCountry() {
         return organizationCountry;
+    }
+
+    /**
+     * Obtain the organizationPhone.
+     *
+     * @return A <code>PhoneNumberConstraint</code>.
+     */
+    public PhoneNumberConstraint getOrganizationPhone() {
+        return organizationPhone;
+    }
+
+    /**
+     * Obtain the organizationPostalCode.
+     *
+     * @return A <code>StringConstraint</code>.
+     */
+    public StringConstraint getOrganizationPostalCode() {
+        return organizationPostalCode;
+    }
+
+    /**
+     * Obtain the organizationProvince.
+     *
+     * @return A <code>StringConstraint</code>.
+     */
+    public StringConstraint getOrganizationProvince() {
+        return organizationProvince;
     }
 
     /**
@@ -308,7 +400,7 @@ public final class ProfileConstraints {
 
     /**
      * Obtain phone.
-     *
+     * 
      * @return A PhoneNumberConstraint.
      */
     public PhoneNumberConstraint getPhone() {
@@ -317,7 +409,7 @@ public final class ProfileConstraints {
 
     /**
      * Obtain postalCode.
-     *
+     * 
      * @return A StringConstraint.
      */
     public StringConstraint getPostalCode() {
@@ -326,7 +418,7 @@ public final class ProfileConstraints {
 
     /**
      * Obtain province.
-     *
+     * 
      * @return A StringConstraint.
      */
     public StringConstraint getProvince() {
@@ -335,7 +427,7 @@ public final class ProfileConstraints {
 
     /**
      * Obtain security answer.
-     *
+     * 
      * @return A StringConstraint.
      */
     public StringConstraint getSecurityAnswer() {
@@ -344,7 +436,7 @@ public final class ProfileConstraints {
 
     /**
      * Obtain security question.
-     *
+     * 
      * @return A StringConstraint.
      */
     public StringConstraint getSecurityQuestion() {
@@ -353,7 +445,7 @@ public final class ProfileConstraints {
 
     /**
      * Obtain timeZone.
-     *
+     * 
      * @return A TimeZoneConstraint.
      */
     public TimeZoneConstraint getTimeZone() {
@@ -362,7 +454,7 @@ public final class ProfileConstraints {
 
     /**
      * Obtain title.
-     *
+     * 
      * @return A StringConstraint.
      */
     public StringConstraint getTitle() {

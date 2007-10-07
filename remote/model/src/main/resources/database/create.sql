@@ -340,7 +340,7 @@ create table TPSD_PAYMENT_PLAN(
     PLAN_UNIQUE_ID varchar(256) not null,
     PLAN_NAME varchar(64) not null,
     PLAN_CURRENCY smallint not null,
-    PLAN_PASSWORD varchar(32),
+    PLAN_PASSWORD varchar(64),
     PLAN_BILLABLE char not null,
     PLAN_OWNER bigint not null,
     PLAN_ARREARS character not null,

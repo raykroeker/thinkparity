@@ -246,19 +246,24 @@ public class UserModelImpl extends AbstractModelImpl implements UserModel,
     private <T extends com.thinkparity.codebase.model.user.UserVCard> T readVCard(
             final User user, final T vcard) {
         try {
+            logger.logVariable("user", user);
+            logger.logVariable("vcard", vcard);
             return userSql.readVCard(user.getLocalId(), vcard, new VCardReader<T> () {
                 public void read(final T vcard, final Reader reader) throws IOException {
                     try {
+                        logger.logVariable("vcard", vcard);
+                        logger.logVariable("reader", reader);
                         final StringBuilder encrypted = new StringBuilder();
-                        final char[] buffer = new char[1024];
-                        int charsRead;
+                        final char[] cbuf = new char[1024];
+                        int read;
                         while (true) {
-                            charsRead = reader.read(buffer);
-                            if (-1 == charsRead) {
+                            read = reader.read(cbuf);
+                            if (-1 == read) {
                                 break;
                             }
-                            encrypted.append(buffer);
+                            encrypted.append(cbuf, 0, read);
                         }
+                        logger.logVariable("encrypted", encrypted);
                         XSTREAM_UTIL.fromXML(new StringReader(decrypt(
                                 encrypted.toString())), vcard);
                     } catch (final GeneralSecurityException gsx) {

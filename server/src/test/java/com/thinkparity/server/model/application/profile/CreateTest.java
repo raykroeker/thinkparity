@@ -6,18 +6,15 @@ package com.thinkparity.desdemona.model.profile;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
-import com.thinkparity.codebase.assertion.TrueAssertion;
 import com.thinkparity.codebase.email.EMail;
 
+import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.SecurityCredentials;
 import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
@@ -68,15 +65,7 @@ public final class CreateTest extends ProfileTestCase {
             final Credentials credentials = new Credentials();
             credentials.setPassword(datum.lookupPassword(username));
             credentials.setUsername(username);
-            final Profile profile = new Profile();
-            profile.setVCard(new ProfileVCard());
-            profile.setFeatures(datum.allFeatures);
-            profile.setLocale(Locale.getDefault());
-            profile.setName("Test User:" + getName());
-            profile.setOrganization("thinkParity Solutions Inc.");
-            profile.setOrganizationCountry(profile.getCountry());
-            profile.setTimeZone(TimeZone.getDefault());
-            profile.setTitle("Test User");
+            final Profile profile = datum.newProfile(datum.allFeatures);
             final SecurityCredentials securityCredentials = new SecurityCredentials();
             securityCredentials.setAnswer(username);
             securityCredentials.setQuestion(username);
@@ -109,15 +98,7 @@ public final class CreateTest extends ProfileTestCase {
             final Credentials credentials = new Credentials();
             credentials.setPassword(datum.lookupPassword(username));
             credentials.setUsername(username);
-            final Profile profile = new Profile();
-            profile.setVCard(new ProfileVCard());
-            profile.setFeatures(datum.allFeatures);
-            profile.setLocale(Locale.getDefault());
-            profile.setName("Test User:" + getName());
-            profile.setOrganization("thinkParity Solutions Inc.");
-            profile.setOrganizationCountry(profile.getCountry());
-            profile.setTimeZone(TimeZone.getDefault());
-            profile.setTitle("Test User");
+            final Profile profile = datum.newProfile(datum.allFeatures);
             final SecurityCredentials securityCredentials = new SecurityCredentials();
             securityCredentials.setAnswer(username);
             securityCredentials.setQuestion(username);
@@ -127,8 +108,8 @@ public final class CreateTest extends ProfileTestCase {
                 datum.getProfileModel(datum.create).create(datum.product,
                         datum.release, usernameReservation, emailReservation,
                         credentials, profile, email, securityCredentials);
-            } catch (final TrueAssertion ta) {
-                if (ta.getMessage().startsWith("Payment required for ")) {
+            } catch (final ThinkParityException tpx) {
+                if (tpx.getMessage().startsWith("Payment required for ")) {
                     didFail = true;
                 }
             }
@@ -157,15 +138,7 @@ public final class CreateTest extends ProfileTestCase {
             final Credentials credentials = new Credentials();
             credentials.setPassword(datum.lookupPassword(username));
             credentials.setUsername(username);
-            final Profile profile = new Profile();
-            profile.setVCard(new ProfileVCard());
-            profile.setFeatures(datum.guestFeatures);
-            profile.setLocale(Locale.getDefault());
-            profile.setName("Test User:" + getName());
-            profile.setOrganization("thinkParity Solutions Inc.");
-            profile.setOrganizationCountry(profile.getCountry());
-            profile.setTimeZone(TimeZone.getDefault());
-            profile.setTitle("Test User");
+            final Profile profile = datum.newProfile(datum.guestFeatures);
             final SecurityCredentials securityCredentials = new SecurityCredentials();
             securityCredentials.setAnswer(username);
             securityCredentials.setQuestion(username);

@@ -197,11 +197,11 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
             // enqueue container published notification events
             enqueueContainerPublishedNotification(version);
 
-            // update the latest version
-            updateLatestVersion(version);
-
             // delete draft
             deleteDraft(version);
+
+            // update the latest version
+            updateLatestVersion(version);
 
             // enqueue invitation events
             createInvitations(user.getId(), version, publishToEMails,

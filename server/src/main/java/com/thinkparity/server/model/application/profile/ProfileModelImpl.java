@@ -89,6 +89,7 @@ import com.thinkparity.desdemona.model.node.NodeService;
 import com.thinkparity.desdemona.model.profile.delegate.ProcessInvoiceQueue;
 import com.thinkparity.desdemona.model.profile.delegate.ProcessPaymentQueue;
 import com.thinkparity.desdemona.model.profile.payment.Currency;
+import com.thinkparity.desdemona.model.profile.payment.Invoice;
 import com.thinkparity.desdemona.model.profile.payment.PaymentPlan;
 import com.thinkparity.desdemona.model.profile.payment.PaymentPlanConstraints;
 import com.thinkparity.desdemona.model.profile.payment.PaymentService;
@@ -912,6 +913,15 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                 if (isAccessiblePaymentInfo(xaContext)) {
                     final PaymentPlan paymentPlan = paymentSql.readPlan(user);
                     paymentSql.updateInfo(paymentPlan, paymentInfo);
+                    final List<Invoice> invoiceList =
+                        paymentSql.readUnpaidInvoices(paymentPlan);
+                    if (0 < invoiceList.size()) {
+                        /* setup a retry and wake the processor */
+                        updateInvoiceRetry(invoiceList, Boolean.TRUE);
+                        paymentService.wakePaymentProcessor();
+                    } else {
+                        logger.logInfo("No invoice exists for plan {0}.", paymentPlan);
+                    }
                 } else {
                     logger.logInfo("Payment info is not accessible by {0}.", user);
                 }
@@ -1175,6 +1185,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      * 
      * @param plan
      *            A <code>PaymentPlan</code>.
+     * @param completedOn
+     *            A <code>Calendar</code>.
      */
     void notifyComplete(final PaymentPlan plan, final Calendar completedOn) {
         final List<Profile> profileList = readPaymentPlanProfiles(plan);
@@ -1182,6 +1194,24 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         updatePlanArrears(plan, Boolean.FALSE);
         enqueuePaymentSucceeded(plan, completedOn);
         enqueuePlanOutOfArrears(profileList, completedOn);
+    }
+
+    /**
+     * If a card is charged we update the plan arrears flag; create a payment
+     * succeeded event as well as plan out of arrears events and enqueue them to
+     * the plan's owner and the plan members respectively.
+     * 
+     * @param plan
+     *            A <code>PaymentPlan</code>.
+     * @param invoice
+     *            An <code>Invoice</code>.
+     * @param completedOn
+     *            A <code>Calendar</code>.
+     */
+    void notifyComplete(final PaymentPlan plan, final Invoice invoice,
+            final Calendar completedOn) {
+        notifyComplete(plan, completedOn);
+        updateInvoiceRetry(invoice, Boolean.FALSE);
     }
 
     /**
@@ -1238,6 +1268,34 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      */
     void rollbackXA() throws SystemException {
         transaction.setRollbackOnly();
+    }
+
+    /**
+     * Update the invoice's retry.
+     * 
+     * @param invoice
+     *            An <code>Invoice</code>.
+     * @param retry
+     *            A <code>Boolean</code>.
+     */
+    void updateInvoiceRetry(final Invoice invoice, final Boolean retry) {
+        invoice.setRetry(retry);
+        paymentSql.updateInvoiceRetry(invoice);
+    }
+
+    /**
+     * Update the invoice's retry.
+     * 
+     * @param invoiceList
+     *            A <code>List<Invoice></code>.
+     * @param retry
+     *            A <code>Boolean</code>.
+     */
+    void updateInvoiceRetry(final List<Invoice> invoiceList, final Boolean retry) {
+        for (final Invoice invoice : invoiceList) {
+            invoice.setRetry(retry);
+        }
+        paymentSql.updateInvoiceRetry(invoiceList);
     }
 
     /**
@@ -1586,7 +1644,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     private PaymentPlan newPaymentPlan(final Currency currency,
             final Calendar createdOn, final User owner) {
         final PaymentPlan plan = new PaymentPlan();
-        plan.setArrears(Boolean.TRUE);
+        plan.setArrears(Boolean.FALSE);
         plan.setBillable(Boolean.TRUE);
         plan.setCurrency(currency);
         plan.setInvoicePeriod(InvoicePeriod.MONTH);
@@ -1601,7 +1659,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         }
         plan.setInvoicePeriodOffset(invoicePeriodOffset);
         plan.setName(MessageFormat.format("{1,date,yyyy.MM} - {0}",
-                owner.getUsername(), createdOn.getTime()));
+                owner.getSimpleUsername(), createdOn.getTime()));
         plan.setOwner(owner);
         plan.setPassword(null);
         plan.setUniqueId(UUIDGenerator.nextUUID());

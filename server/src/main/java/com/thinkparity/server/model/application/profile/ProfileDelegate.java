@@ -23,6 +23,7 @@ import com.thinkparity.desdemona.model.io.sql.PaymentSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.node.NodeService;
 import com.thinkparity.desdemona.model.profile.ProfileModelImpl.XAContextId;
+import com.thinkparity.desdemona.model.profile.payment.Invoice;
 import com.thinkparity.desdemona.model.profile.payment.PaymentPlan;
 import com.thinkparity.desdemona.model.profile.payment.provider.PaymentProvider;
 
@@ -113,12 +114,22 @@ public abstract class ProfileDelegate extends DefaultDelegate<ProfileModelImpl> 
 
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModelImpl#notifyComplete(PaymentPlan,
-     *      Calendar)
+     *      Invoice, Calendar)
      * 
      */
     protected final void notifyComplete(final PaymentPlan plan,
             final Calendar completedOn) {
         modelImplementation.notifyComplete(plan, completedOn);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.profile.ProfileModelImpl#notifyComplete(PaymentPlan,
+     *      Invoice, Calendar)
+     * 
+     */
+    protected final void notifyComplete(final PaymentPlan plan,
+            final Invoice invoice, final Calendar completedOn) {
+        modelImplementation.notifyComplete(plan, invoice, completedOn);
     }
 
     /**
@@ -155,11 +166,22 @@ public abstract class ProfileDelegate extends DefaultDelegate<ProfileModelImpl> 
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.profile.ProfileModelImpl#updateInvoiceRetry(Invoice,
+     *      Boolean)
+     * 
+     */
+    protected final void updateInvoiceRetry(final Invoice invoice,
+            final Boolean retry) {
+        modelImplementation.updateInvoiceRetry(invoice, retry);
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModelImpl#updatePlanArrears(PaymentPlan,
      *      Boolean)
      * 
      */
-    protected final void updatePlanArrears(final PaymentPlan plan, final Boolean arrears) {
+    protected final void updatePlanArrears(final PaymentPlan plan,
+            final Boolean arrears) {
         modelImplementation.updatePlanArrears(plan, arrears);
     }
 

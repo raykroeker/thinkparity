@@ -33,14 +33,14 @@ public final class NodeSql extends AbstractSql {
 
     /** Sql to read a node by its credentials. */
     private static final String SQL_READ_BY_CREDENTIALS =
-        new StringBuilder("select N.NODE_ID,N.NODE_USERNAME ")
+        new StringBuilder("select N.NODE_ID,N.NODE_USERNAME,N.NODE_ORDINAL ")
         .append("from TPSD_NODE N ")
         .append("where N.NODE_USERNAME=? and N.NODE_PASSWORD=?")
         .toString();
 
     /** Sql to read a node by its session. */
     private static final String SQL_READ_BY_SESSION =
-        new StringBuilder("select N.NODE_ID,N.NODE_USERNAME ")
+        new StringBuilder("select N.NODE_ID,N.NODE_USERNAME,N.NODE_ORDINAL ")
         .append("from TPSD_NODE N ")
         .append("inner join TPSD_NODE_SESSION NS on NS.NODE_ID=N.NODE_ID ")
         .append("where NS.TOKEN=?")
@@ -165,6 +165,7 @@ public final class NodeSql extends AbstractSql {
     private Node extract(final HypersonicSession session) {
         final Node node = new Node();
         node.setId(session.getLong("NODE_ID"));
+        node.setOrdinal(session.getInteger("NODE_ORDINAL"));
         node.setUsername(session.getString("NODE_USERNAME"));
         return node;
     }

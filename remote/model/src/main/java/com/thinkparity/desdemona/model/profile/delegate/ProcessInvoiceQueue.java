@@ -46,13 +46,13 @@ public final class ProcessInvoiceQueue extends ProfileDelegate {
     /** The number of plans locked. */
     private static int locked;
 
-    /** An offset into the plan list. */
-    private static int lockOffset;
+    /** A previously locked plan id. */
+    private static long lockedPlanId;
 
     static {
         LOCK_LIMIT = 100;
         locked = 0;
-        lockOffset = 0;
+        lockedPlanId = -1;
     }
 
     /** The current date/time. */
@@ -70,6 +70,14 @@ public final class ProcessInvoiceQueue extends ProfileDelegate {
     }
 
     /**
+     * Reset the locked plan id.
+     * 
+     */
+    private void reset() {
+        lockedPlanId = -1;
+    }
+
+    /**
      * Process the invoice queue.
      * 
      */
@@ -77,23 +85,40 @@ public final class ProcessInvoiceQueue extends ProfileDelegate {
             SystemException, RollbackException, HeuristicRollbackException,
             HeuristicMixedException, Throwable {
         this.currentDateTime = DateTimeProvider.getCurrentDateTime();
-        /* lock plans */
+        final List<PaymentPlan> planList = new ArrayList<PaymentPlan>(LOCK_LIMIT);
+        reset();
+
+        /* lock */
         lockPlans();
         try {
-            /* read locked plans */
-            final List<PaymentPlan> planList = readLockedPlans();
-            for (final PaymentPlan plan : planList) {
-                logger.logVariable("plan", plan);
-                if (plan.isBillable()) {
-                    /* create invoice */
-                    createInvoice(plan);
-                } else {
-                    /* activate users */
-                    notifyComplete(plan, currentDateTime);
+            /* read locked */
+            planList.addAll(readLockedPlans());
+            while (0 < planList.size()) {
+                try {
+                    /* process */
+                    for (final PaymentPlan plan : planList) {
+                        lockedPlanId = plan.getId();
+                        logger.logVariable("lockedPlanId", lockedPlanId);
+                        logger.logVariable("plan", plan);
+                        if (plan.isBillable()) {
+                            /* create invoice */
+                            createInvoice(plan);
+                        } else {
+                            /* activate users */
+                            notifyComplete(plan, currentDateTime);
+                        }
+                    }
+                } finally {
+                    /* unlock */
+                    unlockPlans();
                 }
+                /* lock */
+                lockPlans();
+                /* read locked */
+                planList.retainAll(readLockedPlans());
             }
         } finally {
-            /* unlock plans */
+            /* unlock */
             unlockPlans();
         }
         /* wake up the payment processor */
@@ -174,6 +199,7 @@ public final class ProcessInvoiceQueue extends ProfileDelegate {
             final Invoice invoice = new Invoice();
             invoice.setDate(invoiceDate);
             invoice.setNumber(Invoicing.START);
+            invoice.setRetry(Boolean.TRUE);
             paymentSql.createInvoice(plan, invoice, newFirstItemList(plan));
             logger.logVariable("invoice", invoice);
             break;
@@ -266,6 +292,7 @@ public final class ProcessInvoiceQueue extends ProfileDelegate {
                 final Invoice invoice = new Invoice();
                 invoice.setDate(invoiceDate);
                 invoice.setNumber(latestInvoice.getNumber() + Invoicing.INCREMENT);
+                invoice.setRetry(Boolean.TRUE);
                 paymentSql.createInvoice(plan, invoice, newSubsequentItemList(plan));
             }
             break;
@@ -306,18 +333,29 @@ public final class ProcessInvoiceQueue extends ProfileDelegate {
     private void lockPlans() throws NotSupportedException, SystemException,
             RollbackException, HeuristicRollbackException,
             HeuristicMixedException, Throwable {
+        /* lock plans for processing; and commit the transaction */
         final Object xaContext = newXAContext(XAContextId.PROFILE_LOCK_PLANS);
         beginXA(xaContext);
         try {
-            final Integer planCount = paymentSql.readPlanCount();
-            lockOffset += locked;
-            if (lockOffset >= planCount) {
-                lockOffset = 0;
+            if (-1 == lockedPlanId) {
+                /* initial lock */
+                logger.logTraceId();
+                logger.logInfo("Initial plan lock.");
+                final Long firstId = paymentSql.readFirstLockablePlanId();
+                if (null == firstId) {
+                    logger.logInfo("No lockable plans.");
+                    return;
+                } else {
+                    lockedPlanId = firstId;
+                }
+            } else {
+                logger.logTraceId();
+                logger.logInfo("Previous locked plan id {0}.", lockedPlanId);
             }
             /* note that the number of locks obtained is not necessarily
              * equal to the limit requested */
-            locked = paymentSql.lockPlans(node, lockOffset, LOCK_LIMIT);
-            logger.logInfo("{0}/{1} plans locked.", locked, planCount);
+            locked = paymentSql.lockPlans(node, lockedPlanId, LOCK_LIMIT);
+            logger.logInfo("{0} plans locked.", locked);
         } catch (final Throwable t) {
             rollbackXA();
             throw t;

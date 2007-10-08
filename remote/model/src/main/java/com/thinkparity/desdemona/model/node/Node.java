@@ -15,6 +15,9 @@ public final class Node {
     /** A node id. */
     private transient Long id;
 
+    /** A node ordinal. */
+    private Integer ordinal;
+
     /** A node username. */
     private String username;
 
@@ -36,6 +39,15 @@ public final class Node {
     }
 
     /**
+     * Obtain the ordinal.
+     *
+     * @return A <code>Integer</code>.
+     */
+    public Integer getOrdinal() {
+        return ordinal;
+    }
+
+    /**
      * Obtain the username.
      *
      * @return A <code>String</code>.
@@ -52,6 +64,16 @@ public final class Node {
      */
     public void setId(final Long id) {
         this.id = id;
+    }
+
+    /**
+     * Set the ordinal.
+     *
+     * @param ordinal
+     *		A <code>Integer</code>.
+     */
+    public void setOrdinal(final Integer ordinal) {
+        this.ordinal = ordinal;
     }
 
     /**

@@ -70,8 +70,15 @@ public abstract class ModelTestCase extends TestCase {
     /** The ophelia product name. */
     private static final String OPHELIA_PRODUCT_NAME = "OpheliaProduct";
 
+    /** The test session id. */
+    private static final Long SESSION_ID;
+
+    /** The username index. */
+    private static long usernameIndex;
+
     static {
         BUFFER = new Buffer();
+        SESSION_ID = System.currentTimeMillis();
         TEST_LOGGER = new Log4JWrapper("TEST_DEBUGGER");
     }
 
@@ -364,6 +371,17 @@ public abstract class ModelTestCase extends TestCase {
     }
 
     /**
+     * Obtain a session model.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @return A <code>SessionModel</code>.
+     */
+    private SessionModel getSessionModel(final AuthToken authToken) {
+        return getModelFactory(authToken).getSessionModel();
+    }
+
+    /**
      * Login.
      * 
      * @param credentials
@@ -403,18 +421,7 @@ public abstract class ModelTestCase extends TestCase {
      *            An <code>AuthToken</code>.
      */
     private void logout(final AuthToken authToken) {
-        logout(authToken.getSessionId());
-    }
-
-
-    /**
-     * Logout.
-     * 
-     * @param sessionId
-     *            A <code>String</code>.
-     */
-    private void logout(final String sessionId) {
-        sessionModel.logout(sessionId);
+        getSessionModel(authToken).logout(authToken.getSessionId());
     }
 
     /**
@@ -530,7 +537,8 @@ public abstract class ModelTestCase extends TestCase {
      * @return A <code>String</code>.
      */
     private String newUniqueUsername() {
-        return "test_" + System.currentTimeMillis();
+        return MessageFormat.format("test_{0}_{1}",
+                String.valueOf(SESSION_ID), String.valueOf(++usernameIndex));
     }
 
     /**

@@ -13,6 +13,9 @@ import java.util.Calendar;
  */
 public final class Invoice {
 
+    /** A retry flag. */
+    private Boolean retry;
+
     /** An invoice date. */
     private Calendar date;
 
@@ -107,5 +110,24 @@ public final class Invoice {
      */
     public void setPaymentDate(final Calendar paymentDate) {
         this.paymentDate = paymentDate;
+    }
+
+    /**
+     * Obtain the retry.
+     *
+     * @return A <code>Boolean</code>.
+     */
+    public Boolean isRetry() {
+        return retry;
+    }
+
+    /**
+     * Set the retry.
+     *
+     * @param retry
+     *		A <code>Boolean</code>.
+     */
+    public void setRetry(final Boolean retry) {
+        this.retry = retry;
     }
 }

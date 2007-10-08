@@ -2,8 +2,10 @@ create table TPSD_NODE(
     NODE_ID smallint generated always as identity(start with 100),
     NODE_USERNAME varchar(32) not null,
     NODE_PASSWORD varchar(64) not null,
+    NODE_ORDINAL smallint not null,
     primary key(NODE_ID),
-    unique(NODE_USERNAME)
+    unique(NODE_USERNAME),
+    unique(NODE_ORDINAL)
 );
 create table TPSD_NODE_SESSION(
     NODE_ID smallint not null,
@@ -371,6 +373,7 @@ create table TPSD_PAYMENT_PLAN_INVOICE(
     INVOICE_ID bigint generated always as identity(start with 13000),
     INVOICE_NUMBER smallint not null,
     INVOICE_DATE date not null,
+    INVOICE_RETRY character not null,
     PAYMENT_DATE date,
     primary key(INVOICE_ID),
     unique(PLAN_ID,INVOICE_NUMBER),

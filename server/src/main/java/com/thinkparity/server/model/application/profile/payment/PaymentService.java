@@ -51,17 +51,16 @@ public final class PaymentService {
      */
     public void start() throws PaymentException {
         invoiceProcessor = new PaymentInvoiceProcessor();
-        invoiceProcessor.setSleep(23L * 60L * 60L * 10000L); // TIMEOUT 23H
-        try {
-            Thread.sleep(20L * 1000L);
-        } catch (final InterruptedException ix) {
-            throw new PaymentException(ix);
-        }
+invoiceProcessor.setSleep(10L * 1000L); // TIMEOUT 23H
+//        invoiceProcessor.setSleep(23L * 60L * 60L * 10000L); // TIMEOUT 23H
         startInvoiceProcessor();
 
         queueProcessor = new PaymentQueueProcessor();
-        queueProcessor.setSleep(23L * 60L * 1000L);  // TIMEOUT 23H
+queueProcessor.setSleep(10L * 1000L);  // TIMEOUT 23H
+//        queueProcessor.setSleep(23L * 60L * 1000L);  // TIMEOUT 23H
         startQueueProcessor();
+
+        wakeInvoiceProcessor();
     }
 
     /**

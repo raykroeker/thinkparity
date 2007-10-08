@@ -5,6 +5,7 @@ package com.thinkparity.desdemona.model.profile.delegate;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -56,13 +57,13 @@ public final class ProcessPaymentQueue extends ProfileDelegate {
     /** A locked count. */
     private static int locked;
 
-    /** An offset into the invoice list. */
-    private static int lockOffset;
+    /** A previously locked invoice id. */
+    private static long lockedInvoiceId;
 
     static {
         LOCK_LIMIT = 100;
         locked = 0;
-        lockOffset = 0;
+        lockedInvoiceId = -1;
     }
 
     /** The current date/time. */
@@ -87,14 +88,25 @@ public final class ProcessPaymentQueue extends ProfileDelegate {
             SystemException, RollbackException, HeuristicRollbackException,
             HeuristicMixedException, Throwable {
         this.currentDateTime = DateTimeProvider.getCurrentDateTime();
+        final List<Invoice> invoiceList = new ArrayList<Invoice>(LOCK_LIMIT);
+        reset();
+
         /* lock */
         lockInvoices();
-        /* read locked invoices */
-        final List<Invoice> invoiceList = readLockedInvoices();
-        for (final Invoice invoice : invoiceList) {
-            logger.logVariable("invoice", invoice);
-            /* process payment */
-            processPayment(invoice);
+        /* read locked */
+        invoiceList.addAll(readLockedInvoices());
+        while (0 < invoiceList.size()) {
+            /* process */
+            for (final Invoice invoice : invoiceList) {
+                lockedInvoiceId = invoice.getId();
+                logger.logVariable("lockedInvoiceId", lockedInvoiceId);
+                logger.logVariable("invoice", invoice);
+                processPayment(invoice);
+            }
+            /* lock */
+            lockInvoices();
+            /* read locked */
+            invoiceList.retainAll(readLockedInvoices());
         }
     }
 
@@ -161,17 +173,27 @@ public final class ProcessPaymentQueue extends ProfileDelegate {
         final Object xaContext = newXAContext(XAContextId.PROFILE_LOCK_INVOICES);
         beginXA(xaContext);
         try {
-            final Integer invoiceCount = paymentSql.readLockableInvoiceCount(
-                    currentDateTime);
-            lockOffset += locked;
-            if (lockOffset >= invoiceCount) {
-                lockOffset = 0;
+            if (-1 == lockedInvoiceId) {
+                /* initial lock */
+                logger.logTraceId();
+                logger.logInfo("Initial invoice lock.");
+                final Long firstId = paymentSql.readFirstLockableInvoiceId(
+                        currentDateTime, Boolean.TRUE);
+                if (null == firstId) {
+                    logger.logInfo("No lockable invoices.");
+                    return;
+                } else {
+                    lockedInvoiceId = firstId;
+                }
+            } else {
+                logger.logTraceId();
+                logger.logInfo("Previous locked invoice id {0}.", lockedInvoiceId);
             }
             /* note that the number of locks obtained is not necessarily
              * equal to the limit requested */
-            locked = paymentSql.lockInvoices(node, lockOffset, LOCK_LIMIT,
-                    currentDateTime);
-            logger.logInfo("{0}/{1} invoices locked.", locked, invoiceCount);
+            locked = paymentSql.lockInvoices(node, lockedInvoiceId, LOCK_LIMIT,
+                    currentDateTime, Boolean.TRUE);
+            logger.logInfo("{0} invoices locked.", locked);
         } catch (final Throwable t) {
             rollbackXA();
             throw t;
@@ -262,14 +284,18 @@ public final class ProcessPaymentQueue extends ProfileDelegate {
      * 
      * @param plan
      *            A <code>PaymentPlan</code>.
+     * @param invoice
+     *            An <code>Invoice</code>.
      */
-    private void notifyCardDeclined(final PaymentPlan plan) {
+    private void notifyCardDeclined(final PaymentPlan plan,
+            final Invoice invoice) {
         if (plan.isArrears()) {
             logger.logInfo("Plan {0} still in arrears.", plan);
         } else {
             final List<Profile> profileList = readPaymentPlanProfiles(plan);
             updateProfilesActive(profileList, Boolean.FALSE);
             updatePlanArrears(plan, Boolean.TRUE);
+            updateInvoiceRetry(invoice, Boolean.FALSE);
             enqueuePaymentFailed(plan);
             enqueuePlanInArrears(readPaymentPlanProfiles(plan));
         }
@@ -281,14 +307,17 @@ public final class ProcessPaymentQueue extends ProfileDelegate {
      * 
      * @param plan
      *            A <code>PaymentPlan</code>.
+     * @param invoice
+     *            An <code>Invoice</code>.
      */
-    private void notifyCardExpired(final PaymentPlan plan) {
+    private void notifyCardExpired(final PaymentPlan plan, final Invoice invoice) {
         if (plan.isArrears()) {
             logger.logInfo("Plan {0} still in arrears.", plan);
         } else {
             final List<Profile> profileList = readPaymentPlanProfiles(plan);
             updateProfilesActive(profileList, Boolean.FALSE);
             updatePlanArrears(plan, Boolean.TRUE);
+            updateInvoiceRetry(invoice, Boolean.FALSE);
             enqueuePaymentFailed(plan);
             enqueuePlanInArrears(profileList);
         }
@@ -361,10 +390,10 @@ public final class ProcessPaymentQueue extends ProfileDelegate {
                 }
             } catch (final CardDeclinedException cdx) {
                 logger.logInfo("Card for plan {0} was declined.", plan);
-                notifyCardDeclined(plan);
+                notifyCardDeclined(plan, invoice);
             } catch (final CardExpiredException cex) {
                 logger.logInfo("Card for plan {0} has expired.", plan);
-                notifyCardExpired(plan);
+                notifyCardExpired(plan, invoice);
             } catch (final PaymentException px) {
                 logger.logError(px, "Error processing payment.  {0}:{1}", plan,
                         invoice);
@@ -377,7 +406,7 @@ public final class ProcessPaymentQueue extends ProfileDelegate {
                 updateTransaction(transaction, didComplete);
                 if (didComplete.booleanValue()) {
                     /* notify complete */
-                    notifyComplete(plan, currentDateTime);
+                    notifyComplete(plan, invoice, currentDateTime);
                     /* update payment date */
                     updatePaymentDate(invoice);
                     /* delete lock */
@@ -419,6 +448,13 @@ public final class ProcessPaymentQueue extends ProfileDelegate {
         } finally {
             completeXA(xaContext);
         }
+    }
+
+    /**
+     * Reset the locked invoice id.
+     */
+    private void reset() {
+        lockedInvoiceId = -1;
     }
 
     /**

@@ -46,8 +46,8 @@ public final class PaymentSql extends AbstractSql {
     /** Sql to create an invoice. */
     private static final String SQL_CREATE_INVOICE =
         new StringBuilder("insert into TPSD_PAYMENT_PLAN_INVOICE ")
-        .append("(PLAN_ID,INVOICE_NUMBER,INVOICE_DATE) ")
-        .append("values (?,?,?)")
+        .append("(PLAN_ID,INVOICE_NUMBER,INVOICE_DATE,INVOICE_RETRY) ")
+        .append("values (?,?,?,?)")
         .toString();
 
     /** Sql to create an invoice item. */
@@ -198,7 +198,7 @@ public final class PaymentSql extends AbstractSql {
     /** Sql to read an invoice by the invoice date descending. */
     private static final String SQL_READ_INVOICES =
         new StringBuilder("select PPI.INVOICE_ID,PPI.INVOICE_NUMBER,")
-        .append("PPI.INVOICE_DATE,PPI.PAYMENT_DATE ")
+        .append("PPI.INVOICE_DATE,PPI.INVOICE_RETRY,PPI.PAYMENT_DATE ")
         .append("from TPSD_PAYMENT_PLAN_INVOICE PPI ")
         .append("where PPI.PLAN_ID=? ")
         .append("order by PPI.INVOICE_DATE desc")
@@ -207,7 +207,7 @@ public final class PaymentSql extends AbstractSql {
     /** Sql to read locked playment plan queue entries. */
     private static final String SQL_READ_INVOICES_LOCKED =
         new StringBuilder("select PPI.INVOICE_ID,PPI.INVOICE_NUMBER,")
-        .append("PPI.INVOICE_DATE,PPI.PAYMENT_DATE ")
+        .append("PPI.INVOICE_DATE,PPI.INVOICE_RETRY,PPI.PAYMENT_DATE ")
         .append("from TPSD_PAYMENT_PLAN_INVOICE PPI ")
         .append("inner join TPSD_PAYMENT_PLAN_INVOICE_LOCK PPIL ")
         .append("on PPIL.INVOICE_ID=PPI.INVOICE_ID ")
@@ -218,25 +218,34 @@ public final class PaymentSql extends AbstractSql {
     /** Sql to read invoices to lock. */ 
     private static final String SQL_READ_INVOICES_TO_LOCK =
         new StringBuilder("select PPI.INVOICE_ID,PPI.INVOICE_NUMBER,")
-        .append("PPI.INVOICE_DATE,PPI.PAYMENT_DATE ")
+        .append("PPI.INVOICE_DATE,PPI.INVOICE_RETRY,PPI.PAYMENT_DATE ")
         .append("from TPSD_PAYMENT_PLAN_INVOICE PPI ")
         .append("inner join TPSD_PAYMENT_PLAN_INVOICE_LOCK PPIL ")
         .append("on PPIL.INVOICE_ID=PPI.INVOICE_ID ")
-        .append("where PPI.INVOICE_DATE <= ? ")
+        .append("where PPI.INVOICE_DATE<=? ")
+        .append("and PPI.INVOICE_RETRY=? ")
+        .append("and PPI.INVOICE_ID>? ")
         .append("and PPI.PAYMENT_DATE is null ")
         .append("and PPIL.NODE_ID is null ")
         .append("order by PPI.INVOICE_DATE asc")
         .toString();
 
-    /** Sql to read a count of invoices to lock. */ 
-    private static final String SQL_READ_LOCKABLE_INVOICE_COUNT =
-        new StringBuilder("select count(PPI.INVOICE_ID) \"INVOICE_COUNT\" ")
+    /** Sql to read the first lockable invoice id to lock. */ 
+    private static final String SQL_READ_LOCKABLE_INVOICE_ID =
+        new StringBuilder("select min(PPI.INVOICE_ID) \"INVOICE_ID\" ")
         .append("from TPSD_PAYMENT_PLAN_INVOICE PPI ")
         .append("inner join TPSD_PAYMENT_PLAN_INVOICE_LOCK PPIL ")
         .append("on PPIL.INVOICE_ID=PPI.INVOICE_ID ")
-        .append("where PPI.INVOICE_DATE <= ? ")
+        .append("where PPI.INVOICE_DATE<=? ")
+        .append("and PPI.INVOICE_RETRY=? ")
         .append("and PPI.PAYMENT_DATE is null ")
         .append("and PPIL.NODE_ID is null")
+        .toString();
+
+    /** Sql to read the first lockable plan id. */
+    private static final String SQL_READ_LOCKABLE_PLAN_ID =
+        new StringBuilder("select min(PP.PLAN_ID) \"PLAN_ID\" ")
+        .append("from TPSD_PAYMENT_PLAN PP ")
         .toString();
 
     /** Sql to read a locked plan count. */
@@ -244,12 +253,6 @@ public final class PaymentSql extends AbstractSql {
         new StringBuilder("select count(PPL.PLAN_ID) \"PLAN_COUNT\" ")
         .append("from TPSD_PAYMENT_PLAN_LOCK PPL ")
         .append("where PPL.NODE_ID=?")
-        .toString();
-
-    /** Sql to read the plan count. */
-    private static final String SQL_READ_PLAN_COUNT =
-        new StringBuilder("select count(PP.PLAN_ID) \"PLAN_COUNT\" ")
-        .append("from TPSD_PAYMENT_PLAN PP ")
         .toString();
 
     /** Sql to read the plan info id. */
@@ -304,7 +307,8 @@ public final class PaymentSql extends AbstractSql {
         .append("inner join TPSD_PAYMENT_CURRENCY PC on PC.CURRENCY_ID=PP.PLAN_CURRENCY ")
         .append("inner join TPSD_USER O on O.USER_ID=PP.PLAN_OWNER ")
         .append("inner join TPSD_PAYMENT_PLAN_LOCK PPL on PPL.PLAN_ID=PP.PLAN_ID ")
-        .append("where PPL.NODE_ID is null ")
+        .append("where PP.PLAN_ID>? ")
+        .append("and PPL.NODE_ID is null ")
         .append("order by PP.PLAN_ID asc")
         .toString();
 
@@ -330,6 +334,16 @@ public final class PaymentSql extends AbstractSql {
         new StringBuilder("select PP.PROVIDER_ID ")
         .append("from TPSD_PAYMENT_PROVIDER PP ")
         .append("where PP.PROVIDER_NAME=?")
+        .toString();
+
+    /** Sql to read unpaid invoices. */
+    private static final String SQL_READ_UNPAID_INVOICES =
+        new StringBuilder("select PPI.INVOICE_ID,PPI.INVOICE_NUMBER,")
+        .append("PPI.INVOICE_DATE,PPI.INVOICE_RETRY,PPI.PAYMENT_DATE ")
+        .append("from TPSD_PAYMENT_PLAN_INVOICE PPI ")
+        .append("where PPI.PLAN_ID=? ")
+        .append("and PPI.PAYMENT_DATE is null ")
+        .append("order by PPI.INVOICE_DATE desc")
         .toString();
 
     /** Sql to read the user plan's arrears flag. */
@@ -381,6 +395,13 @@ public final class PaymentSql extends AbstractSql {
         .append("set PAYMENT_DATE=? where INVOICE_ID=?")
         .toString();
 
+    /** Sql to update the invoice's retry flag. */
+    private static final String SQL_UPDATE_INVOICE_RETRY =
+        new StringBuilder("update TPSD_PAYMENT_PLAN_INVOICE ")
+        .append("set INVOICE_RETRY=? ")
+        .append("where INVOICE_ID=?")
+        .toString();
+
     /** Sql to update the plan's arrears flag. */
     private static final String SQL_UPDATE_PLAN_ARREARS =
         new StringBuilder("update TPSD_PAYMENT_PLAN ")
@@ -426,8 +447,8 @@ public final class PaymentSql extends AbstractSql {
             session.setLong(1, lookupId(provider));
             session.setEncryptedString(2, info.getCardName().name());
             session.setEncryptedString(3, info.getCardNumber());
-            session.setEncryptedString(4, info.getCardExpiryMonth().toString());
-            session.setEncryptedString(5, info.getCardExpiryYear().toString());
+            session.setEncryptedString(4, String.valueOf(info.getCardExpiryMonth()));
+            session.setEncryptedString(5, String.valueOf(info.getCardExpiryYear()));
             if (1 != session.executeUpdate()) {
                 throw panic("Could not create payment info.");
             }
@@ -445,6 +466,7 @@ public final class PaymentSql extends AbstractSql {
             session.close();
         }
     }
+
     /**
      * Create an invoice.
      * 
@@ -463,6 +485,7 @@ public final class PaymentSql extends AbstractSql {
             session.setLong(1, plan.getId());
             session.setInt(2, invoice.getNumber());
             session.setDate(3, invoice.getDate());
+            session.setBoolean(4, invoice.isRetry());
             if (1 != session.executeUpdate()) {
                 throw panic("Could not create invoice.");
             }
@@ -490,7 +513,6 @@ public final class PaymentSql extends AbstractSql {
             session.close();
         }
     }
-
     /**
      * Create a plan.
      * 
@@ -754,30 +776,30 @@ public final class PaymentSql extends AbstractSql {
      *            An <code>Integer</code>.
      * @param currentDate
      *            A <code>Calendar</code>.
+     * @param retry
+     *            A <code>Boolean</code>.
      * @return An <code>Integer</code>.
      */
-    public Integer lockInvoices(final Node node, final Integer offset,
-            final Integer limit, final Calendar currentDate) {
+    public Integer lockInvoices(final Node node, final Long invoiceId,
+            final Integer limit, final Calendar currentDate, final Boolean retry) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_INVOICES_TO_LOCK);
             session.setDate(1, currentDate);
+            session.setBoolean(2, retry);
+            session.setLong(3, invoiceId);
             session.executeQuery();
             final List<Invoice> invoiceList = new ArrayList<Invoice>(limit);
             while (session.nextResult()) {
                 invoiceList.add(extractInvoice(session));
             }
 
-            if (0 > offset || invoiceList.size() - 1 < offset) {
-                return Integer.valueOf(0);
-            }
-
             int locked = 0;
             session.prepareStatement(SQL_LOCK_INVOICE);
             session.setLong(1, node.getId());
             int rows;
-            for (int i = offset; i < invoiceList.size() && i - offset < limit; i++) {
-                session.setLong(2, invoiceList.get(i).getId());
+            for (final Invoice invoice : invoiceList) {
+                session.setLong(2, invoice.getId());
                 rows = session.executeUpdate();
                 if (0 > rows || 1 < rows) {
                     throw new HypersonicException("Could not lock plan queue entries.");
@@ -805,27 +827,24 @@ public final class PaymentSql extends AbstractSql {
      *            An <code>Integer</code>.
      * @return An <code>Integer</code>.
      */
-    public Integer lockPlans(final Node node, final Integer offset,
+    public Integer lockPlans(final Node node, final Long planId,
             final Integer limit) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_PLANS_TO_LOCK);
+            session.setLong(1, planId);
             session.executeQuery();
             final List<PaymentPlan> planList = new ArrayList<PaymentPlan>(limit);
             while (session.nextResult()) {
                 planList.add(extractPlan(session));
             }
 
-            if (0 > offset || planList.size() - 1 < offset) {
-                return Integer.valueOf(0);
-            }
-
             int locked = 0;
             session.prepareStatement(SQL_LOCK_PLAN);
             session.setLong(1, node.getId());
             int rows;
-            for (int i = offset; i < planList.size() && i - offset < limit; i++) {
-                session.setLong(2, planList.get(i).getId());
+            for (final PaymentPlan plan : planList) {
+                session.setLong(2, plan.getId());
                 rows = session.executeUpdate();
                 if (0 > rows || 1 < rows) {
                     throw new HypersonicException("Could not lock plan.");
@@ -855,6 +874,57 @@ public final class PaymentSql extends AbstractSql {
             session.executeQuery();
             if (session.nextResult()) {
                 return extractCurrency(session);
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read the first lockable invoice id for the node.
+     * 
+     * @param currentDate
+     *            A <code>Calendar</code>.
+     * @param retry
+     *            A <code>Boolean</code>.
+     * @return A <code>Long</code>.
+     */
+    public Long readFirstLockableInvoiceId(final Calendar currentDate,
+            final Boolean retry) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_LOCKABLE_INVOICE_ID);
+            session.setDate(1, currentDate);
+            session.setBoolean(2, retry);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getLong("INVOICE_ID");
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read the first lockable plan id.
+     * 
+     * @return A <code>Long</code>.
+     */
+    public Long readFirstLockablePlanId() {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_LOCKABLE_PLAN_ID);
+            session.executeQuery();
+            if (session.nextResult()) {
+                return session.getLong("PLAN_ID");
             } else {
                 return null;
             }
@@ -950,24 +1020,6 @@ public final class PaymentSql extends AbstractSql {
             }
         } catch (final Throwable t) {
             throw translateError(session, t);
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
-     * Read the total number of lockable invoices.
-     * 
-     * @return An <code>Integer</code>.
-     */
-    public Integer readLockableInvoiceCount(final Calendar currentDate) {
-        final HypersonicSession session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_LOCKABLE_INVOICE_COUNT);
-            session.setDate(1, currentDate);
-            session.executeQuery();
-            session.nextResult();
-            return session.getInteger("INVOICE_COUNT");
         } finally {
             session.close();
         }
@@ -1100,23 +1152,6 @@ public final class PaymentSql extends AbstractSql {
     }
 
     /**
-     * Read the total number of plans.
-     * 
-     * @return An <code>Integer</code>.
-     */
-    public Integer readPlanCount() {
-        final HypersonicSession session = openSession();
-        try {
-            session.prepareStatement(SQL_READ_PLAN_COUNT);
-            session.executeQuery();
-            session.nextResult();
-            return session.getInteger("PLAN_COUNT");
-        } finally {
-            session.close();
-        }
-    }
-
-    /**
      * Read the users attached to the plan.
      * 
      * @param plan
@@ -1191,6 +1226,29 @@ public final class PaymentSql extends AbstractSql {
     }
 
     /**
+     * Read all unpaid invoices for a plan.
+     * 
+     * @param plan
+     *            A <code>PaymentPlan</code>.
+     * @return A <code>List<Invoice></code>.
+     */
+    public List<Invoice> readUnpaidInvoices(final PaymentPlan plan) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_UNPAID_INVOICES);
+            session.setLong(1, plan.getId());
+            session.executeQuery();
+            final List<Invoice> invoiceList = new ArrayList<Invoice>();
+            while (session.nextResult()) {
+                invoiceList.add(extractInvoice(session));
+            }
+            return invoiceList;
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Unlock an invoice.
      * 
      * @param node
@@ -1250,10 +1308,10 @@ public final class PaymentSql extends AbstractSql {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_UPDATE_INFO);
-            session.setString(1, info.getCardName().name());
-            session.setString(2, info.getCardNumber());
-            session.setString(3, String.valueOf(info.getCardExpiryMonth()));
-            session.setString(4, String.valueOf(info.getCardExpiryYear()));
+            session.setEncryptedString(1, info.getCardName().name());
+            session.setEncryptedString(2, info.getCardNumber());
+            session.setEncryptedString(3, String.valueOf(info.getCardExpiryMonth()));
+            session.setEncryptedString(4, String.valueOf(info.getCardExpiryYear()));
             session.setLong(5, lookupInfoId(plan));
 
             if (1 != session.executeUpdate()) {
@@ -1280,6 +1338,52 @@ public final class PaymentSql extends AbstractSql {
             session.setLong(2, invoice.getId());
             if (1 != session.executeUpdate()) {
                 throw panic("Could not update invoice payment date.");
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Update the invoice's retry flag.
+     * 
+     * @param invoice
+     *            An <code>Invoice</code>.
+     */
+    public void updateInvoiceRetry(final Invoice invoice) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_INVOICE_RETRY);
+            session.setBoolean(1, invoice.isRetry());
+            session.setLong(2, invoice.getId());
+            if (1 != session.executeUpdate()) {
+                throw panic("Could not update invoice retry.");
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Update the invoice's retry flag.
+     * 
+     * @param invoiceList
+     *            A <code>List<Invoice></code>.
+     */
+    public void updateInvoiceRetry(final List<Invoice> invoiceList) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_INVOICE_RETRY);
+            for (final Invoice invoice : invoiceList) {
+                session.setBoolean(1, invoice.isRetry());
+                session.setLong(2, invoice.getId());
+                if (1 != session.executeUpdate()) {
+                    throw panic("Could not update invoice retry.");
+                }
             }
         } catch (final Throwable t) {
             throw translateError(session, t);
@@ -1376,6 +1480,7 @@ public final class PaymentSql extends AbstractSql {
         invoice.setId(session.getLong("INVOICE_ID"));
         invoice.setNumber(session.getInteger("INVOICE_NUMBER"));
         invoice.setPaymentDate(session.getCalendar("PAYMENT_DATE"));
+        invoice.setRetry(session.getBoolean("INVOICE_RETRY"));
         return invoice;
     }
 

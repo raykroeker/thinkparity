@@ -156,6 +156,8 @@ public final class WebInitializer implements ServletContextListener {
         setProperty(properties, "thinkparity.node.username", servletContext);
         setProperty(properties, "thinkparity.node.password", servletContext);
         setProperty(properties, "thinkparity.product-name", servletContext);
+        setProperty(properties, "thinkparity.payment.plansleep", servletContext);
+        setProperty(properties, "thinkparity.payment.invoicesleep", servletContext);
         setProperty(properties, "thinkparity.queue.notification.bind-host", servletContext);
         setProperty(properties, "thinkparity.queue.notification.bind-port", servletContext);
         setProperty(properties, "thinkparity.queue.notification-charset", servletContext);
@@ -371,7 +373,7 @@ public final class WebInitializer implements ServletContextListener {
         logger.logInfo("Starting payment service.");
         final PaymentService paymentService = PaymentService.getInstance();
         try {
-            paymentService.start();
+            paymentService.start(properties);
         } catch (final PaymentException px) {
             failStart(px, "Could not start payment service.");
         }

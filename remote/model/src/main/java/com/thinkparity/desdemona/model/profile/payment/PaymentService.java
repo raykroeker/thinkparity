@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.model.profile.payment;
 
+import java.util.Properties;
 import java.util.concurrent.Executors;
 
 
@@ -15,10 +16,14 @@ import java.util.concurrent.Executors;
  */
 public final class PaymentService {
 
+    /** A default sleep duration. */
+    private static final Long DEFAULT_SLEEP;
+
     /** A singleton instance. */
     private static final PaymentService SINGLETON;
 
     static {
+        DEFAULT_SLEEP = 23L * 60L * 60L * 1000L; // TIMEOUT 23H
         SINGLETON = new PaymentService();
     }
 
@@ -37,6 +42,9 @@ public final class PaymentService {
     /** A queue processor. */
     private PaymentQueueProcessor queueProcessor;
 
+    /** A properties. */
+    private Properties properties;
+
     /**
      * Create PaymentService.
      *
@@ -49,15 +57,15 @@ public final class PaymentService {
      * Start the payment service.
      * 
      */
-    public void start() throws PaymentException {
+    public void start(final Properties properties) throws PaymentException {
+        this.properties = properties;
+
         invoiceProcessor = new PaymentInvoiceProcessor();
-invoiceProcessor.setSleep(10L * 1000L); // TIMEOUT 23H
-//        invoiceProcessor.setSleep(23L * 60L * 60L * 10000L); // TIMEOUT 23H
+        invoiceProcessor.setSleep(getSleep("thinkparity.payment.invoicesleep"));
         startInvoiceProcessor();
 
         queueProcessor = new PaymentQueueProcessor();
-queueProcessor.setSleep(10L * 1000L);  // TIMEOUT 23H
-//        queueProcessor.setSleep(23L * 60L * 1000L);  // TIMEOUT 23H
+        queueProcessor.setSleep(getSleep("thinkparity.payment.plansleep"));
         startQueueProcessor();
 
         wakeInvoiceProcessor();
@@ -81,6 +89,7 @@ queueProcessor.setSleep(10L * 1000L);  // TIMEOUT 23H
      */
     public void wakeInvoiceProcessor() {
         synchronized (invoiceProcessor) {
+            invoiceProcessor.setSleep(getSleep("thinkparity.payment.invoicesleep"));
             invoiceProcessor.notify();
         }
     }
@@ -91,7 +100,24 @@ queueProcessor.setSleep(10L * 1000L);  // TIMEOUT 23H
      */
     public void wakePaymentProcessor() {
         synchronized (queueProcessor) {
+            queueProcessor.setSleep(getSleep("thinkparity.payment.plansleep"));
             queueProcessor.notify();
+        }
+    }
+
+    /**
+     * Obtain the sleep property.
+     * 
+     * @param key
+     *            A <code>String</code>.
+     * @return A <code>Long</code>.
+     */
+    private Long getSleep(final String key) {
+        try {
+            return Long.valueOf(properties.getProperty(key,
+                    String.valueOf(DEFAULT_SLEEP)));
+        } catch (final NumberFormatException nfx) {
+            return DEFAULT_SLEEP;
         }
     }
 

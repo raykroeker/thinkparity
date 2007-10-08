@@ -148,13 +148,6 @@ public final class Publish extends ContainerDelegate {
                 // delta previous with version
                 containerIO.createDelta(calculateDelta(container, version, previous));
             }
-            // delete draft
-            for (final Document document : documents) {
-                documentModel.deleteDraft(locks.get(document), document.getId());
-                containerIO.deleteDraftArtifactRel(containerId, document.getId());
-            }
-            containerIO.deleteDraftDocuments(containerId);
-            containerIO.deleteDraft(containerId);
             // create published to list
             containerIO.createPublishedTo(version.getArtifactId(),
                     version.getVersionId(), contacts, publishedOn);
@@ -188,6 +181,13 @@ public final class Publish extends ContainerDelegate {
                         version.getVersionId(), previous.getVersionId());
             }
             uploadDocumentVersions(monitor, documentVersions, deltas);
+            // delete draft
+            for (final Document document : documents) {
+                documentModel.deleteDraft(locks.get(document), document.getId());
+                containerIO.deleteDraftArtifactRel(containerId, document.getId());
+            }
+            containerIO.deleteDraftDocuments(containerId);
+            containerIO.deleteDraft(containerId);
             // publish
             notifyStepBegin(monitor, PublishStep.PUBLISH);
             // build published to list

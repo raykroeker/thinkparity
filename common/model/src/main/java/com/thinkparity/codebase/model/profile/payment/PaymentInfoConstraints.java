@@ -40,6 +40,9 @@ public final class PaymentInfoConstraints {
     /** The payment info expiry year constraint. */
     private final ShortConstraint cardExpiryYear;
 
+    /** The cardholder's name constraint. */
+    private final StringConstraint cardholderName;
+
     /** The payment info card name constraint. */
     private final Constraint<PaymentInfo.CardName> cardName;
 
@@ -64,6 +67,11 @@ public final class PaymentInfoConstraints {
         this.cardExpiryYear.setMaxValue((short) (calendar.get(Calendar.YEAR) + 10));
         this.cardExpiryYear.setName("Payment info expiry year.");
         this.cardExpiryYear.setNullable(Boolean.FALSE);
+
+        this.cardholderName = new StringConstraint();
+        this.cardholderName.setMaxLength(64);
+        this.cardholderName.setName("Cardholder's name.");
+        this.cardholderName.setNullable(Boolean.TRUE);
 
         this.cardName = new Constraint<PaymentInfo.CardName>() {};
         this.cardName.setName("Payment info card name.");
@@ -92,6 +100,15 @@ public final class PaymentInfoConstraints {
      */
     public ShortConstraint getCardExpiryYear() {
         return cardExpiryYear;
+    }
+
+    /**
+     * Obtain the cardholder name constraint.
+     *
+     * @return A StringConstraint.
+     */
+    public StringConstraint getCardholderName() {
+        return cardholderName;
     }
 
     /**

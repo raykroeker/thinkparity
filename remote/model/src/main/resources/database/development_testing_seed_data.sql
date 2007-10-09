@@ -1,4 +1,4 @@
-insert into TPSD_NODE(NODE_USERNAME,NODE_PASSWORD) values('tps-yxx-0.thinkparity.org-0','9hq1sKw+RLjLc1UdtEQRcA==');
+insert into TPSD_NODE(NODE_USERNAME,NODE_PASSWORD,NODE_ORDINAL) values('tps-yxx-0.thinkparity.org-0','9hq1sKw+RLjLc1UdtEQRcA==',1);
 
 insert into TPSD_PAYMENT_CURRENCY(CURRENCY_NAME) values('USD');
 

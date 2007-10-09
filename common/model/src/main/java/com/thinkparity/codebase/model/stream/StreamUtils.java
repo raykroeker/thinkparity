@@ -143,8 +143,7 @@ public final class StreamUtils {
      *            An <code>HttpMethod</code>.
      * @return A <code>StreamErrorResponse</code>.
      */
-    StreamErrorResponse readErrorResponse(final HttpMethod httpMethod)
-            throws IOException {
+    StreamErrorResponse readErrorResponse(final HttpMethod httpMethod) {
         final StreamErrorResponse errorResponse;
         try {
             /* read the error response xml */
@@ -176,8 +175,12 @@ public final class StreamUtils {
             } else {
                 errorResponse = StreamErrorResponse.EMPTY_RESPONSE;
             }
+        } catch (final IOException iox) {
+            LOGGER.logWarning(iox, "Could not extract stream error response.");
+            return StreamErrorResponse.EMPTY_RESPONSE;
         } catch (final XmlPullParserException xppx) {
-            throw new IOException(xppx);
+            LOGGER.logWarning(xppx, "Could not extract stream error response.");
+            return StreamErrorResponse.EMPTY_RESPONSE;
         }
         return errorResponse;
     }
@@ -202,12 +205,16 @@ public final class StreamUtils {
      * @param method
      *            A <code>HttpMethod</code>.
      */
-    void writeError(final HttpMethod method) throws IOException {
-        final InputStream errorStream = method.getResponseBodyAsStream();
-        if (null == errorStream) {
-            LOGGER.logError("No stream response.");
-        } else {
-            StreamUtil.copy(errorStream, System.err);
+    void writeError(final HttpMethod method) {
+        try {
+            final InputStream errorStream = method.getResponseBodyAsStream();
+            if (null == errorStream) {
+                LOGGER.logWarning("No stream response.");
+            } else {
+                StreamUtil.copy(errorStream, System.err);
+            }
+        } catch (final IOException iox) {
+            LOGGER.logWarning(iox, "Could not write stream error.");
         }
     }
 

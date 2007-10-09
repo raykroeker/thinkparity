@@ -52,6 +52,7 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
 
     /** The possible node names for the response xml. */
     private static final String[] RESPONSE_NODE_NAMES;
+
     /** A <code>ServiceHelper</code>. */
     private static final ServiceHelper SERVICE_HELPER;
 

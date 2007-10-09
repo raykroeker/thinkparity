@@ -244,6 +244,17 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
     }
 
     /**
+     * Create an xstream xml pull parser reader for an input steam.
+     * 
+     * @param stream
+     *            An <code>InputStream</code>.
+     * @return An <code>XppReader</code>.
+     */
+    private static XppReader newXppReader(final InputStream stream) {
+        return new XppReader(newStreamReader(stream));
+    }
+
+    /**
      * Unmarshall the error stack trace of the response.
      * 
      * @param xppReader
@@ -414,17 +425,6 @@ public class HttpServiceProxy implements InvocationHandler, RequestEntity {
      */
     private PostMethod newPostMethod() {
         return new PostMethod(newServiceURI(context, service));
-    }
-
-    /**
-     * Create an xstream xml pull parser reader for an input steam.
-     * 
-     * @param stream
-     *            An <code>InputStream</code>.
-     * @return An <code>XppReader</code>.
-     */
-    private XppReader newXppReader(final InputStream stream) {
-        return new XppReader(newStreamReader(stream));
     }
 
     /**

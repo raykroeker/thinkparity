@@ -421,7 +421,7 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
 
         final Calendar now = Calendar.getInstance();
         final short nowYear = (short) now.get(Calendar.YEAR);
-        final short nowMonth = (short) (now.get(Calendar.MONTH));
+        final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
         if (nowYear == paymentInfo.getCardExpiryYear() &&
                 nowMonth > paymentInfo.getCardExpiryMonth()) {
             if (ignoreFocus

@@ -6,16 +6,24 @@
 
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.Calendar;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.AbstractDocument;
 
-import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
 import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
 import com.thinkparity.codebase.model.profile.payment.PaymentInfoConstraints;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
@@ -40,12 +48,12 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel cardholderNameJLabel;
-    private javax.swing.JTextField cardholderNameJTextField;
     private final javax.swing.JComboBox cardMonthJComboBox = new javax.swing.JComboBox();
     private final javax.swing.JTextField cardNumberJTextField = TextFactory.create();
     private final javax.swing.JComboBox cardTypeJComboBox = new javax.swing.JComboBox();
     private final javax.swing.JComboBox cardYearJComboBox = new javax.swing.JComboBox();
+    private final javax.swing.JTextField cardholderNameJTextField = TextFactory.create();
+    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
     /** The country <code>DefaultComboBoxModel</code>. */
@@ -71,6 +79,7 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
         initExpiryYearModel();
         initComponents();
         addValidationListeners();
+        addFocusListeners();
         cardTypeJComboBox.setRenderer(new CardNameCellRenderer("CardName", getLocalization()));
     }
 
@@ -127,24 +136,44 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
      */
     @Override
     public void reload() {
+        selectExpiryMonth();
+        selectExpiryYear();
         validateInput();
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.DefaultUpgradeAccountPage#validateInput()
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#validateInput()
+     *
      */
     @Override
-    public void validateInput() {
-        super.validateInput();
+    public final void validateInput() {
+        validateInput(Boolean.FALSE);
+    }
 
-        final String cardNumber = extractCardNumber();
-        if (null == cardNumber) {
-            addInputError(getString("ErrorNoNumber"));
-        }
-        
-        if (isUpgradeAccountDelegateInitialized()) {
-            upgradeAccountDelegate.enableNextButton(Boolean.TRUE);
-        }
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isInputValid()
+     */
+    @Override
+    protected Boolean isInputValid() {
+        validateInput(Boolean.TRUE);
+        return !containsInputErrors();
+    }
+
+    /**
+     * Add focus listeners for the input controls.
+     */
+    private void addFocusListeners() {
+        final FocusListener focusListener = new FocusListener() {
+            public void focusGained(FocusEvent e) {
+                validateInput();
+            }
+            public void focusLost(FocusEvent e) {
+                validateInput();
+            }
+        };
+        cardNumberJTextField.addFocusListener(focusListener);
+        cardMonthJComboBox.addFocusListener(focusListener);
+        cardYearJComboBox.addFocusListener(focusListener);
     }
 
     /**
@@ -154,15 +183,14 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
     private void addValidationListeners() {
         addValidationListener(cardholderNameJTextField);
         addValidationListener(cardNumberJTextField);
-    }
-
-    /**
-     * Extract the card number.
-     * 
-     * @return A <code>String</code>.
-     */
-    private String extractCardNumber() {
-        return SwingUtil.extract(cardNumberJTextField);
+        final ItemListener itemListener = new ItemListener() {
+            public void itemStateChanged(final ItemEvent e) {
+                validateInput();
+            }
+        };
+        cardTypeJComboBox.addItemListener(itemListener);
+        cardMonthJComboBox.addItemListener(itemListener);
+        cardYearJComboBox.addItemListener(itemListener);
     }
 
     /**
@@ -220,8 +248,7 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
         final javax.swing.JLabel cardExpiryDateJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel privacyLearnMoreJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
         final javax.swing.JLabel proceedJLabel = new javax.swing.JLabel();
-        cardholderNameJLabel = LabelFactory.create(Fonts.DialogFont);
-        cardholderNameJTextField = new javax.swing.JTextField();
+        final javax.swing.JLabel cardholderNameJLabel = LabelFactory.create(Fonts.DialogFont);
 
         setOpaque(false);
         creditInfoTitleJLabel.setFont(Fonts.DialogFont);
@@ -250,15 +277,22 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
 
         privacyLearnMoreJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.PrivacyLearnMore"));
         privacyLearnMoreJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                privacyLearnMoreJLabelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                privacyLearnMoreJLabelMousePressed(evt);
             }
         });
 
         proceedJLabel.setFont(Fonts.DialogFont);
         proceedJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.Proceed"));
 
+        cardholderNameJLabel.setFont(Fonts.DialogFont);
         cardholderNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.Cardholder"));
+
+        ((AbstractDocument) cardholderNameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getCardholderName()));
+
+        errorMessageJLabel.setFont(Fonts.DialogFont);
+        errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
+        errorMessageJLabel.setText("!Error Message!");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -267,7 +301,7 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(creditInfoTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
+                    .addComponent(creditInfoTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(10, 10, 10)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -277,16 +311,17 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
                             .addComponent(cardholderNameJLabel))
                         .addGap(21, 21, 21)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cardholderNameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE)
-                            .addComponent(cardNumberJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE)
-                            .addComponent(cardTypeJComboBox, 0, 234, Short.MAX_VALUE)
+                            .addComponent(cardholderNameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
+                            .addComponent(cardNumberJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
+                            .addComponent(cardTypeJComboBox, 0, 292, Short.MAX_VALUE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(cardMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cardYearJComboBox, 0, 123, Short.MAX_VALUE)))
+                                .addComponent(cardYearJComboBox, 0, 181, Short.MAX_VALUE)))
                         .addGap(36, 36, 36))
                     .addComponent(privacyLearnMoreJLabel)
-                    .addComponent(proceedJLabel))
+                    .addComponent(proceedJLabel)
+                    .addComponent(errorMessageJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 455, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -311,11 +346,13 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
                     .addComponent(cardExpiryDateJLabel)
                     .addComponent(cardMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cardYearJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(42, 42, 42)
+                .addGap(19, 19, 19)
                 .addComponent(privacyLearnMoreJLabel)
-                .addGap(15, 15, 15)
+                .addGap(17, 17, 17)
                 .addComponent(proceedJLabel)
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addGap(15, 15, 15)
+                .addComponent(errorMessageJLabel)
+                .addContainerGap(32, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -324,10 +361,69 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
     }//GEN-LAST:event_privacyLearnMoreJLabelMousePressed
 
     /**
+     * Select the current month.
+     * 
+     */
+    private void selectExpiryMonth() {
+        final Calendar now = DateUtil.getInstance();
+        final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
+        cardExpiryMonthModel.setSelectedItem(Short.valueOf(nowMonth));
+    }
+
+    /**
+     * Select the current year.
+     * 
+     */
+    private void selectExpiryYear() {
+        final Calendar now = Calendar.getInstance();
+        final short nowYear = (short) now.get(Calendar.YEAR);
+        cardExpiryYearModel.setSelectedItem(Short.valueOf(nowYear));
+    }
+
+    /**
      * Sign up.
      * 
      */
     private void signUp() {
         getController().runSignup(extractPaymentInfo());
+    }
+
+    /**
+     * Validate input.
+     * 
+     * @param ignoreFocus
+     *            A <code>Boolean</code> to ignore focus or not.
+     */
+    private void validateInput(final Boolean ignoreFocus) {
+        super.validateInput();
+        final PaymentInfo paymentInfo = extractPaymentInfo();
+
+        final int minimumCardNumberLength = constraints.getCardNumber().getMinLength();
+        if (null == paymentInfo.getCardNumber()) {
+            addInputError(Separator.Space.toString());
+        } else if (paymentInfo.getCardNumber().length() < minimumCardNumberLength) {
+            if (ignoreFocus || !cardNumberJTextField.isFocusOwner()) {
+                addInputError(getString("ErrorCardNumberInvalid"));
+            }
+        }
+
+        final Calendar now = Calendar.getInstance();
+        final short nowYear = (short) now.get(Calendar.YEAR);
+        final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
+        if (nowYear == paymentInfo.getCardExpiryYear() &&
+                nowMonth > paymentInfo.getCardExpiryMonth()) {
+            if (ignoreFocus
+                   || (!cardMonthJComboBox.isFocusOwner() && !cardYearJComboBox.isFocusOwner())) {
+                addInputError(getString("ErrorCardExpired"));
+            }
+        }
+
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors()) {
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        }
+        if (isUpgradeAccountDelegateInitialized()) {
+            upgradeAccountDelegate.enableNextButton(!containsInputErrors());
+        }
     }
 }

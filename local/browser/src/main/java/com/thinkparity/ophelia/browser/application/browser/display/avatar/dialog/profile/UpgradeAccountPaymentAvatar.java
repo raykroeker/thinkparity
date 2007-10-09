@@ -288,6 +288,7 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
         cardholderNameJLabel.setFont(Fonts.DialogFont);
         cardholderNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.Cardholder"));
 
+        cardholderNameJTextField.setFont(Fonts.DialogTextEntryFont);
         ((AbstractDocument) cardholderNameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getCardholderName()));
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
@@ -311,13 +312,13 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
                             .addComponent(cardholderNameJLabel))
                         .addGap(21, 21, 21)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cardholderNameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
-                            .addComponent(cardNumberJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
-                            .addComponent(cardTypeJComboBox, 0, 292, Short.MAX_VALUE)
+                            .addComponent(cardholderNameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 292, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cardNumberJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 292, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cardTypeJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 292, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(cardMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cardYearJComboBox, 0, 181, Short.MAX_VALUE)))
+                                .addComponent(cardYearJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(36, 36, 36))
                     .addComponent(privacyLearnMoreJLabel)
                     .addComponent(proceedJLabel)

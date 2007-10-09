@@ -132,6 +132,6 @@ public final class PaymentInfo {
 
     /** <b>Title:</b>Payment Info Card Name<br> */
     public enum CardName {
-        AMERICAN_EXPRESS, DINERS_CLUB, DISCOVER, JCB, MASTER_CARD, VISA
+        MASTER_CARD, VISA
     }
 }

@@ -744,10 +744,16 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final List<Feature> featureList = getSessionModel().readMigratorProductFeatures(Constants.Product.NAME);
             final Profile profile = profileIO.read(localUserId());
             final List<Feature> existingFeatureList = profile.getFeatures();
+            boolean exists;
             for (final Feature feature : featureList) {
-                if (existingFeatureList.contains(feature)) {
-                    continue;
-                } else {
+                exists = false;
+                for (final Feature existingFeature : existingFeatureList) {
+                    if (existingFeature.getName().equals(feature.getName())) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (false == exists) {
                     profile.add(feature);
                 }
             }

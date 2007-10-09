@@ -72,6 +72,14 @@ public final class DownloadFile implements Cancelable {
             public String getName() {
                 return "DownloadFile#defaultMonitor";
             }
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#reset()
+             *
+             */
+            @Override
+            public void reset() {
+                LOGGER.logDebug("Download reset.");
+            }
         };
         LOGGER = new Log4JWrapper(DownloadFile.class);
         RETRY_PERIOD = Long.valueOf(1L * 1000L);
@@ -217,6 +225,7 @@ public final class DownloadFile implements Cancelable {
                     Assert.assertTrue(target.createNewFile(),
                             "Could not delete download target {0}.", target);
                     if (retry(sx)) {
+                        resetProgress();
                         waitBeforeRetry(sx);
                     } else {
                         throw sx;
@@ -228,6 +237,7 @@ public final class DownloadFile implements Cancelable {
                     Assert.assertTrue(target.createNewFile(),
                             "Could not delete download target {0}.", target);
                     if (retry(nx)) {
+                        resetProgress();
                         waitBeforeRetry(nx);
                     } else {
                         throw nx;
@@ -294,6 +304,14 @@ public final class DownloadFile implements Cancelable {
             throw new IllegalArgumentException(MessageFormat.format(error,
                     target, session));
         }
+    }
+
+    /**
+     * Reset the stream monitor.
+     * 
+     */
+    private void resetProgress() {
+        monitor.reset();
     }
 
     /**

@@ -61,6 +61,14 @@ public final class UploadFile {
                         new Long(chunkSize)));
             }
             /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#reset()
+             *
+             */
+            @Override
+            public void reset() {
+                LOGGER.logDebug("Upload reset.");
+            }
+            /**
              * @see com.thinkparity.codebase.model.stream.StreamMonitor#getName()
              *
              */
@@ -194,6 +202,7 @@ public final class UploadFile {
             } catch (final StreamException sx) {
                 LOGGER.logWarning("Could not upload target.  {0}", sx.getMessage());
                 if (retry(sx)) {
+                    resetProgress();
                     waitBeforeRetry(sx);
                 } else {
                     throw sx;
@@ -296,6 +305,14 @@ public final class UploadFile {
             LOGGER.logWarning("Upload file retry interruped.  {0}",
                     ix.getMessage());
         }
+    }
+
+    /**
+     * Reset the stream monitor.
+     * 
+     */
+    private void resetProgress() {
+        monitor.reset();
     }
 
     /**

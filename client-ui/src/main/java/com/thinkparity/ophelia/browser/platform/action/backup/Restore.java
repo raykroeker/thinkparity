@@ -66,6 +66,9 @@ public final class Restore extends AbstractBrowserAction {
         }
     }
 
+    /** Data keys. */
+    public enum DataKey { CREDENTIALS, DISPLAY_AVATAR, MONITOR }
+
     /** <b>Title:</b>Restore Swing Worker<br> */
     private static class RestoreWorker extends ThinkParitySwingWorker<Restore> {
 
@@ -165,6 +168,8 @@ public final class Restore extends AbstractBrowserAction {
          */
         private ProcessMonitor newProcessMonitor() {
             return new ProcessAdapter() {
+                /** The restore document version step. */
+                private int restoreDocumentVersionStep;
                 /** The current step. */
                 private int step;
                 /** The number of steps. */
@@ -243,7 +248,12 @@ public final class Restore extends AbstractBrowserAction {
                         setSteps(step, data);
                         monitor.setStep(this.step, getStepNote(step, data));
                         break;
+                    case RESET_RESTORE_DOCUMENT_VERSION:
+                        this.step = this.restoreDocumentVersionStep;
+                        monitor.setStep(this.step, getStepNote(step, data));
+                        break;
                     case RESTORE_DOCUMENT_VERSION:
+                        this.restoreDocumentVersionStep = this.step;
                         monitor.setStep(this.step, getStepNote(step, data));
                         break;
                     case RESTORE_DOCUMENT_VERSION_DECRYPT_BYTES:
@@ -300,6 +310,10 @@ public final class Restore extends AbstractBrowserAction {
                         return getString("StepDeleteContainers");
                     case FINALIZE_RESTORE:
                         return getString("StepFinalize");
+                    case RESET_RESTORE_DOCUMENT_VERSION:
+                        decryptBytes = downloadBytes = 0L;
+                        return getString("StepRestoreDocumentVersion",
+                                data.getRestoreDocumentVersion().getArtifactName());
                     case RESTORE_CONTAINER:
                         return getString("StepRestoreContainer",
                                 data.getRestoreContainer().getName());
@@ -415,7 +429,4 @@ public final class Restore extends AbstractBrowserAction {
             };
         }
     }
-
-    /** Data keys. */
-    public enum DataKey { CREDENTIALS, DISPLAY_AVATAR, MONITOR }
 }

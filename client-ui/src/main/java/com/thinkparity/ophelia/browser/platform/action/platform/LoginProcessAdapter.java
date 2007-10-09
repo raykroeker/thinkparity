@@ -48,6 +48,9 @@ class LoginProcessAdapter extends ProcessAdapter {
     /** The current step. */
     private int step;
 
+    /** The restore document version step. */
+    private int restoreDocumentVersionStep;
+
     /** The number of steps. */
     private int steps;
 
@@ -173,6 +176,10 @@ class LoginProcessAdapter extends ProcessAdapter {
             this.step += 5;
             monitor.setStep(this.step, getStepNote(step, data));
             break;
+        case RESET_RESTORE_DOCUMENT_VERSION:
+            this.step = this.restoreDocumentVersionStep;
+            monitor.setStep(this.step, getStepNote(step, data));
+            break;
         case RESTORE_CONTAINER:
             this.step++;
             monitor.setStep(this.step, getStepNote(step, data));
@@ -181,6 +188,7 @@ class LoginProcessAdapter extends ProcessAdapter {
             setSteps(step, data);
             break;
         case RESTORE_DOCUMENT_VERSION:
+            this.restoreDocumentVersionStep = this.step;
             monitor.setStep(this.step, getStepNote(step, data));
             break;
         case RESTORE_DOCUMENT_VERSION_DECRYPT_BYTES:
@@ -266,6 +274,10 @@ class LoginProcessAdapter extends ProcessAdapter {
             return null;
         case FINALIZE_RESTORE:
             return getString("StepFinalize");
+        case RESET_RESTORE_DOCUMENT_VERSION:
+            decryptBytes = downloadBytes = 0L;
+            return getString("StepRestoreDocumentVersion",
+                    data.getRestoreDocumentVersion().getArtifactName());
         case RESTORE_CONTAINER:
             return getString("StepRestoreContainer",
                     data.getRestoreContainer().getName());

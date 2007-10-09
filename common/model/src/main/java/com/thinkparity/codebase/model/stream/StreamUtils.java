@@ -3,13 +3,18 @@
  */
 package com.thinkparity.codebase.model.stream;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import com.thinkparity.codebase.BytesFormat;
 import com.thinkparity.codebase.StreamUtil;
+import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.stream.httpclient.HttpConnectionManager;
@@ -17,6 +22,9 @@ import com.thinkparity.codebase.model.util.http.HttpUtils;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
+import org.xmlpull.mxp1.MXParser;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * <b>Title:</b><br>
@@ -29,6 +37,12 @@ public final class StreamUtils {
     /** A bytes format. */
     private static final BytesFormat BYTES_FORMAT;
 
+    /** The xml charset (encoding). */
+    private static final Charset CHARSET;
+
+    /** An set of error response node name. */
+    private static final String[] ERROR_RESPONSE_NODE_NAMES;
+
     /** A http client. */
     private static final HttpClient HTTP_CLIENT;
 
@@ -37,11 +51,26 @@ public final class StreamUtils {
 
     static {
         BYTES_FORMAT = new BytesFormat();
+        CHARSET = StringUtil.Charset.UTF_8.getCharset();
+        ERROR_RESPONSE_NODE_NAMES = new String[] {
+                "Error", "Code", "Message", "RequestId", "HostId"
+        };
         HTTP_CLIENT = HttpUtils.newClient();
         HTTP_CLIENT.setHttpConnectionManager(new HttpConnectionManager());
         HTTP_CLIENT.getHttpConnectionManager().getParams().setMaxTotalConnections(3);
         HTTP_CLIENT.getHttpConnectionManager().getParams().setSoTimeout(7 * 1000);
         LOGGER = new Log4JWrapper(StreamUtils.class);
+    }
+
+    /**
+     * Create a new instance of an input stream reader.
+     * 
+     * @param stream
+     *            An <code>InputStream</code>.
+     * @return A <code>Reader</code>.
+     */
+    private static Reader newStreamReader(final InputStream stream) {
+        return new BufferedReader(new InputStreamReader(stream, CHARSET));
     }
 
     /**
@@ -106,6 +135,53 @@ public final class StreamUtils {
                 null == monitor ? "unknown" : monitor.getName());
     }
 
+    
+    /**
+     * Read the error response from the http method's response body stream.
+     * 
+     * @param httpMethod
+     *            An <code>HttpMethod</code>.
+     * @return A <code>StreamErrorResponse</code>.
+     */
+    StreamErrorResponse readErrorResponse(final HttpMethod httpMethod)
+            throws IOException {
+        final StreamErrorResponse errorResponse;
+        try {
+            /* read the error response xml */
+            final XmlPullParser xpp = newXmlPullParser(httpMethod.getResponseBodyAsStream());
+            xpp.nextTag();
+
+            if (ERROR_RESPONSE_NODE_NAMES[0].equals(xpp.getName())) {
+                errorResponse = new StreamErrorResponse();
+                xpp.nextTag();
+                if (ERROR_RESPONSE_NODE_NAMES[1].equals(xpp.getName())) {
+                    errorResponse.setCode(xpp.nextText());
+                    xpp.nextTag();
+                }
+        
+                if (ERROR_RESPONSE_NODE_NAMES[2].equals(xpp.getName())) {
+                    errorResponse.setMessage(xpp.nextText());
+                    xpp.nextTag();
+                }
+        
+                if (ERROR_RESPONSE_NODE_NAMES[3].equals(xpp.getName())) {
+                    errorResponse.setRequestId(xpp.nextText());
+                    xpp.nextTag();
+                }
+        
+                if (ERROR_RESPONSE_NODE_NAMES[4].equals(xpp.getName())) {
+                    errorResponse.setHostId(xpp.nextText());
+                    xpp.nextTag();
+                }
+            } else {
+                errorResponse = StreamErrorResponse.EMPTY_RESPONSE;
+            }
+        } catch (final XmlPullParserException xppx) {
+            throw new IOException(xppx);
+        }
+        return errorResponse;
+    }
+
     /**
      * Set headers within the method.
      * 
@@ -133,5 +209,25 @@ public final class StreamUtils {
         } else {
             StreamUtil.copy(errorStream, System.err);
         }
+    }
+
+    /**
+     * Create an xstream xml pull parser reader for an input steam.
+     * 
+     * @param stream
+     *            An <code>InputStream</code>.
+     * @return An <code>XppReader</code>.
+     * @throws StreamException
+     *             if the xml pull parser cannot be instantiated
+     */
+    private static XmlPullParser newXmlPullParser(final InputStream stream)
+            throws IOException {
+        final XmlPullParser parser = new MXParser();
+        try {
+            parser.setInput(newStreamReader(stream));
+        } catch (final XmlPullParserException xppx) {
+            throw new IOException(xppx);
+        }
+        return parser;
     }
 }

@@ -233,6 +233,17 @@ public final class UploadStream extends DocumentDelegate {
                 return MessageFormat.format(
                         "UploadStream#newUploadStreamMonitor({0})", streamName);
             }
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#reset()
+             *
+             */
+            @Override
+            public void reset() {
+                monitorData.setDocumentVersion(version);
+                monitorData.setBytes(0);
+                notifyStepBegin(monitor, PublishStep.RESET_UPLOAD_DOCUMENT_VERSION, monitorData);
+                notifyStepEnd(monitor, PublishStep.RESET_UPLOAD_DOCUMENT_VERSION);
+            }
         };
     }
 

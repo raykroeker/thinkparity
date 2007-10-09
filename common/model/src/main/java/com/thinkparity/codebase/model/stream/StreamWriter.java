@@ -155,6 +155,13 @@ public final class StreamWriter implements RequestEntity {
                 switch (utils.execute(putMethod)) {
                 case 200:
                     break;
+                case 400:
+                    final StreamErrorResponse errorResponse = utils.readErrorResponse(putMethod);
+                    throw new StreamException(errorResponse.isRecoverable(),
+                            "Could not upload stream.  {0}:{1}{2}{3}",
+                            putMethod.getStatusCode(),
+                            putMethod.getStatusLine(), "\n\t",
+                            putMethod.getStatusText());
                 case 500:
                     utils.writeError(putMethod);
                     throw new StreamException(Boolean.TRUE,

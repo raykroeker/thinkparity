@@ -156,6 +156,12 @@ public final class StreamReader implements Cancelable {
                         input.close();
                     }
                     break;
+                case 400:
+                    final StreamErrorResponse errorResponse = utils.readErrorResponse(method);
+                    throw new StreamException(errorResponse.isRecoverable(),
+                            "Could not download stream.  {0}:{1}{2}{3}",
+                            method.getStatusCode(), method.getStatusLine(),
+                            "\n\t", method.getStatusText());
                 case 500:
                     utils.writeError(method);
                     throw new StreamException(Boolean.TRUE,

@@ -36,4 +36,10 @@ public interface StreamMonitor {
      * @return A stream monitor name <code>String</code>.
      */
     public String getName();
+
+    /**
+     * Reset the stream monitor.
+     * 
+     */
+    public void reset();
 }

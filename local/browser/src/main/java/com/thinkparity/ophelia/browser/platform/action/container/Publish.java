@@ -343,6 +343,8 @@ public class Publish extends AbstractBrowserAction {
                 private int step;
                 /** The number of determined steps. */
                 private int steps;
+                /** The step at the most recent upload document version. */
+                private int uploadDocumentVersionStep;
                 /**
                  * @see com.thinkparity.ophelia.model.util.ProcessAdapter#beginStep(com.thinkparity.ophelia.model.util.Step,
                  *      java.lang.Object)
@@ -360,6 +362,7 @@ public class Publish extends AbstractBrowserAction {
                     case PUBLISH:
                         setStep(publishStep, publishData);
                         break;
+                    case RESET_UPLOAD_DOCUMENT_VERSION:
                     case UPLOAD_DOCUMENT_VERSION:
                         setStep(publishStep, publishData);
                         break;
@@ -399,6 +402,10 @@ public class Publish extends AbstractBrowserAction {
                                 data.getDocumentVersion().getArtifactName());
                     case PUBLISH:
                         return getString("ProgressPublishFinish");
+                    case RESET_UPLOAD_DOCUMENT_VERSION:
+                        encryptedBytes = uploadedBytes = 0L;
+                        return getString("ProgressUpload",
+                                data.getDocumentVersion().getArtifactName());
                     case UPLOAD_DOCUMENT_VERSION:
                         encryptedBytes = uploadedBytes = 0L;
                         return getString("ProgressUpload",
@@ -452,8 +459,13 @@ public class Publish extends AbstractBrowserAction {
                         this.step = this.steps;
                         monitor.setStep(this.step, getStepNote(step, data));
                         break;
+                    case RESET_UPLOAD_DOCUMENT_VERSION:
+                        this.step = this.uploadDocumentVersionStep;
+                        monitor.setStep(this.step, getStepNote(step, data));
+                        break;
                     case UPLOAD_DOCUMENT_VERSION:
                         this.step++;
+                        this.uploadDocumentVersionStep = this.step;
                         monitor.setStep(this.step, getStepNote(step, data));
                         break;
                     case UPLOAD_DOCUMENT_VERSION_BYTES:

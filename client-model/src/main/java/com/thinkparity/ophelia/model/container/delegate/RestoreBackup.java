@@ -267,6 +267,16 @@ public final class RestoreBackup extends ContainerDelegate {
                 return MessageFormat.format("RestoreBackup#newStreamMonitor({0})",
                         version.getArtifactName());
             }
+            /**
+             * @see com.thinkparity.codebase.model.stream.StreamMonitor#reset()
+             *
+             */
+            @Override
+            public void reset() {
+                monitorData.setBytes(0);
+                notifyStepBegin(monitor, RestoreBackupStep.RESET_RESTORE_DOCUMENT_VERSION, monitorData);
+                notifyStepEnd(monitor, RestoreBackupStep.RESET_RESTORE_DOCUMENT_VERSION);
+            }
         };
     }
 

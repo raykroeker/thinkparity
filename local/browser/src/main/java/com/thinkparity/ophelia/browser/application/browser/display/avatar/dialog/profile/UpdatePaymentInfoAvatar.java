@@ -7,6 +7,8 @@
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Calendar;
@@ -17,7 +19,6 @@ import javax.swing.text.AbstractDocument;
 
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
-import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
 import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
@@ -82,6 +83,7 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
         initTypeModel();
         initComponents();
         addValidationListeners();
+        addFocusListeners();
         bindKeys();
         cardNameJComboBox.setRenderer(new CardNameCellRenderer("CardName", getLocalization()));
     }
@@ -112,6 +114,7 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
         reloadCreditCardControls();
         selectExpiryMonth();
         selectExpiryYear();
+        validateInput();
     }
 
     /**
@@ -124,37 +127,37 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#validateInput()
-     * 
+     *
      */
     @Override
-    protected void validateInput() {
-        super.validateInput();
+    public final void validateInput() {
+        validateInput(Boolean.FALSE);
+    }
 
-        // check online
-        final Boolean online = isOnline();
-        if (!online) {
-            addInputError(getString("ErrorOffline"));
-        }
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isInputValid()
+     */
+    @Override
+    protected Boolean isInputValid() {
+        validateInput(Boolean.TRUE);
+        return !containsInputErrors();
+    }
 
-        // check for user changes
-        final Boolean inputChanged = isInputChanged();
-        if (!inputChanged) {
-            addInputError(Separator.Space.toString());
-        }
-
-        // check input credit card data
-        if (inputChanged) {
-            // check for blank required fields
-            if (!isSetNumber()) {
-                addInputError(getString("ErrorMissingCreditCardData"));
+    /**
+     * Add focus listeners for the input controls.
+     */
+    private void addFocusListeners() {
+        final FocusListener focusListener = new FocusListener() {
+            public void focusGained(FocusEvent e) {
+                validateInput();
             }
-        }
-
-        errorMessageJLabel.setText(" ");
-        if (containsInputErrors()) {
-            errorMessageJLabel.setText(getInputErrors().get(0));
-        }
-        okJButton.setEnabled(!containsInputErrors());
+            public void focusLost(FocusEvent e) {
+                validateInput();
+            }
+        };
+        cardNumberJTextField.addFocusListener(focusListener);
+        cardExpiryMonthJComboBox.addFocusListener(focusListener);
+        cardExpiryYearJComboBox.addFocusListener(focusListener);
     }
 
     /**
@@ -222,20 +225,28 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
         final javax.swing.JLabel licenseAgreementJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
 
         setOpaque(false);
+        creditInfoTitleJLabel.setFont(Fonts.DialogFont);
         creditInfoTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateAccountAvatar.CreditInfoTitle"));
 
+        cardNameJLabel.setFont(Fonts.DialogFont);
         cardNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateAccountAvatar.CardType"));
 
         cardNameJComboBox.setFont(Fonts.DialogTextEntryFont);
         cardNameJComboBox.setModel(cardNameModel);
 
+        cardNumberJLabel.setFont(Fonts.DialogFont);
         cardNumberJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateAccountAvatar.CardNumber"));
 
         cardNumberJTextField.setFont(Fonts.DialogTextEntryFont);
         ((AbstractDocument) cardNumberJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getCardNumber()));
 
+        cardholderNameJLabel.setFont(Fonts.DialogFont);
         cardholderNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.CardName"));
 
+        cardholderNameJTextField.setFont(Fonts.DialogTextEntryFont);
+        ((AbstractDocument) cardholderNameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getCardholderName()));
+
+        cardExpiryDateJLabel.setFont(Fonts.DialogFont);
         cardExpiryDateJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateAccountAvatar.CardDate"));
 
         cardExpiryMonthJComboBox.setFont(Fonts.DialogTextEntryFont);
@@ -244,28 +255,31 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
         cardExpiryYearJComboBox.setFont(Fonts.DialogTextEntryFont);
         cardExpiryYearJComboBox.setModel(cardExpiryYearModel);
 
+        errorMessageJLabel.setFont(Fonts.DialogFont);
+        errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
         errorMessageJLabel.setText("!Error Message!");
 
+        licenseAgreementJLabel.setFont(Fonts.DialogFont);
         licenseAgreementJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateAccountAvatar.LicenseAgreement"));
         licenseAgreementJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                licenseAgreementJLabelMousePressed(e);
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                licenseAgreementJLabelMousePressed(evt);
             }
         });
 
         okJButton.setFont(Fonts.DialogButtonFont);
         okJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateAccountAvatar.OK"));
         okJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                okJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                okJButtonActionPerformed(evt);
             }
         });
 
         cancelJButton.setFont(Fonts.DialogButtonFont);
         cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateAccountAvatar.Cancel"));
         cancelJButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                cancelJButtonActionPerformed(e);
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelJButtonActionPerformed(evt);
             }
         });
 
@@ -276,37 +290,40 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(creditInfoTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE)
+                    .addComponent(creditInfoTitleJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
+                        .addGap(16, 16, 16)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cardNameJLabel)
                             .addComponent(cardNumberJLabel)
+                            .addComponent(cardNameJLabel)
                             .addComponent(cardholderNameJLabel)
                             .addComponent(cardExpiryDateJLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(14, 14, 14)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(cardExpiryMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cardExpiryMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cardExpiryYearJComboBox, 0, 170, Short.MAX_VALUE))
-                            .addComponent(cardNumberJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
-                            .addComponent(cardholderNameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
-                            .addComponent(cardNameJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(24, 24, 24))
-                    .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE)
+                                .addComponent(cardExpiryYearJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(cardNameJComboBox, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cardNumberJTextField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cardholderNameJTextField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE))
+                    .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(licenseAgreementJLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
                         .addComponent(okJButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cancelJButton)))
                 .addContainerGap())
         );
+
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cancelJButton, okJButton});
+
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(27, 27, 27)
                 .addComponent(creditInfoTitleJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -323,11 +340,11 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cardExpiryDateJLabel)
-                    .addComponent(cardExpiryMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cardExpiryYearJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(cardExpiryYearJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cardExpiryMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(15, 15, 15)
                 .addComponent(errorMessageJLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(licenseAgreementJLabel)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -372,30 +389,12 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
     }
 
     /**
-     * Determine if the input has changed from the original state.
-     * 
-     * @return true if the input changed; false otherwise.
-     */
-    private Boolean isInputChanged() {
-        return isSetNumber();
-    }
-
-    /**
      * Determine if the model is online.
      * 
      * @return True if the model is online.
      */
     private boolean isOnline() {
         return ((UpdateAccountProvider) contentProvider).isOnline().booleanValue();
-    }
-
-    /**
-     * Determine if the card number is set.
-     * 
-     * @return True if the card number is set.
-     */
-    private boolean isSetNumber() {
-        return null != SwingUtil.extract(cardNumberJTextField, Boolean.TRUE);
     }
 
     /**
@@ -463,6 +462,49 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
         final Calendar now = Calendar.getInstance();
         final short nowYear = (short) now.get(Calendar.YEAR);
         cardExpiryYearModel.setSelectedItem(Short.valueOf(nowYear));
+    }
+
+    /**
+     * Validate input.
+     * 
+     * @param ignoreFocus
+     *            A <code>Boolean</code> to ignore focus or not.
+     */
+    private void validateInput(final Boolean ignoreFocus) {
+        super.validateInput();
+        final PaymentInfo paymentInfo = extractPaymentInfo();
+
+        // check online
+        final Boolean online = isOnline();
+        if (!online) {
+            addInputError(getString("ErrorOffline"));
+        }
+
+        final int minimumCardNumberLength = constraints.getCardNumber().getMinLength();
+        if (null == paymentInfo.getCardNumber()) {
+            addInputError(Separator.Space.toString());
+        } else if (paymentInfo.getCardNumber().length() < minimumCardNumberLength) {
+            if (ignoreFocus || !cardNumberJTextField.isFocusOwner()) {
+                addInputError(getString("ErrorCardNumberInvalid"));
+            }
+        }
+
+        final Calendar now = Calendar.getInstance();
+        final short nowYear = (short) now.get(Calendar.YEAR);
+        final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
+        if (nowYear == paymentInfo.getCardExpiryYear() &&
+                nowMonth > paymentInfo.getCardExpiryMonth()) {
+            if (ignoreFocus
+                   || (!cardExpiryMonthJComboBox.isFocusOwner() && !cardExpiryYearJComboBox.isFocusOwner())) {
+                addInputError(getString("ErrorCardExpired"));
+            }
+        }
+
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors()) {
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        }
+        okJButton.setEnabled(!containsInputErrors());
     }
 
     /** <b>Title:</b>Update Payment Info Data Key<br> */

@@ -18,35 +18,35 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="creditInfoTitleJLabel" alignment="0" pref="422" max="32767" attributes="0"/>
+                  <Component id="creditInfoTitleJLabel" alignment="0" pref="360" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="12" pref="12" max="12" attributes="0"/>
+                      <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="cardNameJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="cardNumberJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="cardNameJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="cardholderNameJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="cardExpiryDateJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="cardExpiryMonthJComboBox" min="-2" pref="75" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Group type="102" alignment="1" attributes="1">
+                              <Component id="cardExpiryMonthJComboBox" min="-2" pref="85" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="cardExpiryYearJComboBox" pref="170" max="32767" attributes="0"/>
+                              <Component id="cardExpiryYearJComboBox" min="-2" pref="127" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="cardNumberJTextField" alignment="0" pref="251" max="32767" attributes="1"/>
-                          <Component id="cardholderNameJTextField" alignment="0" pref="251" max="32767" attributes="1"/>
-                          <Component id="cardNameJComboBox" alignment="0" min="-2" pref="251" max="-2" attributes="1"/>
+                          <Component id="cardNameJComboBox" alignment="0" min="-2" pref="218" max="-2" attributes="1"/>
+                          <Component id="cardNumberJTextField" alignment="0" min="-2" pref="218" max="-2" attributes="1"/>
+                          <Component id="cardholderNameJTextField" alignment="0" min="-2" pref="218" max="-2" attributes="1"/>
                       </Group>
-                      <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
+                      <EmptySpace pref="16" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="errorMessageJLabel" alignment="0" pref="422" max="32767" attributes="0"/>
+                  <Component id="errorMessageJLabel" alignment="0" pref="360" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="licenseAgreementJLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="40" max="32767" attributes="0"/>
-                      <Component id="okJButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="35" max="32767" attributes="0"/>
+                      <Component id="okJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="cancelJButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="cancelJButton" linkSize="1" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -55,8 +55,8 @@
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
               <Component id="creditInfoTitleJLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -76,20 +76,20 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="cardExpiryDateJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="cardExpiryMonthJComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="cardExpiryYearJComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="cardExpiryMonthJComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
               <Component id="errorMessageJLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace pref="15" max="32767" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="licenseAgreementJLabel" min="-2" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
+                  <Group type="103" alignment="1" groupAlignment="3" attributes="0">
                       <Component id="cancelJButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="okJButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -97,6 +97,9 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="creditInfoTitleJLabel">
       <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogFont" type="code"/>
+        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="localization/Browser_Messages.properties" key="UpdateAccountAvatar.CreditInfoTitle" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -109,6 +112,9 @@
     </Component>
     <Component class="javax.swing.JLabel" name="cardNameJLabel">
       <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogFont" type="code"/>
+        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="localization/Browser_Messages.properties" key="UpdateAccountAvatar.CardType" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -134,6 +140,9 @@
     </Component>
     <Component class="javax.swing.JLabel" name="cardNumberJLabel">
       <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogFont" type="code"/>
+        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="localization/Browser_Messages.properties" key="UpdateAccountAvatar.CardNumber" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -158,6 +167,9 @@
     </Component>
     <Component class="javax.swing.JLabel" name="cardholderNameJLabel">
       <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogFont" type="code"/>
+        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="localization/Browser_Messages.properties" key="UpgradeAccountAvatar.Payment.CardName" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -169,13 +181,22 @@
       </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="cardholderNameJTextField">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogTextEntryFont" type="code"/>
+        </Property>
+      </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) cardholderNameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getCardholderName()));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="cardExpiryDateJLabel">
       <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogFont" type="code"/>
+        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="localization/Browser_Messages.properties" key="UpdateAccountAvatar.CardDate" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
@@ -214,6 +235,12 @@
     </Component>
     <Component class="javax.swing.JLabel" name="errorMessageJLabel">
       <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogFont" type="code"/>
+        </Property>
+        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Colours.DIALOG_ERROR_TEXT_FG" type="code"/>
+        </Property>
         <Property name="text" type="java.lang.String" value="!Error Message!"/>
       </Properties>
       <AuxValues>
@@ -223,6 +250,9 @@
     </Component>
     <Component class="javax.swing.JLabel" name="licenseAgreementJLabel">
       <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="Fonts.DialogFont" type="code"/>
+        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="localization/Browser_Messages.properties" key="UpdateAccountAvatar.LicenseAgreement" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>

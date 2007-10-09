@@ -40,12 +40,13 @@ public class CardNameCellRenderer extends DefaultListCellRenderer {
 
     /**
      * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
-     *
      */
     @Override
     public Component getListCellRendererComponent(final JList list,
             final Object value, final int index, final boolean isSelected,
             final boolean cellHasFocus) {
+        super.getListCellRendererComponent(list, value, index, isSelected,
+                cellHasFocus);
         setText(localization.getString(MessageFormat.format("{0}.{1}", context,
                 ((CardName) value).name())));
         return this;

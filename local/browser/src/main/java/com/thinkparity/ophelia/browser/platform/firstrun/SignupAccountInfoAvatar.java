@@ -222,9 +222,13 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         } catch (final Throwable t) {
             logger.logFatal(t, "An unexpected error has occurred.");
             addInputError(getSharedString("ErrorUnexpected"));
-        } finally {
-            errorMessageJLabel.setText(" ");
         }
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors()) {
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        }
+        SwingUtil.setCursor(this, null);
+        signupDelegate.enableNextButton(Boolean.TRUE);
     }
 
     /**

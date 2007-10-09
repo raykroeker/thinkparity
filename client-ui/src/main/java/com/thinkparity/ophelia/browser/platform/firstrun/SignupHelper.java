@@ -112,7 +112,7 @@ final class SignupHelper {
         final PaymentInfo paymentInfo = (PaymentInfo) ((Data) input).get(SignupData.DataKey.PAYMENT_INFO);
 
         signupProvider.createProfile(usernameReservation, emailReservation,
-                credentials, profile, email,securityCredentials, paymentInfo);
+                credentials, profile, email, securityCredentials, paymentInfo);
     }
 
     /**

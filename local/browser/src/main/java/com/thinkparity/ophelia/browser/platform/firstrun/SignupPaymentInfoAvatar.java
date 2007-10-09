@@ -3,12 +3,19 @@
  */
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.Calendar;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.text.AbstractDocument;
 
 import com.thinkparity.codebase.DateUtil;
+import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
 import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
 import com.thinkparity.codebase.model.profile.payment.PaymentInfoConstraints;
@@ -78,6 +85,7 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
         initCardNameModel();
         initComponents();
         addValidationListeners();
+        addFocusListeners();
         cardNameJComboBox.setRenderer(new CardNameCellRenderer("CardName", getLocalization()));
     }
 
@@ -100,18 +108,21 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getPreviousPageName()
      */
     public String getPreviousPageName() {
-        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_ACCOUNT);
+        if (platform.isInternal()) {
+            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PAYMENT_PLAN);
+        } else {
+            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_ACCOUNT);
+        }
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isNextOk()
      */
     public Boolean isNextOk() {
-        if (containsInputErrors()) {
+        if (!isInputValid()) {
             return Boolean.FALSE;
         }
         createProfile();
-
         return !containsInputErrors();
     }
 
@@ -142,30 +153,36 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
 
     /**
      * Validate input.
-     * 
      */
     @Override
     public void validateInput() {
-        super.validateInput();
-
-        errorMessageJLabel.setText(" ");
-        if (containsInputErrors()) {
-            errorMessageJLabel.setText(getInputErrors().get(0));
-        }
-
-        if (isSignupDelegateInitialized()) {
-            signupDelegate.enableNextButton(!containsInputErrors());
-        }
+        validateInput(Boolean.FALSE);
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isInputValid()
-     * 
      */
     @Override
     protected Boolean isInputValid() {
-        validateInput();
+        validateInput(Boolean.TRUE);
         return !containsInputErrors();
+    }
+
+    /**
+     * Add focus listeners for the input controls.
+     */
+    private void addFocusListeners() {
+        final FocusListener focusListener = new FocusListener() {
+            public void focusGained(FocusEvent e) {
+                validateInput();
+            }
+            public void focusLost(FocusEvent e) {
+                validateInput();
+            }
+        };
+        cardNumberJTextField.addFocusListener(focusListener);
+        cardMonthJComboBox.addFocusListener(focusListener);
+        cardYearJComboBox.addFocusListener(focusListener);
     }
 
     /**
@@ -175,12 +192,18 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
     private void addValidationListeners() {
         addValidationListener(cardNumberJTextField);
         addValidationListener(cardholderNameJTextField);
+        final ItemListener itemListener = new ItemListener() {
+            public void itemStateChanged(final ItemEvent e) {
+                validateInput();
+            }
+        };
+        cardNameJComboBox.addItemListener(itemListener);
+        cardMonthJComboBox.addItemListener(itemListener);
+        cardYearJComboBox.addItemListener(itemListener);
     }
 
-    // TODO Remove this after beta.
     /**
      * Create the profile.
-     * 
      */
     private void createProfile() {
         saveData();
@@ -256,8 +279,10 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
         cardNameJComboBox.setModel(cardNameModel);
 
         cardNumberJTextField.setFont(Fonts.DialogTextEntryFont);
+        ((AbstractDocument) cardNumberJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getCardNumber()));
 
         cardholderNameJTextField.setFont(Fonts.DialogTextEntryFont);
+        ((AbstractDocument) cardholderNameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getCardholderName()));
 
         cardMonthJComboBox.setFont(Fonts.DialogTextEntryFont);
         cardMonthJComboBox.setModel(cardExpiryMonthModel);
@@ -273,44 +298,41 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(errorMessageJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE)
-                    .addComponent(explanationJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGap(12, 12, 12)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(16, 16, 16)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(cardNameJLabel)
+                            .addComponent(cardNumberJLabel)
+                            .addComponent(cardholderNameJLabel)
+                            .addComponent(expiryDateJLabel))
+                        .addGap(24, 24, 24)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(expiryDateJLabel)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cardMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(cardMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cardYearJComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(cardholderNameJLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cardholderNameJTextField))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(cardNumberJLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cardNumberJTextField))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(cardNameJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cardNameJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addComponent(cardYearJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(cardholderNameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cardNameJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cardNumberJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(explanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 455, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(errorMessageJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 455, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cardNameJLabel, cardNumberJLabel, cardholderNameJLabel, expiryDateJLabel});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cardholderNameJLabel, expiryDateJLabel});
+
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cardNameJComboBox, cardNumberJTextField, cardholderNameJTextField});
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(27, 27, 27)
                 .addComponent(explanationJLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cardNameJLabel)
                     .addComponent(cardNameJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -327,9 +349,9 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
                     .addComponent(expiryDateJLabel)
                     .addComponent(cardMonthJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cardYearJComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(15, 15, 15)
                 .addComponent(errorMessageJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(167, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -377,4 +399,44 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
         final short nowYear = (short) now.get(Calendar.YEAR);
         cardExpiryYearModel.setSelectedItem(Short.valueOf(nowYear));
     }
+
+    /**
+     * Validate input.
+     * 
+     * @param ignoreFocus
+     *            A <code>Boolean</code> to ignore focus or not.
+     */
+    private void validateInput(final Boolean ignoreFocus) {
+        super.validateInput();
+        final PaymentInfo paymentInfo = extractPaymentInfo();
+
+        final int minimumCardNumberLength = constraints.getCardNumber().getMinLength();
+        if (isEmpty(paymentInfo.getCardNumber())) {
+            addInputError(Separator.Space.toString());
+        } else if (paymentInfo.getCardNumber().length() < minimumCardNumberLength) {
+            if (ignoreFocus || !cardNumberJTextField.isFocusOwner()) {
+                addInputError(getString("ErrorCardNumberInvalid"));
+            }
+        }
+
+        final Calendar now = Calendar.getInstance();
+        final short nowYear = (short) now.get(Calendar.YEAR);
+        final short nowMonth = (short) (now.get(Calendar.MONTH));
+        if (nowYear == paymentInfo.getCardExpiryYear() &&
+                nowMonth > paymentInfo.getCardExpiryMonth()) {
+            if (ignoreFocus
+                   || (!cardMonthJComboBox.isFocusOwner() && !cardYearJComboBox.isFocusOwner())) {
+                addInputError(getString("ErrorCardExpired"));
+            }
+        }
+
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors()) {
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        }
+
+        if (isSignupDelegateInitialized()) {
+            signupDelegate.enableNextButton(!containsInputErrors());
+        }
+    }   
 }

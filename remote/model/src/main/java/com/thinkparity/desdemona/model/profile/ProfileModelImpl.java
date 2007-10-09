@@ -387,8 +387,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             beginXA(xaContext);
             try {
                 final Calendar now = currentDateTime();
-                final Token existingToken = userSql.readProfileToken(user
-                        .getId());
+                final Token existingToken = userSql.readProfileToken(
+                        user.getId());
                 if (null != existingToken) {
                     getQueueModel().deleteEvents();
                     /*
@@ -400,7 +400,9 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                     if (user.getId().equals(User.THINKPARITY.getId())) {
                         logger.logInfo("Logging in as system user.");
                     } else {
+                        completeXA(xaContext);
                         getArtifactModel().deleteDrafts(now);
+                        beginXA(xaContext);
                     }
                 }
                 userSql.updateProfileToken(user.getId(), newToken());

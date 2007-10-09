@@ -346,7 +346,7 @@ public final class ProcessInvoiceQueue extends ProfileDelegate {
                     logger.logInfo("No lockable plans.");
                     return;
                 } else {
-                    lockedPlanId = firstId;
+                    lockedPlanId = firstId - 1L;
                 }
             } else {
                 logger.logTraceId();

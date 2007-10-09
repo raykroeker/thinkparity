@@ -183,7 +183,7 @@ public final class ProcessPaymentQueue extends ProfileDelegate {
                     logger.logInfo("No lockable invoices.");
                     return;
                 } else {
-                    lockedInvoiceId = firstId;
+                    lockedInvoiceId = firstId - 1L;
                 }
             } else {
                 logger.logTraceId();

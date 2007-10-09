@@ -46,6 +46,7 @@ import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.events.SessionListener;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.util.service.ServiceRetryHandler;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.service.*;
@@ -458,7 +459,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throws InvalidCredentialsException {
         try {
             // login and save auth token
-            setAuthToken(sessionService.login(credentials));
+            setAuthToken(serviceLogin(credentials));
             // save credentials
             createCredentials(credentials);
             // save release
@@ -495,7 +496,7 @@ public final class SessionModelImpl extends Model<SessionListener>
                     credentials, localCredentials);
             // login and set auth token
             try {
-                setAuthToken(sessionService.login(credentials));
+                setAuthToken(serviceLogin(credentials));
             } catch (final InvalidCredentialsException icx) {
                 throw icx;
             }
@@ -702,7 +703,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupDocumentVersions(java.util.UUID, java.lang.Long)
      *
@@ -716,7 +717,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupPublishedTo(java.util.UUID,
      *      java.lang.Long)
@@ -970,7 +971,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#updateProfilePassword(com.thinkparity.codebase.model.session.Credentials,
      *      java.lang.String)
      * 
@@ -987,7 +988,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#verifyProfileEmail(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.profile.ProfileEMail,
      *      java.lang.String)
@@ -1118,6 +1119,28 @@ public final class SessionModelImpl extends Model<SessionListener>
             workspace.removeAttribute(WS_ATTRIBUTE_KEY_AUTH_TOKEN);
         }
         return authToken;
+    }
+
+    /**
+     * Issue a login over the session service.
+     * 
+     * @param credentials
+     *            A set of <code>Credentials</code>.
+     * @return An <code>AuthToken</code>.
+     * @throws InvalidCredentialsException
+     */
+    private AuthToken serviceLogin(final Credentials credentials)
+            throws InvalidCredentialsException {
+        return workspace.getServiceFactory(new ServiceRetryHandler() {
+            @Override
+            public Boolean retry() {
+                return Boolean.FALSE;
+            }
+            @Override
+            public Long waitPeriod() {
+                return Long.valueOf(0L);
+            }
+        }).getSessionService().login(credentials);
     }
 
     /**

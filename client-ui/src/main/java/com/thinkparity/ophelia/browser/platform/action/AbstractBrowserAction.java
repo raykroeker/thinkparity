@@ -27,7 +27,11 @@ public abstract class AbstractBrowserAction extends AbstractAction {
      */
     @Override
     public void invokeAction(final Application application, final Data data) {
-        getBrowserApplication().clearStatusLink();
+        run(new Runnable() {
+            public void run() {
+                getBrowserApplication().clearStatusLink();
+            }
+        });
         super.invokeAction(application, data);
     }
 }

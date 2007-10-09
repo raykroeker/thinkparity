@@ -4,12 +4,7 @@
  */
 package com.thinkparity.ophelia.browser.application.system.dialog;
 
-import java.awt.AWTException;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 
 import javax.swing.border.Border;
 
@@ -44,6 +39,7 @@ public abstract class SystemFrame extends AbstractJDialog {
      */
     protected SystemFrame() throws AWTException {
         super(null, Boolean.FALSE);
+        setModalExclusionType(Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
         this.border = new WindowBorder2();
         this.borderAnimating = new WindowBorder2Animating();
         this.frameAnimator = new FrameAnimator(this);

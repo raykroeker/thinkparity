@@ -72,7 +72,7 @@ public abstract class AbstractAction implements ActionInvocation {
      * @param runnable
      *            A <code>Runnable</code>.
      */
-    private static void run(final Runnable runnable) {
+    protected static void run(final Runnable runnable) {
         final Thread thread = THREAD_FACTORY.newThread(new Runnable() {
             public void run() {
                 synchronized (RUN_LOCK) {

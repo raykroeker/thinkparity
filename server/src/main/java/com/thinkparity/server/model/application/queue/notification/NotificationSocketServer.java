@@ -72,7 +72,7 @@ class NotificationSocketServer implements Runnable {
         super();
         this.clientSockets = new Stack<Socket>();
         this.executorService = Executors.newSingleThreadExecutor();
-        this.logger = new Log4JWrapper("NotificationService");
+        this.logger = new Log4JWrapper(getClass());
         this.server = server;
         this.serverSocketAddress = new InetSocketAddress(host, port);
         this.serverSocketBacklog = 75;

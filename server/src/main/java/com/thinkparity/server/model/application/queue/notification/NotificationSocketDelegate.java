@@ -56,7 +56,7 @@ final class NotificationSocketDelegate implements Runnable {
     NotificationSocketDelegate(final NotificationServer server,
             final Socket socket) throws IOException {
         super();
-        this.logger = new Log4JWrapper("NotificationService");
+        this.logger = new Log4JWrapper(getClass());
         this.server = server;
         this.socket = socket;
         this.socketInput = socket.getInputStream();

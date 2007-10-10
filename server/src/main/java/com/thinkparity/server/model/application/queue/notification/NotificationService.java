@@ -44,7 +44,7 @@ public final class NotificationService {
      */
     private NotificationService() {
         super();
-        this.logger = new Log4JWrapper("NotificationService");
+        this.logger = new Log4JWrapper(getClass());
     }
 
     /**

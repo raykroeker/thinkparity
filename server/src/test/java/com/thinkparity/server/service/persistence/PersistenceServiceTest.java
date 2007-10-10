@@ -1,10 +1,11 @@
 /*
  * Created On:  2-Aug-07 1:56:55 PM
  */
-package com.thinkparity.desdemona.wildfire.util;
+package com.thinkparity.desdemona.service.persistence;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import javax.sql.DataSource;
 
@@ -17,7 +18,7 @@ import com.thinkparity.desdemona.DesdemonaTestCase;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class PersistenceManagerTest extends DesdemonaTestCase {
+public final class PersistenceServiceTest extends DesdemonaTestCase {
 
     /** Test datum. */
     private Fixture datum;
@@ -26,7 +27,7 @@ public final class PersistenceManagerTest extends DesdemonaTestCase {
      * Create PersistenceManagerTest.
      *
      */
-    public PersistenceManagerTest() {
+    public PersistenceServiceTest() {
         super("Persistence manager test");
     }
 
@@ -35,7 +36,7 @@ public final class PersistenceManagerTest extends DesdemonaTestCase {
      * 
      */
     public void testGetDataSource() {
-        final DataSource dataSource = datum.pm.getDataSource();
+        final DataSource dataSource = datum.ps.getDataSource();
         assertNotNull("Data source is null.", dataSource);
     }
 
@@ -44,7 +45,7 @@ public final class PersistenceManagerTest extends DesdemonaTestCase {
      * 
      */
     public void testGetDataSourceConnection() {
-        final DataSource dataSource = datum.pm.getDataSource();
+        final DataSource dataSource = datum.ps.getDataSource();
         assertNotNull("Data source is null.", dataSource);
         try {
             final Connection connection = dataSource.getConnection();
@@ -59,7 +60,7 @@ public final class PersistenceManagerTest extends DesdemonaTestCase {
      * 
      */
     public void testGetDataSourceConnections() {
-        final DataSource dataSource = datum.pm.getDataSource();
+        final DataSource dataSource = datum.ps.getDataSource();
         assertNotNull("Data source is null.", dataSource);
         Connection connection;
         for (int i = 0; i < datum.maxConnections.length; i++) {
@@ -104,8 +105,12 @@ public final class PersistenceManagerTest extends DesdemonaTestCase {
             buffer.append(maxConnection);
         }
         TEST_LOGGER.logInfo("maxConnections:{0}", maxConnections);
-        datum = new Fixture(PersistenceManager.getInstance(), maxConnections);
-        datum.pm.start();
+        datum = new Fixture(PersistenceService.getInstance(), maxConnections);
+        final Properties properties = new Properties();
+        final long sleep = Long.MAX_VALUE;
+        properties.setProperty("thinkparity.persistence.derbyarchiversleep",
+                String.valueOf(sleep));
+        datum.ps.start(properties);
     }
 
     /**
@@ -114,7 +119,7 @@ public final class PersistenceManagerTest extends DesdemonaTestCase {
      */
     @Override
     protected void tearDown() throws Exception {
-        datum.pm.stop();
+        datum.ps.stop();
         datum = null;
 
         super.tearDown();
@@ -124,11 +129,11 @@ public final class PersistenceManagerTest extends DesdemonaTestCase {
 
         private final int[] maxConnections;
 
-        private final PersistenceManager pm;
+        private final PersistenceService ps;
 
-        private Fixture(final PersistenceManager pm, final int[] maxConnections) {
+        private Fixture(final PersistenceService ps, final int[] maxConnections) {
             super();
-            this.pm = pm;
+            this.ps = ps;
             this.maxConnections = maxConnections;
         }
     }

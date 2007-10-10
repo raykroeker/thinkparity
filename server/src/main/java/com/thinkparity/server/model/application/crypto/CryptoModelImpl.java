@@ -3,12 +3,17 @@
  */
 package com.thinkparity.desdemona.model.crypto;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.List;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import com.thinkparity.codebase.assertion.Assert;
 
@@ -25,6 +30,9 @@ import com.thinkparity.desdemona.model.artifact.InternalArtifactModel;
 import com.thinkparity.desdemona.model.artifact.RemoteArtifact;
 import com.thinkparity.desdemona.model.artifact.RemoteArtifactVersion;
 import com.thinkparity.desdemona.model.backup.InternalBackupModel;
+import com.thinkparity.desdemona.model.migrator.Archive;
+
+import com.thinkparity.desdemona.util.DesdemonaProperties;
 
 /**
  * <b>Title:</b>thinkParity Desdemona Encryption Model Implementation<br>
@@ -36,12 +44,63 @@ import com.thinkparity.desdemona.model.backup.InternalBackupModel;
 public final class CryptoModelImpl extends AbstractModelImpl implements
         CryptoModel, InternalCryptoModel {
 
+    /** A hmac sha1 encryption algorithm name. */
+    private static final String HMAC_SHA1_ALGORITHM_NAME;
+
+    /** A secret access key for internal encryption. */
+    private static byte[] SECRET_ACCESS_KEY;
+
+    static {
+        HMAC_SHA1_ALGORITHM_NAME = "HmacSHA1";
+    }
+
+    /**
+     * Obtain the secret access key.
+     * 
+     * @return A <code>byte[]</code>.
+     * @throws IOException
+     */
+    private static byte[] getSecretAccessKey() throws IOException {
+        if (null == SECRET_ACCESS_KEY) {
+            final DesdemonaProperties properties = DesdemonaProperties.getInstance();
+            final File file = new File(properties.getProperty("thinkparity.crypto.secretaccesskey-file"));
+            final InputStream stream = new FileInputStream(file);
+            try {
+                SECRET_ACCESS_KEY = new byte[(int) file.length()];
+                stream.read(SECRET_ACCESS_KEY);
+            } finally {
+                stream.close();
+            }
+        }
+        return SECRET_ACCESS_KEY;
+    }
+
     /**
      * Create CryptoModelImpl.
      *
      */
     public CryptoModelImpl() {
         super();
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.crypto.InternalCryptoModel#createSecret(Archive)
+     *
+     */
+    @Override
+    public Secret createSecret(final Archive archive) {
+        try {
+            final SecretKey secretKey = newInternalSecretKey();
+
+            final Secret secret = new Secret();
+            secret.setAlgorithm(secretKey.getAlgorithm());
+            secret.setFormat(secretKey.getFormat());
+            secret.setKey(secretKey.getEncoded());
+
+            return secret;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -198,7 +257,18 @@ public final class CryptoModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * Create a new secret key.
+     * Instantiate an internal secret key.
+     * 
+     * @return A <code>SecretKey</code>.
+     * @throws IOException
+     *             if the secret key cannot be located
+     */
+    private SecretKey newInternalSecretKey() throws IOException {
+        return new SecretKeySpec(getSecretAccessKey(), HMAC_SHA1_ALGORITHM_NAME);
+    }
+
+    /**
+     * Instantiate a secret key.
      * 
      * @return A <code>SecretKey</code>.
      */

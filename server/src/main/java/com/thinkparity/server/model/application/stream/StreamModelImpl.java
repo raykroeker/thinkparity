@@ -14,6 +14,7 @@ import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants;
 import com.thinkparity.desdemona.model.amazon.s3.AmazonS3StreamInfo;
 import com.thinkparity.desdemona.model.amazon.s3.InternalAmazonS3Model;
+import com.thinkparity.desdemona.model.migrator.Archive;
 
 /**
  * <b>Title:</b>thinkParity Stream Model Implementation</br>
@@ -120,6 +121,32 @@ public final class StreamModelImpl extends AbstractModelImpl implements
             return session;
         } catch (final Throwable t) {
             throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.stream.InternalStreamModel#newUpstreamSession(StreamInfo, Product, Release, Archive)
+     *
+     */
+    @Override
+    public StreamSession newUpstreamSession(final StreamInfo streamInfo,
+            final Product product, final Release release, final Archive archive) {
+        try {
+            final StreamSession session = new StreamSession();
+            session.setBufferSize(getBufferSize("stream-session"));
+            session.setRetryAttempts(Constants.Stream.UPSTREAM_RETRY_ATTEMPTS);
+            final InternalAmazonS3Model amazonS3Model = getAmazonS3Model();
+            final AmazonS3StreamInfo amzS3StreamInfo = new AmazonS3StreamInfo();
+            amzS3StreamInfo.setMD5(streamInfo.getMD5());
+            amzS3StreamInfo.setLength(String.valueOf(streamInfo.getSize()));
+            amzS3StreamInfo.setType(HttpUtils.ContentTypeNames.BINARY_OCTET_STREAM);
+            session.setHeaders(amazonS3Model.newUpstreamHeaders(amzS3StreamInfo,
+                    product, release, archive));
+            session.setURI(amazonS3Model.newUpstreamURI(product, release,
+                    archive));
+            return session;
+        } catch (final Exception x) {
+            throw panic(x);
         }
     }
 

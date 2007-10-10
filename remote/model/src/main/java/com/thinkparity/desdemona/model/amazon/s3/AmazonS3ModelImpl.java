@@ -29,6 +29,8 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.http.HttpUtils;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.migrator.Archive;
+
 import com.thinkparity.desdemona.util.DateTimeProvider;
 import com.thinkparity.desdemona.util.DesdemonaProperties;
 
@@ -247,6 +249,29 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * Create a new instance of an s3 key for an archive. The key is
+     * <code>/archives/PN/RN/UUID</code> where PN is the product name
+     * lowercased, RN is the release name and UUID is the archive unique id.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     * @param archive
+     *            An <code>Archive</code>.
+     * @return An s3 key <code>String</code>.
+     */
+    private static String newKey(final Product product, final Release release,
+            final Archive archive) {
+        return new StringBuilder(32)
+            .append("/archives")
+            .append('/').append(product.getName().toLowerCase())
+            .append('/').append(release.getName().toLowerCase())
+            .append('/').append(archive.getUniqueId())
+            .toString();
+    }
+
+    /**
      * Create an instance of a secret key spec for encryption.
      * 
      * @return A <code>SecretKeySpec</code>.
@@ -291,6 +316,37 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
             .append('/')
             .append(getBucketName(environment))
             .append(newKey(version))
+            .toString();
+    }
+
+    /**
+     * Create an amazon s3 canonical string for an upstream put request.
+     * 
+     * @param environment
+     *            An <code>Environment</code>.
+     * @param streamInfo
+     *            An <code>AmazonS3StreamInfo</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     * @param archive
+     *            An <code>Archive</code>.
+     * @param date
+     *            A <code>String</code>.
+     * @return A <code>String</code>.
+     */
+    private static String newUpstreamCanonical(final Environment environment,
+            final AmazonS3StreamInfo streamInfo, final Product product,
+            final Release release, final Archive archive, final String date) {
+        return new StringBuilder(64)
+            .append(HttpUtils.MethodNames.PUT).append('\n')
+            .append(streamInfo.getMD5()).append('\n')
+            .append(streamInfo.getType()).append('\n')
+            .append(date).append('\n')
+            .append('/')
+            .append(getBucketName(environment))
+            .append(newKey(product, release, archive))
             .toString();
     }
 
@@ -348,6 +404,26 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
             final Product product, final Release release) {
         return newURIBuilder(environment)
             .append(newKey(product, release)).toString();
+    }
+
+    /**
+     * Create a new http uri for the environment for the product release
+     * archive.
+     * 
+     * @param environment
+     *            The <code>Environment</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     * @param archive
+     *            An <code>Archive</code>.
+     * @return A uri <code>String</code>.
+     */
+    private static String newURI(final Environment environment,
+            final Product product, final Release release, final Archive archive) {
+        return newURIBuilder(environment).append(
+                newKey(product, release, archive)).toString();
     }
 
     /**
@@ -490,6 +566,30 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.amazon.s3.InternalAmazonS3Model#newUpstreamURI(Product, Release, Archive)
+     *
+     */
+    @Override
+    public Map<String, String> newUpstreamHeaders(
+            final AmazonS3StreamInfo streamInfo, final Product product,
+            final Release release, final Archive archive) {
+        final String date = newDateString();
+        final String canonical = newUpstreamCanonical(environment, streamInfo,
+                product, release, archive, date);
+        logger.logVariable("canonical", canonical);
+        final byte[] encrypted = s3Encrypt(canonical);
+        final byte[] signature = encode(encrypted);
+        final String authorization = newAuthorization(signature);
+        final Map<String, String> headers = newHeaderMap();
+        headers.put(HttpUtils.HeaderNames.AUTHORIZATION, authorization);
+        headers.put(HttpUtils.HeaderNames.CONTENT_LENGTH, streamInfo.getLength());
+        headers.put(HttpUtils.HeaderNames.CONTENT_MD5, streamInfo.getMD5());
+        headers.put(HttpUtils.HeaderNames.CONTENT_TYPE, streamInfo.getType());
+        headers.put(HttpUtils.HeaderNames.DATE, date);
+        return headers;
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.amazon.s3.InternalAmazonS3Model#newUpstreamURI(com.thinkparity.codebase.model.document.DocumentVersion)
      * 
      */
@@ -503,6 +603,20 @@ public final class AmazonS3ModelImpl extends AbstractModelImpl implements
      */
     public String newUpstreamURI(final Product product, final Release release) {
         return newURI(environment, product, release);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.amazon.s3.InternalAmazonS3Model#newUpstreamURI(Product, Release, Archive)
+     *
+     */
+    @Override
+    public String newUpstreamURI(final Product product, final Release release,
+            final Archive archive) {
+        try {
+            return newURI(environment, product, release, archive);
+        } catch (final Exception x) {
+            throw panic(x);
+        }
     }
 
     /**

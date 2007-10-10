@@ -12,11 +12,13 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSessionManager;
+
+import com.thinkparity.desdemona.service.persistence.PersistenceService;
+
 import com.thinkparity.desdemona.util.crypto.CryptoProvider;
-import com.thinkparity.desdemona.wildfire.util.PersistenceManager;
 
 /**
- * <b>Title:</b>thinkParity DesdemonaModel SQL Abstraction<br>
+ * <b>Title:</b>thinkParity Desdemona Model SQL Abstraction<br>
  * <b>Description:</b><br>
  * 
  * @author raymond@thinkparity.com
@@ -66,7 +68,7 @@ public abstract class AbstractSql {
      *
      */
 	protected AbstractSql() {
-        this(PersistenceManager.getInstance().getDataSource(), Boolean.TRUE);
+        this(PersistenceService.getInstance().getDataSource(), Boolean.TRUE);
     }
 
     /**

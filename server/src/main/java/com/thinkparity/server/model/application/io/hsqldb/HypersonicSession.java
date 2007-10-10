@@ -70,6 +70,9 @@ public final class HypersonicSession {
         XSTREAM_UTIL = XStreamUtil.getInstance();
     }
 
+    /** A callable statement. */
+	private CallableStatement callableStatement;
+
     /** A <code>Connection</code>. */
 	private Connection connection;
 
@@ -85,7 +88,7 @@ public final class HypersonicSession {
     /** A session unique id <code>JVMUniqueId</code>. */
 	private final JVMUniqueId id;
 
-    /** The connection meta data. */
+	/** The connection meta data. */
     private DatabaseMetaData metaData;
 
 	/** A <code>PreparedStatement</code>. */
@@ -130,7 +133,7 @@ public final class HypersonicSession {
 	public void close() {
 		assertConnectionIsOpen();
 		try {
-			close(preparedStatement, resultSet);
+			close(callableStatement, preparedStatement, resultSet);
         } finally {
 			try {
                 connection.close();
@@ -209,6 +212,52 @@ public final class HypersonicSession {
 		catch(final SQLException sqlx) { throw panic(sqlx); }
 		finally { close(statement); }
 	}
+
+    /**
+     * Execute the sql in the session's callable statement.
+     * 
+     * @return <code>true</code> if the first result is a
+     *         <code>ResultSet</code> object; <code>false</code> if the
+     *         first result is an update count or there is no result
+     */
+    public boolean executeCall() {
+        assertConnectionIsOpen();
+        assertCallableStatementIsSet();
+        try {
+            return callableStatement.execute();
+        } catch (final SQLException sqlx) {
+            throw panic(sqlx);
+        }
+    }
+
+    /**
+     * Execute the query in the session's callable statement.
+     * 
+     */
+    public void executeCallQuery() {
+        assertConnectionIsOpen();
+        assertCallableStatementIsSet();
+        try {
+            resultSet = callableStatement.executeQuery();
+        } catch (final SQLException sqlx) {
+            throw panic(sqlx);
+        }
+    }
+
+    /**
+     * Execute the update sql in the session's callable statement.
+     * 
+     * @return An <code>int</code>.
+     */
+    public int executeCallUpdate() {
+        assertConnectionIsOpen();
+        assertCallableStatementIsSet();
+        try {
+            return callableStatement.executeUpdate();
+        } catch (final SQLException sqlx) {
+            throw panic(sqlx);
+        }
+    }
 
     /**
      * Execute the SQL query in the session's prepared statement and set the
@@ -601,6 +650,22 @@ public final class HypersonicSession {
         }
     }
 
+    /**
+     * Prepare a callable statement.
+     * 
+     * @param sql
+     *            A <code>String</code>.
+     */
+	public void prepareCall(final String sql) {
+	    assertConnectionIsOpen();
+	    logStatement(sql);
+	    try {
+	        callableStatement = connection.prepareCall(sql);
+	    } catch (final SQLException sqlx) {
+	        throw panic(sqlx);
+	    }
+    }
+
 	/**
      * Prepare a statement.
      * 
@@ -616,7 +681,6 @@ public final class HypersonicSession {
             throw panic(sqlx);
 		}
 	}
-
 	/**
      * Rollback any changes made within this session.
      * 
@@ -720,7 +784,26 @@ public final class HypersonicSession {
         }
     }
 
-	public void setDate(final Integer index, final Calendar value) {
+	/**
+     * Set a callable statement's string parameter.
+     * 
+     * @param index
+     *            An <code>Integer</code>.
+     * @param value
+     *            A <code>String</code>.
+     */
+    public void setCallableString(final Integer index, final String value) {
+        assertConnectionIsOpen();
+        assertCallableStatementIsSet();
+        logColumnInjection(index, value);
+        try {
+            callableStatement.setString(index, value);
+        } catch (final SQLException sqlx) {
+            throw panic(sqlx);
+        }
+    }
+
+    public void setDate(final Integer index, final Calendar value) {
         assertConnectionIsOpen();
         assertPreparedStatementIsSet();
         try {
@@ -928,6 +1011,16 @@ public final class HypersonicSession {
 	}
 
 	/**
+     * Ensure the callable statement is set.
+     * 
+     */
+    private void assertCallableStatementIsSet() {
+        if (null == callableStatement) {
+            throw new HypersonicException("Callable statement is null.");
+        }
+    }
+
+	/**
      * Assert the connection is open.
      *
      */
@@ -951,7 +1044,7 @@ public final class HypersonicSession {
             throw new HypersonicException("Meta data is null.");
     }
 
-	/**
+    /**
      * Assert the prepared statement is set.
      *
      */
@@ -1016,13 +1109,35 @@ public final class HypersonicSession {
      * @see HypersonicSession#close(Statement)
      * @see HypersonicSession#close(ResultSet)
      */
-	private void close(final Statement statement, final ResultSet resultSet) {
-		try {
+    private void close(final Statement statement, final ResultSet resultSet) {
+        try {
             close(statement);
         } finally {
             close(resultSet);
         }
-	}
+    }
+
+    /**
+     * Close two statements as well as a result set.
+     * 
+     * @param statement0
+     *            A <code>Statement</code>.
+     * @param statement1
+     *            A <code>Statement</code>.
+     * @param resultSet
+     *            A <code>ResultSet</code>.
+     * 
+     * @see HypersonicSession#close(Statement)
+     * @see HypersonicSession#close(ResultSet)
+     */
+    private void close(final Statement statement0, final Statement statement1,
+            final ResultSet resultSet) {
+        try {
+            close(statement0);
+        } finally {
+            close(statement1, resultSet);
+        }
+    }
 
     /**
      * Decrypt the cipher text into clear text.
@@ -1064,7 +1179,7 @@ public final class HypersonicSession {
         }
     }
 
-    /**
+	/**
      * Log the column name and value.
      * 
      * @param columnName
@@ -1076,7 +1191,7 @@ public final class HypersonicSession {
         LOGGER.logDebug("Extract {0}:{1}", columnName, columnValue);
     }
 
-	/**
+    /**
      * Log the column name and value.
      * 
      * @param columnName

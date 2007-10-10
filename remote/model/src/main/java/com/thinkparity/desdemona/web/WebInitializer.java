@@ -43,6 +43,9 @@ import com.thinkparity.desdemona.model.profile.payment.PaymentPlan;
 import com.thinkparity.desdemona.model.profile.payment.PaymentService;
 import com.thinkparity.desdemona.model.queue.QueueItem;
 import com.thinkparity.desdemona.model.queue.notification.NotificationService;
+
+import com.thinkparity.desdemona.service.persistence.PersistenceService;
+
 import com.thinkparity.desdemona.util.DesdemonaProperties;
 import com.thinkparity.desdemona.util.logging.or.CurrencyRenderer;
 import com.thinkparity.desdemona.util.logging.or.OperationRenderer;
@@ -53,7 +56,6 @@ import com.thinkparity.desdemona.util.logging.or.ServiceRequestRenderer;
 import com.thinkparity.desdemona.web.service.Operation;
 import com.thinkparity.desdemona.web.service.Service;
 import com.thinkparity.desdemona.web.service.Services;
-import com.thinkparity.desdemona.wildfire.util.PersistenceManager;
 
 import org.apache.log4j.PropertyConfigurator;
 
@@ -67,12 +69,10 @@ import org.apache.log4j.PropertyConfigurator;
  */
 public final class WebInitializer implements ServletContextListener {
 
-    /** A <code>Log4JWrapper</code>. */
+    /** A log4j wrapper. */
     private final Log4JWrapper logger;
 
-    /** A reference to the <code>PersistenceManager</code>. */
-    private PersistenceManager persistenceService;
-
+    /** A transaction service. */
     private TransactionService transactionService;
 
     /**
@@ -156,6 +156,7 @@ public final class WebInitializer implements ServletContextListener {
         setProperty(properties, "thinkparity.node.username", servletContext);
         setProperty(properties, "thinkparity.node.password", servletContext);
         setProperty(properties, "thinkparity.product-name", servletContext);
+        setProperty(properties, "thinkparity.persistence.derbyarchiverschedule", servletContext);
         setProperty(properties, "thinkparity.payment.plansleep", servletContext);
         setProperty(properties, "thinkparity.payment.invoicesleep", servletContext);
         setProperty(properties, "thinkparity.queue.notification.bind-host", servletContext);
@@ -389,8 +390,7 @@ public final class WebInitializer implements ServletContextListener {
     private void startPersistence(final DesdemonaProperties properties) {
         logger.logTraceId();
         logger.logInfo("Starting persistence service.");
-        persistenceService = PersistenceManager.getInstance();
-        persistenceService.start();
+        PersistenceService.getInstance().start(properties);
         logger.logInfo("Persistence service started.");
     }
 
@@ -499,14 +499,8 @@ public final class WebInitializer implements ServletContextListener {
     private void stopPersistence() {
         logger.logTraceId();
         logger.logInfo("Stopping persistence service.");
-        try {
-            /* TODO refactor persistence service to behave like other services;
-             * do not require a local instance */
-            persistenceService.stop();
-        } finally {
-            persistenceService = null;
-            logger.logInfo("Persistence service stopped.");
-        }
+        PersistenceService.getInstance().stop();
+        logger.logInfo("Persistence service stopped.");
     }
 
     /**

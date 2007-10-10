@@ -40,6 +40,8 @@ import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 
+import com.thinkparity.desdemona.model.admin.AdminModelFactory;
+import com.thinkparity.desdemona.model.admin.derby.DerbyModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
@@ -48,6 +50,7 @@ import com.thinkparity.desdemona.model.migrator.MigratorModel;
 import com.thinkparity.desdemona.model.profile.ProfileModel;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.session.SessionModel;
+
 import com.thinkparity.desdemona.util.DateTimeProvider;
 
 import com.thinkparity.service.AuthToken;
@@ -271,6 +274,17 @@ public abstract class ModelTestCase extends TestCase {
     }
 
     /**
+     * Obtain a model factory.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @return A <code>ModelFactory</code>.
+     */
+    private AdminModelFactory getAdminModelFactory(final AuthToken authToken) {
+        return AdminModelFactory.getInstance(readUser(readSession(authToken)), loader);
+    }
+
+    /**
      * Obtain an artifact model.
      * 
      * @param authToken
@@ -373,6 +387,15 @@ public abstract class ModelTestCase extends TestCase {
     /**
      * Obtain a session model.
      * 
+     * @return An instance of <code>SessionModel</code>.
+     */
+    private SessionModel getSessionModel() {
+        return getModelFactory().getSessionModel();
+    }
+
+    /**
+     * Obtain a session model.
+     * 
      * @param authToken
      *            An <code>AuthToken</code>.
      * @return A <code>SessionModel</code>.
@@ -465,6 +488,17 @@ public abstract class ModelTestCase extends TestCase {
         } else {
             return userCache.cache(authToken, readUser(authToken));
         }
+    }
+
+    /**
+     * Obtain the derby model.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @return An instance of <code>DerbyModel</code>.
+     */
+    private DerbyModel newDerbyModel(final AuthToken authToken) {
+        return getAdminModelFactory(authToken).newDerbyModel();
     }
 
     /**
@@ -746,6 +780,14 @@ public abstract class ModelTestCase extends TestCase {
         }
 
         /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#getSessionModel()
+         * 
+         */
+        public SessionModel getSessionModel() {
+            return ModelTestCase.this.getSessionModel();
+        }
+
+        /**
          * @see com.thinkparity.desdemona.model.ModelTestCase#getContactModel(AuthToken)
          * 
          */
@@ -783,6 +825,14 @@ public abstract class ModelTestCase extends TestCase {
          */
         public User lookupUser(final AuthToken authToken) {
             return ModelTestCase.this.lookupUser(authToken);
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#newDerbyModel(AuthToken)
+         * 
+         */
+        public DerbyModel newDerbyModel(final AuthToken authToken) {
+            return ModelTestCase.this.newDerbyModel(authToken);
         }
 
         /**

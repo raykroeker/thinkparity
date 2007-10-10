@@ -62,6 +62,7 @@ import com.thinkparity.desdemona.model.rules.InternalRuleModel;
 import com.thinkparity.desdemona.model.session.InternalSessionModel;
 import com.thinkparity.desdemona.model.stream.InternalStreamModel;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
+
 import com.thinkparity.desdemona.util.DesdemonaProperties;
 
 /**
@@ -106,6 +107,18 @@ public abstract class AbstractModelImpl
      */
     protected AbstractModelImpl() {
         super();
+    }
+
+    /**
+     * Set the model user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     */
+    public final void setUser(final User user) {
+        setContext(new Context());
+        this.user = user;
+        this.modelConfiguration = ModelConfiguration.getInstance(getClass());
     }
 
     /**
@@ -741,7 +754,7 @@ public abstract class AbstractModelImpl
         return InternalModelFactory.getInstance(getContext(), user).getRuleModel();
     }
 
-    /**
+	/**
      * @see com.thinkparity.codebase.model.AbstractModelImpl#getSecretKeySpec()
      *
      */
@@ -754,11 +767,11 @@ public abstract class AbstractModelImpl
         return secretKeySpec;
     }
 
-	protected final InternalSessionModel getSessionModel() {
+    protected final InternalSessionModel getSessionModel() {
         return InternalModelFactory.getInstance(getContext(), user).getSessionModel();
     }
 
-    protected final InternalStreamModel getStreamModel() {
+	protected final InternalStreamModel getStreamModel() {
         return InternalModelFactory.getInstance(getContext(), user).getStreamModel();
     }
 
@@ -766,7 +779,7 @@ public abstract class AbstractModelImpl
         return InternalModelFactory.getInstance(getContext(), user).getStreamModel();
     }
 
-	/**
+    /**
      * Obtain the temp file system for the model user.
      * 
      * @return A <code>FileSystem</code>.
@@ -788,11 +801,11 @@ public abstract class AbstractModelImpl
         return InternalModelFactory.getInstance(getContext(), user).getUserModel();
     }
 
-    protected final InternalUserModel getUserModel(final User user) {
+	protected final InternalUserModel getUserModel(final User user) {
         return InternalModelFactory.getInstance(getContext(), user).getUserModel();
     }
 
-	/**
+    /**
      * Obtain the index of a user in the list.
      * 
      * @param <U>
@@ -830,7 +843,7 @@ public abstract class AbstractModelImpl
         return -1;
     }
 
-    /**
+	/**
      * Intialize the model.
      * 
      */
@@ -856,7 +869,7 @@ public abstract class AbstractModelImpl
         return logger.logVariable("type", type);
     }
 
-	/**
+    /**
      * Determine if the user id is a system user.
      * 
      * @param userId
@@ -872,7 +885,7 @@ public abstract class AbstractModelImpl
         logger.logApiId();
     }
 
-    /**
+	/**
      * Log an api id with a message.
      * 
      * @param message
@@ -895,7 +908,7 @@ public abstract class AbstractModelImpl
         logger.logInfo(infoPattern, infoArguments);
     }
 
-	/** Log a trace id. */
+    /** Log a trace id. */
     protected final void logTraceId() {
         logger.logApiId();
     }
@@ -946,18 +959,6 @@ public abstract class AbstractModelImpl
             properties.setProperty(key, configurationSql.read(key));
         }
         return properties;
-    }
-
-    /**
-     * Set the model user.
-     * 
-     * @param user
-     *            A <code>User</code>.
-     */
-    protected final void setUser(final User user) {
-        setContext(new Context());
-        this.user = user;
-        this.modelConfiguration = ModelConfiguration.getInstance(getClass());
     }
 
     /**

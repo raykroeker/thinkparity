@@ -51,12 +51,69 @@ public final class ModelInvocationContext {
     }
 
     /**
+     * Obtain id.
+     *
+     * @return A JVMUniqueId.
+     */
+    public final JVMUniqueId getId() {
+        return id;
+    }
+
+    /**
+     * Obtain method.
+     *
+     * @return A Method.
+     */
+    public final Method getMethod() {
+        return method;
+    }
+
+    /**
+     * Obtain args.
+     *
+     * @return A Object[].
+     */
+    public final Class<?>[] getParameterTypes() {
+        return parameterTypes;
+    }
+
+    /**
      * @see java.lang.Object#hashCode()
      *
      */
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+
+    /**
+     * Set id.
+     *
+     * @param id
+     *		A JVMUniqueId.
+     */
+    public final void setId(final JVMUniqueId id) {
+        this.id = id;
+    }
+
+    /**
+     * Set method.
+     *
+     * @param method
+     *		A Method.
+     */
+    public final void setMethod(final Method method) {
+        this.method = method;
+    }
+
+    /**
+     * Set args.
+     *
+     * @param args
+     *		A Object[].
+     */
+    public final void setParameterTypes(final Class<?>[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
     }
 
     /**
@@ -77,62 +134,5 @@ public final class ModelInvocationContext {
         }
         buffer.append(')');
         return buffer.toString();
-    }
-
-    /**
-     * Obtain id.
-     *
-     * @return A JVMUniqueId.
-     */
-    protected final JVMUniqueId getId() {
-        return id;
-    }
-
-    /**
-     * Obtain method.
-     *
-     * @return A Method.
-     */
-    protected final Method getMethod() {
-        return method;
-    }
-
-    /**
-     * Obtain args.
-     *
-     * @return A Object[].
-     */
-    protected final Class<?>[] getParameterTypes() {
-        return parameterTypes;
-    }
-
-    /**
-     * Set id.
-     *
-     * @param id
-     *		A JVMUniqueId.
-     */
-    protected final void setId(final JVMUniqueId id) {
-        this.id = id;
-    }
-
-    /**
-     * Set method.
-     *
-     * @param method
-     *		A Method.
-     */
-    protected final void setMethod(final Method method) {
-        this.method = method;
-    }
-
-    /**
-     * Set args.
-     *
-     * @param args
-     *		A Object[].
-     */
-    protected final void setParameterTypes(final Class<?>[] parameterTypes) {
-        this.parameterTypes = parameterTypes;
     }
 }

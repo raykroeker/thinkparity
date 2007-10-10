@@ -77,6 +77,10 @@
         <param-value>30000</param-value>
     </context-param>
     <context-param>
+        <param-name>thinkparity.persistence.derbyarchiverschedule</param-name>
+        <param-value>72000000</param-value>
+    </context-param>
+    <context-param>
         <param-name>thinkparity.product-name</param-name>
         <param-value>DesdemonaProduct</param-value>
     </context-param>

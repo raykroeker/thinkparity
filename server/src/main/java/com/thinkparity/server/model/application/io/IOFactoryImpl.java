@@ -10,9 +10,11 @@ import javax.sql.DataSource;
 
 import com.thinkparity.desdemona.model.io.sql.AbstractSql;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
+import com.thinkparity.desdemona.model.io.sql.DerbySql;
 import com.thinkparity.desdemona.model.io.sql.PaymentSql;
 import com.thinkparity.desdemona.model.io.sql.QueueSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
+
 import com.thinkparity.desdemona.util.DesdemonaProperties;
 import com.thinkparity.desdemona.util.crypto.CryptoException;
 import com.thinkparity.desdemona.util.crypto.CryptoProvider;
@@ -47,6 +49,15 @@ class IOFactoryImpl implements IOFactory {
     @Override
     public ContactSql newContactIO(final DataSource dataSource) {
         return newIO(ContactSql.class, dataSource);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.io.IOFactory#newDerbyIO(javax.sql.DataSource)
+     *
+     */
+    @Override
+    public DerbySql newDerbyIO(final DataSource dataSource) {
+        return newIO(DerbySql.class, dataSource);
     }
 
     /**

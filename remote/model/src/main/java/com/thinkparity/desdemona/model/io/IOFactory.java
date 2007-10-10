@@ -6,6 +6,7 @@ package com.thinkparity.desdemona.model.io;
 import javax.sql.DataSource;
 
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
+import com.thinkparity.desdemona.model.io.sql.DerbySql;
 import com.thinkparity.desdemona.model.io.sql.PaymentSql;
 import com.thinkparity.desdemona.model.io.sql.QueueSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
@@ -28,6 +29,15 @@ public interface IOFactory {
      * @return A <code>ContactSql</code>.
      */
     ContactSql newContactIO(final DataSource dataSource);
+
+    /**
+     * Instantiate a derby io handler.
+     * 
+     * @param dataSource
+     *            A <code>DataSource</code>.
+     * @return A <code>DerbySql</code>.
+     */
+    DerbySql newDerbyIO(final DataSource dataSource);
 
     /**
      * Instantate a payment io handler.

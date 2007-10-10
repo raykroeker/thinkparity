@@ -9,6 +9,8 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 
+import com.thinkparity.desdemona.model.migrator.Archive;
+
 /**
  * <b>Title:</b>thinkParity Desdemona Internal Amazon S3 Model<br>
  * <b>Description:</b><br>
@@ -90,6 +92,22 @@ public interface InternalAmazonS3Model extends AmazonS3Model {
             Product product, Release release);
 
     /**
+     * Instantiate the upstream headers required to upload an archive.
+     * 
+     * @param streamInfo
+     *            An <code>AmazonS3StreamInfo</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     * @param archive
+     *            An <code>Archive</code>.
+     * @return A <codE>Map<String, String></code>.
+     */
+    Map<String, String> newUpstreamHeaders(AmazonS3StreamInfo streamInfo,
+            Product product, Release release, Archive archive);
+
+    /**
      * Create an instance of a upstream uri used to upload an artifact
      * version.
      * 
@@ -109,4 +127,17 @@ public interface InternalAmazonS3Model extends AmazonS3Model {
      * @return An upload uri <code>String</code>.
      */
     String newUpstreamURI(Product product, Release release);
+
+    /**
+     * Instantiate an upstream uri used to upload an archive.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @param release
+     *            A <code>Release</code>.
+     * @param archive
+     *            An <code>Archive</code>.
+     * @return A <code>String</code>.
+     */
+    String newUpstreamURI(Product product, Release release, Archive archive);
 }

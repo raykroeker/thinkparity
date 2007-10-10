@@ -51,13 +51,13 @@ public abstract class DateUtil {
 			return null;
 		return getSimpleDateFormat(dateImage, locale).format(calendar.getTime());
 	}
-	
+
 	public static synchronized String format(
 		Calendar calendar,
 		String image) {
 		return DateUtil.formatCalendar(calendar, image, null);
 	}
-
+	
 	public static synchronized String format(
 		Calendar calendar,
 		String image,
@@ -76,7 +76,7 @@ public abstract class DateUtil {
 		DateImage dateImage) {
 		return format(milliseconds, dateImage, null);
 	}
-	
+
 	/**
 	 * Format the number of milliseconds from Jan 1, 1970 into a display format.
 	 * @param milliseconds <code>long</code>
@@ -91,22 +91,8 @@ public abstract class DateUtil {
 		return getSimpleDateFormat(dateImage, locale).format(
 			getInstance(milliseconds, locale).getTime());
 	}
-
+	
 	/**
-     * Obtain the date\time as an ISO formatted string in the GMT time-zone.
-     * 
-     * @param calendar
-     *            A <code>Calendar</code>.
-     * @return An <code>DateImate.ISO</code> formatted string in the GMT
-     *         time-zone.
-     */
-    public static String toGMTISO(final Calendar calendar) {
-        final Calendar valueGMT =
-            getInstance(calendar.getTime(), new SimpleTimeZone(0, "GMT"));
-        return DateUtil.format(valueGMT, DateUtil.DateImage.ISO);
-    }
-
-    /**
      * Parse a string as an iso date format; and construct a GMT time-zone based
      * date.
      * 
@@ -127,7 +113,7 @@ public abstract class DateUtil {
 		return DateUtil.getInstance((TimeZone) null, (Locale) null);
 	}
 
-	/**
+    /**
 	 * Obtain a Calendar instance based upon the default TimeZone and Locale, then
 	 * set the time according to Date
 	 * @param date <code>java.util.Date</code>
@@ -159,7 +145,7 @@ public abstract class DateUtil {
 		Date date,
 		TimeZone timeZone) {
 		return getInstance(date, timeZone, null);
-	}	
+	}
 
 	/**
 	 * Obtain a Calendar instance based upon the TimeZone and Locale, then set the
@@ -188,7 +174,7 @@ public abstract class DateUtil {
 	 */
 	public static synchronized Calendar getInstance(long milliseconds) {
 		return getInstance(milliseconds, null, null);
-	}
+	}	
 
 	/**
 	 * Obtain a Calendar instance based upon the Locale and default TimeZone, then
@@ -269,7 +255,7 @@ public abstract class DateUtil {
 		return calendar.getActualMaximum(java.util.Calendar.DAY_OF_MONTH)
 			== calendar.get(java.util.Calendar.DAY_OF_MONTH);
 	}
-	
+
 	/**
 	 * Determine whether or not calendar is the last day of the week.  This is done 
 	 * by comparing the <code>java.util.Calendar.getFirstDayOfWeek()</code>
@@ -283,7 +269,7 @@ public abstract class DateUtil {
 			== calendar.get(java.util.Calendar.DAY_OF_WEEK);
 	}
 
-    /**
+	/**
      * Determine whether or not the dates occur on the same day.
      * 
      * @param c1
@@ -297,8 +283,8 @@ public abstract class DateUtil {
             && c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH)
             && c1.get(Calendar.DAY_OF_MONTH) == c2.get(Calendar.DAY_OF_MONTH);
     }
-
-    /**
+	
+	/**
      * Determine whether or not the dates occur within the same month.
      * 
      * @param c1
@@ -340,7 +326,7 @@ public abstract class DateUtil {
             && Math.abs(c1.get(Calendar.DAY_OF_MONTH) - c2.get(Calendar.DAY_OF_MONTH)) < 7;
     }
 
-	/**
+    /**
 	 * Parse the string for a <code>java.util.Calendar</code> which matches 
 	 * dateImage.  Uses the default <code>java.util.TimeZone</code> and 
 	 * <code>java.util.Locale</code>
@@ -392,6 +378,39 @@ public abstract class DateUtil {
 			return null;
 		return getInstance(getSimpleDateFormat(dateImage, locale).parse(string), timeZone, locale);
 	}
+
+    /**
+     * Set the time to the closest quarter hour.
+     * 
+     * @param calendar
+     *            A <code>Calendar</code>.
+     */
+    public static void setClosestQuarterHour(final Calendar calendar) {
+        final int minute = calendar.get(Calendar.MINUTE);
+        if (15 > minute) {
+            calendar.set(Calendar.MINUTE, 0);
+        } else if (30 > minute) {
+            calendar.set(Calendar.MINUTE, 15);
+        } else if (45 > minute) {
+            calendar.set(Calendar.MINUTE, 30);
+        } else {
+            calendar.set(Calendar.MINUTE, 45);
+        }
+    }
+
+	/**
+     * Obtain the date\time as an ISO formatted string in the GMT time-zone.
+     * 
+     * @param calendar
+     *            A <code>Calendar</code>.
+     * @return An <code>DateImate.ISO</code> formatted string in the GMT
+     *         time-zone.
+     */
+    public static String toGMTISO(final Calendar calendar) {
+        final Calendar valueGMT =
+            getInstance(calendar.getTime(), new SimpleTimeZone(0, "GMT"));
+        return DateUtil.format(valueGMT, DateUtil.DateImage.ISO);
+    }
 
 	private static synchronized String formatCalendar(
 		Calendar calendar,

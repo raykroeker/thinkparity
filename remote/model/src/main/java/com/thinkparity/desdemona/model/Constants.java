@@ -52,6 +52,13 @@ public interface Constants {
 
     /** Product Constants */
     public static final class Product {
+        /** Desdemona Product Constants */
+        public static final class Desdemona {
+            /** Desdemona Product Id Constant */
+            public static final Long PRODUCT_ID = 1001L;
+            /** Desdemona Product Name Constant */
+            public static final String PRODUCT_NAME = "DesdemonaProduct";
+        }
         /** Ophelia Product Constants */
         public static final class Ophelia {
             /** Ophelia Product Name Constant */
@@ -64,11 +71,6 @@ public interface Constants {
                 public static final String CORE = "CORE";
             }
         }
-        /** Desdemona Product Constants */
-        public static final class Desdemona {
-            /** Desdemona Product Id Constant */
-            public static final Long PRODUCT_ID = 1001L;
-        }
     }
 
     /**
@@ -79,6 +81,7 @@ public interface Constants {
         public static final class Encryption {
             public static final String ALGORITHM = "AES";
             public static final Integer KEY_SIZE = 128;
+            public static final Integer INTERNAL_KEY_SIZE = 256;
         }
         public static final class KeyStore {
             public static final char[] CLIENT_PASS = "password".toCharArray();

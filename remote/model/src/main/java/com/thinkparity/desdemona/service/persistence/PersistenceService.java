@@ -4,12 +4,7 @@
 package com.thinkparity.desdemona.service.persistence;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.Timer;
+import java.util.*;
 
 import javax.sql.DataSource;
 
@@ -161,7 +156,7 @@ public final class PersistenceService extends Service {
      */
     private List<Long> getSchedule(final String key) {
         final String tokens = properties.getProperty(key, String.valueOf(DEFAULT_SCHEDULE));
-        final StringTokenizer tokenizer = new StringTokenizer(tokens);
+        final StringTokenizer tokenizer = new StringTokenizer(tokens, ",");
         final List<Long> schedule = new ArrayList<Long>(tokenizer.countTokens());
         while (tokenizer.hasMoreTokens()) {
             try {
@@ -172,6 +167,24 @@ public final class PersistenceService extends Service {
             schedule.add(Long.valueOf(DEFAULT_SCHEDULE));
         }
         return schedule;
+    }
+
+    /**
+     * Instantiate a new timer task.
+     * 
+     * @return A <code>TimerTask</code>.
+     */
+    private TimerTask newTimerTask() {
+        return new TimerTask() {
+            /**
+             * @see java.util.TimerTask#run()
+             *
+             */
+            @Override
+            public void run() {
+                derbyArchiver.run();
+            }
+        };
     }
 
     /**
@@ -191,12 +204,14 @@ public final class PersistenceService extends Service {
         long currentTimeInMillis;
         for (final long scheduleInMillis : schedule) {
             currentTimeInMillis = System.currentTimeMillis();
-            if (currentTimeInMillis - midnightInMillis < scheduleInMillis) {
-                timer.scheduleAtFixedRate(derbyArchiver,
+            if ((currentTimeInMillis - midnightInMillis) < scheduleInMillis) {
+                /* schedule the task */
+                timer.scheduleAtFixedRate(newTimerTask(),
                         scheduleInMillis - (currentTimeInMillis - midnightInMillis),
                         period);
             } else {
-                timer.scheduleAtFixedRate(derbyArchiver,
+                /* schedule the task plus 24 hours */
+                timer.scheduleAtFixedRate(newTimerTask(),
                         (scheduleInMillis - (currentTimeInMillis - midnightInMillis)) + period,
                         period);
             }

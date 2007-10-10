@@ -136,6 +136,21 @@ public class Log4JWrapper {
     }
 
     /**
+     * Log. This will always log a message.
+     * 
+     * @param allPattern
+     *            A <code>String</code>.
+     * @param allArguments
+     *            An optional <code>Object[]</code>.
+     */
+    public final void logAll(final String allPattern, final Object... allArguments) {
+        if (logger.isEnabledFor(Level.ALL)) {
+            logger.log(Level.ALL, Log4JHelper.renderAndFormat(logger,
+                    allPattern, allArguments));
+        }
+    }
+
+    /**
      * Log an api id. (A stack-trace format of the caller's caller).
      *
      */

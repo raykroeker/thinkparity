@@ -657,7 +657,7 @@ public final class WorkspaceImpl implements Workspace {
                 "com.thinkparity.codebase.model.util.logging.or.UserRenderer");
         LogManager.resetConfiguration();
         PropertyConfigurator.configure(logging);
-        new Log4JWrapper("DEFAULT").logInfo("{0} - {1}", "thinkParity", Release.NAME);
+        new Log4JWrapper("DEFAULT").logAll("{0} - {1}", "thinkParity", Release.NAME);
         new Log4JWrapper("METRIX_DEBUGGER").logInfo("{0} - {1}", "thinkParity", Release.NAME);
         new Log4JWrapper("SQL_DEBUGGER").logInfo("{0} - {1}", "thinkParity", Release.NAME);
         new Log4JWrapper("XA_DEBUGGER").logInfo("{0} - {1}", "thinkParity", Release.NAME);

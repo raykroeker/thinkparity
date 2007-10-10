@@ -330,6 +330,7 @@ create table TPSD_PAYMENT_PROVIDER_CONFIGURATION(
 create table TPSD_PAYMENT_INFO(
     PROVIDER_ID smallint not null,
     INFO_ID bigint generated always as identity(start with 12000),
+    INFO_CARD_HOLDER_NAME varchar(128) not null,
     INFO_CARD_NAME varchar(48) not null,
     INFO_CARD_NUMBER varchar(48) not null,
     INFO_CARD_EXPIRY_MONTH varchar(32) not null,

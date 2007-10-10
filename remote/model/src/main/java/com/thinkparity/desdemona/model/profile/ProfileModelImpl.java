@@ -56,6 +56,7 @@ import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.profile.*;
 import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
+import com.thinkparity.codebase.model.profile.payment.PaymentInfoConstraints;
 import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -97,6 +98,7 @@ import com.thinkparity.desdemona.model.profile.payment.PaymentPlan.InvoicePeriod
 import com.thinkparity.desdemona.model.profile.payment.provider.PaymentProvider;
 import com.thinkparity.desdemona.model.profile.payment.provider.PaymentProviderFactory;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
+
 import com.thinkparity.desdemona.util.DateTimeProvider;
 import com.thinkparity.desdemona.util.smtp.SMTPService;
 
@@ -113,6 +115,9 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     /** A set of profile constraints. */
     private static final ProfileConstraints constraints;
 
+    /** A set of payment info constraints. */
+    private static final PaymentInfoConstraints infoConstraints;
+
     /** An io factory. */
     private static final IOFactory ioFactory;
 
@@ -121,6 +126,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
 
     static {
         constraints = ProfileConstraints.getInstance();
+        infoConstraints = PaymentInfoConstraints.getInstance();
         ioFactory = IOService.getInstance().getFactory();
         planConstraints = PaymentPlanConstraints.getInstance();
     }
@@ -245,6 +251,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         final Object xaContext = newXAContext(XAContextId.PROFILE_CREATE);
         try {
             validate(profile.getVCard());
+            validate(paymentInfo);
             beginXA(xaContext);
             try {
                 final Calendar now = DateTimeProvider.getCurrentDateTime();
@@ -764,6 +771,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         try {
             beginXA(xaContext);
             try {
+                validate(paymentInfo);
+
                 final Calendar now = DateTimeProvider.getCurrentDateTime();
                 final Product product = getMigratorModel().readProduct(Ophelia.PRODUCT_NAME);
                 final List<Feature> featureList = localize(product, profile.getFeatures());
@@ -1756,6 +1765,20 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                 emails.add(profileEMail.getEmail());
         }
         return emails;
+    }
+
+    /**
+     * Validate the payment info.
+     * 
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
+     */
+    private void validate(final PaymentInfo paymentInfo) {
+        infoConstraints.getCardExpiryMonth().validate(paymentInfo.getCardExpiryMonth());
+        infoConstraints.getCardExpiryYear().validate(paymentInfo.getCardExpiryYear());
+        infoConstraints.getCardHolderName().validate(paymentInfo.getCardHolderName());
+        infoConstraints.getCardName().validate(paymentInfo.getCardName());
+        infoConstraints.getCardNumber().validate(paymentInfo.getCardNumber());
     }
 
     /**

@@ -38,9 +38,10 @@ public final class PaymentSql extends AbstractSql {
     /** Sql to create an info. */
     private static final String SQL_CREATE_INFO =
         new StringBuilder("insert into TPSD_PAYMENT_INFO ")
-        .append("(PROVIDER_ID,INFO_CARD_NAME,INFO_CARD_NUMBER,")
-        .append("INFO_CARD_EXPIRY_MONTH,INFO_CARD_EXPIRY_YEAR) ")
-        .append("values (?,?,?,?,?)")
+        .append("(PROVIDER_ID,INFO_CARD_HOLDER_NAME,INFO_CARD_NAME,")
+        .append("INFO_CARD_NUMBER,INFO_CARD_EXPIRY_MONTH,")
+        .append("INFO_CARD_EXPIRY_YEAR) ")
+        .append("values (?,?,?,?,?,?)")
         .toString();
 
     /** Sql to create an invoice. */
@@ -158,8 +159,8 @@ public final class PaymentSql extends AbstractSql {
     /** Sql to read payment info via a plan. */
     private static final String SQL_READ_INFO =
         new StringBuilder("select PI.INFO_CARD_EXPIRY_MONTH,")
-        .append("PI.INFO_CARD_EXPIRY_YEAR,PI.INFO_CARD_NAME,")
-        .append("PI.INFO_CARD_NUMBER,PI.INFO_ID ")
+        .append("PI.INFO_CARD_EXPIRY_YEAR,PI.INFO_CARD_HOLDER_NAME,")
+        .append("PI.INFO_CARD_NAME,PI.INFO_CARD_NUMBER,PI.INFO_ID ")
         .append("from TPSD_PAYMENT_INFO PI ")
         .append("inner join TPSD_PAYMENT_PLAN_PAYMENT_INFO PPPI ")
         .append("on PPPI.INFO_ID=PI.INFO_ID ")
@@ -384,8 +385,9 @@ public final class PaymentSql extends AbstractSql {
     /** Sql to update the info. */
     private static final String SQL_UPDATE_INFO =
         new StringBuilder("update TPSD_PAYMENT_INFO ")
-        .append("set INFO_CARD_NAME=?,INFO_CARD_NUMBER=?,")
-        .append("INFO_CARD_EXPIRY_MONTH=?,INFO_CARD_EXPIRY_YEAR=? ")
+        .append("set INFO_CARD_HOLDER_NAME=?,INFO_CARD_NAME=?,")
+        .append("INFO_CARD_NUMBER=?,INFO_CARD_EXPIRY_MONTH=?,")
+        .append("INFO_CARD_EXPIRY_YEAR=? ")
         .append("where INFO_ID=?")
         .toString();
 
@@ -445,10 +447,11 @@ public final class PaymentSql extends AbstractSql {
         try {
             session.prepareStatement(SQL_CREATE_INFO);
             session.setLong(1, lookupId(provider));
-            session.setEncryptedString(2, info.getCardName().name());
-            session.setEncryptedString(3, info.getCardNumber());
-            session.setEncryptedString(4, String.valueOf(info.getCardExpiryMonth()));
-            session.setEncryptedString(5, String.valueOf(info.getCardExpiryYear()));
+            session.setEncryptedString(2, info.getCardHolderName());
+            session.setEncryptedString(3, info.getCardName().name());
+            session.setEncryptedString(4, info.getCardNumber());
+            session.setEncryptedString(5, String.valueOf(info.getCardExpiryMonth()));
+            session.setEncryptedString(6, String.valueOf(info.getCardExpiryYear()));
             if (1 != session.executeUpdate()) {
                 throw panic("Could not create payment info.");
             }
@@ -1308,11 +1311,12 @@ public final class PaymentSql extends AbstractSql {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_UPDATE_INFO);
-            session.setEncryptedString(1, info.getCardName().name());
-            session.setEncryptedString(2, info.getCardNumber());
-            session.setEncryptedString(3, String.valueOf(info.getCardExpiryMonth()));
-            session.setEncryptedString(4, String.valueOf(info.getCardExpiryYear()));
-            session.setLong(5, lookupInfoId(plan));
+            session.setEncryptedString(1, info.getCardHolderName());
+            session.setEncryptedString(2, info.getCardName().name());
+            session.setEncryptedString(3, info.getCardNumber());
+            session.setEncryptedString(4, String.valueOf(info.getCardExpiryMonth()));
+            session.setEncryptedString(5, String.valueOf(info.getCardExpiryYear()));
+            session.setLong(6, lookupInfoId(plan));
 
             if (1 != session.executeUpdate()) {
                 throw panic("Could not update payment info.");
@@ -1461,6 +1465,7 @@ public final class PaymentSql extends AbstractSql {
         final PaymentInfo info = new PaymentInfo();
         info.setCardExpiryMonth(Short.valueOf(session.getDecryptedString("INFO_CARD_EXPIRY_MONTH")));
         info.setCardExpiryYear(Short.valueOf(session.getDecryptedString("INFO_CARD_EXPIRY_YEAR")));
+        info.setCardHolderName(session.getDecryptedString("INFO_CARD_HOLDER_NAME"));
         info.setCardName(CardName.valueOf(session.getDecryptedString("INFO_CARD_NAME")));
         info.setCardNumber(session.getDecryptedString("INFO_CARD_NUMBER"));
         info.setLocalId(session.getLong("INFO_ID"));

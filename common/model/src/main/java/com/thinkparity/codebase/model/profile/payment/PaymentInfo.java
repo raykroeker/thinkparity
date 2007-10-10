@@ -18,6 +18,9 @@ public final class PaymentInfo {
     /** The expiry year. */
     private Short cardExpiryYear;
 
+    /** The card holder's name. */
+    private String cardHolderName;
+
     /** The type. */
     private CardName cardName;
 
@@ -51,6 +54,15 @@ public final class PaymentInfo {
      */
     public Short getCardExpiryYear() {
         return cardExpiryYear;
+    }
+
+    /**
+     * Obtain the cardholderName.
+     *
+     * @return A <code>String</code>.
+     */
+    public String getCardHolderName() {
+        return cardHolderName;
     }
 
     /**
@@ -98,6 +110,16 @@ public final class PaymentInfo {
      */
     public void setCardExpiryYear(final Short cardExpiryYear) {
         this.cardExpiryYear = cardExpiryYear;
+    }
+
+    /**
+     * Set the cardholderName.
+     *
+     * @param cardholderName
+     *		A <code>String</code>.
+     */
+    public void setCardHolderName(final String cardHolderName) {
+        this.cardHolderName = cardHolderName;
     }
 
     /**

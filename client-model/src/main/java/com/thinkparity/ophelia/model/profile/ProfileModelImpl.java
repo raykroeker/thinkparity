@@ -1149,6 +1149,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         final PaymentInfoConstraints constraints = PaymentInfoConstraints.getInstance();
         constraints.getCardExpiryMonth().validate(paymentInfo.getCardExpiryMonth());
         constraints.getCardExpiryYear().validate(paymentInfo.getCardExpiryYear());
+        constraints.getCardHolderName().validate(paymentInfo.getCardHolderName());
         constraints.getCardNumber().validate(paymentInfo.getCardNumber());
         constraints.getCardName().validate(paymentInfo.getCardName());
     }

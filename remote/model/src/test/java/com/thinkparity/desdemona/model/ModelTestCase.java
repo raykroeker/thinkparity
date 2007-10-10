@@ -522,6 +522,7 @@ public abstract class ModelTestCase extends TestCase {
         final Calendar now = now();
         paymentInfo.setCardExpiryMonth(Short.valueOf(Integer.valueOf(now.get(Calendar.MONTH) + 1).shortValue()));
         paymentInfo.setCardExpiryYear(Short.valueOf(Integer.valueOf(now.get(Calendar.YEAR)).shortValue()));
+        paymentInfo.setCardHolderName("John McLean");
         paymentInfo.setCardName(PaymentInfo.CardName.MASTER_CARD);
         paymentInfo.setCardNumber("5454545454545454");
         return paymentInfo;

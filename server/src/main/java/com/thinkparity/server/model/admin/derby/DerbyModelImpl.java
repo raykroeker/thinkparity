@@ -16,6 +16,7 @@ import javax.sql.DataSource;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
+import com.thinkparity.codebase.TimeFormat;
 import com.thinkparity.codebase.crypto.EncryptFile;
 import com.thinkparity.codebase.tar.ArchiveDirectory;
 
@@ -49,6 +50,13 @@ import com.thinkparity.desdemona.util.DesdemonaProperties;
  */
 public final class DerbyModelImpl extends AdminModel implements DerbyModel,
         InternalDerbyModel {
+
+    /** A time format. */
+    private static final TimeFormat TIME_FORMAT;
+
+    static {
+        TIME_FORMAT = new TimeFormat();
+    }
 
     /** A derby io interface. */
     private DerbySql derbyIO;
@@ -121,10 +129,24 @@ public final class DerbyModelImpl extends AdminModel implements DerbyModel,
             uploadDelegate.upload(encryptFile);
             uploadDuration = System.currentTimeMillis() - uploadBegin;
 
-            logger.logVariable("backupDuration", backupDuration);
-            logger.logVariable("archiveDuration", archiveDuration);
-            logger.logVariable("encryptDuration", encryptDuration);
-            logger.logVariable("uploadDuration", uploadDuration);
+            /* cleanup */
+            final Long cleanUpDuration;
+            final Long cleanUpBegin = System.currentTimeMillis();
+            try {
+                FileUtil.deleteTree(backupRoot);
+            } catch (final Exception x2) {
+                logger.logWarning(x2, "Could not delete backup root {0}.",
+                        backupRoot);
+            }
+            encryptFile.delete();
+            archiveFile.delete();
+            cleanUpDuration = System.currentTimeMillis() - cleanUpBegin;
+
+            logger.logVariable("backupDuration", formatDuration(backupDuration));
+            logger.logVariable("archiveDuration", formatDuration(archiveDuration));
+            logger.logVariable("encryptDuration", formatDuration(encryptDuration));
+            logger.logVariable("uploadDuration", formatDuration(uploadDuration));
+            logger.logVariable("cleanUpDuration", formatDuration(cleanUpDuration));
         } catch (final Exception x) {
             try {
                 FileUtil.deleteTree(backupRoot);
@@ -134,6 +156,17 @@ public final class DerbyModelImpl extends AdminModel implements DerbyModel,
             }
             throw panic(x);
         }
+    }
+
+    /**
+     * Format a duration as elapsed time.
+     * 
+     * @param duration
+     *            A <code>Long</code>.
+     * @return A <code>String</code>.
+     */
+    private String formatDuration(final Long duration) {
+        return TIME_FORMAT.format(duration);
     }
 
     /**

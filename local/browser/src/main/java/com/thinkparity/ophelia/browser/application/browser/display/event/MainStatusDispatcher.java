@@ -102,6 +102,14 @@ public final class MainStatusDispatcher implements
                 avatar.fireProfileEMailEvent(e);
             }
             @Override
+            public void profileActivated(final ProfileEvent e) {
+                avatar.fireProfileActivationEvent(e);
+            }
+            @Override
+            public void profilePassivated(final ProfileEvent e) {
+                avatar.fireProfileActivationEvent(e);
+            }
+            @Override
             public void profileUpdated(final ProfileEvent e) {
                 avatar.fireProfileEvent(e);
                 removeListeners(avatar);

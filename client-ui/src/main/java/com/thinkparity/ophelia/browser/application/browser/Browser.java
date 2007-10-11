@@ -1543,18 +1543,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Update the payment info.
-     * 
-     * @param paymentInfo
-     *            A <code>PaymentInfo</code>.
-     */
-    public void runUpdatePaymentInfo(final PaymentInfo paymentInfo) {
-        final Data data = new Data(1);
-        data.set(UpdatePaymentInfo.DataKey.PAYMENT_INFO, paymentInfo);
-        invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, data);
-    }
-
-    /**
      * Update the user's profile.
      * 
      */
@@ -1609,9 +1597,25 @@ public class Browser extends AbstractApplication {
     /**
      * Run the update profile payment info action.
      * 
+     * @param checkProfile
+     *            A check profile <code>Boolean</code>.
      */
-    public void runUpdateProfilePaymentInfo() {
-        invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, Data.emptyData());
+    public void runUpdateProfilePaymentInfo(final Boolean checkProfile) {
+        final Data data = new Data(1);
+        data.set(UpdatePaymentInfo.DataKey.CHECK_PROFILE, checkProfile);
+        invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, data);
+    }
+
+    /**
+     * Run the update profile payment info action.
+     * 
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
+     */
+    public void runUpdateProfilePaymentInfo(final PaymentInfo paymentInfo) {
+        final Data data = new Data(1);
+        data.set(UpdatePaymentInfo.DataKey.PAYMENT_INFO, paymentInfo);
+        invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, data);
     }
 
     /**
@@ -2072,6 +2076,7 @@ public class Browser extends AbstractApplication {
         keyboardHelper.bindKeys();
 		mainWindow.open();
         runVerifyEMail();
+        runUpdateProfilePaymentInfo(Boolean.TRUE);
 	}
 
 	private void reOpenMainWindow() {

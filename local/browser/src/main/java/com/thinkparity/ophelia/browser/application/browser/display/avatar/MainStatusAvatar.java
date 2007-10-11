@@ -68,6 +68,12 @@ public class MainStatusAvatar extends Avatar {
     private final javax.swing.JLabel userJLabel = LabelFactory.createLink("",Fonts.DialogFont);
     // End of variables declaration//GEN-END:variables
 
+    /** A <code>Boolean</code> indicating if payment info is accessible. */
+    private Boolean accessiblePaymentInfo;
+
+    /** A <code>Boolean</code> indicating if payment info accessible flag is known. */
+    private Boolean accessiblePaymentInfoKnown;
+
     /** A <code>Runnable</code> used to display the status bar link. */
     private Runnable linkRunnable;
 
@@ -113,6 +119,8 @@ public class MainStatusAvatar extends Avatar {
             }
         });
         initComponentListener();
+        accessiblePaymentInfo = Boolean.TRUE;
+        accessiblePaymentInfoKnown = Boolean.FALSE;
         restarting = Boolean.FALSE;
         productInstalled = Boolean.FALSE;
         if (getController().isDevelopmentMode()) {
@@ -150,6 +158,16 @@ public class MainStatusAvatar extends Avatar {
      */
     public void fireProductReleaseInstalled(final MigratorEvent e) {
         productInstalled = Boolean.TRUE;
+        reloadLinks();
+    }
+
+    /**
+     * Fire a profile activation event.
+     * 
+     * @param e
+     *            A <code>ProfileEvent</code>.
+     */
+    public void fireProfileActivationEvent(final ProfileEvent e) {
         reloadLinks();
     }
 
@@ -480,6 +498,21 @@ public class MainStatusAvatar extends Avatar {
     }
 
     /**
+     * Determine if the payment info is accessible.
+     * 
+     * @return True if the payment info is accessible.
+     */
+    private Boolean isAccessiblePaymentInfo() {
+        if (!accessiblePaymentInfoKnown && isOnline()) {
+            try {
+                accessiblePaymentInfo = readIsAccessiblePaymentInfo();
+                accessiblePaymentInfoKnown = Boolean.TRUE;
+            } catch (final Throwable t) {}
+        }
+        return accessiblePaymentInfo;
+    }
+
+    /**
      * Determine if the input clear link flag is set.
      * The input is cleared after reading the flag.
      * 
@@ -550,6 +583,33 @@ public class MainStatusAvatar extends Avatar {
     }
 
     /**
+     * Determine if the payment info is accessible.
+     * 
+     * @return True if the payment info is accessible.
+     */
+    private Boolean readIsAccessiblePaymentInfo() {
+        return ((MainStatusProvider) contentProvider).readIsAccessiblePaymentInfo();
+    }
+
+    /**
+     * Determine whether or not the profile's e-mail address has been verified.
+     * 
+     * @return True if it is verified.
+     */
+    private Boolean readIsEMailVerified() {
+        return ((MainStatusProvider) contentProvider).readIsEMailVerified();
+    }
+
+    /**
+     * Determine if the profile is active.
+     * 
+     * @return True if the profile is active.
+     */
+    private Boolean readIsProfileActive() {
+        return ((MainStatusProvider) contentProvider).readIsProfileActive();
+    }
+
+    /**
      * Read the user's profile.
      * 
      * @return The user's <code>Profile</code>.
@@ -565,15 +625,6 @@ public class MainStatusAvatar extends Avatar {
      */
     private List<ContainerVersion> readUnseenContainerVersions() {
         return ((MainStatusProvider) contentProvider).readUnseenContainerVersions();
-    }
-
-    /**
-     * Determine whether or not the profile's e-mail address has been verified.
-     * 
-     * @return True if it is verified.
-     */
-    private Boolean readIsEMailVerified() {
-        return ((MainStatusProvider) contentProvider).readIsEMailVerified();
     }
 
     /**
@@ -642,6 +693,23 @@ public class MainStatusAvatar extends Avatar {
             } else if (!isOnline() && OfflineCode.CLIENT_MAINTENANCE == getOfflineCode()) {
                 textJLabel.setForeground(Colors.Browser.MainStatus.CLIENT_MAINTENANCE_MESSAGE_FOREGROUND);
                 textJLabel.setText(getString("Text.ClientMaintenance"));
+            } else if (Boolean.FALSE == readIsProfileActive()) {
+                textJLabel.setForeground(Colors.Browser.MainStatus.MESSAGE_FOREGROUND);
+                if (isOnline()) {
+                    if (isAccessiblePaymentInfo()) {
+                        textJLabel.setText(getString("Text.ProfilePassivated_AccessiblePaymentInfo") + Separator.Space);
+                        linkJLabel.setText(getString("Link.ProfilePassivated_AccessiblePaymentInfo"));
+                        linkRunnable = new Runnable() {
+                            public void run() {
+                                getController().displayUpdateProfilePaymentInfo();
+                            }
+                        };
+                    } else {
+                        textJLabel.setText(getString("Text.ProfilePassivated_NotAccessiblePaymentInfo"));
+                    }
+                } else {
+                    textJLabel.setText(getString("Text.ProfilePassivatedOffline"));
+                }
             } else if (Boolean.FALSE == readIsEMailVerified()) {
                 textJLabel.setForeground(Colors.Browser.MainStatus.MESSAGE_FOREGROUND);
                 if (isOnline()) {

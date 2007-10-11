@@ -99,12 +99,30 @@ public final class MainStatusProvider extends ContentProvider {
     }
 
     /**
+     * Determine if the payment info is accessible.
+     * 
+     * @return True if the payment info is accessible.
+     */
+    public Boolean readIsAccessiblePaymentInfo() {
+        return profileModel.isAccessiblePaymentInfo();
+    }
+
+    /**
      * Determine whether or not the profile's e-mail address has been verified.
      * 
      * @return True if it is verified.
      */
     public Boolean readIsEMailVerified() {
         return profileModel.readEMail().isVerified();
+    }
+
+    /**
+     * Determine if the profile is active.
+     * 
+     * @return True if the profile is active.
+     */
+    public Boolean readIsProfileActive() {
+        return profileModel.readIsActive();
     }
 
     /**

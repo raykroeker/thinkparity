@@ -442,7 +442,7 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
      */
     private void runUpdateAccountInfo() {
         final PaymentInfo paymentInfo = extractPaymentInfo();
-        getController().runUpdatePaymentInfo(paymentInfo);
+        getController().runUpdateProfilePaymentInfo(paymentInfo);
     }
 
     /**

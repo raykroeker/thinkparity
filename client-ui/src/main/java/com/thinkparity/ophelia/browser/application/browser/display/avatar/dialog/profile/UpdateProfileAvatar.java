@@ -825,7 +825,7 @@ public class UpdateProfileAvatar extends Avatar {
 
     private void updatePaymentInfoJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updatePaymentInfoJButtonActionPerformed
         disposeWindow();
-        getController().runUpdateProfilePaymentInfo();
+        getController().displayUpdateProfilePaymentInfo();
     }//GEN-LAST:event_updatePaymentInfoJButtonActionPerformed
 
     /**

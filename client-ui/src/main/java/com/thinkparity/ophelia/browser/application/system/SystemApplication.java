@@ -35,6 +35,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.ClearIncomingUser
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingEMailInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.platform.browser.Iconify;
+import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePaymentInfo;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
@@ -580,7 +581,9 @@ public final class SystemApplication extends AbstractApplication {
                 } else {
                     runRestoreBrowser();
                 }
-                invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, Data.emptyData());
+                final Data data = new Data(1);
+                data.set(UpdatePaymentInfo.DataKey.CHECK_PROFILE, Boolean.FALSE);
+                invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, data);
             }
             private Boolean isAccessiblePaymentInfo() {
                 if (!accessiblePaymentInfoSet && Connection.ONLINE == getConnection()) {

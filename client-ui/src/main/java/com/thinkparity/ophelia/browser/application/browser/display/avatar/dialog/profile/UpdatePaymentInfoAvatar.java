@@ -241,7 +241,7 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
         ((AbstractDocument) cardNumberJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getCardNumber()));
 
         cardholderNameJLabel.setFont(Fonts.DialogFont);
-        cardholderNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.CardName"));
+        cardholderNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpgradeAccountAvatar.Payment.Cardholder"));
 
         cardholderNameJTextField.setFont(Fonts.DialogTextEntryFont);
         ((AbstractDocument) cardholderNameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getCardholderName()));

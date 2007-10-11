@@ -171,7 +171,7 @@
           <Connection code="Fonts.DialogFont" type="code"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="localization/Browser_Messages.properties" key="UpgradeAccountAvatar.Payment.CardName" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="localization/Browser_Messages.properties" key="UpgradeAccountAvatar.Payment.Cardholder" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <AuxValues>

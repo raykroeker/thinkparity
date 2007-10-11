@@ -19,19 +19,19 @@ insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
 
 -- thinkParity Backup
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD,CREATED_ON)
-    values('thinkparity-backup','DMnBhTS/KlVqMZTwRqwTNw==','What is the city where you were born?','p0B7MKs7hs21lMFBgHe/+g==','0','iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/WxzZsAmPDs3j3Pmg21I07RI9ubyF63bmfCQM2bt1ThCX6qNR2T713kQqFDXx4GaMcUXux7ARX4FEAcs2XfkR4zqmyt5TQ6aLpbBAtgvyTwEXLE5mfCB3jF86asppABKQvQR2MpIGUOKmmGGXmUAOKWFegfceYI3MUZJRKS2ML2f+xbFsO6DJmQjyIwcUCz4W4p+SxhLOG2BPci7ctnlVEmnjns0bfBV1yYeGpK2YAjKsr/PpE5V+JwQsPcADt2lHs1qf45xWhrxBEfQfM3s7GMtW0pj7n8EodmbTECmkAt/MKyXqKw6A/yeWeHwjR0y+Z+2dB9zozhmURhQYugiEoEBSVFLS4ZJIadb+K5VBw3WaWcLYXFssyDTWuWjmG0xQu6',CURRENT_TIMESTAMP);
+    values('backup','DMnBhTS/KlVqMZTwRqwTNw==','What is the city where you were born?','p0B7MKs7hs21lMFBgHe/+g==','0','iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/WxzZsAmPDs3j3Pmg21I07RI9ubyF63bmfCQM2bt1ThCX6qNR2T713kQqFDXx4GaMcUXux7ARX4FEAcs2XfkR4zqmyt5TQ6aLpbBAtgvyTwEXLE5mfCB3jF86asppABKQvQR2MpIGUOKmmGGXmUAOKWFegfceYI3MUZJRKS2ML2f+xbFsO6DJmQjyIwcUCz4W4p+SxhLOG2BPci7ctnlVEmnjns0bfBV1yYeGpK2YAjKsr/PpE5V+JwQsPcADt2lHs1qf45xWhrxBEfQfM3s7GMtW0pj7n8EodmbTECmkAt/MKyXqKw6A/yeWeHwjR0y+Z+2dB9zozhmURhQYugiEoEBSVFLS4ZJIadb+K5VBw3WaWcLYXFssyDTWuWjmG0xQu6',CURRENT_TIMESTAMP);
 insert into TPSD_EMAIL(EMAIL)
-    values('thinkparity+backup@thinkparity.com');
+    values('backup@thinkparity.com');
 insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
-    select USER_ID,EMAIL_ID,'1' from TPSD_USER,TPSD_EMAIL where USERNAME='thinkparity-backup' and EMAIL='thinkparity+backup@thinkparity.com';
+    select USER_ID,EMAIL_ID,'1' from TPSD_USER,TPSD_EMAIL where USERNAME='backup' and EMAIL='backup@thinkparity.com';
 
 -- thinkParity Support
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD,CREATED_ON)
-    values('thinkparity-support','DMnBhTS/KlVqMZTwRqwTNw==','What is the city where you were born?','p0B7MKs7hs21lMFBgHe/+g==','0','iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/WxzZsAmPDs3j3Pmg21I07RI9ubyF63bmfCQM2bt1ThCX6qNR2T713kQqFDXx4GaMcUXux7ARX4FEAcs2XfkR4zqradpTtqKvDMRniVx+0j+ctO9M3mmmsI8vGdGBsvDBi4mPQQztzsA+1UsOJOvRsfsvmKllO8YO5+AFjdlb/YPGGkKcDT0wg5ZeRGXVobgpjGMfPd1+vvi/NgzqjouXb47dxVTfEBM8ZLXvaGJ0i+/M/gYcaOPmmcPYmkN+jA6eQa15SWKRHJcGc6KXYhUar2ap8kn9822yeLei49Thl1XxBzTHw+cA6UiD4q3ZQ6HV22hn4VJ+7pw3lX2bdyNIyXtBTCxlHBowne636tiv4mVItlilpH2Fq0FTZO1/PiE4DW',CURRENT_TIMESTAMP);
+    values('support','DMnBhTS/KlVqMZTwRqwTNw==','What is the city where you were born?','p0B7MKs7hs21lMFBgHe/+g==','0','iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/WxzZsAmPDs3j3Pmg21I07RI9ubyF63bmfCQM2bt1ThCX6qNR2T713kQqFDXx4GaMcUXux7ARX4FEAcs2XfkR4zqradpTtqKvDMRniVx+0j+ctO9M3mmmsI8vGdGBsvDBi4mPQQztzsA+1UsOJOvRsfsvmKllO8YO5+AFjdlb/YPGGkKcDT0wg5ZeRGXVobgpjGMfPd1+vvi/NgzqjouXb47dxVTfEBM8ZLXvaGJ0i+/M/gYcaOPmmcPYmkN+jA6eQa15SWKRHJcGc6KXYhUar2ap8kn9822yeLei49Thl1XxBzTHw+cA6UiD4q3ZQ6HV22hn4VJ+7pw3lX2bdyNIyXtBTCxlHBowne636tiv4mVItlilpH2Fq0FTZO1/PiE4DW',CURRENT_TIMESTAMP);
 insert into TPSD_EMAIL(EMAIL)
-    values('thinkparity+support@thinkparity.com');
+    values('support@thinkparity.com');
 insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
-    select USER_ID,EMAIL_ID,'1' from TPSD_USER,TPSD_EMAIL where USERNAME='thinkparity-support' and EMAIL='thinkparity+support@thinkparity.com';
+    select USER_ID,EMAIL_ID,'1' from TPSD_USER,TPSD_EMAIL where USERNAME='support' and EMAIL='support@thinkparity.com';
 
 -- George Johnson (CFO, ServiceSoft Inc)
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD,CREATED_ON)
@@ -180,18 +180,18 @@ insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
 -- All users get all features
 insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID)
     select USER_ID,FEATURE_ID from TPSD_USER,TPSD_PRODUCT_FEATURE;
-delete from TPSD_USER_FEATURE_REL where USER_ID in (select USER_ID from TPSD_USER where USERNAME='thinkparity' or USERNAME='thinkparity-backup');
+delete from TPSD_USER_FEATURE_REL where USER_ID in (select USER_ID from TPSD_USER where USERNAME='thinkparity' or USERNAME='backup');
 
 -- All users get demo release
 insert into TPSD_USER_PRODUCT_RELEASE_REL(USER_ID,PRODUCT_ID,RELEASE_ID)
     select USER_ID,PR.PRODUCT_ID,RELEASE_ID from TPSD_USER,TPSD_PRODUCT P inner join TPSD_PRODUCT_RELEASE PR on PR.PRODUCT_ID=P.PRODUCT_ID where PRODUCT_NAME='OpheliaProduct' and RELEASE_NAME='DEMO';
-delete from TPSD_USER_PRODUCT_RELEASE_REL where USER_ID in (select USER_ID from TPSD_USER where USERNAME='thinkparity' or USERNAME='thinkparity-backup');
+delete from TPSD_USER_PRODUCT_RELEASE_REL where USER_ID in (select USER_ID from TPSD_USER where USERNAME='thinkparity' or USERNAME='backup');
 delete from TPSD_USER_PRODUCT_RELEASE_REL where RELEASE_ID in (select RELEASE_ID from TPSD_PRODUCT_RELEASE where RELEASE_OS <> 'WINDOWS_XP');
 
 -- All users are contacts of each other
 insert into TPSD_CONTACT(USER_ID,CONTACT_ID,CREATED_BY,CREATED_ON,UPDATED_BY,UPDATED_ON)
     select U.USER_ID,C.USER_ID,U.USER_ID,CURRENT_TIMESTAMP,U.USER_ID,CURRENT_TIMESTAMP from TPSD_USER U, TPSD_USER C;
-delete from TPSD_CONTACT where CONTACT_ID in (select USER_ID from TPSD_USER where USERNAME='thinkparity' or USERNAME='thinkparity-backup');
+delete from TPSD_CONTACT where CONTACT_ID in (select USER_ID from TPSD_USER where USERNAME='thinkparity' or USERNAME='backup');
 delete from TPSD_CONTACT where USER_ID = CONTACT_ID;
 
 -- <com.thinkparity.codebase.model.user.UserVCard><city>Vancouver</city><country>CAN</country><language>eng</language><name>George Johnson</name><organization>ServiceSoft Inc</organization><organizationCountry>CAN</organizationCountry><timeZone>America/Vancouver</timeZone><title>CFO</title><postalCode>A1A Z9Z</postalCode><province>BA</province></com.thinkparity.codebase.model.user.UserVCard>

@@ -36,9 +36,9 @@ public class User {
         THINKPARITY = new User();
         THINKPARITY.setId(JabberIdBuilder.parseUsername("thinkparity"));
         THINKPARITY_BACKUP = new User();
-        THINKPARITY_BACKUP.setId(JabberIdBuilder.parseUsername("thinkparity-backup"));
+        THINKPARITY_BACKUP.setId(JabberIdBuilder.parseUsername("backup"));
         THINKPARITY_SUPPORT = new User();
-        THINKPARITY_SUPPORT.setId(JabberIdBuilder.parseUsername("thinkparity-support"));
+        THINKPARITY_SUPPORT.setId(JabberIdBuilder.parseUsername("support"));
     }
 
     /** A list of all applied <code>UserFlag</code>s. */

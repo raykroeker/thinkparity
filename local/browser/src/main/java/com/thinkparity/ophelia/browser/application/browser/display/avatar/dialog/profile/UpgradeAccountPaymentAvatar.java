@@ -200,7 +200,8 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
      */
     private PaymentInfo extractPaymentInfo() {
         return utils.extractPaymentInfo(cardMonthJComboBox,
-                cardYearJComboBox, cardNumberJTextField, cardTypeJComboBox);
+                cardYearJComboBox, cardholderNameJTextField,
+                cardNumberJTextField, cardTypeJComboBox);
     }
 
     /**

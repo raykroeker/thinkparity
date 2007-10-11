@@ -238,7 +238,8 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
      */
     private PaymentInfo extractPaymentInfo() {
         return utils.extractPaymentInfo(cardMonthJComboBox, cardYearJComboBox,
-                cardNumberJTextField, cardNameJComboBox);
+                cardholderNameJTextField, cardNumberJTextField,
+                cardNameJComboBox);
     }
 
     /**

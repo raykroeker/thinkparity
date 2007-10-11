@@ -36,6 +36,8 @@ public final class AvatarUtils {
      *            An expiry month <code>JComboBox</code>.
      * @param expiryYearJComboBox
      *            An expiry year <code>JComboBox</code>.
+     *            @param cardHolderJTextField
+     *            A <code>JTextField</code>.
      * @param numberJTextField
      *            A number <code>JTextField</code>.
      * @param typeJComboBox
@@ -45,13 +47,17 @@ public final class AvatarUtils {
     public final PaymentInfo extractPaymentInfo(
             final JComboBox expiryMonthJComboBox,
             final JComboBox expiryYearJComboBox,
+            final JTextField cardHolderJTextField,
             final JTextField numberJTextField, final JComboBox typeJComboBox) {
         final PaymentInfo paymentInfo = new PaymentInfo();
         paymentInfo.setCardExpiryMonth(
                 (Short) SwingUtil.extractSelection(expiryMonthJComboBox, null));
         paymentInfo.setCardExpiryYear(
                 (Short) SwingUtil.extractSelection(expiryYearJComboBox, null));
-        paymentInfo.setCardNumber(SwingUtil.extract(numberJTextField, Boolean.TRUE));
+        paymentInfo.setCardHolderName(
+                SwingUtil.extract(cardHolderJTextField, Boolean.TRUE));
+        paymentInfo.setCardNumber(
+                SwingUtil.extract(numberJTextField, Boolean.TRUE));
         paymentInfo.setCardName(
                 (PaymentInfo.CardName) SwingUtil.extractSelection(typeJComboBox, null));
         return paymentInfo;

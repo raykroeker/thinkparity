@@ -207,7 +207,8 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
      */
     private PaymentInfo extractPaymentInfo() {
         return utils.extractPaymentInfo(cardExpiryMonthJComboBox,
-                cardExpiryYearJComboBox, cardNumberJTextField, cardNameJComboBox);
+                cardExpiryYearJComboBox, cardholderNameJTextField,
+                cardNumberJTextField, cardNameJComboBox);
     }
 
     /** This method is called from within the constructor to

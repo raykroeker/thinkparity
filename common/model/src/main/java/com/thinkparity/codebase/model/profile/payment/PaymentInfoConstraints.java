@@ -112,15 +112,6 @@ public final class PaymentInfoConstraints {
     }
 
     /**
-     * @deprecated use {@link #getCardHolderName()}
-     * 
-     */
-    @Deprecated
-    public StringConstraint getCardholderName() {
-        return getCardHolderName();
-    }
-
-    /**
      * Obtain credit card name.
      *
      * @return A StringConstraint.

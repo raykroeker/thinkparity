@@ -69,6 +69,14 @@
         <param-value>PRODUCTION</param-value>
     </context-param>
     <context-param>
+        <param-name>thinkparity.node.username</param-name>
+        <param-value>vps.thinkparity.net</param-value>
+    </context-param>
+    <context-param>
+        <param-name>thinkparity.node.password</param-name>
+        <param-value>password</param-value>
+    </context-param>
+    <context-param>
         <param-name>thinkparity.payment.invoicesleep</param-name>
         <param-value>82800000</param-value>
     </context-param>

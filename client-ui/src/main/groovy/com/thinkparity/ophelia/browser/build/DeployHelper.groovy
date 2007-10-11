@@ -149,4 +149,5 @@ private class DeployStreamMonitor implements StreamMonitor {
     public String getName() {
         return "DeployHelper#upload";
     }
+    public void reset() {}
 }

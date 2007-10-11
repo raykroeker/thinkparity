@@ -599,11 +599,13 @@ public class Browser extends AbstractApplication {
      *
      */
     public void displayUpdateProfileDialog(final Boolean backupEnabled,
+            final Boolean signUpAvailable,
             final Boolean paymentInfoAccessible,
             final BackupStatistics backupStatistics, final ProfileEMail email,
             final Profile profile, final Statistics statistics) {
         final Data data = new Data(7);
         data.set(UpdateProfileAvatar.DataKey.BACKUP_ENABLED, backupEnabled);
+        data.set(UpdateProfileAvatar.DataKey.SIGNUP_AVAILABLE, signUpAvailable);
         data.set(UpdateProfileAvatar.DataKey.PAYMENT_INFO_ACCESSIBLE, paymentInfoAccessible);
         data.set(UpdateProfileAvatar.DataKey.BACKUP_STATISTICS, backupStatistics);
         data.set(UpdateProfileAvatar.DataKey.EMAIL, email);

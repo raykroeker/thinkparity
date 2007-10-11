@@ -47,6 +47,7 @@ public class Update extends AbstractBrowserAction {
         if (null == profile) {
             /* display profile dialog */
             final Boolean backupEnabled = profileModel.isBackupEnabled();
+            final Boolean signUpAvailable = profileModel.isSignUpAvailable();
             final Boolean paymentInfoAccessible = profileModel.isAccessiblePaymentInfo();
             final BackupStatistics backupStatistics = profileModel.readBackupStatistics();
             final ProfileEMail email = profileModel.readEMail();
@@ -55,8 +56,9 @@ public class Update extends AbstractBrowserAction {
             SwingUtil.ensureDispatchThread(new Runnable() {
                 public void run() {
                     browser.displayUpdateProfileDialog(backupEnabled,
-                            paymentInfoAccessible, backupStatistics, email,
-                            existingProfile, statistics);
+                            signUpAvailable, paymentInfoAccessible,
+                            backupStatistics, email, existingProfile,
+                            statistics);
                 }
             });
         } else {

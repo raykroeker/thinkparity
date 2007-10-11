@@ -282,7 +282,7 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
         ((AbstractDocument) cardNumberJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getCardNumber()));
 
         cardholderNameJTextField.setFont(Fonts.DialogTextEntryFont);
-        ((AbstractDocument) cardholderNameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getCardholderName()));
+        ((AbstractDocument) cardholderNameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(constraints.getCardHolderName()));
 
         cardMonthJComboBox.setFont(Fonts.DialogTextEntryFont);
         cardMonthJComboBox.setModel(cardExpiryMonthModel);

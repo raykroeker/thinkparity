@@ -95,7 +95,8 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
                 "v1_0-20070919-2045", "v1_0-20070925-1045",
                 "v1_0-20070926-1045", "v1_0-20070928-1230",
                 "v1_0-20071004-0930", "v1_0-20071004-1400",
-                "v1_0-20071004-1615", "v1_0-20071011-0915"
+                "v1_0-20071004-1615", "v1_0-20071011-0915",
+                "v1_0-20071011-1300"
         };
         WS_ATTRIBUTE_KEY_DOWNLOAD = "MigratorModelImpl#download";
         WS_ATTRIBUTE_KEY_INSTALL = "MigratorModelImpl#install";

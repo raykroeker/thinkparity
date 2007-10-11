@@ -19,10 +19,16 @@ class EventDispatcher {
     /** A thinkParity <code>ContainerListener</code>. */
     private ContainerListener containerListener;
 
-    /** A thinkParity document listener. */
+    /** A thinkParity <code>DocumentListener</code>. */
 	private DocumentListener documentListener;
 
-    /** A thinkParity session listener. */
+    /** A thinkParity <code>MigratorListener</code>. */
+    private MigratorListener migratorListener;
+
+    /** A thinkParity <code>ProfileListener</code>. */
+    private ProfileListener profileListener;
+
+    /** A thinkParity <code>SessionListener</code>. */
     private SessionListener sessionListener;
 
     /** The <code>SystemApplication</code>. */
@@ -54,6 +60,12 @@ class EventDispatcher {
 		systemApplication.getDocumentModel().removeListener(documentListener);
 		documentListener = null;
 
+        systemApplication.getMigratorModel().removeListener(migratorListener);
+        migratorListener = null;
+
+        systemApplication.getProfileModel().removeListener(profileListener);
+        profileListener = null;
+
         systemApplication.getSessionModel().removeListener(sessionListener);
         sessionListener = null;
 	}
@@ -72,6 +84,12 @@ class EventDispatcher {
 
 		documentListener = createDocumentListener();
 		systemApplication.getDocumentModel().addListener(documentListener);
+        
+        migratorListener = createMigratorListener();
+        systemApplication.getMigratorModel().addListener(migratorListener);
+
+        profileListener = createProfileListener();
+        systemApplication.getProfileModel().addListener(profileListener);
 
         sessionListener = createSessionListener();
         systemApplication.getSessionModel().addListener(sessionListener);
@@ -128,6 +146,34 @@ class EventDispatcher {
 	private DocumentListener createDocumentListener() {
 		return new DocumentAdapter() {};
 	}
+
+    /**
+     * Create a migrator listener.
+     * 
+     * @return A <code>MigratorListener</code>.
+     */
+    private MigratorListener createMigratorListener() {
+        return new MigratorAdapter() {
+            @Override
+            public void productReleaseInstalled(final MigratorEvent e) {
+                systemApplication.fireProductReleaseInstalled(e);
+            }
+        };
+    }
+
+    /**
+     * Create a profile listener.
+     * 
+     * @return A <code>ProfileListener</code>.
+     */
+    private ProfileListener createProfileListener() {
+        return new ProfileAdapter() {
+            @Override
+            public void profilePassivated(final ProfileEvent e) {
+                systemApplication.fireProfilePassivated(e);
+            }
+        };
+    }
 
     /**
      * Create a session listener.

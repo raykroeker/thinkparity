@@ -26,6 +26,7 @@ import com.thinkparity.ophelia.model.document.DocumentModel;
 import com.thinkparity.ophelia.model.events.ContactListener;
 import com.thinkparity.ophelia.model.events.ProfileListener;
 import com.thinkparity.ophelia.model.migrator.MigratorModel;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 
 import com.thinkparity.ophelia.browser.BrowserException;
@@ -201,6 +202,15 @@ public abstract class AbstractApplication implements Application {
      */
     public MigratorModel getMigratorModel() {
         return platform.getModelFactory().getMigratorModel(getClass());
+    }
+
+    /**
+     * Obtain an instance of profile model.
+     * 
+     * @return An instance of <code>ProfileModel</code>.
+     */
+    public ProfileModel getProfileModel() {
+        return platform.getModelFactory().getProfileModel(getClass());
     }
 
 	/**

@@ -15,10 +15,12 @@ import com.thinkparity.codebase.model.util.http.LinkFactory;
 
 import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.ophelia.model.events.MigratorEvent;
+import com.thinkparity.ophelia.model.events.ProfileEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
-import com.thinkparity.ophelia.browser.application.system.dialog.Invitation;
+import com.thinkparity.ophelia.browser.application.system.dialog.ProfilePassivatedNotifyPage;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
@@ -109,8 +111,18 @@ public final class SystemApplication extends AbstractApplication {
      *            An invitation id <code>Long</code>.
      */
     public void clearInvitationNotifications(final Long invitationId) {
-        impl.fireClearInvitations(newNotificationId(ContactInvitation.class,
+        impl.fireClearNotifications(newNotificationId(ContactInvitation.class,
                 invitationId));
+    }
+
+    /**
+     * Clear the specified notification.
+     * 
+     * @param notificationId
+     *            A notification id <code>String</code>.
+     */
+    public void clearNotification(final String notificationId) {
+        impl.fireClearNotifications(notificationId);
     }
 
     /**
@@ -138,10 +150,10 @@ public final class SystemApplication extends AbstractApplication {
 	}
 
     /**
-     * Notify the system that the invitation window has been closed.
+     * Notify the system that the priority notify window has been closed.
      */
-    public void fireInvitationWindowClosed() {
-        impl.fireInvitationWindowClosed();
+    public void firePriorityNotifyWindowClosed() {
+        impl.firePriorityNotifyWindowClosed();
     }
 
 	/**
@@ -176,15 +188,6 @@ public final class SystemApplication extends AbstractApplication {
      */
     public AbstractJFrame getMainWindow() {
         return null;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getReleaseName()
-     *
-     */
-    @Override
-    public String getReleaseName() {
-        return super.getReleaseName();
     }
 
     /**
@@ -520,6 +523,80 @@ public final class SystemApplication extends AbstractApplication {
     }
 
     /**
+     * Fire a product release installed event.
+     * 
+     * @param e
+     *            A <code>MigratorEvent</code>.
+     */
+    void fireProductReleaseInstalled(final MigratorEvent e) {
+        impl.fireNotification(new DefaultPriorityNotification() {
+            public NotificationPriority getPriority() {
+                return NotificationPriority.HIGHEST;
+            }
+            public NotificationType getType() {
+                return NotificationType.PRODUCT_INSTALLED;
+            }
+            public void invokeAction() {
+                getPlatform().restart();
+            }
+        });
+    }
+
+    /**
+     * Fire a profile passivated event.
+     * This event is associated with a failed credit card
+     * transaction.
+     * 
+     * @param e
+     *            A <code>ProfileEvent</code>.
+     */
+    public void fireProfilePassivated(final ProfileEvent e) {
+        impl.fireNotification(new DefaultPriorityNotification() {
+            Boolean accessiblePaymentInfo = Boolean.TRUE;
+            Boolean accessiblePaymentInfoSet = Boolean.FALSE;
+            public Data getData() {
+                final Data data = new Data(1);
+                data.set(ProfilePassivatedNotifyPage.DataKey.PAYMENT_INFO_ACCESSIBLE,
+                        isAccessiblePaymentInfo());
+                return data;
+            }
+            public String getMessage() {
+                if (isAccessiblePaymentInfo())  {
+                    return getString("Notification.ProfilePassivated.AccessiblePaymentInfo");
+                } else {
+                    return getString("Notification.ProfilePassivated.NotAccessiblePaymentInfo");
+                }
+            }
+            public NotificationPriority getPriority() {
+                return NotificationPriority.HIGH;
+            }
+            public NotificationType getType() {
+                return NotificationType.PROFILE_PASSIVATED;
+            }
+            public void invokeAction() {
+                if (isBrowserRunning()) {
+                    runIconify(Boolean.FALSE);
+                    runMoveBrowserToFront();
+                } else {
+                    runRestoreBrowser();
+                }
+                invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, Data.emptyData());
+            }
+            private Boolean isAccessiblePaymentInfo() {
+                if (!accessiblePaymentInfoSet && Connection.ONLINE == getConnection()) {
+                    try {
+                        accessiblePaymentInfo = getProfileModel().isAccessiblePaymentInfo();
+                        accessiblePaymentInfoSet = Boolean.TRUE;
+                    } catch (final Throwable t) {
+                        accessiblePaymentInfoSet = Boolean.FALSE;
+                    }
+                }
+                return accessiblePaymentInfo;
+            }
+        });
+    }
+
+    /**
      * Fire an incoming contact invitation created event.
      * 
      * @param e
@@ -530,16 +607,22 @@ public final class SystemApplication extends AbstractApplication {
     private void fireContactIncomingInvitationCreated(final ContactEvent e,
             final IncomingInvitationType incomingInvitationType) {
         final Long id = e.getIncomingInvitation().getId();
-        impl.fireInvitationReceived(new Invitation() {
+        impl.fireNotification(new DefaultPriorityNotification() {
             public String getId() {
                 return newNotificationId(ContactInvitation.class, id);
             }
             public String getMessage() {
                 final User user = e.getIncomingInvitation().getExtendedBy();
-                return getString("Invitation.Message",
+                return getString("Notification.Invitation.Message",
                         new Object[] { user.getName(), user.getTitle(), user.getOrganization() });
             }
-            public void invokeAccept() {
+            public NotificationPriority getPriority() {
+                return NotificationPriority.MEDIUM;
+            }
+            public NotificationType getType() {
+                return NotificationType.INVITATION;
+            }
+            public void invokeAction() {
                 final Data data = new Data(1);
                 switch(incomingInvitationType) {
                 case EMAIL:
@@ -554,7 +637,7 @@ public final class SystemApplication extends AbstractApplication {
                     Assert.assertUnreachable("Unknown contact invitation type.");
                 }
             }
-            public void invokeDecline() {
+            public void invokeDeclineAction() {
                 final Data data = new Data(2);
                 switch(incomingInvitationType) {
                 case EMAIL:

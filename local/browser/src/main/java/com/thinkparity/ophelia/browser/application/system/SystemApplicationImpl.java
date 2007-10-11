@@ -9,10 +9,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.thinkparity.ophelia.browser.application.system.dialog.DisplayInfoFrame;
-import com.thinkparity.ophelia.browser.application.system.dialog.Invitation;
-import com.thinkparity.ophelia.browser.application.system.dialog.InvitationFrame;
 import com.thinkparity.ophelia.browser.application.system.dialog.Notification;
 import com.thinkparity.ophelia.browser.application.system.dialog.NotifyFrame;
+import com.thinkparity.ophelia.browser.application.system.dialog.PriorityNotification;
+import com.thinkparity.ophelia.browser.application.system.dialog.PriorityNotifyFrame;
 import com.thinkparity.ophelia.browser.application.system.tray.Tray;
 
 /**
@@ -27,15 +27,15 @@ class SystemApplicationImpl extends Thread {
 	 * @see #run()
 	 */
 	Boolean running = Boolean.FALSE;
-    
+
 	/** Flag indicating the DisplayInfo dialog has been requested. */
     private Boolean displayInfoRequested = Boolean.FALSE;
 
-    /** Queue of invitations not yet displayed. */
-    private final List<Invitation> invitationQueue;
-
-	/** Queue of notifications not yet displayed. */
+    /** Queue of notifications not yet displayed. */
 	private final List<Notification> notificationQueue;
+
+	/** Queue of priority notifications not yet displayed. */
+    private final List<PriorityNotification> priorityNotificationQueue;
 
 	/** The system application. */
 	private final SystemApplication sysApp;
@@ -46,9 +46,19 @@ class SystemApplicationImpl extends Thread {
 	SystemApplicationImpl(final SystemApplication sysApp) {
 		super("TPS-OpheliaUI-SystemApplication");
 		this.sysApp = sysApp;
-        this.invitationQueue = new LinkedList<Invitation>();
         this.notificationQueue = new LinkedList<Notification>();
+        this.priorityNotificationQueue = new LinkedList<PriorityNotification>();
 	}
+
+	/**
+     * Notification that the priority notify window has been closed.
+     * This allows regular notifications to be displayed.
+     */
+    public void firePriorityNotifyWindowClosed() {
+        synchronized (this) {
+            notifyAll();
+        }
+    }
 
 	/**
 	 * @see java.lang.Thread#run()
@@ -66,7 +76,7 @@ class SystemApplicationImpl extends Thread {
             if (running) {
     			try {
                     processDisplayInfo();
-                    processInvitationQueue();
+                    processPriorityNotificationQueue();
                     processNotificationQueue();
     			} catch (final RuntimeException rx) {
     				throw sysApp.translateError(rx);
@@ -75,7 +85,7 @@ class SystemApplicationImpl extends Thread {
 		}
 	}
 
-	/**
+    /**
 	 * @see java.lang.Thread#start()
 	 * 
 	 */
@@ -92,7 +102,7 @@ class SystemApplicationImpl extends Thread {
 		super.start();
 	}
 
-    /**
+	/**
      * Display the "display info" dialog.
      */
     void displayInfo() {
@@ -102,7 +112,7 @@ class SystemApplicationImpl extends Thread {
         }
     }
 
-	/**
+    /**
 	 * End the application.
 	 */
 	void end() {
@@ -111,8 +121,8 @@ class SystemApplicationImpl extends Thread {
         sysTray.unInstall();
         sysTray = null;
 
-        if (InvitationFrame.isDisplayed()) {
-            InvitationFrame.close();
+        if (PriorityNotifyFrame.isDisplayed()) {
+            PriorityNotifyFrame.close();
         }
         if (NotifyFrame.isDisplayed()) {
             NotifyFrame.close();
@@ -126,18 +136,6 @@ class SystemApplicationImpl extends Thread {
         }
 	}
 
-    /**
-     * Fire a clear invitation event.
-     * 
-     * @param invitationId
-     *            An invitation id <code>String</code>.
-     */
-    void fireClearInvitations(final String invitationId) {
-        synchronized (this) {
-            InvitationFrame.close(invitationId);
-        }
-    }
-
 	/**
      * Fire a clear notification event.
      * 
@@ -146,7 +144,9 @@ class SystemApplicationImpl extends Thread {
      */
     void fireClearNotifications(final String notificationId) {
         synchronized (this) {
-            // remove queued notifications that match the id
+            // Remove queued notifications that match the id. It is not
+            // necessary to do the same for priority notifications because
+            // they aren't in the queue long enough to bother.
             if (0 < getNotificationQueueTotal()) {
                 Notification notification;
                 for (final Iterator<Notification> i = notificationQueue.iterator();
@@ -159,6 +159,7 @@ class SystemApplicationImpl extends Thread {
             }
             // remove displayed notifications that match the id
             NotifyFrame.close(notificationId);
+            PriorityNotifyFrame.close(notificationId);
         }
     }
 
@@ -169,45 +170,23 @@ class SystemApplicationImpl extends Thread {
     void fireConnectionOffline() {
         synchronized (this) {
             sysTray.fireConnectionOffline();
-            InvitationFrame.fireConnectionOffline();
+            PriorityNotifyFrame.fireConnectionOffline();
         }
     }
 
-	/**
+    /**
      * Fire a connection online event.
      * 
      */
     void fireConnectionOnline() {
         synchronized (this) {
             sysTray.fireConnectionOnline();
-            InvitationFrame.fireConnectionOnline();
+            PriorityNotifyFrame.fireConnectionOnline();
         }
     }
 
     /**
-	 * Notification that an invitation has been received.
-	 * 
-	 * @param invitation
-     *            An <code>Invitation</code>.
-	 */
-	void fireInvitationReceived(final Invitation invitation) {
-		synchronized (this) {
-            invitationQueue.add(invitation);
-			notifyAll();
-		}
-	}
-
-    /**
-     * Notification that the invitation window has been closed.
-     */
-    public void fireInvitationWindowClosed() {
-        synchronized (this) {
-            notifyAll();
-        }
-    }
-
-    /**
-     * Notification that an artifact has been received.
+     * Notification received.
      * 
      * @param notification
      *            A <code>Notification</code>.
@@ -218,6 +197,19 @@ class SystemApplicationImpl extends Thread {
             notifyAll();
         }
     }
+
+    /**
+     * Priority notification received.
+	 * 
+	 * @param notification
+     *            A <code>PriorityNotification</code>.
+	 */
+	void fireNotification(final PriorityNotification notification) {
+		synchronized (this) {
+            priorityNotificationQueue.add(notification);
+			notifyAll();
+		}
+	}
 
     String getString(final String localKey) {
 		return sysApp.getString(localKey);
@@ -232,25 +224,25 @@ class SystemApplicationImpl extends Thread {
 	 */
 	void resetQueue() {
 		synchronized(this) {
-            invitationQueue.clear();
+            priorityNotificationQueue.clear();
             notificationQueue.clear();
 			notifyAll();
 		}
 	}
 
     /**
-     * Obtain the total number of queued invitation events.
-     * 
-     * @return The total number of queued invitation events.
-     */
-    private Integer getInvitationQueueTotal() { return invitationQueue.size(); }
-
-	/**
 	 * Obtain the total number of queued notification events.
 	 * 
 	 * @return The total number of queued notification events.
 	 */
 	private Integer getNotificationQueueTotal() { return notificationQueue.size(); }
+
+	/**
+     * Obtain the total number of queued priority notification events.
+     * 
+     * @return The total number of queued priority notification events.
+     */
+    private Integer getPriorityNotificationQueueTotal() { return priorityNotificationQueue.size(); }
 
     /**
      * Process a request for the display info dialog.
@@ -265,28 +257,11 @@ class SystemApplicationImpl extends Thread {
     }
 
     /**
-     * Process pending invitation queue events.
-     */
-    private void processInvitationQueue() {
-        if (0 < getInvitationQueueTotal()) {
-            synchronized (this) {
-                Invitation invitation;
-                for (final Iterator<Invitation> i = invitationQueue.iterator();
-                        i.hasNext();) {
-                    invitation = i.next();
-                    InvitationFrame.display(invitation, sysApp);
-                    i.remove();
-                }
-            }
-        }
-    }
-
-	/**
 	 * Process pending notification queue events.
-     * Notifications are ignored while an invitation is displayed.
+     * Notifications are ignored while a priority notification is displayed.
 	 */
 	private void processNotificationQueue() {
-        if (0 < getNotificationQueueTotal() && !InvitationFrame.isDisplayed()) {
+        if (0 < getNotificationQueueTotal() && !PriorityNotifyFrame.isDisplayed()) {
             synchronized (this) {
                 Notification notification;
                 for (final Iterator<Notification> i = notificationQueue.iterator();
@@ -298,4 +273,21 @@ class SystemApplicationImpl extends Thread {
             }
         }
 	}
+
+	/**
+     * Process pending priority notification queue events.
+     */
+    private void processPriorityNotificationQueue() {
+        if (0 < getPriorityNotificationQueueTotal()) {
+            synchronized (this) {
+                PriorityNotification notification;
+                for (final Iterator<PriorityNotification> i = priorityNotificationQueue.iterator();
+                        i.hasNext();) {
+                    notification = i.next();
+                    PriorityNotifyFrame.display(notification, sysApp);
+                    i.remove();
+                }
+            }
+        }
+    }
 }

@@ -130,17 +130,18 @@ public final class PaymentPlanConstraints {
      */
     public IntegerConstraint getInvoicePeriodOffset(
             final Calendar now, final InvoicePeriod invoicePeriod) {
+        final IntegerConstraint clone = (IntegerConstraint) invoicePeriodOffset.clone();
         final Integer maxValue;
         switch (invoicePeriod) {
         case MONTH:
-            maxValue = now.getMaximum(Calendar.MONTH);
+            maxValue = now.getMaximum(Calendar.DAY_OF_MONTH);
             break;
         default:
             throw Assert.createUnreachable("Unexpected invoice period {0}.",
                     invoicePeriod);
         }
-        invoicePeriodOffset.setMaxValue(maxValue);
-        return invoicePeriodOffset;
+        clone.setMaxValue(maxValue);
+        return clone;
     }
 
     /**

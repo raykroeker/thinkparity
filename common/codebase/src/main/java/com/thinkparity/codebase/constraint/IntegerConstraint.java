@@ -5,14 +5,15 @@ package com.thinkparity.codebase.constraint;
 
 import com.thinkparity.codebase.constraint.IllegalValueException.Reason;
 
-
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity Codebase Integer Constraint<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class IntegerConstraint extends Constraint<Integer> {
+public final class IntegerConstraint extends Constraint<Integer> implements
+        Cloneable {
 
     /** A maximum value. */
     private Integer maxValue;
@@ -26,6 +27,24 @@ public final class IntegerConstraint extends Constraint<Integer> {
      */
     public IntegerConstraint() {
         super();
+    }
+
+    /**
+     * @see java.lang.Object#clone()
+     *
+     */
+    @Override
+    public Object clone() {
+        try {
+            final IntegerConstraint clone = (IntegerConstraint) super.clone();
+            clone.setMaxValue(maxValue);
+            clone.setMinValue(minValue);
+            clone.setName(getName());
+            clone.setNullable(isNullable());
+            return clone;
+        } catch (final CloneNotSupportedException cnsx) {
+            throw new UnsupportedOperationException(cnsx);
+        }
     }
 
     /**

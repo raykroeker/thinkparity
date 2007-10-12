@@ -843,7 +843,7 @@ public class UpdateProfileAvatar extends Avatar {
      * @return True if the model is online.
      */
     private boolean isOnline() {
-        return ((UpdateProfileProvider) contentProvider).isOnline().booleanValue();
+        return (Boolean) ((Data) input).get(DataKey.ONLINE);
     }
 
     /**
@@ -945,13 +945,13 @@ public class UpdateProfileAvatar extends Avatar {
      * Reload the manage account button.
      */
     private void reloadManageAccountButton() {
-        Boolean visible = Boolean.TRUE;
+        boolean visible = true;
         if (isSignUpAvailable()) {
             manageAccountJButton.setText(getString("UpgradeAccount"));
         } else {
             manageAccountJButton.setText(getString("ManageAccount"));
             if (!isAccessiblePaymentInfo()) {
-                visible = Boolean.FALSE;
+                visible = false;
             }
         }
         manageAccountJButton.setVisible(visible);
@@ -1068,6 +1068,6 @@ public class UpdateProfileAvatar extends Avatar {
     /** <b>Title:</b>Update Profile Avatar Data Key<br> */
     public enum DataKey {
         BACKUP_ENABLED, BACKUP_STATISTICS, EMAIL, PAYMENT_INFO_ACCESSIBLE,
-        PROFILE, SIGNUP_AVAILABLE, STATISTICS
+        ONLINE, PROFILE, SIGNUP_AVAILABLE, STATISTICS
     }
 }

@@ -46,9 +46,10 @@ public class Update extends AbstractBrowserAction {
         final ProfileModel profileModel = getProfileModel();
         if (null == profile) {
             /* display profile dialog */
+            final boolean online = getSessionModel().isOnline();
             final Boolean backupEnabled = profileModel.isBackupEnabled();
             final Boolean signUpAvailable = profileModel.isSignUpAvailable();
-            final Boolean paymentInfoAccessible = profileModel.isAccessiblePaymentInfo();
+            final Boolean paymentInfoAccessible = online && profileModel.isAccessiblePaymentInfo();
             final BackupStatistics backupStatistics = profileModel.readBackupStatistics();
             final ProfileEMail email = profileModel.readEMail();
             final Profile existingProfile = profileModel.read();
@@ -57,7 +58,7 @@ public class Update extends AbstractBrowserAction {
                 public void run() {
                     browser.displayUpdateProfileDialog(backupEnabled,
                             signUpAvailable, paymentInfoAccessible,
-                            backupStatistics, email, existingProfile,
+                            backupStatistics, email, online, existingProfile,
                             statistics);
                 }
             });

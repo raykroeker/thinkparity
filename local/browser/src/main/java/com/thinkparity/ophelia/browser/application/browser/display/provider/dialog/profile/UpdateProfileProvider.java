@@ -7,7 +7,6 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider.dia
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.ophelia.model.profile.ProfileModel;
-import com.thinkparity.ophelia.model.session.SessionModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
 
@@ -17,30 +16,14 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.Cont
  */
 public class UpdateProfileProvider extends ContentProvider {
 
-    /** An instance of <code>SessionModel</code>. */
-    private final SessionModel sessionModel;
-
     /**
      * Create UpdateProfileProvider.
      * 
      * @param profileModel
-     *            A profile model interface.
-     * @param sessionModel
-     *            An instance of <code>SessionModel</code>.
+     *            A <code>ProfileModel</code>.
      */
-    public UpdateProfileProvider(final ProfileModel profileModel,
-            final SessionModel sessionModel) {
+    public UpdateProfileProvider(final ProfileModel profileModel) {
         super(profileModel);
-        this.sessionModel = sessionModel;
-    }
-
-    /**
-     * Determine if the user's backup is online.
-     * 
-     * @return True if the user's backup is online.
-     */
-    public Boolean isOnline() {
-        return sessionModel.isOnline();
     }
 
     /**

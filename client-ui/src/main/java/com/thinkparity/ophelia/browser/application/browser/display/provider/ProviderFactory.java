@@ -144,7 +144,7 @@ public class ProviderFactory {
             provider = new SignupProvider(profileModel);
             break;
         case DIALOG_PROFILE_UPDATE:
-            provider = new UpdateProfileProvider(profileModel, sessionModel);
+            provider = new UpdateProfileProvider(profileModel);
             break;
         case DIALOG_PROFILE_UPDATE_PAYMENT_INFO:
             provider = new UpdateAccountProvider(profileModel, sessionModel);

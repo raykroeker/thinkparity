@@ -808,6 +808,8 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     /**
      * Obtain the contact display cell for a contact.
      * 
+     * @param online
+     *            A <code>Boolean</code>.
      * @param invitation
      *            An <code>OutgoingInvitation</code>.
      * @return A contact display cell.
@@ -815,7 +817,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     private TabPanel toDisplay(final IncomingEMailInvitation invitation) {
         final ContactTabPanel panel = new ContactTabPanel(session);
         panel.setActionDelegate(actionDelegate);
-        panel.setPanelData(invitation);
+        panel.setPanelData(isOnline(), invitation);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
         panel.setSelected(isSelected(panel));
@@ -833,7 +835,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     private TabPanel toDisplay(final IncomingUserInvitation invitation) {
         final ContactTabPanel panel = new ContactTabPanel(session);
         panel.setActionDelegate(actionDelegate);
-        panel.setPanelData(invitation);
+        panel.setPanelData(isOnline(), invitation);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
         panel.setSelected(isSelected(panel));

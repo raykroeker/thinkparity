@@ -370,7 +370,8 @@ public class ContactTabPanel extends DefaultTabPanel {
      * @param incomingEMail
      *            An <code>IncomingEMailInvitation</code>.
      */
-    public void setPanelData(final IncomingEMailInvitation incomingEMail) {
+    public void setPanelData(final Boolean online,
+            final IncomingEMailInvitation incomingEMail) {
         this.incomingEMail = incomingEMail;
         initCollapsedPanel();
         reloadNameText();
@@ -380,6 +381,8 @@ public class ContactTabPanel extends DefaultTabPanel {
         incomingInvitationIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
         reload(incomingInvitationAcceptJLabel, localization.getString("IncomingInvitationAccept"));
         reload(incomingInvitationDeclineJLabel, localization.getString("IncomingInvitationDecline"));
+        incomingInvitationAcceptJLabel.setVisible(online);
+        incomingInvitationDeclineJLabel.setVisible(online);
     }
 
     /**
@@ -388,7 +391,7 @@ public class ContactTabPanel extends DefaultTabPanel {
      * @param incomingUser
      *            An <code>IncomingUserInvitation</code>.
      */
-    public void setPanelData(final IncomingUserInvitation incomingUser) {
+    public void setPanelData(final Boolean online, final IncomingUserInvitation incomingUser) {
         this.incomingUser = incomingUser;
         initCollapsedPanel();
         reloadNameText();
@@ -398,6 +401,8 @@ public class ContactTabPanel extends DefaultTabPanel {
         incomingInvitationIconJLabel.setIcon(IMAGE_CACHE.read(TabPanelIcon.USER_NOT_RECEIVED));
         reload(incomingInvitationAcceptJLabel, localization.getString("IncomingInvitationAccept"));
         reload(incomingInvitationDeclineJLabel, localization.getString("IncomingInvitationDecline"));
+        incomingInvitationAcceptJLabel.setVisible(online);
+        incomingInvitationDeclineJLabel.setVisible(online);
     }
 
     /**
@@ -1247,7 +1252,7 @@ public class ContactTabPanel extends DefaultTabPanel {
         g2.setFont(getNameTextFont());
         final Point location = new Point(CONTACT_TEXT_X, CONTACT_TEXT_Y + g2.getFontMetrics().getMaxAscent());
         int availableWidth;
-        if (isSetIncomingEMail() || isSetIncomingUser()) {
+        if ((isSetIncomingEMail() || isSetIncomingUser()) && incomingInvitationAcceptJLabel.isVisible()) {
             availableWidth = incomingInvitationAcceptJLabel.getLocation().x - location.x - CONTACT_TEXT_SPACE_END;
         } else {
             availableWidth = getWidth() - location.x - CONTACT_TEXT_SPACE_END;

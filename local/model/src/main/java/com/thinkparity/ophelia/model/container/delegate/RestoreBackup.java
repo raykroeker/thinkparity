@@ -442,6 +442,13 @@ public final class RestoreBackup extends ContainerDelegate {
                             logger.logTrace("Document version has been restored.");
                             notifyStepEnd(monitor, RestoreBackupStep.RESTORE_DOCUMENT_VERSION);
                             break;
+                        } else {
+                            containerIO.addVersion(container.getId(),
+                                    version.getVersionId(), document.getId(),
+                                    documentVersion.getVersionId(),
+                                    document.getType());
+                            logger.logTrace("Document version has been restored.");
+                            notifyStepEnd(monitor, RestoreBackupStep.RESTORE_DOCUMENT_VERSION);
                         }
                     }
                 }

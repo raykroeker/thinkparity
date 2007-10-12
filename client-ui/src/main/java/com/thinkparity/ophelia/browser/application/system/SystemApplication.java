@@ -150,13 +150,6 @@ public final class SystemApplication extends AbstractApplication {
 		notifyEnd();
 	}
 
-    /**
-     * Notify the system that the priority notify window has been closed.
-     */
-    public void firePriorityNotifyWindowClosed() {
-        impl.firePriorityNotifyWindowClosed();
-    }
-
 	/**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getBuildId()
      *
@@ -434,93 +427,46 @@ public final class SystemApplication extends AbstractApplication {
      *            A <code>ContainerEvent</code>.
      */
     void fireContainerPublished(final ContainerEvent e) {
-        final Data data = new Data(3);
         final Long containerId = e.getContainer().getId();
         final Long versionId = e.getVersion().getVersionId();
-        data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.CONTAINER_ID, containerId);
-        data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.VERSION_ID, versionId);
-        data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.CLEAR_SEARCH, Boolean.TRUE);
-        if (null == e.getPreviousVersion() && null == e.getNextVersion()) {
-            // this is the first publish event
-            impl.fireNotification(new DefaultNotification() {
-                @Override
-                public String getContentLine1() {
-                    return e.getUser().getName();
+        final boolean publishFirstTime = (null == e.getPreviousVersion() && null == e.getNextVersion());
+        impl.fireNotification(new DefaultNotification() {
+            public String getId() {
+                return newNotificationId(Container.class, containerId, versionId);
+            }
+            @Override
+            public String getGroupId() {
+                return newNotificationId(Container.class, containerId);
+            }
+            public String getMessage() {
+                if (publishFirstTime) {
+                    return getString("Notification.ContainerPublishedFirstTime.Message",
+                            new Object[] { e.getUser().getName(),
+                                    e.getUser().getTitle(),
+                                    e.getUser().getOrganization(),
+                                    e.getContainer().getName() });
+                } else {
+                    return getString("Notification.ContainerPublishedNotFirstTime.Message",
+                            new Object[] { e.getUser().getName(),
+                                    e.getUser().getTitle(),
+                                    e.getUser().getOrganization(),
+                                    e.getContainer().getName() });
                 }
-                @Override
-                public String getContentLine2() {
-                    return e.getContainer().getName();
-                }
-                @Override
-                public String getGroupId() {
-                    return newNotificationId(Container.class, containerId);
-                }
-                @Override
-                public String getHeadingLine1() {
-                    return getString("Notification.ContainerPublishedFirstTime.HeadingLine1");
-                }
-                @Override
-                public String getHeadingLine2() {
-                    return getString("Notification.ContainerPublishedFirstTime.HeadingLine2");
-                }
-                @Override
-                public String getId() {
-                    return newNotificationId(Container.class, containerId, versionId);
-                }
-                @Override
-                public String getLinkTitle() {
-                    return getString("Notification.ContainerPublishedFirstTime.Title");
-                }
-                @Override
-                public int getNumberLines() {
-                    return 2;
-                }
-                @Override
-                public void invokeAction() {
-                    invoke(ActionId.CONTAINER_SHOW, data);
-                }
-            });
-        } else {
-            // this is a subsequent publish event
-            impl.fireNotification(new DefaultNotification() {
-                @Override
-                public String getContentLine1() {
-                    return e.getUser().getName();
-                }
-                @Override
-                public String getContentLine2() {
-                    return e.getContainer().getName();
-                }
-                @Override
-                public String getGroupId() {
-                    return newNotificationId(Container.class, containerId);
-                }
-                @Override
-                public String getHeadingLine1() {
-                    return getString("Notification.ContainerPublishedNotFirstTime.HeadingLine1");
-                }
-                @Override
-                public String getHeadingLine2() {
-                    return getString("Notification.ContainerPublishedNotFirstTime.HeadingLine2");
-                }
-                @Override
-                public String getId() {
-                    return newNotificationId(Container.class, containerId, versionId);
-                }
-                @Override
-                public String getLinkTitle() {
-                    return getString("Notification.ContainerPublishedNotFirstTime.Title");
-                }
-                @Override
-                public int getNumberLines() {
-                    return 2;
-                }
-                @Override
-                public void invokeAction() {
-                    invoke(ActionId.CONTAINER_SHOW, data);
-                }
-            });
-        }
+            }
+            public NotificationPriority getPriority() {
+                return NotificationPriority.LOW;
+            }
+            public NotificationType getType() {
+                return NotificationType.CONTAINER_PUBLISHED;
+            }
+            public void invokeAction() {
+                final Data data = new Data(3);
+                data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.CONTAINER_ID, containerId);
+                data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.VERSION_ID, versionId);
+                data.set(com.thinkparity.ophelia.browser.platform.action.container.Show.DataKey.CLEAR_SEARCH, Boolean.TRUE);
+                invoke(ActionId.CONTAINER_SHOW, data);
+            }
+        });
     }
 
     /**
@@ -530,7 +476,7 @@ public final class SystemApplication extends AbstractApplication {
      *            A <code>MigratorEvent</code>.
      */
     void fireProductReleaseInstalled(final MigratorEvent e) {
-        impl.fireNotification(new DefaultPriorityNotification() {
+        impl.fireNotification(new DefaultNotification() {
             public NotificationPriority getPriority() {
                 return NotificationPriority.HIGHEST;
             }
@@ -552,7 +498,7 @@ public final class SystemApplication extends AbstractApplication {
      *            A <code>ProfileEvent</code>.
      */
     public void fireProfilePassivated(final ProfileEvent e) {
-        impl.fireNotification(new DefaultPriorityNotification() {
+        impl.fireNotification(new DefaultNotification() {
             Boolean accessiblePaymentInfo = Boolean.TRUE;
             Boolean accessiblePaymentInfoSet = Boolean.FALSE;
             public Data getData() {
@@ -610,7 +556,7 @@ public final class SystemApplication extends AbstractApplication {
     private void fireContactIncomingInvitationCreated(final ContactEvent e,
             final IncomingInvitationType incomingInvitationType) {
         final Long id = e.getIncomingInvitation().getId();
-        impl.fireNotification(new DefaultPriorityNotification() {
+        impl.fireNotification(new DefaultNotification() {
             public String getId() {
                 return newNotificationId(ContactInvitation.class, id);
             }

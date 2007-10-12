@@ -11,8 +11,6 @@ import java.util.List;
 import com.thinkparity.ophelia.browser.application.system.dialog.DisplayInfoFrame;
 import com.thinkparity.ophelia.browser.application.system.dialog.Notification;
 import com.thinkparity.ophelia.browser.application.system.dialog.NotifyFrame;
-import com.thinkparity.ophelia.browser.application.system.dialog.PriorityNotification;
-import com.thinkparity.ophelia.browser.application.system.dialog.PriorityNotifyFrame;
 import com.thinkparity.ophelia.browser.application.system.tray.Tray;
 
 /**
@@ -31,11 +29,8 @@ class SystemApplicationImpl extends Thread {
 	/** Flag indicating the DisplayInfo dialog has been requested. */
     private Boolean displayInfoRequested = Boolean.FALSE;
 
-    /** Queue of notifications not yet displayed. */
-	private final List<Notification> notificationQueue;
-
-	/** Queue of priority notifications not yet displayed. */
-    private final List<PriorityNotification> priorityNotificationQueue;
+	/** Queue of notifications not yet displayed. */
+    private final List<Notification> notificationQueue;
 
 	/** The system application. */
 	private final SystemApplication sysApp;
@@ -47,18 +42,7 @@ class SystemApplicationImpl extends Thread {
 		super("TPS-OpheliaUI-SystemApplication");
 		this.sysApp = sysApp;
         this.notificationQueue = new LinkedList<Notification>();
-        this.priorityNotificationQueue = new LinkedList<PriorityNotification>();
 	}
-
-	/**
-     * Notification that the priority notify window has been closed.
-     * This allows regular notifications to be displayed.
-     */
-    public void firePriorityNotifyWindowClosed() {
-        synchronized (this) {
-            notifyAll();
-        }
-    }
 
 	/**
 	 * @see java.lang.Thread#run()
@@ -76,7 +60,6 @@ class SystemApplicationImpl extends Thread {
             if (running) {
     			try {
                     processDisplayInfo();
-                    processPriorityNotificationQueue();
                     processNotificationQueue();
     			} catch (final RuntimeException rx) {
     				throw sysApp.translateError(rx);
@@ -121,9 +104,6 @@ class SystemApplicationImpl extends Thread {
         sysTray.unInstall();
         sysTray = null;
 
-        if (PriorityNotifyFrame.isDisplayed()) {
-            PriorityNotifyFrame.close();
-        }
         if (NotifyFrame.isDisplayed()) {
             NotifyFrame.close();
         }
@@ -144,22 +124,8 @@ class SystemApplicationImpl extends Thread {
      */
     void fireClearNotifications(final String notificationId) {
         synchronized (this) {
-            // Remove queued notifications that match the id. It is not
-            // necessary to do the same for priority notifications because
-            // they aren't in the queue long enough to bother.
-            if (0 < getNotificationQueueTotal()) {
-                Notification notification;
-                for (final Iterator<Notification> i = notificationQueue.iterator();
-                        i.hasNext();) {
-                    notification = i.next();
-                    if (notification.isMatchingId(notificationId)) {
-                        i.remove();
-                    }
-                }
-            }
             // remove displayed notifications that match the id
             NotifyFrame.close(notificationId);
-            PriorityNotifyFrame.close(notificationId);
         }
     }
 
@@ -170,7 +136,7 @@ class SystemApplicationImpl extends Thread {
     void fireConnectionOffline() {
         synchronized (this) {
             sysTray.fireConnectionOffline();
-            PriorityNotifyFrame.fireConnectionOffline();
+            NotifyFrame.fireConnectionOffline();
         }
     }
 
@@ -181,32 +147,19 @@ class SystemApplicationImpl extends Thread {
     void fireConnectionOnline() {
         synchronized (this) {
             sysTray.fireConnectionOnline();
-            PriorityNotifyFrame.fireConnectionOnline();
+            NotifyFrame.fireConnectionOnline();
         }
     }
 
     /**
      * Notification received.
-     * 
-     * @param notification
-     *            A <code>Notification</code>.
-     */
-    void fireNotification(final Notification notification) {
-        synchronized (this) {
-            notificationQueue.add(notification);
-            notifyAll();
-        }
-    }
-
-    /**
-     * Priority notification received.
 	 * 
 	 * @param notification
-     *            A <code>PriorityNotification</code>.
+     *            A <code>Notification</code>.
 	 */
-	void fireNotification(final PriorityNotification notification) {
+	void fireNotification(final Notification notification) {
 		synchronized (this) {
-            priorityNotificationQueue.add(notification);
+            notificationQueue.add(notification);
 			notifyAll();
 		}
 	}
@@ -224,25 +177,17 @@ class SystemApplicationImpl extends Thread {
 	 */
 	void resetQueue() {
 		synchronized(this) {
-            priorityNotificationQueue.clear();
             notificationQueue.clear();
 			notifyAll();
 		}
 	}
 
-    /**
-	 * Obtain the total number of queued notification events.
-	 * 
-	 * @return The total number of queued notification events.
-	 */
-	private Integer getNotificationQueueTotal() { return notificationQueue.size(); }
-
 	/**
-     * Obtain the total number of queued priority notification events.
+     * Obtain the total number of queued notification events.
      * 
-     * @return The total number of queued priority notification events.
+     * @return The total number of queued notification events.
      */
-    private Integer getPriorityNotificationQueueTotal() { return priorityNotificationQueue.size(); }
+    private Integer getNotificationQueueTotal() { return notificationQueue.size(); }
 
     /**
      * Process a request for the display info dialog.
@@ -256,35 +201,17 @@ class SystemApplicationImpl extends Thread {
         }
     }
 
-    /**
-	 * Process pending notification queue events.
-     * Notifications are ignored while a priority notification is displayed.
-	 */
-	private void processNotificationQueue() {
-        if (0 < getNotificationQueueTotal() && !PriorityNotifyFrame.isDisplayed()) {
+	/**
+     * Process pending notification queue events.
+     */
+    private void processNotificationQueue() {
+        if (0 < getNotificationQueueTotal()) {
             synchronized (this) {
                 Notification notification;
                 for (final Iterator<Notification> i = notificationQueue.iterator();
                         i.hasNext();) {
                     notification = i.next();
-                    NotifyFrame.display(notification);
-                    i.remove();
-                }
-            }
-        }
-	}
-
-	/**
-     * Process pending priority notification queue events.
-     */
-    private void processPriorityNotificationQueue() {
-        if (0 < getPriorityNotificationQueueTotal()) {
-            synchronized (this) {
-                PriorityNotification notification;
-                for (final Iterator<PriorityNotification> i = priorityNotificationQueue.iterator();
-                        i.hasNext();) {
-                    notification = i.next();
-                    PriorityNotifyFrame.display(notification, sysApp);
+                    NotifyFrame.display(notification, sysApp);
                     i.remove();
                 }
             }

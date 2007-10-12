@@ -10,7 +10,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colo
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.system.SystemApplication;
-import com.thinkparity.ophelia.browser.application.system.dialog.PriorityNotification.NotificationType;
+import com.thinkparity.ophelia.browser.application.system.dialog.Notification.NotificationType;
 
 /**
  *
@@ -44,9 +44,9 @@ public class InvitationNotifyPage extends DefaultNotifyPage {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.system.dialog.NotifyPage#reload(com.thinkparity.ophelia.browser.application.system.dialog.PriorityNotification)
+     * @see com.thinkparity.ophelia.browser.application.system.dialog.NotifyPage#reload(com.thinkparity.ophelia.browser.application.system.dialog.Notification)
      */
-    public void reload(final PriorityNotification notification) {
+    public void reload(final Notification notification) {
         super.reload(notification);
         reloadMessage();
         reloadButtons();
@@ -54,8 +54,9 @@ public class InvitationNotifyPage extends DefaultNotifyPage {
     }
 
     private void acceptJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_acceptJButtonActionPerformed
+        final Notification currentNotification = this.notification;
         closeNotification();
-        notification.invokeAction();
+        currentNotification.invokeAction();
     }//GEN-LAST:event_acceptJButtonActionPerformed
 
     private void decideLaterJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_decideLaterJButtonActionPerformed
@@ -63,8 +64,9 @@ public class InvitationNotifyPage extends DefaultNotifyPage {
     }//GEN-LAST:event_decideLaterJButtonActionPerformed
 
     private void declineJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_declineJButtonActionPerformed
+        final Notification currentNotification = this.notification;
         closeNotification();
-        notification.invokeDeclineAction();
+        currentNotification.invokeDeclineAction();
     }//GEN-LAST:event_declineJButtonActionPerformed
 
     /** This method is called from within the constructor to

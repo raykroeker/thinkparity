@@ -10,7 +10,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colo
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.system.SystemApplication;
-import com.thinkparity.ophelia.browser.application.system.dialog.PriorityNotification.NotificationType;
+import com.thinkparity.ophelia.browser.application.system.dialog.Notification.NotificationType;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
@@ -47,9 +47,9 @@ public class ProfilePassivatedNotifyPage extends DefaultNotifyPage {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.system.dialog.NotifyPage#reload(com.thinkparity.ophelia.browser.application.system.dialog.PriorityNotification)
+     * @see com.thinkparity.ophelia.browser.application.system.dialog.NotifyPage#reload(com.thinkparity.ophelia.browser.application.system.dialog.Notification)
      */
-    public void reload(final PriorityNotification notification) {
+    public void reload(final Notification notification) {
         super.reload(notification);
         final Data data = notification.getData();
         paymentInfoAccessible = (Boolean) data.get(DataKey.PAYMENT_INFO_ACCESSIBLE);
@@ -102,7 +102,7 @@ public class ProfilePassivatedNotifyPage extends DefaultNotifyPage {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(messageJLabel)
+                .addComponent(messageJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(18, 18, 18)

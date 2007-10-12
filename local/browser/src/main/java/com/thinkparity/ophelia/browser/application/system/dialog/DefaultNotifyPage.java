@@ -15,8 +15,8 @@ import com.thinkparity.ophelia.browser.application.system.SystemApplication;
 public abstract class DefaultNotifyPage extends javax.swing.JPanel
         implements NotifyPage {
 
-    /** The <code>PriorityNotification</code> currently displayed. */
-    protected PriorityNotification notification;
+    /** The <code>Notification</code> currently displayed. */
+    protected Notification notification;
 
     /** The <code>SystemApplication</code>. */
     protected final SystemApplication systemApplication;
@@ -44,9 +44,9 @@ public abstract class DefaultNotifyPage extends javax.swing.JPanel
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.system.dialog.NotifyPage#reload(com.thinkparity.ophelia.browser.application.system.dialog.PriorityNotification)
+     * @see com.thinkparity.ophelia.browser.application.system.dialog.NotifyPage#reload(com.thinkparity.ophelia.browser.application.system.dialog.Notification)
      */
-    public void reload(final PriorityNotification notification) {
+    public void reload(final Notification notification) {
         this.notification = notification;
         reloadOnline();
     }

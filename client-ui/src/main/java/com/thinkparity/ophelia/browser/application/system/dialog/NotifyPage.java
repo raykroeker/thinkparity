@@ -4,7 +4,7 @@
  */
 package com.thinkparity.ophelia.browser.application.system.dialog;
 
-import com.thinkparity.ophelia.browser.application.system.dialog.PriorityNotification.NotificationType;
+import com.thinkparity.ophelia.browser.application.system.dialog.Notification.NotificationType;
 
 /**
  * @author robert@thinkparity.com
@@ -30,7 +30,7 @@ public interface NotifyPage {
      * Reload the page with a notification.
      * 
      * @param notification
-     *            A <code>PriorityNotification</code>.
+     *            A <code>Notification</code>.
      */
-    void reload(final PriorityNotification notification);
+    void reload(final Notification notification);
 }

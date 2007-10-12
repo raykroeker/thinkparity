@@ -1,42 +1,34 @@
-/*
- * Created On:  29-Mar-07 2:55:46 PM
+/**
+ * Created On: 9-Oct-07 8:00:42 PM
+ * $Id$
  */
 package com.thinkparity.ophelia.browser.application.system;
 
 import com.thinkparity.codebase.JVMUniqueId;
 
 import com.thinkparity.ophelia.browser.application.system.dialog.Notification;
+import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
- * <b>Title:</b>thinkParity OpheliaUI System Application Default Notification<br>
- * <b>Description:</b>Represents null title headings and content.<br>
- * 
- * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @author raymond@thinkparity.com, robert@thinkparity.com
+ * @version $Revision$
  */
-class DefaultNotification implements Notification {
+public abstract class DefaultNotification implements Notification {
+
+    /** The default id <code>String</code>. */
+    private String id;
 
     /**
      * Create DefaultNotification.
-     *
      */
     public DefaultNotification() {
         super();
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#getContentLine1()
-     *
+     * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#getData()
      */
-    public String getContentLine1() {
-        return null;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#getContentLine2()
-     *
-     */
-    public String getContentLine2() {
+    public Data getData() {
         return null;
     }
 
@@ -44,67 +36,40 @@ class DefaultNotification implements Notification {
      * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#getGroupId()
      */
     public String getGroupId() {
-        return JVMUniqueId.nextId().toString();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#getHeadingLine1()
-     *
-     */
-    public String getHeadingLine1() {
-        return null;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#getHeadingLine2()
-     *
-     */
-    public String getHeadingLine2() {
         return null;
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#getId()
-     *
      */
     public String getId() {
-        return JVMUniqueId.nextId().toString();
+        if (null == id) {
+            id = JVMUniqueId.nextId().toString();
+        }
+        return id;
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#getLinkTitle()
-     *
+     * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#getMessage()
      */
-    public String getLinkTitle() {
+    public String getMessage() {
         return null;
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#getNumberLines()
-     *
+     * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#getPriority()
      */
-    public int getNumberLines() {
-        return 0;
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#getTextTitle()
-     *
-     */
-    public String getTextTitle() {
-        return null;
+    public NotificationPriority getPriority() {
+        return NotificationPriority.LOW;
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#invokeAction()
-     *
      */
     public void invokeAction() {}
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#isMatchingId(java.lang.String)
+     * @see com.thinkparity.ophelia.browser.application.system.dialog.Notification#invokeDeclineAction()
      */
-    public Boolean isMatchingId(final String id) {
-        return getId().equals(id) || getGroupId().equals(id);
-    }
+    public void invokeDeclineAction() {}
 }

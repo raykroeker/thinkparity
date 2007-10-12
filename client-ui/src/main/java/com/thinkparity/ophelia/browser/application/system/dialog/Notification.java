@@ -1,31 +1,23 @@
-/*
- * Apr 26, 2006
+/**
+ * Created On: 9-Oct-07 3:57:24 PM
+ * $Id$
  */
 package com.thinkparity.ophelia.browser.application.system.dialog;
 
+import com.thinkparity.ophelia.browser.platform.action.Data;
+
 /**
- * <b>Title:</b>thinkParity Ophelia UI System Application Notification<br>
- * <b>Description:</b>A notification can be uniquely identified by an id. It
- * can contain many lines/headings and a title. It is also invokeable.<br>
- * 
- * @author raymond@thinkparity.com
- * @version 1.1.2.1
+ * @author raymond@thinkparity.com, robert@thinkparity.com
+ * @version $Revision$
  */
 public interface Notification {
 
     /**
-     * Obtain the first line of the content.
+     * Obtain the data.
      * 
-     * @return A content <code>String</code>.
+     * @return A <code>Data</code>.
      */
-    String getContentLine1();
-
-    /**
-     * Obtain the second line of the content.
-     * 
-     * @return A content <code>String</code>.
-     */
-    String getContentLine2();
+    Data getData();
 
     /**
      * Obtain the notification group id.
@@ -35,20 +27,6 @@ public interface Notification {
     String getGroupId();
 
     /**
-     * Obtain the first line of the heading.
-     * 
-     * @return A heading <code>String</code>.
-     */
-    String getHeadingLine1();
-
-    /**
-     * Obtain the second line of the heading.
-     * 
-     * @return A heading <code>String</code>.
-     */
-    String getHeadingLine2();
-
-    /**
      * Obtain the notification id.
      * 
      * @return A notification id <code>String</code>.
@@ -56,38 +34,68 @@ public interface Notification {
     String getId();
 
     /**
-     * Obtain the title of the notification as a link.
+     * Obtain the message.
      * 
-     * @return A link <code>String</code>.
+     * @return A message <code>String</code>.
      */
-    String getLinkTitle();
+    String getMessage();
 
     /**
-     * Obtain the number of lines of content.
+     * Obtain the notification priority.
      * 
-     * @return A positive <code>int</code>.
+     * @return A <code>NotificationPriority</code>.
      */
-    int getNumberLines();
+    NotificationPriority getPriority();
 
     /**
-     * Obtain the title of the notification a text.
+     * Obtain the notification type.
      * 
-     * @return A text <code>String</code>.
+     * @return A <code>NotificationType</code>.
      */
-    String getTextTitle();
+    NotificationType getType();
 
     /**
-     * Invoke the notification's action.
-     *
+     * Invoke the notification's primary (or accept) action.
      */
     void invokeAction();
 
     /**
-     * Determine if the specified id is a matching id.
-     * 
-     * @param id
-     *            An id <code>String</code>.
-     * @return true if the specified id is a matching id.
+     * Invoke the notification's decline action.
      */
-    Boolean isMatchingId(final String id);
+    void invokeDeclineAction();
+
+    /**
+     * NotificationPriority enum.
+     */
+    public enum NotificationPriority {
+
+        HIGHEST(3),
+        HIGH(2),
+        MEDIUM(1),
+        LOW(0);
+
+        /** An <code>Integer</code> priority. */
+        private Integer priority;
+
+        /**
+         * Create NotificationPriority.
+         * 
+         * @param priority
+         *            An <code>Integer</code> priority.
+         */
+        private NotificationPriority(final Integer priority) {
+            this.priority = priority;
+        }
+
+        /**
+         * Obtain the priority integer value.
+         * 
+         * @return The <code>Integer</code> priority.
+         */
+        public Integer toInteger() {
+            return priority;
+        }
+    }
+
+    public enum NotificationType { CONTAINER_PUBLISHED, INVITATION, PRODUCT_INSTALLED, PROFILE_PASSIVATED }
 }

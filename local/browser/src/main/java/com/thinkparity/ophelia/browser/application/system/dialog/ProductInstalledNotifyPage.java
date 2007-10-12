@@ -9,7 +9,7 @@ package com.thinkparity.ophelia.browser.application.system.dialog;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.system.SystemApplication;
-import com.thinkparity.ophelia.browser.application.system.dialog.PriorityNotification.NotificationType;
+import com.thinkparity.ophelia.browser.application.system.dialog.Notification.NotificationType;
 
 /**
  *
@@ -40,9 +40,9 @@ public class ProductInstalledNotifyPage extends DefaultNotifyPage {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.system.dialog.NotifyPage#reload(com.thinkparity.ophelia.browser.application.system.dialog.PriorityNotification)
+     * @see com.thinkparity.ophelia.browser.application.system.dialog.NotifyPage#reload(com.thinkparity.ophelia.browser.application.system.dialog.Notification)
      */
-    public void reload(final PriorityNotification notification) {
+    public void reload(final Notification notification) {
         super.reload(notification);
     }
 

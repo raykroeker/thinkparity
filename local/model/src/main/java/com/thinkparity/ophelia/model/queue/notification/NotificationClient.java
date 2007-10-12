@@ -76,9 +76,17 @@ public final class NotificationClient extends Observable implements Runnable {
      */
     public void run() {
         run = true;
-        if (null == connection || !connection.isConnected()) {
-            connect();
+        /* an authentication/handshake protocol has not been fully implemented
+         * therefore we always connect */
+        if (null != connection && connection.isConnected()) {
+            try {
+                connection.disconnect();
+            } finally {
+                connection = null;
+            }
         }
+        connect();
+
         try {
             writeHeader();
         } catch (final NetworkException nx) {

@@ -1,5 +1,5 @@
 /*
- * UserInfoAvatar.java
+ * TeamMemberInfoAvatar.java
  *
  * Created on December 6, 2006, 10:09 AM
  */
@@ -41,11 +41,11 @@ public final class TeamMemberInfoAvatar extends Avatar {
     // End of variables declaration//GEN-END:variables
 
     /**
-     * Create UserInfoAvatar.
+     * Create TeamMemberInfoAvatar.
      * 
      */
     public TeamMemberInfoAvatar() {
-        super("UserInfoAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
+        super("TeamMemberInfoAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
         initComponents();
         bindKeys();
     }
@@ -160,7 +160,7 @@ public final class TeamMemberInfoAvatar extends Avatar {
         final javax.swing.JLabel companyHeadingJLabel = new javax.swing.JLabel();
 
         closeJButton.setFont(Fonts.DialogButtonFont);
-        closeJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Close"));
+        closeJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("TeamMemberInfoAvatar.Close"));
         closeJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 closeJButtonActionPerformed(evt);
@@ -168,27 +168,27 @@ public final class TeamMemberInfoAvatar extends Avatar {
         });
 
         nameHeadingJLabel.setFont(Fonts.DialogFont);
-        nameHeadingJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Name"));
+        nameHeadingJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("TeamMemberInfoAvatar.Name"));
 
         nameJTextField.setEditable(false);
         nameJTextField.setFont(Fonts.DialogFont);
         nameJTextField.setOpaque(false);
 
         titleHeadingJLabel.setFont(Fonts.DialogFont);
-        titleHeadingJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.TitleLabel"));
+        titleHeadingJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("TeamMemberInfoAvatar.TitleLabel"));
 
         titleJTextField.setEditable(false);
         titleJTextField.setFont(Fonts.DialogFont);
         titleJTextField.setOpaque(false);
 
         companyHeadingJLabel.setFont(Fonts.DialogFont);
-        companyHeadingJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Company"));
+        companyHeadingJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("TeamMemberInfoAvatar.Company"));
 
         companyJTextField.setEditable(false);
         companyJTextField.setFont(Fonts.DialogFont);
         companyJTextField.setOpaque(false);
 
-        inviteJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UserInfoAvatar.Invite"));
+        inviteJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("TeamMemberInfoAvatar.Invite"));
         inviteJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 inviteJLabelMousePressed(evt);

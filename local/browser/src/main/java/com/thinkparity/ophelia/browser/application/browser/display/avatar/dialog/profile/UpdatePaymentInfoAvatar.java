@@ -491,6 +491,10 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
             }
         }
 
+        if (null == paymentInfo.getCardHolderName()) {
+            addInputError(Separator.Space.toString());
+        }
+
         final Calendar now = Calendar.getInstance();
         final short nowYear = (short) now.get(Calendar.YEAR);
         final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);

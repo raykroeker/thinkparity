@@ -3,7 +3,6 @@
 	<classpathentry excluding="com/thinkparity/desdemona/wildfire/handler/|com/thinkparity/desdemona/wildfire/WildfirePlugin.java" kind="src" path="remote/model/src/main/java"/>
 	<classpathentry kind="src" path="remote/model/src/test/java"/>
 	<classpathentry kind="src" path="payment/moneris/src/main/java"/>
-	<classpathentry kind="src" path="payment/moneris/src/main/resources"/>
 	<classpathentry kind="src" path="payment/moneris/src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/common"/>

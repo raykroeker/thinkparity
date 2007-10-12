@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.text.MessageFormat;
 import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -95,6 +96,9 @@ class NotificationSocketServer implements Runnable {
         this(server, host, port, SERVER_SOCKET_FACTORY);
     }
 
+    /** The current running delegates. */
+    private int delegateCount;
+
     /**
      * @see java.lang.Runnable#run()
      *
@@ -102,6 +106,7 @@ class NotificationSocketServer implements Runnable {
     public void run() {
         logger.logTraceId();
         logger.logInfo("Running notification socket server.");
+        delegateCount = 0;
         try {
             while (run) {
                 started = true;
@@ -124,9 +129,7 @@ class NotificationSocketServer implements Runnable {
                 }
                 // start delegate
                 try {
-                    final NotificationSocketDelegate delegate = newDelegate();
-                    // THREAD - NotificationSocketServer#run()
-                    new Thread(delegate, "TPS-DesdemonaModel-NSDelegate-" + delegate.getRemoteAddress()).start();
+                    newThread(newDelegate()).start();
                 } catch (final Throwable t) {
                     logger.logError(t, "Failed to negotiate notification stream {0}.",
                             clientSockets.peek().getRemoteSocketAddress());
@@ -137,6 +140,21 @@ class NotificationSocketServer implements Runnable {
         } catch (final Throwable t) {
             logger.logFatal(t, "Notification socket server error.");
         }
+    }
+
+    /**
+     * Instantiate a thread to run a notification socket delegate.
+     * 
+     * @param delegate
+     *            A <code>NotificationSocketDelegate</code>.
+     * @return A <code>Thread</code>.
+     */
+    private Thread newThread(final Runnable runnable) {
+        // THREAD - NotificationSocketServer#run()
+        final Thread thread = new Thread(runnable, MessageFormat.format(
+                "TPS-DesdemonaModel-NSDelegate-{0}", delegateCount));
+        thread.setDaemon(true);
+        return thread;
     }
 
     /**
@@ -209,7 +227,7 @@ class NotificationSocketServer implements Runnable {
      */
     private NotificationSocketDelegate newDelegate() throws SocketException,
             IOException {
-        final Socket clientSocket = clientSockets.peek();
-        return new NotificationSocketDelegate(server, clientSocket);
+        delegateCount++;
+        return new NotificationSocketDelegate(server, clientSockets.peek());
     }
 }

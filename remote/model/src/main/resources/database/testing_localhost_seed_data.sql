@@ -23,7 +23,7 @@ insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)
     values(7001,5001,'1');
 
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,DISABLED,VCARD,CREATED_ON)
-    values('support','DMnBhTS/KlVqMZTwRqwTNw==','What is the city where you were born?','p0B7MKs7hs21lMFBgHe/+g==','0',' iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/WxzZsAmPDs3j3Pmg21I07RI9ubyF63bmfCQM2bt1ThCX6qNR2T713kQqFDXx4GaMcUXux7ARX4FEAcs2XfkR4zqradpTtqKvDMRniVx+0j+ctO9M3mmmsI8vGdGBsvDBi4mPQQztzsA+1UsOJOvRsfsvmKllO8YO5+AFjdlb/YPGGkKcDT0wg5ZeRGXVobgpjGMfPd1+vvi/NgzqjouXb47dxVTfEBM8ZLXvaGJ0i+/M/gYcaOPmmcPYmkN+jA6eQa15SWKRHJcGc6KXYhUar2ap8kn9822yeLei49Thl1XxBzTHw+cA6UiD4q3ZQ6HV22hn4VJ+7pw3lX2bdyNIyXtBTCxlHBowne636tiv4mVItlilpH2Fq0FTZO1/PiE4DW',current_timestamp);
+    values('support','DMnBhTS/KlVqMZTwRqwTNw==','What is the city where you were born?','p0B7MKs7hs21lMFBgHe/+g==','0','iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/WxnAgRqR/RV/G3S5ucUFu4THviogl9qb7Pzsku+GnG1UZMxOitf+Qu7HDQ8Fdb/d3kRprXV5bS11dsZa50igOCNO1nCXzCbE8wh/ZrSLzAGwn7msCwpEIWLqY4VTpaHXKM/mTZDZZpGkEjMGOqH7UCZwHya/BSm2t0Ks/vzDO61s+ywgWKDaWFEmdzs9L38kyiKgZGLpHKS9FzY+rM7o+2yg==',current_timestamp);
 insert into TPSD_EMAIL(EMAIL)
     values('support@thinkparity.com');
 insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED)

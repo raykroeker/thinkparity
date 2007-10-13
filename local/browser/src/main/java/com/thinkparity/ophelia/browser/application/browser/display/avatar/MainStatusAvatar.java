@@ -189,8 +189,7 @@ public class MainStatusAvatar extends Avatar {
      */
     public void fireProfileEvent(final ProfileEvent e) {
         userJLabel.setText("");
-        if ((isTestMode() || isDebugMode()))
-            reloadProfile(e.getProfile());
+        reloadProfile(e.getProfile());
     }
 
     /**

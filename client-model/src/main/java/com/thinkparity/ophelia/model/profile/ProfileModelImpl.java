@@ -291,20 +291,18 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             if (profile.isActive()) {
                 if (event.isActive()) {
                     /* the profile is already active */
-                    logger.logInfo("Profile is already active.");
+                    return;
                 } else {
-                    logger.logInfo("Profile is now passive.");
                     profile.setActive(Boolean.FALSE);
                     profileIO.updateActive(profile);
                 }
             } else {
                 if (event.isActive()) {
-                    logger.logInfo("Profile is now active.");
                     profile.setActive(Boolean.TRUE);
                     profileIO.updateActive(profile);
                 } else {
                     /* the profile is already passive */
-                    logger.logInfo("Profile is already passive.");
+                    return;
                 }
             }
             if (profile.isActive()) {
@@ -327,8 +325,8 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final Profile profile = profileIO.read(localUserId());
             if (profile.isActive()) {
                 if (event.isSuccess()) {
-                    /* the profile is already active; do nothing */
-                    logger.logInfo("Profile is already active.");
+                    /* the profile is already passive; do nothing */
+                    return;
                 } else {
                     profile.setActive(Boolean.FALSE);
                     profileIO.updateActive(profile);
@@ -338,8 +336,8 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
                     profile.setActive(Boolean.TRUE);
                     profileIO.updateActive(profile);
                 } else {
-                    /* the profile is already passive; do nothing */
-                    logger.logInfo("Profile is already passive.");  
+                    /* the profile is already active; do nothing */
+                    return;
                 }
             }
             if (profile.isActive()) {

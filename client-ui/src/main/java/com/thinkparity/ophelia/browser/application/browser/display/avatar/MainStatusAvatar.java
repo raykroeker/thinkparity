@@ -717,7 +717,7 @@ public class MainStatusAvatar extends Avatar {
                         linkJLabel.setText(getString("Link.ProfilePassivated_AccessiblePaymentInfo"));
                         linkRunnable = new Runnable() {
                             public void run() {
-                                getController().displayUpdateProfilePaymentInfo();
+                                getController().runUpdateProfilePaymentInfo();
                             }
                         };
                     } else {

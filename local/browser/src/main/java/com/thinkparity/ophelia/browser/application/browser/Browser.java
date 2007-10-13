@@ -619,6 +619,8 @@ public class Browser extends AbstractApplication {
     /**
      * Display the update profile payment info dialog.
      * 
+     * Generally it is better to call runUpdateProfilePaymentInfo()
+     * to display the dialog and also clear the notification.
      */
     public void displayUpdateProfilePaymentInfo() {
         displayAvatar(AvatarId.DIALOG_PROFILE_UPDATE_PAYMENT_INFO);
@@ -1281,13 +1283,6 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Run the downgrade account action.
-     */
-    public void runDowngradeAccount() {
-        invoke(ActionId.PROFILE_DOWNGRADE_ACCOUNT, Data.emptyData());
-    }
-
-    /**
      * Run the learn more action.
      * 
      * @param topic
@@ -1595,6 +1590,14 @@ public class Browser extends AbstractApplication {
         data.set(UpdatePassword.DataKey.NEW_PASSWORD, newPassword);
         data.set(UpdatePassword.DataKey.NEW_PASSWORD_CONFIRM, confirmNewPassword);
         invoke(ActionId.PROFILE_UPDATE_PASSWORD, data);
+    }
+
+    /**
+     * Run the update profile payment info action
+     * to display the dialog and clear the notification.
+     */
+    public void runUpdateProfilePaymentInfo() {
+        invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, Data.emptyData());
     }
 
     /**

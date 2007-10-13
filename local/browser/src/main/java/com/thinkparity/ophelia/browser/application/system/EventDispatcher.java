@@ -169,6 +169,10 @@ class EventDispatcher {
     private ProfileListener createProfileListener() {
         return new ProfileAdapter() {
             @Override
+            public void profileActivated(final ProfileEvent e) {
+                systemApplication.fireProfileActivated(e);
+            }
+            @Override
             public void profilePassivated(final ProfileEvent e) {
                 systemApplication.fireProfilePassivated(e);
             }

@@ -873,7 +873,7 @@ public class UpdateProfileAvatar extends Avatar {
         if (isSignUpAvailable()) {
             getController().displaySignUpDialog();
         } else {
-            getController().displayUpdateProfilePaymentInfo();
+            getController().runUpdateProfilePaymentInfo();
         }
     }//GEN-LAST:event_manageAccountJButtonActionPerformed
 

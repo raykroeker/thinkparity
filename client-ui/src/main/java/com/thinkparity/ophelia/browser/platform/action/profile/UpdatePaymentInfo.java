@@ -51,20 +51,11 @@ public final class UpdatePaymentInfo extends AbstractBrowserAction {
         profileModel = getProfileModel();
         final PaymentInfo paymentInfo = (PaymentInfo) data.get(DataKey.PAYMENT_INFO);
         if (null == paymentInfo) {
-            // the check profile flag indicates the dialog is displayed only if
-            // the profile is not active and payment is accessible.
-            final Boolean checkProfile = (Boolean) data.get(DataKey.CHECK_PROFILE);
-            Boolean showDialog = Boolean.TRUE;
-            if (checkProfile &&
-                    (profileModel.readIsActive() || !profileModel.isAccessiblePaymentInfo())) {
-                showDialog = Boolean.FALSE;
-            }
-            if (showDialog) {
-                if (profileModel.isAccessiblePaymentInfo()) {
-                    displayUpdateProfilePaymentInfo();
-                } else {
-                    Assert.assertUnreachable("Payment info is not accessible.");
-                }
+            invoke(ActionId.PROFILE_CLEAR_PROFILE_PASSIVATED_NOTIFICATION, Data.emptyData());
+            if (profileModel.isAccessiblePaymentInfo()) {
+                displayUpdateProfilePaymentInfo();
+            } else {
+                Assert.assertUnreachable("Payment info is not accessible.");
             }
         } else {
             profileModel.updatePaymentInfo(paymentInfo);
@@ -83,5 +74,5 @@ public final class UpdatePaymentInfo extends AbstractBrowserAction {
     }
 
     /** <b>Title:</b>Update Payment Info Data Key<br> */
-    public enum DataKey { CHECK_PROFILE, PAYMENT_INFO }
+    public enum DataKey { PAYMENT_INFO }
 }

@@ -21,6 +21,7 @@ import com.thinkparity.ophelia.model.events.ProfileEvent;
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
 import com.thinkparity.ophelia.browser.application.system.dialog.ProfilePassivatedNotifyPage;
+import com.thinkparity.ophelia.browser.application.system.dialog.Notification.NotificationType;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.Platform.Connection;
 import com.thinkparity.ophelia.browser.platform.action.ActionFactory;
@@ -35,7 +36,6 @@ import com.thinkparity.ophelia.browser.platform.action.contact.ClearIncomingUser
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingEMailInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.platform.browser.Iconify;
-import com.thinkparity.ophelia.browser.platform.action.profile.UpdatePaymentInfo;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
@@ -114,6 +114,13 @@ public final class SystemApplication extends AbstractApplication {
     public void clearInvitationNotifications(final Long invitationId) {
         impl.fireClearNotifications(newNotificationId(ContactInvitation.class,
                 invitationId));
+    }
+
+    /**
+     * Clear the profile passivated notification.
+     */
+    public void clearProfilePassivatedNotification() {
+        impl.fireClearNotifications(newNotificationId(NotificationType.PROFILE_PASSIVATED));
     }
 
     /**
@@ -477,6 +484,9 @@ public final class SystemApplication extends AbstractApplication {
      */
     void fireProductReleaseInstalled(final MigratorEvent e) {
         impl.fireNotification(new DefaultNotification() {
+            public String getId() {
+                return newNotificationId(NotificationType.PRODUCT_INSTALLED);
+            }
             public NotificationPriority getPriority() {
                 return NotificationPriority.HIGHEST;
             }
@@ -487,6 +497,16 @@ public final class SystemApplication extends AbstractApplication {
                 getPlatform().restart();
             }
         });
+    }
+
+    /**
+     * Fire a profile activated event.
+     * 
+     * @param e
+     *            A <code>ProfileEvent</code>.
+     */
+    public void fireProfileActivated(final ProfileEvent e) {
+        invoke(ActionId.PROFILE_CLEAR_PROFILE_PASSIVATED_NOTIFICATION, Data.emptyData());
     }
 
     /**
@@ -501,6 +521,9 @@ public final class SystemApplication extends AbstractApplication {
         impl.fireNotification(new DefaultNotification() {
             Boolean accessiblePaymentInfo = Boolean.TRUE;
             Boolean accessiblePaymentInfoSet = Boolean.FALSE;
+            public String getId() {
+                return newNotificationId(NotificationType.PROFILE_PASSIVATED);
+            }
             public Data getData() {
                 final Data data = new Data(1);
                 data.set(ProfilePassivatedNotifyPage.DataKey.PAYMENT_INFO_ACCESSIBLE,
@@ -527,9 +550,7 @@ public final class SystemApplication extends AbstractApplication {
                 } else {
                     runRestoreBrowser();
                 }
-                final Data data = new Data(1);
-                data.set(UpdatePaymentInfo.DataKey.CHECK_PROFILE, Boolean.FALSE);
-                invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, data);
+                invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, Data.emptyData());
             }
             private Boolean isAccessiblePaymentInfo() {
                 if (!accessiblePaymentInfoSet && Connection.ONLINE == getConnection()) {
@@ -634,6 +655,18 @@ public final class SystemApplication extends AbstractApplication {
      */
     private void invoke(final ActionId actionId, final Data data) {
         getAction(actionId).invokeAction(this, data);
+    }
+
+    /**
+     * Create a notificatin id for a notification type.
+     * This is suitable when there can only be one notification
+     * of the type.
+     * 
+     * @param type
+     *            A <code>Class<?></code>.
+     */
+    private String newNotificationId(final NotificationType type) {
+        return type.toString();
     }
 
     /**

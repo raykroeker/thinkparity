@@ -93,9 +93,11 @@ public class NotifyPanel extends SystemPanel {
      *            A <code>Notification</code>.
      */
     void display(final Notification notification) {
-        NOTIFICATIONS.add(notification);
-        displayNotificationPanel();
-        reload();
+        if (!isDuplicate(notification)) {
+            NOTIFICATIONS.add(notification);
+            displayNotificationPanel();
+            reload();
+        }
     }
 
     /**
@@ -287,7 +289,23 @@ public class NotifyPanel extends SystemPanel {
     }
 
     /**
-     * Determine if the id matches.
+     * Determine if the notification is a duplicate of one in the list.
+     * 
+     * @param notification
+     *            A <code>Notification</code>.
+     * @return True if the notification is a duplicate of one in the list.    
+     */
+    private Boolean isDuplicate(final Notification notification) {
+        for (int i = 0; i < NOTIFICATIONS.size(); i++) {
+            if (NOTIFICATIONS.get(i).getId().equals(notification.getId())) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * Determine if the id matches by id or group id.
      * 
      * @param notification
      *            A <code>Notification</code>.

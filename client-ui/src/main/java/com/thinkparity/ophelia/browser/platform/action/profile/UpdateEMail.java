@@ -43,16 +43,11 @@ public class UpdateEMail extends AbstractBrowserAction {
         final EMail email = (EMail) data.get(DataKey.EMAIL);
 
         final ProfileModel profileModel = getProfileModel();
-        boolean didUpdate = false;
         try {
             profileModel.updateEMail(email);
-            didUpdate = true;
         } catch (final EMailIntegrityException emix) {
             logger.logWarning("Cannot update e-mail.  {0}", emix.getMessage());
             browser.displayErrorDialog("UpdateEMailIntegrity", new Object[] { email.toString() });
-        }
-        if (didUpdate) {
-            browser.displayStatusDialog("AddEmail.Explanation");
         }
     }
 

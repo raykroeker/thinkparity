@@ -1402,7 +1402,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                 .getToken()), "E-mail address reservation {0} expired on {1}.",
                 emailReservation.getToken(), emailReservation.getExpiresOn());
 
-        profile.setActive(Boolean.FALSE);
+        profile.setActive(Boolean.TRUE);
         profile.setLocalId(userSql.create(profile.isActive(), Boolean.FALSE,
                 encryptPassword(credentials),
                 encryptAnswer(securityCredentials), profile.getVCard(),

@@ -20,16 +20,16 @@ import com.thinkparity.ophelia.browser.application.system.SystemApplication;
 class TrayMenuBuilder {
 
     /** The browser action. */
-    final MenuItem browser;
+    private final MenuItem browser;
 
     /** The display info action. */
-    final MenuItem displayInfo;
+    private final MenuItem displayInfo;
 
-    /** The exit action. */
-    final MenuItem exit;
+    /** The quit action. */
+    private final MenuItem quit;
 
     /** The restart action. */
-    final MenuItem restart;
+    private final MenuItem restart;
 
     /** System application. */
     private final SystemApplication application;
@@ -79,14 +79,15 @@ class TrayMenuBuilder {
             this.restart = null;
         }
 
-        this.exit = new MenuItem(getString("Menu.Exit"));
-        this.exit.addActionListener(new ActionListener() {
+        this.quit = new MenuItem(getString("Menu.Exit"));
+        this.quit.addActionListener(new ActionListener() {
             /**
              * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
              *
              */
             @Override
             public void actionPerformed(final ActionEvent e) {
+                quit.setEnabled(false);
                 application.runQuitPlatform();
             }
         });
@@ -106,7 +107,7 @@ class TrayMenuBuilder {
         }
         popupMenu.add(displayInfo);
         popupMenu.addSeparator();
-        popupMenu.add(exit);
+        popupMenu.add(quit);
         return popupMenu;
     }
 

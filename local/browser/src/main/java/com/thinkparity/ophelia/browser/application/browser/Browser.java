@@ -1600,18 +1600,6 @@ public class Browser extends AbstractApplication {
     /**
      * Run the update profile payment info action.
      * 
-     * @param checkProfile
-     *            A check profile <code>Boolean</code>.
-     */
-    public void runUpdateProfilePaymentInfo(final Boolean checkProfile) {
-        final Data data = new Data(1);
-        data.set(UpdatePaymentInfo.DataKey.CHECK_PROFILE, checkProfile);
-        invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, data);
-    }
-
-    /**
-     * Run the update profile payment info action.
-     * 
      * @param paymentInfo
      *            A <code>PaymentInfo</code>.
      */
@@ -1619,13 +1607,6 @@ public class Browser extends AbstractApplication {
         final Data data = new Data(1);
         data.set(UpdatePaymentInfo.DataKey.PAYMENT_INFO, paymentInfo);
         invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, data);
-    }
-
-    /**
-     * Run the verify email action.
-     */
-    public void runVerifyEMail() {
-        runVerifyEMail(null, null);
     }
 
     /**
@@ -2078,8 +2059,6 @@ public class Browser extends AbstractApplication {
 		displayHelper.setBrowserWindow(mainWindow);
         keyboardHelper.bindKeys();
 		mainWindow.open();
-        runVerifyEMail();
-        runUpdateProfilePaymentInfo(Boolean.TRUE);
 	}
 
 	private void reOpenMainWindow() {

@@ -693,6 +693,22 @@ public class MainStatusAvatar extends Avatar {
             } else if (!isOnline() && OfflineCode.CLIENT_MAINTENANCE == getOfflineCode()) {
                 textJLabel.setForeground(Colors.Browser.MainStatus.CLIENT_MAINTENANCE_MESSAGE_FOREGROUND);
                 textJLabel.setText(getString("Text.ClientMaintenance"));
+            } else if (Boolean.FALSE == readIsEMailVerified()) {
+                textJLabel.setForeground(Colors.Browser.MainStatus.MESSAGE_FOREGROUND);
+                if (isOnline()) {
+                    /* if there is no verified e-mail address display a link about
+                     * the e-mails only. */
+                    textJLabel.setText(getString("Text.VerifyEMail") + Separator.Space);
+                    linkJLabel.setText(getString("Link.VerifyEMail"));
+                    optionalTextJLabel.setText(Separator.Space + getString("OptionalText.VerifyEMail"));
+                    linkRunnable = new Runnable() {
+                        public void run() {
+                            getController().displayVerifyEMailDialog();
+                        }
+                    };
+                } else {
+                    textJLabel.setText(getString("Text.VerifyEMailOffline"));
+                }
             } else if (Boolean.FALSE == readIsProfileActive()) {
                 textJLabel.setForeground(Colors.Browser.MainStatus.MESSAGE_FOREGROUND);
                 if (isOnline()) {
@@ -709,22 +725,6 @@ public class MainStatusAvatar extends Avatar {
                     }
                 } else {
                     textJLabel.setText(getString("Text.ProfilePassivatedOffline"));
-                }
-            } else if (Boolean.FALSE == readIsEMailVerified()) {
-                textJLabel.setForeground(Colors.Browser.MainStatus.MESSAGE_FOREGROUND);
-                if (isOnline()) {
-                    /* if there is no verified e-mail address display a link about
-                     * the e-mails only. */
-                    textJLabel.setText(getString("Text.VerifyEMail") + Separator.Space);
-                    linkJLabel.setText(getString("Link.VerifyEMail"));
-                    optionalTextJLabel.setText(Separator.Space + getString("OptionalText.VerifyEMail"));
-                    linkRunnable = new Runnable() {
-                        public void run() {
-                            getController().displayVerifyEMailDialog();
-                        }
-                    };
-                } else {
-                    textJLabel.setText(getString("Text.VerifyEMailOffline"));
                 }
             } else {
                 final List<ContainerVersion> unseenContainerVersions = readUnseenContainerVersions();

@@ -169,6 +169,14 @@ class EventDispatcher {
     private ProfileListener createProfileListener() {
         return new ProfileAdapter() {
             @Override
+            public void emailUpdated(ProfileEvent e) {
+                systemApplication.fireEMailUpdated(e);
+            }
+            @Override
+            public void emailVerified(ProfileEvent e) {
+                systemApplication.fireEMailVerified(e);
+            }
+            @Override
             public void profileActivated(final ProfileEvent e) {
                 systemApplication.fireProfileActivated(e);
             }

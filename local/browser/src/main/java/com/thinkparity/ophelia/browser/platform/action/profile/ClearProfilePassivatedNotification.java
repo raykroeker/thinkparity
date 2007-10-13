@@ -21,7 +21,7 @@ public final class ClearProfilePassivatedNotification extends AbstractAction {
     private final SystemApplication system;
 
     /**
-     * Create ClearInvitationNotifications.
+     * Create ClearProfilePassivatedNotification.
      *
      */
     public ClearProfilePassivatedNotification(final SystemApplication system) {

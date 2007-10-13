@@ -194,6 +194,7 @@ public class NotifyFrame extends SystemFrame {
      */
     private void registerPages(final SystemApplication systemApplication) {
         ((NotifyPanel)panel).registerPage(new ContainerPublishedNotifyPage(systemApplication));
+        ((NotifyPanel)panel).registerPage(new EMailUpdatedNotifyPage(systemApplication));
         ((NotifyPanel)panel).registerPage(new InvitationNotifyPage(systemApplication));
         ((NotifyPanel)panel).registerPage(new ProductInstalledNotifyPage(systemApplication));
         ((NotifyPanel)panel).registerPage(new ProfilePassivatedNotifyPage(systemApplication));

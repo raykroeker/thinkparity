@@ -36,6 +36,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.ClearIncomingUser
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingEMailInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.platform.browser.Iconify;
+import com.thinkparity.ophelia.browser.platform.action.profile.VerifyEMail;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
@@ -106,6 +107,13 @@ public final class SystemApplication extends AbstractApplication {
     }
 
     /**
+     * Clear the email updated notification.
+     */
+    public void clearEMailUpdatedNotification() {
+        impl.fireClearNotifications(newNotificationId(NotificationType.EMAIL_UPDATED));
+    }
+
+    /**
      * Clear the incoming invitation notifications.
      * 
      * @param invitationId
@@ -117,13 +125,6 @@ public final class SystemApplication extends AbstractApplication {
     }
 
     /**
-     * Clear the profile passivated notification.
-     */
-    public void clearProfilePassivatedNotification() {
-        impl.fireClearNotifications(newNotificationId(NotificationType.PROFILE_PASSIVATED));
-    }
-
-    /**
      * Clear the specified notification.
      * 
      * @param notificationId
@@ -131,6 +132,13 @@ public final class SystemApplication extends AbstractApplication {
      */
     public void clearNotification(final String notificationId) {
         impl.fireClearNotifications(notificationId);
+    }
+
+    /**
+     * Clear the profile passivated notification.
+     */
+    public void clearProfilePassivatedNotification() {
+        impl.fireClearNotifications(newNotificationId(NotificationType.PROFILE_PASSIVATED));
     }
 
     /**
@@ -157,7 +165,7 @@ public final class SystemApplication extends AbstractApplication {
 		notifyEnd();
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getBuildId()
      *
      */
@@ -166,7 +174,7 @@ public final class SystemApplication extends AbstractApplication {
         return super.getBuildId();
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#getConnection()
      *
 	 */
@@ -191,7 +199,7 @@ public final class SystemApplication extends AbstractApplication {
         return null;
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getString(java.lang.String)
      * 
      */
@@ -199,7 +207,7 @@ public final class SystemApplication extends AbstractApplication {
 		return super.getString(localKey);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.application.AbstractApplication#getString(java.lang.String,
      *      java.lang.Object[])
      * 
@@ -257,7 +265,7 @@ public final class SystemApplication extends AbstractApplication {
      */
     public void removeBusyIndicator() {}
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#restore(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -285,7 +293,7 @@ public final class SystemApplication extends AbstractApplication {
         invoke(ActionId.PLATFORM_BROWSER_ICONIFY, data);
     }
 
-    /**
+	/**
      * Run the platform's login action.
      *
      */
@@ -331,6 +339,20 @@ public final class SystemApplication extends AbstractApplication {
      */
 	public void runRestoreBrowser() {
         invoke(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
+    }
+
+    /**
+     * Show an email updated notification.
+     */
+    public void showEMailUpdatedNotification() {
+        fireEMailUpdated();
+    }
+
+    /**
+     * Show a profile passivated notification.
+     */
+    public void showProfilePassivatedNotification() {
+        fireProfilePassivated();
     }
 
     /**
@@ -438,12 +460,12 @@ public final class SystemApplication extends AbstractApplication {
         final Long versionId = e.getVersion().getVersionId();
         final boolean publishFirstTime = (null == e.getPreviousVersion() && null == e.getNextVersion());
         impl.fireNotification(new DefaultNotification() {
-            public String getId() {
-                return newNotificationId(Container.class, containerId, versionId);
-            }
             @Override
             public String getGroupId() {
                 return newNotificationId(Container.class, containerId);
+            }
+            public String getId() {
+                return newNotificationId(Container.class, containerId, versionId);
             }
             public String getMessage() {
                 if (publishFirstTime) {
@@ -461,7 +483,7 @@ public final class SystemApplication extends AbstractApplication {
                 }
             }
             public NotificationPriority getPriority() {
-                return NotificationPriority.LOW;
+                return NotificationPriority.LOWEST;
             }
             public NotificationType getType() {
                 return NotificationType.CONTAINER_PUBLISHED;
@@ -474,6 +496,27 @@ public final class SystemApplication extends AbstractApplication {
                 invoke(ActionId.CONTAINER_SHOW, data);
             }
         });
+    }
+
+    /**
+     * Fire a email updated event.
+     * The event is associated with the user changing his email.
+     * 
+     * @param e
+     *            A <code>ProfileEvent</code>.
+     */
+    void fireEMailUpdated(final ProfileEvent e) {
+        fireEMailUpdated();
+    }
+
+    /**
+     * Fire a email verified event.
+     * 
+     * @param e
+     *            A <code>ProfileEvent</code>.
+     */
+    void fireEMailVerified(final ProfileEvent e) {
+        invoke(ActionId.PROFILE_CLEAR_EMAIL_UPDATED_NOTIFICATION, Data.emptyData());
     }
 
     /**
@@ -505,7 +548,7 @@ public final class SystemApplication extends AbstractApplication {
      * @param e
      *            A <code>ProfileEvent</code>.
      */
-    public void fireProfileActivated(final ProfileEvent e) {
+    void fireProfileActivated(final ProfileEvent e) {
         invoke(ActionId.PROFILE_CLEAR_PROFILE_PASSIVATED_NOTIFICATION, Data.emptyData());
     }
 
@@ -517,53 +560,8 @@ public final class SystemApplication extends AbstractApplication {
      * @param e
      *            A <code>ProfileEvent</code>.
      */
-    public void fireProfilePassivated(final ProfileEvent e) {
-        impl.fireNotification(new DefaultNotification() {
-            Boolean accessiblePaymentInfo = Boolean.TRUE;
-            Boolean accessiblePaymentInfoSet = Boolean.FALSE;
-            public String getId() {
-                return newNotificationId(NotificationType.PROFILE_PASSIVATED);
-            }
-            public Data getData() {
-                final Data data = new Data(1);
-                data.set(ProfilePassivatedNotifyPage.DataKey.PAYMENT_INFO_ACCESSIBLE,
-                        isAccessiblePaymentInfo());
-                return data;
-            }
-            public String getMessage() {
-                if (isAccessiblePaymentInfo())  {
-                    return getString("Notification.ProfilePassivated.AccessiblePaymentInfo");
-                } else {
-                    return getString("Notification.ProfilePassivated.NotAccessiblePaymentInfo");
-                }
-            }
-            public NotificationPriority getPriority() {
-                return NotificationPriority.HIGH;
-            }
-            public NotificationType getType() {
-                return NotificationType.PROFILE_PASSIVATED;
-            }
-            public void invokeAction() {
-                if (isBrowserRunning()) {
-                    runIconify(Boolean.FALSE);
-                    runMoveBrowserToFront();
-                } else {
-                    runRestoreBrowser();
-                }
-                invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, Data.emptyData());
-            }
-            private Boolean isAccessiblePaymentInfo() {
-                if (!accessiblePaymentInfoSet && Connection.ONLINE == getConnection()) {
-                    try {
-                        accessiblePaymentInfo = getProfileModel().isAccessiblePaymentInfo();
-                        accessiblePaymentInfoSet = Boolean.TRUE;
-                    } catch (final Throwable t) {
-                        accessiblePaymentInfoSet = Boolean.FALSE;
-                    }
-                }
-                return accessiblePaymentInfo;
-            }
-        });
+    void fireProfilePassivated(final ProfileEvent e) {
+        fireProfilePassivated();
     }
 
     /**
@@ -587,7 +585,7 @@ public final class SystemApplication extends AbstractApplication {
                         new Object[] { user.getName(), user.getTitle(), user.getOrganization() });
             }
             public NotificationPriority getPriority() {
-                return NotificationPriority.MEDIUM;
+                return NotificationPriority.LOW;
             }
             public NotificationType getType() {
                 return NotificationType.INVITATION;
@@ -628,6 +626,89 @@ public final class SystemApplication extends AbstractApplication {
     }
 
     /**
+     * Fire a email updated event.
+     * The event is associated with the user changing his email.
+     */
+    private void fireEMailUpdated() {
+        impl.fireNotification(new DefaultNotification() {
+            public String getId() {
+                return newNotificationId(NotificationType.EMAIL_UPDATED);
+            }
+            public NotificationPriority getPriority() {
+                return NotificationPriority.HIGH;
+            }
+            public NotificationType getType() {
+                return NotificationType.EMAIL_UPDATED;
+            }
+            public void invokeAction() {
+                if (isBrowserRunning()) {
+                    runIconify(Boolean.FALSE);
+                    runMoveBrowserToFront();
+                } else {
+                    runRestoreBrowser();
+                }
+                final Data data = new Data(1);
+                data.set(VerifyEMail.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+                invoke(ActionId.PROFILE_VERIFY_EMAIL, data);
+            }
+        });
+    }
+
+    /**
+     * Fire a profile passivated event.
+     * This event is associated with a failed credit card
+     * transaction.
+     */
+    private void fireProfilePassivated() {
+        impl.fireNotification(new DefaultNotification() {
+            Boolean accessiblePaymentInfo = Boolean.TRUE;
+            Boolean accessiblePaymentInfoSet = Boolean.FALSE;
+            public Data getData() {
+                final Data data = new Data(1);
+                data.set(ProfilePassivatedNotifyPage.DataKey.PAYMENT_INFO_ACCESSIBLE,
+                        isAccessiblePaymentInfo());
+                return data;
+            }
+            public String getId() {
+                return newNotificationId(NotificationType.PROFILE_PASSIVATED);
+            }
+            public String getMessage() {
+                if (isAccessiblePaymentInfo())  {
+                    return getString("Notification.ProfilePassivated.AccessiblePaymentInfo");
+                } else {
+                    return getString("Notification.ProfilePassivated.NotAccessiblePaymentInfo");
+                }
+            }
+            public NotificationPriority getPriority() {
+                return NotificationPriority.MEDIUM;
+            }
+            public NotificationType getType() {
+                return NotificationType.PROFILE_PASSIVATED;
+            }
+            public void invokeAction() {
+                if (isBrowserRunning()) {
+                    runIconify(Boolean.FALSE);
+                    runMoveBrowserToFront();
+                } else {
+                    runRestoreBrowser();
+                }
+                invoke(ActionId.PROFILE_UPDATE_PAYMENT_INFO, Data.emptyData());
+            }
+            private Boolean isAccessiblePaymentInfo() {
+                if (!accessiblePaymentInfoSet && Connection.ONLINE == getConnection()) {
+                    try {
+                        accessiblePaymentInfo = getProfileModel().isAccessiblePaymentInfo();
+                        accessiblePaymentInfoSet = Boolean.TRUE;
+                    } catch (final Throwable t) {
+                        accessiblePaymentInfoSet = Boolean.FALSE;
+                    }
+                }
+                return accessiblePaymentInfo;
+            }
+        });
+    }
+
+    /**
      * Obtain the action from the controller's cache. If the action does not
      * exist in the cache it is created and stored.
      * 
@@ -658,18 +739,6 @@ public final class SystemApplication extends AbstractApplication {
     }
 
     /**
-     * Create a notificatin id for a notification type.
-     * This is suitable when there can only be one notification
-     * of the type.
-     * 
-     * @param type
-     *            A <code>Class<?></code>.
-     */
-    private String newNotificationId(final NotificationType type) {
-        return type.toString();
-    }
-
-    /**
      * Create a notification id for a type/type id pair.
      * 
      * @param type
@@ -695,6 +764,18 @@ public final class SystemApplication extends AbstractApplication {
      */
     private String newNotificationId(final Class<?> type, final Long typeId1, final Long typeId2) {
         return new StringBuilder(type.getName()).append("//").append(typeId1).append("//").append(typeId2).toString();
+    }
+
+    /**
+     * Create a notificatin id for a notification type.
+     * This is suitable when there can only be one notification
+     * of the type.
+     * 
+     * @param type
+     *            A <code>Class<?></code>.
+     */
+    private String newNotificationId(final NotificationType type) {
+        return type.toString();
     }
 
     private enum IncomingInvitationType { EMAIL, USER }

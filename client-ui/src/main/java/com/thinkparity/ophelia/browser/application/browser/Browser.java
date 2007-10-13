@@ -628,6 +628,9 @@ public class Browser extends AbstractApplication {
 
     /**
      * Display the verify email dialog.
+     * 
+     * Generally it is better to call runVerifyEMail()
+     * to display the dialog and also clear the notification.
      */
     public void displayVerifyEMailDialog() {
         displayAvatar(AvatarId.DIALOG_PROFILE_VERIFY_EMAIL);        
@@ -1495,11 +1498,25 @@ public class Browser extends AbstractApplication {
     }
 
 	/**
+     * Run the show profile passivated notification action.
+     */
+    public void runShowEMailUpdatedNotification() {
+        invoke(ActionId.PROFILE_SHOW_EMAIL_UPDATED_NOTIFICATION, Data.emptyData());
+    }
+
+    /**
      * Run the show getting started movie action.
 	 *
      */
     public void runShowGettingStartedMovie() {
         invoke(ActionId.HELP_SHOW_GETTING_STARTED_MOVIE, Data.emptyData());
+    }
+
+    /**
+     * Run the show profile passivated notification action.
+     */
+    public void runShowProfilePassivatedNotification() {
+        invoke(ActionId.PROFILE_SHOW_PROFILE_PASSIVATED_NOTIFICATION, Data.emptyData());
     }
 
     /**
@@ -1613,6 +1630,16 @@ public class Browser extends AbstractApplication {
     }
 
     /**
+     * Run the verify email action
+     * to display the dialog and clear the notification.
+     */
+    public void runVerifyEMail() {
+        final Data data = new Data(1);
+        data.set(VerifyEMail.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+        invoke(ActionId.PROFILE_VERIFY_EMAIL, data);
+    }
+
+    /**
      * Run the verify email action.
      * 
      * @param emailId
@@ -1622,13 +1649,9 @@ public class Browser extends AbstractApplication {
      */
     public void runVerifyEMail(final Long emailId, final String key) {
         final Data data = new Data(3);
-        if (null == emailId || null == key) {
-            data.set(VerifyEMail.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-        } else {
-            data.set(VerifyEMail.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
-            data.set(VerifyEMail.DataKey.EMAIL_ID, emailId);
-            data.set(VerifyEMail.DataKey.KEY, key);
-        }
+        data.set(VerifyEMail.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
+        data.set(VerifyEMail.DataKey.EMAIL_ID, emailId);
+        data.set(VerifyEMail.DataKey.KEY, key);
         invoke(ActionId.PROFILE_VERIFY_EMAIL, data);
     }
 
@@ -2062,6 +2085,8 @@ public class Browser extends AbstractApplication {
 		displayHelper.setBrowserWindow(mainWindow);
         keyboardHelper.bindKeys();
 		mainWindow.open();
+        runShowEMailUpdatedNotification();
+        runShowProfilePassivatedNotification();
 	}
 
 	private void reOpenMainWindow() {

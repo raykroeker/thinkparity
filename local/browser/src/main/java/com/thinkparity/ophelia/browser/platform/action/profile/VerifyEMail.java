@@ -43,6 +43,7 @@ public final class VerifyEMail extends AbstractBrowserAction {
         final ProfileModel profileModel = getProfileModel();
 
         if (displayAvatar) {
+            invoke(ActionId.PROFILE_CLEAR_EMAIL_UPDATED_NOTIFICATION, Data.emptyData());
             if (!profileModel.readEMail().isVerified()) {
                 getBrowserApplication().displayVerifyEMailDialog();
             }

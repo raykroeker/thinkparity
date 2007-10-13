@@ -73,7 +73,6 @@
           <Connection code="Colours.DIALOG_ERROR_TEXT_FG" type="code"/>
         </Property>
         <Property name="text" type="java.lang.String" value="!Offline Message!"/>
-        <Property name="verticalAlignment" type="int" value="1"/>
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>

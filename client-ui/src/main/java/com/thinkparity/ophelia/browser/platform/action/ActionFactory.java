@@ -268,8 +268,17 @@ public class ActionFactory extends AbstractFactory {
             action = new com.thinkparity.ophelia.browser.platform.action.platform.Restart(getPlatform());
             break;
 
+        case PROFILE_CLEAR_EMAIL_UPDATED_NOTIFICATION:
+            action = new com.thinkparity.ophelia.browser.platform.action.profile.ClearEMailUpdatedNotification(getSystem());
+            break;
         case PROFILE_CLEAR_PROFILE_PASSIVATED_NOTIFICATION:
             action = new com.thinkparity.ophelia.browser.platform.action.profile.ClearProfilePassivatedNotification(getSystem());
+            break;
+        case PROFILE_SHOW_EMAIL_UPDATED_NOTIFICATION:
+            action = new com.thinkparity.ophelia.browser.platform.action.profile.ShowEMailUpdatedNotification(getSystem());
+            break;
+        case PROFILE_SHOW_PROFILE_PASSIVATED_NOTIFICATION:
+            action = new com.thinkparity.ophelia.browser.platform.action.profile.ShowProfilePassivatedNotification(getSystem());
             break;
         case PROFILE_UPDATE:
             action = new com.thinkparity.ophelia.browser.platform.action.profile.Update(getBrowser());

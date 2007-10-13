@@ -1,7 +1,7 @@
 /*
- * ProfilePassivatedNotifyPage.java
+ * EMailUpdatedNotifyPage.java
  *
- * Created on October 10, 2007, 5:10 PM
+ * Created on October 12, 2007, 9:44 PM
  */
 
 package com.thinkparity.ophelia.browser.application.system.dialog;
@@ -11,30 +11,25 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.system.SystemApplication;
 import com.thinkparity.ophelia.browser.application.system.dialog.Notification.NotificationType;
-import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
  *
  * @author robert@thinkparity.com
  */
-public class ProfilePassivatedNotifyPage extends DefaultNotifyPage {
+public class EMailUpdatedNotifyPage extends DefaultNotifyPage {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel messageJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel offlineJLabel = new javax.swing.JLabel();
-    private final javax.swing.JButton updatePaymentInfoJButton = ButtonFactory.create();
+    private final javax.swing.JButton verifyEMailJButton = ButtonFactory.create();
     // End of variables declaration//GEN-END:variables
 
-    /** The payment info accessible <code>Boolean</code>. */
-    Boolean paymentInfoAccessible;
-
     /**
-     * Create a new ProfilePassivatedNotifyPage.
+     * Create a new EMailUpdatedNotifyPage.
      * 
      * @param systemApplication
      *            The <code>SystemApplication</code>.
      */
-    public ProfilePassivatedNotifyPage(final SystemApplication systemApplication) {
+    public EMailUpdatedNotifyPage(final SystemApplication systemApplication) {
         super(systemApplication);
         initComponents();
     }
@@ -43,7 +38,7 @@ public class ProfilePassivatedNotifyPage extends DefaultNotifyPage {
      * @see com.thinkparity.ophelia.browser.application.system.dialog.NotifyPage#getType()
      */
     public NotificationType getType() {
-        return NotificationType.PROFILE_PASSIVATED;
+        return NotificationType.EMAIL_UPDATED;
     }
 
     /**
@@ -51,9 +46,6 @@ public class ProfilePassivatedNotifyPage extends DefaultNotifyPage {
      */
     public void reload(final Notification notification) {
         super.reload(notification);
-        final Data data = notification.getData();
-        paymentInfoAccessible = (Boolean) data.get(DataKey.PAYMENT_INFO_ACCESSIBLE);
-        reloadMessage();
         reloadButton();
         reloadOfflineMessage();
     }
@@ -65,21 +57,22 @@ public class ProfilePassivatedNotifyPage extends DefaultNotifyPage {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        final javax.swing.JLabel messageJLabel = new javax.swing.JLabel();
 
         setOpaque(false);
         messageJLabel.setFont(Fonts.DialogFont);
-        messageJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SystemApplication.Notification.ProfilePassivated.AccessiblePaymentInfo"));
+        messageJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SystemApplication.NotifyPage.EMailUpdated.Message"));
         messageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         offlineJLabel.setFont(Fonts.DialogFont);
         offlineJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
         offlineJLabel.setText("!Offline Message!");
 
-        updatePaymentInfoJButton.setFont(Fonts.DialogButtonFont);
-        updatePaymentInfoJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SystemApplication.NotifyPage.ProfilePassivated.UpdatePaymentInfo"));
-        updatePaymentInfoJButton.addActionListener(new java.awt.event.ActionListener() {
+        verifyEMailJButton.setFont(Fonts.DialogButtonFont);
+        verifyEMailJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SystemApplication.NotifyPage.EMailUpdated.VerifyEMail"));
+        verifyEMailJButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                updatePaymentInfoJButtonActionPerformed(evt);
+                verifyEMailJButtonActionPerformed(evt);
             }
         });
 
@@ -91,11 +84,11 @@ public class ProfilePassivatedNotifyPage extends DefaultNotifyPage {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(offlineJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 140, Short.MAX_VALUE)
+                        .addComponent(offlineJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(updatePaymentInfoJButton)
-                        .addContainerGap())
-                    .addComponent(messageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)))
+                        .addComponent(verifyEMailJButton))
+                    .addComponent(messageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -104,12 +97,13 @@ public class ProfilePassivatedNotifyPage extends DefaultNotifyPage {
                 .addComponent(messageJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(updatePaymentInfoJButton))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                        .addComponent(verifyEMailJButton)
+                        .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(offlineJLabel)))
-                .addContainerGap())
+                        .addComponent(offlineJLabel)
+                        .addContainerGap())))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -117,15 +111,7 @@ public class ProfilePassivatedNotifyPage extends DefaultNotifyPage {
      * Reload the button.
      */
     private void reloadButton() {
-        updatePaymentInfoJButton.setEnabled(isOnline());
-        updatePaymentInfoJButton.setVisible(paymentInfoAccessible);
-    }
-
-    /**
-     * Reload the message.
-     */
-    private void reloadMessage() {
-        messageJLabel.setText(notification.getMessage());
+        verifyEMailJButton.setEnabled(isOnline());
     }
 
     /**
@@ -135,10 +121,8 @@ public class ProfilePassivatedNotifyPage extends DefaultNotifyPage {
         offlineJLabel.setText(isOnline() ? " " : systemApplication.getString("Notification.ErrorOffline"));
     }
 
-    private void updatePaymentInfoJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updatePaymentInfoJButtonActionPerformed
+    private void verifyEMailJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_verifyEMailJButtonActionPerformed
         closeNotification();
         notification.invokeAction();
-    }//GEN-LAST:event_updatePaymentInfoJButtonActionPerformed
-
-    public enum DataKey { PAYMENT_INFO_ACCESSIBLE }
+    }//GEN-LAST:event_verifyEMailJButtonActionPerformed
 }

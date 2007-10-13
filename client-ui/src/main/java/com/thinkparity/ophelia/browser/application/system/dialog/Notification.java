@@ -69,10 +69,11 @@ public interface Notification {
      */
     public enum NotificationPriority {
 
-        HIGHEST(3),
-        HIGH(2),
-        MEDIUM(1),
-        LOW(0);
+        HIGHEST(4), // PRODUCT_INSTALLED
+        HIGH(3),    // EMAIL_UPDATED
+        MEDIUM(2),  // PROFILE_PASSIVATED
+        LOW(1),     // INVITATION
+        LOWEST(0);  // CONTAINER_PUBLISHED
 
         /** An <code>Integer</code> priority. */
         private Integer priority;
@@ -97,5 +98,5 @@ public interface Notification {
         }
     }
 
-    public enum NotificationType { CONTAINER_PUBLISHED, INVITATION, PRODUCT_INSTALLED, PROFILE_PASSIVATED }
+    public enum NotificationType { CONTAINER_PUBLISHED, EMAIL_UPDATED, INVITATION, PRODUCT_INSTALLED, PROFILE_PASSIVATED }
 }

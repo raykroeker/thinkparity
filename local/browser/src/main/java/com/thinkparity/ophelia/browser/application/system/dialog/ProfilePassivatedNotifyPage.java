@@ -74,7 +74,6 @@ public class ProfilePassivatedNotifyPage extends DefaultNotifyPage {
         offlineJLabel.setFont(Fonts.DialogFont);
         offlineJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
         offlineJLabel.setText("!Offline Message!");
-        offlineJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         updatePaymentInfoJButton.setFont(Fonts.DialogButtonFont);
         updatePaymentInfoJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SystemApplication.NotifyPage.ProfilePassivated.UpdatePaymentInfo"));

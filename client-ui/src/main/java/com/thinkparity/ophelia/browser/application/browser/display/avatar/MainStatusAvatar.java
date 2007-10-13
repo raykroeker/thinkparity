@@ -703,7 +703,7 @@ public class MainStatusAvatar extends Avatar {
                     optionalTextJLabel.setText(Separator.Space + getString("OptionalText.VerifyEMail"));
                     linkRunnable = new Runnable() {
                         public void run() {
-                            getController().displayVerifyEMailDialog();
+                            getController().runVerifyEMail();
                         }
                     };
                 } else {

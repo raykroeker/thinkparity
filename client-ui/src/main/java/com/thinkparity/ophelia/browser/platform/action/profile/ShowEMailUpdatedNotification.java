@@ -1,5 +1,5 @@
 /**
- * Created On: 12-Oct-07 6:26:20 PM
+ * Created On: 12-Oct-07 11:58:54 PM
  * $Id$
  */
 package com.thinkparity.ophelia.browser.platform.action.profile;
@@ -15,17 +15,17 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * @author robert@thinkparity.com
  * @version $Revision$
  */
-public final class ClearProfilePassivatedNotification extends AbstractAction {
+public class ShowEMailUpdatedNotification extends AbstractAction {
 
     /** The system application. */
     private final SystemApplication system;
 
     /**
-     * Create ClearProfilePassivatedNotification.
+     * Create ShowEMailUpdatedNotification.
      *
      */
-    public ClearProfilePassivatedNotification(final SystemApplication system) {
-        super(ActionId.PROFILE_CLEAR_PROFILE_PASSIVATED_NOTIFICATION);
+    public ShowEMailUpdatedNotification(final SystemApplication system) {
+        super(ActionId.PROFILE_SHOW_EMAIL_UPDATED_NOTIFICATION);
         this.system = system;
     }
 
@@ -35,10 +35,12 @@ public final class ClearProfilePassivatedNotification extends AbstractAction {
      */
     @Override
     protected void invoke(final Data data) {
-        SwingUtil.ensureDispatchThread(new Runnable() {
-            public void run() {
-                system.clearProfilePassivatedNotification();
-            }
-        });
+        if (Boolean.FALSE == getProfileModel().readEMail().isVerified()) {
+            SwingUtil.ensureDispatchThread(new Runnable() {
+                public void run() {
+                    system.showEMailUpdatedNotification();
+                }
+            });
+        }
     }
 }

@@ -63,33 +63,28 @@ class DerbyArchiver extends TimerTask {
         logger.logTraceId();
         final ClassLoader loader = Thread.currentThread().getContextClassLoader();
         modelFactory = AdminModelFactory.getInstance(User.THINKPARITY, loader);
-        while (run) {
+        logger.logTraceId();
+        if (run) {
             logger.logTraceId();
-            if (run) {
-                logger.logTraceId();
-                logger.logInfo("Issuing derby archive.");
-                try {
-                    modelFactory.newDerbyModel().archive();
-                    errCount = 0;
-                } catch (final Throwable t) {
-                    logger.logError(t, "Could not issue derby archive.");
-                    errCount++;
-                    if (errCount > ERR_COUNT_THRESHOLD) {
-                        run = false;
-                        logger.logTraceId();
-                        logger.logFatal("Stopping.");
-                    } else {
-                        try {
-                            Thread.sleep(ERR_RETRY_TIMEOUT);
-                        } catch (final InterruptedException ix) {
-                            logger.logWarning("Could not wait for err timeout.",
-                                    ix.getMessage());
-                        }
+            logger.logInfo("Issuing derby archive.");
+            try {
+                modelFactory.newDerbyModel().archive();
+                errCount = 0;
+            } catch (final Throwable t) {
+                logger.logError(t, "Could not issue derby archive.");
+                errCount++;
+                if (errCount > ERR_COUNT_THRESHOLD) {
+                    run = false;
+                    logger.logTraceId();
+                    logger.logFatal("Stopping.");
+                } else {
+                    try {
+                        Thread.sleep(ERR_RETRY_TIMEOUT);
+                    } catch (final InterruptedException ix) {
+                        logger.logWarning("Could not wait for err timeout.",
+                                ix.getMessage());
                     }
                 }
-            } else {
-                logger.logTraceId();
-                logger.logInfo("Stopping.");
             }
         }
     }

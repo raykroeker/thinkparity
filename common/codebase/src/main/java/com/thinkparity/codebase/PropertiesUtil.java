@@ -126,7 +126,28 @@ public final class PropertiesUtil {
 		}
 	}
 
-    /**
+	/**
+     * Replace all property values within the set properties with values from
+     * the replacement.
+     * 
+     * @param properties
+     *            A set of <code>Properties</code>.
+     * @param replacement
+     *            A set of <code>Properties</code>.
+     */
+	public static void replace(final Properties properties,
+            final Properties replacement) {
+	    /* iterate the values and replace values; we look for ${name} and
+         * replace with the value within the system properties */
+        final Set<String> nameSet = properties.stringPropertyNames();
+        String value;
+        for (final String name : nameSet) {
+            value = properties.getProperty(name);
+            properties.setProperty(name, replace(value, replacement));
+        }
+    }
+
+	/**
      * Verify that a named property exists.
      * 
      * @param properties
@@ -137,6 +158,34 @@ public final class PropertiesUtil {
     public static void verify(final Properties properties, final String name) {
         if (!properties.containsKey(name))
             throw new IllegalArgumentException("Properties must contain \"" + name + "\".");
+    }
+
+    /**
+     * Replace the value with property values from replacements. The value must
+     * contain an "${x}" activation in order to reference a replacement.
+     * 
+     * @param value
+     *            A <code>String</code>.
+     * @param replacementArray
+     *            An optional <code>Properties[]</code>.
+     * @return A <code>String</code>.
+     */
+	static String replace(final String value, final Properties replacement) {
+	    String replaced = value;
+	    int begin = 0, end = 0;
+	    begin = replaced.indexOf("${", begin);
+	    end = replaced.indexOf("}", begin);
+	    String replaceKey = null, replaceValue = null;
+	    while (-1 < begin && -1 < end && begin < end) {
+	        replaceKey =  replaced.substring(begin + 2, end);
+	        replaceValue = replacement.getProperty(replaceKey);
+	        if (null != replaceValue) {
+	            replaced = replaced.replace("${" + replaceKey + "}", replaceValue);
+	        }
+	        begin = replaced.indexOf("${", begin + 2);
+	        end = replaced.indexOf("}", begin);
+	    }
+	    return replaced;
     }
 
 	/**

@@ -107,6 +107,7 @@ Local Configuration:                ${localconfig}
     <!-- input directories -->
     <property name="thinkparity.common.home" value="${basedir}/../common"/>
     <property name="webapp-dir" value="${basedir}/remote/model/src/main/webapp"/>
+	<property name="test-webapp-dir" value="${basedir}/remote/model/src/test/webapp"/>
 
     <!-- output directories -->
     <property name="target.dir" value="${basedir}/target"/>
@@ -563,7 +564,7 @@ Examples:
         <property name="thinkparity.target.classes-dir" value="${target.classes.dir}"/>
         <property name="thinkparity.target.test-classes-dir" value="${target.test-classes.dir}"/>
         <property name="thinkparity.target.package-dir" value="${target.package.dir}"/>
-        <property name="thinkparity.webapp-dir" value="${webapp-dir}"/>
+        <property name="thinkparity.webapp-dir" value="${test-webapp-dir}"/>
 
         <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy"
             classpathref="groovy.classpath"/>

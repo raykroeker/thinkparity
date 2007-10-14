@@ -3,6 +3,9 @@
  */
 package com.thinkparity.desdemona.web;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -134,45 +137,17 @@ public final class WebInitializer implements ServletContextListener {
         setRenderer(loggingProperties, XMPPEvent.class, XMPPEventRenderer.class);
         PropertyConfigurator.configure(loggingProperties);
 
-        // TODO create a configuration service
-        logger.logInfo("Loading configuration.");
+        /* load configuration */
+        final String configurationURL = servletContext.getInitParameter("thinkparity.configurationurl");
         final DesdemonaProperties properties = DesdemonaProperties.getInstance();
-        setProperty(properties, "thinkparity.amazon.accesskeyid-file", servletContext);
-        setProperty(properties, "thinkparity.amazon.secretaccesskey-file", servletContext);
-        setProperty(properties, "thinkparity.backup.root", servletContext);
-        setProperty(properties, "thinkparity.crypto.providerimpl", servletContext);
-        setProperty(properties, "thinkparity.datasource-driver", servletContext);
-        setProperty(properties, "thinkparity.datasource-url", servletContext);
-        setProperty(properties, "thinkparity.datasource-user", servletContext);
-        setProperty(properties, "thinkparity.datasource-password", servletContext);
-        setProperty(properties, "thinkparity.environment", servletContext);
-        setProperty(properties, "thinkparity.io.factoryimpl", servletContext);
-        setProperty(properties, "thinkparity.mail.transport-host", servletContext);
-        setProperty(properties, "thinkparity.mail.transport-port", servletContext);
-        setProperty(properties, "thinkparity.migrator.logerror.notify", servletContext);
-        setProperty(properties, "thinkparity.migrator.logerror.notify.to", servletContext);
-        setProperty(properties, "thinkparity.migrator.logerror.notify.cc", servletContext);
-        setProperty(properties, "thinkparity.mode", servletContext);
-        setProperty(properties, "thinkparity.node.username", servletContext);
-        setProperty(properties, "thinkparity.node.password", servletContext);
-        setProperty(properties, "thinkparity.product-name", servletContext);
-        setProperty(properties, "thinkparity.persistence.derbyarchiverschedule", servletContext);
-        setProperty(properties, "thinkparity.payment.plansleep", servletContext);
-        setProperty(properties, "thinkparity.payment.invoicesleep", servletContext);
-        setProperty(properties, "thinkparity.queue.notification.bind-host", servletContext);
-        setProperty(properties, "thinkparity.queue.notification.bind-port", servletContext);
-        setProperty(properties, "thinkparity.queue.notification-charset", servletContext);
-        setProperty(properties, "thinkparity.queue.notification-host", servletContext);
-        setProperty(properties, "thinkparity.queue.notification-port", servletContext);
-        setProperty(properties, "thinkparity.release-name", servletContext);
-        setProperty(properties, "thinkparity.temp.root", servletContext);
-        setProperty(properties, "xmpp.domain", servletContext);
+        loadConfiguration(configurationURL, properties);
+
         setSystemProperty(properties, "thinkparity.release-name");
         setSystemProperty(properties, "thinkparity.datasource-driver");
         setSystemProperty(properties, "thinkparity.datasource-url");
         setSystemProperty(properties, "thinkparity.datasource-user");
         setSystemProperty(properties, "thinkparity.datasource-password");
-        
+
         properties.println(System.out);
         final StringBuffer buffer = new StringBuffer();
         PropertiesUtil.print(buffer, System.getProperties());
@@ -218,35 +193,28 @@ public final class WebInitializer implements ServletContextListener {
     }
 
     /**
-     * Replace any property declarations in the value with the system property.
+     * Load configuration from a url into the properties object.
      * 
-     * @param value
-     *            A value <code>String</code>.
-     * @param key
-     *            A key <code>String</code>.
-     * @return A value <code>String</code>.
-     */
-    private String replace(final String value, final String key) {
-        final String systemValue = System.getProperty(key);
-        return value.replace("${" + key + "}",
-                null == systemValue ? "${" + key + "}" : systemValue);
-    }
-
-    /**
-     * Push the servlet context init param into the properties object.
-     * 
+     * @param url
+     *            A <code>String</code>.
      * @param properties
-     *            An instance of <code>Properties</code>.
-     * @param name
-     *            A property name <code>String</code>.
-     * @param servletContext
-     *            An instance of <code>ServletContext</code>.
+     *            A set of <code>Properties</code>.
      */
-    private void setProperty(final Properties properties, final String name,
-            final ServletContext servletContext) {
-        String value = servletContext.getInitParameter(name);
-        value = replace(value, "thinkparity.home");
-        properties.setProperty(name, value);
+    private void loadConfiguration(final String url, final Properties properties) {
+        logger.logInfo("Loading configuration.");
+        try {
+            final InputStream inStream = new URL(url).openStream();
+            try {
+                properties.load(inStream);
+            } finally {
+                inStream.close();
+            }
+            PropertiesUtil.replace(properties, properties);
+            PropertiesUtil.replace(properties, System.getProperties());
+            logger.logInfo("Configuration loaded.");
+        } catch (final IOException iox) {
+            failStart(iox, "Could not load configuration.", url);
+        }
     }
 
     /**

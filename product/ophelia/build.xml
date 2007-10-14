@@ -110,6 +110,7 @@ Local Configuration:            ${localconfig}
 
     <!-- input directories -->
     <property name="thinkparity.common.home" value="${basedir}/../common"/>
+    <property name="thinkparity.ophelia.home" value="${basedir}/../ophelia"/>
 
     <!-- output directories -->
     <property name="target.dir" value="${basedir}/target"/>
@@ -607,13 +608,17 @@ Examples:
     <!-- package-installer -->
     <target name="package-installer"
             description="compile a null-soft installer for the package">
-        <copy todir="${target.package.dir}" file="${target.classes.dir}/InstallThinkParity-${thinkparity.mode}.nsi"/>
+        <copy todir="${target.package.dir}">
+            <fileset file="${thinkparity.ophelia.home}/local/browser/src/site/InstallIcon.ico"/>
+            <fileset file="${target.classes.dir}/InstallThinkParity.nsi"/>
+        </copy>
         <exec executable="${env.NSIS_HOME}/makensis.exe" dir="${target.package.dir}">
-            <arg value="InstallThinkParity-${thinkparity.mode}.nsi"/>
+            <arg value="InstallThinkParity.nsi"/>
         </exec>
         <checksum file="${target.package.dir}/InstallThinkParity.exe" algorithm="MD5"/>
         <checksum file="${target.package.dir}/InstallThinkParity.exe" algorithm="SHA"/>
-        <delete file="${target.package.dir}/InstallThinkParity-${thinkparity.mode}.nsi"/>
+        <delete file="${target.package.dir}/InstallIcon.ico"/>
+        <delete file="${target.package.dir}/InstallThinkParity.nsi"/>
     </target>
 
     <!-- pathinfo -->

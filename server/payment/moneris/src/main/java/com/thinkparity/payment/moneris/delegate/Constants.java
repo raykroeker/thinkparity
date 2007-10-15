@@ -20,9 +20,14 @@ class Constants {
         super();
     }
 
+    static final class Message {
+        /** An invalid pan error message. */
+        static final String INVALID_PAN = "Invalid pan!";
+    }
+
     static final class ResponseCode {
         /** The highest value a response code can be for approval. */
-        static int APPROVED_CEILING = 50;
-        static int EXPIRED = 482;
+        static final int APPROVED_CEILING = 50;
+        static final int EXPIRED = 482;
     }
 }

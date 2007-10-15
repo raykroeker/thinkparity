@@ -48,10 +48,12 @@ public final class Purchase extends MonerisDelegate {
         post(newPurchase());
         final Receipt receipt = getReceipt();
         final String responseCode = receipt.getResponseCode();
-        if (null == responseCode) {
-            throw panic();
-        } else if ("null".equals(responseCode)) {
-            throw panic();
+        if (null == responseCode || "null".equals(responseCode)) {
+            if (isInvalidPan(receipt)) {
+                throw new CardDeclinedException();
+            } else {
+                throw panic();
+            }
         } else {
             final int intResponseCode = Integer.valueOf(responseCode);
             if (ResponseCode.APPROVED_CEILING > intResponseCode) {

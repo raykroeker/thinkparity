@@ -104,6 +104,17 @@ abstract class MonerisDelegate {
     }
 
     /**
+     * Determine if the receipt contains an invalid pan message.
+     * 
+     * @param receipt
+     *            A <code>Receipt</code>.
+     * @return True if the error is due to an invalid pan.
+     */
+    protected final Boolean isInvalidPan(final Receipt receipt) {
+        return receipt.getMessage().equals(Constants.Message.INVALID_PAN);
+    }
+
+    /**
      * Panic.
      * 
      * @return A <code>PaymentException</code>.

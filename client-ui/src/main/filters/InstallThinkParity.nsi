@@ -4,7 +4,7 @@
   ; mui configuration
   !define MUI_ABORTWARNING
   !define MUI_ICON "InstallIcon.ico"
-  !define MUI_UNICON "InstallIcon.ico"
+  !define MUI_UNICON "UninstallIcon.ico"
 
   ; mui include
   !include "MUI.nsh"

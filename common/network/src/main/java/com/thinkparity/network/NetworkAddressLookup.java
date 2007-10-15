@@ -104,9 +104,13 @@ class NetworkAddressLookup {
                                 address.getPort());
                         value.timeout = System.currentTimeMillis()
                                 + getCacheTTL(address);
-    
-                        RESOLVED.put(this, value.address);
-                        CACHE.put(address, value);
+                        /* check the address for resolution */
+                        if (((InetSocketAddress) value.address).isUnresolved()) {
+                            return;
+                        } else {
+                            RESOLVED.put(this, value.address);
+                            CACHE.put(address, value);
+                        }
                     } finally {
                         RESOLVE_THREADS.remove(address);
                     }

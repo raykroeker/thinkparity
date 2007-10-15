@@ -922,12 +922,15 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             beginXA(xaContext);
             try {
                 if (isAccessiblePaymentInfo(xaContext)) {
+                    final Calendar now = DateTimeProvider.getCurrentDateTime();
                     final PaymentPlan paymentPlan = paymentSql.readPlan(user);
                     paymentSql.updateInfo(paymentPlan, paymentInfo);
+                    /* notify complete */
+                    notifyComplete(paymentPlan, now);
+                    /* setup a retry and wake the processor */                    
                     final List<Invoice> invoiceList =
                         paymentSql.readUnpaidInvoices(paymentPlan);
                     if (0 < invoiceList.size()) {
-                        /* setup a retry and wake the processor */
                         updateInvoiceRetry(invoiceList, Boolean.TRUE);
                         paymentService.wakePaymentProcessor();
                     } else {

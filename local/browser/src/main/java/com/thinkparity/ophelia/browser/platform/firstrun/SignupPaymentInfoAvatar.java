@@ -12,7 +12,6 @@ import java.util.Calendar;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.AbstractDocument;
 
-import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
@@ -131,8 +130,6 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
      */
     public void reload() {
         validateInput();
-        selectExpiryMonth();
-        selectExpiryYear();
     }
 
     /**
@@ -382,26 +379,6 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
     }
 
     /**
-     * Select the current month.
-     * 
-     */
-    private void selectExpiryMonth() {
-        final Calendar now = DateUtil.getInstance();
-        final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
-        cardExpiryMonthModel.setSelectedItem(Short.valueOf(nowMonth));
-    }
-
-    /**
-     * Select the current year.
-     * 
-     */
-    private void selectExpiryYear() {
-        final Calendar now = Calendar.getInstance();
-        final short nowYear = (short) now.get(Calendar.YEAR);
-        cardExpiryYearModel.setSelectedItem(Short.valueOf(nowYear));
-    }
-
-    /**
      * Validate input.
      * 
      * @param ignoreFocus
@@ -429,8 +406,7 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
         final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
         if (nowYear == paymentInfo.getCardExpiryYear() &&
                 nowMonth > paymentInfo.getCardExpiryMonth()) {
-            if (ignoreFocus
-                   || (!cardMonthJComboBox.isFocusOwner() && !cardYearJComboBox.isFocusOwner())) {
+            if (ignoreFocus) {
                 addInputError(getString("ErrorCardExpired"));
             }
         }

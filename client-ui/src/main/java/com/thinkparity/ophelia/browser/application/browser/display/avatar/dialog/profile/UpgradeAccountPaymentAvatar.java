@@ -15,7 +15,6 @@ import java.util.Calendar;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.AbstractDocument;
 
-import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
@@ -136,8 +135,7 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
      */
     @Override
     public void reload() {
-        selectExpiryMonth();
-        selectExpiryYear();
+        reloadCreditCardControls();
         validateInput();
     }
 
@@ -363,23 +361,15 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
     }//GEN-LAST:event_privacyLearnMoreJLabelMousePressed
 
     /**
-     * Select the current month.
+     * Reload the credit card controls.
      * 
      */
-    private void selectExpiryMonth() {
-        final Calendar now = DateUtil.getInstance();
-        final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
-        cardExpiryMonthModel.setSelectedItem(Short.valueOf(nowMonth));
-    }
-
-    /**
-     * Select the current year.
-     * 
-     */
-    private void selectExpiryYear() {
-        final Calendar now = Calendar.getInstance();
-        final short nowYear = (short) now.get(Calendar.YEAR);
-        cardExpiryYearModel.setSelectedItem(Short.valueOf(nowYear));
+    private void reloadCreditCardControls() {
+        cardTypeJComboBox.setSelectedIndex(0);
+        cardNumberJTextField.setText(null);
+        cardholderNameJTextField.setText(null);
+        cardMonthJComboBox.setSelectedIndex(0);
+        cardYearJComboBox.setSelectedIndex(0);
     }
 
     /**
@@ -418,8 +408,7 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
         final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
         if (nowYear == paymentInfo.getCardExpiryYear() &&
                 nowMonth > paymentInfo.getCardExpiryMonth()) {
-            if (ignoreFocus
-                   || (!cardMonthJComboBox.isFocusOwner() && !cardYearJComboBox.isFocusOwner())) {
+            if (ignoreFocus) {
                 addInputError(getString("ErrorCardExpired"));
             }
         }

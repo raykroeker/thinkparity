@@ -17,7 +17,6 @@ import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.AbstractDocument;
 
-import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
@@ -112,8 +111,6 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
      */
     public void reload() {
         reloadCreditCardControls();
-        selectExpiryMonth();
-        selectExpiryYear();
         validateInput();
     }
 
@@ -426,12 +423,14 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
     private void reloadCreditCardControls() {
         cardNameJComboBox.setSelectedIndex(0);
         cardNumberJTextField.setText(null);
+        cardholderNameJTextField.setText(null);
         cardExpiryMonthJComboBox.setSelectedIndex(0);
         cardExpiryYearJComboBox.setSelectedIndex(0);
         if (null != input) {
             final PaymentInfo paymentInfo = (PaymentInfo) input;
             cardNameJComboBox.setSelectedItem(paymentInfo.getCardName());
             cardNumberJTextField.setText(paymentInfo.getCardNumber());
+            cardholderNameJTextField.setText(paymentInfo.getCardHolderName());
             cardExpiryMonthJComboBox.setSelectedItem(paymentInfo.getCardExpiryMonth());
             cardExpiryYearJComboBox.setSelectedItem(paymentInfo.getCardExpiryYear());
         }
@@ -444,26 +443,6 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
     private void runUpdateAccountInfo() {
         final PaymentInfo paymentInfo = extractPaymentInfo();
         getController().runUpdateProfilePaymentInfo(paymentInfo);
-    }
-
-    /**
-     * Select the current month.
-     * 
-     */
-    private void selectExpiryMonth() {
-        final Calendar now = DateUtil.getInstance();
-        final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
-        cardExpiryMonthModel.setSelectedItem(Short.valueOf(nowMonth));
-    }
-
-    /**
-     * Select the current year.
-     * 
-     */
-    private void selectExpiryYear() {
-        final Calendar now = Calendar.getInstance();
-        final short nowYear = (short) now.get(Calendar.YEAR);
-        cardExpiryYearModel.setSelectedItem(Short.valueOf(nowYear));
     }
 
     /**
@@ -500,8 +479,7 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
         final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
         if (nowYear == paymentInfo.getCardExpiryYear() &&
                 nowMonth > paymentInfo.getCardExpiryMonth()) {
-            if (ignoreFocus
-                   || (!cardExpiryMonthJComboBox.isFocusOwner() && !cardExpiryYearJComboBox.isFocusOwner())) {
+            if (ignoreFocus) {
                 addInputError(getString("ErrorCardExpired"));
             }
         }

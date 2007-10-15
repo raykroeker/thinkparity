@@ -610,6 +610,7 @@ Examples:
             description="compile a null-soft installer for the package">
         <copy todir="${target.package.dir}">
             <fileset file="${thinkparity.ophelia.home}/local/browser/src/site/InstallIcon.ico"/>
+            <fileset file="${thinkparity.ophelia.home}/local/browser/src/site/UninstallIcon.ico"/>
             <fileset file="${target.classes.dir}/InstallThinkParity.nsi"/>
         </copy>
         <exec executable="${env.NSIS_HOME}/makensis.exe" dir="${target.package.dir}">
@@ -618,6 +619,7 @@ Examples:
         <checksum file="${target.package.dir}/InstallThinkParity.exe" algorithm="MD5"/>
         <checksum file="${target.package.dir}/InstallThinkParity.exe" algorithm="SHA"/>
         <delete file="${target.package.dir}/InstallIcon.ico"/>
+        <delete file="${target.package.dir}/UninstallIcon.ico"/>
         <delete file="${target.package.dir}/InstallThinkParity.nsi"/>
     </target>
 

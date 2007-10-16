@@ -7,6 +7,7 @@
 package com.thinkparity.ophelia.browser.application.system.dialog;
 
 import java.awt.Component;
+import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -14,6 +15,7 @@ import java.util.Vector;
 import javax.swing.Icon;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
@@ -348,8 +350,26 @@ public class NotifyPanel extends SystemPanel {
      */
     private void reload() {
         if (NOTIFICATIONS.size() > 0) {
-            currentPage.reload(NOTIFICATIONS.get(notificationIndex));
+            SwingUtil.ensureDispatchThread(new Runnable() {
+                public void run() {
+                    currentPage.reload(NOTIFICATIONS.get(notificationIndex));
+                }
+            });
         }
+    }
+
+    /**
+     * Set the card layout page.
+     * 
+     * @param page
+     *            The <code>NotifyPage</code>.
+     */
+    private void setCardLayoutPage(final NotifyPage page) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                cardLayout.show(contentJPanel, page.getPageName());
+            }
+        });
     }
 
     /**
@@ -362,7 +382,7 @@ public class NotifyPanel extends SystemPanel {
         Assert.assertNotNull("Null page in notification dialog.", page);
         if (!isCurrentPage(page)) {
             currentPage = page;
-            cardLayout.show(contentJPanel, page.getPageName());
+            setCardLayoutPage(page);
             reload();
             repaint();
         }

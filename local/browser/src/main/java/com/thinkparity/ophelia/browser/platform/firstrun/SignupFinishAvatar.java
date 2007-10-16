@@ -6,6 +6,9 @@
 
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
+import java.awt.Graphics;
+
+import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
@@ -84,6 +87,23 @@ public class SignupFinishAvatar extends DefaultSignupPage {
     @Override
     public void setDefaultFocus() {
         signupDelegate.setFocusNextButton();
+    }
+
+    /**
+     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+     */
+    @Override
+    protected void paintComponent(final Graphics g) {
+        super.paintComponent(g);
+        final Graphics g2 = g.create();
+        try {
+            // Draw the logo.
+            g2.drawImage(Images.BrowserTitle.LOGO_LARGE,
+                    (getWidth() - Images.BrowserTitle.LOGO_LARGE.getWidth()) / 2, 35,
+                    Images.BrowserTitle.LOGO_LARGE.getWidth(),
+                    Images.BrowserTitle.LOGO_LARGE.getHeight(), SignupFinishAvatar.this);
+        }
+        finally { g2.dispose(); }
     }
 
     /** This method is called from within the constructor to

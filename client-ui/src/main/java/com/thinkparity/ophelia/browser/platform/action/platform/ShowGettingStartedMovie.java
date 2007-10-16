@@ -1,24 +1,24 @@
 /**
- * Created On: 1-Oct-07 3:52:05 PM
+ * Created On: 15-Oct-07 11:18:38 PM
  * $Id$
  */
-package com.thinkparity.ophelia.browser.platform.action.help;
+package com.thinkparity.ophelia.browser.platform.action.platform;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 
 import com.thinkparity.ophelia.browser.BrowserException;
-import com.thinkparity.ophelia.browser.application.browser.Browser;
-import com.thinkparity.ophelia.browser.platform.action.AbstractBrowserAction;
+import com.thinkparity.ophelia.browser.platform.Platform;
+import com.thinkparity.ophelia.browser.platform.action.AbstractAction;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.util.swing.DesktopUtil;
 
 /**
- * @author rob_masako@shaw.ca
+ * @author robert@thinkparity.com
  * @version $Revision$
  */
-public class ShowGettingStartedMovie extends AbstractBrowserAction {
+public class ShowGettingStartedMovie extends AbstractAction {
 
     /** The url for the getting started movie. */
     private static String GETTING_STARTED_MOVIE_URL;
@@ -30,11 +30,11 @@ public class ShowGettingStartedMovie extends AbstractBrowserAction {
     /**
      * Create a ShowGettingStartedMovie.
      * 
-     * @param browser
-     *            The browser application.
+     * @param platform
+     *            The <code>Platform</code>.
      */
-    public ShowGettingStartedMovie(final Browser browser) {
-        super(ActionId.HELP_SHOW_GETTING_STARTED_MOVIE);
+    public ShowGettingStartedMovie(final Platform platform) {
+        super(ActionId.PLATFORM_SHOW_GETTING_STARTED_MOVIE);
     }
 
     /**

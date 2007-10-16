@@ -5,31 +5,57 @@
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
 /**
- * @author rob_masako@shaw.ca
+ * @author robert@thinkparity.com
  * @version $Revision$
  */
 public interface SignupPage {
 
     /**
-     * The name of this page.
+     * Get the key for the next button name.
      * 
-     * @return The name of this page.
+     * @return The <code>String</code> key for the next button name.
      */
-    public String getPageName();
+    public String getKeyNextButton();
+
+    /**
+     * Get the key for the previous button name.
+     * 
+     * @return The <code>String</code> key for the previous button name.
+     */
+    public String getKeyPreviousButton();
+
+    /**
+     * Get the key for the special next button name.
+     * 
+     * @return The <code>String</code> key for the special next button name.
+     */
+    public String getKeySpecialNextButton();
 
     /**
      * Get the name of the next page.
      * 
-     * @return The name of the next page.
+     * @return The <code>String</code> name of the next page.
      */
     public String getNextPageName();
 
     /**
+     * The name of this page.
+     * 
+     * @return The <code>String</code> name of this page.
+     */
+    public String getPageName();
+
+    /**
      * Get the name of the previous page.
      * 
-     * @return The name of the previous page.
+     * @return The <code>String</code> name of the previous page.
      */
     public String getPreviousPageName();
+
+    /**
+     * Invoke the action associated with the special next button.
+     */
+    public void invokeSpecialNextButtonAction();
 
     /**
      * Determine if this is the first page.
@@ -49,6 +75,13 @@ public interface SignupPage {
      * Final check if it is OK to go to the next page.
      */
     public Boolean isNextOk();
+
+    /**
+     * Determine if there is a 'special' next button.
+     * 
+     * @return True if there is a 'special' next button.
+     */
+    public Boolean isSpecialNextButton();
 
     /**
      * Reload.

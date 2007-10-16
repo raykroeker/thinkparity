@@ -10,7 +10,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
  * <b>Title:</b>thinkParity Ophelia UI Platform First Run Data<br>
  * <b>Description:</b>A holder for data keys.<br>
  * 
- * @author rob_masako@shaw.ca
+ * @author robert@thinkparity.com
  * @version $Revision$
  */
 final class SignupData extends Data {

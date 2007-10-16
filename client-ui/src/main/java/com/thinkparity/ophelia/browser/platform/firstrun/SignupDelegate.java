@@ -7,7 +7,7 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 import com.thinkparity.ophelia.browser.util.localization.Localization;
 
 /**
- * @author rob_masako@shaw.ca
+ * @author robert@thinkparity.com
  * @version $Revision$
  */
 public interface SignupDelegate {
@@ -56,6 +56,19 @@ public interface SignupDelegate {
     public void setFocusNextButton();
 
     /**
+     * Set the focus on the 'special' next button.
+     */
+    public void setFocusSpecialNextButton();
+
+    /**
+     * Set the next page.
+     * 
+     * This method should be used only used when the page needs to change
+     * without the user pressing the 'next' button.
+     */
+    public void setNextPage();
+
+    /**
      * Set visible on the cancel button.
      * 
      * @param visible
@@ -72,10 +85,10 @@ public interface SignupDelegate {
     public void setVisibleNextButton(final Boolean visible);
 
     /**
-     * Set the next page.
+     * Set visible on the 'special' next button.
      * 
-     * This method should be used only used when the page needs to change
-     * without the user pressing the 'next' button.
+     * @param visible
+     *            Visible <code>Boolean</code>.
      */
-    public void setNextPage();
+    public void setVisibleSpecialNextButton(final Boolean visible);
 }

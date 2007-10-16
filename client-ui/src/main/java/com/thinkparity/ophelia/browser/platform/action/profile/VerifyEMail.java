@@ -52,7 +52,7 @@ public final class VerifyEMail extends AbstractBrowserAction {
             final String key = (String) data.get(DataKey.KEY);
             try {
                 profileModel.verifyEMail(emailId, key);
-                browser.displayVerifyEMailSummaryDialog();
+                browser.displayStatusDialog("VerifyEmail.VerifyKeyCorrect");
             } catch (final OfflineException ox) {
                 logger.logWarning(ox, "Offline error while verifying e-mail.");
                 browser.displayErrorDialog("ErrorOffline");

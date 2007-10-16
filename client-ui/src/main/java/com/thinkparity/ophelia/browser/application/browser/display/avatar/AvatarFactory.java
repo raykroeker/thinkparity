@@ -174,6 +174,10 @@ public final class AvatarFactory {
             avatar = newAvatar(SignupCredentialsAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
+        case DIALOG_PLATFORM_SIGNUP_FINISH:
+            avatar = newAvatar(SignupFinishAvatar.class);
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
         case DIALOG_PLATFORM_SIGNUP_INTRO:
             avatar = newAvatar(SignupIntroAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
@@ -229,9 +233,6 @@ public final class AvatarFactory {
         case DIALOG_PROFILE_VERIFY_EMAIL:
             avatar = newAvatar(VerifyEMailAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
-            break;
-        case DIALOG_PROFILE_VERIFY_EMAIL_SUMMARY:
-            avatar = newAvatar(VerifyEMailSummaryAvatar.class);
             break;
 		default:
             throw Assert.createUnreachable("UNKNOWN AVATAR");

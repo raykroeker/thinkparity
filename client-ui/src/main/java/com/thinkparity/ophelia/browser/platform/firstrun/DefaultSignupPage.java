@@ -47,6 +47,27 @@ abstract class DefaultSignupPage extends Avatar implements SignupPage {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getKeyNextButton()
+     */
+    public String getKeyNextButton() {
+        return "NextButton";
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getKeyPreviousButton()
+     */
+    public String getKeyPreviousButton() {
+        return "PrevButton";
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getKeySpecialNextButton()
+     */
+    public String getKeySpecialNextButton() {
+        return null;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getPageName()
      */
     public String getPageName() {
@@ -57,6 +78,11 @@ abstract class DefaultSignupPage extends Avatar implements SignupPage {
     public State getState() {
         throw Assert.createNotYetImplemented("SignupAvatar.DefaultSignupPage#getState");
     }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#invokeSpecialNextButtonAction()
+     */
+    public void invokeSpecialNextButtonAction() {}
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isAvatarBackgroundImage()
@@ -85,6 +111,13 @@ abstract class DefaultSignupPage extends Avatar implements SignupPage {
      */
     public Boolean isNextOk() {
         return isInputValid();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isSpecialNextButton()
+     */
+    public Boolean isSpecialNextButton() {
+        return Boolean.FALSE;
     }
 
     /**
@@ -124,6 +157,17 @@ abstract class DefaultSignupPage extends Avatar implements SignupPage {
     }
 
     /**
+     * Get the page name.
+     * 
+     * @param id
+     *            A <code>AvatarId</code>.
+     * @return The page name <code>String</code>.
+     */
+    protected String getPageName(final AvatarId id) {
+        return id.toString();
+    }
+
+    /**
      * Get a shared localization string. Use this method to get strings that are
      * shared between all pages of the signup wizard.
      * 
@@ -133,17 +177,6 @@ abstract class DefaultSignupPage extends Avatar implements SignupPage {
      */
     protected String getSharedString(final String localKey) {
         return signupDelegate.getSharedLocalization().getString(localKey);
-    }
-
-    /**
-     * Get the page name.
-     * 
-     * @param id
-     *            A <code>AvatarId</code>.
-     * @return The page name <code>String</code>.
-     */
-    protected String getPageName(final AvatarId id) {
-        return id.toString();
     }
 
     /**

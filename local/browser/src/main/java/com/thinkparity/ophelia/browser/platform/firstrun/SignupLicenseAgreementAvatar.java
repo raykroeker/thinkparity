@@ -16,7 +16,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
 
 /**
  *
- * @author  user
+ * @author robert@thinkparity.com
  */
 public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
 

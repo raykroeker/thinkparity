@@ -35,7 +35,7 @@ import com.thinkparity.ophelia.browser.util.swing.CardNameCellRenderer;
  * <b>Title:</b>thinkParity Ophelia UI Sign-Up Payment Info Avatar<br>
  * <b>Description:</b><br>
  * 
- * @author raymond@thinkparity.com
+ * @author robert@thinkparity.com, raymond@thinkparity.com
  * @version 1.1.2.1
  */
 public final class SignupPaymentInfoAvatar extends DefaultSignupPage {

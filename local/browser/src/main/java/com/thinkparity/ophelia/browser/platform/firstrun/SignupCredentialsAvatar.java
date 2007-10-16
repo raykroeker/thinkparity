@@ -33,7 +33,7 @@ import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 
 /**
  *
- * @author  user
+ * @author robert@thinkparity.com
  */
 public class SignupCredentialsAvatar extends DefaultSignupPage
         implements InitializeMediator, LoginCredentialsDisplay {

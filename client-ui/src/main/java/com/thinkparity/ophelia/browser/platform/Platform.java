@@ -292,6 +292,11 @@ public interface Platform extends ApplicationListener {
             final InitializeMediator mediator);
 
     /**
+     * Run the show getting started movie action.
+     */
+    public void runShowGettingStartedMovie();
+
+    /**
      * Start the browser platform.
      *
      */

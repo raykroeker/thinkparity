@@ -24,7 +24,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 
 /**
  *
- * @author  user
+ * @author robert@thinkparity.com
  */
 public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDisplay {
 
@@ -60,6 +60,14 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
      */
     public AvatarId getId() {
         return AvatarId.DIALOG_PLATFORM_SIGNUP_LOGIN;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#getKeyNextButton()
+     */
+    @Override
+    public String getKeyNextButton() {
+        return "Login.NextButton";
     }
 
     /**
@@ -177,6 +185,18 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#updateProgress(java.lang.Integer, java.lang.String)
+     */
+    public void updateProgress(final Integer step, final String note) {
+        loginJProgressBar.setValue(step);
+        if (null != note && 0 < note.trim().length()) {
+            stepJLabel.setText(note);
+        } else {
+            stepJLabel.setText(" ");
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#validateInput()
      *
      */
@@ -190,18 +210,6 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
         }
         if (isSignupDelegateInitialized()) {
             signupDelegate.enableNextButton(!containsInputErrors());
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#updateProgress(java.lang.Integer, java.lang.String)
-     */
-    public void updateProgress(final Integer step, final String note) {
-        loginJProgressBar.setValue(step);
-        if (null != note && 0 < note.trim().length()) {
-            stepJLabel.setText(note);
-        } else {
-            stepJLabel.setText(" ");
         }
     }
 

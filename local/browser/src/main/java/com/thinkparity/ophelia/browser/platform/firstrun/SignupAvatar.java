@@ -35,11 +35,19 @@ import com.thinkparity.ophelia.browser.util.localization.Localization;
  */
 public class SignupAvatar extends Avatar implements SignupDelegate {
 
-    /** A <code>CardLayout</code>. */
-    private final java.awt.CardLayout cardLayout;
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JButton cancelJButton = ButtonFactory.create();
+    private final javax.swing.JPanel contentJPanel = new javax.swing.JPanel();
+    private final javax.swing.JButton nextJButton = ButtonFactory.create();
+    private final javax.swing.JButton prevJButton = ButtonFactory.create();
+    private final javax.swing.JButton specialNextJButton = ButtonFactory.create();
+    // End of variables declaration//GEN-END:variables
 
     /** Signup cancelled flag <code>Boolean</code>. */
     private Boolean cancelled;
+
+    /** A <code>CardLayout</code>. */
+    private final java.awt.CardLayout cardLayout;
 
     /** The current <code>SignupPage</code>. */
     private SignupPage currentPage;
@@ -49,13 +57,6 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
 
     /** The <code>WindowTitle</code>. */
     private WindowTitle windowTitle;
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JButton cancelJButton = ButtonFactory.create();
-    private final javax.swing.JPanel contentJPanel = new javax.swing.JPanel();
-    private final javax.swing.JButton nextJButton = ButtonFactory.create();
-    private final javax.swing.JButton prevJButton = ButtonFactory.create();
-    // End of variables declaration//GEN-END:variables
 
     /** Creates new form SignupAvatar */
     public SignupAvatar() {
@@ -147,6 +148,13 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate#setFocusSpecialNextButton()
+     */
+    public void setFocusSpecialNextButton() {
+        specialNextJButton.requestFocusInWindow();
+    }
+
+    /**
      * Set the next page.
      */
     public void setNextPage() {
@@ -174,6 +182,13 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
      */
     public void setVisibleNextButton(final Boolean visible) {
         nextJButton.setVisible(visible);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupDelegate#setVisibleSpecialNextButton(java.lang.Boolean)
+     */
+    public void setVisibleSpecialNextButton(final Boolean visible) {
+        specialNextJButton.setVisible(visible);
     }
 
     /**
@@ -219,6 +234,8 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
                     cancelJButtonActionPerformed(e);
                 } else if (prevJButton.isFocusOwner()) {
                     prevJButtonActionPerformed(e);
+                } else if (specialNextJButton.isFocusOwner()) {
+                    specialNextJButtonActionPerformed(e);
                 } else {
                     nextJButtonActionPerformed(e);
                 }
@@ -254,6 +271,14 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
             .addGap(0, 323, Short.MAX_VALUE)
         );
 
+        specialNextJButton.setFont(Fonts.DialogButtonFont);
+        specialNextJButton.setText("!Special!");
+        specialNextJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                specialNextJButtonActionPerformed(evt);
+            }
+        });
+
         prevJButton.setFont(Fonts.DialogButtonFont);
         prevJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.PrevButton"));
         prevJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -285,7 +310,9 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(200, Short.MAX_VALUE)
+                .addContainerGap(115, Short.MAX_VALUE)
+                .addComponent(specialNextJButton)
+                .addGap(0, 0, 0)
                 .addComponent(prevJButton)
                 .addGap(0, 0, 0)
                 .addComponent(nextJButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -295,7 +322,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
             .addComponent(contentJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cancelJButton, nextJButton, prevJButton});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cancelJButton, nextJButton, prevJButton, specialNextJButton});
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -305,7 +332,8 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cancelJButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(nextJButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(prevJButton))
+                    .addComponent(prevJButton)
+                    .addComponent(specialNextJButton))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -352,15 +380,26 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
      * Reload the next button.
      */
     private void reloadNextButton() {
-        nextJButton.setText(currentPage.isLastPage() ? getString("FinishButton") : getString("NextButton"));
+        nextJButton.setText(getString(currentPage.getKeyNextButton()));
     }
 
     /**
      * Reload the previous button.
      */
     private void reloadPrevButton() {
+        prevJButton.setText(getString(currentPage.getKeyPreviousButton()));
         prevJButton.setVisible(!currentPage.isFirstPage().booleanValue() &&
                 null!=currentPage.getPreviousPageName());
+    }
+
+    /**
+     * Reload the 'special' next button.
+     */
+    private void reloadSpecialNextButton() {
+        specialNextJButton.setVisible(currentPage.isSpecialNextButton());
+        if (currentPage.isSpecialNextButton()) {
+            specialNextJButton.setText(getString(currentPage.getKeySpecialNextButton()));
+        }
     }
 
     /**
@@ -392,6 +431,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     private void setPage(final SignupPage page) {
         this.currentPage = page;
         cardLayout.show(contentJPanel, page.getPageName());
+        reloadSpecialNextButton();
         reloadNextButton();
         reloadPrevButton();
         reloadWindowTitle();
@@ -402,9 +442,16 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
 
     /**
      * Sign up.
+     * Note that the wizard sometimes ends in login, in which case
+     * the login is responsible for disposing the window.
      */
     private void signupComplete() {
         cancelled = Boolean.FALSE;
-        // NOTE The wizard always ends in login. Login is responsible for disposing the window.
+        disposeWindow();
     }
+
+    private void specialNextJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_specialNextJButtonActionPerformed
+        currentPage.invokeSpecialNextButtonAction();
+        nextJButtonActionPerformed(evt);
+    }//GEN-LAST:event_specialNextJButtonActionPerformed
 }

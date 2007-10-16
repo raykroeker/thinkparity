@@ -9,6 +9,8 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
 import java.awt.Graphics;
 import java.util.List;
 
+import com.thinkparity.codebase.swing.SwingUtil;
+
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.session.Credentials;
 
@@ -24,7 +26,7 @@ import com.thinkparity.ophelia.browser.platform.firstrun.SignupData.DataKey;
 
 /**
  *
- * @author  user
+ * @author robert@thinkparity.com
  */
 public class SignupSummaryAvatar extends DefaultSignupPage implements
         LoginSwingDisplay, InitializeMediator {
@@ -54,8 +56,14 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
      * @see com.thinkparity.ophelia.browser.platform.firstrun.LoginSwingDisplay#dispose()
      */
     public void dispose() {
-        // LoginSwingDisplay method, the login is complete so finish up.
-        disposeWindow();
+        // LoginSwingDisplay method, the login is complete so go to the finish page.
+        // Cancel is meaningless at this point (the browser will start anyway)
+        // so disable the cancel button.
+        SwingUtil.setCursor(this, null);
+        signupDelegate.setVisibleSpecialNextButton(Boolean.FALSE);
+        signupDelegate.setVisibleCancelButton(Boolean.FALSE);
+        signupDelegate.setVisibleNextButton(Boolean.TRUE);
+        signupDelegate.setNextPage();
     }
 
     /**
@@ -67,10 +75,26 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#getKeyNextButton()
+     */
+    @Override
+    public String getKeyNextButton() {
+        return "Summary.NextButton";
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#getKeySpecialNextButton()
+     */
+    @Override
+    public String getKeySpecialNextButton() {
+        return "Summary.SpecialNextButton";
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getNextPageName()
      */
     public String getNextPageName() {
-        return null;
+        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_FINISH);
     }
 
     /**
@@ -96,11 +120,11 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#isLastPage()
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#invokeSpecialNextButtonAction()
      */
     @Override
-    public Boolean isLastPage() {
-        return Boolean.TRUE;
+    public void invokeSpecialNextButtonAction() {
+        platform.runShowGettingStartedMovie();
     }
 
     /**
@@ -111,7 +135,17 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
             return Boolean.FALSE;
         }
         login();
-        return !containsInputErrors();
+        // Don't change to the next page the normal way. Instead, let the
+        // LoginSwingDisplay dispose() method direct the change to the next page.
+        return Boolean.FALSE;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#isSpecialNextButton()
+     */
+    @Override
+    public Boolean isSpecialNextButton() {
+        return Boolean.TRUE;
     }
 
     /**
@@ -142,7 +176,7 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
      */
     @Override
     public void setDefaultFocus() {
-        signupDelegate.setFocusNextButton();
+        signupDelegate.setFocusSpecialNextButton();
     }
 
     /**
@@ -220,19 +254,11 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel importantNoteJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel explanation2JLabel = new javax.swing.JLabel();
 
         setOpaque(false);
         explanationJLabel.setFont(Fonts.DialogFont);
         explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Summary.Explanation"));
-
-        importantNoteJLabel.setFont(Fonts.DialogFontBold);
-        importantNoteJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Summary.ImportantNote"));
-
-        explanation2JLabel.setFont(Fonts.DialogFont);
-        explanation2JLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Summary.Explanation2"));
-        explanation2JLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
@@ -270,32 +296,24 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(64, 64, 64)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(importantNoteJLabel)
-                            .addComponent(explanationJLabel)
-                            .addComponent(explanation2JLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(progressBarJPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))))
+                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(64, 64, 64)
+                        .addComponent(explanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 367, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(166, 166, 166)
-                .addComponent(explanationJLabel)
-                .addGap(45, 45, 45)
-                .addComponent(importantNoteJLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(explanation2JLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(22, 22, 22)
+                .addComponent(explanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(105, 105, 105)
                 .addComponent(errorMessageJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(17, 17, 17)
                 .addComponent(progressBarJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -308,6 +326,7 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
      */
     private void login() {
         setVisibleButtons(Boolean.FALSE);
+        SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
         final Credentials credentials = (Credentials) ((Data) input).get(DataKey.CREDENTIALS);
         platform.runLogin(credentials.getUsername(), credentials.getPassword(),
                 new LoginSwingMonitor(this), this);
@@ -330,6 +349,7 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
      */
     private void setVisibleButtons(final Boolean visible) {
         if (isSignupDelegateInitialized()) {
+            signupDelegate.setVisibleSpecialNextButton(visible);
             signupDelegate.setVisibleNextButton(visible);
             signupDelegate.setVisibleCancelButton(visible);
         }

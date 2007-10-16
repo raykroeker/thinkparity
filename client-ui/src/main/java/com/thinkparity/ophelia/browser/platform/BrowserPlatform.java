@@ -659,6 +659,13 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     }
 
 	/**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#runShowGettingStartedMovie()
+     */
+    public void runShowGettingStartedMovie() {
+        invoke(ActionId.PLATFORM_SHOW_GETTING_STARTED_MOVIE, Data.emptyData());
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#start()
      * 
      */

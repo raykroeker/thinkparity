@@ -63,7 +63,7 @@ import com.thinkparity.ophelia.browser.platform.action.platform.LearnMore;
  * </ul>
  * <br>
  * 
- * @author raymond@thinkparity.com
+ * @author robert@thinkparity.com
  * @version 1.1.2.12
  */
 public class SignupAccountInfoAvatar extends DefaultSignupPage {

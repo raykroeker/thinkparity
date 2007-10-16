@@ -356,6 +356,7 @@ public class BrowserMenuBar extends JMenuBar {
     }
 
     private void upgradeJButtonActionPerformed(final java.awt.event.ActionEvent e) {
+        SwingUtil.setCursor((javax.swing.JButton) e.getSource(), null);
         browser.runSignup();
     }
 

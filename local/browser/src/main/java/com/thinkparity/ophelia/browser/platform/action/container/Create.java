@@ -42,9 +42,7 @@ public class Create extends AbstractBrowserAction {
         final String containerName = (String) data.get(DataKey.NAME);
         final List<File> files = getDataFiles(data, DataKey.FILES);
 
-        if (isUnverifiedEMails()) {
-            browser.displayErrorDialog("CreateContainer.UnverifiedEMails");
-        } else if (null == containerName) {
+        if (null == containerName) {
             // Launch the NewContainerDialog to get the container name.
             // If the user presses OK, it will call back into this action
             // with the name provided.
@@ -69,15 +67,6 @@ public class Create extends AbstractBrowserAction {
                 browser.runAddContainerDocuments(container.getId());
             }
         }                   
-    }
-
-    /**
-     * Determine if is an unverified email.
-     * 
-     * @return A <code>Boolean</code>, true if the email is not verified.
-     */
-    private Boolean isUnverifiedEMails() {
-        return !getProfileModel().readEMail().isVerified();
     }
 
     public enum DataKey { NAME, FILES }

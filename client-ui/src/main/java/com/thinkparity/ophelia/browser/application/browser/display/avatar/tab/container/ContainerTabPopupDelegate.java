@@ -599,11 +599,11 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
     }
 
     /**
-     * Determine if online.
+     * Determine whether or not the user experiences online behavior.
      * 
-     * @return True if online; false otherwise.
+     * @return True if the user experiences online behavior.
      */
     private boolean isOnline() {
-        return model.isOnline().booleanValue();
+        return model.isOnlineUI().booleanValue();
     }
 }

@@ -38,7 +38,11 @@ public class UpgradeAccount extends AbstractBrowserAction {
     public void invoke(final Data data) {
         final PaymentInfo paymentInfo = (PaymentInfo) data.get(DataKey.PAYMENT_INFO);
         if (null == paymentInfo) {
-            browser.displaySignUpDialog();
+            if (Boolean.TRUE == getProfileModel().readEMail().isVerified()) {
+                browser.displaySignUpDialog();
+            } else {
+                browser.displayErrorDialog("UpgradeAccount.ErrorAccountNotActive");
+            }
         } else {
             getProfileModel().signUp(paymentInfo);
         }

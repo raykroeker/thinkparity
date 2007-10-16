@@ -225,7 +225,7 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate#isTabButtonActionAvailable()
      */
     public Boolean isTabButtonActionAvailable() {
-        return readIsProfileActive() && readIsEMailVerified();
+        return Boolean.TRUE;
     }
 
     /**
@@ -251,29 +251,11 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
     }
 
     /**
-     * Determine if online.
+     * Determine whether or not the user experiences online behavior.
      * 
-     * @return True if online; false otherwise.
+     * @return True if the user experiences online behavior.
      */
-    private boolean isOnline() {
-        return model.isOnline().booleanValue();
-    }
-
-    /**
-     * Determine whether or not the profile's e-mail address has been verified.
-     * 
-     * @return True if the e-mail is verified.
-     */
-    private Boolean readIsEMailVerified() {
-        return model.readIsEMailVerified();
-    }
-
-    /**
-     * Determine whether or not the profile is active.
-     * 
-     * @return True if the profile is active.
-     */
-    private Boolean readIsProfileActive() {
-        return model.readIsProfileActive();
+    private Boolean isOnline() {
+        return model.isOnlineUI().booleanValue();
     }
 }

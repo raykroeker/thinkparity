@@ -79,6 +79,24 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
         return contactModel.readIncomingUserInvitations();
     }
 
+    /**
+     * Determine whether or not the profile is active.
+     * 
+     * @return True if it is active.
+     */
+    public Boolean readIsActive() {
+        return profileModel.readIsActive();
+    }
+
+    /**
+     * Determine whether or not the profile's e-mail address has been verified.
+     * 
+     * @return True if it is verified.
+     */
+    public Boolean readIsEMailVerified() {
+        return profileModel.readEMail().isVerified();
+    }
+
     public OutgoingEMailInvitation readOutgoingEMailInvitation(
             final Long invitationId) {
         return contactModel.readOutgoingEMailInvitation(invitationId);

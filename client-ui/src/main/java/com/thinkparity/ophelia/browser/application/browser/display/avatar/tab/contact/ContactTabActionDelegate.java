@@ -33,20 +33,20 @@ import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingUs
 final class ContactTabActionDelegate extends DefaultBrowserActionDelegate implements
         ActionDelegate, TabButtonActionDelegate {
     
-    /** The <code>ContactTabModel</code>. */
-    private final ContactTabModel model;
-    
     /** The accept e-mail invitation <code>AbstractAction</code>. */
     private final ActionInvocation acceptIncomingEMailInvitation;
-
+    
     /** The accept user invitation <code>AbstractAction</code>. */
     private final ActionInvocation acceptIncomingUserInvitation;
-    
+
     /** The decline email invitation <code>AbstractAction</code>. */
     private final ActionInvocation declineIncomingEMailInvitation;
-
+    
     /** The decline user invitation <code>AbstractAction</code>. */
     private final ActionInvocation declineIncomingUserInvitation;
+
+    /** The <code>ContactTabModel</code>. */
+    private final ContactTabModel model;
 
     /**
      * Create ContactTabActionDelegate.
@@ -67,11 +67,6 @@ final class ContactTabActionDelegate extends DefaultBrowserActionDelegate implem
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ActionDelegate#invokeForContact(com.thinkparity.codebase.model.contact.Contact)
      */
     public void invokeForContact(final Contact contact) {}
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ActionDelegate#invokeForProfile(com.thinkparity.codebase.model.profile.Profile)
-     */
-    public void invokeForProfile(final Profile profile) {}
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ActionDelegate#invokeForInvitation(com.thinkparity.codebase.model.contact.IncomingEMailInvitation,
@@ -130,18 +125,14 @@ final class ContactTabActionDelegate extends DefaultBrowserActionDelegate implem
     public void invokeForInvitation(final OutgoingInvitation invitation) {}
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.contact.ActionDelegate#invokeForProfile(com.thinkparity.codebase.model.profile.Profile)
+     */
+    public void invokeForProfile(final Profile profile) {}
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate#invokeForTabButton()
      */
     public void invokeForTabButton() {
-    }
-
-    /**
-     * Determine whether or not we are online.
-     * 
-     * @return True if we are online.
-     */
-    private boolean isOnline() {
-        return model.isOnline().booleanValue();
     }
 
     /**
@@ -149,5 +140,14 @@ final class ContactTabActionDelegate extends DefaultBrowserActionDelegate implem
      */
     public Boolean isTabButtonActionAvailable() {
         return Boolean.FALSE;
+    }
+
+    /**
+     * Determine whether or not the user experiences online behavior.
+     * 
+     * @return True if the user experiences online behavior.
+     */
+    private boolean isOnline() {
+        return model.isOnlineUI().booleanValue();
     }
 }

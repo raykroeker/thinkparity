@@ -871,7 +871,7 @@ public class UpdateProfileAvatar extends Avatar {
     private void manageAccountJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manageAccountJButtonActionPerformed
         disposeWindow();
         if (isSignUpAvailable()) {
-            getController().displaySignUpDialog();
+            getController().runSignup();
         } else {
             getController().runUpdateProfilePaymentInfo();
         }

@@ -542,6 +542,7 @@ public class Browser extends AbstractApplication {
     /**
      * Display the sign up dialog.
      * 
+     * Generally it is better to call runSignup() to display the dialog.
      */
     public void displaySignUpDialog() {
         displayAvatar(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT);
@@ -1505,8 +1506,7 @@ public class Browser extends AbstractApplication {
     }
 
     /**
-     * Run the sign up action.
-     * 
+     * Run the sign up action to display the dialog.
      */
     public void runSignup() {
         invoke(ActionId.PROFILE_UPGRADE_ACCOUNT, Data.emptyData());

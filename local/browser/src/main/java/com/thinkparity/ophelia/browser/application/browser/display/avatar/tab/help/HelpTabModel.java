@@ -81,6 +81,14 @@ public final class HelpTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#isOnlineUI()
+     */
+    @Override
+    public Boolean isOnlineUI() {
+        return isOnline();
+    }
+
+    /**
      * Apply the sort to the filtered list of panels.
      * 
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySort()

@@ -117,6 +117,14 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#isOnlineUI()
+     */
+    @Override
+    public Boolean isOnlineUI() {
+        return isOnline() && readIsEMailVerified() && readIsProfileActive();
+    }
+
+    /**
      * Apply the sort to the filtered list of panels.
      * 
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applySort()
@@ -276,6 +284,24 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
+     * Determine whether or not the profile's e-mail address has been verified.
+     * 
+     * @return True if it is verified.
+     */
+    Boolean readIsEMailVerified() {
+        return ((ContactProvider) contentProvider).readIsEMailVerified();
+    }
+
+    /**
+     * Determine whether or not the profile is enabled.
+     * 
+     * @return True if it is enabled.
+     */
+    Boolean readIsProfileActive() {
+        return ((ContactProvider) contentProvider).readIsActive();
+    }
+
+    /**
      * Reload the connection.
      */
     void reloadConnection() {
@@ -416,7 +442,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         debug();
 
     }
-
     void syncOutgoingUserInvitation(final Long invitationId, final Boolean remote) {
         checkThread();
         debug();
@@ -459,6 +484,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     private void addPanel(final Contact contact) {
         addPanel(panels.size() == 0 ? 0 : panels.size(), contact);
     }
+
     /**
      * Add an incoming e-mail invitation to the end of the panels list.
      * 
@@ -514,7 +540,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     private void addPanel(final int index, final IncomingUserInvitation invitation) {
         panels.add(index, toDisplay(invitation));
     }
-
+    
     /**
      * Add an outgoing e-mail invitation to the panels list.
      * 
@@ -540,7 +566,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
             final OutgoingUserInvitation invitation) {
         panels.add(index, toDisplay(invitation));
     }
-    
+
     /**
      * Add an outgoing e-mail invitation to the end of the panels list.
      * 

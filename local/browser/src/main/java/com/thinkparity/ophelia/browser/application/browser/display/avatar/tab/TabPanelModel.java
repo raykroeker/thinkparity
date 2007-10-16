@@ -217,6 +217,13 @@ public abstract class TabPanelModel<T extends Object> extends TabModel {
     }
 
     /**
+     * Determine whether or not the user experiences online behavior.
+     * 
+     * @return True if the user experiences online behavior.
+     */
+    public abstract Boolean isOnlineUI();
+
+    /**
      * Scroll the panel so it is visible.
      * 
      * @param panelId

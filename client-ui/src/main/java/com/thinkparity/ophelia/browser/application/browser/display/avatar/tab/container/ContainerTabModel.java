@@ -182,6 +182,14 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelModel#isOnlineUI()
+     */
+    @Override
+    public Boolean isOnlineUI() {
+        return isOnline() && readIsEMailVerified() && readIsProfileActive();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabModel#applyFilter()
      */
     @Override

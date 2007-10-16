@@ -7,7 +7,6 @@
 package com.thinkparity.ophelia.browser.application.system.dialog;
 
 import java.awt.Component;
-import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;

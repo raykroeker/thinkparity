@@ -35,7 +35,8 @@ public class ShowProfilePassivatedNotification extends AbstractAction {
      */
     @Override
     protected void invoke(final Data data) {
-        if (Boolean.FALSE == getProfileModel().readIsActive()) {
+        if (Boolean.TRUE == getProfileModel().readEMail().isVerified()
+                && Boolean.FALSE == getProfileModel().readIsActive()) {
             SwingUtil.ensureDispatchThread(new Runnable() {
                 public void run() {
                     system.showProfilePassivatedNotification();

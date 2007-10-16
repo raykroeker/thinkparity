@@ -516,7 +516,13 @@ public final class SystemApplication extends AbstractApplication {
      *            A <code>ProfileEvent</code>.
      */
     void fireEMailVerified(final ProfileEvent e) {
+        // clear the email updated notification, and if appropriate,
+        // show the profile passivated notification.
+        // If a user starts thinkParity with invalid email as well as
+        // invalid payment info, this ensures the passivated notification
+        // is displayed after the email is verified.
         invoke(ActionId.PROFILE_CLEAR_EMAIL_UPDATED_NOTIFICATION, Data.emptyData());
+        invoke(ActionId.PROFILE_SHOW_PROFILE_PASSIVATED_NOTIFICATION, Data.emptyData());
     }
 
     /**

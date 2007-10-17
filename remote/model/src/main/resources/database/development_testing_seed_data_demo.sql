@@ -2,7 +2,7 @@
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,ACTIVE,DISABLED,VCARD,CREATED_ON) values('gjohnson.servicesoft','IrgYfGO2Ark1JQF7zrBcXg==','What is the city where you were born?','p0B7MKs7hs21lMFBgHe/+g==','1','0','iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/Wxgo8V5E3+CwiQCO24SvoUAhm/Oud9N8GJjYeL1oEivt5kt6uM15Gjg1wY6+R6AGlccJky7P8LDxgTF6iiBA6ogeieRf8jv5kMuqOyr3GAWzRdJBAAzxMK+GuabmN4lbVIJMLHHTgTS1x/H6wcpHfECyO2fDvkvK2MQfLcyZw92Fb1WY2XC166uo/8njTpkSnDTqeZCUlHH6jqnsUM+0EKhRNKEVlkoWsNYlux2ua8nThRO1E1pus95wVPJ7ooY+OamiDHQMVY08+CB8/zeFNiML7SAjtnN+D0bd21qbtrM4+9QMzH1SGTTYKaPPYc4k/cXoubHpiM2Rgc8m0cbyXF6cb+jqE030OOCbLoUYndX3BJ4KmlOVNK8i+Ex14djdplmsqyJwxe+7lnTv2+UiK0QFfVLQnOx1u9LU/867xzJJoTkpBvrN2Gnu1KhKRmKFQe5JzbFOCJxdTaKMRyMRRERQ==',CURRENT_TIMESTAMP);
 insert into TPSD_EMAIL(EMAIL) values('gjohnson@servicesoft.com');
 insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED) select USER_ID,EMAIL_ID,'1' from TPSD_USER, TPSD_EMAIL where USERNAME='gjohnson.servicesoft' and EMAIL='gjohnson@servicesoft.com';
-    
+
 -- John Bruce (Director Human Resources, ServiceSoft Inc)
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,ACTIVE,DISABLED,VCARD,CREATED_ON) values('jbruce.servicesoft','IrgYfGO2Ark1JQF7zrBcXg==','What is the city where you were born?','p0B7MKs7hs21lMFBgHe/+g==','1','0','iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/Wxgo8V5E3+CwiQCO24SvoUAhm/Oud9N8GJjYeL1oEivt5kt6uM15Gjg1wY6+R6AGlccJky7P8LDxgTF6iiBA6ogZFzP0rEEgygv86SuMTm2o2P0jGpuSscEbH8xJsg34kYq4aiT73851N11jlxiuMQhdu8MUnux84V4G3CAnWapYGohQd3OObnuv9DrwVlw/tZ4qkdM9FvZI9uOVfwJhi3Pal9VrZqefBGBqjJ3W1YT3++e6kaEzvtWYv7jxVCZIwu33UaXTJPAbCh2vCamWoWY1G8EyP89alWWhULv96gxKJZlMgzpNxUo4uwTHxgyxePi/PejPoejj5ukTxsTYJ6e/N3018t4Mf1nmI5Q8M9itiMMTM32TpFN6fYz0Gz5kE28D2H/gySY6Z602BdmxKh6dsFgKCMwcPpMcSskegt35/3AxOIwbNP66CxbZHcr1A0tjl1MNP7bUG16E9bTPbIZKkFBDIuKfSm6KcqL+E2qBs=',CURRENT_TIMESTAMP);
 insert into TPSD_EMAIL(EMAIL) values('jbruce@servicesoft.com');
@@ -87,6 +87,9 @@ insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED) select USER_ID,EMAIL_ID,'
 insert into TPSD_USER(USERNAME,PASSWORD,SECURITY_QUESTION,SECURITY_ANSWER,ACTIVE,DISABLED,VCARD,CREATED_ON) values('kcooper.agiletech','IrgYfGO2Ark1JQF7zrBcXg==','What is the city where you were born?','p0B7MKs7hs21lMFBgHe/+g==','1','0','iHt2ZotgbGgfDUZmdRUWf2FWWSzqlCzVgQxyhqrBElNEaamLxMcfRX+Si3bcB/Wxgo8V5E3+CwiQCO24SvoUAhm/Oud9N8GJjYeL1oEivt5kt6uM15Gjg1wY6+R6AGlccJky7P8LDxgTF6iiBA6ogexpXBmNhiqgJJYGoiqpL+cxm6c+CEFd2CUlR4GixZQ71/AZI6D7vUIMXBWWj8olUwHHKVUwpPRPydjJwqI4+WdhZxzf2neizLxaGv1r+i5qRu+bteuig8PnR3OnUjEaVmGkDmqp+E8G7A2GCiKFDms4NUvzsyN+TzlWrz+GiOIFQDhlYloMiZEFFTUVZ20iqUmqnHHUqy4x3XyusCeDfQmWo2vj2c8s0u4qLMrgMTJQUjnNLtaHJUDmBM3jIZHC0SQElX9/9sbQxS5fHG60BGra5cth5aOmwALSXgHQwHeyREyODRtDsLAcQNKgZ2z9RmFWWSzqlCzVgQxyhqrBElOaMTN3x7JR7aTpAw35Ex6V',CURRENT_TIMESTAMP);
 insert into TPSD_EMAIL(EMAIL) values('kcooper@agiletech.com');
 insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED) select USER_ID,EMAIL_ID,'1' from TPSD_USER, TPSD_EMAIL where USERNAME='kcooper.agiletech' and EMAIL='kcooper@agiletech.com';
+
+-- All users join the plan
+insert into TPSD_USER_PAYMENT_PLAN (USER_ID,PLAN_ID,CREATED_ON) select USER_ID,PLAN_ID,current_timestamp from TPSD_USER,TPSD_PAYMENT_PLAN where PLAN_NAME='thinkParity Solutions Inc.' and USER_ID>=(select USER_ID from TPSD_USER where USERNAME='gjohnson.servicesoft');
 
 -- All users get all features
 insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID) select USER_ID,FEATURE_ID from TPSD_USER,TPSD_PRODUCT_FEATURE;

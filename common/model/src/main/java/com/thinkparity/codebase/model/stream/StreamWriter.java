@@ -162,7 +162,10 @@ public final class StreamWriter implements RequestEntity {
                             putMethod.getStatusCode(),
                             putMethod.getStatusLine(), "\n\t",
                             putMethod.getStatusText());
-                case 500:
+                case 503:   // service unavailable
+                    utils.wait(utils.getRetryAfter(putMethod));
+                case 500:   // internal server error
+                case 504:   // gateway timeout
                     utils.writeError(putMethod);
                     throw new StreamException(Boolean.TRUE,
                             "Could not upload stream.  {0}:{1}{2}{3}",

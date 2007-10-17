@@ -20,6 +20,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.stream.httpclient.HttpConnectionManager;
 import com.thinkparity.codebase.model.util.http.HttpUtils;
 
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.xmlpull.mxp1.MXParser;
@@ -40,6 +41,9 @@ public final class StreamUtils {
     /** The xml charset (encoding). */
     private static final Charset CHARSET;
 
+    /** A default retry after header value. */
+    private static final Long DEFAULT_RETRY_AFTER;
+
     /** An set of error response node name. */
     private static final String[] ERROR_RESPONSE_NODE_NAMES;
 
@@ -52,6 +56,7 @@ public final class StreamUtils {
     static {
         BYTES_FORMAT = new BytesFormat();
         CHARSET = StringUtil.Charset.UTF_8.getCharset();
+        DEFAULT_RETRY_AFTER = 750L;
         ERROR_RESPONSE_NODE_NAMES = new String[] {
                 "Error", "Code", "Message", "RequestId", "HostId"
         };
@@ -63,6 +68,20 @@ public final class StreamUtils {
     }
 
     /**
+     * Wait for a given number of milliseconds.
+     * 
+     * @param millis
+     *            A <code>Long</code>.
+     */
+    void wait(final Long millis) {
+        try {
+            Thread.sleep(millis.longValue());
+        } catch (final InterruptedException ix) {
+            LOGGER.logWarning(ix, "Could not wait.");
+        }
+    }
+
+    /**
      * Create a new instance of an input stream reader.
      * 
      * @param stream
@@ -71,6 +90,26 @@ public final class StreamUtils {
      */
     private static Reader newStreamReader(final InputStream stream) {
         return new BufferedReader(new InputStreamReader(stream, CHARSET));
+    }
+
+    /**
+     * Create an xstream xml pull parser reader for an input steam.
+     * 
+     * @param stream
+     *            An <code>InputStream</code>.
+     * @return An <code>XppReader</code>.
+     * @throws StreamException
+     *             if the xml pull parser cannot be instantiated
+     */
+    private static XmlPullParser newXmlPullParser(final InputStream stream)
+            throws IOException {
+        final XmlPullParser parser = new MXParser();
+        try {
+            parser.setInput(newStreamReader(stream));
+        } catch (final XmlPullParserException xppx) {
+            throw new IOException(xppx);
+        }
+        return parser;
     }
 
     /**
@@ -92,6 +131,28 @@ public final class StreamUtils {
         return HTTP_CLIENT.executeMethod(method);
     }
 
+    /**
+     * Obtain the retry after header value from the method.
+     * 
+     * @param method
+     *            A <code>HttpMethod</code>.
+     * @return A <code>Long</code>.
+     */
+    Long getRetryAfter(final HttpMethod method) {
+        final Header header = method.getResponseHeader("Retry-After");
+        if (null == header) {
+            return DEFAULT_RETRY_AFTER;
+        } else {
+            try {
+                return Long.valueOf(header.getValue());
+            } catch (final NumberFormatException nfx) {
+                LOGGER.logWarning(nfx, "Could not extrapolate retry after:  {0}", header.getValue());
+                return DEFAULT_RETRY_AFTER;
+            }
+        }
+    }
+
+    
     /**
      * Log the receipt of a chunk by the monitor.
      * 
@@ -135,7 +196,6 @@ public final class StreamUtils {
                 null == monitor ? "unknown" : monitor.getName());
     }
 
-    
     /**
      * Read the error response from the http method's response body stream.
      * 
@@ -216,25 +276,5 @@ public final class StreamUtils {
         } catch (final IOException iox) {
             LOGGER.logWarning(iox, "Could not write stream error.");
         }
-    }
-
-    /**
-     * Create an xstream xml pull parser reader for an input steam.
-     * 
-     * @param stream
-     *            An <code>InputStream</code>.
-     * @return An <code>XppReader</code>.
-     * @throws StreamException
-     *             if the xml pull parser cannot be instantiated
-     */
-    private static XmlPullParser newXmlPullParser(final InputStream stream)
-            throws IOException {
-        final XmlPullParser parser = new MXParser();
-        try {
-            parser.setInput(newStreamReader(stream));
-        } catch (final XmlPullParserException xppx) {
-            throw new IOException(xppx);
-        }
-        return parser;
     }
 }

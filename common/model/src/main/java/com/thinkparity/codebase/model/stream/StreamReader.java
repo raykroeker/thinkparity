@@ -156,13 +156,16 @@ public final class StreamReader implements Cancelable {
                         input.close();
                     }
                     break;
-                case 400:
+                case 400:   // bad request
                     final StreamErrorResponse errorResponse = utils.readErrorResponse(method);
                     throw new StreamException(errorResponse.isRecoverable(),
                             "Could not download stream.  {0}:{1}{2}{3}",
                             method.getStatusCode(), method.getStatusLine(),
                             "\n\t", method.getStatusText());
-                case 500:
+                case 503:   // service unavailable; deliberate fall-through
+                    utils.wait(utils.getRetryAfter(method));
+                case 500:   // internal server error
+                case 504:   // gateway timeout
                     utils.writeError(method);
                     throw new StreamException(Boolean.TRUE,
                             "Could not download stream.  {0}:{1}{2}{3}",

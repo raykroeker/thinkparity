@@ -28,18 +28,15 @@ import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.ophelia.model.events.MigratorEvent;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
-import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.workspace.CannotLockException;
 import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
 
-import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.Constants.Directories;
 import com.thinkparity.ophelia.browser.Constants.EnvironmentVariable;
 import com.thinkparity.ophelia.browser.Constants.Files;
-import com.thinkparity.ophelia.browser.Constants.ShutdownHooks;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
@@ -59,7 +56,6 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.avatar.ErrorAvatar;
 import com.thinkparity.ophelia.browser.platform.event.LifeCycleEvent;
 import com.thinkparity.ophelia.browser.platform.event.LifeCycleListener;
-import com.thinkparity.ophelia.browser.platform.firewall.FirewallHelper;
 import com.thinkparity.ophelia.browser.platform.firstrun.FirstRunHelper;
 import com.thinkparity.ophelia.browser.platform.migrator.MigratorHelper;
 import com.thinkparity.ophelia.browser.platform.online.OnlineHelper;
@@ -69,9 +65,6 @@ import com.thinkparity.ophelia.browser.platform.window.Window;
 import com.thinkparity.ophelia.browser.platform.window.WindowFactory;
 import com.thinkparity.ophelia.browser.profile.Profile;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
-import com.thinkparity.ophelia.browser.util.firewall.FirewallAccessException;
-import com.thinkparity.ophelia.browser.util.firewall.FirewallUtil;
-import com.thinkparity.ophelia.browser.util.firewall.FirewallUtilProvider;
 
 import org.apache.log4j.Logger;
 
@@ -140,9 +133,6 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     /** A platform <code>EventDispatcher</code>. */
     private EventDispatcher eventDispatcher;
 
-    /** A <code>FirewallUtil</code>. */
-    private final FirewallUtil firewallUtil;
-
     /** The platform's first run helper. */
     private final FirstRunHelper firstRunHelper;
 
@@ -185,13 +175,6 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         this.environment = environment;
         this.mode = mode;
 
-        /* NOTE BrowserPlatform#init() - doesn't seem quite right to force an
-         * exit here but works like a charm */
-        final FirewallHelper firewallHelper = new FirewallHelper(this);
-        firewallHelper.run();
-        if (firewallHelper.isFirewallEnabled() && !firewallHelper.didAddFirewallRules())
-            System.exit(1);
-
         this.workspace = WorkspaceModel.getInstance(
                 environment).getWorkspace(new File(profile.getParityWorkspace()));
         new BrowserPlatformInitializer(this).initialize(workspace);
@@ -199,7 +182,6 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         this.applicationFactory = ApplicationFactory.getInstance(this);
 		this.applicationRegistry = new ApplicationRegistry();
 		this.avatarRegistry = new AvatarRegistry();
-        this.firewallUtil = FirewallUtilProvider.getInstance();
 		this.modelFactory = ModelFactory.getInstance();
 
 		this.logger = new Log4JWrapper();
@@ -213,35 +195,8 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
 	}
 
     /**
-     * @see com.thinkparity.ophelia.browser.platform.Platform#addFirewallRules()
-     *
-     */
-    public void addFirewallRules() throws FirewallAccessException {
-        Assert.assertTrue(isFirewallEnabled(), "Firewall is not enabled.");
-        Assert.assertNotTrue(isDevelopmentMode(), "Firewall cannot be enabled in development mode.");
-        firewallUtil.addExecutable(Constants.Files.EXECUTABLE);
-        workspace.addShutdownHook(new ShutdownHook() {
-            @Override
-            public String getDescription() {
-                return getName();
-            }
-            @Override
-            public String getName() {
-                return ShutdownHooks.Name.REMOVE_FIREWALL_RULE;
-            }
-            @Override
-            public Integer getPriority() {
-                return ShutdownHooks.Priority.REMOVE_FIREWALL_RULE;
-            }
-            @Override
-            public void run() {
-                firewallUtil.removeExecutable(Constants.Files.EXECUTABLE);
-            }
-        });
-    }
-
-    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#addListener(com.thinkparity.ophelia.browser.platform.event.LifeCycleListener)
+     * 
      */
     public void addListener(final LifeCycleListener listener) {
         listenerHelper.addListener(listener);
@@ -489,14 +444,6 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         default:
             throw Assert.createUnreachable("UNKNOWN MODE");
         }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.platform.Platform#isFirewallEnabled()
-     *
-     */
-    public Boolean isFirewallEnabled() {
-        return firewallUtil.isEnabled();
     }
 
     /**

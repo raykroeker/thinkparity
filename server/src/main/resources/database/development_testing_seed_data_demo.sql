@@ -92,11 +92,11 @@ insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED) select USER_ID,EMAIL_ID,'
 insert into TPSD_USER_PAYMENT_PLAN (USER_ID,PLAN_ID,CREATED_ON) select USER_ID,PLAN_ID,current_timestamp from TPSD_USER,TPSD_PAYMENT_PLAN where PLAN_NAME='thinkParity Solutions Inc.' and USER_ID>=(select USER_ID from TPSD_USER where USERNAME='gjohnson.servicesoft');
 
 -- All users get all features
-insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID) select USER_ID,FEATURE_ID from TPSD_USER,TPSD_PRODUCT_FEATURE;
+insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID) select USER_ID,FEATURE_ID from TPSD_USER,TPSD_PRODUCT_FEATURE where USER_ID>=(select USER_ID from TPSD_USER where USERNAME='gjohnson.servicesoft');
 delete from TPSD_USER_FEATURE_REL where USER_ID in (select USER_ID from TPSD_USER where USERNAME='thinkparity' or USERNAME='backup');
 
 -- All users get demo release
-insert into TPSD_USER_PRODUCT_RELEASE_REL(USER_ID,PRODUCT_ID,RELEASE_ID) select USER_ID,PR.PRODUCT_ID,RELEASE_ID from TPSD_USER,TPSD_PRODUCT P inner join TPSD_PRODUCT_RELEASE PR on PR.PRODUCT_ID=P.PRODUCT_ID where PRODUCT_NAME='OpheliaProduct' and RELEASE_NAME='DEMO';
+insert into TPSD_USER_PRODUCT_RELEASE_REL(USER_ID,PRODUCT_ID,RELEASE_ID) select USER_ID,PR.PRODUCT_ID,RELEASE_ID from TPSD_USER,TPSD_PRODUCT P inner join TPSD_PRODUCT_RELEASE PR on PR.PRODUCT_ID=P.PRODUCT_ID where PRODUCT_NAME='OpheliaProduct' and USER_ID>=(select USER_ID from TPSD_USER where USERNAME='gjohnson.servicesoft') and RELEASE_ID=(select max(RELEASE_ID) from TPSD_PRODUCT_RELEASE where RELEASE_OS='WINDOWS_XP');
 delete from TPSD_USER_PRODUCT_RELEASE_REL where USER_ID in (select USER_ID from TPSD_USER where USERNAME='thinkparity' or USERNAME='backup');
 delete from TPSD_USER_PRODUCT_RELEASE_REL where RELEASE_ID in (select RELEASE_ID from TPSD_PRODUCT_RELEASE where RELEASE_OS <> 'WINDOWS_XP');
 

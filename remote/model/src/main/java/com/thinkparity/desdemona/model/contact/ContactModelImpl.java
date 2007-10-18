@@ -35,9 +35,13 @@ import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.InvitationSql;
+import com.thinkparity.desdemona.model.node.Node;
+import com.thinkparity.desdemona.model.node.NodeService;
 import com.thinkparity.desdemona.model.profile.InternalProfileModel;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
 import com.thinkparity.desdemona.model.user.UserModel;
+
+import com.thinkparity.desdemona.util.DesdemonaProperties;
 import com.thinkparity.desdemona.util.smtp.SMTPService;
 
 /**
@@ -59,6 +63,12 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     /** The thinkParity invitation io. */
 	private InvitationSql invitationSql;
 
+    /** A number of milliseconds to wait for a lock. */
+    private long lockInvitationsWait;
+
+    /** A node service. */
+    private final NodeService nodeService;
+
     /** An instance of <code>SMTPService</code>. */
     private final SMTPService smtpService;
 
@@ -69,6 +79,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
 	public ContactModelImpl() {
 		super();
         this.defaultInvitationAttachmentFilter = FilterManager.createDefault();
+        this.nodeService = NodeService.getInstance();
         this.smtpService = SMTPService.getInstance();
 	}
 
@@ -81,51 +92,75 @@ public final class ContactModelImpl extends AbstractModelImpl implements
 	public void acceptInvitation(final IncomingEMailInvitation invitation,
             final Calendar acceptedOn) {
 		try {
-            final InternalUserModel userModel = getUserModel();
-            final User invitationUser = userModel.read(invitation.getExtendedBy().getId());
+		    final Node node = nodeService.getNode();
+		    final User invitationUser = getUserModel().read(
+		            invitation.getExtendedBy().getId());
+		    final List<ContactInvitation> invitationList = lockInvitationsForAccept(
+		            node, invitation);
+            try {
+                if (0 < invitationList.size()) {
+                    final IncomingEMailInvitation localInvitation =
+                        invitationSql.readIncomingEMail(user,
+                                invitation.getInvitationEMail(), invitationUser);
+                    if (null == localInvitation) {
+                        logger.logInfo("Incoming e-mail invitation ({0}) has been processed.",
+                                invitation.getInvitationEMail());
+                    } else {
+                        logger.logInfo("Processing e-mail invitation ({0}).",
+                                invitation.getInvitationEMail());
 
-            // create contact
-            contactSql.create(user, invitationUser, user, acceptedOn);
-            contactSql.create(invitationUser, user, user, acceptedOn);
+                        // create contact
+                        contactSql.create(user, invitationUser, user, acceptedOn);
+                        contactSql.create(invitationUser, user, user, acceptedOn);
 
-            /* check the outgoing e-mail invitation for any attachments, and
-             * send to the invitation user if they exist */
-            final OutgoingEMailInvitation outgoingEMailInvitation =
-                invitationSql.readOutgoingEMail(invitationUser,
-                        invitation.getInvitationEMail());
-            final List<Attachment> attachments = invitationSql.readAttachments(
-                    outgoingEMailInvitation);
+                        /* check the outgoing e-mail invitation for any attachments, and
+                         * send to the invitation user if they exist */
+                        final OutgoingEMailInvitation outgoingEMailInvitation =
+                            invitationSql.readOutgoingEMail(invitationUser,
+                                    localInvitation.getInvitationEMail());
+                        final List<Attachment> attachments = invitationSql.readAttachments(
+                                outgoingEMailInvitation);
 
-            /* check for an attachments on an outgoing e-mail invitation in the
-             * other direction; if it exists */
-            final List<EMail> invitationUserEMails =
-                getProfileModel().readEMails(user.getId(), invitationUser);
-            for (final EMail invitationUserEMail : invitationUserEMails) {
-                final OutgoingEMailInvitation outgoingPrime =
-                    invitationSql.readOutgoingEMail(user, invitationUserEMail);
-                logger.logDebug("outgoingPrime", outgoingPrime);
-                if (null != outgoingPrime) {
-                    final List<Attachment> attachmentsPrime =
-                        invitationSql.readAttachments(outgoingPrime);
-                    for (final Attachment attachmentPrime : attachmentsPrime) {
-                        invitationSql.deleteAttachment(attachmentPrime);
-                        send(user, invitationUser, outgoingPrime, attachmentPrime);
+                        /* check for an attachments on an outgoing e-mail invitation in the
+                         * other direction; if it exists */
+                        final List<EMail> invitationUserEMails =
+                            getProfileModel().readEMails(user.getId(), invitationUser);
+                        for (final EMail invitationUserEMail : invitationUserEMails) {
+                            final OutgoingEMailInvitation outgoingPrime =
+                                invitationSql.readOutgoingEMail(user, invitationUserEMail);
+                            logger.logDebug("outgoingPrime", outgoingPrime);
+                            if (null != outgoingPrime) {
+                                final List<Attachment> attachmentsPrime =
+                                    invitationSql.readAttachments(outgoingPrime);
+                                for (final Attachment attachmentPrime : attachmentsPrime) {
+                                    invitationSql.deleteAttachment(attachmentPrime);
+                                    send(user, invitationUser, outgoingPrime, attachmentPrime);
+                                }
+                            }
+                        }
+
+                        // delete all invitations
+                        deleteAllInvitations(node, user.getId(), user, invitationUser);
+
+                        // fire event invitation event
+                        final ContactInvitationAcceptedEvent event = new ContactInvitationAcceptedEvent();
+                        event.setAcceptedBy(user.getId());
+                        event.setAcceptedOn(acceptedOn);
+                        event.setDate(event.getAcceptedOn());
+                        enqueueEvent(invitationUser, event);
+                        // send attachments
+                        for (final Attachment attachment : attachments) {
+                            send(invitationUser, user, localInvitation, attachment);
+                        }
                     }
+                } else {
+                    invitationSql.unlock(node, invitationList);
+                    logger.logInfo("Incoming e-mail invitation ({0}) has been processed.",
+                            invitation.getInvitationEMail());
                 }
-            }
-
-            // delete all invitations
-            deleteAllInvitations(user.getId(), user, invitationUser);
-
-            // fire event invitation event
-            final ContactInvitationAcceptedEvent event = new ContactInvitationAcceptedEvent();
-            event.setAcceptedBy(user.getId());
-            event.setAcceptedOn(acceptedOn);
-            event.setDate(event.getAcceptedOn());
-            enqueueEvent(invitationUser, event);
-            // send attachments
-            for (final Attachment attachment : attachments) {
-                send(invitationUser, user, invitation, attachment);
+            } catch (final Exception x) {
+                invitationSql.unlock(node, invitationList);
+                throw x;
             }
         }
 		catch(final Throwable t) {
@@ -142,23 +177,44 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     public void acceptInvitation(final IncomingUserInvitation invitation,
             final Calendar acceptedOn) {
         try {
-            final InternalUserModel userModel = getUserModel();
-            final User extendedByUser = userModel.read(
-                    invitation.getExtendedBy().getId());
-
-            // delete incoming/outgoing/user/e-mail
-            deleteAllInvitations(user.getId(), user, extendedByUser);
-
-            // create contact
-            contactSql.create(user, extendedByUser, user, acceptedOn);
-            contactSql.create(extendedByUser, user, user, acceptedOn);
-
-            // fire event
-            final ContactInvitationAcceptedEvent event = new ContactInvitationAcceptedEvent();
-            event.setAcceptedBy(user.getId());
-            event.setAcceptedOn(acceptedOn);
-            event.setDate(event.getAcceptedOn());
-            enqueueEvent(extendedByUser, event);
+            final Node node = nodeService.getNode();
+            final User invitationUser = getUserModel().read(invitation.getExtendedBy().getId());
+            final List<ContactInvitation> invitationList = lockInvitationsForAccept(
+                    node, invitation);
+            try {
+                if (0 < invitationList.size()) {
+                    final IncomingUserInvitation localInvitation =
+                        invitationSql.readIncomingUser(user, invitationUser);
+                    if (null == localInvitation) {
+                        logger.logInfo("Incoming user invitation ({0}) has been processed.",
+                                invitation.getInvitationUser().getSimpleUsername());
+                    } else {
+                        logger.logInfo("Processing incoming user invitation ({0}).",
+                                invitation.getInvitationUser().getSimpleUsername());
+    
+                        // delete incoming/outgoing/user/e-mail
+                        deleteAllInvitations(node, user.getId(), user, invitationUser);
+                
+                        // create contact
+                        contactSql.create(user, invitationUser, user, acceptedOn);
+                        contactSql.create(invitationUser, user, user, acceptedOn);
+                
+                        // fire event
+                        final ContactInvitationAcceptedEvent event = new ContactInvitationAcceptedEvent();
+                        event.setAcceptedBy(user.getId());
+                        event.setAcceptedOn(acceptedOn);
+                        event.setDate(event.getAcceptedOn());
+                        enqueueEvent(invitationUser, event);
+                    }
+                } else {
+                    invitationSql.unlock(node, invitationList);
+                    logger.logInfo("Incoming user invitation ({0}) has been processed.",
+                            invitation.getInvitationUser().getSimpleUsername());
+                }
+            } catch (final Exception x) {
+                invitationSql.unlock(node, invitationList);
+                throw x;
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -299,37 +355,49 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     public void declineInvitation(final IncomingEMailInvitation invitation,
             final Calendar declinedOn) {
         try {
-            final UserModel userModel = getUserModel();
-            final User invitationUser = userModel.read(invitation.getExtendedBy().getId());
-
-            // delete incoming e-mail invitation
-            final IncomingEMailInvitation incomingEMailInvitation =
-                invitationSql.readIncomingEMail(user,
-                        invitation.getInvitationEMail(), invitationUser);
-            invitationSql.delete(incomingEMailInvitation);
-
-            // delete outgoing e-mail invitation
-            final OutgoingEMailInvitation outgoingEMailInvitation =
-                invitationSql.readOutgoingEMail(invitationUser,
-                        invitation.getInvitationEMail());
-            final List<ContainerVersionAttachment> attachments =
-                invitationSql.readContainerVersionAttachments(outgoingEMailInvitation);
-            invitationSql.deleteAttachments(outgoingEMailInvitation);
-            invitationSql.delete(outgoingEMailInvitation);
-            final InternalBackupModel backupModel = getBackupModel();
-            for (final ContainerVersionAttachment attachment : attachments) {
-                if (!doesExistAttachment(attachment.getUniqueId())) {
-                    backupModel.delete(attachment.getUniqueId());
+            final Node node = nodeService.getNode();
+            final User invitationUser = getUserModel().read(
+                    invitation.getExtendedBy().getId());
+            final List<ContactInvitation> invitationList = lockInvitationsForDecline(
+                    node, invitation);
+            try {
+                if (0 < invitationList.size()) {
+                    // delete incoming e-mail invitation
+                    final IncomingEMailInvitation incomingEMailInvitation =
+                        invitationSql.readIncomingEMail(user,
+                                invitation.getInvitationEMail(), invitationUser);
+                    invitationSql.delete(node, incomingEMailInvitation);
+        
+                    // delete outgoing e-mail invitation
+                    final OutgoingEMailInvitation outgoingEMailInvitation =
+                        invitationSql.readOutgoingEMail(invitationUser,
+                                invitation.getInvitationEMail());
+                    final List<ContainerVersionAttachment> attachments =
+                        invitationSql.readContainerVersionAttachments(outgoingEMailInvitation);
+                    invitationSql.deleteAttachments(outgoingEMailInvitation);
+                    invitationSql.delete(node, outgoingEMailInvitation);
+                    final InternalBackupModel backupModel = getBackupModel();
+                    for (final ContainerVersionAttachment attachment : attachments) {
+                        if (!doesExistAttachment(attachment.getUniqueId())) {
+                            backupModel.delete(attachment.getUniqueId());
+                        }
+                    }
+        
+                    // fire event
+                    final ContactEMailInvitationDeclinedEvent event = new ContactEMailInvitationDeclinedEvent();
+                    event.setDate(declinedOn);
+                    event.setDeclinedBy(user.getId());
+                    event.setDeclinedOn(event.getDate());
+                    event.setInvitedAs(invitation.getInvitationEMail());
+                    enqueueEvent(invitationUser, event);
+                } else {
+                    logger.logInfo("Invitation {0} has been processed.",
+                            invitation.getId());
                 }
+            } catch (final Exception x) {
+                invitationSql.unlock(node, invitationList);
+                throw x;
             }
-
-            // fire event
-            final ContactEMailInvitationDeclinedEvent event = new ContactEMailInvitationDeclinedEvent();
-            event.setDate(declinedOn);
-            event.setDeclinedBy(user.getId());
-            event.setDeclinedOn(event.getDate());
-            event.setInvitedAs(invitation.getInvitationEMail());
-            enqueueEvent(invitationUser, event);
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -344,25 +412,37 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     public void declineInvitation(final IncomingUserInvitation invitation,
             final Calendar declinedOn) {
         try {
-            final UserModel userModel = getUserModel();
-            final User invitationUser = userModel.read(invitation.getExtendedBy().getId());
-
-            // delete incoming user invitation
-            final IncomingUserInvitation incomingUserInvitation =
-                invitationSql.readIncomingUser(user, invitationUser);
-            invitationSql.delete(incomingUserInvitation);
-
-            // delete outgoing user invitation
-            final OutgoingUserInvitation outgoingUserInvitation =
-                invitationSql.readOutgoingUser(invitationUser, user);
-            invitationSql.delete(outgoingUserInvitation);
-
-            // fire event
-            final ContactUserInvitationDeclinedEvent event = new ContactUserInvitationDeclinedEvent();
-            event.setDate(declinedOn);
-            event.setDeclinedBy(user.getId());
-            event.setDeclinedOn(event.getDate());
-            enqueueEvent(invitationUser, event);
+            final Node node = nodeService.getNode();
+            final User invitationUser = getUserModel().read(
+                    invitation.getExtendedBy().getId());
+            final List<ContactInvitation> invitationList = lockInvitationsForDecline(
+                    node, invitation);
+            try {
+                if (0 < invitationList.size()) {
+                    // delete incoming user invitation
+                    final IncomingUserInvitation incomingUserInvitation =
+                        invitationSql.readIncomingUser(user, invitationUser);
+                    invitationSql.delete(node, incomingUserInvitation);
+        
+                    // delete outgoing user invitation
+                    final OutgoingUserInvitation outgoingUserInvitation =
+                        invitationSql.readOutgoingUser(invitationUser, user);
+                    invitationSql.delete(node, outgoingUserInvitation);
+        
+                    // fire event
+                    final ContactUserInvitationDeclinedEvent event = new ContactUserInvitationDeclinedEvent();
+                    event.setDate(declinedOn);
+                    event.setDeclinedBy(user.getId());
+                    event.setDeclinedOn(event.getDate());
+                    enqueueEvent(invitationUser, event);
+                } else {
+                    logger.logInfo("Invitation {0} has been processed.",
+                            invitation.getId());
+                }
+            } catch (final Exception x) {
+                invitationSql.unlock(node, invitationList);
+                throw x;
+            }
         } catch (final Throwable t) {
             throw translateError(t);
         }
@@ -390,41 +470,53 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     public void deleteInvitation(final OutgoingEMailInvitation invitation,
             final Calendar deletedOn) {
         try {
-            final UserModel userModel = getUserModel();
-            final User invitationUser = userModel.read(invitation.getInvitationEMail());
-
-            // delete incoming e-mail invitation
-            if (null == invitationUser) {
-                logger.logInfo("No inivation user exists.");
-            } else {
-                final IncomingEMailInvitation incomingEMail =
-                    invitationSql.readIncomingEMail(invitationUser,
-                            invitation.getInvitationEMail(), user);
-                invitationSql.delete(incomingEMail);
-            }
-
-            final OutgoingEMailInvitation outgoingEMail =
-                invitationSql.readOutgoingEMail(user,
-                        invitation.getInvitationEMail());
-            // delete attachments
-            final List<Attachment> attachments =
-                invitationSql.readAttachments(outgoingEMail);
-            for (final Attachment attachment : attachments)
-                invitationSql.deleteAttachment(attachment);
-            // delete outgoing e-mail invitation
-            invitationSql.delete(outgoingEMail);
-
-            // fire event
-            // delete incoming e-mail invitation
-            if (null == invitationUser) {
-                logger.logInfo("No inivation user exists.");
-            } else {
-                final ContactEMailInvitationDeletedEvent event = new ContactEMailInvitationDeletedEvent();
-                event.setDate(deletedOn);
-                event.setDeletedBy(user.getId());
-                event.setDeletedOn(event.getDate());
-                event.setInvitedAs(invitation.getInvitationEMail());
-                enqueueEvent(invitationUser, event);
+            final Node node = nodeService.getNode();
+            final User invitationUser = getUserModel().read(
+                    invitation.getInvitationEMail());
+            final List<ContactInvitation> invitationList = lockInvitationsForDelete(
+                    node, invitation);
+            try {
+                if (0 < invitationList.size()) {
+                    // delete incoming e-mail invitation
+                    if (null == invitationUser) {
+                        logger.logInfo("No inivation user exists.");
+                    } else {
+                        final IncomingEMailInvitation incomingEMail =
+                            invitationSql.readIncomingEMail(invitationUser,
+                                    invitation.getInvitationEMail(), user);
+                        invitationSql.delete(node, incomingEMail);
+                    }
+        
+                    final OutgoingEMailInvitation outgoingEMail =
+                        invitationSql.readOutgoingEMail(user,
+                                invitation.getInvitationEMail());
+                    // delete attachments
+                    final List<Attachment> attachments =
+                        invitationSql.readAttachments(outgoingEMail);
+                    for (final Attachment attachment : attachments)
+                        invitationSql.deleteAttachment(attachment);
+                    // delete outgoing e-mail invitation
+                    invitationSql.delete(node, outgoingEMail);
+        
+                    // fire event
+                    // delete incoming e-mail invitation
+                    if (null == invitationUser) {
+                        logger.logInfo("No inivation user exists.");
+                    } else {
+                        final ContactEMailInvitationDeletedEvent event = new ContactEMailInvitationDeletedEvent();
+                        event.setDate(deletedOn);
+                        event.setDeletedBy(user.getId());
+                        event.setDeletedOn(event.getDate());
+                        event.setInvitedAs(invitation.getInvitationEMail());
+                        enqueueEvent(invitationUser, event);
+                    }
+                } else {
+                    logger.logInfo("Invitation {0} has been processed.",
+                            invitation.getId());
+                }
+            } catch (final Exception x) {
+                invitationSql.unlock(node, invitationList);
+                throw x;
             }
         } catch(final Throwable t) {
             throw translateError(t);
@@ -440,25 +532,37 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     public void deleteInvitation(final OutgoingUserInvitation invitation,
             final Calendar deletedOn) {
         try {
-            final UserModel userModel = getUserModel();
-            final User invitationUser = userModel.read(invitation.getInvitationUser().getId());
-
-            // delete incoming user invitation
-            final IncomingUserInvitation incomingUserInvitation =
-                invitationSql.readIncomingUser(invitationUser, user);
-            invitationSql.delete(incomingUserInvitation);
-
-            // delete outgoing user invitation
-            final OutgoingUserInvitation outgoingUserInvitation =
-                invitationSql.readOutgoingUser(user, invitationUser);
-            invitationSql.delete(outgoingUserInvitation);
-
-            // fire event
-            final ContactUserInvitationDeletedEvent event = new ContactUserInvitationDeletedEvent();
-            event.setDate(deletedOn);
-            event.setDeletedBy(user.getId());
-            event.setDeletedOn(event.getDate());
-            enqueueEvent(invitationUser, event);
+            final Node node = nodeService.getNode();
+            final User invitationUser = getUserModel().read(
+                    invitation.getInvitationUser().getId());
+            final List<ContactInvitation> invitationList = lockInvitationsForDelete(
+                    node, invitation);
+            try {
+                if (0 < invitationList.size()) {
+                    // delete incoming user invitation
+                    final IncomingUserInvitation incomingUserInvitation =
+                        invitationSql.readIncomingUser(invitationUser, user);
+                    invitationSql.delete(node, incomingUserInvitation);
+        
+                    // delete outgoing user invitation
+                    final OutgoingUserInvitation outgoingUserInvitation =
+                        invitationSql.readOutgoingUser(user, invitationUser);
+                    invitationSql.delete(node, outgoingUserInvitation);
+        
+                    // fire event
+                    final ContactUserInvitationDeletedEvent event = new ContactUserInvitationDeletedEvent();
+                    event.setDate(deletedOn);
+                    event.setDeletedBy(user.getId());
+                    event.setDeletedOn(event.getDate());
+                    enqueueEvent(invitationUser, event);
+                } else {
+                    logger.logInfo("Invitation {0} has been processed.",
+                            invitation.getId());
+                }
+            } catch (final Exception x) {
+                invitationSql.unlock(node, invitationList);
+                throw x;
+            }
         } catch(final Throwable t) {
             throw translateError(t);
         }
@@ -659,6 +763,9 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     protected void initialize() {
         contactSql = new ContactSql();
         invitationSql = new InvitationSql();
+
+        final DesdemonaProperties properties = DesdemonaProperties.getInstance();
+        lockInvitationsWait = Long.valueOf(properties.getProperty("thinkparity.contact.lockinvitationswait"));
     }
 
     /**
@@ -670,6 +777,24 @@ public final class ContactModelImpl extends AbstractModelImpl implements
      */
     protected final User readUser(final JabberId userId) {
         return getUserModel().read(userId);
+    }
+
+    /**
+     * Obtain the invitation sql.
+     * 
+     * @return An <code>InvitationSql</code>.
+     */
+    InvitationSql getInvitationSql() {
+        return invitationSql;
+    }
+
+    /**
+     * Obtain the node service.
+     * 
+     * @return A <code>NodeService</code>.
+     */
+    NodeService getNodeService() {
+        return nodeService;
     }
 
     /**
@@ -706,8 +831,8 @@ public final class ContactModelImpl extends AbstractModelImpl implements
      * @param invitationUser
      *            A <code>User</code>.
      */
-    private void deleteAllInvitations(final JabberId userId, final User user,
-            final User invitationUser) {
+    private void deleteAllInvitations(final Node node, final JabberId userId,
+            final User user, final User invitationUser) {
         final InternalProfileModel profileModel = getProfileModel();
         final List<EMail> userEMails = profileModel.readEMails(userId, user);
         final List<EMail> invitationUserEMails = profileModel.readEMails(userId,
@@ -719,13 +844,13 @@ public final class ContactModelImpl extends AbstractModelImpl implements
             incomingEMailInvitation = invitationSql.readIncomingEMail(user,
                     email, invitationUser);
             if (null != incomingEMailInvitation)
-                invitationSql.delete(incomingEMailInvitation);
+                invitationSql.delete(node, incomingEMailInvitation);
         }
         for (final EMail email : invitationUserEMails) {
             incomingEMailInvitation = invitationSql.readIncomingEMail(
                     invitationUser, email, user);
             if (null != incomingEMailInvitation)
-                invitationSql.delete(incomingEMailInvitation);
+                invitationSql.delete(node, incomingEMailInvitation);
         }
 
         // delete outgoing e-mail invitations
@@ -735,7 +860,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                     email);
             if (null != outgoingEMailInvitation) {
                 invitationSql.deleteAttachments(outgoingEMailInvitation);
-                invitationSql.delete(outgoingEMailInvitation);
+                invitationSql.delete(node, outgoingEMailInvitation);
             }
         }
         for (final EMail email : userEMails) {
@@ -743,7 +868,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                     invitationUser, email);
             if (null != outgoingEMailInvitation) {
                 invitationSql.deleteAttachments(outgoingEMailInvitation);
-                invitationSql.delete(outgoingEMailInvitation);
+                invitationSql.delete(node, outgoingEMailInvitation);
             }
         }
 
@@ -752,22 +877,22 @@ public final class ContactModelImpl extends AbstractModelImpl implements
         incomingUserInvitation = invitationSql.readIncomingUser(user,
                 invitationUser);
         if (null != incomingUserInvitation)
-            invitationSql.delete(incomingUserInvitation);
+            invitationSql.delete(node, incomingUserInvitation);
         incomingUserInvitation = invitationSql.readIncomingUser(
                 invitationUser, user);
         if (null != incomingUserInvitation)
-            invitationSql.delete(incomingUserInvitation);
+            invitationSql.delete(node, incomingUserInvitation);
 
         // delete outgoing user invitations
         OutgoingUserInvitation outgoingUserInvitation;
         outgoingUserInvitation = invitationSql.readOutgoingUser(user,
                 invitationUser);
         if (null != outgoingUserInvitation)
-            invitationSql.delete(outgoingUserInvitation);
+            invitationSql.delete(node, outgoingUserInvitation);
         outgoingUserInvitation = invitationSql.readOutgoingUser(
                 invitationUser, user);
         if (null != outgoingUserInvitation)
-            invitationSql.delete(outgoingUserInvitation);
+            invitationSql.delete(node, outgoingUserInvitation);
     }
 
     /**
@@ -835,6 +960,270 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * Lock invitations for a node.
+     * 
+     * @param node
+     *            A <code>Node</code>.
+     * @param lockReader
+     *            A <code>InvitationLockReader</code>.
+     * @return A <code>List<ContactInvitation></code>.
+     * @throws CannotLockException
+     */
+    private List<ContactInvitation> lockInvitations(final Node node,
+            final InvitationLockReader lockReader) throws CannotLockException {
+        final List<ContactInvitation> invitationList = lockReader.read();
+        if (invitationSql.lock(nodeService.getNode(), invitationList)) {
+            return invitationList;
+        } else {
+            try {
+                Thread.sleep(lockInvitationsWait);
+            } catch (final InterruptedException ix) {
+                logger.logWarning("Could not wait for invitation lock release.",
+                        ix.getMessage());
+            }
+            /* in the interim; invitations may have been deleted */
+            invitationList.clear();
+            invitationList.addAll(lockReader.read());
+            if (invitationSql.lock(node, invitationList)) {
+                return invitationList;
+            } else {
+                logger.logError("Cannot lock invitations.");
+                throw new CannotLockException();
+            }
+        }
+    }
+
+    /**
+     * Lock all invitations for accepting an incoming e-mail invitation.
+     * 
+     * @param invitation
+     *            An <code>IncomingEMailInvitation</code>.
+     * @return A <code>List<ContactInvitation></code>.
+     */
+    private List<ContactInvitation> lockInvitationsForAccept(final Node node,
+            final IncomingEMailInvitation invitation) throws CannotLockException {
+        final List<ContactInvitation> invitationList = new ArrayList<ContactInvitation>();
+        return lockInvitations(node, new InvitationLockReader() {
+            /**
+             * @see com.thinkparity.desdemona.model.contact.InvitationLockReader#read()
+             *
+             */
+            @Override
+            public List<ContactInvitation> read() {
+                invitationList.clear();
+                final User invitationUser = getUserModel().read(invitation.getExtendedBy().getId());
+                final IncomingEMailInvitation localInvitation =
+                    invitationSql.readIncomingEMail(user,
+                            invitation.getInvitationEMail(), invitationUser);
+                if (null == localInvitation) {
+                    logger.logInfo("Incoming e-mail invitation ({0}) has been processed.",
+                            invitation.getInvitationEMail());
+                } else {
+                    logger.logInfo("Processing incoming e-mail invitation ({0}).",
+                            invitation.getInvitationEMail());
+                    invitationList.addAll(readAll(user, invitationUser));
+                }
+                return invitationList;
+            }
+        });
+    }
+
+    /**
+     * Lock all invitations for accepting an incoming user invitation.
+     * 
+     * @param invitation
+     *            An <code>IncomingUserInvitation</code>.
+     * @return A <code>List<ContactInvitation></code>.
+     */
+    private List<ContactInvitation> lockInvitationsForAccept(final Node node,
+            final IncomingUserInvitation invitation) throws CannotLockException {
+        final List<ContactInvitation> invitationList = new ArrayList<ContactInvitation>();
+        return lockInvitations(node, new InvitationLockReader() {
+            /**
+             * @see com.thinkparity.desdemona.model.contact.InvitationLockReader#read()
+             *
+             */
+            @Override
+            public List<ContactInvitation> read() {
+                invitationList.clear();
+                final User invitationUser = getUserModel().read(invitation.getExtendedBy().getId());
+                final IncomingUserInvitation localInvitation =
+                    invitationSql.readIncomingUser(user, invitationUser);
+                if (null == localInvitation) {
+                    logger.logInfo("Incoming user invitation ({0}) has been processed.",
+                            invitation.getInvitationUser().getSimpleUsername());
+                } else {
+                    logger.logInfo("Processing incoming user invitation ({0}).",
+                            invitation.getInvitationUser().getSimpleUsername());
+                    invitationList.addAll(readAll(user, invitationUser));
+                }
+                return invitationList;
+            }
+        });
+    }
+
+    /**
+     * Lock invitations for decline.
+     * 
+     * @param node
+     *            A <code>Node</code>.
+     * @param invitation
+     *            A <code>IncomingEMailInvitation</code>.
+     * @return A <code>List<ContactInvitation></code>.
+     * @throws CannotLockException
+     */
+    private List<ContactInvitation> lockInvitationsForDecline(final Node node,
+            final IncomingEMailInvitation invitation) throws CannotLockException {
+        final List<ContactInvitation> invitationList = new ArrayList<ContactInvitation>();
+        return lockInvitations(node, new InvitationLockReader() {
+            /**
+             * @see com.thinkparity.desdemona.model.contact.InvitationLockReader#read()
+             *
+             */
+            @Override
+            public List<ContactInvitation> read() {
+                final User invitationUser = getUserModel().read(invitation.getExtendedBy().getId());
+                invitationList.clear();
+                final IncomingEMailInvitation localInvitation =
+                    invitationSql.readIncomingEMail(user,
+                            invitation.getInvitationEMail(), invitationUser);
+                if (null == localInvitation) {
+                    logger.logInfo("Incoming e-mail invitation ({0}) has been processed.",
+                            invitation.getInvitationEMail());
+                } else {
+                    logger.logInfo("Processing incoming e-mail invitation ({0}).",
+                            invitation.getInvitationEMail());
+                    invitationList.add(localInvitation);
+                    invitationList.add(invitationSql.readOutgoingEMail(invitationUser,
+                            invitation.getInvitationEMail()));
+                }
+                return invitationList;
+            }
+        });
+    }
+
+    /**
+     * Lock invitations for decline.
+     * 
+     * @param node
+     *            A <code>Node</code>.
+     * @param invitation
+     *            A <code>IncomingUserInvitation</code>.
+     * @return A <code>List<ContactInvitation></code>.
+     * @throws CannotLockException
+     */
+    private List<ContactInvitation> lockInvitationsForDecline(final Node node,
+            final IncomingUserInvitation invitation) throws CannotLockException {
+        final List<ContactInvitation> invitationList = new ArrayList<ContactInvitation>();
+        return lockInvitations(node, new InvitationLockReader() {
+            /**
+             * @see com.thinkparity.desdemona.model.contact.InvitationLockReader#read()
+             *
+             */
+            @Override
+            public List<ContactInvitation> read() {
+                final User invitationUser = getUserModel().read(invitation.getExtendedBy().getId());
+                invitationList.clear();
+                final IncomingUserInvitation localInvitation =
+                    invitationSql.readIncomingUser(user, invitationUser);
+                if (null == localInvitation) {
+                    logger.logInfo("Incoming user invitation ({0}) has been processed.",
+                            invitation.getInvitationUser().getSimpleUsername());
+                } else {
+                    logger.logInfo("Processing incoming user invitation ({0}).",
+                            invitation.getInvitationUser().getSimpleUsername());
+                    invitationList.add(localInvitation);
+                    invitationList.add(invitationSql.readOutgoingUser(invitationUser, user));
+                }
+                return invitationList;
+            }
+        });
+    }
+
+    /**
+     * Lock invitations for delete.
+     * 
+     * @param node
+     *            A <code>Node</code>.
+     * @param invitation
+     *            A <code>OutgoingEMailInvitation</code>.
+     * @return A <code>List<ContactInvitation></code>.
+     * @throws CannotLockException
+     */
+    private List<ContactInvitation> lockInvitationsForDelete(final Node node,
+            final OutgoingEMailInvitation invitation) throws CannotLockException {
+        final List<ContactInvitation> invitationList = new ArrayList<ContactInvitation>();
+        return lockInvitations(node, new InvitationLockReader() {
+            /**
+             * @see com.thinkparity.desdemona.model.contact.InvitationLockReader#read()
+             *
+             */
+            @Override
+            public List<ContactInvitation> read() {
+                final User invitationUser = getUserModel().read(invitation.getInvitationEMail());
+                invitationList.clear();
+                final OutgoingEMailInvitation localInvitation =
+                    invitationSql.readOutgoingEMail(user, invitation.getInvitationEMail());
+                if (null == localInvitation) {
+                    logger.logInfo("Outgoing e-mail invitation ({0}) has been processed.",
+                            invitation.getInvitationEMail());
+                } else {
+                    logger.logInfo("Processing outgoing e-mail invitation ({0}).",
+                            invitation.getInvitationEMail());
+                    invitationList.add(localInvitation);
+                    if (null == invitationUser) {
+                        logger.logInfo("E-mail invitation ({0}) does not correspond to a user.",
+                                invitation.getInvitationEMail());
+                    } else {
+                        logger.logInfo("E-mail invitation ({0}) corresponds to {1}.",
+                                invitation.getInvitationEMail(), invitationUser.getSimpleUsername());
+                        invitationList.add(invitationSql.readIncomingEMail(invitationUser, invitation.getInvitationEMail(), user));
+                    }
+                }
+                return invitationList;
+            }
+        });
+    }
+
+    /**
+     * Lock invitations for delete.
+     * 
+     * @param node
+     *            A <code>Node</code>.
+     * @param invitation
+     *            A <code>OutgoingUserInvitation</code>.
+     * @return A <code>List<ContactInvitation></code>.
+     * @throws CannotLockException
+     */
+    private List<ContactInvitation> lockInvitationsForDelete(final Node node,
+            final OutgoingUserInvitation invitation) throws CannotLockException {
+        final List<ContactInvitation> invitationList = new ArrayList<ContactInvitation>();
+        return lockInvitations(node, new InvitationLockReader() {
+            /**
+             * @see com.thinkparity.desdemona.model.contact.InvitationLockReader#read()
+             *
+             */
+            @Override
+            public List<ContactInvitation> read() {
+                final User invitationUser = getUserModel().read(invitation.getInvitationUser().getId());
+                invitationList.clear();
+                final OutgoingUserInvitation localInvitation =
+                    invitationSql.readOutgoingUser(user, invitationUser);
+                if (null == localInvitation) {
+                    logger.logInfo("Outgoing user invitation ({0}) has been processed.",
+                            invitation.getInvitationUser().getSimpleUsername());
+                } else {
+                    logger.logInfo("Processing outgoing user invitation ({0}).",
+                            invitation.getInvitationUser().getSimpleUsername());
+                    invitationList.add(localInvitation);
+                    invitationList.add(invitationSql.readIncomingUser(invitationUser, user));
+                }
+                return invitationList;
+            }
+        });
+    }
+
+    /**
      * Read a contact for a user.
      * 
      * @param userId
@@ -848,6 +1237,71 @@ public final class ContactModelImpl extends AbstractModelImpl implements
         contact.setVCard(getUserModel(contact).readVCard(new ContactVCard()));
         contact.addAllEmails(getProfileModel().readEMails(userId, contact));
         return contact;
+    }
+
+    /**
+     * Read all invitations between two users.
+     * 
+     * @param one
+     *            A <code>User</code>.
+     * @param two
+     *            A <code>User</code>.
+     * @return A <code>List<ContactInvitation></code>.
+     */
+    private List<ContactInvitation> readAll(final User one, final User two) {
+        final List<ContactInvitation> invitationList = new ArrayList<ContactInvitation>();
+        ContactInvitation invitation = null;
+        /* from user two to user one via e-mail */
+        final List<EMail> oneEMailList = getProfileModel(one).readEMails(one.getId(), one);
+        for (final EMail email : oneEMailList) {
+            invitation = invitationSql.readIncomingEMail(one, email, two);
+            if (null == invitation) {
+                logger.logInfo("No incoming e-mail invitation from {0} to {1} ({2}).",
+                        two.getSimpleUsername(), one.getSimpleUsername(), email);
+            } else {
+                logger.logInfo("Incoming e-mail invitation from {0} to {1} ({2}).",
+                        two.getSimpleUsername(), one.getSimpleUsername(), email);
+                invitationList.add(invitation);
+                invitationList.add(invitationSql.readOutgoingEMail(two, email));
+            }
+        }
+        /* from user one to user two via e-mail */
+        final List<EMail> twoEMailList = getProfileModel(two).readEMails(two.getId(), two);
+        for (final EMail email : twoEMailList) {
+            invitation = invitationSql.readIncomingEMail(two, email, one);
+            if (null == invitation) {
+                logger.logInfo("No incoming e-mail invitation from {0} to {1} ({2}).",
+                        one.getSimpleUsername(), two.getSimpleUsername(), email);
+            } else {
+                logger.logInfo("Incoming e-mail invitation from {0} to {1} ({2}).",
+                        one.getSimpleUsername(), two.getSimpleUsername(), email);
+                invitationList.add(invitation);
+                invitationList.add(invitationSql.readOutgoingEMail(one, email));
+            }
+        }
+        /* from user one to user two */
+        invitation = invitationSql.readIncomingUser(two, one);
+        if (null == invitation) {
+            logger.logInfo("No incoming user invitation from {0} to {1}.",
+                    one.getSimpleUsername(), two.getSimpleUsername());
+        } else {
+            logger.logInfo("Incoming user invitation from {0} to {1}.",
+                    one.getSimpleUsername(), two.getSimpleUsername());
+            invitationList.add(invitation);
+            invitationList.add(invitationSql.readOutgoingUser(one, two));
+        }
+        /* from user two to user one */
+        invitation = invitationSql.readIncomingUser(one, two);
+        if (null == invitation) {
+            logger.logInfo("No incoming user invitation from {0} to {1}.",
+                    two.getSimpleUsername(), one.getSimpleUsername());
+        } else {
+            logger.logInfo("Incoming user invitation from {0} to {1}.",
+                    two.getSimpleUsername(), one.getSimpleUsername());
+            invitationList.add(invitation);
+            invitationList.add(invitationSql.readOutgoingUser(two, one));
+        }
+        return invitationList;
     }
 
     /**

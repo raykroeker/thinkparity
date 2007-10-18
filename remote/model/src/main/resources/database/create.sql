@@ -119,6 +119,13 @@ create table TPSD_CONTACT_INVITATION(
     primary key(CONTACT_INVITATION_ID),
     foreign key(CREATED_BY) references TPSD_USER(USER_ID)
 );
+create table TPSD_CONTACT_INVITATION_LOCK(
+    CONTACT_INVITATION_ID bigint not null,
+    NODE_ID smallint,
+    primary key(CONTACT_INVITATION_ID),
+    foreign key(CONTACT_INVITATION_ID) references TPSD_CONTACT_INVITATION(CONTACT_INVITATION_ID),
+    foreign key(NODE_ID) references TPSD_NODE(NODE_ID)
+);
 create table TPSD_CONTACT_INVITATION_ATTACHMENT(
     CONTACT_INVITATION_ID bigint not null,
     ATTACHMENT_REFERENCE_TYPE_ID smallint not null,

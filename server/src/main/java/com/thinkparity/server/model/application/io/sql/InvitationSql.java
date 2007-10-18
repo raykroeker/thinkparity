@@ -4,8 +4,11 @@
 package com.thinkparity.desdemona.model.io.sql;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 
 import com.thinkparity.codebase.model.contact.ContactInvitation;
@@ -20,6 +23,7 @@ import com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttach
 import com.thinkparity.desdemona.model.contact.invitation.Attachment.ReferenceType;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
+import com.thinkparity.desdemona.model.node.Node;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Contact Invitation SQL
@@ -58,6 +62,13 @@ public class InvitationSql extends AbstractSql {
         new StringBuilder("insert into TPSD_CONTACT_INVITATION_INCOMING_USER ")
         .append("(CONTACT_INVITATION_ID,USER_ID,EXTENDED_BY_USER_ID) ")
         .append("values (?,?,?)")
+        .toString();
+
+    /** Sql to create a generic invitation lock. */
+    private static final String SQL_CREATE_LOCK =
+        new StringBuilder("insert into TPSD_CONTACT_INVITATION_LOCK ")
+        .append("(CONTACT_INVITATION_ID) ")
+        .append("values (?)")
         .toString();
 
     /** Sql to create an outgoing e-mail invitation. */
@@ -106,6 +117,12 @@ public class InvitationSql extends AbstractSql {
         .append("where CONTACT_INVITATION_ID=?")
         .toString();
 
+    /** Sql to delete an invitation lock. */
+    private static final String SQL_DELETE_LOCK =
+        new StringBuilder("delete from TPSD_CONTACT_INVITATION_LOCK ")
+        .append("where CONTACT_INVITATION_ID=? and NODE_ID=?")
+        .toString();
+
     /** Sql to delete an outgoing e-mail invitation. */
     private static final String SQL_DELETE_OUTGOING_EMAIL =
         new StringBuilder("delete from TPSD_CONTACT_INVITATION_OUTGOING_EMAIL ")
@@ -117,6 +134,9 @@ public class InvitationSql extends AbstractSql {
         new StringBuilder("delete from TPSD_CONTACT_INVITATION_OUTGOING_USER ")
         .append("where CONTACT_INVITATION_ID=?")
         .toString();
+
+    /** Sql to lock a series of invitations. */
+    private static final Map<Integer, String> SQL_LOCK = new HashMap<Integer, String>(3, 1.0F);
 
     /** Sql to read attachments. */
     private static final String SQL_READ_ATTACHMENTS =
@@ -252,6 +272,93 @@ public class InvitationSql extends AbstractSql {
         .append("where CIOU.USER_ID=? and CIOU.INVITATION_USER_ID=?")
         .toString();
 
+    /** Sql to unlock an invitation. */
+    private static final String SQL_UNLOCK =
+        new StringBuilder("update TPSD_CONTACT_INVITATION_LOCK ")
+        .append("set NODE_ID=null ")
+        .append("where NODE_ID=? ")
+        .append("and CONTACT_INVITATION_ID=?")
+        .toString();
+
+    static {
+        SQL_LOCK.put(Integer.valueOf(1),
+                new StringBuilder("update TPSD_CONTACT_INVITATION_LOCK ")
+                .append("set NODE_ID=? ")
+                .append("where CONTACT_INVITATION_ID=? ")
+                .append("and NODE_ID is null")
+                .toString());
+        SQL_LOCK.put(Integer.valueOf(2),
+                new StringBuilder("update TPSD_CONTACT_INVITATION_LOCK ")
+                .append("set NODE_ID=? ")
+                .append("where (CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=?) ")
+                .append("and NODE_ID is null")
+                .toString());
+        SQL_LOCK.put(Integer.valueOf(3),
+                new StringBuilder("update TPSD_CONTACT_INVITATION_LOCK ")
+                .append("set NODE_ID=? ")
+                .append("where (CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=?)")
+                .append("and NODE_ID is null")
+                .toString());
+        SQL_LOCK.put(Integer.valueOf(4),
+                new StringBuilder("update TPSD_CONTACT_INVITATION_LOCK ")
+                .append("set NODE_ID=? ")
+                .append("where (CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=?) ")
+                .append("and NODE_ID is null")
+                .toString());
+        SQL_LOCK.put(Integer.valueOf(5),
+                new StringBuilder("update TPSD_CONTACT_INVITATION_LOCK ")
+                .append("set NODE_ID=? ")
+                .append("where (CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=?) ")
+                .append("and NODE_ID is null")
+                .toString());
+        SQL_LOCK.put(Integer.valueOf(6),
+                new StringBuilder("update TPSD_CONTACT_INVITATION_LOCK ")
+                .append("set NODE_ID=? ")
+                .append("where (CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=?) ")
+                .append("and NODE_ID is null")
+                .toString());
+        SQL_LOCK.put(Integer.valueOf(7),
+                new StringBuilder("update TPSD_CONTACT_INVITATION_LOCK ")
+                .append("set NODE_ID=? ")
+                .append("where (CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=?) ")
+                .append("and NODE_ID is null")
+                .toString());
+        SQL_LOCK.put(Integer.valueOf(8),
+                new StringBuilder("update TPSD_CONTACT_INVITATION_LOCK ")
+                .append("set NODE_ID=? ")
+                .append("where (CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=? ")
+                .append("or CONTACT_INVITATION_ID=?) ")
+                .append("and NODE_ID is null")
+                .toString());
+    }
+
     /** An e-mail sql interface. */
     private final EMailSql emailSql;
 
@@ -294,6 +401,8 @@ public class InvitationSql extends AbstractSql {
                 throw new HypersonicException(
                         "Could not create invitation {0} for user {1}.",
                         invitation, user);
+
+            session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);
         } finally {
@@ -324,6 +433,7 @@ public class InvitationSql extends AbstractSql {
                 throw new HypersonicException(
                         "Could not create invitation {0} for user {1}.",
                         invitation, user);
+
             session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);
@@ -358,6 +468,7 @@ public class InvitationSql extends AbstractSql {
                 throw new HypersonicException(
                         "Could not create outgoing e-mail invitation for {0} to {1}.",
                         invitation.getCreatedBy(), invitation.getInvitationEMail());
+
             session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);
@@ -389,6 +500,7 @@ public class InvitationSql extends AbstractSql {
                 throw new HypersonicException(
                         "Could not create outgoing user invitation {0} for {1}.",
                         invitation, user);
+
             session.commit();
         } finally {
             session.close();
@@ -419,7 +531,7 @@ public class InvitationSql extends AbstractSql {
         }
     }
 
-    public void delete(final IncomingEMailInvitation invitation) {
+    public void delete(final Node node, final IncomingEMailInvitation invitation) {
         final HypersonicSession session = openSession();
         try {
             // delete the invitation
@@ -431,7 +543,8 @@ public class InvitationSql extends AbstractSql {
                         invitation);
 
             // delete the generic invitation
-            delete(session, invitation);
+            delete(session, node, invitation);
+
             session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);
@@ -440,7 +553,7 @@ public class InvitationSql extends AbstractSql {
         }
     }
 
-    public void delete(final IncomingUserInvitation invitation) {
+    public void delete(final Node node, final IncomingUserInvitation invitation) {
         final HypersonicSession session = openSession();
         try {
             // delete the invitation
@@ -452,7 +565,8 @@ public class InvitationSql extends AbstractSql {
                         invitation);
 
             // delete the generic invitation
-            delete(session, invitation);
+            delete(session, node, invitation);
+
             session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);
@@ -461,7 +575,7 @@ public class InvitationSql extends AbstractSql {
         }
     }
 
-    public void delete(final OutgoingEMailInvitation invitation) {
+    public void delete(final Node node, final OutgoingEMailInvitation invitation) {
         final HypersonicSession session = openSession();
         try {
             // delete the invitation
@@ -473,7 +587,8 @@ public class InvitationSql extends AbstractSql {
                         invitation);
 
             // delete the generic invitation
-            delete(session, invitation);
+            delete(session, node, invitation);
+
             session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);
@@ -482,7 +597,7 @@ public class InvitationSql extends AbstractSql {
         }
     }
 
-    public void delete(final OutgoingUserInvitation invitation) {
+    public void delete(final Node node, final OutgoingUserInvitation invitation) {
         final HypersonicSession session = openSession();
         try {
             // delete the invitation
@@ -494,7 +609,8 @@ public class InvitationSql extends AbstractSql {
                         invitation);
 
             // delete the generic invitation
-            delete(session, invitation);
+            delete(session, node, invitation);
+
             session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);
@@ -518,6 +634,7 @@ public class InvitationSql extends AbstractSql {
             session.setString(3, attachment.getReferenceId());
             if (1 != session.executeUpdate())
                 throw panic("Could not delete attachment.");
+
             session.commit();
         } catch (final Throwable t) {
             throw translateError(session, t);
@@ -544,6 +661,49 @@ public class InvitationSql extends AbstractSql {
             throw translateError(session, t);
         } finally {
             session.close();
+        }
+    }
+
+    /**
+     * Lock invitations for a node to process.
+     * 
+     * @param invitationList
+     *            A <code>List<ContactInvitation></code>.
+     */
+    public Boolean lock(final Node node,
+            final List<ContactInvitation> invitationList) {
+        if (invitationList.isEmpty()) {
+            return Boolean.TRUE;
+        } else {
+            Assert.assertTrue(1 == invitationList.size()
+                    || 2 == invitationList.size() || 3 == invitationList.size()
+                    || 4 == invitationList.size() || 5 == invitationList.size()
+                    || 6 == invitationList.size() || 7 == invitationList.size()
+                    || 8 == invitationList.size(),
+                    "Invitation list must be of size [1,2,3,4,5,6,7,8] and is {0}.",
+                    invitationList.size());
+            final HypersonicSession session = openSession();
+            try {
+                session.prepareStatement(SQL_LOCK.get(Integer.valueOf(invitationList.size())));
+                session.setLong(1, node.getId());
+                int i = 2;
+                for (final ContactInvitation invitation : invitationList) {
+                    session.setLong(i++, invitation.getId());
+                }
+                final int locked = session.executeUpdate();
+    
+                if (locked == invitationList.size()) {
+                    session.commit();
+                    return Boolean.TRUE;
+                } else {
+                    session.rollback();
+                    return Boolean.FALSE;
+                }
+            } catch (final Throwable t) {
+                throw translateError(session, t);
+            } finally {
+                session.close();
+            }
         }
     }
 
@@ -827,6 +987,33 @@ public class InvitationSql extends AbstractSql {
     }
 
     /**
+     * Unlock an invitation for a node.
+     * 
+     * @param invitation
+     *            A <code>ContactInvitation</code>.
+     */
+    public void unlock(final Node node,
+            final List<ContactInvitation> invitationList) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_UNLOCK);
+            session.setLong(1, node.getId());
+            for (final ContactInvitation invitation : invitationList) {
+                session.setLong(2, invitation.getId());
+                if (1 != session.executeUpdate()) {
+                    throw panic("Could not unlock invitation.  {0}", invitation);
+                }
+            }
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Extract an incoming e-mail invitation from the session.
      * 
      * @param session
@@ -899,9 +1086,16 @@ public class InvitationSql extends AbstractSql {
         session.prepareStatement(SQL_CREATE);
         session.setLong(1, invitation.getCreatedBy().getLocalId());
         session.setCalendar(2, invitation.getCreatedOn());
-        if (1 != session.executeUpdate())
+        if (1 != session.executeUpdate()) {
             throw panic("Could not create contact invitation.");
+        }
         invitation.setId(session.getIdentity("TPSD_CONTACT_INVITATION"));
+
+        session.prepareStatement(SQL_CREATE_LOCK);
+        session.setLong(1, invitation.getId());
+        if (1 != session.executeUpdate()) {
+            throw panic("Could not create contact invitation.");
+        }
     }
 
     /**
@@ -909,16 +1103,25 @@ public class InvitationSql extends AbstractSql {
      * 
      * @param session
      *            A <code>HypersonicSession</code>.
+     * @param node
+     *            A <code>Node</code>.
      * @param invitation
      *            A <code>ContactInvitation</code>.
      */
-    private void delete(final HypersonicSession session,
+    private void delete(final HypersonicSession session, final Node node,
             final ContactInvitation invitation) {
+        session.prepareStatement(SQL_DELETE_LOCK);
+        session.setLong(1, invitation.getId());
+        session.setLong(2, node.getId());
+        if (1 != session.executeUpdate()) {
+            throw panic("Could not delete invitation lock.  {0}", invitation);
+        }
+
         session.prepareStatement(SQL_DELETE);
         session.setLong(1, invitation.getId());
-        if (1 != session.executeUpdate())
-            throw panic("Could not delete invitation {0}.",
-                    invitation);
+        if (1 != session.executeUpdate()) {
+            throw panic("Could not delete invitation.  {0}", invitation);
+        }
     }
 
     /**

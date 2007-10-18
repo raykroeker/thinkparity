@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.service.persistence;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -23,6 +24,8 @@ import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSessionManager;
 import com.thinkparity.desdemona.service.Service;
 
 import com.thinkparity.desdemona.util.DateTimeProvider;
+
+import org.apache.commons.dbcp.BasicDataSource;
 
 /**
  * <b>Title:</b>thinkParity Desdemona Persistence Manager<br>
@@ -86,6 +89,18 @@ public final class PersistenceService extends Service {
         return dataSource;
     }
 
+    /** A data source. */
+    private DataSource dataSource2;
+
+    /**
+     * Obtain a data source.
+     * 
+     * @return A <code>DataSource</code>.
+     */
+    public DataSource getDataSource2() {
+        return dataSource2;
+    }
+
     /**
      * Start the persistence service.
      * 
@@ -113,6 +128,27 @@ public final class PersistenceService extends Service {
         } catch (final HypersonicException hx) {
             throw new ThinkParityException("Database session could not be opened.", hx);
         }
+
+        dataSource2 = newPooledDataSource();
+    }
+
+    /**
+     * Instantiate a pooling data source.
+     * 
+     * @return A <code>DataSource</code>.
+     */
+    private DataSource newPooledDataSource() {
+        final BasicDataSource bds = new BasicDataSource();
+        bds.setDefaultAutoCommit(false);
+        bds.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+        bds.setDriverClassName(properties.getProperty("thinkparity.datasource-driver"));
+        bds.setInitialSize(Integer.valueOf(properties.getProperty("thinkparity.datasource-poolinitialsize")));
+        bds.setMaxActive(Integer.valueOf(properties.getProperty("thinkparity.datasource-poolmaxactive")));
+        bds.setPoolPreparedStatements(Boolean.valueOf(properties.getProperty("thinkparity.datasource.poolpreparedstatements")));
+        bds.setUrl(properties.getProperty("thinkparity.datasource-url"));
+        bds.setUsername(properties.getProperty("thinkparity.datasource-user"));
+        bds.setPassword(properties.getProperty("thinkparity.datasource-password"));
+        return bds;
     }
 
     /**
@@ -139,6 +175,12 @@ public final class PersistenceService extends Service {
                 // the sqlx is thrown deliberately by derby on shutdown
             } catch (final Throwable t) {
                 logger.logError(t, "An error occured stopping persistence.");
+            }
+
+            try {
+                ((BasicDataSource) dataSource2).close();
+            } catch (final SQLException sqlx) {
+                logger.logError(sqlx, "Could not shut down data source pool.");
             }
         } finally {
             this.properties = null;

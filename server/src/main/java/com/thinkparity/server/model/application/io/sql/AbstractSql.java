@@ -68,7 +68,7 @@ public abstract class AbstractSql {
      *
      */
 	protected AbstractSql() {
-        this(PersistenceService.getInstance().getDataSource(), Boolean.TRUE);
+        this(PersistenceService.getInstance().getDataSource2(), Boolean.TRUE);
     }
 
     /**

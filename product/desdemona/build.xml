@@ -209,7 +209,9 @@ Local Configuration:                ${localconfig}
     <antx:dependency type="java" scope="compile" provider="apache.org"
         version="1.2.8" path="apache.org/logging/log4j/1.2.8/log4j.jar"/>
     <antx:dependency type="java" scope="compile" provider="apache.org"
-	    version="3.0.1" path="apache.org/jakarta/commons/httpclient/3.0.1/httpclient.jar"/>
+        version="3.0.1" path="apache.org/jakarta/commons/httpclient/3.0.1/httpclient.jar"/>
+    <antx:dependency type="java" scope="compile" provider="apache.org"
+        version="1.2.2" path="apache.org/jakarta/commons/dbcp/1.2.2/commons-dbcp.jar"/>
 
     <antx:dependency type="java" scope="compile" provider="codehaus.org"
         version="1.2.1" path="xstream/1.2.1/xstream.jar"/>
@@ -239,6 +241,8 @@ Local Configuration:                ${localconfig}
         path="apache.org/derby/10.2.2.0/derby.jar"/>
     <antx:dependency type="java" scope="run" provider="apache.org" version="10.2.2.0"
         path="apache.org/derby/10.2.2.0/derbyclient.jar"/>
+    <antx:dependency type="java" scope="run" provider="apache.org"
+        version="1.3" path="apache.org/jakarta/commons/pool/1.3/commons-pool.jar"/>
     <antx:dependency type="java" scope="run" provider="objectweb.org" version="2.0.10"
         path="jotm/2.0.10/jotm_jrmp_stubs.jar"/>
     <antx:dependency type="java" scope="run" provider="objectweb.org" version="2.0.10"

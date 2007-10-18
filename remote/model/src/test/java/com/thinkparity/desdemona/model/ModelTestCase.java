@@ -567,6 +567,21 @@ public abstract class ModelTestCase extends TestCase {
     }
 
     /**
+     * Instantiate a thread.
+     * 
+     * @param runnable
+     *            A <code>Runnable</code>.
+     * @param name
+     *            A <code>String</code>.
+     * @return A <code>Thread</code>.
+     */
+    private Thread newThread(final Runnable runnable, final String name) {
+        final Thread thread = new Thread(runnable, name);
+        thread.setDaemon(true);
+        return thread;
+    }
+
+    /**
      * Create a new unique username.
      * 
      * @return A <code>String</code>.
@@ -787,7 +802,6 @@ public abstract class ModelTestCase extends TestCase {
         public SessionModel getSessionModel() {
             return ModelTestCase.this.getSessionModel();
         }
-
         /**
          * @see com.thinkparity.desdemona.model.ModelTestCase#getContactModel(AuthToken)
          * 
@@ -866,6 +880,15 @@ public abstract class ModelTestCase extends TestCase {
          */
         public Profile newProfile(final List<Feature> featureList) {
             return ModelTestCase.this.newProfile(featureList);
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#newThread(Runnable,
+         *      String)
+         * 
+         */
+        public Thread newThread(final Runnable runnable, final String name) {
+            return ModelTestCase.this.newThread(runnable, name);
         }
 
         /**

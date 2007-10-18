@@ -1,10 +1,12 @@
 When you want to publish a new version, you need to create a working version first. The Working Version is a copy of the latest historical version that can be modified. You can add, remove, and modify the documents of the Working Version.
 
+To create a working version, right-click on the package name and select 'Create Working Version'.
+
 Only one person can work on a new version at a time. You can tell if somebody else is working on the Working Version because their name appears on the right side of the package.
 
-To create a Working Version you must also have the most recent version of the package.
+<p>To create a Working Version you must also have the most recent version of the package.
 
-<p>To add a document to the the Working Version, right-click on the Working Version and select the 'Add Documents' command. Alternatively, drag one or more files from Windows Explorer(TM) onto the package. You can add any document or file, such as Microsoft Office documents, images, or PDF files. The only restriction is that a file cannot be larger than 2 Gigabytes in size.
+To add a document to the the Working Version, right-click on the Working Version and select the 'Add Documents' command. Alternatively, drag one or more files from Windows Explorer(TM) onto the package. You can add any document or file, such as Microsoft Office documents, images, or PDF files. The only restriction is that a file cannot be larger than 2 Gigabytes in size.
 
 When a document is added to thinkParity, a copy of the file is created and stored inside thinkParity. If you modify or delete the file on your file system, the document in thinkParity is not affected, and vice versa.
 

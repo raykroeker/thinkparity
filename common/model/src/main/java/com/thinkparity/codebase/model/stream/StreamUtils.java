@@ -17,9 +17,6 @@ import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
-import com.thinkparity.codebase.model.stream.httpclient.HttpConnectionManager;
-import com.thinkparity.codebase.model.util.http.HttpUtils;
-
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -41,14 +38,14 @@ public final class StreamUtils {
     /** The xml charset (encoding). */
     private static final Charset CHARSET;
 
+    /** A stream configuration. */
+    private static final StreamConfiguration CONFIGURATION;
+
     /** A default retry after header value. */
     private static final Long DEFAULT_RETRY_AFTER;
 
     /** An set of error response node name. */
     private static final String[] ERROR_RESPONSE_NODE_NAMES;
-
-    /** A http client. */
-    private static final HttpClient HTTP_CLIENT;
 
     /** A log4j wrapper. */
     private static final Log4JWrapper LOGGER;
@@ -56,29 +53,12 @@ public final class StreamUtils {
     static {
         BYTES_FORMAT = new BytesFormat();
         CHARSET = StringUtil.Charset.UTF_8.getCharset();
+        CONFIGURATION = new StreamConfiguration();
         DEFAULT_RETRY_AFTER = 750L;
         ERROR_RESPONSE_NODE_NAMES = new String[] {
                 "Error", "Code", "Message", "RequestId", "HostId"
         };
-        HTTP_CLIENT = HttpUtils.newClient();
-        HTTP_CLIENT.setHttpConnectionManager(new HttpConnectionManager());
-        HTTP_CLIENT.getHttpConnectionManager().getParams().setMaxTotalConnections(3);
-        HTTP_CLIENT.getHttpConnectionManager().getParams().setSoTimeout(7 * 1000);
         LOGGER = new Log4JWrapper(StreamUtils.class);
-    }
-
-    /**
-     * Wait for a given number of milliseconds.
-     * 
-     * @param millis
-     *            A <code>Long</code>.
-     */
-    void wait(final Long millis) {
-        try {
-            Thread.sleep(millis.longValue());
-        } catch (final InterruptedException ix) {
-            LOGGER.logWarning(ix, "Could not wait.");
-        }
     }
 
     /**
@@ -128,7 +108,7 @@ public final class StreamUtils {
      * @return An http status code.
      */
     int execute(final HttpMethod method) throws IOException {
-        return HTTP_CLIENT.executeMethod(method);
+        return getHttpClient().executeMethod(method);
     }
 
     /**
@@ -152,7 +132,6 @@ public final class StreamUtils {
         }
     }
 
-    
     /**
      * Log the receipt of a chunk by the monitor.
      * 
@@ -182,6 +161,7 @@ public final class StreamUtils {
                 BYTES_FORMAT.format(new Long(chunkSize)));
     }
 
+    
     /**
      * Log a monitor error.
      * 
@@ -260,6 +240,20 @@ public final class StreamUtils {
     }
 
     /**
+     * Wait for a given number of milliseconds.
+     * 
+     * @param millis
+     *            A <code>Long</code>.
+     */
+    void wait(final Long millis) {
+        try {
+            Thread.sleep(millis.longValue());
+        } catch (final InterruptedException ix) {
+            LOGGER.logWarning(ix, "Could not wait.");
+        }
+    }
+
+    /**
      * Write the error to the system error stream.
      * 
      * @param method
@@ -276,5 +270,14 @@ public final class StreamUtils {
         } catch (final IOException iox) {
             LOGGER.logWarning(iox, "Could not write stream error.");
         }
+    }
+
+    /**
+     * Obtain a http client.
+     * 
+     * @return An <code>HttpClient</code>.
+     */
+    private HttpClient getHttpClient() {
+        return CONFIGURATION.getHttpClient();
     }
 }

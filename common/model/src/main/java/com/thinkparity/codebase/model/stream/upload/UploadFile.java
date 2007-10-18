@@ -22,12 +22,13 @@ import com.thinkparity.codebase.model.stream.StreamWriter;
 import com.thinkparity.network.NetworkException;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity Common Model Stream Upload File<br>
  * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class UploadFile {
+public class UploadFile {
 
     /** A bytes format. */
     private static final BytesFormat BYTES_FORMAT;

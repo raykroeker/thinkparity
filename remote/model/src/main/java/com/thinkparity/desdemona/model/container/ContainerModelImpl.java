@@ -33,7 +33,6 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamInfo;
 import com.thinkparity.codebase.model.stream.StreamRetryHandler;
 import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.stream.upload.UploadFile;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
@@ -53,8 +52,10 @@ import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
+
 import com.thinkparity.desdemona.util.DateTimeProvider;
 import com.thinkparity.desdemona.util.DefaultRetryHandler;
+import com.thinkparity.desdemona.util.stream.UploadFile;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Container Model Implementation</br>

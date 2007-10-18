@@ -249,7 +249,8 @@ public final class DerbyModelImpl extends AdminModel implements DerbyModel,
      */
     private UploadFile newUploadFile(final StreamSession streamSession)
             throws URISyntaxException {
-        return new UploadFile(new DefaultRetryHandler(streamSession), streamSession);
+        return new com.thinkparity.desdemona.util.stream.UploadFile(
+                new DefaultRetryHandler(streamSession), streamSession);
     }
 
     /**

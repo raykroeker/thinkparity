@@ -30,6 +30,7 @@ public final class WebTestSuite {
         suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1008Test.class);
         suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1028Test.class);
         suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1067Test.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1080Test.class);
         return suite;
     }
 

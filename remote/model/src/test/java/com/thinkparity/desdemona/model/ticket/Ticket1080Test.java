@@ -44,7 +44,7 @@ public final class Ticket1080Test extends TicketTestCase {
                  */
                 @Override
                 public void run() {
-                    datum.getContainerModel(datum.publishAsTwo).publishWelcome();
+                    datum.getContainerModel(datum.publishAsOne).publishWelcome();
                 }
             }, new Runnable() {
                 /**
@@ -171,20 +171,20 @@ public final class Ticket1080Test extends TicketTestCase {
                     if (null == datum.failOne) {
                         if (null == datum.failTwo) {
                         } else {
-                            fail(datum.failTwo, "Could not accept invitation.");
+                            fail(datum.failTwo, "Could not publish welcome package.");
                         }
                     } else {
-                        fail(datum.failOne, "Could not delete invitation.");
+                        fail(datum.failOne, "Could not publish welcome package.");
                     }
                 } else {
                     wait.wait();
                     if (null == datum.failOne) {
                         if (null == datum.failTwo) {
                         } else {
-                            fail(datum.failTwo, "Could not accept invitation.");
+                            fail(datum.failTwo, "Could not publish welcome package.");
                         }
                     } else {
-                        fail(datum.failOne, "Could not delete invitation.");
+                        fail(datum.failOne, "Could not publish welcome package.");
                     }
                 }
             } catch (final InterruptedException ix) {

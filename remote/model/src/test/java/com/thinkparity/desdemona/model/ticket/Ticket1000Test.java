@@ -20,7 +20,8 @@ import com.thinkparity.service.AuthToken;
  */
 public final class Ticket1000Test extends TicketTestCase {
 
-    private static final String NAME = "Test ticket ";
+    /** Test name. */
+    private static final String NAME = "Test ticket 1000";
 
     /** Test datum. */
     private Fixture datum;

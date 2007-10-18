@@ -33,7 +33,7 @@ import com.thinkparity.service.AuthToken;
  */
 public final class Ticket1067Test extends TicketTestCase {
 
-    private static final String NAME = "Test ticket ";
+    private static final String NAME = "Test ticket 1067";
 
     /** Test datum. */
     private Fixture datum;

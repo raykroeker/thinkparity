@@ -391,6 +391,9 @@ public class InvitationSql extends AbstractSql {
             // create the invitation
             create(session, invitation);
 
+            // create the permanent record
+            userSql.createInvitation(session, user, invitation);
+
             // create the incoming invitation
             session.prepareStatement(SQL_CREATE_INCOMING_EMAIL);
             session.setLong(1, invitation.getId());
@@ -423,6 +426,9 @@ public class InvitationSql extends AbstractSql {
         try {
             // create the invitation
             create(session, invitation);
+
+            // create the permanent record
+            userSql.createInvitation(session, user, invitation);
 
             // create the incoming invitation
             session.prepareStatement(SQL_CREATE_INCOMING_USER);
@@ -531,50 +537,6 @@ public class InvitationSql extends AbstractSql {
         }
     }
 
-    public void delete(final Node node, final IncomingEMailInvitation invitation) {
-        final HypersonicSession session = openSession();
-        try {
-            // delete the invitation
-            session.prepareStatement(SQL_DELETE_INCOMING_EMAIL);
-            session.setLong(1, invitation.getId());
-            if (1 != session.executeUpdate())
-                throw new HypersonicException(
-                        "Could not delete invitation {0}.",
-                        invitation);
-
-            // delete the generic invitation
-            delete(session, node, invitation);
-
-            session.commit();
-        } catch (final Throwable t) {
-            throw translateError(session, t);
-        } finally {
-            session.close();
-        }
-    }
-
-    public void delete(final Node node, final IncomingUserInvitation invitation) {
-        final HypersonicSession session = openSession();
-        try {
-            // delete the invitation
-            session.prepareStatement(SQL_DELETE_INCOMING_USER);
-            session.setLong(1, invitation.getId());
-            if (1 != session.executeUpdate())
-                throw new HypersonicException(
-                        "Could not delete invitation {0}.",
-                        invitation);
-
-            // delete the generic invitation
-            delete(session, node, invitation);
-
-            session.commit();
-        } catch (final Throwable t) {
-            throw translateError(session, t);
-        } finally {
-            session.close();
-        }
-    }
-
     public void delete(final Node node, final OutgoingEMailInvitation invitation) {
         final HypersonicSession session = openSession();
         try {
@@ -610,6 +572,58 @@ public class InvitationSql extends AbstractSql {
 
             // delete the generic invitation
             delete(session, node, invitation);
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    public void delete(final Node node, final User user,
+            final IncomingEMailInvitation invitation) {
+        final HypersonicSession session = openSession();
+        try {
+            // delete the invitation
+            session.prepareStatement(SQL_DELETE_INCOMING_EMAIL);
+            session.setLong(1, invitation.getId());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException(
+                        "Could not delete invitation {0}.",
+                        invitation);
+
+            // delete the generic invitation
+            delete(session, node, invitation);
+
+            // delete the permanent record
+            userSql.deleteInvitation(session, user, invitation);
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    public void delete(final Node node, final User user,
+            final IncomingUserInvitation invitation) {
+        final HypersonicSession session = openSession();
+        try {
+            // delete the invitation
+            session.prepareStatement(SQL_DELETE_INCOMING_USER);
+            session.setLong(1, invitation.getId());
+            if (1 != session.executeUpdate())
+                throw new HypersonicException(
+                        "Could not delete invitation {0}.",
+                        invitation);
+
+            // delete the generic invitation
+            delete(session, node, invitation);
+
+            // delete the permanent record
+            userSql.deleteInvitation(session, user, invitation);
 
             session.commit();
         } catch (final Throwable t) {

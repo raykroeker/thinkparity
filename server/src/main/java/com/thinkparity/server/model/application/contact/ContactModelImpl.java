@@ -35,6 +35,7 @@ import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttachment;
 import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.InvitationSql;
+import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.node.Node;
 import com.thinkparity.desdemona.model.node.NodeService;
 import com.thinkparity.desdemona.model.profile.InternalProfileModel;
@@ -72,6 +73,9 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     /** An instance of <code>SMTPService</code>. */
     private final SMTPService smtpService;
 
+    /** A user sql interface. */
+    private UserSql userSql;
+
     /**
 	 * Create ContactModelImpl.
 	 * 
@@ -108,6 +112,9 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                     } else {
                         logger.logInfo("Processing e-mail invitation ({0}).",
                                 invitation.getInvitationEMail());
+
+                        // update permanent record
+                        userSql.updateInvitation(user, invitation, acceptedOn);
 
                         // create contact
                         contactSql.create(user, invitationUser, user, acceptedOn);
@@ -191,13 +198,16 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                     } else {
                         logger.logInfo("Processing incoming user invitation ({0}).",
                                 invitation.getInvitationUser().getSimpleUsername());
-    
-                        // delete incoming/outgoing/user/e-mail
-                        deleteAllInvitations(node, user.getId(), user, invitationUser);
-                
+
+                        // update permanent record
+                        userSql.updateInvitation(user, invitation, acceptedOn);
+
                         // create contact
                         contactSql.create(user, invitationUser, user, acceptedOn);
                         contactSql.create(invitationUser, user, user, acceptedOn);
+
+                        // delete incoming/outgoing/user/e-mail
+                        deleteAllInvitations(node, user.getId(), user, invitationUser);
                 
                         // fire event
                         final ContactInvitationAcceptedEvent event = new ContactInvitationAcceptedEvent();
@@ -366,8 +376,8 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                     final IncomingEMailInvitation incomingEMailInvitation =
                         invitationSql.readIncomingEMail(user,
                                 invitation.getInvitationEMail(), invitationUser);
-                    invitationSql.delete(node, incomingEMailInvitation);
-        
+                    invitationSql.delete(node, user, incomingEMailInvitation);
+
                     // delete outgoing e-mail invitation
                     final OutgoingEMailInvitation outgoingEMailInvitation =
                         invitationSql.readOutgoingEMail(invitationUser,
@@ -422,7 +432,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                     // delete incoming user invitation
                     final IncomingUserInvitation incomingUserInvitation =
                         invitationSql.readIncomingUser(user, invitationUser);
-                    invitationSql.delete(node, incomingUserInvitation);
+                    invitationSql.delete(node, user, incomingUserInvitation);
         
                     // delete outgoing user invitation
                     final OutgoingUserInvitation outgoingUserInvitation =
@@ -484,7 +494,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                         final IncomingEMailInvitation incomingEMail =
                             invitationSql.readIncomingEMail(invitationUser,
                                     invitation.getInvitationEMail(), user);
-                        invitationSql.delete(node, incomingEMail);
+                        invitationSql.delete(node, invitationUser, incomingEMail);
                     }
         
                     final OutgoingEMailInvitation outgoingEMail =
@@ -542,7 +552,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                     // delete incoming user invitation
                     final IncomingUserInvitation incomingUserInvitation =
                         invitationSql.readIncomingUser(invitationUser, user);
-                    invitationSql.delete(node, incomingUserInvitation);
+                    invitationSql.delete(node, invitationUser, incomingUserInvitation);
         
                     // delete outgoing user invitation
                     final OutgoingUserInvitation outgoingUserInvitation =
@@ -763,6 +773,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
     protected void initialize() {
         contactSql = new ContactSql();
         invitationSql = new InvitationSql();
+        userSql = new UserSql();
 
         final DesdemonaProperties properties = DesdemonaProperties.getInstance();
         lockInvitationsWait = Long.valueOf(properties.getProperty("thinkparity.contact.lockinvitationswait"));
@@ -844,13 +855,13 @@ public final class ContactModelImpl extends AbstractModelImpl implements
             incomingEMailInvitation = invitationSql.readIncomingEMail(user,
                     email, invitationUser);
             if (null != incomingEMailInvitation)
-                invitationSql.delete(node, incomingEMailInvitation);
+                invitationSql.delete(node, user, incomingEMailInvitation);
         }
         for (final EMail email : invitationUserEMails) {
             incomingEMailInvitation = invitationSql.readIncomingEMail(
                     invitationUser, email, user);
             if (null != incomingEMailInvitation)
-                invitationSql.delete(node, incomingEMailInvitation);
+                invitationSql.delete(node, invitationUser, incomingEMailInvitation);
         }
 
         // delete outgoing e-mail invitations
@@ -877,11 +888,11 @@ public final class ContactModelImpl extends AbstractModelImpl implements
         incomingUserInvitation = invitationSql.readIncomingUser(user,
                 invitationUser);
         if (null != incomingUserInvitation)
-            invitationSql.delete(node, incomingUserInvitation);
+            invitationSql.delete(node, user, incomingUserInvitation);
         incomingUserInvitation = invitationSql.readIncomingUser(
                 invitationUser, user);
         if (null != incomingUserInvitation)
-            invitationSql.delete(node, incomingUserInvitation);
+            invitationSql.delete(node, invitationUser, incomingUserInvitation);
 
         // delete outgoing user invitations
         OutgoingUserInvitation outgoingUserInvitation;

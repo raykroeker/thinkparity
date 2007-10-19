@@ -15,6 +15,7 @@ import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.jabber.JabberIdBuilder;
 
+import com.thinkparity.codebase.model.contact.ContactInvitation;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
@@ -72,6 +73,22 @@ public final class UserSql extends AbstractSql {
         new StringBuilder("insert into TPSD_USER_FEATURE_REL ")
         .append("(USER_ID,FEATURE_ID) ")
         .append("values (?,?)")
+        .toString();
+
+    /** Sql to create a user invitation record. */
+    private static final String SQL_CREATE_INVITATION =
+        new StringBuilder("insert into TPSD_USER_INVITATION ")
+        .append("(USER_ID,INVITED_BY,INVITED_ON) ")
+        .append("values (?,?,?)")
+        .toString();
+
+    /** Sql to delete a user invitation record. */
+    private static final String SQL_DELETE_INVITATION =
+        new StringBuilder("delete from TPSD_USER_INVITATION ")
+        .append("where USER_ID=? ")
+        .append("and INVITED_BY=? ")
+        .append("and INVITED_ON=? ")
+        .append("and ACCEPTED_ON is null")
         .toString();
 
     /** Sql to create a payment plan. */
@@ -332,6 +349,15 @@ public final class UserSql extends AbstractSql {
         .append("set ACTIVE=? where USER_ID=?")
         .toString();
 
+    /** Sql to update a user invitation record. */
+    private static final String SQL_UPDATE_INVITATION =
+        new StringBuilder("update TPSD_USER_INVITATION ")
+        .append("set ACCEPTED_ON=? ")
+        .append("where USER_ID=? ")
+        .append("and INVITED_BY=? ")
+        .append("and INVITED_ON=?")
+        .toString();
+
     /** Sql to update the password. */
     private static final String SQL_UPDATE_PASSWORD =
         new StringBuilder("update TPSD_USER ")
@@ -392,7 +418,7 @@ public final class UserSql extends AbstractSql {
         super(dataSource);
         this.emailSql = new EMailSql(dataSource);
     }
-
+        
     /**
      * Create a user.
      * 
@@ -458,7 +484,7 @@ public final class UserSql extends AbstractSql {
            session.close();
         }
     }
-        
+
     /**
      * Create a reservation.
      * 
@@ -1114,7 +1140,6 @@ public final class UserSql extends AbstractSql {
             session.close();
         }
     }
-
     public List<ProfileEMail> readEMails(final User user) {
         final HypersonicSession session = openSession();
         try {
@@ -1153,6 +1178,7 @@ public final class UserSql extends AbstractSql {
             session.close();
         }
     }
+
     public List<Feature> readProductFeatures(final User user, final String name) {
         final HypersonicSession session = openSession();
         try {
@@ -1346,6 +1372,39 @@ public final class UserSql extends AbstractSql {
     }
 
     /**
+     * Update a permanent record of an invitation for a user.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @param invitation
+     *            A <code>ContactInvitation</code>.
+     * @param acceptedOn
+     *            A <code>Calendar</code>.
+     */
+    public void updateInvitation(final User user,
+            final ContactInvitation invitation, final Calendar acceptedOn) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_UPDATE_INVITATION);
+            session.setCalendar(1, acceptedOn);
+            session.setLong(2, user.getLocalId());
+            session.setLong(3, invitation.getCreatedBy().getLocalId());
+            session.setCalendar(4, invitation.getCreatedOn());
+            if (1 != session.executeUpdate()) {
+                throw panic("Cannot update invitation.");
+            }
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Update the user's password.
      * 
      * @param userId
@@ -1468,6 +1527,49 @@ public final class UserSql extends AbstractSql {
             throw translateError(session, t);
         } finally {
             session.close();
+        }
+    }
+
+    /**
+     * Create a permanent record of an invitation for a user.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @param invitation
+     *            A <code>ContactInvitation</code>.
+     */
+    void createInvitation(final HypersonicSession session, final User user,
+            final ContactInvitation invitation) {
+        session.prepareStatement(SQL_CREATE_INVITATION);
+        session.setLong(1, user.getLocalId());
+        session.setLong(2, invitation.getCreatedBy().getLocalId());
+        session.setCalendar(3, invitation.getCreatedOn());
+        if (1 != session.executeUpdate()) {
+            throw panic("Cannot create invitation.");
+        }
+    }
+
+    /**
+     * Create a permanent record of an invitation for a user.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @param invitation
+     *            A <code>ContactInvitation</code>.
+     */
+    void deleteInvitation(final HypersonicSession session, final User user,
+            final ContactInvitation invitation) {
+        session.prepareStatement(SQL_DELETE_INVITATION);
+        session.setLong(1, user.getLocalId());
+        session.setLong(2, invitation.getCreatedBy().getLocalId());
+        session.setCalendar(3, invitation.getCreatedOn());
+        final int rowCount = session.executeUpdate();
+        if (0 != rowCount && 1 != rowCount) {
+            throw panic("Cannot delete invitation.");
         }
     }
 

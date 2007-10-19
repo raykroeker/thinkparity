@@ -19,6 +19,9 @@ import com.thinkparity.ophelia.browser.application.system.SystemApplication;
  */
 class TrayMenuBuilder {
 
+    /** System application. */
+    private final SystemApplication application;
+
     /** The browser action. */
     private final MenuItem browser;
 
@@ -30,9 +33,6 @@ class TrayMenuBuilder {
 
     /** The restart action. */
     private final MenuItem restart;
-
-    /** System application. */
-    private final SystemApplication application;
 
     /** Create a TrayMenuBuilder. */
     TrayMenuBuilder(final SystemApplication application) {
@@ -109,6 +109,16 @@ class TrayMenuBuilder {
         popupMenu.addSeparator();
         popupMenu.add(quit);
         return popupMenu;
+    }
+
+    /**
+     * Set the enabled state of quit.
+     * 
+     * @param enabled
+     *            A <code>Boolean</code>.
+     */
+    void setQuitEnabled(final Boolean enabled) {
+        quit.setEnabled(enabled.booleanValue());
     }
 
     /**

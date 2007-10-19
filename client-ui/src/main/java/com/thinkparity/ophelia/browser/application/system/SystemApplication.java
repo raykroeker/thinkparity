@@ -63,7 +63,7 @@ public final class SystemApplication extends AbstractApplication {
 	/** The application impl. */
 	private SystemApplicationImpl impl;
 
-	/**
+    /**
      * Create SystemApplication.
      * 
      * @param platform
@@ -81,7 +81,7 @@ public final class SystemApplication extends AbstractApplication {
      */
     public void applyBusyIndicator() {}
 
-    /**
+	/**
      * Clear the container notifications.
      * 
      * @param containerId
@@ -183,7 +183,7 @@ public final class SystemApplication extends AbstractApplication {
                 Connection.ONLINE : Connection.OFFLINE;
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#getId()
 	 * 
 	 */
@@ -216,7 +216,7 @@ public final class SystemApplication extends AbstractApplication {
 		return super.getString(localKey, arguments);
 	}
 
-    /**
+	/**
      * Get the web page.
      * 
      * @return The web page <code>Link</code>.
@@ -293,7 +293,7 @@ public final class SystemApplication extends AbstractApplication {
         invoke(ActionId.PLATFORM_BROWSER_ICONIFY, data);
     }
 
-	/**
+    /**
      * Run the platform's login action.
      *
      */
@@ -301,7 +301,7 @@ public final class SystemApplication extends AbstractApplication {
         invoke(ActionId.PLATFORM_LOGIN, Data.emptyData());
     }
 
-    /**
+	/**
      * Run the platform's move to front action for the browser.
      *
      */
@@ -339,6 +339,16 @@ public final class SystemApplication extends AbstractApplication {
      */
 	public void runRestoreBrowser() {
         invoke(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
+    }
+
+    /**
+     * Set the enabled state of quit.
+     * 
+     * @param enabled
+     *            A <code>Boolean</code>.
+     */
+    public void setQuitEnabled(final Boolean enabled) {
+        impl.setQuitEnabled(enabled);
     }
 
     /**

@@ -299,6 +299,13 @@ public class ActionFactory extends AbstractFactory {
             action = new com.thinkparity.ophelia.browser.platform.action.profile.VerifyEMail(getBrowser());
             break;
 
+        case SYSTEM_DISABLE_QUIT:
+            action = new com.thinkparity.ophelia.browser.platform.action.platform.system.DisableQuit(getSystem());
+            break;
+        case SYSTEM_ENABLE_QUIT:
+            action = new com.thinkparity.ophelia.browser.platform.action.platform.system.EnableQuit(getSystem());
+            break;
+
         default:
 			throw Assert.createUnreachable("UNKNOWN ACTION ID");
 		}

@@ -44,7 +44,7 @@ class SystemApplicationImpl extends Thread {
         this.notificationQueue = new LinkedList<Notification>();
 	}
 
-	/**
+    /**
 	 * @see java.lang.Thread#run()
 	 * 
 	 */
@@ -68,7 +68,7 @@ class SystemApplicationImpl extends Thread {
 		}
 	}
 
-    /**
+	/**
 	 * @see java.lang.Thread#start()
 	 * 
 	 */
@@ -85,7 +85,7 @@ class SystemApplicationImpl extends Thread {
 		super.start();
 	}
 
-	/**
+    /**
      * Display the "display info" dialog.
      */
     void displayInfo() {
@@ -95,7 +95,7 @@ class SystemApplicationImpl extends Thread {
         }
     }
 
-    /**
+	/**
 	 * End the application.
 	 */
 	void end() {
@@ -116,7 +116,7 @@ class SystemApplicationImpl extends Thread {
         }
 	}
 
-	/**
+    /**
      * Fire a clear notification event.
      * 
      * @param notificationId
@@ -140,7 +140,7 @@ class SystemApplicationImpl extends Thread {
         }
     }
 
-    /**
+	/**
      * Fire a connection online event.
      * 
      */
@@ -181,6 +181,16 @@ class SystemApplicationImpl extends Thread {
 			notifyAll();
 		}
 	}
+
+    /**
+     * Set the enabled state of quit.
+     * 
+     * @param enabled
+     *            A <code>Boolean</code>.
+     */
+    void setQuitEnabled(final Boolean enabled) {
+        sysTray.setQuitEnabled(enabled);
+    }
 
 	/**
      * Obtain the total number of queued notification events.

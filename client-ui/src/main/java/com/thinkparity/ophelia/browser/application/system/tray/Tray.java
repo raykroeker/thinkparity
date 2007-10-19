@@ -104,6 +104,16 @@ public final class Tray {
         setIcon();
 	}
 
+    /**
+     * Set the state of the quit menu.
+     * 
+     * @param enabled
+     *            A <code>Boolean</code>.
+     */
+    public void setQuitEnabled(final Boolean enabled) {
+        menuBuilder.setQuitEnabled(enabled);
+    }
+
     /** Uninstall the system tray. */
 	public void unInstall() {
 		systemTray.remove(systemTrayIcon);

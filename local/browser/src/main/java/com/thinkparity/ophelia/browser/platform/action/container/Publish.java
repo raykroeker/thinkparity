@@ -136,8 +136,13 @@ public class Publish extends AbstractBrowserAction {
                     final List<TeamMember> teamMembers = data.getList(DataKey.TEAM_MEMBERS);
                     final String versionName = (String) data.get(DataKey.VERSION_NAME);
                     final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
-                    invoke(monitor, container, versionName, emails, contacts,
-                            teamMembers);
+                    invoke(ActionId.SYSTEM_DISABLE_QUIT, Data.emptyData());
+                    try {
+                        invoke(monitor, container, versionName, emails,
+                                contacts, teamMembers);
+                    } finally {
+                        invoke(ActionId.SYSTEM_ENABLE_QUIT, Data.emptyData());
+                    }
                 }
             } else {
                 browser.displayErrorDialog("Publish.NoDocumentToPublish",

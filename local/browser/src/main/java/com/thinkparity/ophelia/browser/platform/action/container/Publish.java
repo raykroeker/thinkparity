@@ -136,13 +136,8 @@ public class Publish extends AbstractBrowserAction {
                     final List<TeamMember> teamMembers = data.getList(DataKey.TEAM_MEMBERS);
                     final String versionName = (String) data.get(DataKey.VERSION_NAME);
                     final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
-                    invoke(ActionId.SYSTEM_DISABLE_QUIT, Data.emptyData());
-                    try {
-                        invoke(monitor, container, versionName, emails,
-                                contacts, teamMembers);
-                    } finally {
-                        invoke(ActionId.SYSTEM_ENABLE_QUIT, Data.emptyData());
-                    }
+                    invoke(monitor, container, versionName, emails, contacts,
+                            teamMembers);
                 }
             } else {
                 browser.displayErrorDialog("Publish.NoDocumentToPublish",
@@ -227,6 +222,11 @@ public class Publish extends AbstractBrowserAction {
 
             this.publishMonitor = newPublishMonitor();
         }
+
+        /**
+         * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker#getErrorHandler(java.lang.Throwable)
+         *
+         */
         @Override
 		public Runnable getErrorHandler(final Throwable t) {
 			return new Runnable() {
@@ -238,8 +238,27 @@ public class Publish extends AbstractBrowserAction {
 				}
 			};
 		}
+
+        /**
+         * @see com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker#run()
+         *
+         */
         @Override
         public Object run() {
+            action.invoke(ActionId.SYSTEM_DISABLE_QUIT, Data.emptyData());
+            try {
+                return runImpl();
+            } finally {
+                action.invoke(ActionId.SYSTEM_ENABLE_QUIT, Data.emptyData());
+            }
+        }
+
+        /**
+         * Run the publish worker.
+         * 
+         * @return An <code>Object</code>.
+         */
+        private Object runImpl() {
             monitor.monitor(action.getString("ProgressPublishStart"));
             final boolean restrictPublish;
             try {

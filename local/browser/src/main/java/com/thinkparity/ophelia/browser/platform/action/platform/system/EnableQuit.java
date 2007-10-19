@@ -45,7 +45,7 @@ public final class EnableQuit extends AbstractAction {
              */
             @Override
             public void run() {
-                system.setQuitEnabled(Boolean.FALSE);
+                system.setQuitEnabled(Boolean.TRUE);
             }
         });
     }

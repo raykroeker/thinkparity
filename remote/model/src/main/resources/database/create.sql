@@ -57,6 +57,16 @@ create index TPSD_USER_IX_1 on TPSD_USER(SECURITY_QUESTION);
 create index TPSD_USER_IX_2 on TPSD_USER(SECURITY_ANSWER);
 create index TPSD_USER_IX_3 on TPSD_USER(DISABLED);
 create index TPSD_USER_IX_4 on TPSD_USER(ACTIVE);
+create table TPSD_USER_INVITATION(
+    USER_ID bigint not null,
+    INVITED_BY bigint not null,
+    INVITED_ON timestamp not null,
+    ACCEPTED_ON timestamp,
+    primary key(USER_ID,INVITED_BY,INVITED_ON),
+    foreign key(USER_ID) references TPSD_USER(USER_ID),
+    foreign key(INVITED_BY) references TPSD_USER(USER_ID)
+);
+create index TPSD_USER_INVITATION_IX_0 on TPSD_USER_INVITATION(ACCEPTED_ON);
 create table TPSD_USER_EMAIL(
     USER_ID bigint not null,
     EMAIL_ID bigint not null,

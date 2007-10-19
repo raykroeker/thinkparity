@@ -79,18 +79,36 @@ abstract class ContactTestCase extends ModelTestCase {
          */
         public final void validateContacts(final AuthToken authTokenOne,
                 final AuthToken authTokenTwo, final Boolean contacts) {
+            final User userOne = lookupUser(authTokenOne);
+            final User userTwo = lookupUser(authTokenTwo);
             final List<Contact> contactListOne = getContactModel(authTokenOne).read();
             final List<Contact> contactListTwo = getContactModel(authTokenTwo).read();
             boolean hit = false;
             for (final Contact contactOne : contactListOne) {
+                if (contactOne.getId().equals(userTwo.getId())) {
+                    hit = true;
+                    break;
+                }
+            }
+            if (false == hit) { 
                 for (final Contact contactTwo : contactListTwo) {
-                    if (contactOne.getId().equals(contactTwo.getId())) {
+                    if (contactTwo.getId().equals(userOne.getId())) {
                         hit = true;
                         break;
                     }
                 }
             }
-            assertEquals("Contact hit does not match expectation.", contacts.booleanValue(), hit);
+            if (contacts.booleanValue()) {
+                assertTrue("User "
+                        + lookupUser(authTokenOne).getSimpleUsername()
+                        + " and " + lookupUser(authTokenTwo).getSimpleUsername()
+                        + " should be contacts and are not.", hit);
+            } else {
+                assertFalse("User "
+                        + lookupUser(authTokenOne).getSimpleUsername()
+                        + " and " + lookupUser(authTokenTwo).getSimpleUsername()
+                        + " should not be contacts but are.", hit);
+            }
         }
 
         /**

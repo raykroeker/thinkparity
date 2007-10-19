@@ -114,7 +114,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                                 invitation.getInvitationEMail());
 
                         // update permanent record
-                        userSql.updateInvitation(user, invitation, acceptedOn);
+                        userSql.updateInvitation(user, localInvitation, acceptedOn);
 
                         // create contact
                         contactSql.create(user, invitationUser, user, acceptedOn);
@@ -200,7 +200,7 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                                 invitation.getInvitationUser().getSimpleUsername());
 
                         // update permanent record
-                        userSql.updateInvitation(user, invitation, acceptedOn);
+                        userSql.updateInvitation(user, localInvitation, acceptedOn);
 
                         // create contact
                         contactSql.create(user, invitationUser, user, acceptedOn);

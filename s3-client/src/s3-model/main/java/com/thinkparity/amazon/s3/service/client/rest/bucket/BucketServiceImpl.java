@@ -14,6 +14,8 @@ import com.thinkparity.amazon.s3.service.bucket.BucketService;
 import com.thinkparity.amazon.s3.service.bucket.S3Bucket;
 import com.thinkparity.amazon.s3.service.bucket.S3BucketConstraints;
 import com.thinkparity.amazon.s3.service.bucket.S3BucketList;
+import com.thinkparity.amazon.s3.service.bucket.S3Filter;
+import com.thinkparity.amazon.s3.service.bucket.S3FilterConstraints;
 import com.thinkparity.amazon.s3.service.client.rest.RestRequest;
 import com.thinkparity.amazon.s3.service.client.rest.RestResponse;
 import com.thinkparity.amazon.s3.service.client.rest.RestServiceImpl;
@@ -110,6 +112,9 @@ public final class BucketServiceImpl extends RestServiceImpl implements
     /** The <code>S3BucketConstraints</code>. */
     private final S3BucketConstraints bucketConstraints;
 
+    /** The <code>S3FilterConstraints</code>. */
+    private final S3FilterConstraints filterConstraints;
+
     /** The <code>S3GrantConstraints</code>. */
     private final S3GrantConstraints grantConstraints;
 
@@ -126,8 +131,9 @@ public final class BucketServiceImpl extends RestServiceImpl implements
     public BucketServiceImpl() {
         super();
         this.authConstraints = S3AuthenticationConstraints.getInstance();
-        this.grantConstraints = S3GrantConstraints.getInstance();
         this.bucketConstraints = S3BucketConstraints.getInstance();
+        this.filterConstraints = S3FilterConstraints.getInstance();
+        this.grantConstraints = S3GrantConstraints.getInstance();
         this.ownerConstraints = S3OwnerConstraints.getInstance();
         this.utils = new RestUtils();
     }
@@ -246,6 +252,34 @@ public final class BucketServiceImpl extends RestServiceImpl implements
     }
 
     /**
+     * @see com.thinkparity.amazon.s3.service.bucket.BucketService#readObjects(com.thinkparity.amazon.s3.service.S3Authentication, com.thinkparity.amazon.s3.service.bucket.S3Bucket, com.thinkparity.amazon.s3.service.bucket.S3Filter)
+     *
+     */
+    @Override
+    public S3ObjectList readObjects(final S3Authentication auth,
+            final S3Bucket bucket, final S3Filter filter) {
+        try {
+            validate(auth);
+            validate(bucket);
+            validate(filter);
+
+            final RestRequest request = new RestRequest();
+            request.setAuthentication(auth);
+            request.setBucket(bucket);
+            request.setContext(context);
+            request.setFilter(filter);
+            request.setType(RestRequest.Type.GET);
+
+            final RestResponse<S3ObjectList> response = utils.service(request,
+                    newS3ObjectListParser(), newS3ObjectList());
+
+            return response.getResult();
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.amazon.s3.service.bucket.BucketService#updateACL(com.thinkparity.amazon.s3.service.S3Authentication, com.thinkparity.amazon.s3.service.bucket.S3Bucket, java.util.List)
      *
      */
@@ -311,6 +345,17 @@ public final class BucketServiceImpl extends RestServiceImpl implements
      */
     private void validate(final S3Bucket bucket) {
         bucketConstraints.getName().validate(bucket.getName());
+    }
+
+    /**
+     * Validate the filter.
+     * 
+     * @param filter 
+     *            A <code>S3Filter</code>.
+     */
+    private void validate(final S3Filter filter) {
+        filterConstraints.getPrefix().validate(filter.getPrefix());
+        filterConstraints.getDelimiter().validate(filter.getDelimiter());
     }
 
     /**

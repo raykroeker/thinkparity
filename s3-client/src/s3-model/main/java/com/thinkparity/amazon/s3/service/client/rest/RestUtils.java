@@ -26,6 +26,7 @@ import org.apache.commons.httpclient.methods.RequestEntity;
 
 import com.thinkparity.amazon.s3.service.S3Context;
 import com.thinkparity.amazon.s3.service.S3Utils;
+import com.thinkparity.amazon.s3.service.bucket.S3Filter;
 import com.thinkparity.amazon.s3.service.client.ServiceException;
 import com.thinkparity.amazon.s3.service.client.rest.http.HeaderReader;
 import com.thinkparity.amazon.s3.service.client.rest.xml.ErrorParser;
@@ -166,8 +167,17 @@ public final class RestUtils {
                 buffer.append(request.getKey().getResource());
             }
         }
-        if (request.isACLRequest())
-            buffer.append("?acl");
+        if (request.isSetFilter()) {
+            final S3Filter filter = request.getFilter();
+            buffer.append("?prefix=").append(filter.getPrefix());
+            if (filter.isSetDelimiter()) {
+                buffer.append('&').append(filter.getDelimiter());
+            }
+        } else {
+            if (request.isACLRequest()) {
+                buffer.append("?acl");
+            }
+        }
         return buffer.toString();
     }
 

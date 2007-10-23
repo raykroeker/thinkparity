@@ -17,6 +17,7 @@ import com.thinkparity.amazon.s3.client.S3CommandContext;
 import com.thinkparity.amazon.s3.service.S3Authentication;
 import com.thinkparity.amazon.s3.service.bucket.BucketService;
 import com.thinkparity.amazon.s3.service.bucket.S3Bucket;
+import com.thinkparity.amazon.s3.service.bucket.S3Filter;
 import com.thinkparity.amazon.s3.service.object.S3Object;
 import com.thinkparity.amazon.s3.service.object.S3ObjectList;
 
@@ -76,9 +77,26 @@ public class ReadObjects implements S3Command {
         logger.logTraceId();
         final String name = console.readLine("Bucket name:");
         logger.logVariable("name", name);
+        final String prefix = console.readLine("Prefix:");
+        logger.logVariable("prefix", prefix);
+        final S3Filter filter;
+        if (null == prefix || 0 == prefix.trim().length()) {
+            filter = null;
+        } else {
+            final String delimiter = console.readLine("Delimiter:");
+            logger.logVariable("delimiter", delimiter);
+            filter = new S3Filter();
+            filter.setPrefix(prefix);
+            if (null == delimiter || 0 == delimiter.trim().length()) {
+                filter.setDelimiter(delimiter);
+            }
+        }
+
         final S3Bucket bucket = new S3Bucket();
         bucket.setName(name);
-        final S3ObjectList list = bucketService.readObjects(authentication, bucket);
+        final S3ObjectList list = null == filter ?
+                bucketService.readObjects(authentication, bucket) :
+                    bucketService.readObjects(authentication, bucket, filter);
         final List<S3Object> objects = list.getObjects();
         Collections.sort(objects, new Comparator<S3Object>() {
             public int compare(final S3Object o1, final S3Object o2) {

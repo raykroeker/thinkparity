@@ -6,6 +6,7 @@ package com.thinkparity.amazon.s3.service.client.rest;
 import com.thinkparity.amazon.s3.service.S3Authentication;
 import com.thinkparity.amazon.s3.service.S3Context;
 import com.thinkparity.amazon.s3.service.bucket.S3Bucket;
+import com.thinkparity.amazon.s3.service.bucket.S3Filter;
 import com.thinkparity.amazon.s3.service.object.S3Key;
 import com.thinkparity.amazon.s3.service.object.S3Object;
 
@@ -30,6 +31,9 @@ public final class RestRequest {
 
     /** An amazon s3 service context. */
     private S3Context context;
+
+    /** A filter. */
+    private S3Filter filter;
 
     /** The key. */
     private S3Key key;
@@ -77,6 +81,15 @@ public final class RestRequest {
      */
     public S3Context getContext() {
         return context;
+    }
+
+    /**
+     * Obtain the filter.
+     *
+     * @return A <code>S3Filter</code>.
+     */
+    public S3Filter getFilter() {
+        return filter;
     }
 
     /**
@@ -135,6 +148,15 @@ public final class RestRequest {
      */
     public Boolean isSetBucket() {
         return Boolean.valueOf(null != bucket);
+    }
+
+    /**
+     * Determine if the filter is set.
+     * 
+     * @return True if the filter is set.
+     */
+    public Boolean isSetFilter() {
+        return null != filter;
     }
 
     /**
@@ -210,6 +232,16 @@ public final class RestRequest {
      */
     public void setContext(final S3Context context) {
         this.context = context;
+    }
+
+    /**
+     * Set the filter.
+     *
+     * @param filter
+     *		A <code>S3Filter</code>.
+     */
+    public void setFilter(final S3Filter filter) {
+        this.filter = filter;
     }
 
     /**

@@ -72,6 +72,20 @@ public interface BucketService {
     S3ObjectList readObjects(S3Authentication auth, S3Bucket bucket);
 
     /**
+     * Read the list of objects.
+     * 
+     * @param auth
+     *            An amazon <code>S3Authentication</code>.
+     * @param bucket
+     *            A <code>S3Bucket</code>.
+     * @param filter
+     *            A <code>S3Filter</code>.
+     * @return A <code>S3ObjectList</code>.
+     */
+    S3ObjectList readObjects(S3Authentication auth, S3Bucket bucket,
+            S3Filter filter);
+
+    /**
      * Update the bucket acl.
      * 
      * @param auth

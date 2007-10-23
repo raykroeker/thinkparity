@@ -115,6 +115,7 @@ public final class S3Client {
         s3Command.initialize(context);
         // invoke
         try {
+            context.getConsole().println(s3Command.getName());
             invoke(s3Command);
         } catch (final ServiceException sx) {
             final Throwable cause = sx.getCause();

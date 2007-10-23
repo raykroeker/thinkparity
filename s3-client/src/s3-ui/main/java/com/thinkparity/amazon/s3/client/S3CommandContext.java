@@ -32,12 +32,16 @@ public final class S3CommandContext {
     /** The amazon s3 authentication. */
     private S3Authentication authentication;
 
+    /** A console. */
+    private final S3ClientConsole console;
+
     /**
      * Create S3CommandContext.
      *
      */
     public S3CommandContext() {
         super();
+        this.console = new S3ClientConsole();
     }
 
     /**
@@ -77,7 +81,7 @@ public final class S3CommandContext {
      * @return A <code>Console</code>.
      */
     public S3ClientConsole getConsole() {
-        return new S3ClientConsole();
+        return console;
     }
 
     /**

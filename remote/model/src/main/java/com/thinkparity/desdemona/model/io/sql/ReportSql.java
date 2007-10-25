@@ -95,18 +95,20 @@ public final class ReportSql extends AbstractSql {
             session.executeQuery();
 
             final List<Invitation> invitationList = new ArrayList<Invitation>();
-            Long userId = null;
+            Long userId = null, invitedByUserId = null;
             while (session.nextResult()) {
-                if (null == userId) {
+                if (null == userId && null == invitedByUserId) {
                     invitationList.add(extractInvitation(session, vcardReader));
                 } else {
-                    if (userId.equals(session.getLong("USER_ID"))) {
+                    if (userId.equals(session.getLong("USER_ID"))
+                            && invitedByUserId.equals(session.getLong("INVITED_BY_USER_ID"))) {
                         continue;
                     } else {
                         invitationList.add(extractInvitation(session, vcardReader));
                     }
                 }
                 userId = session.getLong("USER_ID");
+                invitedByUserId = session.getLong("INVITED_BY_USER_ID");
             }
             return invitationList;
         } finally {

@@ -22,4 +22,14 @@
         <servlet-name>WebService</servlet-name>
         <url-pattern>/service/*</url-pattern>
     </servlet-mapping>
+    <!-- thinkParity Admin Servlet -->
+    <servlet>
+        <servlet-name>Admin</servlet-name>
+        <display-name>Admin</display-name>
+        <servlet-class>com.thinkparity.desdemona.web.Admin</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Admin</servlet-name>
+        <url-pattern>/admin/*</url-pattern>
+    </servlet-mapping>
 </web-app>

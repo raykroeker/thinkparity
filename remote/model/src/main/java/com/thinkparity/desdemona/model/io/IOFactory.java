@@ -9,6 +9,7 @@ import com.thinkparity.desdemona.model.io.sql.ContactSql;
 import com.thinkparity.desdemona.model.io.sql.DerbySql;
 import com.thinkparity.desdemona.model.io.sql.PaymentSql;
 import com.thinkparity.desdemona.model.io.sql.QueueSql;
+import com.thinkparity.desdemona.model.io.sql.ReportSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
 
 /**
@@ -56,6 +57,15 @@ public interface IOFactory {
      * @return A <code>QueueSql</code>.
      */
     QueueSql newQueueIO(final DataSource dataSource);
+
+    /**
+     * Instantiate a report io handler.
+     * 
+     * @param dataSource
+     *            A <code>DataSource</code>.
+     * @return A <code>ReportSql</code>.
+     */
+    ReportSql newReportIO(final DataSource dataSource);
 
     /**
      * Instantiate a user io handler.

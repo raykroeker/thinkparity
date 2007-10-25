@@ -235,6 +235,8 @@ Local Configuration:                ${localconfig}
 		version="v110" path="moneris.com/v110/JavaAPI.jar"/>
 	<antx:dependency type="java" scope="compile" provider="moneris.com"
 		version="v110" path="moneris.com/v110/jakarta-oro-2.0.6.jar"/>
+    <antx:dependency type="java" scope="compile" provider="sourceforge.net"
+        version="1.8" path="sourceforge.net/opencsv/1.8/opencsv.jar"/>
 
     <!-- runtime dependencies -->
     <antx:dependency type="java" scope="run" provider="apache.org" version="10.2.2.0"

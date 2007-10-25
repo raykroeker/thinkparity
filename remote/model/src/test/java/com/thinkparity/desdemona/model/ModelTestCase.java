@@ -42,6 +42,7 @@ import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.desdemona.model.admin.AdminModelFactory;
 import com.thinkparity.desdemona.model.admin.derby.DerbyModel;
+import com.thinkparity.desdemona.model.admin.report.ReportModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
@@ -567,6 +568,17 @@ public abstract class ModelTestCase extends TestCase {
     }
 
     /**
+     * Obtain the report model.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @return An instance of <code>ReportModel</code>.
+     */
+    private ReportModel newReportModel(final AuthToken authToken) {
+        return getAdminModelFactory(authToken).newReportModel();
+    }
+
+    /**
      * Instantiate a thread.
      * 
      * @param runnable
@@ -880,6 +892,14 @@ public abstract class ModelTestCase extends TestCase {
          */
         public Profile newProfile(final List<Feature> featureList) {
             return ModelTestCase.this.newProfile(featureList);
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#newReportModel(AuthToken)
+         * 
+         */
+        public ReportModel newReportModel(final AuthToken authToken) {
+            return ModelTestCase.this.newReportModel(authToken);
         }
 
         /**

@@ -8,12 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import javax.sql.DataSource;
 
-import com.thinkparity.desdemona.model.io.sql.AbstractSql;
-import com.thinkparity.desdemona.model.io.sql.ContactSql;
-import com.thinkparity.desdemona.model.io.sql.DerbySql;
-import com.thinkparity.desdemona.model.io.sql.PaymentSql;
-import com.thinkparity.desdemona.model.io.sql.QueueSql;
-import com.thinkparity.desdemona.model.io.sql.UserSql;
+import com.thinkparity.desdemona.model.io.sql.*;
 
 import com.thinkparity.desdemona.util.DesdemonaProperties;
 import com.thinkparity.desdemona.util.crypto.CryptoException;
@@ -76,6 +71,15 @@ class IOFactoryImpl implements IOFactory {
     @Override
     public QueueSql newQueueIO(final DataSource dataSource) {
         return newIO(QueueSql.class, dataSource);
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.io.IOFactory#newReportIO(javax.sql.DataSource)
+     *
+     */
+    @Override
+    public ReportSql newReportIO(final DataSource dataSource) {
+        return newIO(ReportSql.class, dataSource);
     }
 
     /**

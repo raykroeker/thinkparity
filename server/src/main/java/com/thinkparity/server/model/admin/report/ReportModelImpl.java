@@ -14,6 +14,7 @@ import java.security.Key;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -68,7 +69,9 @@ public final class ReportModelImpl extends AdminModel implements ReportModel,
         try {
             final List<ReportUser> userList = reportIO.readUserList(vcardReader);
             final List<Invitation> firstAcceptedInvitationList = 
-                reportIO.readFirstAcceptedInvitationList(vcardReader);
+                reportIO.readAcceptedBillableInvitationList(vcardReader);
+            filterDuplicates(firstAcceptedInvitationList);
+
             final List<Invitation> invitationList = reportIO.readInvitationList(
                     vcardReader);
             final Report report = new Report();
@@ -144,6 +147,36 @@ public final class ReportModelImpl extends AdminModel implements ReportModel,
                 }
             }
         };
+    }
+
+    /**
+     * Fiter the duplicate invitations. An invitation is considered a duplicate
+     * when both the user and the invited by user are equal.
+     * 
+     * @param invitationList
+     *            A <code>List<Invitation></code>.
+     */
+    private void filterDuplicates(final List<Invitation> invitationList) {
+        final List<Long> duplicateHashCodeList = new ArrayList<Long>(invitationList.size());
+        for (int i = 0; i < invitationList.size(); i++) {
+            for (int j = i + 1; j < invitationList.size(); j++) {
+                if (invitationList.get(i).getUser().equals(invitationList.get(j).getUser()) &&
+                        invitationList.get(i).getInvitedBy().equals(invitationList.get(j).getInvitedBy())) {
+                    duplicateHashCodeList.add(Long.valueOf(invitationList.get(j).hashCode()));
+                }
+            }
+        }
+        final Iterator<Invitation> iInvitationList = invitationList.iterator();
+        Invitation invitation;
+        while (iInvitationList.hasNext()) {
+            invitation = iInvitationList.next();
+            for (final Long duplicateHashCode : duplicateHashCodeList) {
+                if (duplicateHashCode.longValue() == invitation.hashCode()) {
+                    iInvitationList.remove();
+                    break;
+                }
+            }
+        }
     }
 
     /**

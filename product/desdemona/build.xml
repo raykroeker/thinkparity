@@ -595,7 +595,7 @@ Package ${target.package.dir}/tps.war does not exist.
 Please run "ant package" before install-package.
         </fail>
         <property name="thinkparity.install-directory"
-            value="${thinkparity.install-root}/${thinkparity.environment}/server/jboss-4.0.5.GA/server/tps/deploy"/>
+            value="${thinkparity.install-root}/server/jboss-4.0.5.GA/server/tps/deploy"/>
         <fail>
             <condition>
                 <not>

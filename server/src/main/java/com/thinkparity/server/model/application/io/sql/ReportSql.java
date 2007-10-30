@@ -43,7 +43,10 @@ public final class ReportSql extends AbstractSql {
         .append("from TPSD_USER_INVITATION UI ")
         .append("inner join TPSD_USER U on UI.USER_ID=U.USER_ID ")
         .append("inner join TPSD_USER U_INVITED_BY on U_INVITED_BY.USER_ID=UI.INVITED_BY ")
+        .append("inner join TPSD_USER_PAYMENT_PLAN UPP on U.USER_ID=UPP.USER_ID ")
+        .append("inner join TPSD_PAYMENT_PLAN PP on PP.PLAN_ID=UPP.PLAN_ID ")
         .append("where UI.ACCEPTED_ON is not null ")
+        .append("and PP.PLAN_BILLABLE=?")
         .append("order by UI.ACCEPTED_ON asc")
         .toString();
 
@@ -81,34 +84,23 @@ public final class ReportSql extends AbstractSql {
     }
 
     /**
-     * Read the first accepted invitation for all users.
+     * Read the accepted invitation list for all billable users.
      * 
      * @param user
      *            A <code>User</code>.
      * @return A <code>List<Invitation></code>.
      */
-    public List<Invitation> readFirstAcceptedInvitationList(
+    public List<Invitation> readAcceptedBillableInvitationList(
             final VCardReader<UserVCard> vcardReader) throws IOException {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_ACCEPTED_INVITATION_LIST);
+            session.setBoolean(1, Boolean.TRUE);
             session.executeQuery();
 
             final List<Invitation> invitationList = new ArrayList<Invitation>();
-            Long userId = null, invitedByUserId = null;
             while (session.nextResult()) {
-                if (null == userId && null == invitedByUserId) {
-                    invitationList.add(extractInvitation(session, vcardReader));
-                } else {
-                    if (userId.equals(session.getLong("USER_ID"))
-                            && invitedByUserId.equals(session.getLong("INVITED_BY_USER_ID"))) {
-                        continue;
-                    } else {
-                        invitationList.add(extractInvitation(session, vcardReader));
-                    }
-                }
-                userId = session.getLong("USER_ID");
-                invitedByUserId = session.getLong("INVITED_BY_USER_ID");
+                invitationList.add(extractInvitation(session, vcardReader));
             }
             return invitationList;
         } finally {
@@ -235,7 +227,7 @@ public final class ReportSql extends AbstractSql {
             final VCardReader<UserVCard> vcardReader) throws IOException {
         final User user = new User();
         user.setLocalId(session.getLong(getColumnName(columnNamePrefix, "USER_ID")));
-        user.setId(JabberIdBuilder.parseUsername(getColumnName(columnNamePrefix, "USERNAME")));
+        user.setId(JabberIdBuilder.parseUsername(session.getString(getColumnName(columnNamePrefix, "USERNAME"))));
         final UserVCard userVCard = session.getVCard(getColumnName(columnNamePrefix, "VCARD"),
                 new UserVCard() {}, vcardReader);
         user.setName(userVCard.getName());

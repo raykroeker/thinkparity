@@ -21,6 +21,9 @@ public final class ReportUser extends User {
     /** An address. */
     private String address;
 
+    /** A billable flag. */
+    private Boolean billable;
+
     /** A city. */
     private String city;
 
@@ -29,10 +32,10 @@ public final class ReportUser extends User {
 
     /** A created on date. */
     private Calendar createdOn;
-    
+
     /** An e-mail. */
     private EMail email;
-
+    
     /** A language. */
     private String language;
 
@@ -159,6 +162,15 @@ public final class ReportUser extends User {
     }
 
     /**
+     * Determine if the user is billable.
+     * 
+     * @return A <code>Boolean</code>.
+     */
+    public Boolean isBillable() {
+        return billable;
+    }
+
+    /**
      * Set the address.
      *
      * @param address
@@ -166,6 +178,16 @@ public final class ReportUser extends User {
      */
     public void setAddress(final String address) {
         this.address = address;
+    }
+
+    /**
+     * Set the billable.
+     *
+     * @param billable
+     *		A <code>Boolean</code>.
+     */
+    public void setBillable(Boolean billable) {
+        this.billable = billable;
     }
 
     /**

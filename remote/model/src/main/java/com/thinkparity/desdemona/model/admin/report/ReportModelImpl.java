@@ -269,7 +269,7 @@ public final class ReportModelImpl extends AdminModel implements ReportModel,
         csvWriter = newCSVWriter(directory, "user");
         try {
             valueArrayList.clear();
-            csvWriter.writeNext(new String[] { "user.username",
+            csvWriter.writeNext(new String[] { "user.username", "user.billable",
                     "user.created_on", "user.country", "user.language",
                     "user.name", "user.organization", "user.time_zone",
                     "user.title" });
@@ -277,6 +277,7 @@ public final class ReportModelImpl extends AdminModel implements ReportModel,
             for (final ReportUser reportUser : reportUserList) {
                 valueArrayList.add(new String[] {
                         reportUser.getSimpleUsername(),
+                        reportUser.isBillable().toString(),
                         format(reportUser.getCreatedOn()),
                         reportUser.getCountry(), reportUser.getLanguage(),
                         reportUser.getName(), reportUser.getOrganization(),

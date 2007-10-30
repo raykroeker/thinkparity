@@ -65,8 +65,11 @@ public final class ReportSql extends AbstractSql {
 
     /** Sql to read a user list. */
     private static final String SQL_READ_USER_LIST =
-        new StringBuilder("select U.USER_ID,U.USERNAME,U.CREATED_ON,U.VCARD ")
+        new StringBuilder("select U.USER_ID,U.USERNAME,U.CREATED_ON,U.VCARD,")
+        .append("PP.PLAN_BILLABLE ")
         .append("from TPSD_USER U ")
+        .append("inner join TPSD_USER_PAYMENT_PLAN UPP on UPP.USER_ID=U.USER_ID ")
+        .append("inner join TPSD_PAYMENT_PLAN PP on PP.PLAN_ID=UPP.PLAN_ID ")
         .append("where U.USERNAME <> ? ")
         .append("and U.USERNAME <> ? ")
         .append("and U.USERNAME <> ?")
@@ -192,6 +195,7 @@ public final class ReportSql extends AbstractSql {
         final UserVCard reportUserVCard = session.getVCard(("VCARD"),
                 new UserVCard() {}, vcardReader);
         reportUser.setAddress(reportUserVCard.getAddress());
+        reportUser.setBillable(session.getBoolean("PLAN_BILLABLE"));
         reportUser.setCity(reportUserVCard.getCity());
         reportUser.setCountry(reportUserVCard.getCountry());
         reportUser.setCreatedOn(session.getCalendar("CREATED_ON"));

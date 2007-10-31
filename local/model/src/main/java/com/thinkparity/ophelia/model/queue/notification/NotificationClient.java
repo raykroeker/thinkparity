@@ -226,8 +226,10 @@ public final class NotificationClient extends Observable implements Runnable {
         final String sessionId = session.getId();
         final byte[] bytes = new byte[sessionId.getBytes().length];
         try {
-            connection.read(bytes);
-            online = Boolean.TRUE;
+            /* if server tcp proxy (rinetd) is destroyed this will continue to
+             * read without returning any bytes */ 
+            final int number = connection.read(bytes);
+            online = 0 < number ? Boolean.TRUE : Boolean.FALSE;
         } catch (final NetworkException nx) {
             Arrays.fill(bytes, (byte) 0);
             logger.logWarning("Network error reading connection.  {0}",

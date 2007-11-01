@@ -133,6 +133,21 @@ public final class QueueModelImpl extends Model<EventListener> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.queue.InternalQueueModel#stopNotificationClient()
+     *
+     */
+    @Override
+    public void stopNotificationClient() {
+        try {
+            if (isSetNotificationClient()) {
+                getNotificationClient().stop();
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.queue.InternalQueueModel#stopProcessor()
      *
      */

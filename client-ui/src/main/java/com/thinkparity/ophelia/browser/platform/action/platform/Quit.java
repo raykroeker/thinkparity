@@ -33,6 +33,12 @@ public class Quit extends AbstractAction {
      * 
      */
     public void invoke(final Data data) {
-        platform.end();
+        try {
+            platform.end();
+        } catch (final Throwable t) {
+            logger.logFatal(t, "Could not end platform.");
+            /* TODO - Quit#invoke(Data) - generalize platform termination */
+            System.exit(1);
+        }
     }
 }

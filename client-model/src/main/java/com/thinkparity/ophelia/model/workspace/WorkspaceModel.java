@@ -137,8 +137,11 @@ public class WorkspaceModel {
     public void close(final Workspace workspace) {
         final WorkspaceImpl impl = findImpl(workspace);
         Assert.assertNotNull(impl, "Workspace {0} has is not open.", workspace);
+        /* stop the notification client */
+        final InternalQueueModel queueModel = getModelFactory(workspace).getQueueModel();
+        queueModel.stopNotificationClient();
         /* stop the queue processor */
-        getModelFactory(workspace).getQueueModel().stopProcessor();
+        queueModel.stopProcessor();
         impl.close();
         synchronized (WORKSPACES) {
             WORKSPACES.remove(workspace.getWorkspaceDirectory());

@@ -61,15 +61,16 @@ import com.thinkparity.network.NetworkException;
  */
 public final class QueueProcessor implements Cancelable, Runnable {
 
+    /** A cancel indicator. */
+    private static boolean cancel;
+
     /** A lock to prevent multiple threads processing the same queue. */
-    private static final Object QUEUE_LOCK;
+    private static final Object queueLock;
 
     static {
-        QUEUE_LOCK = new Object();
+        cancel = false;
+        queueLock = new Object();
     }
-
-    /** A cancel indicator. */
-    private boolean cancel;
 
     /** A delegate used to decrypt files. */
     private DecryptFile decrypter;
@@ -98,7 +99,6 @@ public final class QueueProcessor implements Cancelable, Runnable {
      */
     public QueueProcessor() {
         super();
-        this.cancel = false;
         this.logger = new Log4JWrapper(getClass());
         this.running = false;
     }
@@ -110,7 +110,7 @@ public final class QueueProcessor implements Cancelable, Runnable {
      * @see com.thinkparity.codebase.delegate.Cancelable#cancel()
      */
     public void cancel() throws CancelException {
-        this.cancel = true;
+        cancel = true;
         if (null != downloader) {
             downloader.cancel();
         }
@@ -135,7 +135,7 @@ public final class QueueProcessor implements Cancelable, Runnable {
     public void run() {
         running = true;
         try {
-            synchronized (QUEUE_LOCK) {
+            synchronized (queueLock) {
                 processEvents(readEvents());
             }
         } finally {

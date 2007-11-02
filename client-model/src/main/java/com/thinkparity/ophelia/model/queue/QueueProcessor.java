@@ -61,45 +61,15 @@ import com.thinkparity.network.NetworkException;
  */
 public final class QueueProcessor implements Cancelable, Runnable {
 
-    /** A cancel indicator. */
-    private static boolean cancel;
-
-    /** A processor count. */
-    private static int count;
-
     /** A lock to prevent multiple threads processing the same queue. */
-    private static final Object queueLock;
+    private static final Object QUEUE_LOCK;
 
     static {
-        cancel = false;
-        count = 0;
-        queueLock = new Object();
+        QUEUE_LOCK = new Object();
     }
 
-    /**
-     * Obtain the processor count.
-     * 
-     * @return An <code>int</code>.
-     */
-    private static synchronized int count() {
-        return count;
-    }
-
-    /**
-     * Decrement the processor count.
-     *
-     */
-    private static synchronized void decrementCount() {
-        count--;
-    }
-
-    /**
-     * Increment the processor count.
-     *
-     */
-    private static synchronized void incrementCount() {
-        count++;
-    }
+    /** A cancel indicator. */
+    private boolean cancel;
 
     /** A delegate used to decrypt files. */
     private DecryptFile decrypter;
@@ -116,6 +86,9 @@ public final class QueueProcessor implements Cancelable, Runnable {
     /** An internal model factory. */
     private InternalModelFactory modelFactory;
 
+    /** A run indicator. */
+    private boolean running;
+
     /** A workspace. */
     private Workspace workspace;
 
@@ -125,7 +98,9 @@ public final class QueueProcessor implements Cancelable, Runnable {
      */
     public QueueProcessor() {
         super();
+        this.cancel = false;
         this.logger = new Log4JWrapper(getClass());
+        this.running = false;
     }
 
     /**
@@ -135,31 +110,22 @@ public final class QueueProcessor implements Cancelable, Runnable {
      * @see com.thinkparity.codebase.delegate.Cancelable#cancel()
      */
     public void cancel() throws CancelException {
-        cancel = true;
+        this.cancel = true;
         if (null != downloader) {
             downloader.cancel();
         }
         if (null != decrypter) {
             decrypter.cancel();
         }
-        int waitCount = 0;
-        while (0 < count()) {
-            waitCount++;
+        if (running) {
             synchronized (this) {
                 try {
-                    wait(750);
+                    wait();
                 } catch (final InterruptedException ix) {
                     throw new CancelException(ix);
                 }
             }
-            /* wait twice before proceeding */
-            if (1 < waitCount) {
-                throw new CancelException("Could not cancel queue processor.");
-            } else {
-                throw new CancelException("Test cancel exception.");
-            }
         }
-        System.out.println("Yes");
     }
 
     /**
@@ -167,13 +133,13 @@ public final class QueueProcessor implements Cancelable, Runnable {
      *
      */
     public void run() {
-        incrementCount();
+        running = true;
         try {
-            synchronized (queueLock) {
+            synchronized (QUEUE_LOCK) {
                 processEvents(readEvents());
             }
         } finally {
-            decrementCount();
+            running = false;
             synchronized (this) {
                 notifyAll();
             }

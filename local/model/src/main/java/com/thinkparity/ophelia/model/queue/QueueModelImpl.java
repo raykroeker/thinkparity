@@ -39,12 +39,12 @@ public final class QueueModelImpl extends Model<EventListener> implements
     /** A workspace attribute key for the notification client. */
     private static final String WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT;
 
-    /** A workspace attribute key for the queue processor. */
-    private static final String WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR;
+    /** A workspace attribute key for the queue processors. */
+    private static final String WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP;
 
     static {
         WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT = "QueueModelImpl#notificationClient";
-        WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR = "QueueModelImpl#queueProcessor";
+        WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP = "QueueModelImpl#queueProcessorMap";
     }
 
     /** A queue web-service interface. */
@@ -79,11 +79,11 @@ public final class QueueModelImpl extends Model<EventListener> implements
      */
     public void process(final ProcessMonitor monitor) {
         final QueueProcessor queueProcessor = newQueueProcessor();
-        setQueueProcessor(queueProcessor);
+        final Object id = setQueueProcessor(queueProcessor);
         try {
             queueProcessor.run();
         } finally {
-            removeQueueProcessor();
+            removeQueueProcessor(id);
         }
     }
 
@@ -152,13 +152,26 @@ public final class QueueModelImpl extends Model<EventListener> implements
      *
      */
     @Override
-    public void stopProcessor() {
+    public void stopProcessors() {
         try {
-            if (isSetQueueProcessor()) {
+            if (isSetQueueProcessorMap()) {
+                logger.logInfo("Queue processors exist.");
                 /* NOTE - QueueModelImpl#stopProcessor - we do not need to
                  * remove the queue processor because the natural evolution of
                  * cancel will cause automatic removal */
-                getQueueProcessor().cancel();
+                final QueueProcessorMap queueProcessorMap = removeQueueProcessorMap();                
+                final List<Object> queueProcessorIdList = queueProcessorMap.getAllIds();
+                logger.logInfo("Cancelling {0} queue processor(s).", queueProcessorIdList.size());
+                for (final Object queueProcessorId : queueProcessorIdList) {
+                    try {
+                        logger.logInfo("Cancelling queue processor.");
+                        queueProcessorMap.remove(queueProcessorId).cancel();
+                    } catch (final Throwable t) {
+                        panic(t);
+                    }
+                }
+            } else {
+                logger.logInfo("No queue processors exist.");
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -199,13 +212,16 @@ public final class QueueModelImpl extends Model<EventListener> implements
     }
 
     /**
-     * Obtain the queue processor workspace attribute.
+     * Obtain the queue processor map.
      * 
-     * @return A <code>QueueProcessor</code>.
+     * @return A <code>QueueProcessorMap</code>.
      */
-    private QueueProcessor getQueueProcessor() {
-        return (QueueProcessor) workspace.getAttribute(
-                WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR);
+    private QueueProcessorMap getQueueProcessorMap() {
+        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP)) {
+            return (QueueProcessorMap) workspace.getAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -223,9 +239,9 @@ public final class QueueModelImpl extends Model<EventListener> implements
      * 
      * @return True if the queue processor is set.
      */
-    private boolean isSetQueueProcessor() {
+    private boolean isSetQueueProcessorMap() {
         return workspace.isSetAttribute(
-                WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR).booleanValue();
+                WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP).booleanValue();
     }
 
     /**
@@ -245,7 +261,7 @@ public final class QueueModelImpl extends Model<EventListener> implements
                 switch (observableEvent) {
                 case PENDING_EVENTS:
                     final QueueProcessor queueProcessor = newQueueProcessor();
-                    setQueueProcessor(queueProcessor);
+                    final Object id = setQueueProcessor(queueProcessor);
                     /* start the queue processor as a separate thread; if not
                      * the notification client is blocked from determining
                      * offline status while we are processing the queue */
@@ -263,7 +279,7 @@ public final class QueueModelImpl extends Model<EventListener> implements
                                         logger.logWarning("A network error has occured.  {0}",
                                                 ox.getMessage());
                                     } finally {
-                                        removeQueueProcessor();
+                                        removeQueueProcessor(id);
                                     }
                                 }
                         
@@ -316,12 +332,34 @@ public final class QueueModelImpl extends Model<EventListener> implements
      * 
      * @return A <code>QueueProcessor</code>.
      */
-    private QueueProcessor removeQueueProcessor() {
-        final QueueProcessor queueProcessor = getQueueProcessor();
-        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR)) {
-            workspace.removeAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR);
+    private void removeQueueProcessor(final Object id) {
+        final QueueProcessorMap queueProcessorMap =
+            (QueueProcessorMap) workspace.getAttribute(
+                    WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP);
+        if (null == queueProcessorMap) {
+            logger.logInfo("Queue processor map is not set.");
+        } else {
+            logger.logInfo("Queue processor map is set.");
+            queueProcessorMap.remove(id);
+            if (queueProcessorMap.isEmpty()) {
+                workspace.removeAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP);
+            }
         }
-        return queueProcessor;
+    }
+
+    /**
+     * Remove the queue processor map workspace attribute.
+     * 
+     * @return A <code>QueueProcessorMap</code>.
+     */
+    private QueueProcessorMap removeQueueProcessorMap() {
+        final QueueProcessorMap map = getQueueProcessorMap();
+        if (null == map) {
+            logger.logWarning("Queue processor map is not set.");
+        } else {
+            workspace.removeAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP);
+        }
+        return map;
     }
 
     /**
@@ -339,8 +377,18 @@ public final class QueueModelImpl extends Model<EventListener> implements
      * 
      * @param queueProcessor
      *            A <code>QueueProcessor</code>.
+     * @return An <code>Object</code>.
      */
-    private void setQueueProcessor(final QueueProcessor queueProcessor) {
-        workspace.setAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR, queueProcessor);
+    private Object setQueueProcessor(final QueueProcessor queueProcessor) {
+        QueueProcessorMap queueProcessorMap;
+        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP)) {
+            queueProcessorMap = (QueueProcessorMap) workspace.getAttribute(
+                    WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP);
+        } else {
+            queueProcessorMap = new QueueProcessorMap();
+            workspace.setAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP,
+                    queueProcessorMap);
+        }
+        return queueProcessorMap.put(queueProcessor);
     }
 }

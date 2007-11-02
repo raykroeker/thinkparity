@@ -75,8 +75,9 @@ public class SessionApplication extends AbstractApplication {
 
         // if we are logged in; logout
         if (isLoggedIn()) {
-            logout();
+            logger.logInfo("Session is established.");
         } else {
+            logger.logInfo("Session is not established.");
             connectTimer.cancel();
             connectTimer = null;
         }
@@ -289,19 +290,8 @@ public class SessionApplication extends AbstractApplication {
     }
 
     /**
-     * Logout.
-     *
-     */
-    private void logout() {
-        try {
-            getSessionModel().logout();
-        } catch (final Throwable t) {
-            logger.logError(t, "Could not logout of session.");
-        }
-    }
-
-    /**
      * Restore.
+     * 
      */
     private void restore() {
         final Data data = new Data(1);

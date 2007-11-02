@@ -15,6 +15,16 @@ public final class CancelException extends Exception {
     /**
      * Create CancelException.
      * 
+     * @param message
+     *            A <code>String</code>.
+     */
+    public CancelException(final String message) {
+        super(message);
+    }
+
+    /**
+     * Create CancelException.
+     * 
      * @param cause
      *            The cause <code>Throwable</code>.
      */

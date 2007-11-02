@@ -40,5 +40,9 @@ public class Quit extends AbstractAction {
             /* TODO - Quit#invoke(Data) - generalize platform termination */
             System.exit(1);
         }
+        if (Boolean.FALSE == platform.isDevelopmentMode() &&
+                Boolean.FALSE == platform.isTestingMode()) {
+            System.exit(1);
+        }
     }
 }

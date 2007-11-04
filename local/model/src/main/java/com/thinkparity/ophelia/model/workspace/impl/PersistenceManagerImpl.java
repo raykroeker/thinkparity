@@ -217,6 +217,11 @@ basicDataSource.setAccessToUnderlyingConnectionAllowed(true);
         try {
             DriverManager.getConnection(url);
         } catch (final SQLException sqlx) {
+            if ("08006".equals(sqlx.getSQLState())) {
+                logger.logInfo("Shutdown complete.");
+            } else {
+                logger.logFatal(sqlx, "Could not shutdown database.");
+            }
         } catch (final Throwable t) {
             throw new WorkspaceException("Cannot stop persistence manager.", t);
         }

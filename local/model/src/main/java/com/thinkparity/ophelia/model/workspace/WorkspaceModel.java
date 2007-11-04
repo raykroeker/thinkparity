@@ -12,6 +12,7 @@ import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
+import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.ThinkParityException;
@@ -27,6 +28,7 @@ import com.thinkparity.ophelia.model.Constants.ShutdownHookPriorities;
 import com.thinkparity.ophelia.model.migrator.InternalMigratorModel;
 import com.thinkparity.ophelia.model.queue.InternalQueueModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
+import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.util.Step;
@@ -117,6 +119,9 @@ public class WorkspaceModel {
     /** A thinkParity <code>Environment</code>. */
     private final Environment environment;
 
+    /** A log4j wrapper. */
+    private final Log4JWrapper logger;
+
     /**
      * Create a WorkspaceModelImpl.
      * 
@@ -125,8 +130,8 @@ public class WorkspaceModel {
         super();
         this.context = new Context();
         this.environment = environment;
+        this.logger = new Log4JWrapper(getClass());
     }
-
 
     /**
      * Close a workspace.
@@ -140,9 +145,10 @@ public class WorkspaceModel {
         final InternalModelFactory modelFactory = getModelFactory(workspace);
         /* stop the notification client */
         final InternalQueueModel queueModel = modelFactory.getQueueModel();
-        queueModel.stopNotificationClient();
-        /* stop the queue processor */
-        queueModel.stopProcessors();
+        stopNotificationClient(queueModel);
+        /* stop all queue processors; if they cannot be stopped within a given
+         * timeout; they will err when the persistence framework is ended */
+        stopQueueProcessors(queueModel);
         /* logout */
         final InternalSessionModel sessionModel = modelFactory.getSessionModel();
         if (sessionModel.isLoggedIn()) {
@@ -352,5 +358,69 @@ public class WorkspaceModel {
      */
     private InternalModelFactory getModelFactory(final Workspace workspace) {
         return InternalModelFactory.getInstance(context, environment, workspace);
+    }
+
+    /**
+     * Stop the notification client.
+     * 
+     * @param queueModel
+     *            An <code>InternalQueueModel</code>.
+     */
+    private void stopNotificationClient(final InternalQueueModel queueModel) {
+        queueModel.stopNotificationClient();
+    }
+
+    /**
+     * Stop all of the queue processors. The model's stop api is asynchronous;
+     * therefore we must monitor the invocation. If we cannot stop the
+     * processors within 1.5s we give up.
+     * 
+     * @param queueModel
+     *            An <code>InternalQueueModel</code>.
+     */
+    private void stopQueueProcessors(final InternalQueueModel queueModel) {
+        final StopQueueProcessorsMonitor monitor = new StopQueueProcessorsMonitor();
+        queueModel.stopProcessors(monitor);
+        int i = 0;
+        while (4 > i++ && false == monitor.ended) {
+            synchronized (monitor) {
+                try {
+                    monitor.wait(750L); // TIMEOUT 750ms
+                } catch (final InterruptedException ix) {
+                    logger.logError(ix, "Stop queue processors interrupted.");
+                }
+            }
+        }
+        if (false == monitor.ended) {
+            logger.logWarning("Could not stop queue processors.");
+        }
+    }
+
+    /** <b>Title:</b>Stop Queue Processor Monitor<br> */
+    private static class StopQueueProcessorsMonitor extends ProcessAdapter {
+
+        /** A flag indicating the process has completed. */
+        private boolean ended;
+
+        /**
+         * Create StopQueueProcessorsMonitor.
+         *
+         */
+        private StopQueueProcessorsMonitor() {
+            super();
+            this.ended = false;
+        }
+
+        /**
+         * @see com.thinkparity.ophelia.model.util.ProcessAdapter#endProcess()
+         *
+         */
+        @Override
+        public void endProcess() {
+            ended = true;
+            synchronized (this) {
+                notifyAll();
+            }
+        }
     }
 }

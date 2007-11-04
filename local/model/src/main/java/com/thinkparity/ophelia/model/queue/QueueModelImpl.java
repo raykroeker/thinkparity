@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.queue;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -148,30 +149,51 @@ public final class QueueModelImpl extends Model<EventListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.queue.InternalQueueModel#stopProcessor()
-     *
+     * @see com.thinkparity.ophelia.model.queue.InternalQueueModel#stopProcessors(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     * 
      */
     @Override
-    public void stopProcessors() {
+    public void stopProcessors(final ProcessMonitor monitor) {
         try {
             if (isSetQueueProcessorMap()) {
-                logger.logInfo("Queue processors exist.");
-                /* NOTE - QueueModelImpl#stopProcessor - we do not need to
-                 * remove the queue processor because the natural evolution of
-                 * cancel will cause automatic removal */
-                final QueueProcessorMap queueProcessorMap = removeQueueProcessorMap();                
+                /* wherever a queue processor is started; a try/finally is used
+                 * to remove the processor from the map; therefore here we need
+                 * not remove anything, and simply cancel */
+                logger.logInfo("Queue processor map is set.");
+                final QueueProcessorMap queueProcessorMap = getQueueProcessorMap();                
                 final List<Object> queueProcessorIdList = queueProcessorMap.getAllIds();
-                logger.logInfo("Cancelling {0} queue processor(s).", queueProcessorIdList.size());
-                for (final Object queueProcessorId : queueProcessorIdList) {
-                    try {
-                        logger.logInfo("Cancelling queue processor.");
-                        queueProcessorMap.remove(queueProcessorId).cancel();
-                    } catch (final Throwable t) {
-                        panic(t);
+                logger.logInfo("{0} queue processor(s).", queueProcessorIdList.size());
+                notifyDetermine(monitor, queueProcessorIdList.size());
+                notifyProcessBegin(monitor);
+                if (queueProcessorIdList.isEmpty()) {
+                    notifyProcessEnd(monitor);                    
+                } else {
+                    for (int i = 0; i < queueProcessorIdList.size(); i++) {
+                        final QueueProcessor queueProcessor = queueProcessorMap.get(queueProcessorIdList.get(i));
+                        final boolean last = i == queueProcessorIdList.size() - 1;
+                        newThread(MessageFormat.format("TPS-OpheliaModel-StopQueueProcessors_{0}", i), new Runnable() {
+                            /**
+                             * @see java.lang.Runnable#run()
+                             *
+                             */
+                            @Override
+                            public void run() {
+                                try {
+                                    logger.logInfo("Cancelling queue processor");
+                                    queueProcessor.cancel();
+                                    if (true == last) {
+                                        notifyProcessEnd(monitor);
+                                    }
+                                } catch (final Throwable t) {
+                                    panic(t);
+                                }
+                            }
+                        }).start();
                     }
                 }
             } else {
-                logger.logInfo("No queue processors exist.");
+                logger.logInfo("Queue processor map is not set.");
+                notifyProcessEnd(monitor);
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -218,8 +240,10 @@ public final class QueueModelImpl extends Model<EventListener> implements
      */
     private QueueProcessorMap getQueueProcessorMap() {
         if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP)) {
+            logger.logDebug("Queue processor map attribute is set.");
             return (QueueProcessorMap) workspace.getAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP);
         } else {
+            logger.logDebug("Queue processor map attribute is not set.");
             return null;
         }
     }
@@ -345,21 +369,6 @@ public final class QueueModelImpl extends Model<EventListener> implements
                 workspace.removeAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP);
             }
         }
-    }
-
-    /**
-     * Remove the queue processor map workspace attribute.
-     * 
-     * @return A <code>QueueProcessorMap</code>.
-     */
-    private QueueProcessorMap removeQueueProcessorMap() {
-        final QueueProcessorMap map = getQueueProcessorMap();
-        if (null == map) {
-            logger.logWarning("Queue processor map is not set.");
-        } else {
-            workspace.removeAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP);
-        }
-        return map;
     }
 
     /**

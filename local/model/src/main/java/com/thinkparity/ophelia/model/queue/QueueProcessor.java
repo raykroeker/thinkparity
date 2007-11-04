@@ -110,6 +110,7 @@ public final class QueueProcessor implements Cancelable, Runnable {
      * @see com.thinkparity.codebase.delegate.Cancelable#cancel()
      */
     public void cancel() throws CancelException {
+        logger.logTrace("Begin cancel.");
         this.cancel = true;
         if (null != downloader) {
             downloader.cancel();
@@ -120,12 +121,16 @@ public final class QueueProcessor implements Cancelable, Runnable {
         if (running) {
             synchronized (this) {
                 try {
+                    logger.logTrace("Begin wait for cancel.");
                     wait();
+                    logger.logTrace("End wait for cancel.");
                 } catch (final InterruptedException ix) {
+                    logger.logTrace("End cancel.");
                     throw new CancelException(ix);
                 }
             }
         }
+        logger.logTrace("End cancel.");
     }
 
     /**
@@ -133,6 +138,7 @@ public final class QueueProcessor implements Cancelable, Runnable {
      *
      */
     public void run() {
+        logger.logTrace("Begin run.");
         running = true;
         try {
             synchronized (QUEUE_LOCK) {
@@ -143,6 +149,7 @@ public final class QueueProcessor implements Cancelable, Runnable {
             synchronized (this) {
                 notifyAll();
             }
+            logger.logTrace("End run.");
         }
     }
 

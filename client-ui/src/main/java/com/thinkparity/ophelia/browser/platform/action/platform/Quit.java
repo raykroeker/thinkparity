@@ -33,6 +33,7 @@ public class Quit extends AbstractAction {
      * 
      */
     public void invoke(final Data data) {
+        logger.logInfo("Begin quit.");
         try {
             platform.end();
         } catch (final Throwable t) {
@@ -42,7 +43,9 @@ public class Quit extends AbstractAction {
         }
         if (Boolean.FALSE == platform.isDevelopmentMode() &&
                 Boolean.FALSE == platform.isTestingMode()) {
+            logger.logInfo("End quit (terminate).");
             System.exit(1);
         }
+        logger.logInfo("End quit.");
     }
 }

@@ -67,8 +67,12 @@ public interface InternalQueueModel extends QueueModel {
     public void stopNotificationClient();
 
     /**
-     * Stop the currently running queue processors.
+     * Stop the currently running queue processors. Calling this api will start
+     * an asynchronous process to shutdown the queue processors.  The monitor
+     * can be used to gain insight into the process.
      * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
      */
-    public void stopProcessors();
+    public void stopProcessors(ProcessMonitor monitor);
 }

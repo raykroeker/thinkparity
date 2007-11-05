@@ -127,6 +127,9 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     /** An avatar registry. */
 	private final AvatarRegistry avatarRegistry;
 
+    /** A flag indicating that the platform is ending. */
+    private boolean ending;
+
     /** The thinkParity <code>Environment</code>. */
     private final Environment environment;
 
@@ -154,7 +157,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     /** The platform <code>OnlineHelper</code>. */
     private final OnlineHelper onlineHelper;
 
-    /** The platform settings. */
+	/** The platform settings. */
 	private final BrowserPlatformPersistence persistence;
 
 	/** The platform <code>PluginHelper</code>. */
@@ -163,7 +166,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
 	/** A thinkParity <code>Workspace</code>. */
     private final Workspace workspace;
 
-	/**
+    /**
      * Create BrowserPlatform.
      * 
      * @param profile
@@ -182,6 +185,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         this.applicationFactory = ApplicationFactory.getInstance(this);
 		this.applicationRegistry = new ApplicationRegistry();
 		this.avatarRegistry = new AvatarRegistry();
+        this.ending = false;
 		this.modelFactory = ModelFactory.getInstance();
 
 		this.logger = new Log4JWrapper();
@@ -194,7 +198,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         this.migratorHelper = new MigratorHelper(this);
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#addListener(com.thinkparity.ophelia.browser.platform.event.LifeCycleListener)
      * 
      */
@@ -210,7 +214,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         return workspace.createTempFile(suffix);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#displayErrorDialog(com.thinkparity.ophelia.browser.platform.application.ApplicationId, java.lang.Throwable)
      *
      */
@@ -221,7 +225,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         displayErrorDialog(applicationId, input);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.browser.platform.Platform#displayErrorDialog(com.thinkparity.ophelia.browser.platform.application.ApplicationId)
      * 
      */
@@ -238,7 +242,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         displayErrorDialog(applicationId, input);
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#displayErrorDialog(java.lang.Throwable)
      *
      */
@@ -267,16 +271,22 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      * @see com.thinkparity.ophelia.browser.platform.event.LifeCycleListener#ended(com.thinkparity.ophelia.browser.platform.event.LifeCycleEvent)
      *
      */
-    public void ended(final LifeCycleEvent e) {}
+    public void ended(final LifeCycleEvent e) {
+        this.ending = false;
+    }
 
     /**
      * @see com.thinkparity.ophelia.browser.platform.event.LifeCycleListener#ending(com.thinkparity.ophelia.browser.platform.event.LifeCycleEvent)
      *
      */
     public void ending(final LifeCycleEvent e) {
-        // end the event dispatcher
-        eventDispatcher.end();
-        eventDispatcher = null;
+        try {
+            // end the event dispatcher
+            eventDispatcher.end();
+            eventDispatcher = null;
+        } finally {
+            this.ending = true;
+        }
     }
 
     /**
@@ -726,8 +736,13 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      *            The error dialog input <code>Data</code>.
      */
     private void displayErrorDialog(final Data input) {
-        open(isDevelopmentMode()
-                ? AvatarId.DIALOG_ERROR_DETAILS : AvatarId.DIALOG_ERROR, input);
+        if (ending) {
+            logger.logError("Platform ending.  Cannot display error dialog.  {0}",
+                    input);
+        } else {
+            open(isDevelopmentMode() ? AvatarId.DIALOG_ERROR_DETAILS
+                    : AvatarId.DIALOG_ERROR, input);
+        }
     }
 
     /**

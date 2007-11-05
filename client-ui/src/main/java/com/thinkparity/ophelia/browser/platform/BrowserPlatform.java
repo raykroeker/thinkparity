@@ -725,8 +725,13 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      */
     private void displayErrorDialog(final ApplicationId applicationId,
             final Data input) {
-        open(applicationId, isDevelopmentMode()
-                ? AvatarId.DIALOG_ERROR_DETAILS : AvatarId.DIALOG_ERROR, input);
+        if (lifeCycle.isEnding() || lifeCycle.isEnded()) {
+            logger.logError("Platform ending.  Cannot display error dialog.  {0}",
+                    input);
+        } else {
+            open(applicationId, isDevelopmentMode()
+                    ? AvatarId.DIALOG_ERROR_DETAILS : AvatarId.DIALOG_ERROR, input);
+        }
     }
 
     /**

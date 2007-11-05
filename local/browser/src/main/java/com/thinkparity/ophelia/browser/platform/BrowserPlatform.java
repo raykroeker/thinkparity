@@ -127,9 +127,6 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     /** An avatar registry. */
 	private final AvatarRegistry avatarRegistry;
 
-    /** A flag indicating that the platform is ending. */
-    private boolean ending;
-
     /** The thinkParity <code>Environment</code>. */
     private final Environment environment;
 
@@ -138,6 +135,9 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
 
     /** The platform's first run helper. */
     private final FirstRunHelper firstRunHelper;
+
+    /** A life cycle state encapsulation. */
+    private final BrowserPlatformLifeCycle lifeCycle;
 
     /**
      * The listener helper. Manages all listeners as well as the listener
@@ -185,7 +185,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
         this.applicationFactory = ApplicationFactory.getInstance(this);
 		this.applicationRegistry = new ApplicationRegistry();
 		this.avatarRegistry = new AvatarRegistry();
-        this.ending = false;
+        this.lifeCycle = new BrowserPlatformLifeCycle();
 		this.modelFactory = ModelFactory.getInstance();
 
 		this.logger = new Log4JWrapper();
@@ -272,7 +272,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      *
      */
     public void ended(final LifeCycleEvent e) {
-        this.ending = false;
+        lifeCycle.setEnded();
     }
 
     /**
@@ -285,7 +285,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
             eventDispatcher.end();
             eventDispatcher = null;
         } finally {
-            this.ending = true;
+            lifeCycle.setEnding();
         }
     }
 
@@ -736,7 +736,7 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      *            The error dialog input <code>Data</code>.
      */
     private void displayErrorDialog(final Data input) {
-        if (ending) {
+        if (lifeCycle.isEnding() || lifeCycle.isEnded()) {
             logger.logError("Platform ending.  Cannot display error dialog.  {0}",
                     input);
         } else {

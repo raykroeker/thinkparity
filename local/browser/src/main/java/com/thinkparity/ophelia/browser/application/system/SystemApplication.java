@@ -810,7 +810,7 @@ public final class SystemApplication extends AbstractApplication {
     private void startBrowserRestoreRequestTimer() {
         stopBrowserRestoreRequestTimer();
         browserRestoreRequestTimer = new java.util.Timer("TPS-OpheliaUI-RestoreMonitor");
-        browserRestoreRequestTimer.scheduleAtFixedRate(new TimerTask() {
+        browserRestoreRequestTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 if (BrowserRestoreRequest.getInstance().isBrowserRestoreRequest()) {

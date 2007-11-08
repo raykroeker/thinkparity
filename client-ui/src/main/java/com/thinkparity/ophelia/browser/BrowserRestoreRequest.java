@@ -23,9 +23,6 @@ public final class BrowserRestoreRequest {
     /** A singleton instance of <code>BrowserRestoreRequest</code>. */
     private static BrowserRestoreRequest INSTANCE;
 
-    /** An apache logger. */
-    private final Log4JWrapper logger;
-
     /**
      * Create an instance of <code>BrowserRestoreRequest</code>.
      * 
@@ -50,8 +47,11 @@ public final class BrowserRestoreRequest {
         return INSTANCE;
     }
 
-    /** The enabled <code>boolean</code>, used to disable all requests if an exception is thrown. */
-    private boolean enabled;
+    /** The last modified time <code>long</code>. */
+    private long lastModified;
+
+    /** An apache logger. */
+    private final Log4JWrapper logger;
 
     /** The browser restore request file <code>File</code>. */
     private final File restoreRequestFile;
@@ -70,26 +70,34 @@ public final class BrowserRestoreRequest {
         this.logger = new Log4JWrapper(getClass());
         this.restoreRequestPath = getRestoreRequestPath(profile);
         this.restoreRequestFile = getRestoreRequestFile(restoreRequestPath);
-        this.enabled = true;
+        this.lastModified = System.currentTimeMillis();
     }
 
     /**
      * Determine if there is a browser restore request.
-     * This method must be fast.
+     * 
+     * This method is called often and should be fast.
+     * The method is 3 or 4 times faster when the file does not yet exist.
+     * 
+     * If this method fails because an exception is thrown then the consequence is
+     * the browser will not be restored, but hopefully the next call will succeed,
+     * thus delaying the restore by one timer interval.
      * 
      * @return True if there is a browser restore request.
      */
     public Boolean isBrowserRestoreRequest() {
-        Boolean request = Boolean.FALSE;
-        if (enabled) {
-            try {
-                request = restoreRequestFile.exists();
-            } catch (final SecurityException se) {
-                logger.logError(se, "Browser restore request could not determine file {0} existence.", restoreRequestFile);
-                enabled = false;
-            }
+        Boolean exists;
+        try {
+            exists = restoreRequestFile.exists();
+        } catch (final SecurityException se) {
+            logger.logError(se, "Browser restore request could not determine file {0} existence.", restoreRequestFile);
+            return Boolean.FALSE;
         }
-        return request;
+        if (exists) {
+            return isModified(restoreRequestFile);
+        } else {
+            return Boolean.FALSE;
+        }
     }
 
     /**
@@ -99,52 +107,12 @@ public final class BrowserRestoreRequest {
      *            A browser restore request <code>Boolean</code>.
      */
     public void setBrowserRestoreRequest(final Boolean browserRestoreRequest) {
-        if (enabled && browserRestoreRequest != isBrowserRestoreRequest()) {
-            if (browserRestoreRequest) {
-                createRestoreRequestFile();
-            } else {
-                deleteRestoreRequestFile();
-            }
-        }
-    }
-
-    /**
-     * Create the restore request file.
-     */
-    private void createRestoreRequestFile() {
-        try {
-            if (!restoreRequestPath.exists()) {
-                if (!restoreRequestPath.mkdir()) {
-                    logger.logError("Browser restore request could not create path {0}.", restoreRequestPath);
-                    enabled = false;
-                    return;
-                }
-            }
-            if (!restoreRequestFile.createNewFile()) {
-                logger.logError("Browser restore request could not create file {0}.", restoreRequestFile);
-                enabled = false;
-            }
-        } catch (final IOException iox) {
-            logger.logError(iox, "Browser restore request could not create file {0}.", restoreRequestFile);
-            enabled = false;
-        } catch (final SecurityException se) {
-            logger.logError(se, "Browser restore request could not create file {0}.", restoreRequestFile);
-            enabled = false;
-        }
-    }
-
-    /**
-     * Delete the restore request file.
-     */
-    private void deleteRestoreRequestFile() {
-        try {
-            if (!restoreRequestFile.delete()) {
-                logger.logError("Browser restore request could not delete file {0}.", restoreRequestFile);
-                enabled = false;
-            }
-        } catch(final SecurityException se) {
-            logger.logError(se, "Browser restore request could not delete file {0}.", restoreRequestFile);
-            enabled = false;
+        if (browserRestoreRequest) {
+            updateRestoreRequestFile();
+        } else {
+            // the time stamp is set rather than deleting the file, because deleting
+            // the file can occasionally fail which in this case is bad.
+            this.lastModified = System.currentTimeMillis();
         }
     }
 
@@ -168,5 +136,46 @@ public final class BrowserRestoreRequest {
      */
     private File getRestoreRequestPath(final Profile profile) {
         return new File(profile.getParityWorkspace(), DirectoryNames.Workspace.TEMP);
+    }
+
+    /**
+     * Determine if the file has been modified.
+     * 
+     * @param file
+     *            A <code>File</code>.
+     * @return True if the file has been modified.
+     */
+    private Boolean isModified(final File file) {
+        return (file.lastModified() > this.lastModified);
+    }
+
+    /**
+     * Create the restore request file if it does not exist, and timestamp it.
+     * 
+     * If this method fails because an exception is thrown then the consequence is
+     * the browser will not be restored, however, the user can try again.
+     */
+    private void updateRestoreRequestFile() {
+        try {
+            if (!restoreRequestPath.exists()) {
+                if (!restoreRequestPath.mkdir()) {
+                    logger.logError("Browser restore request could not create path {0}.", restoreRequestPath);
+                    return;
+                }
+            }
+            if (!restoreRequestFile.exists()) {
+                if (!restoreRequestFile.createNewFile()) {
+                    logger.logError("Browser restore request could not create file {0}.", restoreRequestFile);
+                    return;
+                }
+            }
+            if (!restoreRequestFile.setLastModified(System.currentTimeMillis())) {
+                logger.logError("Browser restore request could not timestamp file {0}.", restoreRequestFile);
+            }
+        } catch (final IOException iox) {
+            logger.logError(iox, "Browser restore request could not create file {0}.", restoreRequestFile);
+        } catch (final SecurityException se) {
+            logger.logError(se, "Browser restore request could not create file {0}.", restoreRequestFile);
+        }
     }
 }

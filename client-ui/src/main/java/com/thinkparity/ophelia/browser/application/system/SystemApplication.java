@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.application.system;
 
+import java.util.TimerTask;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.swing.AbstractJFrame;
 
@@ -19,6 +21,7 @@ import com.thinkparity.ophelia.model.events.MigratorEvent;
 import com.thinkparity.ophelia.model.events.ProfileEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
+import com.thinkparity.ophelia.browser.BrowserRestoreRequest;
 import com.thinkparity.ophelia.browser.application.AbstractApplication;
 import com.thinkparity.ophelia.browser.application.system.dialog.ProfilePassivatedNotifyPage;
 import com.thinkparity.ophelia.browser.application.system.dialog.Notification.NotificationType;
@@ -57,10 +60,13 @@ public final class SystemApplication extends AbstractApplication {
     /** The application registry. */
     private final ApplicationRegistry applicationRegistry;
 
-    /** The event dispatcher. */
+    /** A browser restore request <code>java.util.Timer</code>. */
+    private java.util.Timer browserRestoreRequestTimer;
+
+	/** The event dispatcher. */
 	private EventDispatcher ed;
 
-	/** The application impl. */
+    /** The application impl. */
 	private SystemApplicationImpl impl;
 
     /**
@@ -161,6 +167,8 @@ public final class SystemApplication extends AbstractApplication {
 
 		ed.end();
 		ed = null;
+
+        stopBrowserRestoreRequestTimer();
 
 		notifyEnd();
 	}
@@ -377,6 +385,8 @@ public final class SystemApplication extends AbstractApplication {
 
 		ed = new EventDispatcher(this);
 		ed.start();
+
+        startBrowserRestoreRequestTimer();
 
 		notifyStart();
 	}
@@ -792,6 +802,38 @@ public final class SystemApplication extends AbstractApplication {
      */
     private String newNotificationId(final NotificationType type) {
         return type.toString();
+    }
+
+    /**
+     * Start the timer to check for browser restore requests.
+     */
+    private void startBrowserRestoreRequestTimer() {
+        stopBrowserRestoreRequestTimer();
+        browserRestoreRequestTimer = new java.util.Timer("TPS-OpheliaUI-RestoreMonitor");
+        browserRestoreRequestTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (BrowserRestoreRequest.getInstance().isBrowserRestoreRequest()) {
+                    BrowserRestoreRequest.getInstance().setBrowserRestoreRequest(Boolean.FALSE);
+                    if (isBrowserRunning()) {
+                        runIconify(Boolean.FALSE);
+                        runMoveBrowserToFront();
+                    } else {
+                        runRestoreBrowser();
+                    }
+                }
+            }
+        }, 1000, 1000);
+    }
+
+    /**
+     * Stop the timer that checks for browser restore requests.
+     */
+    private void stopBrowserRestoreRequestTimer() {
+        if (null != browserRestoreRequestTimer) {
+            browserRestoreRequestTimer.cancel();
+            browserRestoreRequestTimer = null;
+        }
     }
 
     private enum IncomingInvitationType { EMAIL, USER }

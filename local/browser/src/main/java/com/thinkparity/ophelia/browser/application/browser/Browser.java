@@ -982,7 +982,11 @@ public class Browser extends AbstractApplication {
      * Call <code>toFront()</code> on the browser's main window.
      *
      */
-    public void moveToFront() { mainWindow.toFront(); }
+    public void moveToFront() {
+        // note that mainWindow.toFront() does not consistently work.
+        mainWindow.setAlwaysOnTop(true);
+        mainWindow.setAlwaysOnTop(false);
+    }
 
     /**
      * Reload the menu bar.

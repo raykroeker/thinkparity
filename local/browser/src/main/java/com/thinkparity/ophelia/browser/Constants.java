@@ -195,6 +195,9 @@ public final class Constants {
         public static final class ThinkParity {
             public static final String PLUGIN_ROOT = "plugins";
         }
+        public static final class Workspace {
+            public static final String TEMP = ".temp";
+        }
     }
 
     /** <b>Title:</b>Environment Variable:  thinkParity<br> */
@@ -210,6 +213,15 @@ public final class Constants {
         public static final String JAR = ".jar";
         public static final String PAR = ".par";
     }
+
+    /** File names. */
+    public static final class FileNames {
+        public static final class Workspace {
+            public static final String RESTORE_REQUEST = "restore-request";
+        }
+    }
+
+    /** Files. */
     public static final class Files {
         public static final File EXECUTABLE = new File(
                 System.getProperty("thinkparity-executable"));
@@ -218,6 +230,7 @@ public final class Constants {
         public static final File JAR = new File(
                 Directories.ThinkParity.DIRECTORY, "thinkParity.jar");
     }
+
     /** thinkParity icons. */
     public static final class Icons {
         public static final class BrowserTitle {

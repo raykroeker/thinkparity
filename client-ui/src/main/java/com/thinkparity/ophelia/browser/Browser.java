@@ -45,8 +45,10 @@ public final class Browser {
             final Profile profile = new ProfileManager(!internal, environment).select();
             if (null != mode && null != environment && null != profile) {
                 try {
+                    BrowserRestoreRequest.create(profile);
                     BrowserPlatform.create(mode, environment, profile).start();
                 } catch (final CannotLockException clx) {
+                    BrowserRestoreRequest.getInstance().setBrowserRestoreRequest(Boolean.TRUE);
                     clx.printStackTrace(System.err);
                     System.exit(1);
                 }

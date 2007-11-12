@@ -2239,9 +2239,9 @@ public class ContainerPanel extends DefaultTabPanel {
         @Override
         public String getText() {
             if (version.isSetName()) {
-                return version.getName();
+                return localization.getString("Version", new Object[] {version.getName()});
             } else {
-                return formatFuzzy(version.getCreatedOn());
+                return localization.getString("Version", new Object[] {formatFuzzy(version.getCreatedOn())});
             }
         }
         public Long getVersionId() {

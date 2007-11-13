@@ -47,9 +47,15 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
         setFilterDelegate(model);
         addPropertyChangeListener("eventDispatcher",
                 new PropertyChangeListener() {
-            public void propertyChange(final PropertyChangeEvent evt) {
-                ((ContainerTabDispatcher) getEventDispatcher())
-                        .addListeners(ContainerTabAvatar.this);
+            public void propertyChange(final PropertyChangeEvent e) {
+                if (null != e.getOldValue()) {
+                    ((ContainerTabDispatcher) e.getOldValue()).removeListeners(
+                            ContainerTabAvatar.this);
+                }
+                if (null != e.getNewValue()) {
+                    ((ContainerTabDispatcher) e.getNewValue()).addListeners(
+                            ContainerTabAvatar.this);
+                }
             }
         });
     }

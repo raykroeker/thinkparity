@@ -96,5 +96,7 @@ public final class ContactTabDispatcher implements
                 "Listener for avatar {0} not yet added.", avatar.getId());
         containerModel.removeListener(containerListener);
         containerListener = null;
+        sessionModel.removeListener(sessionListener);
+        sessionListener = null;
     }
 }

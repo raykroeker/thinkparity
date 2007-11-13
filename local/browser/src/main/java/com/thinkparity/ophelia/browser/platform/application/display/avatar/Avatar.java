@@ -30,7 +30,9 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.Resizer;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
 import com.thinkparity.ophelia.browser.platform.Platform;
+import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
+import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowTitleButtons;
 import com.thinkparity.ophelia.browser.platform.plugin.PluginRegistry;
@@ -66,6 +68,9 @@ public abstract class Avatar extends AbstractJPanel {
 	/** A set of avatar object utilities. */
     protected final AvatarUtils utils;
 
+    /** The application listener. */
+    private ApplicationListener applicationListener;
+
 	/** The thinkparity application registry. */
     private final ApplicationRegistry applicationRegistry;
 
@@ -76,7 +81,7 @@ public abstract class Avatar extends AbstractJPanel {
     private Boolean closeButtonEnabled;
 
 	/** An avatar's <code>EventDispatcher</code>. */
-    private EventDispatcher<?> eventDispatcher;
+    private EventDispatcher<Avatar> eventDispatcher;
 
     /** A list of the avatar's input error messages. */
     private final List<String> inputErrors;
@@ -268,7 +273,7 @@ public abstract class Avatar extends AbstractJPanel {
         }
         resizer = new Resizer(getController(), this, Boolean.FALSE, getResizeEdges());
     }
-    
+
     /**
      * Determine if there is an avatar background image, used for dialogs.
      * With few exceptions (eg. title, main, and status areas of browser)
@@ -278,7 +283,7 @@ public abstract class Avatar extends AbstractJPanel {
         return Boolean.TRUE;
         
     }
-    
+
     /**
      * Determine if there is an avatar title, used for dialogs.
      * With few exceptions (eg. help-about) this should be true.
@@ -320,7 +325,7 @@ public abstract class Avatar extends AbstractJPanel {
      * @param eventDispatcher
      *            An <code>EventDispatcher</code>.
      */
-    public void setEventDispatcher(final EventDispatcher<?> eventDispatcher) {
+    public void setEventDispatcher(final EventDispatcher<Avatar> eventDispatcher) {
         Assert.assertNotNull(eventDispatcher,
                 "Cannot set a null event dispatcher for avatar:  {0}", getId());
         if (this.eventDispatcher == eventDispatcher
@@ -329,6 +334,17 @@ public abstract class Avatar extends AbstractJPanel {
         final EventDispatcher<?> oldEventDispatcher = this.eventDispatcher;
         this.eventDispatcher = eventDispatcher;
         firePropertyChange("eventDispatcher", oldEventDispatcher, eventDispatcher);
+
+        removeApplicationListener(this.applicationListener);
+        this.applicationListener = new ApplicationListener() {
+            public void notifyEnd(final Application application) {
+                Avatar.this.eventDispatcher.removeListeners(Avatar.this);
+            }
+            public void notifyHibernate(Application application) {}
+            public void notifyRestore(Application application) {}
+            public void notifyStart(Application application) {}   
+        };
+        addApplicationListener(this.applicationListener);
     }
 
     /**
@@ -423,7 +439,7 @@ public abstract class Avatar extends AbstractJPanel {
         inputErrors.clear();
 	}
 
-	/**
+    /**
 	 * Determine whether or not the error has been set.
 	 * 
 	 * @return True if error has been set; false otherwise.
@@ -450,7 +466,7 @@ public abstract class Avatar extends AbstractJPanel {
         return localization;
     }
 
-	/**
+    /**
      * Obtain the pluginRegistry
      *
      * @return The PluginRegistry.
@@ -487,15 +503,15 @@ public abstract class Avatar extends AbstractJPanel {
         return getController().getSession(getId(), create);
     }
 
-    /**
+	/**
      * @see Localization#getString(String)
      * 
      */
     protected String getString(final String localKey) {
     	return localization.getString(localKey);
     }
-    
-    /**
+
+	/**
      * @see Localization#getString(String, Object[])
      * 
      */
@@ -524,7 +540,7 @@ public abstract class Avatar extends AbstractJPanel {
 		return getController().getPlatform().isDevelopmentMode();
 	}
 
-	/**
+    /**
      * Determine whether the user input for the frame is valid.
      * 
      * @return True if the input is valid; false otherwise.
@@ -534,7 +550,7 @@ public abstract class Avatar extends AbstractJPanel {
         return !containsInputErrors();
     }
 
-	/**
+    /**
      * These get and set methods are used by classes that intend to do their own
      * mouse dragging. (For example, the bottom right resize control.)
      * 
@@ -547,7 +563,7 @@ public abstract class Avatar extends AbstractJPanel {
         }
     }
 
-    /**
+	/**
 	 * Determine whether or not the platform is running in test mode.
 	 * 
 	 * @return True if the platform is in test mode; false otherwise.
@@ -555,8 +571,8 @@ public abstract class Avatar extends AbstractJPanel {
 	protected final Boolean isTestMode() {
 		return getController().getPlatform().isTestingMode();
 	}
-    
-    /**
+
+	/**
      * Open a localized resource.
      * 
      * @param name
@@ -674,6 +690,28 @@ public abstract class Avatar extends AbstractJPanel {
      */
     protected void validateInput() {
         clearInputErrors();
+    }
+
+    /**
+     * Add an application listener.
+     * 
+     * @param applicationListener
+     *            An <code>ApplicationListener</code>.  
+     */
+    private void addApplicationListener(final ApplicationListener applicationListener) {
+        getController().addListener(applicationListener);
+    }
+
+    /**
+     * Remove an application listener.
+     * 
+     * @param applicationListener
+     *            An <code>ApplicationListener</code>.  
+     */
+    private void removeApplicationListener(final ApplicationListener applicationListener) {
+        if (null != applicationListener) {
+            getController().removeListener(applicationListener);
+        }
     }
 
     private void setIsNotWorking() {

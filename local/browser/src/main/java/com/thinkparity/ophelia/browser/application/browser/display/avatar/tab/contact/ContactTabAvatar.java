@@ -41,8 +41,14 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
         addPropertyChangeListener("eventDispatcher",
                 new PropertyChangeListener() {
             public void propertyChange(final PropertyChangeEvent e) {
-                ((ContactTabDispatcher) getEventDispatcher())
-                    .addListeners(ContactTabAvatar.this);
+                if (null != e.getOldValue()) {
+                    ((ContactTabDispatcher) e.getOldValue()).removeListeners(
+                            ContactTabAvatar.this);
+                }
+                if (null != e.getNewValue()) {
+                    ((ContactTabDispatcher) e.getNewValue()).addListeners(
+                            ContactTabAvatar.this);
+                }
             }
         });
     }

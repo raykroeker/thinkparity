@@ -31,8 +31,14 @@ public class HelpTabAvatar extends TabPanelAvatar<HelpTabModel> {
         addPropertyChangeListener("eventDispatcher",
                 new PropertyChangeListener() {
             public void propertyChange(final PropertyChangeEvent e) {
-                ((HelpTabDispatcher) getEventDispatcher())
-                    .addListeners(HelpTabAvatar.this);
+                if (null != e.getOldValue()) {
+                    ((HelpTabDispatcher) e.getOldValue()).removeListeners(
+                            HelpTabAvatar.this);
+                }
+                if (null != e.getNewValue()) {
+                    ((HelpTabDispatcher) e.getNewValue()).addListeners(
+                            HelpTabAvatar.this);
+                }
             }
         });
     }

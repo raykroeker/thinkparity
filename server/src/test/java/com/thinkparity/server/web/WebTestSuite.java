@@ -30,6 +30,8 @@ public final class WebTestSuite {
         suite.addTestSuite(com.thinkparity.desdemona.model.contact.DeleteInvitationTest.class);
         suite.addTestSuite(com.thinkparity.desdemona.model.profile.CreateTest.class);
         suite.addTestSuite(com.thinkparity.desdemona.model.profile.VerifyEMailTest.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.session.ReadConfigurationTest.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.session.ReadCustomConfigurationTest.class);
         suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1000Test.class);
         suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1000ComplexTest.class);
         suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1008Test.class);

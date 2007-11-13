@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -46,6 +47,7 @@ import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants;
 import com.thinkparity.desdemona.model.io.sql.MigratorSql;
 import com.thinkparity.desdemona.model.user.InternalUserModel;
+
 import com.thinkparity.desdemona.util.DefaultRetryHandler;
 import com.thinkparity.desdemona.util.smtp.SMTPService;
 
@@ -191,7 +193,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
             throw panic(t);
         }
     }
-   
+
     /**
      * @see com.thinkparity.desdemona.model.migrator.InternalMigratorModel#readFeatures(com.thinkparity.codebase.model.migrator.Product, com.thinkparity.codebase.filter.Filter)
      *
@@ -219,7 +221,7 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
             throw panic(t);
         }
     }
-
+   
     /**
      * @see com.thinkparity.desdemona.model.migrator.InternalMigratorModel#readIsPaymentRequired(com.thinkparity.codebase.model.migrator.Feature)
      *
@@ -256,6 +258,19 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
             return migratorSql.readProduct(name);
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.migrator.InternalMigratorModel#readProductConfiguration(com.thinkparity.codebase.model.migrator.Product)
+     *
+     */
+    @Override
+    public Properties readProductConfiguration(final Product product) {
+        try {
+            return migratorSql.readConfiguration(product, user);
+        } catch (final Exception x) {
+            throw panic(x);
         }
     }
 
@@ -310,6 +325,20 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
             return migratorSql.readResources(release);
         } catch (final Throwable t) {
             throw translateError(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.migrator.InternalMigratorModel#updateProductConfiguration(com.thinkparity.codebase.model.migrator.Product, java.util.Properties)
+     *
+     */
+    @Override
+    public void updateProductConfiguration(final Product product,
+            final Properties configuration) {
+        try {
+            migratorSql.updateConfiguration(product, user, configuration);
+        } catch (final Exception x) {
+            throw panic(x);
         }
     }
 

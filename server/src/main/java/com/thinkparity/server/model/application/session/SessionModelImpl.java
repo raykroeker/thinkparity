@@ -5,7 +5,9 @@ package com.thinkparity.desdemona.model.session;
 
 import java.io.File;
 import java.util.Calendar;
+import java.util.Properties;
 
+import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.session.Configuration;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -13,8 +15,10 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.Constants;
 import com.thinkparity.desdemona.model.io.sql.SessionSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
+import com.thinkparity.desdemona.model.migrator.InternalMigratorModel;
 
 import com.thinkparity.desdemona.util.DateTimeProvider;
 
@@ -28,21 +32,6 @@ import com.thinkparity.service.AuthToken;
  */
 public final class SessionModelImpl extends AbstractModelImpl implements
         SessionModel, InternalSessionModel {
-
-    /** The configuration name for the event timeout. */
-    private static final String CFG_NAME_SESSION_REAPER_EVENT_TIMEOUT;
-
-    /** The configuration name for the first execution delay. */
-    private static final String CFG_NAME_SESSION_REAPER_FIRST_EXECUTION_DELAY;
-
-    /** The configuration name for the recurring execution period. */
-    private static final String CFG_NAME_SESSION_REAPER_RECURRING_EXECUTION_PERIOD;
-
-    static {
-        CFG_NAME_SESSION_REAPER_EVENT_TIMEOUT = "com.thinkparity.session.reaper.eventtimeout";
-        CFG_NAME_SESSION_REAPER_FIRST_EXECUTION_DELAY = "com.thinkparity.session.reaper.firstexecutiondelay";
-        CFG_NAME_SESSION_REAPER_RECURRING_EXECUTION_PERIOD = "com.thinkparity.session.reaper.recurringexecutionperiod";
-    }
 
     /** A session sql interface. */
     private SessionSql sessionSql;
@@ -139,13 +128,19 @@ public final class SessionModelImpl extends AbstractModelImpl implements
      */
     @Override
     public Configuration readConfiguration(final AuthToken authToken) {
-        /* NOCOMMIT - SessionModelImpl#readConfiguration(AuthToken, Product) -
-         * move the configuration values to the database */
-        final Configuration configuration = new Configuration();
-        configuration.setProperty(CFG_NAME_SESSION_REAPER_EVENT_TIMEOUT, "14400000");//"14400000");
-        configuration.setProperty(CFG_NAME_SESSION_REAPER_FIRST_EXECUTION_DELAY, "3600000");//"3600000");
-        configuration.setProperty(CFG_NAME_SESSION_REAPER_RECURRING_EXECUTION_PERIOD, "3600000");//"3600000");
-        return configuration;
+        try {
+            /* HACK - SessionModelImpl#readConfiguration(AuthToken) - hard-coded product */
+            final InternalMigratorModel migratorModel = getMigratorModel();
+            final Product product = migratorModel.readProduct(Constants.Product.Ophelia.PRODUCT_NAME);
+            final Properties properties = getMigratorModel().readProductConfiguration(product);
+            final Configuration configuration = new Configuration();
+            for (final String propertyName : properties.stringPropertyNames()) {
+                configuration.setProperty(propertyName, properties.getProperty(propertyName));
+            }
+            return configuration;
+        } catch (final Exception x) {
+            throw panic(x);
+        }
     }
 
     /**

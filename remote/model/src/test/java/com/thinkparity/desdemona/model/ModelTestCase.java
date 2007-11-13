@@ -43,6 +43,7 @@ import com.thinkparity.codebase.model.util.codec.MD5Util;
 import com.thinkparity.desdemona.model.admin.AdminModelFactory;
 import com.thinkparity.desdemona.model.admin.derby.DerbyModel;
 import com.thinkparity.desdemona.model.admin.report.ReportModel;
+import com.thinkparity.desdemona.model.admin.user.AdminUserModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
 import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
@@ -492,6 +493,17 @@ public abstract class ModelTestCase extends TestCase {
     }
 
     /**
+     * Instantiate an admin user model.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @return An <code>AdminUserModel</code>.
+     */
+    private AdminUserModel newAdminUserModel(final AuthToken authToken) {
+        return getAdminModelFactory(authToken).newUserModel();
+    }
+
+    /**
      * Obtain the derby model.
      * 
      * @param authToken
@@ -814,6 +826,15 @@ public abstract class ModelTestCase extends TestCase {
         public SessionModel getSessionModel() {
             return ModelTestCase.this.getSessionModel();
         }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#getSessionModel(AuthToken)
+         * 
+         */
+        public SessionModel getSessionModel(final AuthToken authToken) {
+            return ModelTestCase.this.getSessionModel(authToken);
+        }
+
         /**
          * @see com.thinkparity.desdemona.model.ModelTestCase#getContactModel(AuthToken)
          * 
@@ -852,6 +873,14 @@ public abstract class ModelTestCase extends TestCase {
          */
         public User lookupUser(final AuthToken authToken) {
             return ModelTestCase.this.lookupUser(authToken);
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#newAdminUserModel(AuthToken)
+         * 
+         */
+        public AdminUserModel newAdminUserModel(final AuthToken authToken) {
+            return ModelTestCase.this.newAdminUserModel(authToken);
         }
 
         /**

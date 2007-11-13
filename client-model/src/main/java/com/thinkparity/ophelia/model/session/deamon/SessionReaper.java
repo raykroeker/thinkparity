@@ -59,7 +59,7 @@ public final class SessionReaper implements DaemonJob, DaemonSchedule,
     private static final Date FORMAT_DATE;
 
     static {
-        CFG_NAME_EVENT_TIMEOUT = "com.thinkparity.session.reaper.eventtimeout";
+        CFG_NAME_EVENT_TIMEOUT = "com.thinkparity.session.reaper.timeout";
         CFG_NAME_FIRST_EXECUTION_DELAY = "com.thinkparity.session.reaper.firstexecutiondelay";
         CFG_NAME_RECURRING_EXECUTION_PERIOD = "com.thinkparity.session.reaper.recurringexecutionperiod";
         DATE_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");

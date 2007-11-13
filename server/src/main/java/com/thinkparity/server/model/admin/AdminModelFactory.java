@@ -12,6 +12,8 @@ import com.thinkparity.desdemona.model.admin.derby.DerbyModel;
 import com.thinkparity.desdemona.model.admin.derby.DerbyModelImpl;
 import com.thinkparity.desdemona.model.admin.report.ReportModel;
 import com.thinkparity.desdemona.model.admin.report.ReportModelImpl;
+import com.thinkparity.desdemona.model.admin.user.AdminUserModel;
+import com.thinkparity.desdemona.model.admin.user.AdminUserModelImpl;
 
 /**
  * <b>Title:</b>thinkParity Desdemona Admin Model Factory<br>
@@ -100,6 +102,16 @@ public final class AdminModelFactory {
      */
     public final ReportModel newReportModel() {
         return (ReportModel) newProxy(ReportModel.class, ReportModelImpl.class);
+    }
+
+    /**
+     * Instantiate a user model.
+     * 
+     * @return An <code>AdminUserModel</code>.
+     */
+    public AdminUserModel newUserModel() {
+        return (AdminUserModel) newProxy(AdminUserModel.class,
+                AdminUserModelImpl.class);
     }
 
     /**

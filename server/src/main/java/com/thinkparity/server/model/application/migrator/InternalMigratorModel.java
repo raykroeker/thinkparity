@@ -4,6 +4,7 @@
 package com.thinkparity.desdemona.model.migrator;
 
 import java.util.List;
+import java.util.Properties;
 
 import com.thinkparity.codebase.filter.Filter;
 
@@ -51,6 +52,13 @@ public interface InternalMigratorModel extends MigratorModel {
     Boolean readIsPaymentRequired(Feature feature);
 
     /**
+     * Read the user's product configuration.
+     * 
+     * @return A set of <code>Properties</code>.
+     */
+    Properties readProductConfiguration(Product product);
+
+    /**
      * Read a product feature.
      * 
      * @param product
@@ -60,4 +68,14 @@ public interface InternalMigratorModel extends MigratorModel {
      * @return A <code>Feature</code>.
      */
     Feature readProductFeature(Product product, String name);
+
+    /**
+     * Update the user's product configuration.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @param configuration
+     *            A set of <code>Properties</code>.
+     */
+    void updateProductConfiguration(Product product, Properties configuration);
 }

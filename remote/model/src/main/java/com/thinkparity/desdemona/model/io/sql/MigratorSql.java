@@ -6,7 +6,10 @@ package com.thinkparity.desdemona.model.io.sql;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import com.thinkparity.codebase.OS;
 
@@ -61,6 +64,13 @@ public final class MigratorSql extends AbstractSql {
         .append("values (?,?,?,?)")
         .toString();
 
+    /** Sql to create a user configuration. */
+    private static final String SQL_CREATE_USER_CONFIGURATION =
+        new StringBuilder("insert into TPSD_USER_PRODUCT_CFG ")
+        .append("(USER_ID,CFG_ID,CFG_VALUE) ")
+        .append("values (?,?,?)")
+        .toString();
+
     /** Sql to delete a release. */
     private static final String SQL_DELETE_RELEASE =
         new StringBuilder("delete from TPSD_PRODUCT_RELEASE ")
@@ -85,6 +95,12 @@ public final class MigratorSql extends AbstractSql {
         .append("where RESOURCE_ID=?")
         .toString();
 
+    /** Sql to delete a user's configuration. */
+    private static final String SQL_DELETE_USER_CONFIGURATION =
+        new StringBuilder("delete from TPSD_USER_PRODUCT_CFG ")
+        .append("where USER_ID=?")
+        .toString();
+
     /** Sql to determine release existence. */
     private static final String SQL_DOES_EXIST_RELEASE_BY_NAME =
         new StringBuilder("select count(R.RELEASE_ID) \"RELEASE_COUNT\" ")
@@ -104,6 +120,14 @@ public final class MigratorSql extends AbstractSql {
         new StringBuilder("select R.RESOURCE ")
         .append("from TPSD_PRODUCT_RELEASE_RESOURCE R ")
         .append("where R.RESOURCE_ID=?")
+        .toString();
+
+    /** Sql to read the configuration key/id map. */
+    private static final String SQL_READ_CONFIGURATION_KEY_ID_MAP =
+        new StringBuilder("select PC.CFG_ID,PC.CFG_KEY ")
+        .append("from TPSD_PRODUCT_CFG PC ")
+        .append("where PC.PRODUCT_ID=? ")
+        .append("order by PC.CFG_KEY asc")
         .toString();
 
     /** Sql to determine the number of fees associated with a feature. */
@@ -140,6 +164,15 @@ public final class MigratorSql extends AbstractSql {
         .append("where P.PRODUCT_NAME=? and R.RELEASE_OS=? ")
         .append("and R.RELEASE_DATE<? ")
         .append("order by R.RELEASE_DATE desc")
+        .toString();
+
+    /** Read the product configuration. */
+    private static final String SQL_READ_PRODUCT_CONFIGURATION =
+        new StringBuilder("select CFG_KEY,CFG_VALUE ")
+        .append("from TPSD_PRODUCT_CFG PC ")
+        .append("inner join TPSD_PRODUCT P on P.PRODUCT_ID=PC.PRODUCT_ID ")
+        .append("where P.PRODUCT_ID=? ")
+        .append("order by PC.CFG_KEY asc")
         .toString();
 
     /** Sql to read a product feature by its unique key. */
@@ -206,6 +239,27 @@ public final class MigratorSql extends AbstractSql {
         .append("inner join TPSD_PRODUCT_RELEASE PR on  ")
         .append("PR.RELEASE_ID=PRRR.RELEASE_ID ")
         .append("where PR.RELEASE_ID=?")
+        .toString();
+
+    /** Sql to read a user's configuration key count. */
+    private static final String SQL_READ_USER_CONFIGURATION_KEY_COUNT =
+        new StringBuilder("select count(CFG_KEY) \"KEY_COUNT\" ")
+        .append("from TPSD_USER_PRODUCT_CFG UPC ")
+        .append("inner join TPSD_PRODUCT_CFG PC on PC.CFG_ID=UPC.CFG_ID ")
+        .append("inner join TPSD_PRODUCT P on P.PRODUCT_ID=PC.PRODUCT_ID ")
+        .append("where P.PRODUCT_ID =? ")
+        .append("and UPC.USER_ID=?")
+        .toString();
+
+    /** Read the product user configuration. */
+    private static final String SQL_READ_USER_PRODUCT_CONFIGURATION =
+        new StringBuilder("select PC.CFG_KEY,UPC.CFG_VALUE ")
+        .append("from TPSD_USER_PRODUCT_CFG UPC ")
+        .append("inner join TPSD_PRODUCT_CFG PC on PC.CFG_ID=UPC.CFG_ID ")
+        .append("inner join TPSD_PRODUCT P on P.PRODUCT_ID=PC.PRODUCT_ID ")
+        .append("where P.PRODUCT_ID=? ")
+        .append("and UPC.USER_ID=? ")
+        .append("order by PC.CFG_KEY asc")
         .toString();
 
     /**
@@ -463,6 +517,44 @@ public final class MigratorSql extends AbstractSql {
             } else {
                 opener.open(null);
             }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Read the product's user configuration.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @return A set of <code>Properties</code>.
+     */
+    public Properties readConfiguration(final Product product, final User user) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_PRODUCT_CONFIGURATION);
+            session.setLong(1, product.getId());
+            session.executeQuery();
+            final Properties productConfiguration = new Properties();
+            while (session.nextResult()) {
+                productConfiguration.setProperty(session.getString("CFG_KEY"),
+                        session.getString("CFG_VALUE"));
+            }
+
+            session.prepareStatement(SQL_READ_USER_PRODUCT_CONFIGURATION);
+            session.setLong(1, product.getId());
+            session.setLong(2, user.getLocalId());
+            session.executeQuery();
+            final Properties productUserConfiguration = new Properties(productConfiguration);
+            while (session.nextResult()) {
+                productUserConfiguration.setProperty(
+                        session.getString("CFG_KEY"), session.getString("CFG_VALUE"));
+            }
+            return productUserConfiguration;
         } catch (final Throwable t) {
             throw translateError(session, t);
         } finally {
@@ -772,6 +864,48 @@ public final class MigratorSql extends AbstractSql {
     }
 
     /**
+     * Update the user's product configuration.
+     * 
+     * @param product
+     *            A <code>Product</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @param configuration
+     *            A set of <code>Properties</code>.
+     */
+    public void updateConfiguration(final Product product, final User user,
+            final Properties configuration) {
+        final HypersonicSession session = openSession();
+        try {
+            final Map<String, Long> keyIdMap = readConfigurationKeyIdMap(session, product);
+            final Integer keyCount = readConfigurationKeyCount(session, product, user);
+            session.prepareStatement(SQL_DELETE_USER_CONFIGURATION);
+            session.setLong(1, user.getLocalId());
+            if (keyCount.intValue() != session.executeUpdate()) {
+                throw panic("Could not delete user configuration.");
+            }
+
+            session.prepareStatement(SQL_CREATE_USER_CONFIGURATION);
+            session.setLong(1, user.getLocalId());
+            for (final String configurationKeyName : configuration.stringPropertyNames()) {
+                if (keyIdMap.containsKey(configurationKeyName)) {
+                    session.setLong(2, keyIdMap.get(configurationKeyName));
+                    session.setString(3, configuration.getProperty(configurationKeyName));
+                    if (1 != session.executeUpdate()) {
+                        throw panic("Could not create user configuration.");
+                    }
+                }
+            }
+
+            session.commit();
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
      * Add a resource to a release.
      * 
      * @param session
@@ -889,6 +1023,51 @@ public final class MigratorSql extends AbstractSql {
         resource.setReleaseName(session.getString("RELEASE_NAME"));
         resource.setSize(session.getLong("RESOURCE_SIZE"));
         return resource;
+    }
+
+    /**
+     * Read a user's configuration key count.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @return An <code>Integer</code>.
+     */
+    private Integer readConfigurationKeyCount(final HypersonicSession session,
+            final Product product, final User user) {
+        session.prepareStatement(SQL_READ_USER_CONFIGURATION_KEY_COUNT);
+        session.setLong(1, product.getId());
+        session.setLong(2, user.getLocalId());
+        session.executeQuery();
+        if (session.nextResult()) {
+            return session.getInteger("KEY_COUNT");
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Read a map of all configuration keys to their local ids.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @param product
+     *            A <code>Product</code>.
+     * @return A <code>Map<String, Long></code>.
+     */
+    private Map<String, Long> readConfigurationKeyIdMap(
+            final HypersonicSession session, final Product product) {
+        session.prepareStatement(SQL_READ_CONFIGURATION_KEY_ID_MAP);
+        session.setLong(1, product.getId());
+        session.executeQuery();
+        final Map<String, Long> keyMap = new HashMap<String, Long>();
+        while (session.nextResult()) {
+            keyMap.put(session.getString("CFG_KEY"), session.getLong("CFG_ID"));
+        }
+        return keyMap;
     }
 
     /**

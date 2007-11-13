@@ -44,12 +44,12 @@ public final class DeleteInvitationTest extends ContactTestCase {
         setUpDeleteOutgoingEMail();
         try {
             datum.validateInvitations(datum.inviteAuthToken, "invite", 1, 0, 0, 0);
-            datum.validateInvitations(datum.deleteAuthToken, "delete", 0, 0, 1, 0);
+            datum.validateInvitations(datum.deleteAuthToken, "delete", 0, 0, 2, 0);
             datum.validateContacts(datum.deleteAuthToken, datum.inviteAuthToken, Boolean.FALSE);
             datum.getContactModel(datum.deleteAuthToken).deleteInvitation(
                     datum.outgoingEMail, datum.now());
             datum.validateInvitations(datum.inviteAuthToken, "invite", 0, 0, 0, 0);
-            datum.validateInvitations(datum.deleteAuthToken, "delete", 0, 0, 0, 0);
+            datum.validateInvitations(datum.deleteAuthToken, "delete", 0, 0, 1, 0);
             datum.validateContacts(datum.deleteAuthToken, datum.inviteAuthToken, Boolean.FALSE);
         } finally {
             tearDownDelete();
@@ -126,7 +126,7 @@ public final class DeleteInvitationTest extends ContactTestCase {
         invitation.setCreatedBy(deleteProfile);
         invitation.setCreatedOn(datum.now());
         invitation.setInvitationEMail(datum.newEMail(datum.newUniqueUsername()));
-        datum.getContactModel(datum.inviteAuthToken).createInvitation(invitation);
+        datum.getContactModel(datum.deleteAuthToken).createInvitation(invitation);
     }
 
     /**

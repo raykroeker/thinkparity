@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.session;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Properties;
 import java.util.UUID;
 
 import com.thinkparity.codebase.OS;
@@ -502,4 +503,11 @@ public interface InternalSessionModel extends SessionModel {
      *            A verification key <code>String</code>.
      */
     public void verifyProfileEmail(final ProfileEMail email, final String key);
+
+    /**
+     * Obtain the session configuration.
+     * 
+     * @return A <code>Properties</code>.
+     */
+    Properties getConfiguration();
 }

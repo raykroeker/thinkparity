@@ -75,4 +75,11 @@ public interface InternalQueueModel extends QueueModel {
      *            A <code>ProcessMonitor</code>.
      */
     public void stopProcessors(ProcessMonitor monitor);
+
+    /**
+     * Obtain the latest process time in milliseconds.
+     * 
+     * @return A <code>Long</code>.
+     */
+    Long getLatestProcessTimeMillis();
 }

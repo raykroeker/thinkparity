@@ -36,6 +36,8 @@ import com.thinkparity.ophelia.model.Constants.FileNames;
 import com.thinkparity.ophelia.model.Constants.Release;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
+import com.thinkparity.ophelia.model.util.daemon.DaemonJob;
+import com.thinkparity.ophelia.model.util.daemon.DaemonSchedule;
 import com.thinkparity.ophelia.model.util.service.ServiceFactory;
 import com.thinkparity.ophelia.model.util.service.ServiceRetryHandler;
 import com.thinkparity.ophelia.model.workspace.CannotLockException;
@@ -79,6 +81,9 @@ public final class WorkspaceImpl implements Workspace {
 
     /** The persistence manager. */
     private PersistenceManagerImpl persistenceManagerImpl;
+
+    /** A scheduler. */
+    private SchedulerImpl scheduler;
 
     /** The workspace session data. */
     private Map<String, Object> sessionData;
@@ -143,6 +148,9 @@ public final class WorkspaceImpl implements Workspace {
      *
      */
     public void close() {
+        scheduler.stop();
+        scheduler = null;
+
         listenersImpl.stop();
         listenersImpl = null;
 
@@ -502,6 +510,9 @@ public final class WorkspaceImpl implements Workspace {
 
         sessionData = new Hashtable<String, Object>();
 
+        scheduler = new SchedulerImpl(this);
+        scheduler.start();
+
         shutdownHooks = new ArrayList<ShutdownHook>();
 
         FileUtil.deleteTree(initChild(DirectoryNames.Workspace.TEMP));
@@ -526,6 +537,16 @@ public final class WorkspaceImpl implements Workspace {
     public <T extends EventListener> boolean removeListener(
             final Model<?> impl, final T listener) {
         return listenersImpl.remove(impl, listener);
+    }
+
+    
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#schedule(com.thinkparity.ophelia.model.util.daemon.DaemonJob, com.thinkparity.ophelia.model.util.daemon.DaemonSchedule)
+     *
+     */
+    @Override
+    public void schedule(final DaemonJob job, final DaemonSchedule schedule) {
+        scheduler.schedule(job, schedule);
     }
 
     /**

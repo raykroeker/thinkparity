@@ -11,6 +11,8 @@ import java.nio.charset.Charset;
 import javax.sql.DataSource;
 
 import com.thinkparity.ophelia.model.util.ShutdownHook;
+import com.thinkparity.ophelia.model.util.daemon.DaemonJob;
+import com.thinkparity.ophelia.model.util.daemon.DaemonSchedule;
 import com.thinkparity.ophelia.model.util.service.ServiceRetryHandler;
 
 import com.thinkparity.service.ServiceFactory;
@@ -194,14 +196,14 @@ public interface Workspace {
      */
     public Transaction getTransaction();
 
-	/**
+    /**
      * Obtain the workspace directory.
      * 
      * @return The workspace directory <code>File</code>.
      */
     public File getWorkspaceDirectory();
 
-    /**
+	/**
      * Determine whether or not an attribute is set.
      * 
      * @param name
@@ -238,4 +240,14 @@ public interface Workspace {
      * @return A <code>Thread</code>.
      */
     Thread newThread(String name, Runnable runnable);
+
+    /**
+     * Schedule a job.
+     * 
+     * @param job
+     *            A <code>DaemonJob</code>.
+     * @param schedule
+     *            A <code>DaemonSchedule</code>.
+     */
+    void schedule(DaemonJob job, DaemonSchedule schedule);
 }

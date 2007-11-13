@@ -40,11 +40,15 @@ public final class QueueModelImpl extends Model<EventListener> implements
     /** A workspace attribute key for the notification client. */
     private static final String WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT;
 
+    /** A workspace attribute key for the latest process time. */
+    private static final String WS_ATTRIBUTE_KEY_PROCESS_TIME;
+
     /** A workspace attribute key for the queue processors. */
     private static final String WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP;
 
     static {
         WS_ATTRIBUTE_KEY_NOTIFICATION_CLIENT = "QueueModelImpl#notificationClient";
+        WS_ATTRIBUTE_KEY_PROCESS_TIME = "QueueModelImpl#processTime";
         WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP = "QueueModelImpl#queueProcessorMap";
     }
 
@@ -75,6 +79,15 @@ public final class QueueModelImpl extends Model<EventListener> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.queue.InternalQueueModel#getLatestProcessTimeMillis()
+     *
+     */
+    @Override
+    public Long getLatestProcessTimeMillis() {
+        return (Long) workspace.getAttribute(WS_ATTRIBUTE_KEY_PROCESS_TIME);
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.queue.InternalQueueModel#process(com.thinkparity.ophelia.model.util.ProcessMonitor)
      *
      */
@@ -84,7 +97,11 @@ public final class QueueModelImpl extends Model<EventListener> implements
         try {
             queueProcessor.run();
         } finally {
-            removeQueueProcessor(id);
+            try {
+                removeQueueProcessor(id);
+            } finally {
+                setLatestProcessTime();
+            }
         }
     }
 
@@ -212,6 +229,10 @@ public final class QueueModelImpl extends Model<EventListener> implements
         this.queueService = serviceFactory.getQueueService();
         // thread factory
         this.threadFactory = Executors.defaultThreadFactory();
+        /* set an initial process time */
+        if (!workspace.isSetAttribute(WS_ATTRIBUTE_KEY_PROCESS_TIME)) {
+            setLatestProcessTime();
+        }
     }
 
     /**
@@ -369,6 +390,15 @@ public final class QueueModelImpl extends Model<EventListener> implements
                 workspace.removeAttribute(WS_ATTRIBUTE_KEY_QUEUE_PROCESSOR_MAP);
             }
         }
+    }
+
+    /**
+     * Set the latest process time.
+     * 
+     */
+    private void setLatestProcessTime() {
+        workspace.setAttribute(WS_ATTRIBUTE_KEY_PROCESS_TIME,
+                Long.valueOf(System.currentTimeMillis()));
     }
 
     /**

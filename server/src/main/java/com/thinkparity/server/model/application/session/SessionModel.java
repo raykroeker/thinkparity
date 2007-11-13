@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.model.session;
 
+import com.thinkparity.codebase.model.session.Configuration;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
@@ -54,4 +55,13 @@ public interface SessionModel {
      * @return A <code>User</code>.
      */
     public User readUser(final String sessionId);
+
+    /**
+     * Read the global configuration for the user for the product.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @return A <code>Configuration</code>.
+     */
+    Configuration readConfiguration(AuthToken authToken);
 }

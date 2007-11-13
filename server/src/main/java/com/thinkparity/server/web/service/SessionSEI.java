@@ -5,6 +5,7 @@ package com.thinkparity.desdemona.web.service;
 
 import javax.jws.WebService;
 
+import com.thinkparity.codebase.model.session.Configuration;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
@@ -52,6 +53,15 @@ public class SessionSEI extends ServiceSEI implements SessionService {
      */
     public void logout(final AuthToken authToken) {
         getModel(authToken).logout(authToken.getSessionId());
+    }
+
+    /**
+     * @see com.thinkparity.service.SessionService#readConfiguration(com.thinkparity.service.AuthToken)
+     * 
+     */
+    @Override
+    public Configuration readConfiguration(final AuthToken authToken) {
+        return getModel().readConfiguration(authToken);
     }
 
     /**

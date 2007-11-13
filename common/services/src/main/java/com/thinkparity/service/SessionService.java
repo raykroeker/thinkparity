@@ -6,6 +6,7 @@ package com.thinkparity.service;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 
+import com.thinkparity.codebase.model.session.Configuration;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
@@ -35,4 +36,14 @@ public interface SessionService {
      */
     @WebMethod
     void logout(AuthToken authToken);
+
+    /**
+     * Read the configuration.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @return A <code>Configuration</code>.
+     */
+    @WebMethod
+    Configuration readConfiguration(AuthToken authToken);
 }

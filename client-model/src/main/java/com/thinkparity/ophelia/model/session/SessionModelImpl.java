@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.session;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Properties;
 import java.util.UUID;
 
 import com.thinkparity.codebase.OS;
@@ -34,6 +35,7 @@ import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
+import com.thinkparity.codebase.model.session.Configuration;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -44,8 +46,12 @@ import com.thinkparity.codebase.model.util.Token;
 import com.thinkparity.ophelia.model.Constants;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
+import com.thinkparity.ophelia.model.events.SessionAdapter;
 import com.thinkparity.ophelia.model.events.SessionListener;
+import com.thinkparity.ophelia.model.session.deamon.SessionReaper;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
+import com.thinkparity.ophelia.model.util.configuration.ReconfigureEvent;
+import com.thinkparity.ophelia.model.util.configuration.ReconfigureListener;
 import com.thinkparity.ophelia.model.util.service.ServiceRetryHandler;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
@@ -73,14 +79,26 @@ public final class SessionModelImpl extends Model<SessionListener>
     /** A workspace attribute key for the authentication token. */
     private static final String WS_ATTRIBUTE_KEY_AUTH_TOKEN;
 
+    /** A workspace attribute key defining the configuration. */
+    private static final String WS_ATTRIBUTE_KEY_CONFIGURATION;
+
     /** A workspace attribute key defining an <code>OfflineCode</code>. */
     private static final String WS_ATTRIBUTE_KEY_OFFLINE_CODES;
+
+    /** A workspace attribute key for the reaper. */
+    private static final String WS_ATTRIBUTE_KEY_REAPER;
+
+    /** A workspace attribute key for the reconfigure listeners. */
+    private static final String WS_ATTRIBUTE_KEY_RECONFIGURE_LISTENERS;
 
     static {
         AUTH_TOKEN_EXPIRY_FUDGE = 3 * 1000;
         CFG_KEY_REMOTE_RELEASE = "SessionModelImpl#remoteRelease";
         WS_ATTRIBUTE_KEY_AUTH_TOKEN = "SessionModelImpl#authToken";
+        WS_ATTRIBUTE_KEY_CONFIGURATION = "SessionModelImpl#configuration";
         WS_ATTRIBUTE_KEY_OFFLINE_CODES = "SessionModelImpl#offlineCodes";
+        WS_ATTRIBUTE_KEY_REAPER = "SessionModelImpl#reaper";
+        WS_ATTRIBUTE_KEY_RECONFIGURE_LISTENERS = "SessionModelImpl#reconfigureListeners";
     }
 
     /** An artifact web-service interface. */
@@ -185,7 +203,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createInvitation(com.thinkparity.codebase.model.contact.OutgoingEMailInvitation)
      * 
      */
@@ -209,7 +227,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#declineInvitation(com.thinkparity.codebase.model.contact.IncomingEMailInvitation,
      *      java.util.Calendar)
      * 
@@ -324,6 +342,15 @@ public final class SessionModelImpl extends Model<SessionListener>
             logger.logError("User session is null.");
             return null;
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#getConfiguration()
+     *
+     */
+    @Override
+    public Properties getConfiguration() {
+        return (Configuration) workspace.getAttribute(WS_ATTRIBUTE_KEY_CONFIGURATION);
     }
 
     /**
@@ -464,6 +491,8 @@ public final class SessionModelImpl extends Model<SessionListener>
             createCredentials(credentials);
             // save release
             setRelease();
+            // update configuration
+            configure();
             // fire event
             clearOfflineCodes();
             notifySessionEstablished();
@@ -511,6 +540,8 @@ public final class SessionModelImpl extends Model<SessionListener>
                 if (latestRelease.getName().equals(Constants.Release.NAME)) {
                     // save release
                     setRelease();
+                    // update configuration
+                    configure();
                     // start notification client
                     getQueueModel().startNotificationClient();
                     // fire event
@@ -569,6 +600,9 @@ public final class SessionModelImpl extends Model<SessionListener>
 		        /* guarantee that the session is terminated by removing the
 		         * token and firing a notification */
 		        removeAuthToken();
+		        final OfflineCodes offlineCodes = getOfflineCodes();
+		        offlineCodes.push(OfflineCode.CLIENT_OFFLINE);
+		        setOfflineCodes(offlineCodes);
 		        notifySessionTerminated();
 		    }
 		} catch (final Throwable t) {
@@ -703,7 +737,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupDocumentVersions(java.util.UUID, java.lang.Long)
      *
@@ -717,7 +751,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupPublishedTo(java.util.UUID,
      *      java.lang.Long)
@@ -971,7 +1005,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#updateProfilePassword(com.thinkparity.codebase.model.session.Credentials,
      *      java.lang.String)
      * 
@@ -988,7 +1022,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#verifyProfileEmail(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.profile.ProfileEMail,
      *      java.lang.String)
@@ -1028,6 +1062,48 @@ public final class SessionModelImpl extends Model<SessionListener>
             offlineCodes.push(OfflineCode.CLIENT_OFFLINE);
             setOfflineCodes(offlineCodes);
         }
+        /* on first login; start the session reaper */
+        addListener(new SessionAdapter() {
+            /**
+             * @see com.thinkparity.ophelia.model.events.SessionAdapter#sessionEstablished()
+             *
+             */
+            @Override
+            public void sessionEstablished() {
+                if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_REAPER)) {
+                    logger.logInfo("Session reaper has been started.");
+                } else {
+                    logger.logInfo("Session reaper has not been started.");
+                    startSessionReaper();
+                }
+            }
+        });
+    }
+
+    /**
+     * Fire a reconfigured event.
+     * 
+     * @param configuration
+     *            The <code>Configuration</code>.
+     */
+    void notifyReconfigured(final Configuration configuration) {
+        final ReconfigureListeners listeners = getReconfigureListeners();
+        if (null == listeners) {
+            logger.logInfo("Notifying 0 reconfigure listeners.");
+        } else {
+            logger.logInfo("Notifying {0} reconfigure listeners.", listeners.size());
+            listeners.notifyListeners(new EventNotifier<ReconfigureListener<Properties>>() {
+                /**
+                 * @see com.thinkparity.codebase.event.EventNotifier#notifyListener(com.thinkparity.codebase.event.EventListener)
+                 *
+                 */
+                @Override
+                public void notifyListener(final ReconfigureListener<Properties> listener) {
+                    listener.reconfigure(new ReconfigureEvent<Properties>(
+                            getConfiguration(), configuration));
+                }
+            });
+        }
     }
 
     /**
@@ -1039,6 +1115,22 @@ public final class SessionModelImpl extends Model<SessionListener>
     }
 
     /**
+     * Configure. If the configuration has not yet been set; download it and
+     * save it in the workspace.
+     * 
+     */
+    private void configure() {
+        if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_CONFIGURATION)) {
+            logger.logInfo("Session is configured.");
+            return;
+        } else {
+            logger.logInfo("Session is not configured.  Configuring now.");
+            workspace.setAttribute(WS_ATTRIBUTE_KEY_CONFIGURATION,
+                    sessionService.readConfiguration(getAuthToken()));
+        }
+    }
+
+    /**
      * Obtain the offline codes workspace attribute.
      * 
      * @return An <code>OfflineCodes</code>.
@@ -1046,6 +1138,16 @@ public final class SessionModelImpl extends Model<SessionListener>
     private OfflineCodes getOfflineCodes() {
         return (OfflineCodes) workspace.getAttribute(
                 WS_ATTRIBUTE_KEY_OFFLINE_CODES);
+    }
+
+    /**
+     * Obtain the reconfigure listeners workspace attribute.
+     * 
+     * @return A <code>ReconfigureListeners</code>.
+     */
+    private ReconfigureListeners getReconfigureListeners() {
+        return (ReconfigureListeners) workspace.getAttribute(
+                WS_ATTRIBUTE_KEY_RECONFIGURE_LISTENERS);
     }
 
     /**
@@ -1094,6 +1196,15 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     private boolean isSetOfflineCode() {
         return 0 < getOfflineCodes().size();
+    }
+
+    /**
+     * Instantiate a session reaper.
+     * 
+     * @return A <code>SessionReaper</code>.
+     */
+    private SessionReaper newSessionReaper() {
+        return new SessionReaper(modelFactory);
     }
 
     /**
@@ -1181,5 +1292,15 @@ public final class SessionModelImpl extends Model<SessionListener>
             }
             getProfileModel().updateProductRelease();
         }
+    }
+
+    /**
+     * Start a session reaper.
+     * 
+     */
+    private void startSessionReaper() {
+        final SessionReaper sessionReaper = newSessionReaper();
+        workspace.setAttribute(WS_ATTRIBUTE_KEY_REAPER, sessionReaper);
+        workspace.schedule(sessionReaper, sessionReaper);
     }
 }

@@ -6,6 +6,7 @@ package com.thinkparity.desdemona.model.session;
 import java.io.File;
 import java.util.Calendar;
 
+import com.thinkparity.codebase.model.session.Configuration;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
@@ -14,6 +15,7 @@ import com.thinkparity.codebase.model.util.codec.MD5Util;
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.io.sql.SessionSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
+
 import com.thinkparity.desdemona.util.DateTimeProvider;
 
 import com.thinkparity.service.AuthToken;
@@ -26,6 +28,21 @@ import com.thinkparity.service.AuthToken;
  */
 public final class SessionModelImpl extends AbstractModelImpl implements
         SessionModel, InternalSessionModel {
+
+    /** The configuration name for the event timeout. */
+    private static final String CFG_NAME_SESSION_REAPER_EVENT_TIMEOUT;
+
+    /** The configuration name for the first execution delay. */
+    private static final String CFG_NAME_SESSION_REAPER_FIRST_EXECUTION_DELAY;
+
+    /** The configuration name for the recurring execution period. */
+    private static final String CFG_NAME_SESSION_REAPER_RECURRING_EXECUTION_PERIOD;
+
+    static {
+        CFG_NAME_SESSION_REAPER_EVENT_TIMEOUT = "com.thinkparity.session.reaper.eventtimeout";
+        CFG_NAME_SESSION_REAPER_FIRST_EXECUTION_DELAY = "com.thinkparity.session.reaper.firstexecutiondelay";
+        CFG_NAME_SESSION_REAPER_RECURRING_EXECUTION_PERIOD = "com.thinkparity.session.reaper.recurringexecutionperiod";
+    }
 
     /** A session sql interface. */
     private SessionSql sessionSql;
@@ -114,6 +131,21 @@ public final class SessionModelImpl extends AbstractModelImpl implements
         } catch (final Throwable t) {
             throw panic(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.session.SessionModel#readConfiguration(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.migrator.Product)
+     *
+     */
+    @Override
+    public Configuration readConfiguration(final AuthToken authToken) {
+        /* NOCOMMIT - SessionModelImpl#readConfiguration(AuthToken, Product) -
+         * move the configuration values to the database */
+        final Configuration configuration = new Configuration();
+        configuration.setProperty(CFG_NAME_SESSION_REAPER_EVENT_TIMEOUT, "14400000");//"14400000");
+        configuration.setProperty(CFG_NAME_SESSION_REAPER_FIRST_EXECUTION_DELAY, "3600000");//"3600000");
+        configuration.setProperty(CFG_NAME_SESSION_REAPER_RECURRING_EXECUTION_PERIOD, "3600000");//"3600000");
+        return configuration;
     }
 
     /**

@@ -77,7 +77,7 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
     private final Avatar parent;
 
     /** The profile email address. */
-    private String profileEMailAddresses;
+    private String profileEMailAddress;
 
     /** The <code>PublishToUserPopupDelegate</code> popup delegate. */
     private final PublishToUserPopupDelegate publishToUserPopupDelegate;
@@ -183,7 +183,7 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
         } else {
             final List<EMail> emails = extractEMails();
             for (final EMail email : emails) {
-                if (profileEMailAddresses.contains(email.toString().toLowerCase())) {
+                if (profileEMailAddress.equalsIgnoreCase(email.toString())) {
                     message = localization.getString("ErrorProfileEMail");
                     break;
                 }
@@ -212,7 +212,7 @@ public class PublishToUserJTextArea extends javax.swing.JTextArea
         teamMembers = readTeamMembers();
         contactsNotOnTeam = readContactsNotOnTeam(teamMembers);
         contactsOnTeam = readContactsOnTeam(contactsNotOnTeam);
-        profileEMailAddresses = readEMailAddress();
+        profileEMailAddress = readEMailAddress();
     }
 
     /**

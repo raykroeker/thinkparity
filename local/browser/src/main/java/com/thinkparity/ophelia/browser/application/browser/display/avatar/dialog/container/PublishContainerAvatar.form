@@ -42,7 +42,7 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Component id="versionNameJLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="302" max="32767" attributes="0"/>
+              <EmptySpace pref="232" max="32767" attributes="0"/>
           </Group>
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
@@ -81,7 +81,7 @@
           <Connection code="Fonts.DialogFont" type="code"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="localization/Browser_Messages.properties" key="PublishContainerAvatar.VersionName" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="localization/Browser_Messages.properties" key="PublishContainerAvatar.VersionNamePublish" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <AuxValues>

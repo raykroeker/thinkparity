@@ -92,9 +92,6 @@ public final class PublishContainerAvatar extends Avatar implements
     /** An instance of <code>ContainerConstraints</code>. */
     private final ContainerConstraints containerConstraints;
 
-    /** The default version name <code>String</code>. */
-    private String defaultVersionName;
-
     /** The team members list <code>PublishContainerAvatarUserListModel</code>. */
     private final PublishContainerAvatarUserListModel teamMembersListModel;
 
@@ -350,17 +347,11 @@ public final class PublishContainerAvatar extends Avatar implements
 
     /**
      * Extract the version name.
-     * Returns null if the user made no change to the default name.
      * 
      * @return A version name <code>String</code>.
      */
     private String extractVersionName() {
-        final String versionName = SwingUtil.extract(versionNameJTextField, Boolean.TRUE);
-        if (null == versionName || versionName.equals(defaultVersionName)) {
-            return null;
-        } else {
-            return versionName;
-        }
+        return SwingUtil.extract(versionNameJTextField, Boolean.TRUE);
     }
 
     /**
@@ -441,7 +432,7 @@ public final class PublishContainerAvatar extends Avatar implements
         java.awt.GridBagConstraints gridBagConstraints;
 
         versionNameJLabel.setFont(Fonts.DialogFont);
-        versionNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.VersionName"));
+        versionNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.VersionNamePublish"));
 
         versionNameJTextField.setFont(Fonts.DialogTextEntryFont);
         ((AbstractDocument) versionNameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(containerConstraints.getVersionName()));
@@ -596,7 +587,7 @@ public final class PublishContainerAvatar extends Avatar implements
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(versionNameJLabel)
-                .addContainerGap(302, Short.MAX_VALUE))
+                .addContainerGap(232, Short.MAX_VALUE))
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(publishToUserJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
@@ -985,12 +976,12 @@ public final class PublishContainerAvatar extends Avatar implements
             }
             versionNameJTextField.setText(name);
             setEditable(versionNameJTextField, false);
+            versionNameJLabel.setText(getString("VersionNamePublishVersion"));
             break;
         case PUBLISH:
-            defaultVersionName = FUZZY_DATE_FORMAT.format(Calendar.getInstance());
-            versionNameJTextField.setText(defaultVersionName);
-            versionNameJTextField.selectAll();
+            versionNameJTextField.setText(null);
             setEditable(versionNameJTextField, true);
+            versionNameJLabel.setText(getString("VersionNamePublish"));
             break;
         default:
             Assert.assertUnreachable("Unknown publish type.");

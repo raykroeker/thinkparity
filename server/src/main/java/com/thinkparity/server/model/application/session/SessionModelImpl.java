@@ -132,7 +132,7 @@ public final class SessionModelImpl extends AbstractModelImpl implements
             /* HACK - SessionModelImpl#readConfiguration(AuthToken) - hard-coded product */
             final InternalMigratorModel migratorModel = getMigratorModel();
             final Product product = migratorModel.readProduct(Constants.Product.Ophelia.PRODUCT_NAME);
-            final Properties properties = getMigratorModel().readProductConfiguration(product);
+            final Properties properties = migratorModel.readProductConfiguration(product);
             final Configuration configuration = new Configuration();
             for (final String propertyName : properties.stringPropertyNames()) {
                 configuration.setProperty(propertyName, properties.getProperty(propertyName));

@@ -61,7 +61,7 @@ public class SessionSEI extends ServiceSEI implements SessionService {
      */
     @Override
     public Configuration readConfiguration(final AuthToken authToken) {
-        return getModel().readConfiguration(authToken);
+        return getModel(authToken).readConfiguration(authToken);
     }
 
     /**

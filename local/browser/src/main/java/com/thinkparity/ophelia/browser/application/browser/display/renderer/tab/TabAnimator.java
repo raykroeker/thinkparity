@@ -4,6 +4,7 @@
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab;
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -142,6 +143,10 @@ public final class TabAnimator {
                 } else {
                     incrementHeight(heightIncrement, heightBound);
                     jPanel.revalidate();
+                    // ensure the panel is visible
+                    final Rectangle rectangle = jPanel.getBounds();
+                    rectangle.x = rectangle.y = 0;
+                    jPanel.scrollRectToVisible(rectangle);
                 }
             }
         });

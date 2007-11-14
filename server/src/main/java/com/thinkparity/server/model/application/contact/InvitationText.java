@@ -64,6 +64,21 @@ public class InvitationText {
     }
 
     /**
+     * Create InvitationText.
+     * 
+     * @param invitedBy
+     *            A <code>User</code>.
+     */
+    InvitationText(final Locale locale, final User invitedBy) {
+        super();
+        this.attachment = null;
+        this.invitedByNameTokenizer = new UserNameTokenizer(invitedBy);
+
+        this.resourceBundle = ResourceBundle.getBundle(
+                "localization.Invitation_Messages", locale);
+    }
+
+    /**
      * Obtain the invitation body.
      * 
      * @param inviter
@@ -71,10 +86,14 @@ public class InvitationText {
      * @return The invitation body.
      */
     String getBody() {
-        if (null == attachment.getName()) {
-            return getString("body.no-version");
+        if (null == attachment) {
+            return getString("body.no-attachment");
         } else {
-            return getString("body");
+            if (null == attachment.getName()) {
+                return getString("body.no-version");
+            } else {
+                return getString("body");
+            }
         }
     }
 
@@ -102,10 +121,14 @@ public class InvitationText {
      * @return A <code>String</code>.
      */
     String getSubject() {
-        if (null == attachment.getName()) {
-            return getString("subject.no-version");
+        if (null == attachment) {
+            return getString("subject.no-attachment");
         } else {
-            return getString("subject");
+            if (null == attachment.getName()) {
+                return getString("subject.no-version");
+            } else {
+                return getString("subject");
+            }
         }
     }
 
@@ -124,7 +147,7 @@ public class InvitationText {
                 invitedByNameTokenizer.isSetFamily()
                         ? invitedByNameTokenizer.getGivenAndFamily("{0} {1}")
                                 : invitedByNameTokenizer.getGiven(),
-                attachment.getArtifactName(),
-                attachment.getName());
+                null == attachment ? null : attachment.getArtifactName(),
+                null == attachment ? null : attachment.getName());
     }
 }

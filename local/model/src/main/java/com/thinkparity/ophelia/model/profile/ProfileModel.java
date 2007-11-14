@@ -109,12 +109,6 @@ public interface ProfileModel {
     public Boolean isSignUpAvailable();
 
     /**
-     * Sign up.
-     * 
-     */
-    public void signUp(final PaymentInfo paymentInfo);
-
-    /**
      * Read the logged in user's profile.
      * 
      * @return A profile.
@@ -159,6 +153,12 @@ public interface ProfileModel {
      * @return A <code>List</code> of <code>JabberId</code>s.
      */
     public List<JabberId> search(final String expression);
+
+    /**
+     * Sign up.
+     * 
+     */
+    public void signUp(final PaymentInfo paymentInfo);
 
     /**
      * Update the logged in user's profile.
@@ -275,6 +275,13 @@ public interface ProfileModel {
             SecurityCredentials securityCredentials,
             PaymentPlanCredentials paymentPlanCredentials)
             throws ReservationExpiredException, InvalidCredentialsException;
+
+    /**
+     * Read whether or not invite is available.
+     * 
+     * @return True if it is available.
+     */
+    Boolean isInviteAvailable();
 
     /**
      * Read the profile's e-mail address.

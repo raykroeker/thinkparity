@@ -4,15 +4,14 @@
 package com.thinkparity.ophelia.browser.application.browser.display.event.tab.contact;
 
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.events.ContainerAdapter;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
-import com.thinkparity.ophelia.model.events.ContainerListener;
-import com.thinkparity.ophelia.model.events.SessionAdapter;
-import com.thinkparity.ophelia.model.events.SessionListener;
+import com.thinkparity.ophelia.model.events.*;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabAvatar;
@@ -34,6 +33,12 @@ public final class ContactTabDispatcher implements
     /** An instance of <code>ContainerModel</code>. */
     private final ContainerModel containerModel;
 
+    /** A profile listener. */
+    private ProfileListener profileListener;
+
+    /** A profile model. */
+    private final ProfileModel profileModel;
+
     /** A <code>SessionListener</code>. */
     private SessionListener sessionListener;
 
@@ -43,11 +48,15 @@ public final class ContactTabDispatcher implements
     /**
      * Create ContactTabDispatcher.
      *
+     * @param containerModel
+     * @param profileModel
+     * @param sessionModel
      */
     public ContactTabDispatcher(final ContainerModel containerModel,
-            final SessionModel sessionModel) {
+            final ProfileModel profileModel, final SessionModel sessionModel) {
         super();
         this.containerModel = containerModel;
+        this.profileModel = profileModel;
         this.sessionModel = sessionModel;
     }
 
@@ -60,10 +69,6 @@ public final class ContactTabDispatcher implements
                 "Listener for avatar {0} already added.", avatar.getId());
         containerListener = new ContainerAdapter() {
             @Override
-            public void containerPublished(final ContainerEvent e) {
-                avatar.firePublished(e);
-            }
-            @Override
             public void containerDeleted(final ContainerEvent e) {
                 if (!e.getOutgoingEMailInvitations().isEmpty()) {
                     for (final OutgoingEMailInvitation invitation : e.getOutgoingEMailInvitations()) {
@@ -72,8 +77,66 @@ public final class ContactTabDispatcher implements
                     }
                 }
             }
+            @Override
+            public void containerPublished(final ContainerEvent e) {
+                avatar.firePublished(e);
+            }
         };
         containerModel.addListener(containerListener);
+        profileListener = new ProfileAdapter() {
+            /**
+             * Determine whether or not the tab should be enabled.
+             * 
+             * @return True if the tab should be enabled.
+             */
+            private boolean enableTab() {
+                boolean enableTab = profileModel.readIsActive()
+                        && profileModel.isInviteAvailable();
+                final ProfileEMail profileEMail = profileModel.readEMail();
+                enableTab = enableTab && null == profileEMail ? false
+                        : profileEMail.isVerified();
+                return enableTab;
+            }
+            /**
+             * @see com.thinkparity.ophelia.model.events.ProfileAdapter#profileUpdated(com.thinkparity.ophelia.model.events.ProfileEvent)
+             *
+             */
+            @Override
+            public void profileUpdated(final ProfileEvent e) {
+                if (enableTab()) {
+                    SwingUtil.ensureDispatchThread(new Runnable() {
+                        /**
+                         * @see java.lang.Runnable#run()
+                         *
+                         */
+                        @Override
+                        public void run() {
+                            avatar.fireEnableTabAction();
+                        }
+                    });
+                }
+            }
+            /**
+             * @see com.thinkparity.ophelia.model.events.ProfileAdapter#emailVerified(com.thinkparity.ophelia.model.events.ProfileEvent)
+             *
+             */
+            @Override
+            public void emailVerified(final ProfileEvent e) {
+                if (enableTab()) {
+                    SwingUtil.ensureDispatchThread(new Runnable() {
+                        /**
+                         * @see java.lang.Runnable#run()
+                         *
+                         */
+                        @Override
+                        public void run() {
+                            avatar.fireEnableTabAction();
+                        }
+                    });
+                }
+            }
+        };
+        profileModel.addListener(profileListener);
         sessionListener = new SessionAdapter() {
             @Override
             public void sessionEstablished() {
@@ -96,6 +159,8 @@ public final class ContactTabDispatcher implements
                 "Listener for avatar {0} not yet added.", avatar.getId());
         containerModel.removeListener(containerListener);
         containerListener = null;
+        profileModel.removeListener(profileListener);
+        profileListener = null;
         sessionModel.removeListener(sessionListener);
         sessionListener = null;
     }

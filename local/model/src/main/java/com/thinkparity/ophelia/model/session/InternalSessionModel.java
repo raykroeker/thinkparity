@@ -171,7 +171,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public Boolean isFirstLogin();
 
-	/**
+    /**
      * Determine if invite is restricted to the user.
      * 
      * @param user
@@ -180,7 +180,7 @@ public interface InternalSessionModel extends SessionModel {
      */
     public Boolean isInviteRestricted(final User user);
 
-    /**
+	/**
      * Determine if publish is restricted to the publish to user.
      * 
      * @param publishTo
@@ -216,7 +216,7 @@ public interface InternalSessionModel extends SessionModel {
     public void logError(final Product product, final Release release,
             final Error error);
 
-	/**
+    /**
      * Login for the first time in this workspace.
      * 
      * @param credentials
@@ -227,7 +227,7 @@ public interface InternalSessionModel extends SessionModel {
     public void login(final Credentials credentials)
             throws InvalidCredentialsException;
 
-    /**
+	/**
      * Fire the client maintenance event.
      *
      */
@@ -510,4 +510,13 @@ public interface InternalSessionModel extends SessionModel {
      * @return A <code>Properties</code>.
      */
     Properties getConfiguration();
+
+    /**
+     * Determine if the user is restricted from creating invitations.
+     * 
+     * @param emailList
+     *            A <code>List<EMail></code>.
+     * @return True if invite is restricted.
+     */
+    Boolean isInviteRestricted(List<EMail> emailList);
 }

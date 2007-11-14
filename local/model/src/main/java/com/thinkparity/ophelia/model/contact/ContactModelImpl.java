@@ -3,6 +3,7 @@
  */
 package com.thinkparity.ophelia.model.contact;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -275,11 +276,26 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
+     * Determine if the user is restricted from creating an invitation.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     * @return True if the user is restricted from inviting.
+     */
+    private boolean isInviteRestricted(final EMail email) {
+        final List<EMail> emailList = new ArrayList<EMail>();
+        return getSessionModel().isInviteRestricted(emailList);
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.contact.ContactModel#createOutgoingEMailInvitation(com.thinkparity.codebase.email.EMail)
      * 
      */
     public OutgoingEMailInvitation createOutgoingEMailInvitation(final EMail email) {
         try {
+            Assert.assertNotTrue(isInviteRestricted(email),
+                    "The user cannot invite to the specified e-mails/users.");
+
             final InternalSessionModel sessionModel = getSessionModel();
             final Calendar createdOn = sessionModel.readDateTime();
 

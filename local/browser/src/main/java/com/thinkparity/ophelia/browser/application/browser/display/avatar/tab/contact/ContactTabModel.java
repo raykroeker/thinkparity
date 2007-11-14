@@ -50,6 +50,9 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     /** The <code>ContactTabPopupDelegate</code>. */
     private final ContactTabPopupDelegate popupDelegate;
 
+    /** A tab action enabled flag. */
+    private Boolean tabActionEnabled;
+
     /**
      * Create ContactTabModel.
      * 
@@ -61,6 +64,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         this.comparator = new ContactTabComparator();
         this.availableLocales = browser.getAvailableLocales();
         this.locale = browser.getLocale();
+        this.tabActionEnabled = Boolean.FALSE;
     }
 
     /**
@@ -182,6 +186,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         super.initialize();
         debug();
         clearPanels();
+        tabActionEnabled = readIsInviteAvailable() && readIsProfileActive() && readIsEMailVerified();
         final List<IncomingEMailInvitation> incomingEMailInvitations = readIncomingEMailInvitations();
         for (final IncomingEMailInvitation iei : incomingEMailInvitations) {
             addPanel(iei);
@@ -275,12 +280,29 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
+     * Synchronize the tab action's enabled flag.
+     * 
+     */
+    void enableTabAction() {
+        tabActionEnabled = Boolean.TRUE;
+    }
+
+    /**
      * Obtain the popup delegate.
      * 
      * @return A <code>ContainerTabPopupDelegate</code>.
      */
     ContactTabPopupDelegate getPopupDelegate() {
         return popupDelegate;
+    }
+
+    /**
+     * Determine if the tab action is enabled.
+     * 
+     * @return True if the tab action is enabled.
+     */
+    Boolean isTabActionEnabled() {
+        return tabActionEnabled;
     }
 
     /**
@@ -736,6 +758,15 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      */
     private List<IncomingEMailInvitation> readIncomingEMailInvitations() {
         return ((ContactProvider) contentProvider).readIncomingEMailInvitations();
+    }
+
+    /**
+     * Read whether or not invite is available.
+     * 
+     * @return True if it is available.
+     */
+    private Boolean readIsInviteAvailable() {
+        return ((ContactProvider) contentProvider).readIsInviteAvailable();
     }
 
     private IncomingUserInvitation readIncomingUserInvitation(final Long invitationId) {

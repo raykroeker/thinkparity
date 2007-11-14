@@ -36,6 +36,17 @@ public class RuleSEI extends ServiceSEI implements RuleService {
     }
 
     /**
+     * @see com.thinkparity.service.RuleService#isInviteRestricted(com.thinkparity.service.AuthToken,
+     *      java.util.List)
+     * 
+     */
+    @Override
+    public Boolean isInviteRestricted(final AuthToken authToken,
+            final List<EMail> emailList) {
+        return getModel(authToken).isInviteRestricted(emailList);
+    }
+
+    /**
      * @see com.thinkparity.service.RuleService#isInviteRestricted(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.user.User)
      *
      */

@@ -260,32 +260,67 @@ public final class ContactModelImpl extends AbstractModelImpl implements
      */
     public void createInvitation(final OutgoingEMailInvitation invitation) {
         try {
-            final UserModel userModel = getUserModel();
-            final User createdBy = userModel.read(invitation.getCreatedBy().getId());
-
-            // create outgoing e-mail invitation
-            invitation.setCreatedBy(createdBy);
-            invitationSql.create(user, invitation);
-
-            final User invitationUser = userModel.read(invitation.getInvitationEMail());
-            if (null == invitationUser) {
-                logger.logInfo("User for {0} does not exist.",
-                        invitation.getInvitationEMail());
+            if (isInviteRestricted(invitation.getInvitationEMail())) {
+                /* the user is restricted from inviting others; therefore we do
+                 * nothing */
+                logger.logInfo("User {0} is restricted from creating e-mail invitations to {1}.",
+                        user, invitation.getInvitationEMail());
             } else {
-                // create incoming
-                final IncomingEMailInvitation incoming = new IncomingEMailInvitation();
-                incoming.setCreatedBy(createdBy);
-                incoming.setCreatedOn(invitation.getCreatedOn());
-                incoming.setInvitationEMail(invitation.getInvitationEMail());
-                incoming.setExtendedBy(user);
-                invitationSql.create(invitationUser, incoming);
+                logger.logInfo("User {0} is not restricted from creating e-mail invitations to {1}.",
+                        user, invitation.getInvitationEMail());
+                final UserModel userModel = getUserModel();
+                final User createdBy = userModel.read(invitation.getCreatedBy().getId());
 
-                // fire event
-                final ContactEMailInvitationExtendedEvent event = new ContactEMailInvitationExtendedEvent();
-                event.setInvitedAs(incoming.getInvitationEMail());
-                event.setInvitedBy(incoming.getExtendedBy().getId());
-                event.setInvitedOn(incoming.getCreatedOn());
-                enqueueEvent(invitationUser, event);
+                /* check if the outgoing e-mail invitation exists */
+                final OutgoingEMailInvitation existingInvitation =
+                    invitationSql.readOutgoingEMail(invitation.getCreatedBy(),
+                            invitation.getInvitationEMail());
+                if (null == existingInvitation) {
+                    logger.logInfo("No existing invitation exists.");
+
+                    // create outgoing e-mail invitation
+                    invitation.setCreatedBy(createdBy);
+                    invitationSql.create(user, invitation);
+
+                    final User invitationUser = userModel.read(invitation.getInvitationEMail());
+                    if (null == invitationUser) {
+                        logger.logInfo("User for {0} does not exist.",
+                                invitation.getInvitationEMail());
+
+                        // send e-mail
+                        final MimeMessage mimeMessage = smtpService.createMessage();
+                        inject(mimeMessage, createdBy);
+                        addRecipient(mimeMessage, invitation.getInvitationEMail());
+                        smtpService.deliver(mimeMessage);
+                    } else {
+                        if (isInviteRestricted(invitationUser)) {
+                            /* the user is restricted from inviting others;
+                             * therefore we do nothing */
+                            logger.logInfo("User {0} is restricted from creating user invitations to {1}.",
+                                    user, invitationUser);
+                        } else {
+                            logger.logInfo("User {0} is not restricted from creating user invitations to {1}.",
+                                    user, invitationUser);
+
+                            // create incoming
+                            final IncomingEMailInvitation incoming = new IncomingEMailInvitation();
+                            incoming.setCreatedBy(createdBy);
+                            incoming.setCreatedOn(invitation.getCreatedOn());
+                            incoming.setInvitationEMail(invitation.getInvitationEMail());
+                            incoming.setExtendedBy(user);
+                            invitationSql.create(invitationUser, incoming);
+
+                            // fire event
+                            final ContactEMailInvitationExtendedEvent event = new ContactEMailInvitationExtendedEvent();
+                            event.setInvitedAs(incoming.getInvitationEMail());
+                            event.setInvitedBy(incoming.getExtendedBy().getId());
+                            event.setInvitedOn(incoming.getCreatedOn());
+                            enqueueEvent(invitationUser, event);
+                        }
+                    }
+                } else {
+                    logger.logInfo("Existing invitation exists.");
+                }
             }
         } catch (final Throwable t) {
             throw translateError(t);
@@ -944,23 +979,19 @@ public final class ContactModelImpl extends AbstractModelImpl implements
      *            An <code>OutgoingEMailInvitation</code>.
      * @param invitedBy
      *            An invitation <code>User</code>.
-     * @param attachment
-     *            A <code>ContainerVersion</code>.
      * @throws MessagingException
      * @throws UnsupportedEncodingException
      */
-	private void inject(final MimeMessage mimeMessage, final User invitedBy,
-            final ContainerVersion attachment) throws MessagingException,
-            UnsupportedEncodingException {
-	    final Locale locale = Locale.getDefault();
-	    final InvitationText text = new InvitationText(locale, invitedBy,
-	            attachment);
+    private void inject(final MimeMessage mimeMessage, final User invitedBy)
+            throws MessagingException, UnsupportedEncodingException {
+        final Locale locale = Locale.getDefault();
+        final InvitationText text = new InvitationText(locale, invitedBy);
 
         final InternetAddress fromInternetAddress = new InternetAddress();
         fromInternetAddress.setAddress(Constants.Internet.Mail.FROM_ADDRESS);
         fromInternetAddress.setPersonal(text.getFromPersonal());
         mimeMessage.setFrom(fromInternetAddress);
-	    mimeMessage.setSubject(text.getSubject());
+        mimeMessage.setSubject(text.getSubject());
 
         final MimeBodyPart mimeBodyPart = new MimeBodyPart();
         mimeBodyPart.setContent(text.getBody(), text.getBodyType());
@@ -968,6 +999,65 @@ public final class ContactModelImpl extends AbstractModelImpl implements
         final Multipart mimeMultipart = new MimeMultipart();
         mimeMultipart.addBodyPart(mimeBodyPart);
         mimeMessage.setContent(mimeMultipart);
+    }
+
+    /**
+     * Inject invitation text into the e-mail mime message.
+     * 
+     * @param mimeMessage
+     *            A <code>MimeMessage</code>.
+     * @param invitation
+     *            An <code>OutgoingEMailInvitation</code>.
+     * @param invitedBy
+     *            An invitation <code>User</code>.
+     * @param attachment
+     *            A <code>ContainerVersion</code>.
+     * @throws MessagingException
+     * @throws UnsupportedEncodingException
+     */
+    private void inject(final MimeMessage mimeMessage, final User invitedBy,
+            final ContainerVersion attachment) throws MessagingException,
+            UnsupportedEncodingException {
+        final Locale locale = Locale.getDefault();
+        final InvitationText text = new InvitationText(locale, invitedBy,
+                attachment);
+
+        final InternetAddress fromInternetAddress = new InternetAddress();
+        fromInternetAddress.setAddress(Constants.Internet.Mail.FROM_ADDRESS);
+        fromInternetAddress.setPersonal(text.getFromPersonal());
+        mimeMessage.setFrom(fromInternetAddress);
+        mimeMessage.setSubject(text.getSubject());
+
+        final MimeBodyPart mimeBodyPart = new MimeBodyPart();
+        mimeBodyPart.setContent(text.getBody(), text.getBodyType());
+
+        final Multipart mimeMultipart = new MimeMultipart();
+        mimeMultipart.addBodyPart(mimeBodyPart);
+        mimeMessage.setContent(mimeMultipart);
+    }
+
+    /**
+     * Determine if the user is restricted from creating invitations.
+     * 
+     * @param emailList
+     *            A <code>List<EMail></code>.
+     * @return True if the user is restricted.
+     */
+    private boolean isInviteRestricted(final EMail email) {
+        final List<EMail> emailList = new ArrayList<EMail>(1);
+        emailList.add(email);
+        return getRuleModel().isInviteRestricted(emailList);
+    }
+
+    /**
+     * Determine if the user is restricted from creating invitations.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return True if the user is restricted.
+     */
+    private boolean isInviteRestricted(final User user) {
+        return getRuleModel().isInviteRestricted(user);
     }
 
     /**

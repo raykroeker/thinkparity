@@ -97,6 +97,15 @@ public class ContactProvider extends CompositeFlatSingleContentProvider {
         return profileModel.readEMail().isVerified();
     }
 
+    /**
+     * Read whether or not invite is available.
+     * 
+     * @return True if it is available.
+     */
+    public Boolean readIsInviteAvailable() {
+        return profileModel.isInviteAvailable();
+    }
+
     public OutgoingEMailInvitation readOutgoingEMailInvitation(
             final Long invitationId) {
         return contactModel.readOutgoingEMailInvitation(invitationId);

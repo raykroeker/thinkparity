@@ -203,7 +203,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createInvitation(com.thinkparity.codebase.model.contact.OutgoingEMailInvitation)
      * 
      */
@@ -215,7 +215,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createInvitation(com.thinkparity.codebase.model.contact.OutgoingUserInvitation)
      * 
      */
@@ -392,6 +392,15 @@ public final class SessionModelImpl extends Model<SessionListener>
         } catch (final Throwable t) {
             throw panic(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.session.InternalSessionModel#isInviteRestricted(java.util.List)
+     *
+     */
+    @Override
+    public Boolean isInviteRestricted(final List<EMail> emailList) {
+        return ruleService.isInviteRestricted(getAuthToken(), emailList);
     }
 
     /**

@@ -35,6 +35,23 @@ public final class RuleModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.rules.RuleModel#isInviteRestricted(java.util.List)
+     *
+     */
+    @Override
+    public Boolean isInviteRestricted(final List<EMail> emailList) {
+        try {
+            if (isCoreEnabled(user)) {
+                return Boolean.FALSE;
+            } else {
+                return Boolean.TRUE;
+            }
+        } catch (final Exception x) {
+            throw panic(x);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.rules.RuleModel#isInviteRestricted(com.thinkparity.codebase.model.user.User)
      *
      */

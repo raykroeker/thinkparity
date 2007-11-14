@@ -23,6 +23,18 @@ import com.thinkparity.codebase.model.user.User;
 @WebService(name = "Rule")
 public interface RuleService {
 
+    /**
+     * Determine if the user is restricted from creating an e-mail invitation.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param emailList
+     *            A <code>List<EMail></code>.
+     * @return True if invite is restricted.
+     */
+    @WebMethod
+    Boolean isInviteRestricted(AuthToken authToken, List<EMail> emailList);
+
     @WebMethod
     Boolean isInviteRestricted(AuthToken authToken, User user);
 

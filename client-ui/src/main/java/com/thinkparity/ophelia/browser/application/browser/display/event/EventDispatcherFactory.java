@@ -90,7 +90,8 @@ public class EventDispatcherFactory {
         final EventDispatcher eventDispatcher;
         switch (avatarId) {
         case TAB_CONTACT:
-            eventDispatcher = new ContactTabDispatcher(containerModel, sessionModel);
+            eventDispatcher = new ContactTabDispatcher(containerModel,
+                    profileModel, sessionModel);
             break;
         case TAB_CONTAINER:
             eventDispatcher = new ContainerTabDispatcher(containerModel);

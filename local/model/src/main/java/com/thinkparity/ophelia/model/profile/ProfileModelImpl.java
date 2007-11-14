@@ -658,6 +658,15 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#isInviteAvailable()
+     *
+     */
+    @Override
+    public Boolean isInviteAvailable() {
+        return isCoreEnabled();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#readStatistics()
      *
      */

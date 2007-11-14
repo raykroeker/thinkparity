@@ -20,7 +20,16 @@ import com.thinkparity.codebase.model.user.User;
 public interface RuleModel {
 
     /**
-     * Determine if the model is restricted from inviting a user.
+     * Determine if the model user is restricted from inviting an e-mail list.
+     * 
+     * @param emailList
+     *            A <code>List<EMail></code>.
+     * @return True if the invitation is restricted.
+     */
+    Boolean isInviteRestricted(List<EMail> emailList);
+
+    /**
+     * Determine if the model user is restricted from inviting a user.
      * 
      * @param user
      *            A <code>User</code>.

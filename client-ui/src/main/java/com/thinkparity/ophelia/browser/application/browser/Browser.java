@@ -1019,7 +1019,7 @@ public class Browser extends AbstractApplication {
         mainWindow.reloadMenuBar();
     }
 
-	/**
+    /**
      * Reload the status avatar.
      *
      */
@@ -1036,6 +1036,14 @@ public class Browser extends AbstractApplication {
      */
     public void reloadTab(final TabId tabId) {
         getTabAvatar(tabId).reinitialize();
+    }
+
+	/**
+     * Reload the title avatar.
+     * 
+     */
+    public void reloadTitle() {
+        ((MainTitleAvatar) getAvatar(AvatarId.MAIN_TITLE)).reload();
     }
 
 	/**

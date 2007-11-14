@@ -82,6 +82,15 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
     }
 
     /**
+     * Fire an enable tab action.
+     * 
+     */
+    public void fireEnableTabAction() {
+        model.enableTabAction();
+        getController().reloadTitle();
+    }
+
+    /**
      * Fire a container published event.
      * 
      * @param e

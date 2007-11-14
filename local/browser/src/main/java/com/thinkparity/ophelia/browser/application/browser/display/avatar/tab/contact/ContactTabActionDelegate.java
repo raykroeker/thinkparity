@@ -144,7 +144,7 @@ final class ContactTabActionDelegate extends DefaultBrowserActionDelegate implem
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate#isTabButtonActionAvailable()
      */
     public Boolean isTabButtonActionAvailable() {
-        return Boolean.TRUE;
+        return model.isTabActionEnabled();
     }
 
     /**

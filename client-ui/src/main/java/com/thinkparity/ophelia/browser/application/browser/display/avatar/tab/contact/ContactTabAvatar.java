@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.contact.IncomingInvitation;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 
 import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.ophelia.model.events.ProfileEvent;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
@@ -82,12 +83,35 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
     }
 
     /**
-     * Fire an enable tab action.
+     * Fire a profile e-mail event.
+     * Fired when e-mail is updated or verified.
      * 
+     * @param e
+     *            A <code>ProfileEvent</code>.
      */
-    public void fireEnableTabAction() {
-        model.enableTabAction();
-        getController().reloadTitle();
+    public void fireProfileEMailEvent(final ProfileEvent e) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.reloadTabActionEnabled();
+                getController().reloadTitle();
+            }
+        });
+    }
+
+    /**
+     * Fire a profile event.
+     * Fired when profile is updated, passivated or activated.
+     * 
+     * @param e
+     *            A <code>ProfileEvent</code>.
+     */
+    public void fireProfileEvent(final ProfileEvent e) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.reloadTabActionEnabled();
+                getController().reloadTitle();
+            }
+        });
     }
 
     /**
@@ -115,6 +139,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 model.reloadConnection();
+                getController().reloadTitle();
             }
         });
     }

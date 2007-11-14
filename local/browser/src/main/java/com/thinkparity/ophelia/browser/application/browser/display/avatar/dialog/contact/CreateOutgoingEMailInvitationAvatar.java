@@ -34,6 +34,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Font
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.contact.CreateOutgoingEMailInvitationProvider;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
@@ -124,9 +125,7 @@ public class CreateOutgoingEMailInvitationAvatar extends Avatar {
      * Create the outgoing email invitation.
      */
     private void createOutgoingEMailInvitation() {
-        final List<String> emails = StringUtil.tokenize(extractInputEMail(), delimiters, new ArrayList<String>());
-        final EMail email = EMailBuilder.parse(emails.get(0));
-        getController().runCreateOutgoingEMailInvitation(email);
+        getController().runCreateOutgoingEMailInvitation(extractInputEMail());
     }
 
     private void emailJTextFieldActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emailJTextFieldActionPerformed
@@ -135,10 +134,27 @@ public class CreateOutgoingEMailInvitationAvatar extends Avatar {
 
     /**
      * Extract the EMail from the control.
+     * 
+     * @return The <code>EMail</code>.
+     */
+    private EMail extractInputEMail() {
+        final String inputEMail = extractInputEMailString();
+        if (null != inputEMail) {
+            final List<String> emails = StringUtil.tokenize(extractInputEMailString(), delimiters, new ArrayList<String>());
+            if (emails.size() > 0) {
+                final EMail email = EMailBuilder.parse(emails.get(0));
+                return email;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Extract the EMail string from the control.
      *
      * @return The EMail <code>String</code>.
      */
-    private String extractInputEMail() {
+    private String extractInputEMailString() {
         return SwingUtil.extract(emailJTextField, Boolean.TRUE);
     }
 
@@ -299,10 +315,40 @@ public class CreateOutgoingEMailInvitationAvatar extends Avatar {
         }
     }
 
+    /**
+     * Determine if the invitation is valid.
+     * 
+     * @return True if the invitation is valid; false otherwise.
+     */
+    private Boolean isInvitationValid() {
+        final EMail email = extractInputEMail();
+        Boolean validInvitation = Boolean.FALSE;
+        if (null != email) {
+            validInvitation = ((CreateOutgoingEMailInvitationProvider) contentProvider).readIsInviteRestricted(email);
+        }
+        if (!validInvitation) {
+            addInputError(getString("ErrorInvalidInvitation"));
+            errorMessageJLabel.setText(" ");
+            if (containsInputErrors())
+                errorMessageJLabel.setText(getInputErrors().get(0));
+            okJButton.setEnabled(Boolean.FALSE);
+        }
+        
+        return validInvitation;
+    }
+
     private void okJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
         if (isInputValid()) {
-            disposeWindow();
-            createOutgoingEMailInvitation();
+            SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
+            errorMessageJLabel.setText(getString("CheckingInvitation"));
+            errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel
+                    .getWidth(), errorMessageJLabel.getHeight());
+            final Boolean invitationValid = isInvitationValid();
+            SwingUtil.setCursor(this, null);
+            if (invitationValid) {
+                disposeWindow();
+                createOutgoingEMailInvitation();
+            }
         }
     }//GEN-LAST:event_okJButtonActionPerformed
 
@@ -314,7 +360,7 @@ public class CreateOutgoingEMailInvitationAvatar extends Avatar {
      */
     private void validateInput(final Boolean ignoreFocus) {
         super.validateInput();
-        final String inputEMail = extractInputEMail();
+        final String inputEMail = extractInputEMailString();
         String email = null;
 
         // strip out delimiters, then make sure there is exactly one email

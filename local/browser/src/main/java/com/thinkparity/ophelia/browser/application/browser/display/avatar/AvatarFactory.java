@@ -135,6 +135,7 @@ public final class AvatarFactory {
 
         case DIALOG_CONTACT_CREATE_OUTGOING_EMAIL_INVITATION:
             avatar = newAvatar(CreateOutgoingEMailInvitationAvatar.class);
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
 
         case DIALOG_CONTAINER_CREATE:

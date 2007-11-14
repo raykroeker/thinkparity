@@ -17,6 +17,7 @@ import com.thinkparity.ophelia.model.user.UserModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.backup.RestoreBackupProvider;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.contact.CreateOutgoingEMailInvitationProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.ContainerVersionProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.PublishContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.RenameDocumentProvider;
@@ -118,6 +119,9 @@ public class ProviderFactory {
         switch(avatarId) {
         case DIALOG_BACKUP_RESTORE:
             provider = new RestoreBackupProvider(profileModel);
+            break;
+        case DIALOG_CONTACT_CREATE_OUTGOING_EMAIL_INVITATION:
+            provider = new CreateOutgoingEMailInvitationProvider(profileModel, contactModel);
             break;
         case DIALOG_CONTAINER_PUBLISH:
             provider = new PublishContainerProvider(profileModel, containerModel, userModel, contactModel);

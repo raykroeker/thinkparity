@@ -4,10 +4,8 @@
 package com.thinkparity.ophelia.browser.application.browser.display.event.tab.contact;
 
 import com.thinkparity.codebase.assertion.Assert;
-import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
-import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.ophelia.model.container.ContainerModel;
 import com.thinkparity.ophelia.model.events.*;
@@ -84,56 +82,25 @@ public final class ContactTabDispatcher implements
         };
         containerModel.addListener(containerListener);
         profileListener = new ProfileAdapter() {
-            /**
-             * Determine whether or not the tab should be enabled.
-             * 
-             * @return True if the tab should be enabled.
-             */
-            private boolean enableTab() {
-                boolean enableTab = profileModel.readIsActive()
-                        && profileModel.isInviteAvailable();
-                final ProfileEMail profileEMail = profileModel.readEMail();
-                enableTab = enableTab && null == profileEMail ? false
-                        : profileEMail.isVerified();
-                return enableTab;
-            }
-            /**
-             * @see com.thinkparity.ophelia.model.events.ProfileAdapter#profileUpdated(com.thinkparity.ophelia.model.events.ProfileEvent)
-             *
-             */
             @Override
-            public void profileUpdated(final ProfileEvent e) {
-                if (enableTab()) {
-                    SwingUtil.ensureDispatchThread(new Runnable() {
-                        /**
-                         * @see java.lang.Runnable#run()
-                         *
-                         */
-                        @Override
-                        public void run() {
-                            avatar.fireEnableTabAction();
-                        }
-                    });
-                }
+            public void emailUpdated(final ProfileEvent e) {
+                avatar.fireProfileEMailEvent(e);
             }
-            /**
-             * @see com.thinkparity.ophelia.model.events.ProfileAdapter#emailVerified(com.thinkparity.ophelia.model.events.ProfileEvent)
-             *
-             */
             @Override
             public void emailVerified(final ProfileEvent e) {
-                if (enableTab()) {
-                    SwingUtil.ensureDispatchThread(new Runnable() {
-                        /**
-                         * @see java.lang.Runnable#run()
-                         *
-                         */
-                        @Override
-                        public void run() {
-                            avatar.fireEnableTabAction();
-                        }
-                    });
-                }
+                avatar.fireProfileEMailEvent(e);
+            }
+            @Override
+            public void profileUpdated(final ProfileEvent e) {
+                avatar.fireProfileEvent(e);
+            }
+            @Override
+            public void profileActivated(final ProfileEvent e) {
+                avatar.fireProfileEvent(e);
+            }
+            @Override
+            public void profilePassivated(final ProfileEvent e) {
+                avatar.fireProfileEvent(e);
             }
         };
         profileModel.addListener(profileListener);

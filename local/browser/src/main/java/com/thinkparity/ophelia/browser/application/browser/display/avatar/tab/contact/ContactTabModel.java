@@ -53,6 +53,9 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     /** A tab action enabled flag. */
     private Boolean tabActionEnabled;
 
+    /** A tab action initialized flag. */
+    private Boolean tabActionInitialized;
+
     /**
      * Create ContactTabModel.
      * 
@@ -64,7 +67,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         this.comparator = new ContactTabComparator();
         this.availableLocales = browser.getAvailableLocales();
         this.locale = browser.getLocale();
-        this.tabActionEnabled = Boolean.FALSE;
+        this.tabActionInitialized = Boolean.FALSE;
     }
 
     /**
@@ -186,7 +189,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         super.initialize();
         debug();
         clearPanels();
-        tabActionEnabled = readIsInviteAvailable() && readIsProfileActive() && readIsEMailVerified();
         final List<IncomingEMailInvitation> incomingEMailInvitations = readIncomingEMailInvitations();
         for (final IncomingEMailInvitation iei : incomingEMailInvitations) {
             addPanel(iei);
@@ -280,14 +282,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     }
 
     /**
-     * Synchronize the tab action's enabled flag.
-     * 
-     */
-    void enableTabAction() {
-        tabActionEnabled = Boolean.TRUE;
-    }
-
-    /**
      * Obtain the popup delegate.
      * 
      * @return A <code>ContainerTabPopupDelegate</code>.
@@ -302,7 +296,10 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      * @return True if the tab action is enabled.
      */
     Boolean isTabActionEnabled() {
-        return tabActionEnabled;
+        if (!tabActionInitialized) {
+            reloadTabActionEnabled();
+        }
+        return tabActionEnabled && isOnline();
     }
 
     /**
@@ -334,6 +331,15 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
                 contactPanel.reloadConnection(online);
             }
         }
+    }
+
+    /**
+     * Synchronize the tab action's enabled flag.
+     * 
+     */
+    void reloadTabActionEnabled() {
+        tabActionEnabled = readIsInviteAvailable() && readIsProfileActive() && readIsEMailVerified();
+        tabActionInitialized = Boolean.TRUE;
     }
 
     void syncContact(final Long contactId, final Boolean remote) {
@@ -760,15 +766,6 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
         return ((ContactProvider) contentProvider).readIncomingEMailInvitations();
     }
 
-    /**
-     * Read whether or not invite is available.
-     * 
-     * @return True if it is available.
-     */
-    private Boolean readIsInviteAvailable() {
-        return ((ContactProvider) contentProvider).readIsInviteAvailable();
-    }
-
     private IncomingUserInvitation readIncomingUserInvitation(final Long invitationId) {
         return ((ContactProvider) contentProvider).readIncomingUserInvitation(invitationId);
     }
@@ -780,6 +777,15 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      */
     private List<IncomingUserInvitation> readIncomingUserInvitations() {
         return ((ContactProvider) contentProvider).readIncomingUserInvitations();
+    }
+
+    /**
+     * Read whether or not invite is available.
+     * 
+     * @return True if it is available.
+     */
+    private Boolean readIsInviteAvailable() {
+        return ((ContactProvider) contentProvider).readIsInviteAvailable();
     }
 
     private OutgoingEMailInvitation readOutgoingEMailInvitation(

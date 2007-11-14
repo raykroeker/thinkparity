@@ -35,12 +35,24 @@ public final class ReportUser extends User {
 
     /** An e-mail. */
     private EMail email;
-    
+
+    /** A payment invoice date. */
+    private Calendar invoiceDate;
+
     /** A language. */
     private String language;
-
+    
     /** A mobile phone. */
     private String mobilePhone;
+
+    /** A payment amount. */
+    private Long paymentAmount;
+
+    /** A payment date. */
+    private Calendar paymentDate;
+
+    /** A payment plan name. */
+    private String paymentPlanName;
 
     /** A phone. */
     private String phone;
@@ -108,6 +120,15 @@ public final class ReportUser extends User {
     }
 
     /**
+     * Obtain the paymentInvoiceDate.
+     *
+     * @return A <code>Calendar</code>.
+     */
+    public Calendar getInvoiceDate() {
+        return invoiceDate;
+    }
+
+    /**
      * Obtain the language.
      *
      * @return A <code>String</code>.
@@ -123,6 +144,33 @@ public final class ReportUser extends User {
      */
     public String getMobilePhone() {
         return mobilePhone;
+    }
+
+    /**
+     * Obtain the paymentAmount.
+     *
+     * @return A <code>String</code>.
+     */
+    public Long getPaymentAmount() {
+        return paymentAmount;
+    }
+
+    /**
+     * Obtain the paymentDate.
+     *
+     * @return A <code>Calendar</code>.
+     */
+    public Calendar getPaymentDate() {
+        return paymentDate;
+    }
+
+    /**
+     * Obtain the paymentPlanName.
+     *
+     * @return A <code>String</code>.
+     */
+    public String getPaymentPlanName() {
+        return paymentPlanName;
     }
 
     /**
@@ -231,6 +279,16 @@ public final class ReportUser extends User {
     }
 
     /**
+     * Set the paymentInvoiceDate.
+     *
+     * @param paymentInvoiceDate
+     *		A <code>Calendar</code>.
+     */
+    public void setInvoiceDate(final Calendar paymentInvoiceDate) {
+        this.invoiceDate = paymentInvoiceDate;
+    }
+
+    /**
      * Set the language.
      *
      * @param language
@@ -248,6 +306,36 @@ public final class ReportUser extends User {
      */
     public void setMobilePhone(final String mobilePhone) {
         this.mobilePhone = mobilePhone;
+    }
+
+    /**
+     * Set the paymentAmount.
+     *
+     * @param paymentAmount
+     *		A <code>String</code>.
+     */
+    public void setPaymentAmount(final Long paymentAmount) {
+        this.paymentAmount = paymentAmount;
+    }
+
+    /**
+     * Set the paymentDate.
+     *
+     * @param paymentDate
+     *		A <code>Calendar</code>.
+     */
+    public void setPaymentDate(final Calendar paymentDate) {
+        this.paymentDate = paymentDate;
+    }
+
+    /**
+     * Set the paymentPlanName.
+     *
+     * @param paymentPlanName
+     *		A <code>String</code>.
+     */
+    public void setPaymentPlanName(final String paymentPlanName) {
+        this.paymentPlanName = paymentPlanName;
     }
 
     /**

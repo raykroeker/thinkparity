@@ -15,8 +15,6 @@ import java.util.List;
  */
 public final class Report {
 
-    private final List<Invitation> firstAcceptedInvitationList;
-
     private final List<Invitation> invitationList;
 
     private final List<ReportUser> userList;
@@ -27,18 +25,8 @@ public final class Report {
      */
     public Report() {
         super();
-        this.firstAcceptedInvitationList = new ArrayList<Invitation>();
         this.invitationList = new ArrayList<Invitation>();
         this.userList = new ArrayList<ReportUser>();
-    }
-
-    /**
-     * Obtain the firstAcceptedInvitationList.
-     *
-     * @return A <code>List<Invitation></code>.
-     */
-    public List<Invitation> getFirstAcceptedInvitationList() {
-        return firstAcceptedInvitationList;
     }
 
     /**
@@ -57,18 +45,6 @@ public final class Report {
      */
     public List<ReportUser> getUserList() {
         return userList;
-    }
-
-    /**
-     * Set the first accepted invitation list.
-     * 
-     * @param firstAcceptedInvitationList
-     *            A <code>List<Invitation></code>.
-     */
-    public void setFirstAcceptedInvitationList(
-            final List<Invitation> firstAcceptedInvitationList) {
-        this.firstAcceptedInvitationList.clear();
-        this.firstAcceptedInvitationList.addAll(firstAcceptedInvitationList);
     }
 
     /**

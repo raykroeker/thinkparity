@@ -14,7 +14,6 @@ import java.security.Key;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -68,14 +67,10 @@ public final class ReportModelImpl extends AdminModel implements ReportModel,
     public void generate() {
         try {
             final List<ReportUser> userList = reportIO.readUserList(vcardReader);
-            final List<Invitation> firstAcceptedInvitationList = 
-                reportIO.readAcceptedBillableInvitationList(vcardReader);
-            filterDuplicates(firstAcceptedInvitationList);
 
             final List<Invitation> invitationList = reportIO.readInvitationList(
                     vcardReader);
             final Report report = new Report();
-            report.setFirstAcceptedInvitationList(firstAcceptedInvitationList);
             report.setUserList(userList);
             report.setInvitationList(invitationList);
             final FileSystem reportRoot = new FileSystem(createTempDirectory("admin-report"));
@@ -150,36 +145,6 @@ public final class ReportModelImpl extends AdminModel implements ReportModel,
     }
 
     /**
-     * Fiter the duplicate invitations. An invitation is considered a duplicate
-     * when both the user and the invited by user are equal.
-     * 
-     * @param invitationList
-     *            A <code>List<Invitation></code>.
-     */
-    private void filterDuplicates(final List<Invitation> invitationList) {
-        final List<Long> duplicateHashCodeList = new ArrayList<Long>(invitationList.size());
-        for (int i = 0; i < invitationList.size(); i++) {
-            for (int j = i + 1; j < invitationList.size(); j++) {
-                if (invitationList.get(i).getUser().equals(invitationList.get(j).getUser()) &&
-                        invitationList.get(i).getInvitedBy().equals(invitationList.get(j).getInvitedBy())) {
-                    duplicateHashCodeList.add(Long.valueOf(invitationList.get(j).hashCode()));
-                }
-            }
-        }
-        final Iterator<Invitation> iInvitationList = invitationList.iterator();
-        Invitation invitation;
-        while (iInvitationList.hasNext()) {
-            invitation = iInvitationList.next();
-            for (final Long duplicateHashCode : duplicateHashCodeList) {
-                if (duplicateHashCode.longValue() == invitation.hashCode()) {
-                    iInvitationList.remove();
-                    break;
-                }
-            }
-        }
-    }
-
-    /**
      * Format the calendar.
      * 
      * @param calendar
@@ -192,6 +157,25 @@ public final class ReportModelImpl extends AdminModel implements ReportModel,
         } else {
             return MessageFormat.format("{0,date,yyyy-MM-dd HH:mm:ss.SSS Z}",
                     calendar.getTime());
+        }
+    }
+
+    /**
+     * Format the money in dollars/cents.
+     * 
+     * @param amount
+     *            A <code>Long</code>.
+     * @return A <code>String</code>.
+     */
+    private String formatMoney(final Long amount) {
+        if (null == amount) {
+            return null;
+        } else {
+            final String stringAmount = amount.toString();
+            final int centsIndex = stringAmount.length() - 2;
+            final String dollars = stringAmount.substring(0, centsIndex);
+            final String cents = stringAmount.substring(centsIndex);
+            return MessageFormat.format("{0}.{1}", dollars, cents);
         }
     }
 
@@ -272,7 +256,8 @@ public final class ReportModelImpl extends AdminModel implements ReportModel,
             csvWriter.writeNext(new String[] { "user.username", "user.billable",
                     "user.created_on", "user.country", "user.language",
                     "user.name", "user.organization", "user.time_zone",
-                    "user.title" });
+                    "user.title", "user.invoice_date", "user.payment_date",
+                    "user.payment_amount" });
             final List<ReportUser> reportUserList = report.getUserList();
             for (final ReportUser reportUser : reportUserList) {
                 valueArrayList.add(new String[] {
@@ -281,7 +266,10 @@ public final class ReportModelImpl extends AdminModel implements ReportModel,
                         format(reportUser.getCreatedOn()),
                         reportUser.getCountry(), reportUser.getLanguage(),
                         reportUser.getName(), reportUser.getOrganization(),
-                        reportUser.getTimeZone(), reportUser.getTitle() });
+                        reportUser.getTimeZone(), reportUser.getTitle(),
+                        format(reportUser.getInvoiceDate()),
+                        format(reportUser.getPaymentDate()),
+                        formatMoney(reportUser.getPaymentAmount()) });
             }
             csvWriter.writeAll(valueArrayList);
         } finally {
@@ -296,47 +284,20 @@ public final class ReportModelImpl extends AdminModel implements ReportModel,
         csvWriter= newCSVWriter(directory, "network");
         try {
             valueArrayList.clear();
-            csvWriter.writeNext(new String[] { "invitation.source.name",
-                    "invitation.source.organization", "invitation.source.title",
+            csvWriter.writeNext(new String[] { "invitation.source.username",
+                    "invitation.source.name", "invitation.source.organization",
+                    "invitation.source.title", "invitation.target.username",
                     "invitation.target.name", "invitation.target.organization",
                     "invitation.target.title", "invitation.extended_on",
                     "invitation.accepted_on" });
             final List<Invitation> invitationList = report.getInvitationList();
             for (final Invitation invitation : invitationList) {
                 valueArrayList.add(new String[] {
+                        invitation.getInvitedBy().getSimpleUsername(),
                         invitation.getInvitedBy().getName(),
                         invitation.getInvitedBy().getOrganization(),
                         invitation.getInvitedBy().getTitle(),
-                        invitation.getUser().getName(),
-                        invitation.getUser().getOrganization(),
-                        invitation.getUser().getTitle(),
-                        format(invitation.getInvitedOn()),
-                        format(invitation.getAcceptedOn()) });
-            }
-            csvWriter.writeAll(valueArrayList);
-        } finally {
-            try {
-                csvWriter.flush();
-            } finally {
-                csvWriter.close();
-            }
-        }
-
-        /* invitation.csv */
-        csvWriter= newCSVWriter(directory, "invitation");
-        try {
-            valueArrayList.clear();
-            csvWriter.writeNext(new String[] { "invitation.source.name",
-                    "invitation.source.organization", "invitation.source.title",
-                    "invitation.target.name", "invitation.target.organization",
-                    "invitation.target.title", "invitation.extended_on",
-                    "invitation.accepted_on" });
-            final List<Invitation> invitationList = report.getFirstAcceptedInvitationList();
-            for (final Invitation invitation : invitationList) {
-                valueArrayList.add(new String[] {
-                        invitation.getInvitedBy().getName(),
-                        invitation.getInvitedBy().getOrganization(),
-                        invitation.getInvitedBy().getTitle(),
+                        invitation.getUser().getSimpleUsername(),
                         invitation.getUser().getName(),
                         invitation.getUser().getOrganization(),
                         invitation.getUser().getTitle(),

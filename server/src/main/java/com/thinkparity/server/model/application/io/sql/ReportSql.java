@@ -64,12 +64,27 @@ public final class ReportSql extends AbstractSql {
         .toString();
 
     /** Sql to read a user list. */
-    private static final String SQL_READ_USER_LIST =
+    private static final String SQL_READ_PLAN_USER_LIST =
         new StringBuilder("select U.USER_ID,U.USERNAME,U.CREATED_ON,U.VCARD,")
-        .append("PP.PLAN_BILLABLE ")
+        .append("PP.PLAN_BILLABLE,PP.PLAN_NAME,PPII.ITEM_AMOUNT,")
+        .append("PPI.INVOICE_DATE,PPI.PAYMENT_DATE ")
         .append("from TPSD_USER U ")
         .append("inner join TPSD_USER_PAYMENT_PLAN UPP on UPP.USER_ID=U.USER_ID ")
         .append("inner join TPSD_PAYMENT_PLAN PP on PP.PLAN_ID=UPP.PLAN_ID ")
+        .append("inner join TPSD_PAYMENT_PLAN_INVOICE PPI on PP.PLAN_ID=PPI.PLAN_ID ")
+        .append("inner join TPSD_PAYMENT_PLAN_INVOICE_ITEM PPII on PPII.INVOICE_ID=PPI.INVOICE_ID ")
+        .append("where U.USERNAME <> ? ")
+        .append("and U.USERNAME <> ? ")
+        .append("and U.USERNAME <> ?")
+        .append("and month(PPI.INVOICE_DATE) = month(current_date) ")
+        .append("and PPII.ITEM_NUMBER = ? ")
+        .append("order by U.USER_ID asc")
+        .toString();
+
+    /** Sql to read a user list. */
+    private static final String SQL_READ_NON_PLAN_USER_LIST =
+        new StringBuilder("select U.USER_ID,U.USERNAME,U.CREATED_ON,U.VCARD ")
+        .append("from TPSD_USER U ")
         .append("where U.USERNAME <> ? ")
         .append("and U.USERNAME <> ? ")
         .append("and U.USERNAME <> ?")
@@ -144,15 +159,25 @@ public final class ReportSql extends AbstractSql {
             throws IOException {
         final HypersonicSession session = openSession();
         try {
-            session.prepareStatement(SQL_READ_USER_LIST);
+            session.prepareStatement(SQL_READ_PLAN_USER_LIST);
+            session.setString(1, User.THINKPARITY.getSimpleUsername());
+            session.setString(2, User.THINKPARITY_BACKUP.getSimpleUsername());
+            session.setString(3, User.THINKPARITY_SUPPORT.getSimpleUsername());
+            session.setInt(4, 0);
+            session.executeQuery();
+            final List<ReportUser> reportUserList = new ArrayList<ReportUser>();
+            while (session.nextResult()) {
+                reportUserList.add(extractPlanReportUser(session, vcardReader));
+            }
+            session.prepareStatement(SQL_READ_NON_PLAN_USER_LIST);
             session.setString(1, User.THINKPARITY.getSimpleUsername());
             session.setString(2, User.THINKPARITY_BACKUP.getSimpleUsername());
             session.setString(3, User.THINKPARITY_SUPPORT.getSimpleUsername());
             session.executeQuery();
-            final List<ReportUser> reportUserList = new ArrayList<ReportUser>();
             while (session.nextResult()) {
-                reportUserList.add(extractReportUser(session, vcardReader));
+                reportUserList.add(extractNoPlanReportUser(session, vcardReader));
             }
+
             return reportUserList;
         } finally {
             session.close();
@@ -189,7 +214,7 @@ public final class ReportSql extends AbstractSql {
      * @return A <code>ReportUser</code>.
      * @throws IOException
      */
-    private ReportUser extractReportUser(final HypersonicSession session,
+    private ReportUser extractPlanReportUser(final HypersonicSession session,
             final VCardReader<UserVCard> vcardReader) throws IOException {
         final ReportUser reportUser = new ReportUser();
         final UserVCard reportUserVCard = session.getVCard(("VCARD"),
@@ -200,11 +225,52 @@ public final class ReportSql extends AbstractSql {
         reportUser.setCountry(reportUserVCard.getCountry());
         reportUser.setCreatedOn(session.getCalendar("CREATED_ON"));
         reportUser.setId(JabberIdBuilder.parseUsername(session.getString("USERNAME")));
+        reportUser.setInvoiceDate(session.getCalendar("INVOICE_DATE"));
         reportUser.setLanguage(reportUserVCard.getLanguage());
         reportUser.setLocalId(session.getLong("USER_ID"));
         reportUser.setMobilePhone(reportUserVCard.getMobilePhone());
         reportUser.setName(reportUserVCard.getName());
         reportUser.setOrganization(reportUserVCard.getOrganization());
+        reportUser.setPaymentAmount(session.getLong("ITEM_AMOUNT"));
+        reportUser.setPaymentDate(session.getCalendar("PAYMENT_DATE"));
+        reportUser.setPaymentPlanName(session.getString("PLAN_NAME"));
+        reportUser.setPhone(reportUserVCard.getPhone());
+        reportUser.setPostalCode(reportUserVCard.getPostalCode());
+        reportUser.setProvince(reportUserVCard.getProvince());
+        reportUser.setTimeZone(reportUserVCard.getTimeZone());
+        reportUser.setTitle(reportUserVCard.getTitle());
+        return reportUser;
+    }
+
+    /**
+     * Extract a report user.
+     * 
+     * @param session
+     *            A <code>HypersonicSession</code>.
+     * @param vcardReader
+     *            A <code>VCardReader<User></code>.
+     * @return A <code>ReportUser</code>.
+     * @throws IOException
+     */
+    private ReportUser extractNoPlanReportUser(final HypersonicSession session,
+            final VCardReader<UserVCard> vcardReader) throws IOException {
+        final ReportUser reportUser = new ReportUser();
+        final UserVCard reportUserVCard = session.getVCard(("VCARD"),
+                new UserVCard() {}, vcardReader);
+        reportUser.setAddress(reportUserVCard.getAddress());
+        reportUser.setBillable(Boolean.FALSE);
+        reportUser.setCity(reportUserVCard.getCity());
+        reportUser.setCountry(reportUserVCard.getCountry());
+        reportUser.setCreatedOn(session.getCalendar("CREATED_ON"));
+        reportUser.setId(JabberIdBuilder.parseUsername(session.getString("USERNAME")));
+        reportUser.setLanguage(reportUserVCard.getLanguage());
+        reportUser.setLocalId(session.getLong("USER_ID"));
+        reportUser.setMobilePhone(reportUserVCard.getMobilePhone());
+        reportUser.setName(reportUserVCard.getName());
+        reportUser.setOrganization(reportUserVCard.getOrganization());
+        reportUser.setPaymentAmount(null);
+        reportUser.setPaymentDate(null);
+        reportUser.setPaymentPlanName(null);
         reportUser.setPhone(reportUserVCard.getPhone());
         reportUser.setPostalCode(reportUserVCard.getPostalCode());
         reportUser.setProvince(reportUserVCard.getProvince());

@@ -250,7 +250,19 @@ public final class ProfileConstraints {
         this.title.setName("Title");
         this.title.setNullable(Boolean.FALSE);
 
-        this.username = new StringConstraint();
+        final String validUsernameChars = "abcdefghijklmnopqrstuvwxyz0123456789-._+";
+        this.username = new StringConstraint() {
+            @Override
+            public void validate(final String value) {
+                super.validate(value);
+                final String text = value.toLowerCase();
+                for (int index = 0; index < text.length(); index++) {
+                    if (-1 == validUsernameChars.indexOf(text.charAt(index))) {
+                        invalidate(Reason.ILLEGAL, value);
+                    }
+                }
+            }
+        };
         this.username.setMaxLength(32);
         this.username.setMinLength(6);
         this.username.setName("Username");

@@ -21,6 +21,7 @@ import javax.swing.text.Document;
 
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.constraint.IllegalValueException;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
@@ -840,6 +841,17 @@ public class SignupAccountInfoAvatar extends DefaultSignupPage {
         if (null != username && null != unacceptableUsername
                 && username.equalsIgnoreCase(unacceptableUsername)) {
             addInputError(getString("ErrorUsernameTaken"));
+        }
+
+        // validate the username to see if it contains only valid characters.
+        if (!containsInputErrors()) {
+            try {
+                profileConstraints.getUsername().validate(username);
+            } catch (final IllegalValueException ivx) {
+                if (IllegalValueException.Reason.ILLEGAL == ivx.getReason()) {
+                    addInputError(getString("ErrorInvalidUsername"));
+                }
+            }
         }
 
         final int minimumPasswordLength = profileConstraints.getPassword().getMinLength();

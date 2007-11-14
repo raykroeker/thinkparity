@@ -260,6 +260,37 @@ public final class ContactModelImpl extends AbstractModelImpl implements
      */
     public void createInvitation(final OutgoingEMailInvitation invitation) {
         try {
+            createInvitationImpl(invitation, Boolean.TRUE);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.desdemona.model.contact.InternalContactModel#createInvitation(com.thinkparity.codebase.model.contact.OutgoingEMailInvitation, java.lang.Boolean)
+     *
+     */
+    @Override
+    public void createInvitation(final OutgoingEMailInvitation invitation,
+            final Boolean notify) {
+        try {
+            createInvitationImpl(invitation, notify);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * Implementation of create invitation for outgoing e-mails.
+     * 
+     * @param invitation
+     *            An <code>OutgoingEMailInvitation</code>.
+     * @param notify
+     *            A <code>Boolean</code>.
+     */
+    private void createInvitationImpl(final OutgoingEMailInvitation invitation,
+            final Boolean notify) {
+        try {
             if (isInviteRestricted(invitation.getInvitationEMail())) {
                 /* the user is restricted from inviting others; therefore we do
                  * nothing */
@@ -287,11 +318,21 @@ public final class ContactModelImpl extends AbstractModelImpl implements
                         logger.logInfo("User for {0} does not exist.",
                                 invitation.getInvitationEMail());
 
-                        // send e-mail
-                        final MimeMessage mimeMessage = smtpService.createMessage();
-                        inject(mimeMessage, createdBy);
-                        addRecipient(mimeMessage, invitation.getInvitationEMail());
-                        smtpService.deliver(mimeMessage);
+                        if (notify) {
+                            logger.logInfo("Sending e-mail notifification from {0} to {1}.",
+                                    invitation.getCreatedBy(),
+                                    invitation.getInvitationEMail());
+
+                            // send e-mail
+                            final MimeMessage mimeMessage = smtpService.createMessage();
+                            inject(mimeMessage, createdBy);
+                            addRecipient(mimeMessage, invitation.getInvitationEMail());
+                            smtpService.deliver(mimeMessage);
+                        } else {
+                            logger.logInfo("Not sending e-mail notifification from {0} to {1}.",
+                                    invitation.getCreatedBy(),
+                                    invitation.getInvitationEMail());
+                        }
                     } else {
                         if (isInviteRestricted(invitationUser)) {
                             /* the user is restricted from inviting others;

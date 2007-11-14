@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.desdemona.model.annotation.ThinkParityAuthenticate;
 import com.thinkparity.desdemona.model.contact.invitation.Attachment;
 import com.thinkparity.desdemona.model.contact.invitation.ContainerVersionAttachment;
+
 import com.thinkparity.desdemona.util.AuthenticationType;
 
 /**
@@ -90,6 +91,16 @@ public interface InternalContactModel extends ContactModel {
      */
     public List<OutgoingEMailInvitation> readProxyOutgoingEMailInvitations(
             final JabberId proxyId);
+
+    /**
+     * Create an e-mail contact invitation.
+     * 
+     * @param invitation
+     *            An <code>OutgoingEMailInvitation</code>.
+     * @param notify
+     *            A <code>Boolean</code>.
+     */
+    void createInvitation(OutgoingEMailInvitation invitation, Boolean notify);
 
     /**
      * Determine whether or not an the container is attached to an outgoing

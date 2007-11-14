@@ -402,7 +402,7 @@ public final class ContainerModelImpl extends AbstractModelImpl implements
                 invitation.setCreatedBy(readUser(userId));
                 invitation.setCreatedOn(publishedOn);
                 invitation.setInvitationEMail(publishToEMail);
-                contactModel.createInvitation(invitation);
+                contactModel.createInvitation(invitation, Boolean.FALSE);
             } else {
                 // reference existing invitation
                 invitation = existing;

@@ -44,7 +44,19 @@ public final class RuleModelImpl extends AbstractModelImpl implements
             if (isCoreEnabled(user)) {
                 return Boolean.FALSE;
             } else {
-                return Boolean.TRUE;
+                User user;
+                final InternalUserModel userModel = getUserModel();
+                for (final EMail email : emailList) {
+                    user = userModel.read(email);
+                    if (null == user) {
+                        return Boolean.TRUE;
+                    } else {
+                        if (isInviteRestricted(user)) {
+                            return Boolean.TRUE;
+                        }
+                    }
+                }
+                return Boolean.FALSE;
             }
         } catch (final Exception x) {
             throw panic(x);

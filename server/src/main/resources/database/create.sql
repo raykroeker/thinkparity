@@ -259,6 +259,15 @@ create table TPSD_PRODUCT(
     primary key(PRODUCT_ID),
     unique(PRODUCT_NAME)
 );
+create table TPSD_PRODUCT_CFG(
+    PRODUCT_ID bigint not null,
+    CFG_ID smallint generated always as identity(start with 400),
+    CFG_KEY varchar(64) not null,
+    CFG_VALUE varchar(128),
+    primary key(CFG_ID),
+    unique(CFG_KEY),
+    foreign key(PRODUCT_ID) references TPSD_PRODUCT(PRODUCT_ID)
+);
 create table TPSD_PRODUCT_FEATURE(
     PRODUCT_ID bigint not null,
     FEATURE_ID bigint generated always as identity(start with 6000),
@@ -322,6 +331,14 @@ create table TPSD_USER_PRODUCT_RELEASE_REL(
     foreign key(USER_ID) references TPSD_USER(USER_ID),
     foreign key(PRODUCT_ID) references TPSD_PRODUCT(PRODUCT_ID),
     foreign key(RELEASE_ID) references TPSD_PRODUCT_RELEASE(RELEASE_ID)
+);
+create table TPSD_USER_PRODUCT_CFG(
+    USER_ID bigint not null,
+    CFG_ID smallint not null,
+    CFG_VALUE varchar(128),
+    primary key(USER_ID,CFG_ID),
+    foreign key(USER_ID) references TPSD_USER(USER_ID),
+    foreign key(CFG_ID) references TPSD_PRODUCT_CFG(CFG_ID)
 );
 
 create table TPSD_PAYMENT_CURRENCY(

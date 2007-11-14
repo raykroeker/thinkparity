@@ -39,3 +39,7 @@ insert into TPSD_EMAIL(EMAIL) values('support@thinkparity.com');
 insert into TPSD_USER_EMAIL(USER_ID,EMAIL_ID,VERIFIED) select USER_ID,EMAIL_ID,'1' from TPSD_USER,TPSD_EMAIL where USERNAME='support' and EMAIL='support@thinkparity.com';
 insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID) select USER_ID,FEATURE_ID from TPSD_USER,TPSD_PRODUCT P inner join TPSD_PRODUCT_FEATURE PF on PF.PRODUCT_ID=P.PRODUCT_ID where USERNAME='support' and P.PRODUCT_NAME='OpheliaProduct' and PF.FEATURE_NAME='CORE';
 insert into TPSD_USER_FEATURE_REL(USER_ID,FEATURE_ID) select USER_ID,FEATURE_ID from TPSD_USER,TPSD_PRODUCT P inner join TPSD_PRODUCT_FEATURE PF on PF.PRODUCT_ID=P.PRODUCT_ID where USERNAME='support' and P.PRODUCT_NAME='OpheliaProduct' and PF.FEATURE_NAME='BACKUP';
+-- ophelia configuration
+insert into TPSD_PRODUCT_CFG (PRODUCT_ID,CFG_KEY,CFG_VALUE) select PRODUCT_ID,'com.thinkparity.session.reaper.timeout','14400000' from TPSD_PRODUCT where PRODUCT_NAME='OpheliaProduct';
+insert into TPSD_PRODUCT_CFG (PRODUCT_ID,CFG_KEY,CFG_VALUE) select PRODUCT_ID,'com.thinkparity.session.reaper.firstexecutiondelay','14400000' from TPSD_PRODUCT where PRODUCT_NAME='OpheliaProduct';
+insert into TPSD_PRODUCT_CFG (PRODUCT_ID,CFG_KEY,CFG_VALUE) select PRODUCT_ID,'com.thinkparity.session.reaper.recurringexecutionperiod','14400000' from TPSD_PRODUCT where PRODUCT_NAME='OpheliaProduct';

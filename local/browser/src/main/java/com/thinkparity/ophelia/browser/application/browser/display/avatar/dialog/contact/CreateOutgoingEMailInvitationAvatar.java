@@ -320,13 +320,13 @@ public class CreateOutgoingEMailInvitationAvatar extends Avatar {
      * 
      * @return True if the invitation is valid; false otherwise.
      */
-    private Boolean isInvitationValid() {
+    private Boolean isInviteRestricted() {
         final EMail email = extractInputEMail();
-        Boolean validInvitation = Boolean.FALSE;
+        Boolean restricted = Boolean.TRUE;
         if (null != email) {
-            validInvitation = ((CreateOutgoingEMailInvitationProvider) contentProvider).readIsInviteRestricted(email);
+            restricted = ((CreateOutgoingEMailInvitationProvider) contentProvider).readIsInviteRestricted(email);
         }
-        if (!validInvitation) {
+        if (restricted) {
             addInputError(getString("ErrorInvalidInvitation"));
             errorMessageJLabel.setText(" ");
             if (containsInputErrors())
@@ -334,7 +334,7 @@ public class CreateOutgoingEMailInvitationAvatar extends Avatar {
             okJButton.setEnabled(Boolean.FALSE);
         }
         
-        return validInvitation;
+        return restricted;
     }
 
     private void okJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okJButtonActionPerformed
@@ -343,9 +343,9 @@ public class CreateOutgoingEMailInvitationAvatar extends Avatar {
             errorMessageJLabel.setText(getString("CheckingInvitation"));
             errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel
                     .getWidth(), errorMessageJLabel.getHeight());
-            final Boolean invitationValid = isInvitationValid();
+            final Boolean restricted = isInviteRestricted();
             SwingUtil.setCursor(this, null);
-            if (invitationValid) {
+            if (!restricted) {
                 disposeWindow();
                 createOutgoingEMailInvitation();
             }

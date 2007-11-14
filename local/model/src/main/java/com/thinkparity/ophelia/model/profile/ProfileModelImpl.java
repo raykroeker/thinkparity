@@ -663,7 +663,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      */
     @Override
     public Boolean isInviteAvailable() {
-        return isCoreEnabled();
+        return Boolean.TRUE;
     }
 
     /**

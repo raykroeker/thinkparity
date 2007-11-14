@@ -32,16 +32,19 @@ import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingUs
  */
 final class ContactTabActionDelegate extends DefaultBrowserActionDelegate implements
         ActionDelegate, TabButtonActionDelegate {
-    
+
     /** The accept e-mail invitation <code>AbstractAction</code>. */
     private final ActionInvocation acceptIncomingEMailInvitation;
-    
+
     /** The accept user invitation <code>AbstractAction</code>. */
     private final ActionInvocation acceptIncomingUserInvitation;
 
+    /** The create outgoing email invitation <code>AbstractAction</code>. */
+    private final ActionInvocation createOutgoingEMailInvitation;
+
     /** The decline email invitation <code>AbstractAction</code>. */
     private final ActionInvocation declineIncomingEMailInvitation;
-    
+
     /** The decline user invitation <code>AbstractAction</code>. */
     private final ActionInvocation declineIncomingUserInvitation;
 
@@ -59,6 +62,7 @@ final class ContactTabActionDelegate extends DefaultBrowserActionDelegate implem
         this.model = model;
         this.acceptIncomingEMailInvitation = getInstance(ActionId.CONTACT_ACCEPT_INCOMING_EMAIL_INVITATION);
         this.acceptIncomingUserInvitation = getInstance(ActionId.CONTACT_ACCEPT_INCOMING_USER_INVITATION);
+        this.createOutgoingEMailInvitation = getInstance(ActionId.CONTACT_CREATE_OUTGOING_EMAIL_INVITATION);
         this.declineIncomingEMailInvitation = getInstance(ActionId.CONTACT_DECLINE_INCOMING_EMAIL_INVITATION);
         this.declineIncomingUserInvitation = getInstance(ActionId.CONTACT_DECLINE_INCOMING_USER_INVITATION);
     }
@@ -133,13 +137,14 @@ final class ContactTabActionDelegate extends DefaultBrowserActionDelegate implem
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate#invokeForTabButton()
      */
     public void invokeForTabButton() {
+        invoke(createOutgoingEMailInvitation, getApplication(), Data.emptyData());
     }
 
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabButtonActionDelegate#isTabButtonActionAvailable()
      */
     public Boolean isTabButtonActionAvailable() {
-        return Boolean.FALSE;
+        return Boolean.TRUE;
     }
 
     /**

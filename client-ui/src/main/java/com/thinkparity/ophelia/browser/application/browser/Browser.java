@@ -23,6 +23,7 @@ import com.thinkparity.codebase.swing.AbstractJFrame;
 import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
 
 import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
@@ -44,6 +45,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTi
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ConfirmAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.FileChooserAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.StatusAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.CreateOutgoingEMailInvitationAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.*;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpdateProfileAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatar;
@@ -59,6 +61,7 @@ import com.thinkparity.ophelia.browser.platform.action.*;
 import com.thinkparity.ophelia.browser.platform.action.backup.Restore;
 import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingEMailInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.AcceptIncomingUserInvitation;
+import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingEMailInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.CreateOutgoingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingEMailInvitation;
 import com.thinkparity.ophelia.browser.platform.action.contact.DeleteOutgoingUserInvitation;
@@ -366,6 +369,27 @@ public class Browser extends AbstractApplication {
         input.set(CreateContainerAvatar.DataKey.FILES, files);        
         setInput(AvatarId.DIALOG_CONTAINER_CREATE, input);
         displayAvatar(AvatarId.DIALOG_CONTAINER_CREATE);
+    }
+
+    /**
+     * Display the create outgoing EMail invitation dialog.
+     * 
+     * @param profileEMail
+     *            A <code>ProfileEMail</code>.
+     * @param contacts
+     *            A List of <code>Contact</code>.
+     * @param outgoingEMailInvitations
+     *            A List of <code>OutgoingEMailInvitation</code>.
+     * Generally it is better to call runCreateOutgoingEMailInvitation() to display the dialog.
+     */
+    public void displayCreateOutgoingEMailInvitationDialog(final ProfileEMail profileEMail,
+            List<Contact> contacts, List<OutgoingEMailInvitation> outgoingEMailInvitations) {
+        final Data data = new Data(3);
+        data.set(CreateOutgoingEMailInvitationAvatar.DataKey.PROFILE_EMAIL, profileEMail);
+        data.set(CreateOutgoingEMailInvitationAvatar.DataKey.CONTACTS, contacts);
+        data.set(CreateOutgoingEMailInvitationAvatar.DataKey.OUTGOING_EMAIL_INVITATIONS, outgoingEMailInvitations);
+        setInput(AvatarId.DIALOG_CONTACT_CREATE_OUTGOING_EMAIL_INVITATION, data);
+        displayAvatar(AvatarId.DIALOG_CONTACT_CREATE_OUTGOING_EMAIL_INVITATION);
     }
 
     /**
@@ -1218,7 +1242,27 @@ public class Browser extends AbstractApplication {
         data.set(CreateDraft.DataKey.CONTAINER_ID, containerId);
         invoke(ActionId.CONTAINER_CREATE_DRAFT, data);         
     }
-  
+
+    /**
+     * Run the create outgoing email invitation action
+     * to display the dialog.
+     */
+    public void runCreateOutgoingEMailInvitation() {
+        invoke(ActionId.CONTACT_CREATE_OUTGOING_EMAIL_INVITATION, Data.emptyData());
+    }
+
+    /**
+     * Run the create outgoing email invitation action.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     */
+    public void runCreateOutgoingEMailInvitation(final EMail email) {
+        final Data data = new Data(1);
+        data.set(CreateOutgoingEMailInvitation.DataKey.EMAIL, email);
+        invoke(ActionId.CONTACT_CREATE_OUTGOING_EMAIL_INVITATION, data);
+    }
+
     /**
      * Run the create outgoing user invitation action.
      * 

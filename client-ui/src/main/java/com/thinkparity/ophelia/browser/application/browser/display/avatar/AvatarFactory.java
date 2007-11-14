@@ -11,6 +11,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.ShowLicenseAgreementAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.StatusAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.backup.RestoreBackupAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.CreateOutgoingEMailInvitationAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.*;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.*;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.contact.ContactTabAvatar;
@@ -130,6 +131,10 @@ public final class AvatarFactory {
         case DIALOG_BACKUP_RESTORE:
             avatar = newAvatar(RestoreBackupAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
+
+        case DIALOG_CONTACT_CREATE_OUTGOING_EMAIL_INVITATION:
+            avatar = newAvatar(CreateOutgoingEMailInvitationAvatar.class);
             break;
 
         case DIALOG_CONTAINER_CREATE:

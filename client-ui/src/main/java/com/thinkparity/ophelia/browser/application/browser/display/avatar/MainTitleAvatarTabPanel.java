@@ -385,8 +385,9 @@ public class MainTitleAvatarTabPanel extends MainTitleAvatarAbstractPanel {
             if (isActionAvailable()) {
                 g2.drawLine(x, y + 2, x + fm.stringWidth(jLabelText), y + 2);
             }
-            // set the active rectangle
-            activeRectangle.setBounds(x, y-fm.getMaxAscent(), textWidth, textHeight);
+            // set the active rectangle for the jLabel
+            activeRectangle.setBounds(x - labelLocation.x,
+                    y - fm.getMaxAscent(), textWidth, textHeight);
         }
 
         /**

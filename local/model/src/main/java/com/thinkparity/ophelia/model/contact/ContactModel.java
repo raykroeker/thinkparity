@@ -62,7 +62,7 @@ public interface ContactModel {
     public OutgoingEMailInvitation createOutgoingEMailInvitation(
             final EMail email);
 
-	/**
+    /**
      * Create a contact invitation.
      * 
      * @param userId
@@ -72,7 +72,7 @@ public interface ContactModel {
     @ThinkParityOnline
     public OutgoingUserInvitation createOutgoingUserInvitation(final Long userId);
 
-    /**
+	/**
      * Decline an incoming e-mail invitation.
      * 
      * @param invitation
@@ -107,7 +107,7 @@ public interface ContactModel {
     @ThinkParityConcurrency(Lock.LOCAL_READ)
     public Boolean doesExist(final Long contactId);
 
-	/**
+    /**
      * Determine if the outgoing user invitation exists.
      * 
      * @param userId
@@ -125,7 +125,7 @@ public interface ContactModel {
     @ThinkParityConcurrency(Lock.LOCAL_READ)
     public List<Contact> read();
 
-    /**
+	/**
      * Read a list of contacts.
      * 
      * @param comparator
@@ -272,7 +272,6 @@ public interface ContactModel {
      */
     public List<Long> searchIncomingEMailInvitations(final String expression);
 
-    
     /**
      * Search for incoming e-mail invitations.
      * 
@@ -282,6 +281,7 @@ public interface ContactModel {
      */
     public List<Long> searchIncomingUserInvitations(final String expression);
 
+    
     /**
      * Search for outgoing invitations.
      * 
@@ -332,4 +332,14 @@ public interface ContactModel {
      *            An <code>OutgoingUserInvitation</code>.
      */
     void deleteInvitation(OutgoingUserInvitation invitation);
+
+    /**
+     * Determine whether or not creating an invitation is restricted to any of
+     * the e-mail addresses.
+     * 
+     * @param emails
+     *            A <code>List<EMail></code>.
+     * @return True if invite is restricted.
+     */
+    Boolean isInviteRestricted(final List<EMail> emailList);
 }

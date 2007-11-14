@@ -276,18 +276,6 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
-     * Determine if the user is restricted from creating an invitation.
-     * 
-     * @param email
-     *            An <code>EMail</code>.
-     * @return True if the user is restricted from inviting.
-     */
-    private boolean isInviteRestricted(final EMail email) {
-        final List<EMail> emailList = new ArrayList<EMail>();
-        return getSessionModel().isInviteRestricted(emailList);
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.contact.ContactModel#createOutgoingEMailInvitation(com.thinkparity.codebase.email.EMail)
      * 
      */
@@ -944,6 +932,19 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.contact.ContactModel#isInviteRestricted(java.util.List)
+     *
+     */
+    @Override
+    public Boolean isInviteRestricted(final List<EMail> emailList) {
+        try {
+            return getSessionModel().isInviteRestricted(emailList);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Read a list of contacts.
      * 
      * @return A list of contacts.
@@ -1480,6 +1481,19 @@ public final class ContactModelImpl extends Model<ContactListener>
      */
     private AuthToken getAuthToken() {
         return getSessionModel().getAuthToken();
+    }
+
+    /**
+     * Determine if the user is restricted from creating an invitation.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     * @return True if the user is restricted from inviting.
+     */
+    private boolean isInviteRestricted(final EMail email) {
+        final List<EMail> emailList = new ArrayList<EMail>();
+        emailList.add(email);
+        return getSessionModel().isInviteRestricted(emailList);
     }
 
     private void notifyContactCreated(final Contact contact,

@@ -550,9 +550,16 @@ public final class MigratorSql extends AbstractSql {
             session.setLong(2, user.getLocalId());
             session.executeQuery();
             final Properties productUserConfiguration = new Properties(productConfiguration);
+            String value;
             while (session.nextResult()) {
-                productUserConfiguration.setProperty(
-                        session.getString("CFG_KEY"), session.getString("CFG_VALUE"));
+                value = session.getString("CFG_VALUE");
+                if (null == value) {
+                    productUserConfiguration.remove(session.getString("CFG_KEY"));
+                } else {
+                    productUserConfiguration.setProperty(
+                            session.getString("CFG_KEY"),
+                            session.getString("CFG_VALUE"));
+                }
             }
             return productUserConfiguration;
         } catch (final Throwable t) {

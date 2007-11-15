@@ -76,6 +76,12 @@ public final class SessionModelImpl extends Model<SessionListener>
     /** Configuration key for the remote release. */
     private static final String CFG_KEY_REMOTE_RELEASE;
 
+    /** The configuration name for reaper enabled. */
+    private static final String CFG_NAME_REAPER_ENABLED;
+
+    /** The default reaper enabled. */
+    private static final Boolean DEFAULT_REAPER_ENABLED;
+
     /** A workspace attribute key for the authentication token. */
     private static final String WS_ATTRIBUTE_KEY_AUTH_TOKEN;
 
@@ -93,7 +99,9 @@ public final class SessionModelImpl extends Model<SessionListener>
 
     static {
         AUTH_TOKEN_EXPIRY_FUDGE = 3 * 1000;
+        CFG_NAME_REAPER_ENABLED = "com.thinkparity.session.reaper.enabled";
         CFG_KEY_REMOTE_RELEASE = "SessionModelImpl#remoteRelease";
+        DEFAULT_REAPER_ENABLED = Boolean.FALSE;
         WS_ATTRIBUTE_KEY_AUTH_TOKEN = "SessionModelImpl#authToken";
         WS_ATTRIBUTE_KEY_CONFIGURATION = "SessionModelImpl#configuration";
         WS_ATTRIBUTE_KEY_OFFLINE_CODES = "SessionModelImpl#offlineCodes";
@@ -183,7 +191,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         super.addListener(listener);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createDraft(java.util.List,
      *      java.util.UUID, java.util.Calendar)
      * 
@@ -215,7 +223,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#createInvitation(com.thinkparity.codebase.model.contact.OutgoingUserInvitation)
      * 
      */
@@ -718,7 +726,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupContainerVersions(java.util.UUID)
      *
@@ -746,7 +754,7 @@ public final class SessionModelImpl extends Model<SessionListener>
             throw panic(t);
         }
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#readBackupDocumentVersions(java.util.UUID, java.lang.Long)
      *
@@ -992,7 +1000,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.Model#removeListener(com.thinkparity.ophelia.model.util.EventListener)
      * 
      */
@@ -1014,7 +1022,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#updateProfilePassword(com.thinkparity.codebase.model.session.Credentials,
      *      java.lang.String)
      * 
@@ -1079,11 +1087,16 @@ public final class SessionModelImpl extends Model<SessionListener>
              */
             @Override
             public void sessionEstablished() {
-                if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_REAPER)) {
-                    logger.logInfo("Session reaper has been started.");
+                if (isReaperEnabled()) {
+                    logger.logInfo("Session reaper has been enabled.");
+                    if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_REAPER)) {
+                        logger.logInfo("Session reaper has been started.");
+                    } else {
+                        logger.logInfo("Session reaper has not been started.");
+                        startSessionReaper();
+                    }
                 } else {
-                    logger.logInfo("Session reaper has not been started.");
-                    startSessionReaper();
+                    logger.logInfo("Session reaper has not been enabled.");
                 }
             }
         });
@@ -1186,6 +1199,22 @@ public final class SessionModelImpl extends Model<SessionListener>
             - AUTH_TOKEN_EXPIRY_FUDGE;
         logger.logVariable("localDateTime", localDateTime);
         return localDateTime > authToken.getExpiresOn().getTime();
+    }
+
+    /**
+     * Determine whether or not the reaper is enabled.
+     * 
+     * @return True if the reaper is enabled.
+     */
+    private boolean isReaperEnabled() {
+        final Properties configuration = getConfiguration();
+        if (null == configuration) {
+            return DEFAULT_REAPER_ENABLED.booleanValue();
+        } else {
+            return Boolean.valueOf(getConfiguration().getProperty(
+                    CFG_NAME_REAPER_ENABLED,
+                    DEFAULT_REAPER_ENABLED.toString())).booleanValue();
+        }
     }
 
     /**

@@ -38,7 +38,7 @@ import com.thinkparity.ophelia.browser.util.localization.Localization;
  * <b>Title:</b><br>
  * <b>Description:</b><br>
  * 
- * @author raymond@thinkparity.com
+ * @author raymond@thinkparity.com, robert@thinkparity.com
  * @version 1.1.2.1
  */
 public class ContactTabPanel extends DefaultTabPanel {
@@ -518,12 +518,20 @@ public class ContactTabPanel extends DefaultTabPanel {
     }//GEN-LAST:event_collapsedIncomingInvitationJPanelMouseReleased
 
     private void collapseIconJLabelMouseEntered(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapseIconJLabelMouseEntered
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+        if (!isAnimating()) {
+            SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+        }
     }//GEN-LAST:event_collapseIconJLabelMouseEntered
 
     private void collapseIconJLabelMouseExited(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapseIconJLabelMouseExited
         SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), null);
     }//GEN-LAST:event_collapseIconJLabelMouseExited
+
+    private void collapseIconJLabelMouseMoved(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapseIconJLabelMouseMoved
+        if (!isAnimating()) {
+            SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+        }
+    }//GEN-LAST:event_collapseIconJLabelMouseMoved
 
     private void collapseIconJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapseIconJLabelMousePressed
         selectPanel();
@@ -577,7 +585,7 @@ public class ContactTabPanel extends DefaultTabPanel {
     }//GEN-LAST:event_expandedContactJPanelMouseReleased
 
     private void expandIconJLabelMouseEntered(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMouseEntered
-        if (isExpandable()) {
+        if (isExpandable() && !isAnimating()) {
             SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
         }
     }//GEN-LAST:event_expandIconJLabelMouseEntered
@@ -1015,6 +1023,11 @@ public class ContactTabPanel extends DefaultTabPanel {
             }
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 collapseIconJLabelMouseReleased(evt);
+            }
+        });
+        collapseIconJLabel.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseMoved(java.awt.event.MouseEvent evt) {
+                collapseIconJLabelMouseMoved(evt);
             }
         });
 

@@ -17,27 +17,6 @@ import com.thinkparity.ophelia.browser.platform.action.PopupDelegate;
 public interface TabPanel {
 
     /**
-	 * Obtain a unique id for the panel.
-	 * 
-	 * @return An id unique per <code>TabPanelAvatar</code>.
-	 */
-	public Object getId();
-
-    /**
-     * Determine if data required for the expanded panel has been set.
-     * 
-     * @return true if data required for the expanded panel has been set, false otherwise.
-     */
-    public Boolean isSetExpandedData();
-
-    /**
-     * Obtain the popup delegate for the panel.
-     * 
-     * @return A <code>PopupDelegate</code>.
-     */
-    public PopupDelegate getPopupDelegate();
-
-    /**
      * Collapse the panel.
      * 
      * @param animate
@@ -54,11 +33,39 @@ public interface TabPanel {
     public void expand(final boolean animate);
 
     /**
+	 * Obtain a unique id for the panel.
+	 * 
+	 * @return An id unique per <code>TabPanelAvatar</code>.
+	 */
+	public Object getId();
+
+    /**
+     * Obtain the popup delegate for the panel.
+     * 
+     * @return A <code>PopupDelegate</code>.
+     */
+    public PopupDelegate getPopupDelegate();
+
+    /**
+     * Determine if the panel is currently animating.
+     * 
+     * @return True if the panel is currently animating.
+     */
+    public Boolean isAnimating();
+
+    /**
      * Determine if the panel is currently expanded.
      * 
      * @return True if the panel is currently expanded.
      */
     public Boolean isExpanded();
+
+    /**
+     * Determine if data required for the expanded panel has been set.
+     * 
+     * @return true if data required for the expanded panel has been set, false otherwise.
+     */
+    public Boolean isSetExpandedData();
 
     /**
      * Refresh content that might become out of date, for example,

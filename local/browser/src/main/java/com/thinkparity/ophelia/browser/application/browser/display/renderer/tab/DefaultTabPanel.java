@@ -18,6 +18,7 @@ import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.JVMUniqueId;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.AbstractJPanel;
+import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.BottomBorder;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
@@ -54,11 +55,11 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     /** An image cache. */
     protected static final MainPanelImageCache IMAGE_CACHE;
 
-    /** A <code>FuzzyDateFormat</code>. */
-    private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
-
     /** A keyboard popup y location <code>int</code>. */
     protected static final int KEYBOARD_POPUP_Y;
+
+    /** A <code>FuzzyDateFormat</code>. */
+    private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
 
     static {
         ANIMATION_HEIGHT_ADJUSTMENT = 12;
@@ -192,6 +193,13 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     @Override
     public int hashCode() {
         return getId().hashCode();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel#isAnimating()
+     */
+    public Boolean isAnimating() {
+        return Boolean.valueOf(animating);
     }
 
     /**
@@ -434,6 +442,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
             animating = true;
         }
         final boolean requestFocus = hasFocus();
+        SwingUtil.setCursor(collapsedJPanel, null);
         if (isAncestorOf(expandedJPanel))
             remove(expandedJPanel);
         if (isAncestorOf(collapsedJPanel))
@@ -481,15 +490,6 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
         if (!isExpanded() && isExpandable()) {
             tabDelegate.toggleExpansion(DefaultTabPanel.this);
         }
-    }
-
-    /**
-     * Determine if the panel is currently animating.
-     * 
-     * @return True if the panel is currently animating.
-     */
-    protected Boolean isAnimating() {
-        return Boolean.valueOf(animating);
     }
 
     /**

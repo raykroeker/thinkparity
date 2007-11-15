@@ -55,7 +55,7 @@ import com.thinkparity.ophelia.browser.util.localization.Localization;
 /**
  * <b>Title:</b>thinkParity Container Panel<br>
  * <b>Description:</b><br>
- * @author raymond@thinkparity.com
+ * @author raymond@thinkparity.com, robert@thinkparity.com
  * @version 1.1.2.1
  */
 public class ContainerPanel extends DefaultTabPanel {
@@ -1117,7 +1117,9 @@ public class ContainerPanel extends DefaultTabPanel {
     }//GEN-LAST:event_expandedJPanelMouseReleased
 
     private void expandIconJLabelMouseEntered(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMouseEntered
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+        if (!isAnimating()) {
+            SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+        }
     }//GEN-LAST:event_expandIconJLabelMouseEntered
 
     private void expandIconJLabelMouseExited(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMouseExited
@@ -1266,11 +1268,11 @@ public class ContainerPanel extends DefaultTabPanel {
         }
     }
 
-    private void iconJLabelMouseEntered(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseEntered
+    private void iconJLabelMouseEntered(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseEntered
         SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
     }//GEN-LAST:event_iconJLabelMouseEntered
 
-    private void iconJLabelMouseExited(java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseExited
+    private void iconJLabelMouseExited(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_iconJLabelMouseExited
         SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), null);
     }//GEN-LAST:event_iconJLabelMouseExited
 

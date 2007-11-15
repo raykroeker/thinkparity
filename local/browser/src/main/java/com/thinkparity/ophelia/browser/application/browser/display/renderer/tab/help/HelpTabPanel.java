@@ -33,9 +33,30 @@ import com.thinkparity.ophelia.browser.util.localization.Localization;
 
 /**
  *
- * @author  user
+ * @author robert@thinkparity.com
  */
 public class HelpTabPanel extends DefaultTabPanel {
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel collapseIconJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel collapsedIconJLabel = new javax.swing.JLabel();
+    private final javax.swing.JPanel collapsedJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel collapsedMovieJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel collapsedTextJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel countJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel expandIconJLabel = new javax.swing.JLabel();
+    private final javax.swing.JPanel expandedContentJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel expandedIconJLabel = new javax.swing.JLabel();
+    private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel expandedMovieJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel expandedTextJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel firstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JPanel fixedSizeJPanel = new javax.swing.JPanel();
+    private final javax.swing.JTextArea helpContentJTextArea = new javax.swing.JTextArea();
+    private final javax.swing.JLabel lastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel nextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel previousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    // End of variables declaration//GEN-END:variables
 
     /** The help tab's <code>ActionDelegate</code>. */
     private ActionDelegate actionDelegate;
@@ -289,12 +310,20 @@ public class HelpTabPanel extends DefaultTabPanel {
     }//GEN-LAST:event_collapsedMovieJLabelMousePressed
 
     private void collapseIconJLabelMouseEntered(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapseIconJLabelMouseEntered
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+        if (!isAnimating()) {
+            SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+        }
     }//GEN-LAST:event_collapseIconJLabelMouseEntered
 
     private void collapseIconJLabelMouseExited(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapseIconJLabelMouseExited
         SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), null);
     }//GEN-LAST:event_collapseIconJLabelMouseExited
+
+    private void collapseIconJLabelMouseMoved(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapseIconJLabelMouseMoved
+        if (!isAnimating()) {
+            SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+        }
+    }//GEN-LAST:event_collapseIconJLabelMouseMoved
 
     private void collapseIconJLabelMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_collapseIconJLabelMousePressed
         expandIconMousePressed(e);
@@ -344,7 +373,9 @@ public class HelpTabPanel extends DefaultTabPanel {
     }//GEN-LAST:event_expandedMovieJLabelMousePressed
 
     private void expandIconJLabelMouseEntered(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMouseEntered
-        SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+        if (!isAnimating()) {
+            SwingUtil.setCursor((javax.swing.JLabel) e.getSource(), java.awt.Cursor.HAND_CURSOR);
+        }
     }//GEN-LAST:event_expandIconJLabelMouseEntered
 
     private void expandIconJLabelMouseExited(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_expandIconJLabelMouseExited
@@ -492,6 +523,11 @@ public class HelpTabPanel extends DefaultTabPanel {
             }
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 collapseIconJLabelMouseReleased(evt);
+            }
+        });
+        collapseIconJLabel.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseMoved(java.awt.event.MouseEvent evt) {
+                collapseIconJLabelMouseMoved(evt);
             }
         });
 
@@ -725,25 +761,4 @@ public class HelpTabPanel extends DefaultTabPanel {
     private void selectPanel() {
         tabDelegate.selectPanel(this);
     }
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel collapseIconJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel collapsedIconJLabel = new javax.swing.JLabel();
-    private final javax.swing.JPanel collapsedJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel collapsedMovieJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel collapsedTextJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel countJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel expandIconJLabel = new javax.swing.JLabel();
-    private final javax.swing.JPanel expandedContentJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel expandedIconJLabel = new javax.swing.JLabel();
-    private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel expandedMovieJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel expandedTextJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel firstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JPanel fixedSizeJPanel = new javax.swing.JPanel();
-    private final javax.swing.JTextArea helpContentJTextArea = new javax.swing.JTextArea();
-    private final javax.swing.JLabel lastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel nextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel previousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    // End of variables declaration//GEN-END:variables
 }

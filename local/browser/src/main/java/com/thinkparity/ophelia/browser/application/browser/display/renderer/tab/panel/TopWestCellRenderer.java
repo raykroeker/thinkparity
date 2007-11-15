@@ -13,16 +13,16 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 
 /**
  *
- * @author  Administrator
+ * @author robert@thinkparity.com
  */
 public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCellRenderer {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JLabel collapseIconJLabel = new javax.swing.JLabel();
-    private javax.swing.JLabel iconJLabel;
-    private javax.swing.JLabel textJLabel;
+    private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
-    
+
     /**
      * Create a TopWestCellRenderer
      */
@@ -30,7 +30,7 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
         super();
         initComponents();
     }
-    
+
     /**
      * Create TopWestCellRenderer.
      * 
@@ -54,12 +54,20 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
     }
 
     private void collapseIconJLabelMouseEntered(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_collapseIconJLabelMouseEntered
-        SwingUtil.setCursor(TopWestCellRenderer.this, java.awt.Cursor.HAND_CURSOR);
+        if (!tabPanel.isAnimating()) {
+            SwingUtil.setCursor(TopWestCellRenderer.this, java.awt.Cursor.HAND_CURSOR);
+        }
     }//GEN-LAST:event_collapseIconJLabelMouseEntered
 
     private void collapseIconJLabelMouseExited(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_collapseIconJLabelMouseExited
         SwingUtil.setCursor(TopWestCellRenderer.this, null);
     }//GEN-LAST:event_collapseIconJLabelMouseExited
+
+    private void collapseIconJLabelMouseMoved(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_collapseIconJLabelMouseMoved
+        if (!tabPanel.isAnimating()) {
+            SwingUtil.setCursor(TopWestCellRenderer.this, java.awt.Cursor.HAND_CURSOR);
+        }
+    }//GEN-LAST:event_collapseIconJLabelMouseMoved
 
     private void collapseIconJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_collapseIconJLabelMousePressed
         SwingUtil.setCursor(TopWestCellRenderer.this, null);
@@ -80,9 +88,6 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        iconJLabel = new javax.swing.JLabel();
-        textJLabel = new javax.swing.JLabel();
-
         setLayout(new java.awt.GridBagLayout());
 
         setMaximumSize(new java.awt.Dimension(2147483647, 24));
@@ -102,6 +107,11 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
             }
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 collapseIconJLabelMouseReleased(evt);
+            }
+        });
+        collapseIconJLabel.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseMoved(java.awt.event.MouseEvent evt) {
+                collapseIconJLabelMouseMoved(evt);
             }
         });
 

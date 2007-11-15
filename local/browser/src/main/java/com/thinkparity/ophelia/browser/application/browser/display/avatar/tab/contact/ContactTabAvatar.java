@@ -93,6 +93,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 model.reloadTabActionEnabled();
+                model.reloadConnection();
                 getController().reloadTitle();
             }
         });
@@ -109,6 +110,7 @@ public class ContactTabAvatar extends TabPanelAvatar<ContactTabModel> {
         SwingUtil.ensureDispatchThread(new Runnable() {
             public void run() {
                 model.reloadTabActionEnabled();
+                model.reloadConnection();
                 getController().reloadTitle();
             }
         });

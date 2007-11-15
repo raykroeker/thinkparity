@@ -324,7 +324,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
      * Reload the connection.
      */
     void reloadConnection() {
-        final Boolean online = isOnline();
+        final Boolean online = isOnlineUI();
         for (final TabPanel panel : panels) {
             final ContactTabPanel contactPanel = (ContactTabPanel) panel;
             if (contactPanel.isSetIncomingEMail() || contactPanel.isSetIncomingUser()) {
@@ -880,7 +880,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     private TabPanel toDisplay(final IncomingEMailInvitation invitation) {
         final ContactTabPanel panel = new ContactTabPanel(session);
         panel.setActionDelegate(actionDelegate);
-        panel.setPanelData(isOnline(), invitation);
+        panel.setPanelData(isOnlineUI(), invitation);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
         panel.setSelected(isSelected(panel));
@@ -898,7 +898,7 @@ public final class ContactTabModel extends TabPanelModel<ContactPanelId> impleme
     private TabPanel toDisplay(final IncomingUserInvitation invitation) {
         final ContactTabPanel panel = new ContactTabPanel(session);
         panel.setActionDelegate(actionDelegate);
-        panel.setPanelData(isOnline(), invitation);
+        panel.setPanelData(isOnlineUI(), invitation);
         panel.setPopupDelegate(popupDelegate);
         panel.setExpanded(isExpanded(panel));
         panel.setSelected(isSelected(panel));

@@ -28,6 +28,8 @@ import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.profile.ProfileConstraints;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
+import com.thinkparity.ophelia.model.session.OfflineException;
+
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
@@ -324,13 +326,18 @@ public class CreateOutgoingEMailInvitationAvatar extends Avatar {
         final EMail email = extractInputEMail();
         Boolean restricted = Boolean.TRUE;
         if (null != email) {
-            restricted = ((CreateOutgoingEMailInvitationProvider) contentProvider).readIsInviteRestricted(email);
+            try {
+                restricted = ((CreateOutgoingEMailInvitationProvider) contentProvider).readIsInviteRestricted(email);
+            } catch (final OfflineException ox) {
+                addInputError(getString("ErrorOffline"));
+            }
         }
         if (restricted) {
             addInputError(getString("ErrorInvalidInvitation"));
-            errorMessageJLabel.setText(" ");
-            if (containsInputErrors())
-                errorMessageJLabel.setText(getInputErrors().get(0));
+        }
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors()) {
+            errorMessageJLabel.setText(getInputErrors().get(0));
             okJButton.setEnabled(Boolean.FALSE);
         }
         

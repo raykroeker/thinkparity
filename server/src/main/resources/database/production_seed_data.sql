@@ -35,6 +35,7 @@ insert into TPSD_PAYMENT_PLAN_LOCK(PLAN_ID) select PLAN_ID from TPSD_PAYMENT_PLA
 insert into TPSD_PAYMENT_PLAN(PLAN_NAME,PLAN_UNIQUE_ID,PLAN_BILLABLE,PLAN_CURRENCY,PLAN_OWNER,PLAN_ARREARS,INVOICE_PERIOD,INVOICE_PERIOD_OFFSET,PLAN_PASSWORD) select 'thinkParity Solutions Inc:  VIP','62097e26-d953-4fe4-a8e4-caa1c69622e2','0',CURRENCY_ID,USER_ID,'0','MONTH',1,'kCX47adcNlgXWpwSM0l8Gg==' from TPSD_PAYMENT_CURRENCY,TPSD_USER where CURRENCY_NAME='USD' and USERNAME='thinkparity';
 insert into TPSD_PAYMENT_PLAN_LOCK(PLAN_ID) select PLAN_ID from TPSD_PAYMENT_PLAN where PLAN_UNIQUE_ID='62097e26-d953-4fe4-a8e4-caa1c69622e2';
 -- ophelia configuration
+insert into TPSD_PRODUCT_CFG (PRODUCT_ID,CFG_KEY,CFG_VALUE) select PRODUCT_ID,'com.thinkparity.session.reaper.enabled','true' from TPSD_PRODUCT where PRODUCT_NAME='OpheliaProduct';
+insert into TPSD_PRODUCT_CFG (PRODUCT_ID,CFG_KEY,CFG_VALUE) select PRODUCT_ID,'com.thinkparity.session.reaper.interruptthreshold','3' from TPSD_PRODUCT where PRODUCT_NAME='OpheliaProduct';
 insert into TPSD_PRODUCT_CFG (PRODUCT_ID,CFG_KEY,CFG_VALUE) select PRODUCT_ID,'com.thinkparity.session.reaper.timeout','14400000' from TPSD_PRODUCT where PRODUCT_NAME='OpheliaProduct';
-insert into TPSD_PRODUCT_CFG (PRODUCT_ID,CFG_KEY,CFG_VALUE) select PRODUCT_ID,'com.thinkparity.session.reaper.firstexecutiondelay','14400000' from TPSD_PRODUCT where PRODUCT_NAME='OpheliaProduct';
-insert into TPSD_PRODUCT_CFG (PRODUCT_ID,CFG_KEY,CFG_VALUE) select PRODUCT_ID,'com.thinkparity.session.reaper.recurringexecutionperiod','14400000' from TPSD_PRODUCT where PRODUCT_NAME='OpheliaProduct';
+insert into TPSD_PRODUCT_CFG (PRODUCT_ID,CFG_KEY,CFG_VALUE) select PRODUCT_ID,'com.thinkparity.session.reaper.timeoutmargin','288000' from TPSD_PRODUCT where PRODUCT_NAME='OpheliaProduct';

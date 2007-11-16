@@ -44,13 +44,17 @@ public class CreateOutgoingEMailInvitation extends AbstractBrowserAction {
     public void invoke(final Data data) {
         final EMail email = (EMail) data.get(DataKey.EMAIL);
 
-        if (null == email) {
-            final ProfileEMail profileEMail = getProfileModel().readEMail();
-            final List<Contact> contacts = getContactModel().read();
-            final List<OutgoingEMailInvitation> outgoingEMailInvitations = getContactModel().readOutgoingEMailInvitations();
-            browser.displayCreateOutgoingEMailInvitationDialog(profileEMail, contacts, outgoingEMailInvitations);
-        } else {
-            getContactModel().createOutgoingEMailInvitation(email);
+        if (getProfileModel().isInviteAvailable()
+                && getProfileModel().readIsActive()
+                && getProfileModel().readEMail().isVerified()) {
+            if (null == email) {
+                final ProfileEMail profileEMail = getProfileModel().readEMail();
+                final List<Contact> contacts = getContactModel().read();
+                final List<OutgoingEMailInvitation> outgoingEMailInvitations = getContactModel().readOutgoingEMailInvitations();
+                browser.displayCreateOutgoingEMailInvitationDialog(profileEMail, contacts, outgoingEMailInvitations);
+            } else {
+                getContactModel().createOutgoingEMailInvitation(email);
+            }
         }
     }
 

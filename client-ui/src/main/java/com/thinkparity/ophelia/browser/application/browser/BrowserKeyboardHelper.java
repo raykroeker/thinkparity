@@ -22,7 +22,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTi
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.MainTitleAvatar.TabId;
 
 /**
- * @author rob_masako@shaw.ca
+ * @author robert@thinkparity.com
  * @version $Revision$
  */
 public class BrowserKeyboardHelper extends BrowserHelper {
@@ -94,12 +94,15 @@ public class BrowserKeyboardHelper extends BrowserHelper {
                     getMainWindow().notifyShowPopup();
                 }
             });
-        // insert: create container (if container tab selected)
+        // insert: create container (if container tab selected), or
+        // create outgoing email invitation (if contact tab is selected)
         mainPanel.bindKey(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0),
                 new AbstractAction() {
                     public void actionPerformed(final ActionEvent e) {
                         if (isSelectedContainerTab()) {
                             runCreateContainer();
+                        } else if (isSelectedContactTab()) {
+                            runCreateOutgoingEMailInvitation();
                         }
                     }
                 });
@@ -120,6 +123,15 @@ public class BrowserKeyboardHelper extends BrowserHelper {
      */
     private BrowserWindow getMainWindow() {
         return (BrowserWindow)browserApplication.getMainWindow();
+    }
+
+    /**
+     * Determine if the contact tab is selected.
+     * 
+     * @return True if the contact tab is selected.
+     */
+    private Boolean isSelectedContactTab() {
+        return (TabId.CONTACT == browserApplication.getSelectedTabId());
     }
 
     /**
@@ -150,6 +162,13 @@ public class BrowserKeyboardHelper extends BrowserHelper {
      */
     private void runCreateContainer() {
         browserApplication.runCreateContainer();
+    }
+
+    /**
+     * Run the create outgoing email invitation action.
+     */
+    private void runCreateOutgoingEMailInvitation() {
+        browserApplication.runCreateOutgoingEMailInvitation();
     }
 
     /**

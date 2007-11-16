@@ -180,13 +180,25 @@ public final class SessionReaper implements Runnable,
                 logger.logInfo("The session has not expired.");
             }
             try {
-                Thread.sleep(getSleepMillis(now, latestProcessTime));
+                final long sleepMillis = getSleepMillis(now, latestProcessTime);
+                if (0 > sleepMillis) {
+                    /* we break out of the reaper because we have been "offline"
+                     * longer than we'd like */
+                    logger.logInfo("Terminating session reaper.");
+                    break;
+                } else {
+                    logger.logInfo("Session reaper sleeping.");
+                    Thread.sleep(getSleepMillis(now, latestProcessTime));
+                }
             } catch (final InterruptedException ix) {
                 interruptCount++;
                 logger.logError(ix, "Session reaper interrupted:  {0}/{1}",
                         interruptCount, DEFAULT_INTERRUPT_THRESHOLD);
                 if (interruptCount + 1 > interruptThreshold ) {
                     interruptCount = 0;
+                    /* we break out of the reaper because we have encountered
+                     * too many interrupts (unlikely) */
+                    logger.logInfo("Terminating session reaper.");
                     break;
                 }
             }
@@ -194,7 +206,9 @@ public final class SessionReaper implements Runnable,
     }
 
     /**
-     * Obtain the sleep duration.
+     * Obtain the sleep duration. Note that the sleep duration can be negative
+     * if the session remains offline for a period longer than the last
+     * execution/process time plus the timeout.
      * 
      * @param timeMillis
      *            A <code>long</code>.
@@ -206,8 +220,7 @@ public final class SessionReaper implements Runnable,
             final long latestProcessTimeMillis) {
         final long latest = Math.max(latestExecutionTime, latestProcessTimeMillis);
         logger.logVariable("latest", format(latest));
-        /* make sure we sleep for a positive of time */
-        final long sleep = Math.max(latest + timeout - timeMillis, 0);
+        final long sleep = latest + timeout - timeMillis;
         logger.logVariable("sleep", formatDuration(sleep));
         return sleep;
     }

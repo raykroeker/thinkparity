@@ -46,7 +46,6 @@ import com.thinkparity.codebase.model.util.Token;
 import com.thinkparity.ophelia.model.Constants;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
-import com.thinkparity.ophelia.model.events.SessionAdapter;
 import com.thinkparity.ophelia.model.events.SessionListener;
 import com.thinkparity.ophelia.model.session.daemon.SessionReaper;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
@@ -514,6 +513,8 @@ public final class SessionModelImpl extends Model<SessionListener>
             // fire event
             clearOfflineCodes();
             notifySessionEstablished();
+            // start session reaper
+            startSessionReaper();
         } catch (final InvalidCredentialsException icx) {
             throw icx;
         } catch (final Throwable t) {
@@ -565,6 +566,8 @@ public final class SessionModelImpl extends Model<SessionListener>
                     // fire event
                     clearOfflineCodes();
                     notifySessionEstablished();
+                    // start session reaper
+                    startSessionReaper();
                 } else {
                     getMigratorModel().startDownloadRelease();
                 }
@@ -1080,27 +1083,6 @@ public final class SessionModelImpl extends Model<SessionListener>
             offlineCodes.push(OfflineCode.CLIENT_OFFLINE);
             setOfflineCodes(offlineCodes);
         }
-        /* on first login; start the session reaper */
-        addListener(new SessionAdapter() {
-            /**
-             * @see com.thinkparity.ophelia.model.events.SessionAdapter#sessionEstablished()
-             *
-             */
-            @Override
-            public void sessionEstablished() {
-                if (isReaperEnabled()) {
-                    logger.logInfo("Session reaper has been enabled.");
-                    if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_REAPER)) {
-                        logger.logInfo("Session reaper has been started.");
-                    } else {
-                        logger.logInfo("Session reaper has not been started.");
-                        startSessionReaper();
-                    }
-                } else {
-                    logger.logInfo("Session reaper has not been enabled.");
-                }
-            }
-        });
     }
 
     /**
@@ -1338,8 +1320,31 @@ public final class SessionModelImpl extends Model<SessionListener>
      * 
      */
     private void startSessionReaper() {
-        final SessionReaper sessionReaper = newSessionReaper();
-        workspace.setAttribute(WS_ATTRIBUTE_KEY_REAPER, sessionReaper);
-        workspace.newThread("SessionReaper", sessionReaper).start();
+        if (isReaperEnabled()) {
+            logger.logInfo("Session reaper is enabled.");
+            if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_REAPER)) {
+                logger.logInfo("Session reaper is started.");
+            } else {
+                logger.logInfo("Session reaper is not started.");
+                final SessionReaper sessionReaper = newSessionReaper();
+                workspace.setAttribute(WS_ATTRIBUTE_KEY_REAPER, sessionReaper);
+                workspace.newThread("SessionReaper", new Runnable() {
+                    /**
+                     * @see java.lang.Runnable#run()
+                     * 
+                     */
+                    @Override
+                    public void run() {
+                        try {
+                            sessionReaper.run();
+                        } finally {
+                            workspace.removeAttribute(WS_ATTRIBUTE_KEY_REAPER);
+                        }
+                    }
+                }).start();
+            }
+        } else {
+            logger.logInfo("Session reaper is not enabled.");
+        }
     }
 }

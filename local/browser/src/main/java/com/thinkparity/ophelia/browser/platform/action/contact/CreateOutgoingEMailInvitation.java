@@ -54,6 +54,9 @@ public class CreateOutgoingEMailInvitation extends AbstractBrowserAction {
                 browser.displayCreateOutgoingEMailInvitationDialog(profileEMail, contacts, outgoingEMailInvitations);
             } else {
                 getContactModel().createOutgoingEMailInvitation(email);
+
+                // Clear search and filter
+                browser.showAllTabPanels();
             }
         }
     }

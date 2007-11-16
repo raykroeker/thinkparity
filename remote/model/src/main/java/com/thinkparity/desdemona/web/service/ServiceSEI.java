@@ -65,9 +65,18 @@ public abstract class ServiceSEI {
     /**
      * Create a new authentication specific service exception.
      * 
+     * @return An <code>AuthException</code>.
+     */
+    private AuthException newAuthException() {
+        return new AuthException();
+    }
+
+    /**
+     * Create a new authentication specific service exception.
+     * 
      * @param authToken
      *            An <code>AuthToken</code>.
-     * @return A <code>ServiceException</code>.
+     * @return An <code>AuthException</code>.
      */
     private AuthException newAuthException(final AuthToken authToken) {
         return new AuthException(authToken);
@@ -83,7 +92,7 @@ public abstract class ServiceSEI {
     private User readSessionUser(final AuthToken authToken) {
         final Session session;
         if (null == authToken) {
-            throw newAuthException(authToken);
+            throw newAuthException();
         } else {
             session = sessionModel.readSession(authToken.getSessionId());
             if (null == session) {

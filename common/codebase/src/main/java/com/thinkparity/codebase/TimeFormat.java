@@ -78,27 +78,27 @@ public final class TimeFormat {
             }
         case DAYS:
             format = FORMAT;
-            arguments[0] = duration / 1000L / 60L / 60L / 24L;
+            arguments[0] = Float.valueOf((float) duration / 1000F / 60F / 60F / 24F);
             arguments[1] = BUNDLE.getString("Days");
             break;
         case HOURS:
             format = FORMAT;
-            arguments[0] = duration / 1000L / 60L / 60L;
+            arguments[0] = Float.valueOf((float) duration / 1000F / 60F / 60F);
             arguments[1] = BUNDLE.getString("Hours");
             break;
         case MILLISECONDS:
             format = BASE_FORMAT;
-            arguments[0] = duration;
+            arguments[0] = Float.valueOf((float) duration);
             arguments[1] = BUNDLE.getString("MilliSeconds");
             break;
         case MINUTES:
             format = FORMAT;
-            arguments[0] = duration / 1000L / 60L;
+            arguments[0] = Float.valueOf((float) duration / 1000F / 60F);
             arguments[1] = BUNDLE.getString("Minutes");
             break;
         case SECONDS:
             format = FORMAT;
-            arguments[0] = duration / 1000L;
+            arguments[0] = Float.valueOf((float) duration / 1000F);
             arguments[1] = BUNDLE.getString("Seconds");
             break;
         default:

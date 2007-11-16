@@ -48,7 +48,7 @@ import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
 import com.thinkparity.ophelia.model.events.SessionAdapter;
 import com.thinkparity.ophelia.model.events.SessionListener;
-import com.thinkparity.ophelia.model.session.deamon.SessionReaper;
+import com.thinkparity.ophelia.model.session.daemon.SessionReaper;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.configuration.ReconfigureEvent;
 import com.thinkparity.ophelia.model.util.configuration.ReconfigureListener;
@@ -1339,6 +1339,6 @@ public final class SessionModelImpl extends Model<SessionListener>
     private void startSessionReaper() {
         final SessionReaper sessionReaper = newSessionReaper();
         workspace.setAttribute(WS_ATTRIBUTE_KEY_REAPER, sessionReaper);
-        workspace.schedule(sessionReaper, sessionReaper);
+        workspace.newThread("SessionReaper", sessionReaper).start();
     }
 }

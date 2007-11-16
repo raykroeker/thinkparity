@@ -324,7 +324,11 @@ public final class QueueModelImpl extends Model<EventListener> implements
                                         logger.logWarning("A network error has occured.  {0}",
                                                 ox.getMessage());
                                     } finally {
-                                        removeQueueProcessor(id);
+                                        try {
+                                            removeQueueProcessor(id);
+                                        } finally {
+                                            setLatestProcessTime();
+                                        }
                                     }
                                 }
                         

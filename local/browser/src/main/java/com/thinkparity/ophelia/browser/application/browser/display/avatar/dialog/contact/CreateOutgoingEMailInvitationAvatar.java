@@ -48,6 +48,7 @@ import com.thinkparity.ophelia.browser.platform.util.State;
 public class CreateOutgoingEMailInvitationAvatar extends Avatar {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JButton cancelJButton = ButtonFactory.create();
     private final javax.swing.JTextField emailJTextField = TextFactory.create();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JButton okJButton = ButtonFactory.create();
@@ -67,6 +68,7 @@ public class CreateOutgoingEMailInvitationAvatar extends Avatar {
         initEMailDelimiters();
         addValidationListener(emailJTextField);
         initFocusListeners();
+        initFocusListenerOKButton();
         bindEscapeKey();
     }
 
@@ -198,7 +200,6 @@ public class CreateOutgoingEMailInvitationAvatar extends Avatar {
     private void initComponents() {
         final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel emailJLabel = new javax.swing.JLabel();
-        final javax.swing.JButton cancelJButton = ButtonFactory.create();
 
         explanationJLabel.setFont(Fonts.DialogFont);
         explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("CreateOutgoingEMailInvitationAvatar.Explanation"));
@@ -291,14 +292,32 @@ public class CreateOutgoingEMailInvitationAvatar extends Avatar {
      */
     private void initFocusListeners() {
         final FocusListener focusListener = new FocusListener() {
-            public void focusGained(FocusEvent e) {
+            public void focusGained(final FocusEvent e) {
                 validateInput();
             }
-            public void focusLost(FocusEvent e) {
+            public void focusLost(final FocusEvent e) {
                 validateInput();
             }
         };
         emailJTextField.addFocusListener(focusListener);
+    }
+
+    /**
+     * Initialize the focus listener for the OK button.
+     * 
+     * This ensures the OK button does not have focus if the
+     * user tabs to it and then it becomes disabled.
+     */
+    private void initFocusListenerOKButton() {
+        okJButton.addFocusListener(new FocusListener() {
+            public void focusGained(final FocusEvent e) {
+                if (!okJButton.isEnabled()) {
+                    cancelJButton.requestFocusInWindow();
+                }
+            }
+            public void focusLost(final FocusEvent e) {
+            }
+        });
     }
 
     /**

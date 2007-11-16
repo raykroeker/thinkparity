@@ -330,6 +330,7 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     public AuthToken getAuthToken() {
         if (workspace.isSetAttribute(WS_ATTRIBUTE_KEY_AUTH_TOKEN)) {
+            logger.logInfo("Authentication token is not null.");
             /* determine whether or not the authentication token has expired; if
              * so, re-login and set a new authentication token */
             final AuthToken authToken =
@@ -347,8 +348,8 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return authToken;
             }
         } else {
-            logger.logError("User session is null.");
-            return null;
+            logger.logInfo("Authentication token is null.");
+            throw new OfflineException();
         }
     }
 

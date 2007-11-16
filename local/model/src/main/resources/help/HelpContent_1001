@@ -14,6 +14,6 @@ When a document is added to thinkParity, a copy of the file is created and store
 
 A number of other actions are available when you right-click on the document. You can remove the document, undelete the document, and revert the changes that you made to it. If the document has not been published yet, you can also rename it.
 
-<p>To print a document, open it by clicking on the document icon and print as you normally would. To print all of the documents in the Working Version, right-click on the Working Version and select 'Print'.
+<p>To print a document, open it by clicking on the document icon and print as you normally would. To print all of the documents in the Working Version, right-click on the Working Version and select 'Print Working Version'.
 
 To add a note associated with the version, right-click on the Working Version and select 'Edit note'. Alternatively, click on the Working Version icon.

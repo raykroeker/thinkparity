@@ -2,7 +2,10 @@ All of your contacts are stored and organized in the Contacts tab, similar to an
 
 To view contact details, click the '+' icon to the left of the contact name.
 
-<p>There are two ways a person can become your contact. In the expanded package, right click on a person who you would like to be your contact and select 'invite' from the menu. Or, in the publish dialog, type the e-mail address of the person. The person will receive an invitation from you.
+<p>There are three ways to invite a person to be your contact.
+  * On the Contacts tab, click the 'Contacts' link. In the dialog that appears, type the person's e-mail address.
+  * Type the person's e-mail address in the publish dialog, when you are publishing a package.
+  * Expand a package, right click on the person you would like to invite, and select 'invite' from the menu.
 
 If the person you invite is not a thinkParity user, he will receive an e-mail on your behalf inviting him to become a member of thinkParity and use the service for free as your guest.
 

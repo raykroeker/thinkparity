@@ -19,8 +19,4 @@ create table TPSD_USER_PRODUCT_CFG(
     foreign key(USER_ID) references TPSD_USER(USER_ID),
     foreign key(CFG_ID) references TPSD_PRODUCT_CFG(CFG_ID)
 );
-insert into TPSD_PRODUCT_CFG (PRODUCT_ID,CFG_KEY,CFG_VALUE) select PRODUCT_ID,'com.thinkparity.session.reaper.enabled','true' from TPSD_PRODUCT where PRODUCT_NAME='OpheliaProduct';
-insert into TPSD_PRODUCT_CFG (PRODUCT_ID,CFG_KEY,CFG_VALUE) select PRODUCT_ID,'com.thinkparity.session.reaper.interruptthreshold','3' from TPSD_PRODUCT where PRODUCT_NAME='OpheliaProduct';
-insert into TPSD_PRODUCT_CFG (PRODUCT_ID,CFG_KEY,CFG_VALUE) select PRODUCT_ID,'com.thinkparity.session.reaper.timeout','14400000' from TPSD_PRODUCT where PRODUCT_NAME='OpheliaProduct';
-insert into TPSD_PRODUCT_CFG (PRODUCT_ID,CFG_KEY,CFG_VALUE) select PRODUCT_ID,'com.thinkparity.session.reaper.timeoutmargin','288000' from TPSD_PRODUCT where PRODUCT_NAME='OpheliaProduct';
-
+insert into TPSD_PRODUCT_CFG (PRODUCT_ID,CFG_KEY,CFG_VALUE) select PRODUCT_ID,'com.thinkparity.session.reaper.enabled','false' from TPSD_PRODUCT where PRODUCT_NAME='OpheliaProduct';

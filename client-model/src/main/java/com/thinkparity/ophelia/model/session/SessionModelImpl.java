@@ -920,7 +920,13 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     public List<Feature> readMigratorProductFeatures(final String name) {
         try {
-            return migratorService.readProductFeatures(getAuthToken(), name);
+            if (isSetAuthToken()) {
+                return migratorService.readProductFeatures(getAuthToken(), name);
+            } else {
+                /* HACK - ProfileModelImpl#newEmptyAuthToken() - here we need to ensure
+                 * correct client id; client version */
+                return migratorService.readProductFeatures(null, name);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }

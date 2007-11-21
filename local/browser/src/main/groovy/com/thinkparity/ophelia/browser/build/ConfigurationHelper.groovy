@@ -89,6 +89,7 @@ class ConfigurationHelper {
         configuration["thinkparity.target.package-dir"] = extractTargetPackageDir()
         configuration["thinkparity.target.package.image-dir"] = extractTargetPackageImageDir()
         configuration["thinkparity.target.package.image.archive-file"] = extractTargetPackageImageArchiveFile()
+        configuration["thinkparity.target.package.image.bin-dir"] = extractTargetPackageImageBinDir()
         configuration["thinkparity.target.package.image.core-dir"] = extractTargetPackageImageCoreDir()
         configuration["thinkparity.target.package.image.lib-dir"] = extractTargetPackageImageLibDir()
         configuration["thinkparity.target.package.image.lib.native-dir"] = extractTargetPackageImageLibNativeDir()
@@ -169,6 +170,15 @@ class ConfigurationHelper {
     Environment extractEnvironment() {
         def environment = Environment.valueOf(properties["thinkparity.environment"])
         return environment
+    }
+
+    /**
+     * Extract the image core directory name.
+     *
+     * @return The directory name <code>String</code>.
+     */
+    String extractImageBinDirname() {
+        return "bin"
     }
 
     /**
@@ -287,6 +297,15 @@ class ConfigurationHelper {
      */
     File extractTargetPackageImageArchiveFile() {
         return new File(extractTargetPackageDir(), "${extractReleaseName()}.zip")
+    }
+
+    /**
+     * Extract the package directory.
+     *
+     * @return A package directory <code>File</code>.
+     */
+    File extractTargetPackageImageBinDir() {
+        return new File(extractTargetPackageImageDir(), extractImageBinDirname())
     }
 
     /**

@@ -40,12 +40,16 @@ class PackageImageTask {
         def classesDir = configuration["thinkparity.target.classes-dir"]
         def nativeDir = configuration["thinkparity.target.native-dir"]
         def imageDir = configuration["thinkparity.target.package.image-dir"]
+        def imageBinDir = configuration["thinkparity.target.package.image.bin-dir"]
         def imageCoreDir = configuration["thinkparity.target.package.image.core-dir"]
         def imageLibDir = configuration["thinkparity.target.package.image.lib-dir"]
         def imageLibNativeDir = configuration["thinkparity.target.package.image.lib.native-dir"]
 
+        def dependencies = new DependencyTracker().getDependencies(Dependency.Scope.RUN)
+
         ant.sequential {
             mkdir(dir:imageDir)
+			mkdir(dir:imageBinDir)
             mkdir(dir:imageCoreDir)
             mkdir(dir:imageLibDir)
             mkdir(dir:imageLibNativeDir)
@@ -110,6 +114,30 @@ class PackageImageTask {
                     include(name:"com/thinkparity/service/")
                 }
             }
+            // /core/support.jar
+            def supportClassPath = "codebase.jar"
+			for (dependency in dependencies) {
+                if (dependency.getType().equals(Dependency.Type.JAVA)) {
+	                supportClassPath += " ../"
+	                supportClassPath += imageLibDir.getName()
+	                supportClassPath += "/"
+	                supportClassPath += dependency.getLocation().getName()
+	            }
+            }
+            jar(destfile:new File(imageCoreDir,"support.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
+				manifest {
+                    attribute(name:"Main-Class",value:"com.thinkparity.ophelia.support.Support")
+                    attribute(name:"Class-Path",value:"${supportClassPath}")
+                }
+                fileset(dir:classesDir) {
+                    include(name:"com/thinkparity/")
+                    include(name:"com/thinkparity/codebase/")
+                    include(name:"com/thinkparity/ophelia/browser/")
+                    include(name:"com/thinkparity/ophelia/support/")
+					include(name:"images/")
+                    include(name:"localization/UIMessages*")
+                }
+            }
             // /lib/*.jar
             copy(todir:imageLibDir) {
                 fileset(refid:"run.dependencies-java")
@@ -120,12 +148,12 @@ class PackageImageTask {
                 fileset(dir:nativeDir) {
                     include(name:"Win32WindowUtil.dll")
                     include(name:"Win32FirewallUtil.dll")
+                    include(name:"Win32ProcessUtil.dll")
                 }
                 mapper(type:"flatten")
             }
         }
         // /thinkParityImage.properties
-        def dependencies = new DependencyTracker().getDependencies(Dependency.Scope.RUN)
         def imageProperties = new File(imageDir,"thinkParityImage.properties")
         ant.delete(file:imageProperties)
         imageProperties.withWriterAppend(configuration["thinkparity.charset-name"], { writer ->

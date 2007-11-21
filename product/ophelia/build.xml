@@ -234,6 +234,13 @@ Local Configuration:            ${localconfig}
             <classpath refid="compile.classpath"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
+        <!-- support -->
+        <javac srcdir="support/src/main/java"
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="compile.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
     </target>
 
     <!-- compile-win32 -->
@@ -401,6 +408,7 @@ Examples:
             <fileset dir="${thinkparity.common.home}/services/src/main/resources"/>
             <fileset dir="${basedir}/local/browser/src/main/resources"/>
             <fileset dir="${basedir}/local/model/src/main/resources"/>
+            <fileset dir="${basedir}/support/src/main/resources"/>   
         </copy>
         <copy todir="${target.classes.dir}">
             <fileset dir="${basedir}/local/browser/src/main/filters"/>
@@ -554,6 +562,36 @@ Examples:
         <property name="thinkparity.jre-dir" value="${antx.vendor-dir}/i686/${thinkparity.os-platform}/sun.com/jre1.6.0_01"/>
         <taskdef name="groovy" classname="org.codehaus.groovy.ant.Groovy" classpathref="groovy.classpath"/>
         <groovy src="${basedir}/local/browser/src/main/groovy/PackageImageTask.groovy"/>
+     </target>
+
+     <!-- package-image-win32 -->
+     <target name="package-image-win32">
+        <property name="tps.image" value="${target.package.dir}/${thinkparity.release-name}"/>
+        <property name="tps.image-bin" value="${tps.image}/bin"/>
+        <property name="tps.image-core" value="${tps.image}/core"/>
+        <delete dir="${tps.image-bin}"/>
+        <mkdir dir="${tps.image-bin}"/>  
+        <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpathref="launch4j.classpath"/>  
+        <launch4j>
+            <config dontWrapJar="true" headerType="0" jarPath="..\core\support.jar"
+                outfile="${tps.image-bin}/thinkParity Support.exe"
+                errTitle="thinkParity - Error" customProcName="true"
+                stayAlive="false"
+                icon="${target.classes.dir}/images/ThinkParity32x32.ico">
+                <jre path="../../jre1.6.0_01"
+                    args="-Djava.library.path=..\lib\win32 -Dthinkparity-executable=..\..\\thinkParity.exe -Dthinkparity-directory=..\.. -Dthinkparity.mode=${thinkparity.mode} -Dthinkparity.environment=${thinkparity.environment} -Dthinkparity.image-executable=..\jre1.6.0_01\bin\javaw.exe"/>
+                    <versionInfo fileVersion="1.0.0.0"
+                        txtFileVersion="${thinkparity.release-name}"
+                        fileDescription="thinkParity(TM) Support Platform"
+                        copyright="Copyright(C) 2007"
+                        productVersion="1.0.0.0"
+                        txtProductVersion="${thinkparity.release-name}"
+                        productName="thinkParity(TM)"
+                        companyName="thinkParity Solutions Inc."
+                        internalName="thinkParity Support"
+                        originalFilename="thinkParity Support.exe"/>
+            </config>
+        </launch4j>   
     </target>
 
     <!-- package -->

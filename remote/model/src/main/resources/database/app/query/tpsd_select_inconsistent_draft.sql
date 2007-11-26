@@ -1,0 +1,6 @@
+select *
+from TPSD_ARTIFACT where ARTIFACT_DRAFT_OWNER <> 7000
+    and ARTIFACT_UNIQUE_ID not in
+        (select A.ARTIFACT_UNIQUE_ID
+        from ARTIFACT A
+        inner join CONTAINER_DRAFT CD on CD.CONTAINER_ID=A.ARTIFACT_ID);

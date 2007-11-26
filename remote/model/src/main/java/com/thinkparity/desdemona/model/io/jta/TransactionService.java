@@ -113,10 +113,10 @@ public final class TransactionService {
      */
     private XADataSourcePool newDataSource() throws SQLException {
         final XADataSourceConfiguration xaDataSourceConfiguration = new XADataSourceConfiguration();
-        xaDataSourceConfiguration.setProperty(Key.DRIVER, System.getProperty("thinkparity.datasource-driver"));
-        xaDataSourceConfiguration.setProperty(Key.PASSWORD, System.getProperty("thinkparity.datasource-password")); 
-        xaDataSourceConfiguration.setProperty(Key.URL, System.getProperty("thinkparity.datasource-url")); 
-        xaDataSourceConfiguration.setProperty(Key.USER, System.getProperty("thinkparity.datasource-user"));
+        xaDataSourceConfiguration.setProperty(Key.DRIVER, System.getProperty("thinkparity.app.datasource-driver"));
+        xaDataSourceConfiguration.setProperty(Key.PASSWORD, System.getProperty("thinkparity.app.datasource-password")); 
+        xaDataSourceConfiguration.setProperty(Key.URL, System.getProperty("thinkparity.app.datasource-url")); 
+        xaDataSourceConfiguration.setProperty(Key.USER, System.getProperty("thinkparity.app.datasource-user"));
         return new XADataSourcePool(new XADataSource(xaDataSourceConfiguration));
     }
 

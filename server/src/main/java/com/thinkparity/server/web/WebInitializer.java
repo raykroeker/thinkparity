@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
@@ -47,6 +48,7 @@ import com.thinkparity.desdemona.model.profile.payment.PaymentService;
 import com.thinkparity.desdemona.model.queue.QueueItem;
 import com.thinkparity.desdemona.model.queue.notification.NotificationService;
 
+import com.thinkparity.desdemona.service.application.ApplicationService;
 import com.thinkparity.desdemona.service.persistence.PersistenceService;
 
 import com.thinkparity.desdemona.util.DesdemonaProperties;
@@ -61,6 +63,7 @@ import com.thinkparity.desdemona.web.service.Service;
 import com.thinkparity.desdemona.web.service.Services;
 
 import org.apache.log4j.PropertyConfigurator;
+import org.quartz.SchedulerException;
 
 /**
  * <b>Title:</b>thinkParity Desdemona Web Listener<br>
@@ -100,6 +103,7 @@ public final class WebInitializer implements ServletContextListener {
         stopBackup();
         stopMigrator();
         stopNotification();
+        stopApplication();
         stopNode();
         stopIO();
         stopTransaction();
@@ -143,10 +147,10 @@ public final class WebInitializer implements ServletContextListener {
         loadConfiguration(configurationURL, properties);
 
         setSystemProperty(properties, "thinkparity.release-name");
-        setSystemProperty(properties, "thinkparity.datasource-driver");
-        setSystemProperty(properties, "thinkparity.datasource-url");
-        setSystemProperty(properties, "thinkparity.datasource-user");
-        setSystemProperty(properties, "thinkparity.datasource-password");
+        setSystemProperty(properties, "thinkparity.app.datasource-driver");
+        setSystemProperty(properties, "thinkparity.app.datasource-url");
+        setSystemProperty(properties, "thinkparity.app.datasource-user");
+        setSystemProperty(properties, "thinkparity.app.datasource-password");
 
         properties.println(System.out);
         final StringBuffer buffer = new StringBuffer();
@@ -157,6 +161,7 @@ public final class WebInitializer implements ServletContextListener {
         startTransaction(properties);
         startIO(properties);
         startNode(properties);
+        startApplication(properties);
         startNotification(properties);
         startMigrator(properties);
         startBackup(properties);
@@ -246,6 +251,29 @@ public final class WebInitializer implements ServletContextListener {
     private void setSystemProperty(final Properties properties,
             final String name) {
         System.setProperty(name, properties.getProperty(name));
+    }
+
+    /**
+     * Start the application service.
+     * 
+     * @param properties
+     *            A <code>DesdemonaProperties</code>.
+     */
+    private void startApplication(final DesdemonaProperties properties) {
+        logger.logTraceId();
+        logger.logInfo("Starting application service.");
+        try {
+            ApplicationService.getInstance().start(properties);
+        } catch (final ClassNotFoundException cnfx) {
+            failStart(cnfx, "Could not start application service.");
+        } catch (final IOException iox) {
+            failStart(iox, "Could not start application service.");
+        } catch (final ParseException px) {
+            failStart(px, "Could not start application service.");
+        } catch (final SchedulerException sx) {
+            failStart(sx, "Could not start application service.");
+        }
+        logger.logInfo("Application service started.");
     }
 
     /**
@@ -358,7 +386,11 @@ public final class WebInitializer implements ServletContextListener {
     private void startPersistence(final DesdemonaProperties properties) {
         logger.logTraceId();
         logger.logInfo("Starting persistence service.");
-        PersistenceService.getInstance().start(properties);
+        try {
+            PersistenceService.getInstance().start(properties);
+        } catch (final Throwable t) {
+            failStart(t, "Could not start persistence service.");
+        }
         logger.logInfo("Persistence service started.");
     }
 
@@ -387,6 +419,21 @@ public final class WebInitializer implements ServletContextListener {
         transactionService = TransactionService.getInstance();
         transactionService.start();
         logger.logInfo("Transaction service started.");
+    }
+
+    /**
+     * Stop the application service.
+     * 
+     */
+    private void stopApplication() {
+        logger.logTraceId();
+        logger.logInfo("Stopping application service.");
+        try {
+            ApplicationService.getInstance().stop();
+        } catch (final SchedulerException sx) {
+            logger.logError(sx, "Error stopping application service.");
+        }
+        logger.logInfo("Application service stopped.");
     }
 
     /**

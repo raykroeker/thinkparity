@@ -50,6 +50,11 @@ public interface Constants {
         public static final String XMPP_DOMAIN = "xmpp.domain";
     }
 
+    public static final class Messaging {
+        public static final Long INCREMENT = 1L;
+        public static final Long START = 1L;
+    }
+
     /** Product Constants */
     public static final class Product {
         /** Desdemona Product Constants */
@@ -80,8 +85,8 @@ public interface Constants {
     public static final class Security {
         public static final class Encryption {
             public static final String ALGORITHM = "AES";
-            public static final Integer KEY_SIZE = 128;
             public static final Integer INTERNAL_KEY_SIZE = 256;
+            public static final Integer KEY_SIZE = 128;
         }
         public static final class KeyStore {
             public static final char[] CLIENT_PASS = "password".toCharArray();

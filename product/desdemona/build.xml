@@ -229,6 +229,8 @@ Local Configuration:                ${localconfig}
         version="2.0.10" path="jotm/2.0.10/xapool.jar"/>
     <antx:dependency type="java" scope="compile" provider="objectweb.org"
         version="2.0.10" path="jotm/2.0.10/ow_carol.jar"/>
+    <antx:dependency type="java" scope="compile" provider="opensymphony.com"
+        version="1.6.0" path="opensymphony.com/quartz/1.6.0/quartz.jar"/>
     <antx:dependency type="java" scope="compile" provider="sun.com"
         version="2.3" path="sun.com/servlet/2.3/servlet.zip"/>
 	<antx:dependency type="java" scope="compile" provider="moneris.com"

@@ -4,18 +4,10 @@
 package com.thinkparity.desdemona.model.session;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity Desdemona Model Internal Session Model<br>
  * <b>Description:</b><br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public interface InternalSessionModel extends SessionModel {
-
-    /**
-     * Read the user's session.
-     * 
-     * @return A <code>Session</code>.
-     */
-    public Session read();
-}
+public interface InternalSessionModel extends SessionModel {}

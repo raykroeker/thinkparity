@@ -995,6 +995,23 @@ public final class HypersonicSession {
         }
     }
 
+    public void setXMLString(final Integer index, final Object value) {
+        assertConnectionIsOpen();
+        assertPreparedStatementIsSet();
+        logColumnInjection(index, value);
+        try {
+            if (null == value) {
+                preparedStatement.setNull(index, Types.VARCHAR);
+            } else {
+                final StringWriter valueWriter = new StringWriter();
+                XSTREAM_UTIL.toXML(value, valueWriter);
+                preparedStatement.setString(index, valueWriter.toString());
+            }
+        } catch (final SQLException sqlx) {
+            throw panic(sqlx);
+        }
+    }
+
     /**
 	 * Obtain the database metadata.
 	 * 

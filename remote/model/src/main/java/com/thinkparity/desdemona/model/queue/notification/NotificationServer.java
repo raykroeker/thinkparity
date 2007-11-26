@@ -13,6 +13,10 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.user.User;
 
+import com.thinkparity.desdemona.model.admin.message.MessageBus;
+
+import com.thinkparity.desdemona.service.application.ApplicationService;
+
 import com.thinkparity.desdemona.util.DesdemonaProperties;
 
 /**
@@ -45,6 +49,9 @@ final class NotificationServer {
     /** A <code>Log4JWrapper</code>. */
     private final Log4JWrapper logger;
 
+    /** A queue notification message bus. */
+    private final MessageBus messageBus;
+
     /** The socket server. */
     private final NotificationSocketServer socketServer;
 
@@ -57,6 +64,8 @@ final class NotificationServer {
         final DesdemonaProperties properties = DesdemonaProperties.getInstance();
         this.logger = new Log4JWrapper(getClass());
         this.charset = Charset.forName(properties.getProperty("thinkparity.queue.notification-charset"));
+        final ApplicationService applicationService = ApplicationService.getInstance();
+        this.messageBus = MessageBus.getInstance(applicationService.getUser(), "/com/thinkparity/queue");
         final String bindHost = properties.getProperty("thinkparity.queue.notification.bind-host");
         final Integer bindPort = Integer.valueOf(properties.getProperty("thinkparity.queue.notification.bind-port"));
         this.socketServer = new NotificationSocketServer(this, bindHost, bindPort);
@@ -120,8 +129,14 @@ final class NotificationServer {
         synchronized (SESSIONS) {
             sessionId = USER_SESSION_LOOKUP.get(user.getLocalId());
         }
-        if (null != sessionId) {
-            removeSession(sessionId);
+        if (null == sessionId) {
+            deliverMessage("queue/notify/session/created", session, user);
+            logger.logInfo("Notify session {0} created for user {1}.",
+                    session.getId(), user.getSimpleUsername());
+        } else {
+            deliverMessage("queue/notify/session/extended", session);
+            logger.logInfo("Notify session {0} extended.", session.getId());
+            removeSessionInternal(sessionId);
         }
         synchronized (SESSIONS) {
             SESSIONS.put(session.getId(), session);
@@ -155,17 +170,9 @@ final class NotificationServer {
      *         no such session existed.
      */
     ServerNotificationSession removeSession(final String sessionId) {
-        synchronized (SESSIONS) {
-            final Long userId = SESSION_USER_LOOKUP.get(sessionId);
-            if (null == userId) {
-                logger.logWarning(
-                        "Notification session {0} has been disconnected.",
-                        sessionId);
-            }
-            SESSION_USER_LOOKUP.remove(sessionId);
-            USER_SESSION_LOOKUP.remove(userId);
-            return SESSIONS.remove(sessionId);
-        }
+        deliverMessage("queue/notify/session/destroyed", sessionId);
+        logger.logInfo("Notify session {0} destroyed.", sessionId);
+        return removeSessionInternal(sessionId);
     }
 
     /**
@@ -185,6 +192,8 @@ final class NotificationServer {
                 logger.logWarning("Session for user {0} has been disconnected.",
                         user.getUsername());
             } else {
+                deliverMessage("queue/notify/session/notified", session);
+                logger.logInfo("Notify session {0} notified.", session.getId());
                 delegate.sendNotify();
             }
         }
@@ -212,5 +221,77 @@ final class NotificationServer {
         logger.logInfo("Stopping notification server.");
         socketServer.stop(wait);
         logger.logInfo("Notification server stopped.");
+    }
+
+    /**
+     * Deliver a message.
+     * 
+     * @param message
+     *            A <code>String</code>.
+     */
+    private void deliverMessage(final String message,
+            final ServerNotificationSession session) {
+        deliverMessage(message, session.getId());
+    }
+
+    /**
+     * Deliver a message.
+     * 
+     * @param message
+     *            A <code>String</code>.
+     */
+    private void deliverMessage(final String message,
+            final ServerNotificationSession session, final User user) {
+        deliverMessage(message, session.getId(), user.getSimpleUsername());
+    }
+
+    /**
+     * Deliver a message.
+     * 
+     * @param message
+     *            A <code>String</code>.
+     * @param sessionId
+     *            A <code>String</code>.
+     */
+    private void deliverMessage(final String message, final String sessionId) {
+        messageBus.setString("sessionId", sessionId);
+        messageBus.deliver(message);
+    }
+
+    /**
+     * Deliver a message.
+     * 
+     * @param message
+     *            A <code>String</code>.
+     * @param sessionId
+     *            A <code>String</code>.
+     */
+    private void deliverMessage(final String message, final String sessionId,
+            final String username) {
+        messageBus.setString("sessionId", sessionId);
+        messageBus.setString("username", username);
+        messageBus.deliver(message);
+    }
+
+    /**
+     * Remove a session.
+     * 
+     * @param sessionId
+     *            A <code>String</code>.
+     * @return A <code>ServerNotificationSession</code>.
+     */
+    private ServerNotificationSession removeSessionInternal(
+            final String sessionId) {
+        synchronized (SESSIONS) {
+            final Long userId = SESSION_USER_LOOKUP.get(sessionId);
+            if (null == userId) {
+                logger.logWarning(
+                        "Notification session {0} has been disconnected.",
+                        sessionId);
+            }
+            SESSION_USER_LOOKUP.remove(sessionId);
+            USER_SESSION_LOOKUP.remove(userId);
+            return SESSIONS.remove(sessionId);
+        }
     }
 }

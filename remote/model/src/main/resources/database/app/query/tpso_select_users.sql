@@ -1,0 +1,2 @@
+select U.USER_ID,U.JABBER_ID
+from PARITY_USER U

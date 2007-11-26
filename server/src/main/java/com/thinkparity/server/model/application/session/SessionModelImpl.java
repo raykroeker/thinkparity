@@ -16,6 +16,7 @@ import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants;
+import com.thinkparity.desdemona.model.admin.message.MessageBus;
 import com.thinkparity.desdemona.model.io.sql.SessionSql;
 import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.migrator.InternalMigratorModel;
@@ -32,6 +33,9 @@ import com.thinkparity.service.AuthToken;
  */
 public final class SessionModelImpl extends AbstractModelImpl implements
         SessionModel, InternalSessionModel {
+
+    /** A message bus. */
+    private MessageBus messageBus;
 
     /** A session sql interface. */
     private SessionSql sessionSql;
@@ -63,6 +67,7 @@ public final class SessionModelImpl extends AbstractModelImpl implements
      */
     public AuthToken login(final Credentials credentials)
             throws InvalidCredentialsException {
+        validate(credentials);
         try {
             final User user = userSql.read(encryptPassword(credentials));
             if (null == user) {
@@ -72,6 +77,9 @@ public final class SessionModelImpl extends AbstractModelImpl implements
                 final String sessionId = newSessionId();
                 final Session session = newSession(sessionId, user);
                 sessionSql.create(user.getLocalId(), sessionId, session);
+                deliverMessage("session/created", session, user);
+                logger.logInfo("Session {0} created for user {1}.",
+                        session.getId(), user.getSimpleUsername());
                 return newAuthToken(session);
             }
         } catch (final InvalidCredentialsException icx) {
@@ -89,33 +97,17 @@ public final class SessionModelImpl extends AbstractModelImpl implements
         try {
             final Session session = readSession(sessionId);
             if (null == session) {
-                logger.logWarning("Session {0} has expired.", sessionId);
+                deliverMessage("session/expired", sessionId);
+                logger.logInfo("Session {0} expired.", sessionId);
             } else {
+                deliverMessage("session/destroyed", session);
+                logger.logInfo("Session {0} destroyed.", sessionId);
                 sessionSql.delete(sessionId);
                 try {
                     getTempFileSystem().deleteTree();
                 } catch (final Throwable t) {
                     logger.logWarning(t, "Could not destroy session.");
                 }
-            }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.desdemona.model.session.InternalSessionModel#read()
-     *
-     */
-    public Session read() {
-        try {
-            final String sessionId = sessionSql.readSessionId(user.getLocalId(),
-                    DateTimeProvider.getCurrentDateTime());
-            if (null == sessionId) {
-                logger.logWarning("Session for user {0} has expired.", user.getId());
-                return null;
-            } else {
-                return newSession(sessionId, user);
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -152,11 +144,15 @@ public final class SessionModelImpl extends AbstractModelImpl implements
             final Long userId = sessionSql.readUserId(sessionId,
                     DateTimeProvider.getCurrentDateTime());
             if (null == userId) {
-                logger.logWarning("Session {0} has expired.", sessionId);
+                deliverMessage("session/expired", sessionId);
+                logger.logInfo("Session {0} expired.", sessionId);
                 return null;
             } else {
+                final Session session = newSession(sessionId, getUserModel().read(userId));
+                deliverMessage("session/extended", session);
+                logger.logInfo("Session {0} extended.", session.getId());
                 sessionSql.updateExpiry(sessionId, newSessionExpiry());
-                return newSession(sessionId, getUserModel().read(userId));
+                return session;
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -187,8 +183,70 @@ public final class SessionModelImpl extends AbstractModelImpl implements
      */
     @Override
     protected void initialize() {
+        messageBus = MessageBus.getInstance(user, "/com/thinkparity/session");
         sessionSql = new SessionSql();
         userSql = new UserSql();
+    }
+
+    /**
+     * Deliver a message on the message bus.
+     * 
+     * @param message
+     *            A <code>String</code>.
+     * @param session
+     *            A <code>Session</code>.
+     * @param user
+     *            A <code>User</code>.
+     */
+    private void deliverMessage(final String message, final Session session) {
+        deliverMessage(message, session.getId());
+    }
+
+    /**
+     * Deliver a message on the message bus.
+     * 
+     * @param message
+     *            A <code>String</code>.
+     * @param session
+     *            A <code>Session</code>.
+     * @param user
+     *            A <code>User</code>.
+     */
+    private void deliverMessage(final String message, final Session session,
+            final User user) {
+        deliverMessage(message, session.getId(), user.getSimpleUsername());
+    }
+
+    /**
+     * Deliver a message on the message bus.
+     * 
+     * @param message
+     *            A <code>String</code>.
+     * @param session
+     *            A <code>Session</code>.
+     * @param user
+     *            A <code>User</code>.
+     */
+    private void deliverMessage(final String message, final String sessionId) {
+        messageBus.setString("sessionId", sessionId);
+        messageBus.deliver(message);
+    }
+
+    /**
+     * Deliver a message on the message bus.
+     * 
+     * @param message
+     *            A <code>String</code>.
+     * @param session
+     *            A <code>Session</code>.
+     * @param user
+     *            A <code>User</code>.
+     */
+    private void deliverMessage(final String message, final String sessionId,
+            final String username) {
+        messageBus.setString("sessionId", sessionId);
+        messageBus.setString("username", username);
+        messageBus.deliver(message);
     }
 
     /**
@@ -276,5 +334,28 @@ public final class SessionModelImpl extends AbstractModelImpl implements
      */
     private String newSessionId() {
         return MD5Util.md5Base64(String.valueOf(currentDateTime().getTimeInMillis()));
+    }
+
+    /**
+     * Perform a cursory validation of the credentials.
+     * 
+     * @param credentials
+     *            A set of <code>Credentials</code>.
+     * @throws InvalidCredentialsException
+     */
+    private void validate(final Credentials credentials)
+            throws InvalidCredentialsException {
+        if (null == credentials) {
+            logger.logDebug("Null credentials.");
+            throw new InvalidCredentialsException();
+        }
+        if (null == credentials.getPassword()) {
+            logger.logDebug("Null credentials password.");
+            throw new InvalidCredentialsException();
+        }
+        if (null == credentials.getUsername()) {
+            logger.logDebug("Null credentials username.");
+            throw new InvalidCredentialsException();
+        }
     }
 }

@@ -56,6 +56,15 @@ class IOFactoryImpl implements IOFactory {
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.io.IOFactory#newMessageIO(javax.sql.DataSource)
+     *
+     */
+    @Override
+    public MessageSql newMessageIO(final DataSource dataSource) {
+        return newIO(MessageSql.class, dataSource);
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.io.IOFactory#newPaymentIO(javax.sql.DataSource)
      *
      */

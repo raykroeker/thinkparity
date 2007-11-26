@@ -59,11 +59,17 @@ public final class PersistenceService extends Service {
     /** The <code>DataSource</code>. */
     private DataSource dataSource;
 
+    /** A data source. */
+    private DataSource dataSource2;
+
     /** An derby archiver. */
     private DerbyArchiver derbyArchiver;
 
     /** A <code>Log4JWrapper</code>. */
     private final Log4JWrapper logger;
+
+    /** An operational data source. */
+    private DataSource operationalDataSource;
 
     /** A set of properties. */
     private Properties properties;
@@ -89,9 +95,6 @@ public final class PersistenceService extends Service {
         return dataSource;
     }
 
-    /** A data source. */
-    private DataSource dataSource2;
-
     /**
      * Obtain a data source.
      * 
@@ -99,6 +102,15 @@ public final class PersistenceService extends Service {
      */
     public DataSource getDataSource2() {
         return dataSource2;
+    }
+
+    /**
+     * Obtain an operational data source.
+     * 
+     * @return A <code>DataSource</code>.
+     */
+    public DataSource getOperationalDataSource() {
+        return operationalDataSource;
     }
 
     /**
@@ -112,10 +124,10 @@ public final class PersistenceService extends Service {
         startArchiveDelegate();
 
         final XADataSourceConfiguration conf = new XADataSourceConfiguration();
-        conf.setProperty(Key.DRIVER, System.getProperty("thinkparity.datasource-driver"));
-        conf.setProperty(Key.PASSWORD, System.getProperty("thinkparity.datasource-password")); 
-        conf.setProperty(Key.URL, System.getProperty("thinkparity.datasource-url")); 
-        conf.setProperty(Key.USER, System.getProperty("thinkparity.datasource-user"));
+        conf.setProperty(Key.DRIVER, System.getProperty("thinkparity.app.datasource-driver"));
+        conf.setProperty(Key.PASSWORD, System.getProperty("thinkparity.app.datasource-password")); 
+        conf.setProperty(Key.URL, System.getProperty("thinkparity.app.datasource-url")); 
+        conf.setProperty(Key.USER, System.getProperty("thinkparity.app.datasource-user"));
         try {
             dataSource = new XADataSourcePool(new XADataSource(conf));
             sessionManager = new HypersonicSessionManager(dataSource, Boolean.TRUE);
@@ -130,25 +142,7 @@ public final class PersistenceService extends Service {
         }
 
         dataSource2 = newPooledDataSource();
-    }
-
-    /**
-     * Instantiate a pooling data source.
-     * 
-     * @return A <code>DataSource</code>.
-     */
-    private DataSource newPooledDataSource() {
-        final BasicDataSource bds = new BasicDataSource();
-        bds.setDefaultAutoCommit(false);
-        bds.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
-        bds.setDriverClassName(properties.getProperty("thinkparity.datasource-driver"));
-        bds.setInitialSize(Integer.valueOf(properties.getProperty("thinkparity.datasource-poolinitialsize")));
-        bds.setMaxActive(Integer.valueOf(properties.getProperty("thinkparity.datasource-poolmaxactive")));
-        bds.setPoolPreparedStatements(Boolean.valueOf(properties.getProperty("thinkparity.datasource.poolpreparedstatements")));
-        bds.setUrl(properties.getProperty("thinkparity.datasource-url"));
-        bds.setUsername(properties.getProperty("thinkparity.datasource-user"));
-        bds.setPassword(properties.getProperty("thinkparity.datasource-password"));
-        return bds;
+        operationalDataSource = newOperationalDataSource();
     }
 
     /**
@@ -182,9 +176,15 @@ public final class PersistenceService extends Service {
             } catch (final SQLException sqlx) {
                 logger.logError(sqlx, "Could not shut down data source pool.");
             }
+
+            try {
+                ((BasicDataSource) operationalDataSource).close();
+            } catch (final SQLException sqlx) {
+                logger.logError(sqlx, "Could not shut down operational data source pool.");
+            }
         } finally {
             this.properties = null;
-            this.dataSource = null;
+            this.dataSource = operationalDataSource = null;
             this.sessionManager = null;
         }
     }
@@ -209,6 +209,44 @@ public final class PersistenceService extends Service {
             schedule.add(Long.valueOf(DEFAULT_SCHEDULE));
         }
         return schedule;
+    }
+
+    /**
+     * Instantiate a operational pooling source.
+     * 
+     * @return A <code>DataSource</code>.
+     */
+    private DataSource newOperationalDataSource() {
+        final BasicDataSource bds = new BasicDataSource();
+        bds.setDefaultAutoCommit(false);
+        bds.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+        bds.setDriverClassName(properties.getProperty("thinkparity.ops.datasource.driver"));
+        bds.setInitialSize(Integer.valueOf(properties.getProperty("thinkparity.ops.datasource.poolinitialsize")));
+        bds.setMaxActive(Integer.valueOf(properties.getProperty("thinkparity.ops.datasource.poolmaxactive")));
+        bds.setPoolPreparedStatements(Boolean.valueOf(properties.getProperty("thinkparity.ops.datasource.poolpreparedstatements")));
+        bds.setUrl(properties.getProperty("thinkparity.ops.datasource.url"));
+        bds.setUsername(properties.getProperty("thinkparity.ops.datasource.user"));
+        bds.setPassword(properties.getProperty("thinkparity.ops.datasource.password"));
+        return bds;
+    }
+
+    /**
+     * Instantiate an application pooling data source.
+     * 
+     * @return A <code>DataSource</code>.
+     */
+    private DataSource newPooledDataSource() {
+        final BasicDataSource bds = new BasicDataSource();
+        bds.setDefaultAutoCommit(false);
+        bds.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+        bds.setDriverClassName(properties.getProperty("thinkparity.app.datasource-driver"));
+        bds.setInitialSize(Integer.valueOf(properties.getProperty("thinkparity.app.datasource-poolinitialsize")));
+        bds.setMaxActive(Integer.valueOf(properties.getProperty("thinkparity.app.datasource-poolmaxactive")));
+        bds.setPoolPreparedStatements(Boolean.valueOf(properties.getProperty("thinkparity.app.datasource.poolpreparedstatements")));
+        bds.setUrl(properties.getProperty("thinkparity.app.datasource-url"));
+        bds.setUsername(properties.getProperty("thinkparity.app.datasource-user"));
+        bds.setPassword(properties.getProperty("thinkparity.app.datasource-password"));
+        return bds;
     }
 
     /**

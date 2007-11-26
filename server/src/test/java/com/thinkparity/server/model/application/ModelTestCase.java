@@ -23,6 +23,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.Context;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
@@ -41,7 +42,10 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.desdemona.model.admin.AdminModelFactory;
+import com.thinkparity.desdemona.model.admin.InternalAdminModelFactory;
 import com.thinkparity.desdemona.model.admin.derby.DerbyModel;
+import com.thinkparity.desdemona.model.admin.message.InternalMessageModel;
+import com.thinkparity.desdemona.model.admin.message.MessageModel;
 import com.thinkparity.desdemona.model.admin.report.ReportModel;
 import com.thinkparity.desdemona.model.admin.user.AdminUserModel;
 import com.thinkparity.desdemona.model.artifact.ArtifactModel;
@@ -49,9 +53,13 @@ import com.thinkparity.desdemona.model.backup.BackupModel;
 import com.thinkparity.desdemona.model.contact.ContactModel;
 import com.thinkparity.desdemona.model.container.ContainerModel;
 import com.thinkparity.desdemona.model.migrator.MigratorModel;
+import com.thinkparity.desdemona.model.node.Node;
+import com.thinkparity.desdemona.model.node.NodeService;
 import com.thinkparity.desdemona.model.profile.ProfileModel;
 import com.thinkparity.desdemona.model.session.Session;
 import com.thinkparity.desdemona.model.session.SessionModel;
+
+import com.thinkparity.desdemona.service.application.ApplicationService;
 
 import com.thinkparity.desdemona.util.DateTimeProvider;
 
@@ -276,14 +284,23 @@ public abstract class ModelTestCase extends TestCase {
     }
 
     /**
-     * Obtain a model factory.
+     * Obtain an admin model factory.
      * 
      * @param authToken
      *            An <code>AuthToken</code>.
-     * @return A <code>ModelFactory</code>.
+     * @return A <code>AdminModelFactory</code>.
      */
     private AdminModelFactory getAdminModelFactory(final AuthToken authToken) {
         return AdminModelFactory.getInstance(readUser(readSession(authToken)), loader);
+    }
+
+    /**
+     * Obtain an application user.
+     * 
+     * @return A <code>User</code>.
+     */
+    private User getApplicationUser() {
+        return ApplicationService.getInstance().getUser();
     }
 
     /**
@@ -340,6 +357,19 @@ public abstract class ModelTestCase extends TestCase {
     }
 
     /**
+     * Obtain an internal admin model factory.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @return A <code>ModelFactory</code>.
+     */
+    private InternalAdminModelFactory getInternalAdminModelFactory(
+            final AuthToken authToken) {
+        return InternalAdminModelFactory.getInstance(newInternalContext(),
+                readUser(readSession(authToken)));
+    }
+
+    /**
      * Obtain a migrator model.
      * 
      * @return An instance of <code>MigratorModel</code>.
@@ -366,6 +396,15 @@ public abstract class ModelTestCase extends TestCase {
      */
     private ModelFactory getModelFactory(final AuthToken authToken) {
         return ModelFactory.getInstance(readUser(readSession(authToken)), loader);
+    }
+
+    /**
+     * Obtain the node.
+     * 
+     * @return A <code>Node</code>.
+     */
+    private Node getNode() {
+        return NodeService.getInstance().getNode();
     }
 
     /**
@@ -523,6 +562,45 @@ public abstract class ModelTestCase extends TestCase {
      */
     private EMail newEMail(final String username) {
         return EMailBuilder.parse("application+" + username + "@thinkparity.com");
+    }
+
+    /**
+     * Instantiate an internal context.
+     * 
+     * @return A <code>Context</code>.
+     */
+    private Context newInternalContext() {
+        return new Context();
+    }
+
+    /**
+     * Instantiate an internal message model.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @return An <code>InternalMessageModel</code>.
+     */
+    private InternalMessageModel newInternalMessageModel(final AuthToken authToken) {
+        return getInternalAdminModelFactory(authToken).newMessageModel();
+    }
+
+    /**
+     * Obtain a message model.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @return An instance of <code>MessageModel</code>.
+     */
+    private MessageModel newMessageModel(final AuthToken authToken) {
+        return getAdminModelFactory(authToken).newMessageModel();
+    }
+    /**
+     * Instantiate a new password.
+     * 
+     * @return A <code>String</code>.
+     */
+    private String newPassword() {
+        return "parity2";
     }
 
     /**
@@ -748,7 +826,7 @@ public abstract class ModelTestCase extends TestCase {
         }
 
         /**
-         * @see com.thinkparity.desdemona.model.contact.ContactTestCase#findIncomingEMail(ContactModel,
+         * @see com.thinkparity.desdemona.model.ModelTestCase#findIncomingEMailInvitation(ContactModel,
          *      User, Calendar, EMail)
          * 
          */
@@ -769,6 +847,14 @@ public abstract class ModelTestCase extends TestCase {
                 final EMail email) {
             return ModelTestCase.this.findIncomingEMailInvitation(
                     getContactModel(authToken), createdBy, email);
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#getApplicationUser()
+         * 
+         */
+        public User getApplicationUser() {
+            return ModelTestCase.this.getApplicationUser();
         }
 
         /**
@@ -809,6 +895,14 @@ public abstract class ModelTestCase extends TestCase {
          */
         public ContainerModel getContainerModel(final AuthToken authToken) {
             return ModelTestCase.this.getContainerModel(authToken);
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#getNode()
+         * 
+         */
+        public Node getNode() {
+            return ModelTestCase.this.getNode();
         }
 
         /**
@@ -897,6 +991,30 @@ public abstract class ModelTestCase extends TestCase {
          */
         public EMail newEMail(final String username) {
             return ModelTestCase.this.newEMail(username);
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#newInternalMessageModel(AuthToken)
+         * 
+         */
+        public InternalMessageModel newInternalMessageModel(final AuthToken authToken) {
+            return ModelTestCase.this.newInternalMessageModel(authToken);
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#newMessageModel(AuthToken)
+         * 
+         */
+        public MessageModel newMessageModel(final AuthToken authToken) {
+            return ModelTestCase.this.newMessageModel(authToken);
+        }
+
+        /**
+         * @see com.thinkparity.desdemona.model.ModelTestCase#newPassword()
+         * 
+         */
+        public String newPassword() {
+            return ModelTestCase.this.newPassword();
         }
 
         /**

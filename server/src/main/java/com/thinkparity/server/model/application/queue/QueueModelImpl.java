@@ -11,9 +11,13 @@ import com.thinkparity.codebase.model.queue.notification.NotificationSession;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.admin.message.MessageBus;
 import com.thinkparity.desdemona.model.io.sql.QueueSql;
 import com.thinkparity.desdemona.model.queue.notification.NotificationService;
 import com.thinkparity.desdemona.model.queue.notification.ServerNotificationSession;
+
+import com.thinkparity.desdemona.service.application.ApplicationService;
+
 import com.thinkparity.desdemona.util.DesdemonaProperties;
 
 /**
@@ -25,6 +29,9 @@ import com.thinkparity.desdemona.util.DesdemonaProperties;
  */
 public class QueueModelImpl extends AbstractModelImpl implements QueueModel,
         InternalQueueModel {
+
+    /** A message bus. */
+    private MessageBus messageBus;
 
     /** The notification service. */
     private NotificationService notificationService;
@@ -130,6 +137,7 @@ public class QueueModelImpl extends AbstractModelImpl implements QueueModel,
      */
     public List<XMPPEvent> readEvents() {
         try {
+            deliverMessage("queue/polled");
             if (getProfileModel().isQueueReadable()) {
                 return queueSql.readEvents(user);
             } else {
@@ -159,8 +167,21 @@ public class QueueModelImpl extends AbstractModelImpl implements QueueModel,
     @Override
     protected void initialize() {
         properties = DesdemonaProperties.getInstance();
+        final ApplicationService applicationService = ApplicationService.getInstance();
+        messageBus = MessageBus.getInstance(applicationService.getUser(), "/com/thinkparity/queue");
         notificationService = NotificationService.getInstance();
         queueSql = new QueueSql();
+    }
+
+    /**
+     * Deliver a message.
+     * 
+     * @param message
+     *            A <code>String</code>.
+     */
+    private void deliverMessage(final String message) {
+        messageBus.setString("username", user.getSimpleUsername());
+        messageBus.deliver(message);
     }
     
     /**

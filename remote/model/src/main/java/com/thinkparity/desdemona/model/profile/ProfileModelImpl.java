@@ -883,6 +883,10 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      */
     public void updatePassword(final Credentials credentials,
             final String newPassword) throws InvalidCredentialsException {
+        if (null == credentials || null == credentials.getPassword() ||
+                null == credentials.getUsername()) {
+            throw new InvalidCredentialsException();
+        }
         final Object xaContext = newXAContext(XAContextId.PROFILE_UPDATE_PASSWORD);
         try {
             beginXA(xaContext);

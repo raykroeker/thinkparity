@@ -1,0 +1,1 @@
+delete from TPSD_USER_EVENT_QUEUE;

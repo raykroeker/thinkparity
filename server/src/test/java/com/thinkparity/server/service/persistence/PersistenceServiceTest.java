@@ -88,15 +88,15 @@ public final class PersistenceServiceTest extends DesdemonaTestCase {
         super.setUp();
 
         // persistence manager config
-        System.setProperty("thinkparity.datasource-driver", "org.apache.derby.jdbc.ClientDriver");
-        System.setProperty("thinkparity.datasource-password", "sa"); 
-        System.setProperty("thinkparity.datasource-url", "jdbc:derby://localhost:9001/desdemona"); 
-        System.setProperty("thinkparity.datasource-user", "sa");
+        System.setProperty("thinkparity.app.datasource-driver", "org.apache.derby.jdbc.ClientDriver");
+        System.setProperty("thinkparity.app.datasource-password", "sa"); 
+        System.setProperty("thinkparity.app.datasource-url", "jdbc:derby://localhost:9001/desdemona"); 
+        System.setProperty("thinkparity.app.datasource-user", "sa");
         final int[] maxConnections = { 3, 10, 25, 100, 1000, 10000, 100000 }; 
-        TEST_LOGGER.logInfo("thinkparity.datasource-driver:{0}", System.getProperty("thinkparity.datasource-driver"));
-        TEST_LOGGER.logInfo("thinkparity.datasource-password:{0}", System.getProperty("thinkparity.datasource-password")); 
-        TEST_LOGGER.logInfo("thinkparity.datasource-url:{0}", System.getProperty("thinkparity.datasource-url")); 
-        TEST_LOGGER.logInfo("thinkparity.datasource-user:{0}", System.getProperty("thinkparity.datasource-user"));
+        TEST_LOGGER.logInfo("thinkparity.app.datasource-driver:{0}", System.getProperty("thinkparity.app.datasource-driver"));
+        TEST_LOGGER.logInfo("thinkparity.app.datasource-password:{0}", System.getProperty("thinkparity.app.datasource-password")); 
+        TEST_LOGGER.logInfo("thinkparity.app.datasource-url:{0}", System.getProperty("thinkparity.app.datasource-url")); 
+        TEST_LOGGER.logInfo("thinkparity.app.datasource-user:{0}", System.getProperty("thinkparity.app.datasource-user"));
         final StringBuilder buffer = new StringBuilder(maxConnections.length * 8);
         for (final int maxConnection : maxConnections) {
             if (0 < buffer.length()) {

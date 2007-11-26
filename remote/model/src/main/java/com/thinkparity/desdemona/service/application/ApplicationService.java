@@ -330,7 +330,7 @@ public final class ApplicationService extends Service {
                     MessageFormat.format("{0}_CronTrigger", group),
                     cron);
             date = scheduler.scheduleJob(jobDetail, trigger);
-            logger.logInfo("Job {0} scheduled to run on:  {1,date,yyyy-MM-dd HH:mm:ss.SSS Z}",
+            logger.logInfo("Job {0} scheduled to run on:  {1}",
                     jobDetail.getName(), date);
         }
     }

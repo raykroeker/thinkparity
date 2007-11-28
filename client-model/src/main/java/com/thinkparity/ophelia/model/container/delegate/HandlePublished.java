@@ -32,6 +32,9 @@ public final class HandlePublished extends ContainerDelegate {
     /** A local published event. */
     private LocalPublishedEvent event;
 
+    /** A notify flag. */
+    private Boolean notify;
+
     /** The published by user. */
     private User publishedBy;
 
@@ -41,6 +44,15 @@ public final class HandlePublished extends ContainerDelegate {
      */
     public HandlePublished() {
         super();
+    }
+
+    /**
+     * Obtain the notify flag.
+     * 
+     * @return A <code>Boolean</code>.
+     */
+    public Boolean getNotify() {
+        return notify;
     }
 
     /**
@@ -59,52 +71,61 @@ public final class HandlePublished extends ContainerDelegate {
     public void handlePublished() throws CannotLockException {
         final InternalSessionModel sessionModel = getSessionModel();
         final Container container = handleResolution();
-        final ContainerVersion version = createVersion(container.getId(),
-                event.getVersion().getVersionId(), event.getVersion().getName(),
-                event.getVersion().getComment(), event.getPublishedBy(),
-                event.getVersion().getCreatedOn());
-        handleTeamResolution(container, event.getTeam());
-        final Calendar receivedOn = sessionModel.readDateTime();
-        // update documents
-        handleDocumentVersionsResolution(version, event.getDocumentVersions(),
-                event.getDocumentVersionFiles(), event.getPublishedBy(),
-                event.getPublishedOn());
-        // build published to list
-        final InternalUserModel userModel = getUserModel();
-        final List<JabberId> publishedToIds = new ArrayList<JabberId>(event.getPublishedTo().size());
-        final List<User> publishedToUsers = new ArrayList<User>(event.getPublishedTo().size());
-        for (final User publishedToUser : event.getPublishedTo()) {
-            publishedToIds.add(publishedToUser.getId());
-            publishedToUsers.add(userModel.readLazyCreate(publishedToUser.getId()));
-        }
-        // resolve published by user
-        final List<TeamMember> localTeam = readTeam(container.getId());
-        if (contains(localTeam, event.getPublishedBy())) {
-            publishedBy = localTeam.get(indexOf(localTeam, event.getPublishedBy()));
+        if (artifactIO.doesVersionExist(container.getId(),
+                event.getVersion().getVersionId())) {
+            notify = Boolean.FALSE;
+            logger.logInfo("Container version {0}:{1} already exists.",
+                    container.getUniqueId(), event.getVersion().getVersionId());
+            return;
         } else {
-            publishedBy = getUserModel().readLazyCreate(event.getPublishedBy());
+            notify = Boolean.TRUE;
+            final ContainerVersion version = createVersion(container.getId(),
+                    event.getVersion().getVersionId(), event.getVersion().getName(),
+                    event.getVersion().getComment(), event.getPublishedBy(),
+                    event.getVersion().getCreatedOn());
+            handleTeamResolution(container, event.getTeam());
+            final Calendar receivedOn = sessionModel.readDateTime();
+            // update documents
+            handleDocumentVersionsResolution(version, event.getDocumentVersions(),
+                    event.getDocumentVersionFiles(), event.getPublishedBy(),
+                    event.getPublishedOn());
+            // build published to list
+            final InternalUserModel userModel = getUserModel();
+            final List<JabberId> publishedToIds = new ArrayList<JabberId>(event.getPublishedTo().size());
+            final List<User> publishedToUsers = new ArrayList<User>(event.getPublishedTo().size());
+            for (final User publishedToUser : event.getPublishedTo()) {
+                publishedToIds.add(publishedToUser.getId());
+                publishedToUsers.add(userModel.readLazyCreate(publishedToUser.getId()));
+            }
+            // resolve published by user
+            final List<TeamMember> localTeam = readTeam(container.getId());
+            if (contains(localTeam, event.getPublishedBy())) {
+                publishedBy = localTeam.get(indexOf(localTeam, event.getPublishedBy()));
+            } else {
+                publishedBy = getUserModel().readLazyCreate(event.getPublishedBy());
+            }
+            // create published to list
+            containerIO.createPublishedTo(container.getId(),
+                    version.getVersionId(), publishedToUsers,
+                    event.getPublishedOn());
+            // update published to for local user
+            containerIO.updatePublishedTo(container.getId(),
+                    version.getVersionId(), event.getPublishedOn(),
+                    localUserId(), receivedOn);
+            // calculate differences
+            final ContainerVersion previous = readPreviousVersion(
+                    container.getId(), version.getVersionId());
+            if (null == previous) {
+                logger.logInfo("First version of {0}.", container.getName());
+            } else {
+                containerIO.createDelta(calculateDelta(container, version, previous));
+            }
+            // index
+            getIndexModel().indexContainer(container.getId());
+            // confirm receipt
+            containerService.confirmReceipt(getAuthToken(), version,
+                    event.getPublishedOn(), receivedOn);
         }
-        // create published to list
-        containerIO.createPublishedTo(container.getId(),
-                version.getVersionId(), publishedToUsers,
-                event.getPublishedOn());
-        // update published to for local user
-        containerIO.updatePublishedTo(container.getId(),
-                version.getVersionId(), event.getPublishedOn(),
-                localUserId(), receivedOn);
-        // calculate differences
-        final ContainerVersion previous = readPreviousVersion(
-                container.getId(), version.getVersionId());
-        if (null == previous) {
-            logger.logInfo("First version of {0}.", container.getName());
-        } else {
-            containerIO.createDelta(calculateDelta(container, version, previous));
-        }
-        // index
-        getIndexModel().indexContainer(container.getId());
-        // confirm receipt
-        containerService.confirmReceipt(getAuthToken(), version,
-                event.getPublishedOn(), receivedOn);
     }
 
     /**

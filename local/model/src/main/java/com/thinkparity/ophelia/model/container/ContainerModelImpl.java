@@ -631,19 +631,21 @@ public final class ContainerModelImpl extends
                     HandlePublished.class);
             delegate.setEvent(event);
             delegate.handlePublished();
-            // fire events
-            final Long containerId = getArtifactModel().readId(
-                    event.getVersion().getArtifactUniqueId());
-            final Container container = read(containerId);
-            final ContainerVersion version = readVersion(containerId,
-                    event.getVersion().getVersionId());
-            final ContainerVersion previousVersion = readPreviousVersion(
-                    containerId, version.getVersionId());
-            final ContainerVersion nextVersion = readPreviousVersion(
-                    containerId, version.getVersionId());
-            notifyContainerPublished(container, previousVersion, version,
-                    nextVersion, delegate.getPublishedBy(),
-                    remoteEventGenerator);
+            if (delegate.getNotify()) {
+                // fire events
+                final Long containerId = getArtifactModel().readId(
+                        event.getVersion().getArtifactUniqueId());
+                final Container container = read(containerId);
+                final ContainerVersion version = readVersion(containerId,
+                        event.getVersion().getVersionId());
+                final ContainerVersion previousVersion = readPreviousVersion(
+                        containerId, version.getVersionId());
+                final ContainerVersion nextVersion = readPreviousVersion(
+                        containerId, version.getVersionId());
+                notifyContainerPublished(container, previousVersion, version,
+                        nextVersion, delegate.getPublishedBy(),
+                        remoteEventGenerator);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }

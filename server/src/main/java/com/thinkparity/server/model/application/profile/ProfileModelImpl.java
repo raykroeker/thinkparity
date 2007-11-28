@@ -76,6 +76,7 @@ import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants;
 import com.thinkparity.desdemona.model.Delegate;
 import com.thinkparity.desdemona.model.Constants.Product.Ophelia;
+import com.thinkparity.desdemona.model.admin.message.MessageBus;
 import com.thinkparity.desdemona.model.contact.InternalContactModel;
 import com.thinkparity.desdemona.model.io.IOFactory;
 import com.thinkparity.desdemona.model.io.IOService;
@@ -152,6 +153,9 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
 
     /** Contact db io. */
     private ContactSql contactSql;
+
+    /** A message bus. */
+    private MessageBus messageBus;
 
     /** A node service. */
     private final NodeService nodeService;
@@ -384,6 +388,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         }
     }
 
+    
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#createToken(com.thinkparity.codebase.jabber.JabberId)
      * 
@@ -425,7 +430,6 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         }
     }
 
-    
     /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#createUsernameReservation(com.thinkparity.codebase.jabber.JabberId,
      *      java.lang.String, java.util.Calendar)
@@ -997,6 +1001,11 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                 final VerificationKey verifiedKey = VerificationKey.create(key);
                 final EMail verifiedEmail = userSql.readEmail(
                         user.getLocalId(), email, verifiedKey);
+                if (null == verifiedEmail) {
+                    deliverMessage("email/verification/failed", user, email, key);
+                } else {
+                    deliverMessage("email/verification/passed", user, email);                    
+                }
                 Assert.assertNotNull("VERIFICATION KEY INCORRECT",
                         verifiedEmail);
                 Assert.assertTrue("VERIFICATION KEY INCORRECT", email
@@ -1033,12 +1042,14 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         }
     }
 
+
     /**
      * @see com.thinkparity.desdemona.model.AbstractModelImpl#initialize()
      * 
      */
     @Override
     protected void initialize() {
+        this.messageBus = MessageBus.getInstance(user, "/com/thinkparity/profile");
         this.transactionManager = TransactionManager.getInstance();
 
         final DataSource dataSource = transactionManager.getDataSource();
@@ -1047,6 +1058,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         this.paymentSql = ioFactory.newPaymentIO(dataSource);
         this.queueSql = ioFactory.newQueueIO(dataSource);
     }
+
 
     /**
      * Begin the transaction.
@@ -1556,6 +1568,71 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         final Multipart verification = new MimeMultipart();
         verification.addBodyPart(verificationBody);
         mimeMessage.setContent(verification);
+    }
+
+    /**
+     * Deliver a message on the message bus.
+     * 
+     * @param message
+     *            A <code>String</code>.
+     * @param username
+     *            A <code>String</code>.
+     * @param email
+     *            A <code>String</code>.
+     */
+    private void deliverMessage(final String message, final String username,
+            final String email) {
+        messageBus.setString("email", email);
+        messageBus.setString("username", username);
+        messageBus.deliver(message);
+    }
+
+    /**
+     * Deliver a message on the message bus.
+     * 
+     * @param message
+     *            A <code>String</code>.
+     * @param username
+     *            A <code>String</code>.
+     * @param email
+     *            A <code>String</code>.
+     */
+    private void deliverMessage(final String message, final String username,
+            final String email, final String key) {
+        messageBus.setString("email", email);
+        messageBus.setString("key", key);
+        messageBus.setString("username", username);
+        messageBus.deliver(message);
+    }
+
+    /**
+     * Deliver a message on the message bus.
+     * 
+     * @param message
+     *            A <code>String</code>.
+     * @param username
+     *            A <code>String</code>.
+     * @param email
+     *            A <code>String</code>.
+     */
+    private void deliverMessage(final String message, final User user,
+            final EMail email) {
+        deliverMessage(message, user.getSimpleUsername(), email.toString());
+    }
+
+    /**
+     * Deliver a message on the message bus.
+     * 
+     * @param message
+     *            A <code>String</code>.
+     * @param username
+     *            A <code>String</code>.
+     * @param email
+     *            A <code>String</code>.
+     */
+    private void deliverMessage(final String message, final User user,
+            final EMail email, final String key) {
+        deliverMessage(message, user.getSimpleUsername(), email.toString(), key);
     }
 
     /**

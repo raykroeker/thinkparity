@@ -10,6 +10,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.annotation.ThinkParityTransaction;
+import com.thinkparity.codebase.model.artifact.DraftExistsException;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.user.TeamMember;
@@ -63,9 +64,12 @@ public interface InternalContainerModel extends ContainerModel {
      *            The creation user <code>JabberId</code>.
      * @param createdOn
      *            The creation date <code>Calendar</code>.
+     *
+     * @throws DraftExistsException if a local draft exists
      */
     public void handleDraftCreated(final Long containerId,
-            final JabberId createdBy, final Calendar createdOn);
+            final JabberId createdBy, final Calendar createdOn)
+            throws DraftExistsException;
 
     /**
      * Handle the remote draft deleted event.

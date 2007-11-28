@@ -209,6 +209,15 @@ public class ContainerDraft {
     }
 
     /**
+     * Determine whether or not the draft is remote.
+     * 
+     * @return True if the draft is remote.
+     */
+    public Boolean isRemote() {
+        return Boolean.valueOf(!local.booleanValue());
+    }
+
+    /**
      * Set the state of an artifact.
      * 
      * @param artifact

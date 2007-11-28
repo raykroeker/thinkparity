@@ -567,17 +567,18 @@ public final class ContainerModelImpl extends
      * 
      */
     public void handleDraftCreated(final Long containerId,
-            final JabberId createdBy, final Calendar createdOn) {
+            final JabberId createdBy, final Calendar createdOn)
+            throws DraftExistsException {
         try {
-            final ContainerDraft draft = new ContainerDraft();
-            draft.setContainerId(containerId);
-            draft.setLocal(Boolean.FALSE);
-            final List<TeamMember> team = readTeam(containerId);
-            draft.setOwner(team.get(indexOf(team, createdBy)));
-            containerIO.createDraft(draft);
+            final HandleDraftCreated delegate = createDelegate(HandleDraftCreated.class);
+            delegate.setContainerId(containerId);
+            delegate.setCreatedBy(createdBy);
+            delegate.handleDraftCreated();
             // fire event
-            notifyDraftCreated(read(containerId), readDraft(containerId),
+            notifyDraftCreated(delegate.getContainer(), delegate.getDraft(),
                     remoteEventGenerator);
+        } catch (final DraftExistsException dex) {
+            throw dex;
         } catch (final Throwable t) {
             throw panic(t);
         }

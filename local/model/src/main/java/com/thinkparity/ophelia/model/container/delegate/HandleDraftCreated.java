@@ -69,7 +69,7 @@ public final class HandleDraftCreated extends ContainerDelegate {
      */
     public void handleDraftCreated() throws DraftExistsException {
         final ContainerDraft existingDraft = containerIO.readDraft(containerId);
-        if (existingDraft.isRemote()) {
+        if (null != existingDraft && existingDraft.isRemote()) {
             containerIO.deleteDraft(containerId);
         } else {
             /* wow; we have a local draft and are receiving a draft created

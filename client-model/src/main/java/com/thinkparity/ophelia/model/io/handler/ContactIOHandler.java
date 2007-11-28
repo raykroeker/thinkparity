@@ -321,4 +321,24 @@ public interface ContactIOHandler {
      *            A <code>Contact</code>.
      */
     public void update(final Contact contact);
+
+    /**
+     * Determine if an incoming invitation exists.
+     * 
+     * @param invitedAs
+     *            An <code>EMail</code>.
+     * @param invitedBy
+     *            A <code>User</code>.
+     * @return A <code>Boolean</code>.
+     */
+    Boolean doesIncomingInvitationExist(EMail invitedAs, User invitedBy);
+
+    /**
+     * Determine if an incoming invitation exists.
+     * 
+     * @param invitedBy
+     *            A <code>User</code>.
+     * @return A <code>Boolean</code>.
+     */
+    Boolean doesIncomingInvitationExist(User invitedBy);
 }

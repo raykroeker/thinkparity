@@ -517,7 +517,7 @@ public final class QueueProcessor implements Cancelable, Runnable {
             getContactModel().handleEMailInvitationDeleted((ContactEMailInvitationDeletedEvent) event);
         } else if (event.getClass() == ContactEMailInvitationExtendedEvent.class) {
             logger.logInfo("Handling contact e-mail invitation extended.");
-            getContactModel().handleEMailInvitationExtended((ContactEMailInvitationExtendedEvent) event);
+            getContactModel().handleEvent((ContactEMailInvitationExtendedEvent) event);
         } else if (event.getClass() == ContactInvitationAcceptedEvent.class) {
             logger.logInfo("Handling contact invitation accepted.");
             getContactModel().handleInvitationAccepted((ContactInvitationAcceptedEvent) event);
@@ -532,7 +532,7 @@ public final class QueueProcessor implements Cancelable, Runnable {
             getContactModel().handleUserInvitationDeleted((ContactUserInvitationDeletedEvent) event);
         } else if (event.getClass() == ContactUserInvitationExtendedEvent.class) {
             logger.logInfo("Handling contact user invitation extended.");
-            getContactModel().handleUserInvitationExtended((ContactUserInvitationExtendedEvent) event);
+            getContactModel().handleEvent((ContactUserInvitationExtendedEvent) event);
         } else if (event.getClass() == PublishedEvent.class) {
             logger.logInfo("Handling container published.");
             processEvent((LocalPublishedEvent) localEvent);

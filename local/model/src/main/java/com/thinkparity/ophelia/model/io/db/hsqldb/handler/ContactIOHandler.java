@@ -135,11 +135,32 @@ public final class ContactIOHandler extends AbstractIOHandler implements
         .append("where PU.USER_ID=?")
         .toString();
 
+    /** Sql to determine incoming e-mail invitation existence. */
+    private static final String SQL_DOES_EXIST_IEI =
+        new StringBuilder("select count(CI.CONTACT_INVITATION_ID) \"INVITATION_COUNT\" ")
+        .append("from CONTACT_INVITATION CI ")
+        .append("inner join CONTACT_INVITATION_INCOMING_EMAIL CIIE ")
+        .append("on CIIE.CONTACT_INVITATION_ID=CI.CONTACT_INVITATION_ID ")
+        .append("inner join EMAIL E on E.EMAIL_ID=CIIE.EMAIL_ID ")
+        .append("inner join PARITY_USER U on U.USER_ID=CIIE.EXTENDED_BY_USER_ID ")
+        .append("where E.EMAIL=? and U.USER_ID=?")
+        .toString();
+
     /** Sql to determine invitation existence. */
     private static final String SQL_DOES_EXIST_INVITATION =
         new StringBuilder("select count(CI.CONTACT_INVITATION_ID) \"INVITATION_COUNT\" ")
         .append("from CONTACT_INVITATION CI ")
         .append("where CI.CONTACT_INVITATION_ID=?")
+        .toString();
+
+    /** Sql to determine incoming user invitation existence. */
+    private static final String SQL_DOES_EXIST_IUI =
+        new StringBuilder("select count(CI.CONTACT_INVITATION_ID) \"INVITATION_COUNT\" ")
+        .append("from CONTACT_INVITATION CI ")
+        .append("inner join CONTACT_INVITATION_INCOMING_USER CIIU ")
+        .append("on CIIU.CONTACT_INVITATION_ID=CI.CONTACT_INVITATION_ID ")
+        .append("inner join PARITY_USER U on U.USER_ID=CIIU.EXTENDED_BY_USER_ID ")
+        .append("where U.USER_ID=?")
         .toString();
 
     /** Sql to determine the existence of an outgoing e-mail invitation. */
@@ -700,6 +721,64 @@ public final class ContactIOHandler extends AbstractIOHandler implements
                 return Boolean.TRUE;
             } else {
                 throw new HypersonicException("Could not determine contact existence.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContactIOHandler#doesIncomingInvitationExist(com.thinkparity.codebase.email.EMail, com.thinkparity.codebase.model.user.User)
+     *
+     */
+    @Override
+    public Boolean doesIncomingInvitationExist(final EMail invitedAs,
+            final User invitedBy) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_IEI);
+            session.setEMail(1, invitedAs);
+            session.setLong(2, invitedBy.getLocalId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int invitationCount = session.getInteger("INVITATION_COUNT");
+                if (0 == invitationCount) {
+                    return Boolean.FALSE;
+                } else if (1 == invitationCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine invitation existence.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine invitation existence.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContactIOHandler#doesIncomingInvitationExist(com.thinkparity.codebase.model.user.User)
+     *
+     */
+    @Override
+    public Boolean doesIncomingInvitationExist(final User invitedBy) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_EXIST_IUI);
+            session.setLong(1, invitedBy.getLocalId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int invitationCount = session.getInteger("INVITATION_COUNT");
+                if (0 == invitationCount) {
+                    return Boolean.FALSE;
+                } else if (1 == invitationCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine invitation existence.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine invitation existence.");
             }
         } finally {
             session.close();

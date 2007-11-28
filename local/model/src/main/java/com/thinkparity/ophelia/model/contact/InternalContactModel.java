@@ -108,8 +108,15 @@ public interface InternalContactModel extends ContactModel {
      * @param event
      *            A <code>ContactEmailInvitationEvent</code>.
      */
-    public void handleEMailInvitationExtended(
-            final ContactEMailInvitationExtendedEvent event);
+    public void handleEvent(final ContactEMailInvitationExtendedEvent event);
+
+    /**
+     * Handle the invitation extended remote event.
+     * 
+     * @param event
+     *            A <code>ContactUserInvitationExtendedEvent</code>.
+     */
+    public void handleEvent(final ContactUserInvitationExtendedEvent event);
 
     /**
      * Handle the invitation accepted remote event.
@@ -137,15 +144,6 @@ public interface InternalContactModel extends ContactModel {
      */
     public void handleUserInvitationDeleted(
             final ContactUserInvitationDeletedEvent event);
-
-    /**
-     * Handle the invitation extended remote event.
-     * 
-     * @param event
-     *            A <code>ContactUserInvitationExtendedEvent</code>.
-     */
-    public void handleUserInvitationExtended(
-            final ContactUserInvitationExtendedEvent event);
 
     /**
      * Read an outgoing e-mail invitation.

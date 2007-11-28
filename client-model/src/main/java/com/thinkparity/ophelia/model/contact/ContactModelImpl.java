@@ -17,6 +17,7 @@ import com.thinkparity.codebase.filter.FilterChain;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.ContactInvitation;
 import com.thinkparity.codebase.model.contact.IncomingEMailInvitation;
@@ -28,7 +29,10 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.*;
 
+import com.thinkparity.ophelia.model.Delegate;
 import com.thinkparity.ophelia.model.Model;
+import com.thinkparity.ophelia.model.contact.delegate.HandleEMailInvitationExtended;
+import com.thinkparity.ophelia.model.contact.delegate.HandleUserInvitationExtended;
 import com.thinkparity.ophelia.model.contact.monitor.DownloadData;
 import com.thinkparity.ophelia.model.contact.monitor.DownloadStep;
 import com.thinkparity.ophelia.model.events.ContactEvent;
@@ -731,30 +735,40 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#handleEMailInvitationExtended(com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationExtendedEvent)
+     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.ContactEMailInvitationExtendedEvent)
+     *
+     */
+    @Override
+    public void handleEvent(final ContactEMailInvitationExtendedEvent event) {
+        try {
+            final HandleEMailInvitationExtended delegate = createDelegate(HandleEMailInvitationExtended.class);
+            delegate.setEvent(event);
+            delegate.handleEMailInvitationExtended();
+            if (delegate.isSetInvitation()) {
+                // fire event
+                notifyIncomingEMailInvitationCreated(delegate.getInvitation(),
+                        remoteEventGenerator);
+            } 
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationExtendedEvent)
      * 
      */
-    public void handleEMailInvitationExtended(
-            final ContactEMailInvitationExtendedEvent event) {
+    @Override
+    public void handleEvent(final ContactUserInvitationExtendedEvent event) {
         try {
-            final InternalUserModel userModel = getUserModel();
-            final User extendedBy = userModel.readLazyCreate(event.getInvitedBy());
-
-            // create incoming e-mail invitation
-            final IncomingEMailInvitation incomingEMailInvitation = new IncomingEMailInvitation();
-            incomingEMailInvitation.setCreatedBy(extendedBy);
-            incomingEMailInvitation.setCreatedOn(event.getInvitedOn());
-            incomingEMailInvitation.setExtendedBy(extendedBy);
-            incomingEMailInvitation.setInvitationEMail(event.getInvitedAs());
-            contactIO.createInvitation(incomingEMailInvitation);
-
-            // index
-            getIndexModel().indexIncomingEMailInvitation(
-                    incomingEMailInvitation.getId());
-
-            // fire event
-            notifyIncomingEMailInvitationCreated(incomingEMailInvitation,
-                    remoteEventGenerator);
+            final HandleUserInvitationExtended delegate = createDelegate(HandleUserInvitationExtended.class);
+            delegate.setEvent(event);
+            delegate.handleUserInvitationExtended();
+            if (delegate.isSetInvitation()) {
+                // fire event
+                notifyIncomingUserInvitationCreated(delegate.getInvitation(),
+                        remoteEventGenerator);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -897,35 +911,6 @@ public final class ContactModelImpl extends Model<ContactListener>
                 notifyIncomingUserInvitationDeleted(incomingUserInvitation,
                         remoteEventGenerator);
             }
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#handleUserInvitationExtended(com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationExtendedEvent)
-     *
-     */
-    public void handleUserInvitationExtended(
-            final ContactUserInvitationExtendedEvent event) {
-        try {
-            final InternalUserModel userModel = getUserModel();
-            final User extendedBy = userModel.readLazyCreate(event.getInvitedBy());
-
-            // create incoming user invitation
-            final IncomingUserInvitation incomingUserInvitation = new IncomingUserInvitation();
-            incomingUserInvitation.setCreatedBy(extendedBy);
-            incomingUserInvitation.setCreatedOn(event.getInvitedOn());
-            incomingUserInvitation.setExtendedBy(extendedBy);
-            incomingUserInvitation.setInvitationUser(localUser());
-            contactIO.createInvitation(incomingUserInvitation);
-
-            // index
-            getIndexModel().indexIncomingUserInvitation(incomingUserInvitation.getId());
-
-            // fire event
-            notifyIncomingUserInvitationCreated(incomingUserInvitation,
-                    remoteEventGenerator);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1318,6 +1303,37 @@ public final class ContactModelImpl extends Model<ContactListener>
 
         final ServiceFactory serviceFactory = getServiceFactory();
         this.contactService = serviceFactory.getContactService();
+    }
+
+    /**
+     * Obtain a contact persistence interface.
+     * 
+     * @return A <code>ContactIOHandler</code>.
+     */
+    ContactIOHandler getContactIO() {
+        return contactIO;
+    }
+
+    /**
+     * Create an instance of a delegate.
+     * 
+     * @param <D>
+     *            A delegate type.
+     * @param type
+     *            The delegate type <code>Class</code>.
+     * @return An instance of <code>D</code>.
+     */
+    private <D extends Delegate<ContactModelImpl>> D createDelegate(
+            final Class<D> type) {
+        try {
+            final D instance = type.newInstance();
+            instance.initialize(this);
+            return instance;
+        } catch (final IllegalAccessException iax) {
+            throw new ThinkParityException("Could not create delegate.", iax);
+        } catch (final InstantiationException ix) {
+            throw new ThinkParityException("Could not create delegate.", ix);
+        }
     }
 
     /**

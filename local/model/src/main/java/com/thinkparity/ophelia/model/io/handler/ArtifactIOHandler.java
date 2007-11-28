@@ -85,7 +85,7 @@ public interface ArtifactIOHandler {
      */
     public Boolean doesVersionExist(final Long artifactId);
 
-	/**
+    /**
      * Determine if the artifact version exists.
      * 
      * @param artifactId
@@ -96,7 +96,7 @@ public interface ArtifactIOHandler {
      */
 	public Boolean doesVersionExist(final Long artifactId, final Long versionId);
 
-    /**
+	/**
      * Determine whether or not the seen flag is applied to any version.
      * 
      * @param containerId
@@ -132,7 +132,7 @@ public interface ArtifactIOHandler {
      */
     public List<ArtifactVersionFlag> readFlags(final ArtifactVersion version);
 
-	/**
+    /**
 	 * Obtain a list of all flags for an artifact.
 	 * 
 	 * @param artifactId
@@ -141,7 +141,7 @@ public interface ArtifactIOHandler {
 	 */
 	public List<ArtifactFlag> readFlags(final Long artifactId);
 
-    /**
+	/**
      * Read the artifact id.
      * 
      * @param uniqueId
@@ -253,7 +253,7 @@ public interface ArtifactIOHandler {
     public void updateFlags(final ArtifactVersion version,
             final List<ArtifactVersionFlag> flags);
 
-	/**
+    /**
 	 * Set the flags for the artifact.
 	 * 
 	 * @param session
@@ -267,7 +267,7 @@ public interface ArtifactIOHandler {
 	public void updateFlags(final Long artifactId, final List<ArtifactFlag> flags)
 			throws HypersonicException;
 
-    /**
+	/**
      * Update the artifact state.
      * 
      * @param artifactId
@@ -275,4 +275,15 @@ public interface ArtifactIOHandler {
      * @param The artifact state.
      */
     public void updateState(final Long artifactId, final ArtifactState state);
+
+    /**
+     * Determine whether or not the user is a team member.
+     * 
+     * @param artifactId
+     *            A <code>Long</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @return A <code>Boolean</code>.
+     */
+    Boolean doesTeamMemberExist(final Long artifactId, final User user);
 }

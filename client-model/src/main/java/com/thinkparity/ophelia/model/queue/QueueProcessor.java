@@ -505,7 +505,7 @@ public final class QueueProcessor implements Cancelable, Runnable {
             getArtifactModel().handleTeamMemberAdded((ArtifactTeamMemberAddedEvent) event);
         } else if (event.getClass() == ArtifactTeamMemberRemovedEvent.class) {
             logger.logInfo("Handling artifact team member removed.");
-            getArtifactModel().handleTeamMemberRemoved((ArtifactTeamMemberRemovedEvent) event);
+            getArtifactModel().handleEvent((ArtifactTeamMemberRemovedEvent) event);
         } else if (event.getClass() == ContactDeletedEvent.class) {
             logger.logInfo("Handling contact deleted.");
             getContactModel().handleContactDeleted((ContactDeletedEvent) event);

@@ -148,6 +148,13 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("where A.ARTIFACT_UNIQUE_ID=?")
         .toString();
 
+	/** Sql to determine team member existence. */
+    private static final String SQL_DOES_TEAM_MEMBER_EXIST =
+        new StringBuilder("select count(USER_ID) \"TEAM_MEMBER_COUNT\" ")
+        .append("from ARTIFACT_TEAM_REL ")
+        .append("where ARTIFACT_ID=? and USER_ID=?")
+        .toString();
+
 	/** Sql to determine if an artifact version exists. */
     private static final String SQL_DOES_VERSION_EXIST =
             new StringBuffer("select COUNT(*) \"COUNT\" ")
@@ -156,7 +163,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             .append("where AV.ARTIFACT_ID=? and ARTIFACT_VERSION_ID=?")
             .toString();
 
-	/** Sql to read the earliest version id. */
+    /** Sql to read the earliest version id. */
     private static final String SQL_READ_EARLIEST_VERSION_ID =
             new StringBuffer("select min(ARTIFACT_VERSION_ID) EARLIEST_VERSION_ID ")
             .append("from ARTIFACT A ")
@@ -185,7 +192,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             .append("where A.ARTIFACT_ID=?")
             .toString();
 
-    /** Sql to read the next version id. */
+	/** Sql to read the next version id. */
     private static final String SQL_READ_NEXT_VERSION_ID =
             new StringBuffer("select ARTIFACT_VERSION_ID NEXT_VERSION_ID ")
             .append("from ARTIFACT A ")
@@ -194,7 +201,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             .append("order by AV.ARTIFACT_VERSION_ID asc")
             .toString();
 
-	/** Sql to read the previous version id. */
+    /** Sql to read the previous version id. */
     private static final String SQL_READ_PREVIOUS_VERSION_ID =
             new StringBuffer("select ARTIFACT_VERSION_ID PREVIOUS_VERSION_ID ")
             .append("from ARTIFACT A ")
@@ -202,7 +209,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
             .append("where A.ARTIFACT_ID=? and AV.ARTIFACT_VERSION_ID<? ")
             .append("order by AV.ARTIFACT_VERSION_ID desc")
             .toString();
-
+    
     /** Sql to read the artifact state. */
     private static final String SQL_READ_STATE =
             new StringBuffer("select A.ARTIFACT_STATE_ID ")
@@ -239,14 +246,14 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("order by U.JABBER_ID asc")
         .toString();
     
-    /** Sql to count the team relationship rows for an artifact. */
+	/** Sql to count the team relationship rows for an artifact. */
     private static final String SQL_READ_TEAM_REL_COUNT =
             new StringBuffer("select count(USER_ID) TEAM_SIZE ")
             .append("from ARTIFACT_TEAM_REL ")
             .append("where ARTIFACT_ID=?")
             .toString();
-    
-	/** Sql to read the artifact type. */
+
+    /** Sql to read the artifact type. */
     private static final String SQL_READ_TYPE =
             new StringBuffer("select A.ARTIFACT_TYPE_ID ")
             .append("from ARTIFACT A ")
@@ -296,7 +303,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         .append("set FLAGS=? where ARTIFACT_ID=?")
         .toString();
 
-    private static final String SQL_UPDATE_STATE =
+	private static final String SQL_UPDATE_STATE =
 		new StringBuffer("update ARTIFACT set ARTIFACT_STATE_ID=?,")
 		.append("UPDATED_ON=CURRENT_TIMESTAMP ")
 		.append("where ARTIFACT_ID=?")
@@ -322,7 +329,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         this.userIO = new UserIOHandler(dataSource);
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#createTeamRel(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -358,7 +365,8 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    /**
+    
+	/**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#deleteTeamRel(java.lang.Long,
      *      java.lang.Long)
      * 
@@ -377,8 +385,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#doesExist(java.lang.Long)
      *
      */
@@ -418,6 +425,35 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
                 return Boolean.TRUE;
             } else {
                 throw new HypersonicException("Could not determine artifact existance.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#doesTeamMemberExist(java.lang.Long, com.thinkparity.codebase.model.user.User)
+     *
+     */
+    @Override
+    public Boolean doesTeamMemberExist(final Long artifactId, final User user) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_DOES_TEAM_MEMBER_EXIST);
+            session.setLong(1, artifactId);
+            session.setLong(2, user.getLocalId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int teamMemberCount = session.getInteger("TEAM_MEMBER_COUNT");
+                if (0 == teamMemberCount) {
+                    return Boolean.FALSE;
+                } else if (1 == teamMemberCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine team member count.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine team member count.");
             }
         } finally {
             session.close();
@@ -658,7 +694,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readState(java.lang.Long)
      * 
      */
@@ -678,7 +714,8 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-	/**
+    
+    /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readTeamIds(java.lang.Long)
      * 
      */
@@ -699,7 +736,6 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    
     /**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#readTeamRel(java.lang.Long, java.lang.Long)
      */
@@ -784,7 +820,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#updateFlags(com.thinkparity.codebase.model.artifact.ArtifactVersion, java.util.List)
      *
      */
@@ -803,7 +839,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-	/**
+    /**
 	 * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#setFlags(java.lang.Long,
 	 *      java.util.List)
 	 * 
@@ -822,7 +858,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
 	}
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler#updateState(java.lang.Long, com.thinkparity.codebase.model.artifact.ArtifactState)
      */
     public void updateState(final Long artifactId, final ArtifactState state) {
@@ -838,7 +874,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         }
     }
 
-	/**
+    /**
      * Obtain the earliest version id for the given artifact.
      * 
      * @param session
@@ -856,7 +892,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
         else { return null; }
     }
 
-    /**
+	/**
 	 * Obtain the latest version id for the given artifact.
 	 * 
 	 * @param session
@@ -973,7 +1009,7 @@ public final class ArtifactIOHandler extends AbstractIOHandler implements
 			throw new HypersonicException("Could not delete version.");
 	}
 
-	/**
+    /**
      * Extract a team member from the session.
      * 
      * @param session

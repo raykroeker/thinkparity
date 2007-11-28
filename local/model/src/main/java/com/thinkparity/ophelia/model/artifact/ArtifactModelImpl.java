@@ -15,6 +15,7 @@ import com.thinkparity.codebase.filter.Filter;
 import com.thinkparity.codebase.filter.FilterManager;
 import com.thinkparity.codebase.jabber.JabberId;
 
+import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactType;
@@ -29,6 +30,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent;
 
+import com.thinkparity.ophelia.model.Delegate;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
@@ -256,6 +258,21 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent)
+     *
+     */
+    @Override
+    public void handleEvent(final ArtifactTeamMemberRemovedEvent event) {
+        try {
+            final HandleTeamMemberRemoved delegate = createDelegate(HandleTeamMemberRemoved.class);
+            delegate.setEvent(event);
+            delegate.handleTeamMemberRemoved();
+        } catch(final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#handleReceived(com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent)
      * 
      */
@@ -303,28 +320,6 @@ public final class ArtifactModelImpl extends Model implements
                     // HACK assuming container
                     getContainerModel().notifyTeamMemberAdded(teamMember);
                 }
-            }
-        } catch(final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#handleTeamMemberRemoved(com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent)
-     * 
-     */
-    public void handleTeamMemberRemoved(final ArtifactTeamMemberRemovedEvent event) {
-        try {
-            final Long artifactId = readId(event.getUniqueId());
-            if (null == artifactId) {
-                logger.logWarning("Artifact for event {0} does not exist locally.",
-                        event);
-            } else {
-                final User user = getUserModel().read(event.getJabberId());
-                final TeamMember teamMember = artifactIO.readTeamRel(artifactId, user.getLocalId());
-                artifactIO.deleteTeamRel(artifactId, user.getLocalId());
-                // HACK assuming container
-                getContainerModel().notifyTeamMemberRemoved(teamMember);
             }
         } catch(final Throwable t) {
             throw panic(t);
@@ -568,6 +563,15 @@ public final class ArtifactModelImpl extends Model implements
     }
 
     /**
+     * Obtain an artifact persistence interface.
+     * 
+     * @return An <code>ArtifactIOHandler</code>.
+     */
+    ArtifactIOHandler getArtifactIO() {
+        return artifactIO;
+    }
+
+    /**
      * Add a team member to an artifact.
      * 
      * @param artifactId
@@ -622,6 +626,28 @@ public final class ArtifactModelImpl extends Model implements
         else {
             flags.add(flag);
             artifactIO.updateFlags(artifactId, flags);
+        }
+    }
+
+    /**
+     * Create an instance of a delegate.
+     * 
+     * @param <D>
+     *            A delegate type.
+     * @param type
+     *            The delegate type <code>Class</code>.
+     * @return An instance of <code>D</code>.
+     */
+    private <D extends Delegate<ArtifactModelImpl>> D createDelegate(
+            final Class<D> type) {
+        try {
+            final D instance = type.newInstance();
+            instance.initialize(this);
+            return instance;
+        } catch (final IllegalAccessException iax) {
+            throw new ThinkParityException("Could not create delegate.", iax);
+        } catch (final InstantiationException ix) {
+            throw new ThinkParityException("Could not create delegate.", ix);
         }
     }
 

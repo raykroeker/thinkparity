@@ -182,17 +182,6 @@ public interface InternalArtifactModel extends ArtifactModel {
     public void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event);
 
     /**
-     * Handle the team member removed remote event.
-     * 
-     * @param uniqueId
-     *            An artifact unique id.
-     * @param jabberId
-     *            A jabber id.
-     */
-    public void handleTeamMemberRemoved(
-            final ArtifactTeamMemberRemovedEvent event);
-
-    /**
      * Determine whether or not the seen flag is applied to any version.
      * 
      * @param containerId
@@ -317,6 +306,14 @@ public interface InternalArtifactModel extends ArtifactModel {
      *            The team member.
      */
     public void removeTeamMember(final Long artifactId, final JabberId userId);
+
+    /**
+     * Handle the team member removed remote event.
+     * 
+     * @param event
+     *            An <code>ArtifactTeamMemberRemovedEvent</code>.
+     */
+    void handleEvent(final ArtifactTeamMemberRemovedEvent event);
 
     /**
      * Read the team for an artifact.

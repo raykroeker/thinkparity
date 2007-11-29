@@ -615,7 +615,7 @@ public final class SessionModelImpl extends Model<SessionListener>
     	        if (isExpired(authToken)) {
     	            logger.logInfo("User session is expired.");
     	        } else {
-    	            sessionService.logout(authToken);
+    	            serviceLogout(authToken);
     	        }
 		    } finally {
 		        /* guarantee that the session is terminated by removing the
@@ -1279,6 +1279,35 @@ public final class SessionModelImpl extends Model<SessionListener>
                 return Long.valueOf(0L);
             }
         }).getSessionService().login(credentials);
+    }
+
+    /**
+     * Issue a logout over the session service without any retry.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     */
+    private void serviceLogout(final AuthToken authToken) {
+        workspace.getServiceFactory(new ServiceRetryHandler() {
+
+            /**
+             * @see com.thinkparity.codebase.RetryHandler#retry()
+             *
+             */
+            @Override
+            public Boolean retry() {
+                return Boolean.FALSE;
+            }
+
+            /**
+             * @see com.thinkparity.codebase.RetryHandler#waitPeriod()
+             *
+             */
+            @Override
+            public Long waitPeriod() {
+                return Long.valueOf(0L);
+            }
+        }).getSessionService().logout(authToken);
     }
 
     /**

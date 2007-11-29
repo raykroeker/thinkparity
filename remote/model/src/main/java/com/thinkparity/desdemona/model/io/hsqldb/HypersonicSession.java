@@ -519,7 +519,8 @@ public final class HypersonicSession {
         assertConnectionIsOpen();
         assertMetaDataIsSet();
         try {
-            resultSet = metaData.getTables(null, "SA", tableName, new String[] { "TABLE" });
+            resultSet = metaData.getTables(null, null, tableName,
+                    new String[] { "TABLE" });
         } catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);
         }

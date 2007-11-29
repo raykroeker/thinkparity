@@ -437,7 +437,7 @@ public final class Session {
         assertConnectionIsOpen();
         assertMetaDataIsSet();
         try {
-            resultSet = metaData.getTables(null, "SA", tableName,
+            resultSet = metaData.getTables(null, null, tableName,
                     new String[] { "TABLE" });
         } catch (final SQLException sqlx) {
             throw new HypersonicException(sqlx);

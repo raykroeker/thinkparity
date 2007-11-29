@@ -32,6 +32,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedE
 
 import com.thinkparity.ophelia.model.Delegate;
 import com.thinkparity.ophelia.model.Model;
+import com.thinkparity.ophelia.model.events.ArtifactListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
@@ -44,7 +45,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version 1.1.2.26
  */
-public final class ArtifactModelImpl extends Model implements
+public final class ArtifactModelImpl extends Model<ArtifactListener> implements
         ArtifactModel, InternalArtifactModel {
 
     /** Artifact persistance io. */

@@ -1798,6 +1798,7 @@ public final class ContainerModelImpl extends
                     getDocumentModel().delete(lock, versionLocks, document.getId());
                     break;
                 case MODIFIED:  // fall through
+                    getDocumentModel().revertDraft(lock, document.getId());
                 case NONE:
                     containerIO.createDraftArtifactRel(
                             containerId, document.getId(), ContainerDraft.ArtifactState.REMOVED);

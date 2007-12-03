@@ -1,19 +1,7 @@
-When you want to publish a new version, you need to create a working version first. The Working Version is a copy of the latest historical version that can be modified. You can add, remove, and modify the documents of the Working Version.
+To create a package:
+1 - Make sure the Package tab is selected.
+2 - Click the 'Packages' link on the Package tab.
+3 - In the dialog that appears, type the name of the package.
+4 - In the Add Documents dialog, select the documents you want to include in the package.
 
-To create a working version, right-click on the package name and select 'Create Working Version'.
-
-Only one person can work on a new version at a time. You can tell if somebody else is working on the Working Version because their name appears on the right side of the package.
-
-<p>To create a Working Version you must also have the most recent version of the package.
-
-To add a document to the the Working Version, right-click on the Working Version and select the 'Add Documents' command. Alternatively, drag one or more files from Windows Explorer(TM) onto the package. You can add any document or file, such as Microsoft Office documents, images, or PDF files. The only restriction is that a file cannot be larger than 2 Gigabytes in size.
-
-When a document is added to thinkParity, a copy of the file is created and stored inside thinkParity. If you modify or delete the file on your file system, the document in thinkParity is not affected, and vice versa.
-
-<p>To make changes to a document, click on the document icon to open it. You can then edit and save the document as you normally would.
-
-A number of other actions are available when you right-click on the document. You can remove the document, undelete the document, and revert the changes that you made to it. If the document has not been published yet, you can also rename it.
-
-<p>To print a document, open it by clicking on the document icon and print as you normally would. To print all of the documents in the Working Version, right-click on the Working Version and select 'Print Working Version'.
-
-To add a note associated with the version, right-click on the Working Version and select 'Edit note'. Alternatively, click on the Working Version icon.
+You can also create a package by dragging one or more files from Windows Explorer(TM) onto the white part of the package tab.

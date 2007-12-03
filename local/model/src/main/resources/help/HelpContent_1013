@@ -1,5 +1,6 @@
-To create a working version, right-click on the package name and select 'Create Working Version'.
+Your documents are automatically backed up with thinkParity's secure backup service. If your computer is lost or damaged you can easily recover your data. You need to download and install thinkParity on a new computer, then follow the steps below.
 
-Only one person can work on a new version at a time. You can tell if somebody else is working on the Working Version because their name appears on the right side of the package.
-
-To create a working version you must also have the most recent version of the package, and you must be online.
+To restore your documents:
+1 - Start thinkParity. In the wizard that appears, select the option 'I already have a thinkParity account' and press 'Next'.
+2 - Enter your username and password and press 'Next'.
+3 - Press 'Login'. Your data including packages and contacts will be restored from the secure thinkParity server.

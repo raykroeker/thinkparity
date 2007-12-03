@@ -9,6 +9,8 @@ import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.Map;
 
+import javax.naming.NamingException;
+
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -118,9 +120,10 @@ final class ModelInvocationHandler implements InvocationHandler {
                         return method;
                     }
                 });
-                ModelInvocationMetrics.begin(method);
+                final Object metricsContext = newMetricsContext(lock, method);
+                ModelInvocationMetrics.begin(metricsContext);
                 final Object result = method.invoke(model, args);
-                ModelInvocationMetrics.end(method);
+                ModelInvocationMetrics.end(metricsContext);
                 model.notifyListeners();
                 return LOGGER.logVariable("result", result);
             } catch (final InvocationTargetException itx) {
@@ -320,6 +323,20 @@ final class ModelInvocationHandler implements InvocationHandler {
      */
     private boolean isSetXAContext() {
         return XA_CONTEXT.containsKey(getXAThread());
+    }
+
+    /**
+     * Instantiate a model invocation metrics context.
+     * 
+     * @param lock
+     *            An <code>Object</code>.
+     * @param method
+     *            A <code>Method</code>.
+     * @return A <code>ModelInvocationMetricsContext</code>.
+     */
+    private ModelInvocationMetricsContext newMetricsContext(final Object lock,
+            final Method method) {
+        return new ModelInvocationMetricsContext(lock, method);
     }
 
     /**

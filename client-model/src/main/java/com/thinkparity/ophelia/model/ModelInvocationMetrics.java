@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.model;
 
-import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -35,8 +34,12 @@ class ModelInvocationMetrics {
      * @param context
      *            A <code>Method</code> context.
      */
-    static void begin(final Method context) {
-        MEASURES.put(context, captureMeasure());
+    static void begin(final Object context) {
+        try {
+            beginImpl(context);
+        } catch (final Throwable t) {
+            LOGGER.logWarning(t, "Could not record invocation metric.");
+        }
     }
 
     /**
@@ -45,27 +48,51 @@ class ModelInvocationMetrics {
      * @param context
      *            A <code>Method</code> context.
      */
-    static void end(final Method context) {
-        final Measure begin = MEASURES.remove(context);
-        final Measure end = captureMeasure();
-        final StringBuffer id = new StringBuffer(context.getDeclaringClass().getSimpleName())
-            .append("#")
-            .append(context.getName());
-        LOGGER.logDebug("{0};{1};{2};{3};{4};{5};{6};{7}",
-                id,                                                 // id
-                end.currentTimeMillis - begin.currentTimeMillis,    // duration
-                end.freeMemory,                                     // free
-                end.maxMemory,                                      // max
-                end.totalMemory,                                    // total
-                end.freeMemory - begin.freeMemory,                  // free mem delta
-                end.maxMemory - begin.maxMemory,                    // max mem delta
-                end.totalMemory - begin.totalMemory);               // total mem delta
+    static void end(final Object context) {
+        try {
+            endImpl(context);
+        } catch (final Throwable t) {
+            LOGGER.logWarning(t, "Could not record invocation metric.");
+        }
+    }
+
+    /**
+     * The implementation of begin.
+     * 
+     * @param context
+     *            An <code>Object</code>.
+     */
+    private static void beginImpl(final Object context) {
+        MEASURES.put(context, captureMeasure());
     }
 
     private static Measure captureMeasure() {
         final Runtime runtime = Runtime.getRuntime();
         return new Measure(System.currentTimeMillis(), runtime.freeMemory(),
                 runtime.maxMemory(), runtime.totalMemory());
+    }
+
+    /**
+     * The implementation of end.
+     * 
+     * @param context
+     *            An <code>Object</code>.
+     */
+    private static void endImpl(final Object context) {
+        try {
+            final Measure begin = MEASURES.remove(context);
+            final Measure end = captureMeasure();
+            LOGGER.logDebug("{0};{1};{2};{3};{4};{5};{6};{7}",
+                    context.toString(),                                 // id
+                    end.currentTimeMillis - begin.currentTimeMillis,    // duration
+                    end.freeMemory,                                     // free
+                    end.maxMemory,                                      // max
+                    end.totalMemory,                                    // total
+                    end.freeMemory - begin.freeMemory,                  // free mem delta
+                    end.maxMemory - begin.maxMemory,                    // max mem delta
+                    end.totalMemory - begin.totalMemory);               // total mem delta
+        } catch (final NullPointerException npx) {
+        }
     }
 
     /**

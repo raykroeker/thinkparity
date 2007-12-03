@@ -1180,7 +1180,8 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     private String getContainerDraftOwnerText(final Container container) {
         if (container.isLatest() && isSetDraft()) {
-            return getDraft().getOwner().getName();
+            return localization.getString("ContainerDraftOwner",
+                    new Object[] { getDraft().getOwner().getName() });
         } else {
             return null;
         }

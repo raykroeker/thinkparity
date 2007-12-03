@@ -10,6 +10,7 @@ import com.thinkparity.codebase.swing.SwingUtil;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
+import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel.PanelLocation;
 
 /**
  *
@@ -71,7 +72,7 @@ public class TopWestCellRenderer extends DefaultCellRenderer implements PanelCel
 
     private void collapseIconJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_collapseIconJLabelMousePressed
         SwingUtil.setCursor(TopWestCellRenderer.this, null);
-        tabPanel.panelCellMousePressed(cell, Boolean.TRUE, evt);
+        tabPanel.panelCellMousePressed(cell, PanelLocation.EXPAND_ICON, evt);
         tabPanel.expandIconMousePressed(evt);
     }//GEN-LAST:event_collapseIconJLabelMousePressed
 

@@ -134,7 +134,7 @@ public class Publish extends AbstractBrowserAction {
                     final List<EMail> emails = data.getList(DataKey.EMAILS);
                     final List<Contact> contacts = data.getList(DataKey.CONTACTS);
                     final List<TeamMember> teamMembers = data.getList(DataKey.TEAM_MEMBERS);
-                    final String versionName = (String) data.get(DataKey.VERSION_NAME);
+                    final String versionName = null;
                     final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
                     invoke(monitor, container, versionName, emails, contacts,
                             teamMembers);
@@ -194,7 +194,7 @@ public class Publish extends AbstractBrowserAction {
 
     /** Data keys. */
 	public enum DataKey {
-        CONTACTS, CONTAINER_ID, DISPLAY_AVATAR, EMAILS, MONITOR, TEAM_MEMBERS, VERSION_NAME
+        CONTACTS, CONTAINER_ID, DISPLAY_AVATAR, EMAILS, MONITOR, TEAM_MEMBERS
     }
 
     /** A publish action worker object. */

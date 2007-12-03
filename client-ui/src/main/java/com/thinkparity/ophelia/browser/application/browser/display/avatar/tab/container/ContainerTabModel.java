@@ -486,6 +486,16 @@ public final class ContainerTabModel extends TabPanelModel<Long> implements
     }
 
     /**
+     * Reload the connection.
+     */
+    void reloadConnection() {
+        for (final TabPanel panel : panels) {
+            final ContainerPanel containerPanel = (ContainerPanel) panel;
+            containerPanel.reloadConnection();
+        }
+    }
+
+    /**
      * Select the draft document in a container.
      * 
      * @param containerId

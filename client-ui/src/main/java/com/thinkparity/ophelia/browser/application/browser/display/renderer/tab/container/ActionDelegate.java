@@ -21,6 +21,85 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 public interface ActionDelegate {
 
     /**
+     * Get the display name key associated with the 'common' action for a container.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @return The common action display name key <code>String</code> for a container.
+     */
+    public String getCommonActionForContainerDisplayNameKey(final Container container,
+            final ContainerDraft draft);
+
+    /**
+     * Get the display name key associated with the 'common' action for the draft.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @return The common action display name key <code>String</code> for the draft.
+     */
+    public String getCommonActionForDraftDisplayNameKey(final Container container,
+            final ContainerDraft draft);
+
+    /**
+     * Get the display name key associated with the 'common' action for a version.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param latestVersion
+     *            A <code>Boolean</code>, true for the latest version.  
+     * @return The common action display name key <code>String</code> for a version.
+     */
+    public String getCommonActionForVersionDisplayNameKey(final Container container,
+            final ContainerDraft draft, final ContainerVersion version,
+            final Boolean latestVersion);
+
+    /**
+     * Invoke the 'common' action for a container.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     */
+    public void invokeCommonActionForContainer(final Container container,
+            final ContainerDraft draft);
+
+    /**
+     * Invoke the 'common' action for the draft.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     */
+    public void invokeCommonActionForDraft(final Container container,
+            final ContainerDraft draft);
+
+    /**
+     * Invoke the 'common' action for a version.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param latestVersion
+     *            A <code>Boolean</code>, true for the latest version.    
+     */
+    public void invokeCommonActionForVersion(final Container container,
+            final ContainerDraft draft, final ContainerVersion version,
+            final Boolean latestVersion);
+
+    /**
      * Invoke the delete action for a container.
      * 
      * @param container
@@ -104,4 +183,45 @@ public interface ActionDelegate {
      */
     public void invokeForVersion(final ContainerVersion version,
             final Boolean showComment);
+
+    /**
+     * Determine if the 'common' action is currently enabled for a container.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @return True if the 'common' action is currently enabled for a container.
+     */
+    public Boolean isCommonActionForContainerEnabled(final Container container,
+            final ContainerDraft draft);
+
+    /**
+     * Determine if the 'common' action is currently enabled for the draft.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @return True if the 'common' action is currently enabled for the draft.
+     */
+    public Boolean isCommonActionForDraftEnabled(final Container container,
+            final ContainerDraft draft);
+
+    /**
+     * Determine if the 'common' action is currently enabled for a version.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param latestVersion
+     *            A <code>Boolean</code>, true for the latest version.  
+     * @return True if the 'common' action is currently enabled for a version.
+     */
+    public Boolean isCommonActionForVersionEnabled(final Container container,
+            final ContainerDraft draft,  final ContainerVersion version,
+            final Boolean latestVersion);
 }

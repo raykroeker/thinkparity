@@ -1,3 +1,5 @@
-A notification is a small dialog that appears on the bottom right of your screen when something important arrives. You receive a notification when a new package arrives, when a package is updated, or when a person invites you to be their contact.
+When you create an account with thinkParity or you change your e-mail, a verification key is sent to your e-mail address and your account is placed in an inactive state. You cannot use all the features of thinkParity until you activate your account.
 
-If you close the thinkParity window, thinkParity runs in the background so you continue to receive notifications.
+To activate your account: 
+1 - Click the 'activate your account' link on the bottom left of thinkParity.
+2 - In the dialog that appears, enter the verification key.

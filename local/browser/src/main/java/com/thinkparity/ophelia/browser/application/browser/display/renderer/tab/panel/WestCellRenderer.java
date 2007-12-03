@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel;
 
+import java.awt.Graphics;
+
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
@@ -12,7 +14,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
  * <b>Title:</b>thinkParity Tab Panel West Cell Renderer<br>
  * <b>Description:</b>A JList cell renderer for the tab panels' western lists.<br>
  * 
- * @author raymond@thinkparity.com
+ * @author robert@thinkparity.com
  * @version 1.1.2.1
  */
 public class WestCellRenderer extends DefaultCellRenderer implements PanelCellRenderer {
@@ -22,7 +24,7 @@ public class WestCellRenderer extends DefaultCellRenderer implements PanelCellRe
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
-    
+
     /**
      * Create WestCellRenderer.
      * 
@@ -31,7 +33,7 @@ public class WestCellRenderer extends DefaultCellRenderer implements PanelCellRe
         super();
         initComponents();
     }
-    
+
     /**
      * Create WestCellRenderer.
      * 
@@ -41,13 +43,26 @@ public class WestCellRenderer extends DefaultCellRenderer implements PanelCellRe
         initComponents();
         installListeners(tabPanel, iconJLabel);
     }
-        
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCellRenderer#renderComponent(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, int)
      */
     @Override
     public void renderComponent(final Cell cell, final int index) {
+        // The west cell text is painted (see paintComponent). This avoids
+        // layout problems when the textJLabel text is too long.
         renderComponent(cell, index, iconJLabel, textJLabel, additionalTextJLabel);
+        textJLabel.setText(" ");
+        additionalTextJLabel.setText("");
+    }
+
+    /**
+     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+     */
+    @Override
+    protected void paintComponent(final Graphics g) {
+        super.paintComponent(g);
+        paintText(g, textJLabel, additionalTextJLabel);
     }
 
     /**
@@ -74,7 +89,6 @@ public class WestCellRenderer extends DefaultCellRenderer implements PanelCellRe
         textJLabel.setText("!West Cell Text!");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
         add(textJLabel, gridBagConstraints);
 
@@ -84,6 +98,7 @@ public class WestCellRenderer extends DefaultCellRenderer implements PanelCellRe
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         add(additionalTextJLabel, gridBagConstraints);
 

@@ -53,6 +53,9 @@ public class DefaultPopupDelegate implements PopupDelegate {
     /** A <code>KeyEventDispatcher</code>. */
     private KeyEventDispatcher keyEventDispatcher;
 
+    /** <code>Boolean</code> flags to indicate if the menu is left and top justified. */
+    private Boolean leftJustified, topJustified;
+
     /** A map of menu name <code>String</code> to existing <code>JMenu</code>s. */
     private final Map<String, JMenu> submenus;
 
@@ -148,6 +151,20 @@ public class DefaultPopupDelegate implements PopupDelegate {
         this.invoker = invoker;
         this.x = x;
         this.y = y;
+        this.leftJustified = Boolean.TRUE;
+        this.topJustified = Boolean.TRUE;
+        this.jPopupMenu = MenuFactory.createPopup();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.action.PopupDelegate#initialize(java.awt.Component, int, int, java.lang.Boolean, java.lang.Boolean)
+     */
+    public void initialize(final Component invoker, final int x, final int y, final Boolean leftJustified, final Boolean topJustified) {
+        this.invoker = invoker;
+        this.x = x;
+        this.y = y;
+        this.leftJustified = leftJustified;
+        this.topJustified = topJustified;
         this.jPopupMenu = MenuFactory.createPopup();
     }
 
@@ -200,7 +217,9 @@ public class DefaultPopupDelegate implements PopupDelegate {
                     }
                 }
             });
-            jPopupMenu.show(invoker, x, y);
+            final int xLoc = leftJustified ? x : x - (int)jPopupMenu.getPreferredSize().getWidth();
+            final int yLoc = topJustified ? y : y - (int)jPopupMenu.getPreferredSize().getHeight();
+            jPopupMenu.show(invoker, xLoc, yLoc);
             invoker = null;
             submenus.clear();
             x = y = -1;

@@ -23,9 +23,11 @@ import com.thinkparity.ophelia.model.help.HelpTopic;
 import com.thinkparity.ophelia.model.help.HelpTopicMovie;
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.KeyboardPopupHelper;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.PanelListManager;
 import com.thinkparity.ophelia.browser.util.localization.BrowserLocalization;
@@ -50,12 +52,10 @@ public class HelpTabPanel extends DefaultTabPanel {
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
     private final javax.swing.JLabel expandedMovieJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel expandedTextJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel firstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JPanel fixedSizeJPanel = new javax.swing.JPanel();
     private final javax.swing.JTextArea helpContentJTextArea = new javax.swing.JTextArea();
-    private final javax.swing.JLabel lastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel nextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel previousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel nextJLabel = LabelFactory.create(readIcon(TabPanelIcon.PAGE_NEXT), readIcon(TabPanelIcon.PAGE_NEXT_ROLLOVER));
+    private final javax.swing.JLabel previousJLabel = LabelFactory.create(readIcon(TabPanelIcon.PAGE_PREVIOUS), readIcon(TabPanelIcon.PAGE_PREVIOUS_ROLLOVER));
     // End of variables declaration//GEN-END:variables
 
     /** The help tab's <code>ActionDelegate</code>. */
@@ -90,8 +90,7 @@ public class HelpTabPanel extends DefaultTabPanel {
         this.localization = new BrowserLocalization("HelpTabPanel");
         this.helpContentModel = new HelpContentModel(this, helpContentJTextArea);
         this.panelListManager = new PanelListManager(helpContentModel,
-                localization, firstJLabel, previousJLabel, countJLabel,
-                nextJLabel, lastJLabel);
+                localization, previousJLabel, countJLabel, nextJLabel);
         initComponents();
     }
 
@@ -409,6 +408,7 @@ public class HelpTabPanel extends DefaultTabPanel {
         final javax.swing.JLabel collapsedFillerJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel expandedFillerJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel fillerJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel filler2JLabel = new javax.swing.JLabel();
         final javax.swing.JPanel fillerJPanel = new javax.swing.JPanel();
 
         setLayout(new java.awt.GridBagLayout());
@@ -604,7 +604,7 @@ public class HelpTabPanel extends DefaultTabPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.gridwidth = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -614,57 +614,43 @@ public class HelpTabPanel extends DefaultTabPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 51, 8, 0);
         expandedContentJPanel.add(fillerJLabel, gridBagConstraints);
 
-        firstJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkFirst.png")));
-        firstJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("HelpTabPanel.firstJLabel"));
-        firstJLabel.setIconTextGap(3);
+        previousJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/PagePrevious.png")));
+        previousJLabel.setIconTextGap(3);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
-        expandedContentJPanel.add(firstJLabel, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 8, 6);
+        expandedContentJPanel.add(previousJLabel, gridBagConstraints);
 
-        previousJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkPrevious.png")));
-        previousJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("HelpTabPanel.previousJLabel"));
-        previousJLabel.setIconTextGap(3);
+        countJLabel.setFont(Fonts.DialogPageFont);
+        countJLabel.setForeground(Colours.DIALOG_PAGE_TEXT_FG);
+        countJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("HelpTabPanel.countJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
-        expandedContentJPanel.add(previousJLabel, gridBagConstraints);
-
-        countJLabel.setFont(Fonts.DialogFont);
-        countJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("HelpTabPanel.countJLabel"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 8, 0);
         expandedContentJPanel.add(countJLabel, gridBagConstraints);
 
-        nextJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkNext.png")));
-        nextJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("HelpTabPanel.nextJLabel"));
+        nextJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/PageNext.png")));
         nextJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
         nextJLabel.setIconTextGap(2);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 8, 0);
         expandedContentJPanel.add(nextJLabel, gridBagConstraints);
 
-        lastJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkLast.png")));
-        lastJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("HelpTabPanel.lastJLabel"));
-        lastJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        lastJLabel.setIconTextGap(2);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
-        expandedContentJPanel.add(lastJLabel, gridBagConstraints);
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 8, 0);
+        expandedContentJPanel.add(filler2JLabel, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -679,16 +665,16 @@ public class HelpTabPanel extends DefaultTabPanel {
         expandedJPanel.setLayout(expandedJPanelLayout);
         expandedJPanelLayout.setHorizontalGroup(
             expandedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(fixedSizeJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .add(fixedSizeJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
             .add(fillerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 586, Short.MAX_VALUE)
         );
         expandedJPanelLayout.setVerticalGroup(
             expandedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(expandedJPanelLayout.createSequentialGroup()
-                .add(fixedSizeJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 164, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(fixedSizeJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 169, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(fillerJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;

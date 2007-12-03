@@ -12,19 +12,13 @@ import javax.swing.KeyStroke;
 import com.thinkparity.ophelia.browser.util.localization.Localization;
 
 /**
- * @author rob_masako@shaw.ca
+ * @author robert@thinkparity.com
  * @version $Revision$
  */
 public class PanelListManager {
 
     /** The count <code>JLabel</code>. */
     private final javax.swing.JLabel countJLabel;
-
-    /** The first <code>JLabel</code>. */
-    private final javax.swing.JLabel firstJLabel;
-
-    /** The last <code>JLabel</code>. */
-    private final javax.swing.JLabel lastJLabel;
 
     /** The <code>Localization</code>. */
     private final Localization localization;
@@ -45,34 +39,26 @@ public class PanelListManager {
      *            A <code>PanelListModel</code>.
      * @param localization
      *            A <code>Localization</code>.
-     * @param firstJLabel
-     *            The first <code>JLabel</code>.
      * @param previousJLabel
      *            The previous <code>JLabel</code>.
      * @param countJLabel
      *            The count <code>JLabel</code>.
      * @param nextJLabel
      *            The next <code>JLabel</code>.
-     * @param lastJLabel
-     *            The last <code>JLabel</code>.
      */
     public PanelListManager(
             final PanelListModel model,
             final Localization localization,
-            final javax.swing.JLabel firstJLabel,
             final javax.swing.JLabel previousJLabel,
             final javax.swing.JLabel countJLabel,
-            final javax.swing.JLabel nextJLabel,
-            final javax.swing.JLabel lastJLabel) {
+            final javax.swing.JLabel nextJLabel) {
         super();
         this.model = model;
         model.setPanelListManager(this);
         this.localization = localization;
-        this.firstJLabel = firstJLabel;
         this.previousJLabel = previousJLabel;
         this.countJLabel = countJLabel;
         this.nextJLabel = nextJLabel;
-        this.lastJLabel = lastJLabel;
         initializeMouseListeners();
     }
 
@@ -175,28 +161,8 @@ public class PanelListManager {
                 jLabelMousePressed(e);
             }
         };
-        this.firstJLabel.addMouseListener(mouseAdapter);
         this.previousJLabel.addMouseListener(mouseAdapter);
         this.nextJLabel.addMouseListener(mouseAdapter);
-        this.lastJLabel.addMouseListener(mouseAdapter);
-    }
-
-    /**
-     * Determine if "first" is available.
-     * 
-     * @return true if "first" is available.
-     */
-    private boolean isFirstAvailable() {
-        return getSelectedPage() > 1;
-    }
-
-    /**
-     * Determine if "last" is available.
-     * 
-     * @return true if "last" is available.
-     */
-    private boolean isLastAvailable() {
-        return getNumberPages() > 1 && getSelectedPage()+2 < getNumberPages();
     }
 
     /**
@@ -224,14 +190,10 @@ public class PanelListManager {
      *            A <code>MouseEvent</code>.
      */
     private void jLabelMousePressed(final java.awt.event.MouseEvent e) {
-        if (e.getSource().equals(firstJLabel)) {
-            goFirst();
-        } else if (e.getSource().equals(previousJLabel)) {
+        if (e.getSource().equals(previousJLabel)) {
             goPrevious();
         } else if (e.getSource().equals(nextJLabel)) {
             goNext();
-        } else if (e.getSource().equals(lastJLabel)) {
-            goLast();
         }
     }
 
@@ -239,11 +201,9 @@ public class PanelListManager {
      * Reload controls.
      */
     private void reloadControls() {
-        reloadFirst();
         reloadPrevious();
         reloadCount();
         reloadNext();
-        reloadLast();
     }
 
     /**
@@ -256,20 +216,6 @@ public class PanelListManager {
         } else {
             countJLabel.setVisible(false);
         }
-    }
-
-    /**
-     * Reload the first JLabel.
-     */
-    private void reloadFirst() {
-        firstJLabel.setVisible(isFirstAvailable());
-    }
-
-    /**
-     * Reload the last JLabel.
-     */
-    private void reloadLast() {
-        lastJLabel.setVisible(isLastAvailable());
     }
 
     /**

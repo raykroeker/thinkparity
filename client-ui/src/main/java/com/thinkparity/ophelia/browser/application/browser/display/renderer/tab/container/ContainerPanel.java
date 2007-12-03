@@ -9,7 +9,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -39,8 +38,11 @@ import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
+import com.thinkparity.ophelia.browser.application.browser.component.MenuFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.KeyboardPopupHelper;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.FileIconReader;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
@@ -72,12 +74,6 @@ public class ContainerPanel extends DefaultTabPanel {
     /** The Y location of the container text. */
     private static final int CONTAINER_TEXT_Y;
 
-    /** The east data card name. */
-    private static final String EAST_DATA_CARD_NAME;
-
-    /** The east summary card name. */
-    private static final String EAST_SUMMARY_CARD_NAME;
-
     /** The fraction of width allowed for the draft owner name. */
     private static final float FRACTION_WIDTH_DRAFT_OWNER_NAME;
 
@@ -89,38 +85,28 @@ public class ContainerPanel extends DefaultTabPanel {
         CONTAINER_TEXT_SPACE_END = 20;
         CONTAINER_TEXT_X = 56;
         CONTAINER_TEXT_Y = 5;
-        EAST_DATA_CARD_NAME = "eastJPanel";
-        EAST_SUMMARY_CARD_NAME = "eastSummaryJPanel";
         FRACTION_WIDTH_DRAFT_OWNER_NAME = 0.25f;
         NUMBER_VISIBLE_ROWS = 6;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JButton actionsJButton = ButtonFactory.create();
     private final javax.swing.JPanel collapsedJPanel = new javax.swing.JPanel();
-    private final javax.swing.JPanel eastContentJPanel = new javax.swing.JPanel();
+    private final javax.swing.JButton commonActionJButton = ButtonFactory.create();
     private final javax.swing.JLabel eastCountJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel eastFirstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JPanel eastJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel eastLastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private javax.swing.JPanel eastListJPanel;
-    private final javax.swing.JLabel eastNextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel eastPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel eastNextJLabel = LabelFactory.create(readIcon(TabPanelIcon.PAGE_NEXT), readIcon(TabPanelIcon.PAGE_NEXT_ROLLOVER));
+    private final javax.swing.JLabel eastPreviousJLabel = LabelFactory.create(readIcon(TabPanelIcon.PAGE_PREVIOUS), readIcon(TabPanelIcon.PAGE_PREVIOUS_ROLLOVER));
     private final javax.swing.JLabel expandIconJLabel = new javax.swing.JLabel();
     private final javax.swing.JPanel expandedJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel firstPublishedJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel iconJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel latestVersionJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel latestVersionTitleJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel textJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel versionsJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel westCountJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel westFiller2JLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel westFirstJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JPanel westJPanel = new javax.swing.JPanel();
-    private final javax.swing.JLabel westLastJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private javax.swing.JPanel westListJPanel;
-    private final javax.swing.JLabel westNextJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JLabel westPreviousJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JLabel westNextJLabel = LabelFactory.create(readIcon(TabPanelIcon.PAGE_NEXT), readIcon(TabPanelIcon.PAGE_NEXT_ROLLOVER));
+    private final javax.swing.JLabel westPreviousJLabel = LabelFactory.create(readIcon(TabPanelIcon.PAGE_PREVIOUS), readIcon(TabPanelIcon.PAGE_PREVIOUS_ROLLOVER));
     // End of variables declaration//GEN-END:variables
 
     /** The container tab's <code>DefaultActionDelegate</code>. */
@@ -212,13 +198,11 @@ public class ContainerPanel extends DefaultTabPanel {
         }
 
         this.eastListModel = new PanelCellListModel(this, "eastList",
-                localization, NUMBER_VISIBLE_ROWS, eastFirstJLabel,
-                eastPreviousJLabel, eastCountJLabel, eastNextJLabel,
-                eastLastJLabel);
+                localization, NUMBER_VISIBLE_ROWS, eastPreviousJLabel,
+                eastCountJLabel, eastNextJLabel);
         this.westListModel = new PanelCellListModel(this, "westList",
-                localization, NUMBER_VISIBLE_ROWS, westFirstJLabel,
-                westPreviousJLabel, westCountJLabel, westNextJLabel,
-                westLastJLabel);
+                localization, NUMBER_VISIBLE_ROWS, westPreviousJLabel,
+                westCountJLabel, westNextJLabel);
         initComponents();
         expandedData = Boolean.FALSE;
     }
@@ -410,16 +394,21 @@ public class ContainerPanel extends DefaultTabPanel {
 
     /**
      * Handle mouse press on cells.
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellMousePressed(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, java.lang.Boolean, java.awt.event.MouseEvent)
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#panelCellMousePressed(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell, com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel.PanelLocation, java.awt.event.MouseEvent)
      */
     @Override
-    public void panelCellMousePressed(final Cell cell, final Boolean onIcon, final MouseEvent e) {
+    public void panelCellMousePressed(final Cell cell, final PanelLocation panelLocation, final MouseEvent e) {
         if (cell instanceof WestCell) {
-            westListModel.setSelectedCell(cell);
+            if (0 == westListModel.getIndexOf(cell)) {
+                selectPanel();
+            } else {
+                westListModel.setSelectedCell(cell);
+            }
             if (0 < westListModel.getIndexOf(cell)) {
                 PanelFocusHelper.setFocus(PanelFocusHelper.Focus.WEST);
             }
-            if (0 == westListModel.getIndexOf(cell) && !onIcon
+            if (0 == westListModel.getIndexOf(cell)
+                    && panelLocation == PanelLocation.BODY
                     && e.getClickCount() % 2 == 0
                     && e.getButton() == MouseEvent.BUTTON1) {
                 tabDelegate.toggleExpansion(this);
@@ -429,7 +418,8 @@ public class ContainerPanel extends DefaultTabPanel {
             if (0 < eastListModel.getIndexOf(cell)) {
                 PanelFocusHelper.setFocus(PanelFocusHelper.Focus.EAST);
             }
-            if (!onIcon && e.getClickCount() % 2 == 0
+            if (panelLocation == PanelLocation.BODY
+                    && e.getClickCount() % 2 == 0
                     && e.getButton() == MouseEvent.BUTTON1) {
                 if (0 == eastListModel.getIndexOf(cell)) {
                     tabDelegate.toggleExpansion(this);
@@ -447,13 +437,6 @@ public class ContainerPanel extends DefaultTabPanel {
     @Override
     public void panelCellSelectionChanged(final Cell cell) {
         if (cell instanceof WestCell) {
-            if (0 == westListModel.getIndexOf(cell)) {
-                ((java.awt.CardLayout) eastContentJPanel.getLayout()).show(
-                        eastContentJPanel, EAST_SUMMARY_CARD_NAME);
-            } else {
-                ((java.awt.CardLayout) eastContentJPanel.getLayout()).show(
-                        eastContentJPanel, EAST_DATA_CARD_NAME);
-            }
             if (westListModel.isSelectionEmpty()) {
                 eastListModel.initialize(null);
             } else {
@@ -462,6 +445,7 @@ public class ContainerPanel extends DefaultTabPanel {
             if (cell instanceof VersionCell) {
                 ((VersionCell)cell).invokeSelectAction();
             }
+            reloadButtons();
             repaint();
         } else if (cell instanceof EastCell) {
             repaint();
@@ -477,6 +461,13 @@ public class ContainerPanel extends DefaultTabPanel {
             buildWestList();
         }
         repaint();
+    }
+
+    /**
+     * Reload because the connection status has changed.
+     */
+    public void reloadConnection() {
+        reloadButtons();
     }
 
     /**
@@ -502,7 +493,7 @@ public class ContainerPanel extends DefaultTabPanel {
             final List<EastCell> eastCells = ((WestCell)westCell).getEastCells();
             for (final Cell cell : eastCells) {
                 if (cell instanceof DraftDocumentCell) {
-                    if (((DraftDocumentCell)cell).getDocumentId().equals(documentId)) {
+                    if (((DraftDocumentCell)cell).getDocument().getId().equals(documentId)) {
                         eastListModel.setSelectedCell(cell);
                         break;
                     }
@@ -830,7 +821,7 @@ public class ContainerPanel extends DefaultTabPanel {
                                 popupDelegate.initialize(jComponent,
                                                 jComponent.getWidth() / 5,
                                                 jComponent.getHeight() / 2);
-                                cell.showPopup();
+                                cell.showPopup(Boolean.FALSE);
                             }
                         }
                     } else {
@@ -843,7 +834,7 @@ public class ContainerPanel extends DefaultTabPanel {
                                 popupDelegate.initialize(jComponent,
                                                 jComponent.getWidth() / 4,
                                                 jComponent.getHeight() / 2);
-                                cell.showPopup();
+                                cell.showPopup(Boolean.FALSE);
                             }
                         }
                     }
@@ -913,6 +904,37 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#doCollapse(boolean, javax.swing.JPanel, javax.swing.JPanel)
+     */
+    @Override
+    protected void doCollapse(final boolean animate, final JPanel collapsedJPanel, final JPanel expandedJPanel) {
+        super.doCollapse(animate, collapsedJPanel, expandedJPanel);
+        if (animate) {
+            addPropertyChangeListener("expanded", new PropertyChangeListener() {
+                public void propertyChange(final PropertyChangeEvent evt) {
+                    removePropertyChangeListener("expanded", this);
+                    reloadText();
+                }
+            });
+        } else {
+            reloadText();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#doExpand(boolean, javax.swing.JPanel, javax.swing.JPanel)
+     */
+    @Override
+    protected void doExpand(final boolean animate, final JPanel collapsedJPanel, final JPanel expandedJPanel) {
+        // select the first west cell
+        if (westListModel.getListModel().size() > 1) {
+            westListModel.showFirstPage();
+            westListModel.setSelectedCell(westCells.get(1));
+        }
+        super.doExpand(animate, collapsedJPanel, expandedJPanel);
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#invokeAction()
      */
     @Override
@@ -938,30 +960,6 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * Invoke the delete action on the selected object.
-     */
-    private void invokeDeleteAction() {
-        if (isExpanded()) {
-            // delete document
-            if (PanelFocusHelper.Focus.EAST == PanelFocusHelper.getFocus()) {
-                if (!eastListModel.isSelectionEmpty()) {
-                    final Cell cell = eastListModel.getSelectedCell();
-                    if (cell.isDeleteActionAvailable()) {
-                        cell.invokeDeleteAction();
-                    }
-                }
-            } else {
-                if (!westListModel.isSelectionEmpty()) {
-                    final Cell cell = westListModel.getSelectedCell();
-                    if (cell.isDeleteActionAvailable()) {
-                        cell.invokeDeleteAction();
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      * 
      */
@@ -971,7 +969,6 @@ public class ContainerPanel extends DefaultTabPanel {
         final int borderHeight = getBorder().getBorderInsets(this).top
                 + getBorder().getBorderInsets(this).bottom;
         final int height = getHeight() - borderHeight;
-        final int finalHeight = ANIMATION_MAXIMUM_HEIGHT - borderHeight;
         adjustBorderColor(isExpanded());
         if (isExpanded() || isAnimating()) {
             renderer.paintExpandedBackground(g, this);
@@ -982,8 +979,7 @@ public class ContainerPanel extends DefaultTabPanel {
                         + SwingUtilities.convertPoint(westJPanel, new Point(0, 0), this).x;
                 renderer.paintExpandedBackgroundWest(g, westWidth, height, westSelectionIndex, this);
                 renderer.paintExpandedBackgroundCenter(g, westWidth, height, westSelectionIndex, this);
-                renderer.paintExpandedBackgroundEast(g, westWidth, getWidth()
-                        - westWidth, finalHeight, westSelectionIndex, this);
+                renderer.paintExpandedBackgroundEast(g, westWidth, getWidth() - westWidth, height, westSelectionIndex, this);
                 if (westSelectionIndex>0 && eastSelectionIndex>0 && PanelFocusHelper.Focus.EAST == PanelFocusHelper.getFocus()) {
                     renderer.paintExpandedBackgroundEastSelection(g, westWidth,
                             getWidth() - westWidth, eastSelectionIndex, this);
@@ -1003,6 +999,20 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         finally { g2.dispose(); }
     }
+
+    private void actionsJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actionsJButtonActionPerformed
+        if (!westListModel.isSelectionEmpty() && !MenuFactory.isPopupMenu()) {
+            final Cell cell = westListModel.getSelectedCell();
+            if (cell.isPopupAvailable()) {
+                final JComponent jComponent = (JComponent)evt.getSource();
+                final int bottomBorderHeight = jComponent.getBorder().getBorderInsets(jComponent).bottom;
+                popupDelegate.initialize(jComponent, jComponent.getWidth(),
+                        jComponent.getHeight() - bottomBorderHeight + 2,
+                        Boolean.FALSE, Boolean.TRUE);
+                cell.showPopup(Boolean.TRUE);
+            }
+        }
+    }//GEN-LAST:event_actionsJButtonActionPerformed
 
     /**
      * Bind a keystroke destined for the east and west lists.
@@ -1075,24 +1085,6 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel#doCollapse(boolean, javax.swing.JPanel, javax.swing.JPanel)
-     */
-    @Override
-    protected void doCollapse(final boolean animate, final JPanel collapsedJPanel, final JPanel expandedJPanel) {
-        super.doCollapse(animate, collapsedJPanel, expandedJPanel);
-        if (animate) {
-            addPropertyChangeListener("expanded", new PropertyChangeListener() {
-                public void propertyChange(final PropertyChangeEvent evt) {
-                    removePropertyChangeListener("expanded", this);
-                    reloadText();
-                }
-            });
-        } else {
-            reloadText();
-        }
-    }
-
-    /**
      * Expand the panel.
      * 
      * @param animate
@@ -1152,8 +1144,7 @@ public class ContainerPanel extends DefaultTabPanel {
                 return localization.getString("ContainerMessagePublishDate",
                         new Object[] {formatFuzzy(latestVersion.getCreatedOn())});
             } else {
-                return localization.getString("ContainerMessageNotLatest",
-                        new Object[] {formatFuzzy(latestVersion.getCreatedOn())});
+                return localization.getString("ContainerMessageNotLatest");
             }
         } else {
             return "";
@@ -1297,22 +1288,15 @@ public class ContainerPanel extends DefaultTabPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        javax.swing.JLabel eastFillerJLabel;
         java.awt.GridBagConstraints gridBagConstraints;
-        javax.swing.JLabel westFillerJLabel;
 
         final javax.swing.JPanel fixedSizeJPanel = new javax.swing.JPanel();
         westListJPanel = new PanelCellListJPanel(westListModel, ListType.WEST_LIST);
-        westFillerJLabel = new javax.swing.JLabel();
-        final javax.swing.JPanel eastSummaryJPanel = new javax.swing.JPanel();
-        final javax.swing.JPanel eastSummaryTitlesJPanel = new javax.swing.JPanel();
-        final javax.swing.JLabel firstPublishedTitleJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel versionsTitleJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel eastSummaryTitleFillerJLabel = new javax.swing.JLabel();
-        final javax.swing.JPanel eastSummaryContentJPanel = new javax.swing.JPanel();
-        final javax.swing.JLabel eastSummaryContentFillerJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel westFillerJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel westFiller2JLabel = new javax.swing.JLabel();
         eastListJPanel = new PanelCellListJPanel(eastListModel, ListType.EAST_LIST);
-        eastFillerJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel eastFillerJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel eastFiller2JLabel = new javax.swing.JLabel();
         final javax.swing.JPanel fillerJPanel = new javax.swing.JPanel();
 
         setLayout(new java.awt.GridBagLayout());
@@ -1411,7 +1395,7 @@ public class ContainerPanel extends DefaultTabPanel {
 
         westListJPanel.setOpaque(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = 7;
+        gridBagConstraints.gridwidth = 5;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -1420,158 +1404,47 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 73, 8, 0);
         westJPanel.add(westFillerJLabel, gridBagConstraints);
 
-        westFirstJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkFirst.png")));
-        westFirstJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.firstJLabelWest"));
-        westFirstJLabel.setIconTextGap(3);
+        westPreviousJLabel.setFont(Fonts.DialogPageFont);
+        westPreviousJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/PagePrevious.png")));
+        westPreviousJLabel.setIconTextGap(3);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 5);
-        westJPanel.add(westFirstJLabel, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 8, 6);
+        westJPanel.add(westPreviousJLabel, gridBagConstraints);
 
-        westPreviousJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkPrevious.png")));
-        westPreviousJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.previousJLabelWest"));
-        westPreviousJLabel.setIconTextGap(3);
+        westCountJLabel.setFont(Fonts.DialogPageFont);
+        westCountJLabel.setForeground(Colours.DIALOG_PAGE_TEXT_FG);
+        westCountJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.countJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
-        westJPanel.add(westPreviousJLabel, gridBagConstraints);
-
-        westCountJLabel.setFont(Fonts.DialogFont);
-        westCountJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.countJLabel"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 8, 0);
         westJPanel.add(westCountJLabel, gridBagConstraints);
 
-        westNextJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkNext.png")));
-        westNextJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.nextJLabelWest"));
+        westNextJLabel.setFont(Fonts.DialogPageFont);
+        westNextJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/PageNext.png")));
         westNextJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
         westNextJLabel.setIconTextGap(2);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 8, 0);
         westJPanel.add(westNextJLabel, gridBagConstraints);
 
-        westLastJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkLast.png")));
-        westLastJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.lastJLabelWest"));
-        westLastJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        westLastJLabel.setIconTextGap(2);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
-        westJPanel.add(westLastJLabel, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 2);
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 8, 0);
         westJPanel.add(westFiller2JLabel, gridBagConstraints);
 
         fixedSizeJPanel.add(westJPanel);
-
-        eastContentJPanel.setLayout(new java.awt.CardLayout());
-
-        eastContentJPanel.setOpaque(false);
-        eastSummaryJPanel.setLayout(new java.awt.GridLayout(1, 0));
-
-        eastSummaryJPanel.setOpaque(false);
-        eastSummaryTitlesJPanel.setLayout(new java.awt.GridBagLayout());
-
-        eastSummaryTitlesJPanel.setOpaque(false);
-        latestVersionTitleJLabel.setFont(Fonts.DialogFont);
-        latestVersionTitleJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        latestVersionTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.latestVersionLeft"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(63, 0, 0, 0);
-        eastSummaryTitlesJPanel.add(latestVersionTitleJLabel, gridBagConstraints);
-
-        firstPublishedTitleJLabel.setFont(Fonts.DialogFont);
-        firstPublishedTitleJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        firstPublishedTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.firstPublishedJLabel"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 0);
-        eastSummaryTitlesJPanel.add(firstPublishedTitleJLabel, gridBagConstraints);
-
-        versionsTitleJLabel.setFont(Fonts.DialogFont);
-        versionsTitleJLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-        versionsTitleJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.versionsJLabel"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 0);
-        eastSummaryTitlesJPanel.add(versionsTitleJLabel, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
-        gridBagConstraints.weighty = 1.0;
-        eastSummaryTitlesJPanel.add(eastSummaryTitleFillerJLabel, gridBagConstraints);
-
-        eastSummaryJPanel.add(eastSummaryTitlesJPanel);
-
-        eastSummaryContentJPanel.setLayout(new java.awt.GridBagLayout());
-
-        eastSummaryContentJPanel.setOpaque(false);
-        latestVersionJLabel.setFont(Fonts.DialogFont);
-        latestVersionJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.latestVersionRight"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(63, 0, 0, 0);
-        eastSummaryContentJPanel.add(latestVersionJLabel, gridBagConstraints);
-
-        firstPublishedJLabel.setFont(Fonts.DialogFont);
-        firstPublishedJLabel.setText("!date!");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 0);
-        eastSummaryContentJPanel.add(firstPublishedJLabel, gridBagConstraints);
-
-        versionsJLabel.setFont(Fonts.DialogFont);
-        versionsJLabel.setText("!number!");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(2, 0, 0, 0);
-        eastSummaryContentJPanel.add(versionsJLabel, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
-        gridBagConstraints.weighty = 1.0;
-        eastSummaryContentJPanel.add(eastSummaryContentFillerJLabel, gridBagConstraints);
-
-        eastSummaryJPanel.add(eastSummaryContentJPanel);
-
-        eastContentJPanel.add(eastSummaryJPanel, "eastSummaryJPanel");
 
         eastJPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -1589,7 +1462,7 @@ public class ContainerPanel extends DefaultTabPanel {
 
         eastListJPanel.setOpaque(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridwidth = 6;
+        gridBagConstraints.gridwidth = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
@@ -1598,73 +1471,90 @@ public class ContainerPanel extends DefaultTabPanel {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 1, 0);
+        gridBagConstraints.insets = new java.awt.Insets(0, 32, 3, 0);
         eastJPanel.add(eastFillerJLabel, gridBagConstraints);
 
-        eastFirstJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkFirst.png")));
-        eastFirstJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.firstJLabelEast"));
-        eastFirstJLabel.setIconTextGap(3);
+        eastPreviousJLabel.setFont(Fonts.DialogPageFont);
+        eastPreviousJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/PagePrevious.png")));
+        eastPreviousJLabel.setIconTextGap(3);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
-        eastJPanel.add(eastFirstJLabel, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 3, 6);
+        eastJPanel.add(eastPreviousJLabel, gridBagConstraints);
 
-        eastPreviousJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkPrevious.png")));
-        eastPreviousJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.previousJLabelEast"));
-        eastPreviousJLabel.setIconTextGap(3);
+        eastCountJLabel.setFont(Fonts.DialogPageFont);
+        eastCountJLabel.setForeground(Colours.DIALOG_PAGE_TEXT_FG);
+        eastCountJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.countJLabel"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
-        eastJPanel.add(eastPreviousJLabel, gridBagConstraints);
-
-        eastCountJLabel.setFont(Fonts.DialogFont);
-        eastCountJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.countJLabel"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 3, 0);
         eastJPanel.add(eastCountJLabel, gridBagConstraints);
 
-        eastNextJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkNext.png")));
-        eastNextJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.nextJLabelEast"));
+        eastNextJLabel.setFont(Fonts.DialogPageFont);
+        eastNextJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/PageNext.png")));
         eastNextJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
         eastNextJLabel.setIconTextGap(2);
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 3, 0);
         eastJPanel.add(eastNextJLabel, gridBagConstraints);
 
-        eastLastJLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/LinkLast.png")));
-        eastLastJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("ContainerPanel.lastJLabelEast"));
-        eastLastJLabel.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        eastLastJLabel.setIconTextGap(2);
+        commonActionJButton.setFont(Fonts.DialogButtonFont);
+        commonActionJButton.setText("!Action!");
+        commonActionJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                commonActionJButtonActionPerformed(evt);
+            }
+        });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 1, 5);
-        eastJPanel.add(eastLastJLabel, gridBagConstraints);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 3, 6);
+        eastJPanel.add(commonActionJButton, gridBagConstraints);
 
-        eastContentJPanel.add(eastJPanel, "eastJPanel");
+        actionsJButton.setFont(Fonts.DialogButtonFont);
+        actionsJButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/ButtonDownArrow.png")));
+        actionsJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("containerPanel.MoreActions"));
+        actionsJButton.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+        actionsJButton.setMargin(new java.awt.Insets(2, 11, 2, 9));
+        actionsJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                actionsJButtonActionPerformed(evt);
+            }
+        });
 
-        fixedSizeJPanel.add(eastContentJPanel);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 3, 13);
+        eastJPanel.add(actionsJButton, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 3, 0);
+        eastJPanel.add(eastFiller2JLabel, gridBagConstraints);
+
+        fixedSizeJPanel.add(eastJPanel);
 
         org.jdesktop.layout.GroupLayout expandedJPanelLayout = new org.jdesktop.layout.GroupLayout(expandedJPanel);
         expandedJPanel.setLayout(expandedJPanelLayout);
         expandedJPanelLayout.setHorizontalGroup(
             expandedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, fixedSizeJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 425, Short.MAX_VALUE)
-            .add(fillerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 425, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, fixedSizeJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 599, Short.MAX_VALUE)
+            .add(fillerJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 599, Short.MAX_VALUE)
         );
         expandedJPanelLayout.setVerticalGroup(
             expandedJPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(expandedJPanelLayout.createSequentialGroup()
-                .add(fixedSizeJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 164, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(fixedSizeJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 169, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(fillerJPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -1679,6 +1569,30 @@ public class ContainerPanel extends DefaultTabPanel {
         add(expandedJPanel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Invoke the delete action on the selected object.
+     */
+    private void invokeDeleteAction() {
+        if (isExpanded()) {
+            // delete document
+            if (PanelFocusHelper.Focus.EAST == PanelFocusHelper.getFocus()) {
+                if (!eastListModel.isSelectionEmpty()) {
+                    final Cell cell = eastListModel.getSelectedCell();
+                    if (cell.isDeleteActionAvailable()) {
+                        cell.invokeDeleteAction();
+                    }
+                }
+            } else {
+                if (!westListModel.isSelectionEmpty()) {
+                    final Cell cell = westListModel.getSelectedCell();
+                    if (cell.isDeleteActionAvailable()) {
+                        cell.invokeDeleteAction();
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Determine if the specified user is the local user.
@@ -1752,6 +1666,28 @@ public class ContainerPanel extends DefaultTabPanel {
         g2.drawString(text, location.x, location.y);
     }
 
+    private void commonActionJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_primaryActionJButtonActionPerformed
+        final Cell cell = westListModel.getSelectedCell();
+        if (cell.isCommonActionAvailable()) {
+            cell.invokeCommonAction();
+        }
+    }//GEN-LAST:event_primaryActionJButtonActionPerformed
+
+    /**
+     * Reload the buttons.
+     */
+    private void reloadButtons() {
+        // handle empty selection, which may be the case if the panel has never been expanded
+        if (!westListModel.isSelectionEmpty()) {
+            final Cell cell = westListModel.getSelectedCell();
+            commonActionJButton.setVisible(cell.isCommonActionAvailable().booleanValue());
+            if (cell.isCommonActionAvailable()) {
+                commonActionJButton.setEnabled(cell.isCommonActionEnabled().booleanValue());
+                commonActionJButton.setText(cell.getCommonActionDisplayName());
+            }
+        }
+    }
+
     /**
      * Reload the text on the panel.
      */
@@ -1795,6 +1731,29 @@ public class ContainerPanel extends DefaultTabPanel {
             super();
             add(new EmptyEastCell(this, emptyEastCellPopupAvailable));
         }
+
+        /**
+         * Get the selected east cell.
+         * 
+         * @return The selected <code>EastCell</code> or null if there is none.
+         */
+        protected EastCell getSelectedEastCell() {
+            if (isSelectedEastCell()) {
+                return (EastCell) eastListModel.getSelectedCell();
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Determine if there is a selected east cell.
+         * 
+         * @return True if there is a selected east cell.
+         */
+        protected Boolean isSelectedEastCell() {
+            return !eastListModel.isSelectionEmpty()
+                    && PanelFocusHelper.Focus.EAST == PanelFocusHelper.getFocus();
+        }
     }
 
     /** A container cell. */
@@ -1807,19 +1766,12 @@ public class ContainerPanel extends DefaultTabPanel {
                 final ContainerVersion latestVersion,
                 final List<ContainerVersion> versions) {
             super(Boolean.TRUE);
-            if (!isDistributed() || container.isLatest()) {
-                latestVersionTitleJLabel.setText(localization.getString("latestVersionLeft"));
-                latestVersionJLabel.setText(prefixBlanks(localization.getString("latestVersionRight"), 1));
-            } else {
-                latestVersionTitleJLabel.setText(localization.getString("notLatestVersionLeft"));
-                latestVersionJLabel.setText(prefixBlanks(localization.getString("notLatestVersionRight"), 1));
-            }
-            if (isDistributed()) {
-                firstPublishedJLabel.setText(prefixBlanks(formatFuzzy(earliestVersion.getCreatedOn()), 2));
-            } else {
-                firstPublishedJLabel.setText(prefixBlanks(localization.getString("notApplicable"), 2));
-            }
-            versionsJLabel.setText(MessageFormat.format("  {0}", versions.size()));
+        }
+        @Override
+        public String getCommonActionDisplayName() {
+            final StringBuffer key = new StringBuffer("CommonAction.")
+                    .append(actionDelegate.getCommonActionForContainerDisplayNameKey(container, getDraft()));
+            return localization.getString(key.toString());
         }
         @Override
         public Icon getIcon() {
@@ -1840,6 +1792,10 @@ public class ContainerPanel extends DefaultTabPanel {
             actionDelegate.invokeForContainer(container);
         }
         @Override
+        public void invokeCommonAction() {
+            actionDelegate.invokeCommonActionForContainer(container, getDraft());
+        }
+        @Override
         public void invokeDeleteAction() {
             actionDelegate.invokeDeleteForContainer(container);
         }
@@ -1852,19 +1808,28 @@ public class ContainerPanel extends DefaultTabPanel {
             return Boolean.FALSE;
         }
         @Override
+        public Boolean isCommonActionAvailable() {
+            // Note that as of the December 4, 2007 update the container can be selected
+            // only in the circumstance that there is no draft and no version, a state
+            // that is supported for backwards compatibility only. In this state the 
+            // the 'create draft' common action is always available.
+            return Boolean.TRUE;
+        }
+        @Override
+        public Boolean isCommonActionEnabled() {
+            return actionDelegate.isCommonActionForContainerEnabled(container, getDraft());
+        }
+        @Override
         public Boolean isDeleteActionAvailable() {
             return Boolean.TRUE;
         }
         @Override
-        public void showPopup() {
-            popupDelegate.showForContainer(container, getDraft());
-        }
-        private String prefixBlanks(final String text, final int numBlanks) {
-            final StringBuffer result = new StringBuffer(" ");
-            for (int index = 1; index < numBlanks; index++) {
-                result.append(" ");
+        public void showPopup(final Boolean showAll) {
+            if (showAll) {
+                popupDelegate.showAll(container, getDraft());
+            } else {
+                popupDelegate.showForContainer(container, getDraft());
             }
-            return result.append(text).toString();
         }
     }
 
@@ -1879,6 +1844,12 @@ public class ContainerPanel extends DefaultTabPanel {
             for (final Document document : draftView.getDocuments()) {
                 add(new DraftDocumentCell(this, document));
             }
+        }
+        @Override
+        public String getCommonActionDisplayName() {
+            final StringBuffer key = new StringBuffer("CommonAction.")
+                    .append(actionDelegate.getCommonActionForDraftDisplayNameKey(container, getDraft()));
+            return localization.getString(key.toString());
         }
         @Override
         public Icon getIcon() {
@@ -1901,6 +1872,10 @@ public class ContainerPanel extends DefaultTabPanel {
             actionDelegate.invokeForDraft(getDraft());
         }
         @Override
+        public void invokeCommonAction() {
+            actionDelegate.invokeCommonActionForDraft(container, getDraft());
+        }
+        @Override
         public void invokeDeleteAction() {
             actionDelegate.invokeDeleteForDraft(container, getDraft());
         }
@@ -1909,12 +1884,35 @@ public class ContainerPanel extends DefaultTabPanel {
             return Boolean.TRUE;
         }
         @Override
+        public Boolean isCommonActionAvailable() {
+            return Boolean.TRUE;
+        }
+        @Override
+        public Boolean isCommonActionEnabled() {
+            return actionDelegate.isCommonActionForDraftEnabled(container, getDraft());
+        }
+        @Override
         public Boolean isDeleteActionAvailable() {
             return Boolean.TRUE;
         }
         @Override
-        public void showPopup() {
-            popupDelegate.showForDraft(container, getDraft());
+        public void showPopup(final Boolean showAll) {
+            if (showAll) {
+                boolean documentSelected = false;
+                if (isSelectedEastCell()) {
+                    final EastCell cell = getSelectedEastCell();
+                    if (cell instanceof DraftDocumentCell) {
+                        documentSelected = true;
+                        popupDelegate.showAll(container, getDraft(),
+                                ((DraftDocumentCell)cell).getDocument());
+                    }
+                }
+                if (!documentSelected) {
+                    popupDelegate.showAll(container, getDraft());
+                }
+            } else {
+                popupDelegate.showForDraft(container, getDraft());
+            }
         }
     }
 
@@ -1939,8 +1937,8 @@ public class ContainerPanel extends DefaultTabPanel {
             }
             setText(document.getName());
         }
-        public Long getDocumentId() {
-            return document.getId();
+        public Document getDocument() {
+            return document;
         }
         @Override
         public String getId() {
@@ -1963,7 +1961,7 @@ public class ContainerPanel extends DefaultTabPanel {
             return (getDraft().getState(document) != ArtifactState.REMOVED);
         }
         @Override
-        public void showPopup() {
+        public void showPopup(final Boolean showAll) {
             popupDelegate.showForDocument(getDraft(), document);
         }
     }
@@ -2227,6 +2225,16 @@ public class ContainerPanel extends DefaultTabPanel {
             }
         }
         @Override
+        public String getAdditionalText() {
+            return localization.getString("VersionAdditionalText", new Object[] {formatFuzzy(version.getCreatedOn())});
+        }
+        @Override
+        public String getCommonActionDisplayName() {
+            final StringBuffer key = new StringBuffer("CommonAction.")
+                    .append(actionDelegate.getCommonActionForVersionDisplayNameKey(container, getDraft(), version, isLatestVersion()));
+            return localization.getString(key.toString());
+        }
+        @Override
         public Icon getIcon() {
             if (version.isSetComment()) {
                 return IMAGE_CACHE.read(TabPanelIcon.VERSION_WITH_COMMENT);
@@ -2240,10 +2248,10 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public String getText() {
-            if (version.isSetName()) {
-                return localization.getString("Version", new Object[] {version.getName()});
+            if (isLocalUser(publishedBy)) {
+                return localization.getString("VersionLocalUserPublished", new Object[] {publishedBy.getName()});
             } else {
-                return localization.getString("Version", new Object[] {formatFuzzy(version.getCreatedOn())});
+                return localization.getString("Version", new Object[] {publishedBy.getName()});
             }
         }
         public Long getVersionId() {
@@ -2253,6 +2261,10 @@ public class ContainerPanel extends DefaultTabPanel {
         public void invokeAction() {
             actionDelegate.invokeForVersion(version, Boolean.TRUE);
         }
+        @Override
+        public void invokeCommonAction() {
+            actionDelegate.invokeCommonActionForVersion(container, getDraft(), version, isLatestVersion());
+        }
         public void invokeSelectAction() {
             actionDelegate.invokeForVersion(version, Boolean.FALSE);
         }
@@ -2261,14 +2273,44 @@ public class ContainerPanel extends DefaultTabPanel {
             return version.isSetComment();
         }
         @Override
+        public Boolean isCommonActionAvailable() {
+            return Boolean.TRUE;
+        }
+        @Override
+        public Boolean isCommonActionEnabled() {
+            return actionDelegate.isCommonActionForVersionEnabled(container, getDraft(), version, isLatestVersion());
+        }
+        @Override
         public Boolean isEmphasized() {
             // checking local user prevents flicker as events arrive
             // during a local publish
             return !version.isSeen() && !isLocalUser(publishedBy);
         }
+        public Boolean isLatestVersion() {
+            return version.equals(latestVersion);
+        }
         @Override
-        public void showPopup() {
-            popupDelegate.showForVersion(container, getDraft(), version, documentViews, version.equals(latestVersion));
+        public void showPopup(final Boolean showAll) {
+            if (showAll) {
+                boolean eastCellSelected = false;
+                if (isSelectedEastCell()) {
+                    final EastCell cell = getSelectedEastCell();
+                    if (cell instanceof VersionDocumentCell) {
+                        eastCellSelected = true;
+                        popupDelegate.showAll(container, getDraft(), version, documentViews, 
+                                isLatestVersion(), ((VersionDocumentCell)cell).getDocumentVersion());
+                    } else if (cell instanceof VersionUserCell) {
+                        eastCellSelected = true;
+                        popupDelegate.showAll(container, getDraft(), version, documentViews,
+                                isLatestVersion(), ((VersionUserCell)cell).getUser());
+                    }
+                }
+                if (!eastCellSelected) {
+                    popupDelegate.showAll(container, getDraft(), version, documentViews, isLatestVersion());
+                }
+            } else {
+                popupDelegate.showForVersion(container, getDraft(), version, documentViews, isLatestVersion());
+            }
         }
     }
 
@@ -2305,6 +2347,9 @@ public class ContainerPanel extends DefaultTabPanel {
             }
             setText(version.getArtifactName());
         }
+        public DocumentVersion getDocumentVersion() {
+            return version;
+        }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#getId()
          */
@@ -2337,7 +2382,7 @@ public class ContainerPanel extends DefaultTabPanel {
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
          */
         @Override
-        public void showPopup() {
+        public void showPopup(final Boolean showAll) {
             popupDelegate.showForDocument(version);
         }
     }
@@ -2395,6 +2440,9 @@ public class ContainerPanel extends DefaultTabPanel {
         public String getId() {
             return new StringBuffer("user-").append(user.getId()).toString();
         }
+        public User getUser() {
+            return user;
+        }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#invokeAction()
          */
@@ -2406,7 +2454,7 @@ public class ContainerPanel extends DefaultTabPanel {
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#showPopup()
          */
         @Override
-        public void showPopup() {
+        public void showPopup(final Boolean showAll) {
             popupDelegate.showForUser(user);
         }
     }

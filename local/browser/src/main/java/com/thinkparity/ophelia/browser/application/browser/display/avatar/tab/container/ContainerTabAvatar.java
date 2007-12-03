@@ -19,6 +19,7 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 
 import com.thinkparity.ophelia.model.events.ContainerEvent;
+import com.thinkparity.ophelia.model.events.ProfileEvent;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
@@ -275,6 +276,36 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
     }
 
     /**
+     * Fire a profile e-mail event.
+     * Fired when e-mail is updated or verified.
+     * 
+     * @param e
+     *            A <code>ProfileEvent</code>.
+     */
+    public void fireProfileEMailEvent(final ProfileEvent e) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.reloadConnection();
+            }
+        });
+    }
+
+    /**
+     * Fire a profile event.
+     * Fired when profile is updated, passivated or activated.
+     * 
+     * @param e
+     *            A <code>ProfileEvent</code>.
+     */
+    public void fireProfileEvent(final ProfileEvent e) {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.reloadConnection();
+            }
+        });
+    }
+
+    /**
      * Notify the avatar that a container has been received.
      * 
      * @param e
@@ -296,6 +327,17 @@ public class ContainerTabAvatar extends TabPanelAvatar<ContainerTabModel> {
                 model.syncRenamed(e.getContainer());
             }
         }); 
+    }
+
+    /**
+     * Fire a session event.
+     */
+    public void fireSessionEvent() {
+        SwingUtil.ensureDispatchThread(new Runnable() {
+            public void run() {
+                model.reloadConnection();
+            }
+        });
     }
 
     /**

@@ -6,9 +6,9 @@ package com.thinkparity.ophelia.browser.application.browser.display.event.tab.co
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.model.container.ContainerModel;
-import com.thinkparity.ophelia.model.events.ContainerAdapter;
-import com.thinkparity.ophelia.model.events.ContainerEvent;
-import com.thinkparity.ophelia.model.events.ContainerListener;
+import com.thinkparity.ophelia.model.events.*;
+import com.thinkparity.ophelia.model.profile.ProfileModel;
+import com.thinkparity.ophelia.model.session.SessionModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container.ContainerTabAvatar;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.EventDispatcher;
@@ -27,13 +27,28 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
     /** The <code>ContainerModel</code>. */
     private final ContainerModel containerModel;
 
+    /** A profile listener. */
+    private ProfileListener profileListener;
+
+    /** A profile model. */
+    private final ProfileModel profileModel;
+
+    /** A <code>SessionListener</code>. */
+    private SessionListener sessionListener;
+
+    /** An instance of <code>SessionModel</code>. */
+    private final SessionModel sessionModel;
+
     /**
      * Create ContainerTabDispatcher.
      *
      */
-    public ContainerTabDispatcher(final ContainerModel containerModel) {
+    public ContainerTabDispatcher(final ContainerModel containerModel,
+            final ProfileModel profileModel, final SessionModel sessionModel) {
         super();
         this.containerModel = containerModel;
+        this.profileModel = profileModel;
+        this.sessionModel = sessionModel;
     }
 
     /**
@@ -134,6 +149,40 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
             }
         };
         containerModel.addListener(containerListener);
+        profileListener = new ProfileAdapter() {
+            @Override
+            public void emailUpdated(final ProfileEvent e) {
+                avatar.fireProfileEMailEvent(e);
+            }
+            @Override
+            public void emailVerified(final ProfileEvent e) {
+                avatar.fireProfileEMailEvent(e);
+            }
+            @Override
+            public void profileUpdated(final ProfileEvent e) {
+                avatar.fireProfileEvent(e);
+            }
+            @Override
+            public void profileActivated(final ProfileEvent e) {
+                avatar.fireProfileEvent(e);
+            }
+            @Override
+            public void profilePassivated(final ProfileEvent e) {
+                avatar.fireProfileEvent(e);
+            }
+        };
+        profileModel.addListener(profileListener);
+        sessionListener = new SessionAdapter() {
+            @Override
+            public void sessionEstablished() {
+                avatar.fireSessionEvent();
+            }
+            @Override
+            public void sessionTerminated() {
+                avatar.fireSessionEvent();
+            }
+        };
+        sessionModel.addListener(sessionListener);
     }
 
     /**
@@ -145,5 +194,9 @@ public class ContainerTabDispatcher implements EventDispatcher<ContainerTabAvata
                 "Listener for avatar {0} not yet added.", avatar.getId());
         containerModel.removeListener(containerListener);
         containerListener = null;
+        profileModel.removeListener(profileListener);
+        profileListener = null;
+        sessionModel.removeListener(sessionListener);
+        sessionListener = null;
     }
 }

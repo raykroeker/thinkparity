@@ -1,15 +1,8 @@
-A package is organized as a list of versions. To see the versions in a package, click the '+' icon to the left of the package name to expand the package. The 'Working Version' is listed first (if there is one), followed by the historical versions, with the most recent version at the top.
+To send a package:
+1 - Expand the package.
+2 - Click the 'Send' button. Note that the 'Send' button will be disabled if you have not changed any documents.
+3 - Select the people that you want to send to. People that have already seen earlier versions of this package are listed.
+4 - If you want to send to a new person, type the person's name in the text box. As you type, a menu may appear making suggestions. You can select a name from the list to save you typing the whole name. You can add more than one person by separating the names with commas.
+5 - Press the 'Send' button.
 
-Each historical version is a snapshot of the package at the time it was published.
-
-When you click on a historical version, you can see who published the version, who received the version and when, and what documents were changed, added or removed in that version.
-
-<p>To open a document, click on the document icon. You cannot make changes to the documents of a historical version.
-
-To see details about a recipient, click on the recipient icon.
-
-To see the note associated with a historical version, right-click on the historical version and select 'Show note'. Alternatively, click on the version icon.
-
-<p>To forward a historical version to a new person, right-click on the version and select 'Forward Version' from the menu.
-
-To print all of the documents in a version, right-click on the version and select 'Print Version'.
+<p>Sometimes it is useful to attach a note when you send the package. Before sending the package, click the 'More Actions' button and select 'Edit Note'. Alternatively, click on the Working Version icon.

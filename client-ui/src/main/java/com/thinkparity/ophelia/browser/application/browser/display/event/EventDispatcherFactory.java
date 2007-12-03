@@ -94,7 +94,8 @@ public class EventDispatcherFactory {
                     profileModel, sessionModel);
             break;
         case TAB_CONTAINER:
-            eventDispatcher = new ContainerTabDispatcher(containerModel);
+            eventDispatcher = new ContainerTabDispatcher(containerModel,
+                    profileModel, sessionModel);
             break;
         case TAB_HELP:
             eventDispatcher = new HelpTabDispatcher(helpModel);

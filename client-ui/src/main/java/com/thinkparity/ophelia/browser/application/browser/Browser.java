@@ -1385,8 +1385,6 @@ public class Browser extends AbstractApplication {
      *            dialogue for the long-running action.
      * @param containerId
      *            A container id <code>Long</code>.
-     * @param versionName
-     *            The version name <code>String</code> (optional).
      * @param emails
      *            A <code>List</code> of <code>EMail</code> addresses.
      * @param contacts
@@ -1395,19 +1393,15 @@ public class Browser extends AbstractApplication {
      *            A <code>List</code> of <code>TeamMember</code>s.
      */
     public void runPublishContainer(final ThinkParitySwingMonitor monitor,
-            final Long containerId, final String versionName,
-            final List<EMail> emails, final List<Contact> contacts,
-            final List<TeamMember> teamMembers) {
-        final Data data = new Data(7);
+            final Long containerId, final List<EMail> emails,
+            final List<Contact> contacts, final List<TeamMember> teamMembers) {
+        final Data data = new Data(6);
         data.set(Publish.DataKey.DISPLAY_AVATAR, Boolean.FALSE);
         data.set(Publish.DataKey.CONTAINER_ID, containerId);
         data.set(Publish.DataKey.CONTACTS, contacts);
         data.set(Publish.DataKey.EMAILS, emails);
         data.set(Publish.DataKey.MONITOR, monitor);
         data.set(Publish.DataKey.TEAM_MEMBERS, teamMembers);
-        if (null != versionName) {
-            data.set(Publish.DataKey.VERSION_NAME, versionName);
-        }
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 invoke(ActionId.CONTAINER_PUBLISH, data);

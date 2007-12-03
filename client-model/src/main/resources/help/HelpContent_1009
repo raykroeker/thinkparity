@@ -1,12 +1,5 @@
-All of your contacts are stored and organized in the Contacts tab, similar to an address book. Unlike a traditional address book, you never need to manually update your contacts' information. When one of your contacts updates his information the changes are brought to you automatically, so your contact information is always up-to-date.
+Even when the thinkParity window is closed, thinkParity is still running in the background so you can be notified if somebody sends you a new package.
 
-To view contact details, click the '+' icon to the left of the contact name.
-
-<p>There are three ways to invite a person to be your contact.
-  * On the Contacts tab, click the 'Contacts' link. In the dialog that appears, type the person's e-mail address.
-  * Type the person's e-mail address in the publish dialog, when you are publishing a package.
-  * Expand a package, right click on the person you would like to invite, and select 'invite' from the menu.
-
-If the person you invite is not a thinkParity user, he will receive an e-mail on your behalf inviting him to become a member of thinkParity and use the service for free as your guest.
-
-<p>To delete a contact relationship, right-click on a contact and select 'Delete' from the menu. The contact will disappear from your contact tab, and at the same time your name will be removed from the other person's contact tab.
+To exit thinkParity:
+1 - Locate the thinkParity taskbar icon on the Windows taskbar (usually on the lower right of your screen).
+2 - Right-click on the icon and select 'Exit' from the menu.

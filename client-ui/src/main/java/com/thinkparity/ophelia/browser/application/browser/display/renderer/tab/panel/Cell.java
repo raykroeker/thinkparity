@@ -23,6 +23,13 @@ public interface Cell {
     public String getAdditionalText();
 
     /**
+     * Get the display name associated with the 'common' action.
+     * 
+     * @return The common action display name <code>String</code>.
+     */
+    public String getCommonActionDisplayName();
+
+    /**
      * Obtain the icon for the cell.
      * 
      * @return The <code>Icon</code>.
@@ -49,6 +56,11 @@ public interface Cell {
     public void invokeAction();
 
     /**
+     * Invoke the 'common' action for the cell.
+     */
+    public void invokeCommonAction();
+
+    /**
      * Invoke the delete action for the cell.
      */
     public void invokeDeleteAction();
@@ -68,6 +80,21 @@ public interface Cell {
      * @return True if an action delay is required.
      */
     public Boolean isActionDelayRequired();
+
+    /**
+     * Determine if the 'common' action is available for the cell.
+     * 
+     * @return True if the 'common' action is available for the cell.
+     */
+    public Boolean isCommonActionAvailable();
+
+    /**
+     * Determine if the 'common' action is currently enabled.
+     * For example, the action may be disabled when offline.
+     * 
+     * @return True if the 'common' action is currently enabled.
+     */
+    public Boolean isCommonActionEnabled();
 
     /**
      * Determine whether or not a delete action is available for the cell.
@@ -114,12 +141,11 @@ public interface Cell {
     /**
      * Show a popup menu for the cell.
      * 
-     * @param invoker
-     *            The invoker <code>Component</code>.
-     * @param x
-     *            The x coordinate of the menu.
-     * @param y
-     *            The y coordinate of the menu.
+     * If showAll is false, commands most relevant for the cell are displayed.
+     * If showAll is true, a broader set of commands are displayed.
+     * 
+     * @param showAll
+     *            A <code>Boolean</code>, true if all commands are displayed.
      */
-    public void showPopup();
+    public void showPopup(final Boolean showAll);
 }

@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -49,12 +50,19 @@ import com.thinkparity.ophelia.browser.util.swing.plaf.ThinkParityMenuItem;
 final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         implements TabPanelPopupDelegate, PopupDelegate {
 
+    /** An empty List of <code>DocumentView</code>. */
+    private static final List<DocumentView> EMPTY_DOCUMENT_VIEWS;
+
+    static {
+        EMPTY_DOCUMENT_VIEWS = Collections.emptyList();
+    }
+
     /** A list of action ids, used for the container popup. */
     private final List<ActionId> actionIds;
-    
+
     /** A list of data, used for the container popup. */
     private final List<Data> dataList;
-    
+
     /** A <code>ContainerModel</code>. */
     private final ContainerTabModel model;
 
@@ -69,6 +77,49 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         this.model = model;
         this.actionIds = new ArrayList<ActionId>();
         this.dataList = new ArrayList<Data>();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showAll(com.thinkparity.codebase.model.container.Container, com.thinkparity.ophelia.model.container.ContainerDraft)
+     */
+    public void showAll(final Container container, final ContainerDraft draft) {
+        showAll(container, draft, null, EMPTY_DOCUMENT_VIEWS, Boolean.FALSE, null, null, null);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showAll(com.thinkparity.codebase.model.container.Container, com.thinkparity.ophelia.model.container.ContainerDraft, com.thinkparity.codebase.model.container.ContainerVersion, java.util.List, java.lang.Boolean)
+     */
+    public void showAll(final Container container, final ContainerDraft draft,
+            final ContainerVersion version,
+            final List<DocumentView> documentViews, final Boolean latestVersion) {
+        showAll(container, draft, version, documentViews, latestVersion, null, null, null);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showAll(com.thinkparity.codebase.model.container.Container, com.thinkparity.ophelia.model.container.ContainerDraft, com.thinkparity.codebase.model.container.ContainerVersion, java.util.List, java.lang.Boolean, com.thinkparity.codebase.model.document.DocumentVersion)
+     */
+    public void showAll(final Container container, final ContainerDraft draft,
+            final ContainerVersion version,
+            final List<DocumentView> documentViews,
+            final Boolean latestVersion, final DocumentVersion documentVersion) {
+        showAll(container, draft, version, documentViews, latestVersion, null, documentVersion, null);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showAll(com.thinkparity.codebase.model.container.Container, com.thinkparity.ophelia.model.container.ContainerDraft, com.thinkparity.codebase.model.container.ContainerVersion, java.util.List, java.lang.Boolean, com.thinkparity.codebase.model.user.User)
+     */
+    public void showAll(final Container container, final ContainerDraft draft,
+            final ContainerVersion version,
+            final List<DocumentView> documentViews,
+            final Boolean latestVersion, final User user) {
+        showAll(container, draft, version, documentViews, latestVersion, null, null, user);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showAll(com.thinkparity.codebase.model.container.Container, com.thinkparity.ophelia.model.container.ContainerDraft, com.thinkparity.codebase.model.document.Document)
+     */
+    public void showAll(final Container container, final ContainerDraft draft, final Document document) {
+        showAll(container, draft, null, EMPTY_DOCUMENT_VIEWS, Boolean.FALSE, document, null, null);
     }
 
     /**
@@ -106,7 +157,8 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         }
 
         // delete draft
-        if (isLocalDraft(draft) && (online || !distributed)) {
+        // this command is no longer allowed if the package has not been distributed
+        if (isLocalDraft(draft) && distributed && online) {
             final Data deleteData = new Data(1);
             deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
             add(ActionId.CONTAINER_DELETE_DRAFT, deleteData);
@@ -200,69 +252,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForDocument(com.thinkparity.ophelia.model.container.ContainerDraft, com.thinkparity.codebase.model.document.Document)
      */
     public void showForDocument(final ContainerDraft draft, final Document document) {
-        // open
-        if (ArtifactState.REMOVED != draft.getState(document)) {
-            final Data data = new Data(1);
-            data.set(Open.DataKey.DOCUMENT_ID, document.getId());
-            add(ActionId.DOCUMENT_OPEN, data);
-        }
-
-        // rename document
-        if (ArtifactState.ADDED == draft.getState(document)) {
-            final Data renameData = new Data(2);
-            renameData.set(RenameDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-            renameData.set(RenameDocument.DataKey.DOCUMENT_ID, document.getId());
-            add(ActionId.CONTAINER_RENAME_DOCUMENT, renameData);
-        }
-
-        // revert
-        if (ArtifactState.MODIFIED == draft.getState(document)) {
-            final Data revertData = new Data(2);
-            revertData.set(RevertDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-            revertData.set(RevertDocument.DataKey.DOCUMENT_ID, document.getId());
-            add(ActionId.CONTAINER_REVERT_DOCUMENT, revertData);
-        }
-
-        // undelete
-        if (ArtifactState.REMOVED == draft.getState(document)) {
-            final Data undeleteData = new Data(2);
-            undeleteData.set(UndeleteDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-            undeleteData.set(UndeleteDocument.DataKey.DOCUMENT_ID, document.getId());
-            add(ActionId.CONTAINER_UNDELETE_DOCUMENT, undeleteData);
-        }
-
-        // remove document
-        if (ArtifactState.REMOVED != draft.getState(document)) {
-            final Data removeData = new Data(2);
-            removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-            removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, document.getId());
-            add(ActionId.CONTAINER_REMOVE_DOCUMENT, removeData);
-        }
-
-        // include the document's id and unique id in the menu
-        if (model.isDevelopmentMode()) {
-            final Clipboard systemClipboard =
-                Toolkit.getDefaultToolkit().getSystemClipboard();
-            final ActionListener debugActionListener = new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    final StringSelection stringSelection =
-                        new StringSelection(((JComponent) e.getSource()).getClientProperty("COPY_ME").toString());
-                    systemClipboard.setContents(stringSelection, null);
-                }
-            };
-            final JMenuItem idJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getId():{0,number,#}", document.getId()));
-            idJMenuItem.putClientProperty("COPY_ME", document.getId());
-            idJMenuItem.addActionListener(debugActionListener);
-
-            final JMenuItem uidJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getUniqueId():{0}", document.getUniqueId()));
-            uidJMenuItem.putClientProperty("COPY_ME", document.getUniqueId());
-            uidJMenuItem.addActionListener(debugActionListener);
-
-            addSeparator();
-            add(idJMenuItem);
-            add(uidJMenuItem);
-        }
-
+        addForDocument(draft, document);
         show();
     }
 
@@ -270,41 +260,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForDocument(com.thinkparity.codebase.model.document.DocumentVersion)
      */
     public void showForDocument(final DocumentVersion documentVersion) {
-        // open
-        final Data data = new Data(2);
-        data.set(OpenVersion.DataKey.DOCUMENT_ID, documentVersion.getArtifactId());
-        data.set(OpenVersion.DataKey.VERSION_ID, documentVersion.getVersionId());
-        add(ActionId.DOCUMENT_OPEN_VERSION, data);
-
-        // include the document version's id version id and unique id in the menu
-        if (model.isDevelopmentMode()) {
-            final Clipboard systemClipboard =
-                Toolkit.getDefaultToolkit().getSystemClipboard();
-            final ActionListener debugActionListener = new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    final StringSelection stringSelection =
-                        new StringSelection(((JComponent) e.getSource()).getClientProperty("COPY_ME").toString());
-                    systemClipboard.setContents(stringSelection, null);
-                }
-            };
-            final JMenuItem idJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getId():{0,number,#}", documentVersion.getArtifactId()));
-            idJMenuItem.putClientProperty("COPY_ME", documentVersion.getArtifactId());
-            idJMenuItem.addActionListener(debugActionListener);
-
-            final JMenuItem versionIdJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getVersionId():{0,number,#}", documentVersion.getVersionId()));
-            versionIdJMenuItem.putClientProperty("COPY_ME", documentVersion.getVersionId());
-            versionIdJMenuItem.addActionListener(debugActionListener);
-
-            final JMenuItem uidJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getUniqueId():{0}", documentVersion.getArtifactUniqueId()));
-            uidJMenuItem.putClientProperty("COPY_ME", documentVersion.getArtifactUniqueId());
-            uidJMenuItem.addActionListener(debugActionListener);
-
-            addSeparator();
-            add(idJMenuItem);
-            add(versionIdJMenuItem);
-            add(uidJMenuItem);
-        }
-
+        addForDocument(documentVersion);
         show();
     }
 
@@ -337,8 +293,8 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         add(ActionId.CONTAINER_UPDATE_DRAFT_COMMENT, data);
 
         // delete draft
-        // This menu is shown if online, or if it has never been published.
-        if (online || !isDistributed(container.getId())) {
+        // this command is no longer allowed if the package has not been distributed
+        if (online && isDistributed(container.getId())) {
             final Data deleteData = new Data(1);
             deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
             add(ActionId.CONTAINER_DELETE_DRAFT, deleteData);
@@ -355,7 +311,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
 
         show();
     }
-
+    
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate#showForPanel(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
      *
@@ -370,27 +326,7 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate#showForUser(com.thinkparity.codebase.model.user.User)
      */
     public void showForUser(final User user) {
-        // invite
-        if (isOnline()) {
-            if (!isLocalUser(user) && !doesExistContact(user)
-                    && !doesExistOutgoingUserInvitation(user)
-                    && isInviteAvailable(user)) {
-                final Data data = new Data(1);
-                data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, user.getLocalId());
-                add(ActionId.CONTACT_CREATE_OUTGOING_USER_INVITATION, data);
-                addSeparator();
-            }
-        }
-
-        // open
-        if (isLocalUser(user)) {
-            add(ActionId.PROFILE_UPDATE, Data.emptyData());
-        } else {
-            final Data data = new Data(1);
-            data.set(ReadTeamMember.DataKey.USER_ID, user.getLocalId());
-            add(ActionId.CONTAINER_READ_TEAM_MEMBER, data);
-        }
-
+        addForUser(user);
         show();
     }
 
@@ -459,6 +395,151 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         }
 
         show();
+    }
+
+    /**
+     * Add menus for a document.
+     * 
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param document
+     *            A <code>Document</code>.
+     */
+    private void addForDocument(final ContainerDraft draft, final Document document) {
+        // open
+        if (ArtifactState.REMOVED != draft.getState(document)) {
+            final Data data = new Data(1);
+            data.set(Open.DataKey.DOCUMENT_ID, document.getId());
+            add(ActionId.DOCUMENT_OPEN, data);
+        }
+
+        // rename document
+        if (ArtifactState.ADDED == draft.getState(document)) {
+            final Data renameData = new Data(2);
+            renameData.set(RenameDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+            renameData.set(RenameDocument.DataKey.DOCUMENT_ID, document.getId());
+            add(ActionId.CONTAINER_RENAME_DOCUMENT, renameData);
+        }
+
+        // revert
+        if (ArtifactState.MODIFIED == draft.getState(document)) {
+            final Data revertData = new Data(2);
+            revertData.set(RevertDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+            revertData.set(RevertDocument.DataKey.DOCUMENT_ID, document.getId());
+            add(ActionId.CONTAINER_REVERT_DOCUMENT, revertData);
+        }
+
+        // undelete
+        if (ArtifactState.REMOVED == draft.getState(document)) {
+            final Data undeleteData = new Data(2);
+            undeleteData.set(UndeleteDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+            undeleteData.set(UndeleteDocument.DataKey.DOCUMENT_ID, document.getId());
+            add(ActionId.CONTAINER_UNDELETE_DOCUMENT, undeleteData);
+        }
+
+        // remove document
+        if (ArtifactState.REMOVED != draft.getState(document)) {
+            final Data removeData = new Data(2);
+            removeData.set(RemoveDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+            removeData.set(RemoveDocument.DataKey.DOCUMENT_ID, document.getId());
+            add(ActionId.CONTAINER_REMOVE_DOCUMENT, removeData);
+        }
+
+        // include the document's id and unique id in the menu
+        if (model.isDevelopmentMode()) {
+            final Clipboard systemClipboard =
+                Toolkit.getDefaultToolkit().getSystemClipboard();
+            final ActionListener debugActionListener = new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    final StringSelection stringSelection =
+                        new StringSelection(((JComponent) e.getSource()).getClientProperty("COPY_ME").toString());
+                    systemClipboard.setContents(stringSelection, null);
+                }
+            };
+            final JMenuItem idJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getId():{0,number,#}", document.getId()));
+            idJMenuItem.putClientProperty("COPY_ME", document.getId());
+            idJMenuItem.addActionListener(debugActionListener);
+
+            final JMenuItem uidJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getUniqueId():{0}", document.getUniqueId()));
+            uidJMenuItem.putClientProperty("COPY_ME", document.getUniqueId());
+            uidJMenuItem.addActionListener(debugActionListener);
+
+            addSeparator();
+            add(idJMenuItem);
+            add(uidJMenuItem);
+        }
+    }
+
+    /**
+     * Add menus for a document version.
+     * 
+     * @param documentVersion
+     *            A <code>DocumentVersion</code>.
+     */
+    private void addForDocument(final DocumentVersion documentVersion) {
+        // open
+        final Data data = new Data(2);
+        data.set(OpenVersion.DataKey.DOCUMENT_ID, documentVersion.getArtifactId());
+        data.set(OpenVersion.DataKey.VERSION_ID, documentVersion.getVersionId());
+        add(ActionId.DOCUMENT_OPEN_VERSION, data);
+
+        // include the document version's id version id and unique id in the menu
+        if (model.isDevelopmentMode()) {
+            final Clipboard systemClipboard =
+                Toolkit.getDefaultToolkit().getSystemClipboard();
+            final ActionListener debugActionListener = new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    final StringSelection stringSelection =
+                        new StringSelection(((JComponent) e.getSource()).getClientProperty("COPY_ME").toString());
+                    systemClipboard.setContents(stringSelection, null);
+                }
+            };
+            final JMenuItem idJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getId():{0,number,#}", documentVersion.getArtifactId()));
+            idJMenuItem.putClientProperty("COPY_ME", documentVersion.getArtifactId());
+            idJMenuItem.addActionListener(debugActionListener);
+
+            final JMenuItem versionIdJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getVersionId():{0,number,#}", documentVersion.getVersionId()));
+            versionIdJMenuItem.putClientProperty("COPY_ME", documentVersion.getVersionId());
+            versionIdJMenuItem.addActionListener(debugActionListener);
+
+            final JMenuItem uidJMenuItem = new ThinkParityMenuItem(MessageFormat.format("getUniqueId():{0}", documentVersion.getArtifactUniqueId()));
+            uidJMenuItem.putClientProperty("COPY_ME", documentVersion.getArtifactUniqueId());
+            uidJMenuItem.addActionListener(debugActionListener);
+
+            addSeparator();
+            add(idJMenuItem);
+            add(versionIdJMenuItem);
+            add(uidJMenuItem);
+        }
+    }
+
+    /**
+     * Add menus for a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     */
+    private void addForUser(final User user) {
+        // invite
+        if (isOnline()) {
+            if (!isLocalUser(user) && !doesExistContact(user)
+                    && !doesExistOutgoingUserInvitation(user)
+                    && isInviteAvailable(user)) {
+                final Data data = new Data(1);
+                data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, user.getLocalId());
+                add(ActionId.CONTACT_CREATE_OUTGOING_USER_INVITATION, data);
+                addSeparator();
+            }
+        }
+
+        // open
+        if (isLocalUser(user)) {
+            add(ActionId.PROFILE_UPDATE, Data.emptyData());
+        } else {
+            final Data data = new Data(1);
+            data.set(ReadTeamMember.DataKey.USER_ID, user.getLocalId());
+            add(ActionId.CONTAINER_READ_TEAM_MEMBER, data);
+        }
     }
 
     /**
@@ -605,5 +686,183 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
      */
     private boolean isOnline() {
         return model.isOnlineUI().booleanValue();
+    }
+
+    /**
+     * Display a popup menu that shows all relevant actions.
+     * The actions displayed depend on what is selected.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>, if a version is selected.
+     * @param documentViews
+     *            A list of <code>DocumentView</code>, if a version is selected.
+     * @param latestVersion
+     *            A <code>Boolean</code>, true for the latest version.
+     * @param document
+     *            A <code>Document</code>, if a draft document is selected.
+     * @param documentVersion
+     *            A <code>DocumentVersion</code>, if a version document is selected.
+     * @param user
+     *            A <code>User</code>, if a user is selected.
+     */
+    private void showAll(final Container container, final ContainerDraft draft,
+            final ContainerVersion version,
+            final List<DocumentView> documentViews,
+            final Boolean latestVersion, final Document document,
+            final DocumentVersion documentVersion, final User user) {
+        final boolean draftSelected = null == version && null != draft;
+        final boolean versionSelected = null != version;
+        final boolean draftDocumentSelected = null != document;
+        final boolean versionDocumentSelected = null != documentVersion;
+        final boolean versionUserSelected = null != user;
+        final boolean online = isOnline();
+        final boolean distributed = isDistributed(container.getId());
+        boolean needSeparator = false;
+
+        // show menus for draft document, version document or version user (if selected)
+        if (draftDocumentSelected) {
+            addForDocument(draft, document);
+            needSeparator = true;
+        } else if (versionDocumentSelected) {
+            addForDocument(documentVersion);
+            needSeparator = true;
+        } else if (versionUserSelected) {
+            addForUser(user);
+            needSeparator = true;
+        }
+
+        // separator
+        if (needSeparator) {
+            addSeparator();
+            needSeparator = false;
+        }
+
+        // create draft is not required because it is available on the 'common actions' button.
+        // publish is not required because it is available on the 'common actions' button.
+        // add document
+        if (draftSelected && isLocalDraft(draft)) {
+            final Data addDocumentData = new Data(2);
+            addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+            addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
+            add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
+            needSeparator = true;
+        }
+
+        // update draft comment
+        if (draftSelected) {
+            final Data data = new Data(2);
+            data.set(UpdateDraftComment.DataKey.CONTAINER_ID, draft.getContainerId());
+            data.set(UpdateDraftComment.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            add(ActionId.CONTAINER_UPDATE_DRAFT_COMMENT, data);
+            needSeparator = true;
+        }
+
+        // delete draft
+        // this command is no longer allowed if the package has not been distributed
+        if (draftSelected && isLocalDraft(draft) && distributed && online) {
+            final Data deleteData = new Data(1);
+            deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
+            add(ActionId.CONTAINER_DELETE_DRAFT, deleteData);
+            needSeparator = true;
+        }
+
+        // publish version
+        // if nobody has the draft and the user selects the latest version,
+        // the 'common actions' button will have Create Draft. This is the one
+        // case where we need to show the Forward command in this list.
+        if (versionSelected && online && null == draft && latestVersion && container.isLatest()) {
+            final Data publishData = new Data(3);
+            publishData.set(PublishVersion.DataKey.CONTAINER_ID, version.getArtifactId());
+            publishData.set(PublishVersion.DataKey.VERSION_ID, version.getVersionId());
+            publishData.set(PublishVersion.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+            add(ActionId.CONTAINER_PUBLISH_VERSION, publishData);
+            needSeparator = true;
+        }
+
+        // display version comment
+        if (versionSelected && version.isSetComment()) {
+            final Data commentData = new Data(2);
+            commentData.set(DisplayVersionInfo.DataKey.CONTAINER_ID, version.getArtifactId());
+            commentData.set(DisplayVersionInfo.DataKey.VERSION_ID, version.getVersionId());
+            add(ActionId.CONTAINER_DISPLAY_VERSION_INFO, commentData);
+            needSeparator = true;
+        }
+
+        // print draft documents
+        if (draftSelected) {
+            final List<Document> documentsNotDeleted = getDocumentsNotDeleted(draft);
+            if (documentsNotDeleted.size() > 0) {
+                final Data printData = new Data(1);
+                printData.set(PrintDraft.DataKey.CONTAINER_ID, draft.getContainerId());
+                add(ActionId.CONTAINER_PRINT_DRAFT, printData);
+                needSeparator = true;
+            }
+        }
+
+        // print version documents
+        if (versionSelected) {
+            final List<DocumentView> documentViewsNotDeleted = getDocumentViewsNotDeleted(documentViews);
+            if (documentViewsNotDeleted.size() > 0) {
+                final Data printData = new Data(2);
+                printData.set(PrintVersion.DataKey.CONTAINER_ID, version.getArtifactId());
+                printData.set(PrintVersion.DataKey.VERSION_ID, version.getVersionId());
+                add(ActionId.CONTAINER_PRINT_VERSION, printData);
+                needSeparator = true;
+            }
+        }
+
+        // separator
+        if (needSeparator) {
+            addSeparator();
+            needSeparator = false;
+        }
+
+        // bookmark
+        if (container.isBookmarked()) {
+            final Data removeBookmarkData = new Data(1);
+            removeBookmarkData.set(RemoveBookmark.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_REMOVE_BOOKMARK, removeBookmarkData);
+        } else {
+            final Data addBookmarkData = new Data(1);
+            addBookmarkData.set(AddBookmark.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_ADD_BOOKMARK, addBookmarkData);
+        }
+        needSeparator = true;
+
+        // Rename container
+        if (!distributed) {
+            final Data renameData = new Data(1);
+            renameData.set(Rename.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_RENAME, renameData);
+            needSeparator = true;
+        }
+
+        // delete
+        // This menu is shown if online, or if it has never been published.
+        if (online || !distributed) {
+            final Data deleteData = new Data(1);
+            deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_DELETE, deleteData);
+            needSeparator = true;
+        }
+
+        // audit report and export
+        if (distributed) {
+            final Data reportData = new Data(1);
+            reportData.set(ExportAuditReport.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_EXPORT_AUDIT_REPORT, reportData);
+            
+            final Data exportData = new Data(1);
+            exportData.set(Export.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_EXPORT, exportData);
+            
+            needSeparator = true;
+        }
+
+        show();
     }
 }

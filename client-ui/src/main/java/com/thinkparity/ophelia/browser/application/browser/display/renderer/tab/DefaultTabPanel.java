@@ -11,6 +11,7 @@ import java.awt.event.KeyEvent;
 import java.util.Calendar;
 
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
 import javax.swing.KeyStroke;
 import javax.swing.border.Border;
 
@@ -24,6 +25,7 @@ import com.thinkparity.codebase.swing.border.BottomBorder;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 import com.thinkparity.ophelia.browser.application.browser.BrowserSession;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.main.MainPanelImageCache.TabPanelIcon;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell;
 
@@ -63,7 +65,7 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
 
     static {
         ANIMATION_HEIGHT_ADJUSTMENT = 12;
-        ANIMATION_MAXIMUM_HEIGHT = 165;
+        ANIMATION_MAXIMUM_HEIGHT = 170;
         ANIMATION_MINIMUM_HEIGHT = 25;
         BORDER_COLLAPSED = new BottomBorder(Colors.Browser.Panel.PANEL_COLLAPSED_BORDER);
         BORDER_EXPANDED = new BottomBorder(Colors.Browser.Panel.PANEL_EXPANDED_BORDER);
@@ -214,12 +216,13 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
      * 
      * @param cell
      *          A <code>Cell</code>.
-     * @param onIcon
-     *          A <code>Boolean</code> flag indicating if the mouse press was on an icon.        
+     * @param panelLocation
+     *          A <code>PanelLocation</code> indicating where the mouse was pressed.        
      * @param e
      *          A <code>MouseEvent</code>.
      */
-    public void panelCellMousePressed(final Cell cell, final Boolean onIcon, final java.awt.event.MouseEvent e) {        
+    public void panelCellMousePressed(final Cell cell,
+            final PanelLocation panelLocation, final java.awt.event.MouseEvent e) {        
     }
 
     /**
@@ -502,6 +505,17 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
     }
 
     /**
+     * Read an icon.
+     * 
+     * @param tabPanelIcon
+     *            A <code>TabPanelIcon</code>.
+     * @return An <code>Icon</code>.
+     */
+    protected Icon readIcon(final TabPanelIcon tabPanelIcon) {
+        return IMAGE_CACHE.read(tabPanelIcon);
+    }
+
+    /**
      * Reload a display label.
      * 
      * @param jLabel
@@ -513,4 +527,6 @@ public abstract class DefaultTabPanel extends AbstractJPanel implements
             final String value) {
         jLabel.setText(null == value ? Separator.Space.toString() : value);
     }
+
+    public enum PanelLocation { BODY, EXPAND_ICON, ICON } 
 }

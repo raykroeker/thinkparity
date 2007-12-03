@@ -17,7 +17,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.
 import com.thinkparity.ophelia.browser.util.localization.Localization;
 
 /**
- * @author rob_masako@shaw.ca
+ * @author robert@thinkparity.com
  * @version $Revision$
  */
 public class PanelCellListModel implements PanelSelectionManager{
@@ -36,7 +36,7 @@ public class PanelCellListModel implements PanelSelectionManager{
 
     static {
         DEFAULT_SELECTED_ROW_PAGING = 1;
-        DEFAULT_SELECTED_ROW_START = 0;
+        DEFAULT_SELECTED_ROW_START = 1;
         SK_LIST_DATA_LISTENER_PATTERN = "PanelCellListModel#getSavedListDataListener({0}:{1})";
         SK_LIST_SELECTED_CELL_PATTERN = "PanelCellListModel#getSavedSelectedCell({0}:{1})";
     }
@@ -71,34 +71,27 @@ public class PanelCellListModel implements PanelSelectionManager{
      *            A <code>Localization</code>.          
      * @param visibleRows
      *            The number of visible rows.
-     * @param firstJLabel
-     *            The first <code>JLabel</code>.
      * @param previousJLabel
      *            The previous <code>JLabel</code>.           
      * @param countJLabel
      *            The count <code>JLabel</code>.                             
      * @param nextJLabel
-     *            The next <code>JLabel</code>.                              
-     * @param lastJLabel
-     *            The last <code>JLabel</code>.                                                  
+     *            The next <code>JLabel</code>.                                                                             
      */
     public PanelCellListModel(
         final DefaultTabPanel tabPanel,       
         final String listName,
         final Localization localization,
         final int visibleRows,
-        final javax.swing.JLabel firstJLabel,
         final javax.swing.JLabel previousJLabel,
         final javax.swing.JLabel countJLabel,
-        final javax.swing.JLabel nextJLabel,
-        final javax.swing.JLabel lastJLabel) {
+        final javax.swing.JLabel nextJLabel) {
         super();
         this.tabPanel = tabPanel;
         this.listName = listName;
         listModel = new DefaultListModel();
-        listManager = new PanelCellListManager(this, localization,
-                visibleRows, firstJLabel, previousJLabel, countJLabel,
-                nextJLabel, lastJLabel, Boolean.TRUE);
+        listManager = new PanelCellListManager(this, localization, visibleRows,
+                previousJLabel, countJLabel, nextJLabel, Boolean.TRUE);
         selectedIndex = -1;
     }
 

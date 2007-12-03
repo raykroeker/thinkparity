@@ -7,6 +7,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.event.MouseEvent;
 
 import javax.swing.Icon;
 import javax.swing.JLabel;
@@ -60,6 +61,12 @@ public class LabelFactory extends ComponentFactory {
 		}
 	}
 
+    public static JLabel create(final Icon icon, final Icon rolloverIcon) {
+        synchronized(singletonLock) {
+            return singleton.doCreate(icon, rolloverIcon);
+        }
+    }
+
 	public static JLabel create(final String text) {
 		synchronized(singletonLock) { return singleton.doCreate(text); }
 	}
@@ -84,7 +91,7 @@ public class LabelFactory extends ComponentFactory {
 		}
 	}
 
-	public static JLabel createLink(final String text, final Font font) {
+    public static JLabel createLink(final String text, final Font font) {
 		synchronized(singletonLock) {
 			return singleton.doCreateLink(text, font);
 		}
@@ -108,6 +115,30 @@ public class LabelFactory extends ComponentFactory {
 	private void applyIcon(final JLabel jLabel, final Icon icon) {
 		jLabel.setIcon(icon);
 	}
+
+    /**
+     * Apply a rollover icon to a JLabel.
+     * 
+     * @param jLabel
+     *            The <code>JLabel</code>.
+     * @param icon
+     *            The <code>Icon</code>.
+     * @param rolloverIcon
+     *            The rollover <code>Icon</code>.
+     */
+    private void applyRolloverIcon(final JLabel jLabel, final Icon icon, final Icon rolloverIcon) {
+        jLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(final MouseEvent e) {
+                jLabel.setIcon(rolloverIcon);
+            }
+            public void mouseExited(final MouseEvent e) {
+                jLabel.setIcon(icon);
+            }
+            public void mousePressed(final MouseEvent e) {
+                jLabel.setIcon(icon);
+            }
+        });
+    }
 
 	/**
 	 * Apply the text to the JLabel.
@@ -165,6 +196,23 @@ public class LabelFactory extends ComponentFactory {
 		applyIcon(jLabel, icon);
 		return jLabel;
 	}
+
+	/**
+     * Create a JLabel containing an icon.
+     * A hand cursor and rollover icon are supported.
+     * 
+     * @param icon
+     *            The <code>Icon</code>.
+     * @param rolloverIcon
+     *            The rollover <code>Icon</code>.
+     * @return The <code>JLabel</code>.
+     */
+    private JLabel doCreate(final Icon icon, final Icon rolloverIcon) {
+        final JLabel jLabel = doCreate(icon);
+        applyHandCursor(jLabel);
+        applyRolloverIcon(jLabel, icon, rolloverIcon);
+        return jLabel;
+    }
 
 	/**
 	 * Create a JLabel containing text.
@@ -235,7 +283,7 @@ public class LabelFactory extends ComponentFactory {
 		return jLabel;
 	}
 
-	/**
+    /**
 	 * Create a JLabel containing text that appears as a hyperlink; with a font
 	 * applied.
 	 * 

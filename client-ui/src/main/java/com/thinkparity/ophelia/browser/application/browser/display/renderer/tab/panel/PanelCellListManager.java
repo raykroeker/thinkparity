@@ -15,7 +15,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.ophelia.browser.util.localization.Localization;
 
 /**
- * @author rob_masako@shaw.ca
+ * @author robert@thinkparity.com
  * @version $Revision$
  */
 public class PanelCellListManager {
@@ -29,14 +29,8 @@ public class PanelCellListManager {
     /** The current page */
     private int currentPage;
 
-    /** The first JLabel */
-    private final javax.swing.JLabel firstJLabel;
-
     /** Flag indicating if row 0 stays at the top, & is in the cells list */
     private final Boolean fixedFirstRow;
-
-    /** The last JLabel */
-    private final javax.swing.JLabel lastJLabel;
 
     /** The list model. */
     private final PanelCellListModel listModel;
@@ -87,21 +81,17 @@ public class PanelCellListManager {
             final PanelCellListModel listModel,
             final Localization localization,
             final int visibleRows,
-            final javax.swing.JLabel firstJLabel,
             final javax.swing.JLabel previousJLabel,
             final javax.swing.JLabel countJLabel,
             final javax.swing.JLabel nextJLabel,
-            final javax.swing.JLabel lastJLabel,
             final Boolean fixedFirstRow) {
         super();
         this.localization = localization;
         this.listModel = listModel;
         this.visibleRows = visibleRows;
-        this.firstJLabel = firstJLabel;
         this.previousJLabel = previousJLabel;
         this.countJLabel = countJLabel;
         this.nextJLabel = nextJLabel;
-        this.lastJLabel = lastJLabel;
         this.fixedFirstRow = fixedFirstRow;
         perPage = fixedFirstRow ? visibleRows-1 : visibleRows;
         initializeMouseListeners();
@@ -288,17 +278,11 @@ public class PanelCellListManager {
      *            A <code>MouseEvent</code>.
      */
     private void iconJLabelMousePressed(final java.awt.event.MouseEvent e) {
-        if (e.getSource().equals(firstJLabel)) {
-            goFirst();
-            selectTopRow();
-        } else if (e.getSource().equals(previousJLabel)) {
+        if (e.getSource().equals(previousJLabel)) {
             goPrevious();
             selectTopRow();
         } else if (e.getSource().equals(nextJLabel)) {
             goNext();
-            selectTopRow();
-        } else if (e.getSource().equals(lastJLabel)) {
-            goLast();
             selectTopRow();
         }
     }
@@ -312,28 +296,8 @@ public class PanelCellListManager {
                 iconJLabelMousePressed(e);
             }
         };
-        this.firstJLabel.addMouseListener(mouseAdapter);
         this.previousJLabel.addMouseListener(mouseAdapter);
         this.nextJLabel.addMouseListener(mouseAdapter);
-        this.lastJLabel.addMouseListener(mouseAdapter);
-    }
-
-    /**
-     * Determine if "first" is available.
-     * 
-     * @return true if "first" is available.
-     */
-    private boolean isFirstAvailable() {
-        return currentPage > 1;
-    }
-
-    /**
-     * Determine if "last" is available.
-     * 
-     * @return true if "last" is available.
-     */
-    private boolean isLastAvailable() {
-        return currentPage+2 < numberPages;
     }
 
     /**
@@ -358,11 +322,9 @@ public class PanelCellListManager {
      * Reload controls.
      */
     private void reloadControls() {
-        reloadFirst();
         reloadPrevious();
         reloadCount();
         reloadNext();
-        reloadLast();
     }
 
     /**
@@ -375,20 +337,6 @@ public class PanelCellListManager {
         } else {
             countJLabel.setVisible(false);
         }
-    }
-
-    /**
-     * Reload the "first" link.
-     */
-    private void reloadFirst() {
-        firstJLabel.setVisible(isFirstAvailable());
-    }
-
-    /**
-     * Reload the "last" link.
-     */
-    private void reloadLast() {
-        lastJLabel.setVisible(isLastAvailable());
     }
 
     /**

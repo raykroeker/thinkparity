@@ -1,3 +1,9 @@
-thinkParity's backup service safeguards your valuable documents from accidental loss or corruption. If you lose your laptop, or if a fire in your office destroys your PC, thinkParity's backup service allows you to restore all of your packages and contacts with a few clicks.
+To invite a person to be your contact:
+1 - Make sure the Contacts tab is selected.
+2 - Click the 'Contacts' link on the Contacts tab.
+3 - In the dialog that appears, type the e-mail of the person you wish to invite.
+4 - Click the 'Invite' button. The person will receive an invitation.
 
-To restore thinkParity on a new computer, re-install thinkParity and start the application. In the wizard that appears, select the option 'I already have a thinkParity account' and enter your username and password. Your data including pages and contacts will be restored from the secure thinkParity server.
+<p>There are two other ways you can invite a person to be your contact.
+  * Type the person's e-mail address in the send dialog, when you are sending a package.
+  * Expand a package, right click on the person you would like to invite, and select 'invite' from the menu.

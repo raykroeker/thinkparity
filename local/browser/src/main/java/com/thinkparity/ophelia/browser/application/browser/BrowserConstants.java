@@ -21,6 +21,9 @@ public final class BrowserConstants {
         /** The error text colour. */
         public static final Color DIALOG_ERROR_TEXT_FG = new Color(255, 96, 6, 255);
 
+        /** The page text colour. */
+        public static final Color DIALOG_PAGE_TEXT_FG = new Color(123, 109, 89, 255);
+
         /** The standard text colour. */
         public static final Color DIALOG_TEXT_FG = Color.BLACK;
 
@@ -52,11 +55,15 @@ public final class BrowserConstants {
         /** The dialog bold font. */
         public static final Font DialogFontBold =
             new Font(DIALOG_FONT_NAME, Font.BOLD, 11);
-        
+
         /** The dialog button font. */
         public static final Font DialogButtonFont =
             new Font(DIALOG_FONT_NAME, Font.PLAIN, 11);
-        
+
+        /** The dialog page font (eg. "1 of 3") */
+        public static final Font DialogPageFont =
+            new Font(DIALOG_FONT_NAME, Font.PLAIN, 10);
+
         /** The dialog text entry font. */
         public static final Font DialogTextEntryFont =
             new Font(DIALOG_FONT_NAME, Font.PLAIN, 11);

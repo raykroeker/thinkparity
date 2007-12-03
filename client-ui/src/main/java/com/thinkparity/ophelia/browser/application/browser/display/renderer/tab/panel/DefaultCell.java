@@ -9,7 +9,7 @@ import javax.swing.Icon;
  * <b>Title:</b>thinkParity OpheliaUI Browser Default Cell<br>
  * <b>Description:</b>A default implementation of a tab cell.<br>
  * 
- * @author raymond@thinkparity.com
+ * @author raymond@thinkparity.com, robert@thinkparity.com
  * @version 1.1.2.1
  */
 public class DefaultCell implements Cell {
@@ -44,6 +44,13 @@ public class DefaultCell implements Cell {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#getCommonActionDisplayName()
+     */
+    public String getCommonActionDisplayName() {
+        return null;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.VersionsCell#getIcon()
      *
      */
@@ -73,6 +80,11 @@ public class DefaultCell implements Cell {
     public void invokeAction() {}  
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#invokeCommonAction()
+     */
+    public void invokeCommonAction() {}
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#invokeDeleteAction()
      */
     public void invokeDeleteAction() {}
@@ -92,17 +104,24 @@ public class DefaultCell implements Cell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isDeleteActionAvailable()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isCommonActionAvailable()
      */
-    public Boolean isDeleteActionAvailable() {
+    public Boolean isCommonActionAvailable() {
         return Boolean.FALSE;
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isPopupAvailable()
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isCommonActionEnabled()
      */
-    public Boolean isPopupAvailable() {
-        return Boolean.TRUE;
+    public Boolean isCommonActionEnabled() {
+        return Boolean.FALSE;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isDeleteActionAvailable()
+     */
+    public Boolean isDeleteActionAvailable() {
+        return Boolean.FALSE;
     }
 
     /**
@@ -118,6 +137,13 @@ public class DefaultCell implements Cell {
      */
     public Boolean isEnabled() {
         return enabled;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#isPopupAvailable()
+     */
+    public Boolean isPopupAvailable() {
+        return Boolean.TRUE;
     }
 
     /**
@@ -176,8 +202,7 @@ public class DefaultCell implements Cell {
     }
 
     /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.VersionsCell#showPopup()
-     * 
+     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.Cell#showPopup(java.lang.Boolean)
      */
-    public void showPopup() {}
+    public void showPopup(final Boolean showAll) {}
 }

@@ -1,12 +1,9 @@
-When you have made changes to documents and you want to send the documents to other people, you publish the package.
+To make changes to the documents in a package:
+1 - Expand the package.
+2 - Click the 'Reply' button. You will see a new row in the package called 'Working Version'.
+3 - Open a document, make changes, and save changes as normal. You do not need to use the 'Save As' command when you save your changes.
+4 - To add a document to the package, click the 'More Actions' button and select 'Add Documents'. Alternatively you can drag and drop a document to the package from Windows Explorer (TM).
 
-To publish a package, right-click on it and select 'Publish' from the menu. In the dialog that appears, enter the names of people that will receive the package. If you want to publish to a person that is not your contact, enter the person's e-mail address instead.
+<p>Only one person can work on a new version at a time. You can tell if somebody else is working on a new version because their name appears on the right side of the package.
 
-<p>When you publish to a person, what happens depends on whether the person is a thinkParity user and whether that person is your contact.
-  * If the person is not a thinkParity user then he will receive an e-mail inviting him to install and use thinkParity for free as your guest.
-  * If the person is already a member of thinkParity but not yet your contact then he receives an invitation to be your contact.
-  * Finally, the new package version is downloaded to the person's computer. A notification dialog appears on the person's screen alerting him that a new version has arrived.
-
-<p>It is important to note that unlike traditional e-mail, thinkParity communicates through a secure communications channel using industry standard levels of encryption. As such, when publishing packages all documents and related data are protected at all times to prevent unauthorized access.
-
-The documents that you publish are encrypted and backed up on a secure thinkParity server. This guarantees that you can restore all of your thinkParity data in the event that your computer is damaged or lost.
+To work on a new version you must have the most recent version of the package, and you must be online.

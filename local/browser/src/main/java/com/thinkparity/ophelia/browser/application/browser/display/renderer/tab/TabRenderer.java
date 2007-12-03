@@ -3,7 +3,6 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.renderer.tab;
 
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -41,9 +40,6 @@ public final class TabRenderer {
     /** The east background <code>Image</code>. */
     private static Image BACKGROUND_EAST;
 
-    /** The east background when row 0 is selected <code>Image</code>. */
-    private static Image BACKGROUND_EAST_ROW0_SELECTED;
-
     /** The fields background, center <code>Image</code>. */
     private static Image BACKGROUND_FIELDS_CENTER;
 
@@ -59,20 +55,23 @@ public final class TabRenderer {
     /** The height of image BACKGROUND_FIELDS_CENTER. */
     private static int backgroundFieldsCenterHeight;
 
-    /** The background logo <code>Image</code>, used on the east when row 0 is selected. */
-    private static Image BACKGROUND_LOGO;
-
-    /** The background logo image dimensions. */
-    private static Dimension backgroundLogoDimension;
-
     /** The version panel's center background <code>BufferedImage</code>. */ 
     private static BufferedImage[] VERSION_IMAGES_CENTER;
 
     /** The version panel's west background <code>BufferedImage</code>s. */
     private static Image[] VERSION_IMAGES_WEST;
 
+    /** The version panel's west edge background <code>BufferedImage</code>s. */
+    private static BufferedImage[] VERSION_IMAGES_WEST_EDGE;
+
+    /** The version panel's west underline background <code>BufferedImage</code>s. */
+    private static BufferedImage[] VERSION_IMAGES_WEST_UNDERLINE;
+
     /** The version panel's west background <code>BufferedImage</code>s. */
     private static BufferedImage[] versionImagesWest;
+
+    /** The version panel's west underline background <code>BufferedImage</code>s. */
+    private static Image[] versionImagesWestUnderline;
 
     static {
         initialize();
@@ -125,45 +124,49 @@ public final class TabRenderer {
         buffer = ImageIOUtil.read("PanelBackgroundEast.png");
         BACKGROUND_EAST = buffer.getScaledInstance(bounds.width,
                 buffer.getHeight(), Image.SCALE_SMOOTH);
-        buffer = ImageIOUtil.read("PanelBackgroundEast_0Selected.png");
-        BACKGROUND_EAST_ROW0_SELECTED = buffer.getScaledInstance(bounds.width,
-                buffer.getHeight(), Image.SCALE_SMOOTH);
         buffer = ImageIOUtil.read("PanelBackgroundFieldsCenter.png"); 
         backgroundFieldsCenterHeight = buffer.getHeight();
         BACKGROUND_FIELDS_CENTER = buffer.getScaledInstance(bounds.width,
                 buffer.getHeight(), Image.SCALE_SMOOTH);
-        BACKGROUND_LOGO = ImageIOUtil.read("thinkParityCurves.png");
-        backgroundLogoDimension = new Dimension(
-                ((BufferedImage) BACKGROUND_LOGO).getWidth(),
-                ((BufferedImage) BACKGROUND_LOGO).getHeight());
         BACKGROUND_FIELDS_EAST = ImageIOUtil.read("PanelBackgroundFieldsEast.png");
         BACKGROUND_FIELDS_WEST = ImageIOUtil.read("PanelBackgroundFieldsWest.png");
         VERSION_IMAGES_CENTER = new BufferedImage[] {
-                ImageIOUtil.read("PanelBackgroundCenter0.png"),
                 ImageIOUtil.read("PanelBackgroundCenter1.png"),
                 ImageIOUtil.read("PanelBackgroundCenter2.png"),
                 ImageIOUtil.read("PanelBackgroundCenter3.png"),
                 ImageIOUtil.read("PanelBackgroundCenter4.png"),
                 ImageIOUtil.read("PanelBackgroundCenter5.png")
         };
+        VERSION_IMAGES_WEST_EDGE = new BufferedImage[] {
+                ImageIOUtil.read("PanelBackgroundWestEdge1.png"),
+                ImageIOUtil.read("PanelBackgroundWestEdge2.png"),
+                ImageIOUtil.read("PanelBackgroundWestEdge3.png"),
+                ImageIOUtil.read("PanelBackgroundWestEdge4.png"),
+                ImageIOUtil.read("PanelBackgroundWestEdge5.png")
+        };
+        VERSION_IMAGES_WEST_UNDERLINE = new BufferedImage[] {
+                ImageIOUtil.read("PanelBackgroundWestUnderline1.png"),
+                ImageIOUtil.read("PanelBackgroundWestUnderline2.png"),
+                ImageIOUtil.read("PanelBackgroundWestUnderline3.png"),
+                ImageIOUtil.read("PanelBackgroundWestUnderline4.png"),
+                ImageIOUtil.read("PanelBackgroundWestUnderline5.png")
+        };
+        versionImagesWestUnderline = new Image[VERSION_IMAGES_WEST_UNDERLINE.length];
         VERSION_IMAGES_WEST = new Image[VERSION_IMAGES_CENTER.length];
-        buffer = ImageIOUtil.read("PanelBackgroundWest0.png");
+        buffer = ImageIOUtil.read("PanelBackgroundWest1.png");
         VERSION_IMAGES_WEST[0] = buffer.getScaledInstance(bounds.width, buffer
                 .getHeight(), Image.SCALE_SMOOTH);
-        buffer = ImageIOUtil.read("PanelBackgroundWest1.png");
+        buffer = ImageIOUtil.read("PanelBackgroundWest2.png");
         VERSION_IMAGES_WEST[1] = buffer.getScaledInstance(bounds.width, buffer
                 .getHeight(), Image.SCALE_SMOOTH);
-        buffer = ImageIOUtil.read("PanelBackgroundWest2.png");
+        buffer = ImageIOUtil.read("PanelBackgroundWest3.png");
         VERSION_IMAGES_WEST[2] = buffer.getScaledInstance(bounds.width, buffer
                 .getHeight(), Image.SCALE_SMOOTH);
-        buffer = ImageIOUtil.read("PanelBackgroundWest3.png");
+        buffer = ImageIOUtil.read("PanelBackgroundWest4.png");
         VERSION_IMAGES_WEST[3] = buffer.getScaledInstance(bounds.width, buffer
                 .getHeight(), Image.SCALE_SMOOTH);
-        buffer = ImageIOUtil.read("PanelBackgroundWest4.png");
-        VERSION_IMAGES_WEST[4] = buffer.getScaledInstance(bounds.width, buffer
-                .getHeight(), Image.SCALE_SMOOTH);
         buffer = ImageIOUtil.read("PanelBackgroundWest5.png");
-        VERSION_IMAGES_WEST[5] = buffer.getScaledInstance(bounds.width, buffer
+        VERSION_IMAGES_WEST[4] = buffer.getScaledInstance(bounds.width, buffer
                 .getHeight(), Image.SCALE_SMOOTH);
         versionImagesWest = new BufferedImage[VERSION_IMAGES_WEST.length];
         buffer = null;
@@ -172,7 +175,7 @@ public final class TabRenderer {
 
     /**
      * Determine if the image destined for the component is dirty; ie needs to
-     * be clipped before drawing.
+     * be clipped or scaled before drawing.
      * 
      * @param image
      *            A <code>BufferedImage</code>.
@@ -180,11 +183,30 @@ public final class TabRenderer {
      *            The image <code>int</code> width.
      * @param height
      *            The image <code>int</code> height.
-     * @return True if the image needs to be clipped before drawing.
+     * @return True if the image needs to be clipped or scaled before drawing.
      */
     private static boolean isDirty(final BufferedImage image, final int width,
             final int height) {
         return null == image || image.getWidth() != width;
+    }
+
+    /**
+     * Determine if the image destined for the component is dirty; ie needs to
+     * be clipped or scaled before drawing.
+     * 
+     * @param image
+     *            An <code>Image</code>.
+     * @param width
+     *            The image <code>int</code> width.
+     * @param height
+     *            The image <code>int</code> height.
+     * @param observer
+     *            An <code>ImageObserver</code>.  
+     * @return True if the image needs to be clipped or scaled before drawing.
+     */
+    private static boolean isDirty(final Image image, final int width,
+            final int height, final ImageObserver observer) {
+        return null == image || image.getWidth(observer) != width;
     }
 
     /**
@@ -226,7 +248,8 @@ public final class TabRenderer {
     }
 
     /**
-     * Paint the expanded background for the panel.
+     * Paint the background for the expanded panel.
+     * The main background images is painted at the top.
      * 
      * @param g
      *            A <code>Graphics</code> context.
@@ -234,15 +257,12 @@ public final class TabRenderer {
      *            An <code>ImageObserver</code>.
      */
     public void paintExpandedBackground(final Graphics g, final ImageObserver observer) {
-        /*
-         * paint the background for an expanded panel - this involves simply
-         * painting the main background image at the top
-         */
         g.drawImage(BACKGROUND, 0, 0, observer);
     }
 
     /**
-     * Paint the background for the version panel.
+     * Paint a vertial bar in the center of the panel based upon selection.
+     * The bar is not scaled.
      * 
      * @param g
      *            The panel <code>Graphics</code>.
@@ -258,21 +278,18 @@ public final class TabRenderer {
     public void paintExpandedBackgroundCenter(final Graphics g,
             final int width, final int height, final int selectionIndex,
             final ImageObserver observer) {
-        /*
-         * paint a vertial bar in the center of the panel based upon selection
-         * 
-         * the bar is not scaled
-         */
-        g.drawImage(VERSION_IMAGES_CENTER[selectionIndex], width
-                - VERSION_IMAGES_CENTER[selectionIndex].getWidth(), 24,
-                observer);
+        if (selectionIndex > 0) {
+            final int bufferIndex = selectionIndex - 1;
+            g.drawImage(VERSION_IMAGES_CENTER[bufferIndex], width
+                    - VERSION_IMAGES_CENTER[bufferIndex].getWidth(), 24,
+                    observer);
+        }
     }
 
     /**
      * Paint the eastern background.
      * 
      * Paint a solid gradient image on the eastern side of the version panel.
-     * If row 0 is selected then a centred logo is also displayed.
      * 
      * @param g
      *            The <code>Graphics</code>.
@@ -280,22 +297,17 @@ public final class TabRenderer {
      *            The <code>int</code> x coordinate.
      * @param width
      *            A width <code>int</code>.
-     * @param finalHeight
-     *            A final height <code>int</code> (height when animation is complete).
-     * @param westSelectionIndex
-     *            The <code>int</code> west selection index.
+     * @param height
+     *            A height <code>int</code>.
+     * @param selectionIndex
+     *            The <code>int</code> selection index.
      * @param observer
      *            An <code>ImageObserver</code>.    
      */
     public void paintExpandedBackgroundEast(final Graphics g, final int x,
-            final int width, final int finalHeight,
-            final int westSelectionIndex, final ImageObserver observer) {
-        if (westSelectionIndex==0) {
-            g.drawImage(BACKGROUND_EAST_ROW0_SELECTED, x, 0, observer);
-            g.drawImage(BACKGROUND_LOGO,
-                    x + (width - backgroundLogoDimension.width) / 2,
-                    (finalHeight - backgroundLogoDimension.height) / 2, observer);
-        } else {
+            final int width, final int height, final int selectionIndex,
+            final ImageObserver observer) {
+        if (selectionIndex > 0) {
             g.drawImage(BACKGROUND_EAST, x, 0, observer);
         }
     }
@@ -391,15 +403,27 @@ public final class TabRenderer {
          * 
          * the number 24 is the offset at which to draw each selected row
          */
-        final int rowHeight;
-        final int rowOffset;
-        rowHeight = 26;
-        rowOffset = selectionIndex * 24;
-        if (isDirty(versionImagesWest[selectionIndex], width, rowHeight)) {
-            versionImagesWest[selectionIndex] = clipImage(
-                    VERSION_IMAGES_WEST[selectionIndex], 0, 0, width, rowHeight,
-                    observer);
+        if (selectionIndex > 0) {
+            final int bufferIndex = selectionIndex - 1;
+            final int rowHeight = 26;;
+            final int rowOffset = selectionIndex * 24;
+            final int westEdgeWidth = VERSION_IMAGES_WEST_EDGE[bufferIndex].getWidth();
+            final int remainingWidth = width - westEdgeWidth;
+            final int underlineWidth = (int)(remainingWidth * 0.9);
+            final int underlineHeight = VERSION_IMAGES_WEST_UNDERLINE[bufferIndex].getHeight();
+            if (isDirty(versionImagesWest[bufferIndex], remainingWidth, rowHeight)) {
+                versionImagesWest[bufferIndex] = clipImage(
+                        VERSION_IMAGES_WEST[bufferIndex], 0, 0, remainingWidth, rowHeight,
+                        observer);
+            }
+            if (isDirty(versionImagesWestUnderline[bufferIndex], underlineWidth, underlineHeight, observer)) {
+                versionImagesWestUnderline[bufferIndex] = VERSION_IMAGES_WEST_UNDERLINE[bufferIndex]
+                        .getScaledInstance(underlineWidth, underlineHeight, Image.SCALE_SMOOTH);
+            }
+            g.drawImage(VERSION_IMAGES_WEST_EDGE[bufferIndex], 0, rowOffset, observer);
+            g.drawImage(versionImagesWest[bufferIndex], westEdgeWidth, rowOffset, observer);
+            g.drawImage(versionImagesWestUnderline[bufferIndex], westEdgeWidth,
+                    rowOffset + rowHeight - underlineHeight, observer);
         }
-        g.drawImage(versionImagesWest[selectionIndex], 0, rowOffset, observer);
     }
 }

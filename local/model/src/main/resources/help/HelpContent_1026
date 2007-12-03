@@ -1,3 +1,0 @@
-You can create a summary report for a package that includes information about all the versions of the package, and the documents and participants of each version.
-
-To create a summary report, right click on a package and select 'Summary Report' from the menu. thinkParity will create a PDF-format report and place it in your 'My Documents\thinkParity' directory. The name of the report corresponds to the name of the package.

@@ -14,14 +14,14 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 
 /**
- * @author rob_masako@shaw.ca
+ * @author robert@thinkparity.com
  * @version $Revision$
  */
 public class MainPanelImageCache {
-    
+
     /** An apache logger. */
     protected static final Log4JWrapper slogger;
-    
+
     /** A cache of image icons. */
     private static final Map<String, Object> ICON_CACHE;
 
@@ -32,7 +32,7 @@ public class MainPanelImageCache {
 
         cacheIcons();
     }
-    
+
     /** Cache all main panel icons. */
     private static void cacheIcons() {
         slogger.logApiId();
@@ -62,7 +62,7 @@ public class MainPanelImageCache {
     void debug() {
         debug("Icon Cache", ICON_CACHE);
     }
-    
+
     /**
      * Read a tab panel icon from the cache.
      * 
@@ -92,7 +92,7 @@ public class MainPanelImageCache {
             }
         }
     }
-    
+
     /**
      * Read from the cache.
      * 
@@ -106,7 +106,7 @@ public class MainPanelImageCache {
             final String cacheKey) {
         synchronized(cache) { return cache.get(cacheKey); }
     }
-    
+
     /** All tab panel icons. */
     public enum TabPanelIcon {
         CONTAINER("IconContainer.png"),
@@ -114,11 +114,15 @@ public class MainPanelImageCache {
         DRAFT("IconDraft.png"),
         EXPAND("IconExpand.png"),
         INVISIBLE("Invisible16x16.png"),
+        PAGE_NEXT("PageNext.png"),
+        PAGE_NEXT_ROLLOVER("PageNextRollover.png"),
+        PAGE_PREVIOUS("PagePrevious.png"),
+        PAGE_PREVIOUS_ROLLOVER("PagePreviousRollover.png"),
         VERSION("IconVersion.png"),
         VERSION_WITH_COMMENT("IconVersionWithComment.png"),
         USER("IconUser.png"),
         USER_NOT_RECEIVED("IconUserNotReceived.png");
-        
+
         /** The icon file name. */
         private final String iconName;
 

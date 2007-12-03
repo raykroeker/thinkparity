@@ -11,26 +11,21 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.KeyStroke;
-import javax.swing.text.AbstractDocument;
 
-import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.swing.SwingUtil;
-import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.contact.Contact;
-import com.thinkparity.codebase.model.container.ContainerConstraints;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 
@@ -40,7 +35,6 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
-import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.container.PublishContainerProvider;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.dialog.container.PublishContainerAvatarUserCellRenderer;
@@ -59,14 +53,10 @@ import com.thinkparity.ophelia.browser.platform.util.State;
 public final class PublishContainerAvatar extends Avatar implements
         PublishContainerSwingDisplay {
 
-    /** A <code>FuzzyDateFormat</code>. */
-    private static final FuzzyDateFormat FUZZY_DATE_FORMAT;
-
     /** An instance of <code>UserUtils</code>. */
     private static final UserUtils USER_UTIL;
 
     static {
-        FUZZY_DATE_FORMAT = new FuzzyDateFormat();
         USER_UTIL = UserUtils.getInstance();
     }
 
@@ -85,12 +75,7 @@ public final class PublishContainerAvatar extends Avatar implements
     private final javax.swing.JLabel teamMembersJLabel = new javax.swing.JLabel();
     private final javax.swing.JList teamMembersJList = new javax.swing.JList();
     private final javax.swing.JScrollPane teamMembersJScrollPane = new javax.swing.JScrollPane();
-    private final javax.swing.JLabel versionNameJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField versionNameJTextField = TextFactory.create();
     // End of variables declaration//GEN-END:variables
-
-    /** An instance of <code>ContainerConstraints</code>. */
-    private final ContainerConstraints containerConstraints;
 
     /** The team members list <code>PublishContainerAvatarUserListModel</code>. */
     private final PublishContainerAvatarUserListModel teamMembersListModel;
@@ -100,7 +85,6 @@ public final class PublishContainerAvatar extends Avatar implements
      */
     public PublishContainerAvatar() {
         super("PublishContainerAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
-        this.containerConstraints = ContainerConstraints.getInstance();
         this.teamMembersListModel = new PublishContainerAvatarUserListModel();
         getPublishToUserControl().setLocalization(localization);
         initComponents();
@@ -172,7 +156,6 @@ public final class PublishContainerAvatar extends Avatar implements
         reloadProgressBar();
         if (input != null) {
             showBusyIndicators(Boolean.FALSE);
-            reloadVersionName();
             reloadPublishButton();
             reloadPublishToTeamMembersList();
             reloadPublishToUserControl();
@@ -340,18 +323,8 @@ public final class PublishContainerAvatar extends Avatar implements
      */
     private void enableTextEntry(final Boolean enable) {
         setEditable(publishToUserJTextArea, enable);
-        setEditable(versionNameJTextField, enable && PublishType.PUBLISH == getInputPublishType());
         publishToUserJScrollPane.setOpaque(enable.booleanValue());
         publishToUserJScrollPane.getViewport().setOpaque(enable.booleanValue());
-    }
-
-    /**
-     * Extract the version name.
-     * 
-     * @return A version name <code>String</code>.
-     */
-    private String extractVersionName() {
-        return SwingUtil.extract(versionNameJTextField, Boolean.TRUE);
     }
 
     /**
@@ -430,17 +403,6 @@ public final class PublishContainerAvatar extends Avatar implements
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
-
-        versionNameJLabel.setFont(Fonts.DialogFont);
-        versionNameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.VersionNamePublish"));
-
-        versionNameJTextField.setFont(Fonts.DialogTextEntryFont);
-        ((AbstractDocument) versionNameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(containerConstraints.getVersionName()));
-        versionNameJTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                versionNameJTextFieldActionPerformed(evt);
-            }
-        });
 
         teamMembersJLabel.setFont(Fonts.DialogFont);
         teamMembersJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("PublishContainerAvatar.PublishTo"));
@@ -581,14 +543,6 @@ public final class PublishContainerAvatar extends Avatar implements
                         .add(16, 16, 16)))
                 .addContainerGap())
             .add(layout.createSequentialGroup()
-                .add(26, 26, 26)
-                .add(versionNameJTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
-                .add(26, 26, 26))
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(versionNameJLabel)
-                .addContainerGap(232, Short.MAX_VALUE))
-            .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(publishToUserJPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
                 .addContainerGap())
@@ -597,10 +551,6 @@ public final class PublishContainerAvatar extends Avatar implements
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .add(27, 27, 27)
-                .add(versionNameJLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(versionNameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(15, 15, 15)
                 .add(teamMembersJLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(teamMembersJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 72, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -637,10 +587,6 @@ public final class PublishContainerAvatar extends Avatar implements
                 layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                 .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                     .add(27, 27, 27)
-                    .add(versionNameJLabel)
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                    .add(versionNameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(15, 15, 15)
                     .add(teamMembersJLabel)
                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                     .add(teamMembersJScrollPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, teamMembersVerticalSize, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -735,14 +681,13 @@ public final class PublishContainerAvatar extends Avatar implements
                 teamMembersModel.getSelectedTeamMembers());
         final List<EMail> emails = combineEMails(getPublishToUserControl().extractEMails(),
                 teamMembersModel.getSelectedEMailUsers());
-        final String versionName = extractVersionName();
 
         // Publish
         switch (publishType) {
         case PUBLISH:
             showBusyIndicators(Boolean.TRUE);
             getController().runPublishContainer(createMonitor(), containerId,
-                    versionName, emails, contacts, teamMembers);
+                    emails, contacts, teamMembers);
             break;
         case PUBLISH_VERSION:
             disposeWindow();
@@ -821,32 +766,6 @@ public final class PublishContainerAvatar extends Avatar implements
     private List<TeamMember> readTeamMembers() {
         return ((PublishContainerProvider) contentProvider).readPublishToTeam(
                 getInputContainerId());
-    }
-
-    /**
-     * Read the version name.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @return The version name <code>String</code>.
-     */
-    private String readVersionName(final Long containerId, final Long versionId) {
-        return ((PublishContainerProvider) contentProvider).readVersionName(containerId, versionId);
-    }
-
-    /**
-     * Read the version publish date.
-     * 
-     * @param containerId
-     *            A container id <code>Long</code>.
-     * @param versionId
-     *            A version id <code>Long</code>.
-     * @return The version publish date <code>Calendar</code>.
-     */
-    private Calendar readVersionPublishDate(final Long containerId, final Long versionId) {
-        return ((PublishContainerProvider) contentProvider).readVersionPublishDate(containerId, versionId);
     }
 
     private void reloadProgressBar() {
@@ -963,32 +882,6 @@ public final class PublishContainerAvatar extends Avatar implements
     }
 
     /**
-     * Reload the version name.
-     */
-    private void reloadVersionName() {
-        switch (getInputPublishType()) {
-        case PUBLISH_VERSION:
-            final Long containerId = getInputContainerId();
-            final Long versionId = getInputVersionId();
-            String name = readVersionName(containerId, versionId);
-            if (null == name) {
-                name = FUZZY_DATE_FORMAT.format(readVersionPublishDate(containerId, versionId));
-            }
-            versionNameJTextField.setText(name);
-            setEditable(versionNameJTextField, false);
-            versionNameJLabel.setText(getString("VersionNamePublishVersion"));
-            break;
-        case PUBLISH:
-            versionNameJTextField.setText(null);
-            setEditable(versionNameJTextField, true);
-            versionNameJLabel.setText(getString("VersionNamePublish"));
-            break;
-        default:
-            Assert.assertUnreachable("Unknown publish type.");
-        }
-    }
-
-    /**
      * Show or remove a busy cursor.
      * 
      * @param busy
@@ -999,12 +892,9 @@ public final class PublishContainerAvatar extends Avatar implements
             final java.awt.Cursor cursor = Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR);
             SwingUtil.setCursor(this, cursor);
             SwingUtil.setCursor(publishToUserJTextArea, cursor);
-            SwingUtil.setCursor(versionNameJTextField, cursor);
         } else {
             final java.awt.Cursor cursor = Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR);
             SwingUtil.setCursor(publishToUserJTextArea, cursor);
-            SwingUtil.setCursor(versionNameJTextField,
-                    PublishType.PUBLISH == getInputPublishType() ? cursor : null);
             SwingUtil.setCursor(this, null);
         }
     }
@@ -1023,10 +913,6 @@ public final class PublishContainerAvatar extends Avatar implements
     private void teamMembersJListMousePressed(final java.awt.event.MouseEvent e) {//GEN-FIRST:event_teamMembersJListMousePressed
         listMousePressed(teamMembersListModel, e);
     }//GEN-LAST:event_teamMembersJListMousePressed
-
-    private void versionNameJTextFieldActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_versionNameJTextFieldActionPerformed
-        publishJButtonActionPerformed(evt);
-    }//GEN-LAST:event_versionNameJTextFieldActionPerformed
 
     public enum DataKey { CONTAINER_ID, PUBLISH_TYPE, VERSION_ID }
 

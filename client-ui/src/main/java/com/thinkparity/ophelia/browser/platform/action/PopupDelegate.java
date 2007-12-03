@@ -19,11 +19,26 @@ public interface PopupDelegate {
      * @param invoker
      *            A <code>Component</code> invoker.
      * @param x
-     *            The popup x location.
+     *            The popup x location <code>int</code>.
      * @param y
-     *            The popup y location.
+     *            The popup y location <code>int</code>.
      */
     public void initialize(final Component invoker, final int x, final int y);
+
+    /**
+     * Initialize the delegate.
+     * 
+     * @param invoker
+     *            A <code>Component</code> invoker.
+     * @param x
+     *            The popup x location <code>int</code>.
+     * @param leftJustified
+     *            The <code>Boolean</code>flag indicating if the popup is left justified.
+     * @param topJustified
+     *            The <code>Boolean</code>flag indicating if the popup is top justified.    
+     */
+    public void initialize(final Component invoker, final int x, final int y,
+            final Boolean leftJustified, final Boolean topJustified);
 
     /**
      * Show the popup.

@@ -1,18 +1,3 @@
-To publish a package, you first need to create a working version and add, remove or modify at least one document,. Then you are ready to publish. Each of these steps is described below.
+You can export the documents in a package to the file system.
 
-To create a working version, right-click on the package name and select 'Create Working Version'. You may not be able to create a working version if:
-* Another person is working on a new version. Only one person can work on a new version at a time. When a person is working on a new version, the person's name appears on the right side of the package, or...
-<p>* You do not have the most recent version of the package, or
-* You are not online.
-
-To add a document, right-click on the package name and select 'Add Documents', or drag and drop the document from Windows Explorer(TM). To modify a document, click on the document icon to open the document. Make changes and save as you normally would.
-
-<p>You can also create a note that is associated with the version. To do this, right-click on the Working Version and select 'Edit Note' from the menu. Alternatively, click on the Working Version icon.
-
-To publish a package:
-1 - Right-click on the package name and select 'Publish' from the menu. 
-2 - Enter a name for the version. If you choose not to enter a name, a default name will be provided based on the publish date.
-3 - People that have already seen earlier versions of this package are listed. People that have the most recent version are by default selected. Select the people that you want to publish to.
-<p>4 - You can add additional persons to this list by typing the name of a contact or an e-mail address in the text control. As you type, a menu may appear making suggestions. You can select a name from the list to save you typing the whole name.
-5 - Multiple entries should be separated by commas.
-6 - Press the 'Publish' button.
+To export a package, right click on the package and select 'Export Package' from the menu. thinkParity will create a folder in your 'My Documents\thinkParity' directory. The folder contains all versions of all documents in the package, as well as a summary report summarizing the history of the package. The name of the folder corresponds to the name of the package.

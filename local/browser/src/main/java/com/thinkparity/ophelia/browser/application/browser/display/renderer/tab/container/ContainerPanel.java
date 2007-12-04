@@ -1826,10 +1826,10 @@ public class ContainerPanel extends DefaultTabPanel {
         }
         @Override
         public void showPopup(final Boolean showAll) {
+            // the local context popup is not displayed for the container
+            // when it is expanded.
             if (showAll) {
                 popupDelegate.showAll(container, getDraft());
-            } else {
-                popupDelegate.showForContainer(container, getDraft());
             }
         }
     }

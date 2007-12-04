@@ -280,38 +280,13 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             add(ActionId.CONTAINER_PUBLISH, publishData);
         }
 
-        // add document
-        final Data addDocumentData = new Data(2);
-        addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-        addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
-        add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
-
-        // update draft comment
-        final Data data = new Data(2);
-        data.set(UpdateDraftComment.DataKey.CONTAINER_ID, draft.getContainerId());
-        data.set(UpdateDraftComment.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-        add(ActionId.CONTAINER_UPDATE_DRAFT_COMMENT, data);
-
-        // delete draft
-        // this command is no longer allowed if the package has not been distributed
-        if (online && isDistributed(container.getId())) {
-            final Data deleteData = new Data(1);
-            deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
-            add(ActionId.CONTAINER_DELETE_DRAFT, deleteData);
-        }
-
-        // print
-        final List<Document> documentsNotDeleted = getDocumentsNotDeleted(draft);
-        if (documentsNotDeleted.size() > 0) {
-            addSeparator();
-            final Data printData = new Data(1);
-            printData.set(PrintDraft.DataKey.CONTAINER_ID, draft.getContainerId());
-            add(ActionId.CONTAINER_PRINT_DRAFT, printData);
-        }
+        addForDraft(container, draft);
+        addSeparator();
+        addForContainer(container);
 
         show();
     }
-    
+
     /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate#showForPanel(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
      *
@@ -337,14 +312,12 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             final ContainerDraft draft, final ContainerVersion version,
             final List<DocumentView> documentViews, final Boolean latestVersion) {
         final boolean online = isOnline();
-        boolean needSeparator = false;
 
         // create draft
         if (online && latestVersion && null == draft) {
             final Data createDraftData = new Data(1);
             createDraftData.set(CreateDraft.DataKey.CONTAINER_ID, container.getId());
             addWithExpand(ActionId.CONTAINER_CREATE_DRAFT, createDraftData, container);  
-            needSeparator = true;
         }
 
         // publish version
@@ -354,47 +327,61 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             publishData.set(PublishVersion.DataKey.VERSION_ID, version.getVersionId());
             publishData.set(PublishVersion.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
             add(ActionId.CONTAINER_PUBLISH_VERSION, publishData);
-            needSeparator = true;
         }
 
-        // display version comment
-        if (version.isSetComment()) {
-            final Data commentData = new Data(2);
-            commentData.set(DisplayVersionInfo.DataKey.CONTAINER_ID, version.getArtifactId());
-            commentData.set(DisplayVersionInfo.DataKey.VERSION_ID, version.getVersionId());
-            add(ActionId.CONTAINER_DISPLAY_VERSION_INFO, commentData);
-            needSeparator = true;
-        }
-
-        // separator
-        if (needSeparator) {
-            addSeparator();
-            needSeparator = false;
-        }
-
-        // print
-        final List<DocumentView> documentViewsNotDeleted = getDocumentViewsNotDeleted(documentViews);
-        if (documentViewsNotDeleted.size() > 0) {
-            final Data printData = new Data(2);
-            printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.CONTAINER_ID, version.getArtifactId());
-            printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.VERSION_ID, version.getVersionId());
-            add(ActionId.CONTAINER_PRINT_VERSION, printData);
-        }
-
-        // include the version's created on/updated on
-        if (model.isDevelopmentMode()) {
-            addSeparator();
-            add(MessageFormat.format(
-                    "getVersionId():{0,number,#}", version.getVersionId()));
-            add(MessageFormat.format(
-                    "createdOn():{0,date,yyyy-MM-dd HH:mm:ss.SSS Z}",
-                    version.getCreatedOn().getTime()));
-            add(MessageFormat.format(
-                    "updatedOn():{0,date,yyyy-MM-dd HH:mm:ss.SSS Z}",
-                    version.getUpdatedOn().getTime()));
-        }
+        addForVersion(container, draft, version, documentViews, latestVersion);
+        addSeparator();
+        addForContainer(container);
 
         show();
+    }
+
+    /**
+     * Add menus for a container.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     */
+    private void addForContainer(final Container container) {
+        final boolean online = isOnline();
+        final boolean distributed = isDistributed(container.getId());
+
+        // bookmark
+        if (container.isBookmarked()) {
+            final Data removeBookmarkData = new Data(1);
+            removeBookmarkData.set(RemoveBookmark.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_REMOVE_BOOKMARK, removeBookmarkData);
+        } else {
+            final Data addBookmarkData = new Data(1);
+            addBookmarkData.set(AddBookmark.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_ADD_BOOKMARK, addBookmarkData);
+        }
+
+        // Rename container
+        if (!distributed) {
+            final Data renameData = new Data(1);
+            renameData.set(Rename.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_RENAME, renameData);
+        }
+
+        // delete
+        // This menu is shown if online, or if it has never been published.
+        if (online || !distributed) {
+            final Data deleteData = new Data(1);
+            deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_DELETE, deleteData);
+        }
+
+        // audit report and export
+        if (distributed) {
+            final Data reportData = new Data(1);
+            reportData.set(ExportAuditReport.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_EXPORT_AUDIT_REPORT, reportData);
+            
+            final Data exportData = new Data(1);
+            exportData.set(Export.DataKey.CONTAINER_ID, container.getId());
+            add(ActionId.CONTAINER_EXPORT, exportData);
+        }
     }
 
     /**
@@ -514,6 +501,46 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
     }
 
     /**
+     * Add menus for a draft.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     */
+    private void addForDraft(final Container container, final ContainerDraft draft) {
+        final boolean online = isOnline();
+
+        // add document
+        final Data addDocumentData = new Data(2);
+        addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, draft.getContainerId());
+        addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
+        add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
+
+        // update draft comment
+        final Data data = new Data(2);
+        data.set(UpdateDraftComment.DataKey.CONTAINER_ID, draft.getContainerId());
+        data.set(UpdateDraftComment.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
+        add(ActionId.CONTAINER_UPDATE_DRAFT_COMMENT, data);
+
+        // delete draft
+        // this command is no longer allowed if the package has not been distributed
+        if (online && isDistributed(container.getId())) {
+            final Data deleteData = new Data(1);
+            deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
+            add(ActionId.CONTAINER_DELETE_DRAFT, deleteData);
+        }
+
+        // print
+        final List<Document> documentsNotDeleted = getDocumentsNotDeleted(draft);
+        if (documentsNotDeleted.size() > 0) {
+            final Data printData = new Data(1);
+            printData.set(PrintDraft.DataKey.CONTAINER_ID, draft.getContainerId());
+            add(ActionId.CONTAINER_PRINT_DRAFT, printData);
+        }
+    }
+
+    /**
      * Add menus for a user.
      * 
      * @param user
@@ -539,6 +566,55 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             final Data data = new Data(1);
             data.set(ReadTeamMember.DataKey.USER_ID, user.getLocalId());
             add(ActionId.CONTAINER_READ_TEAM_MEMBER, data);
+        }
+    }
+
+    /**
+     * Add menus for a version.
+     * 
+     * @param container
+     *            A <code>Container</code>.
+     * @param draft
+     *            A <code>ContainerDraft</code>.
+     * @param version
+     *            A <code>ContainerVersion</code>, if a version is selected.
+     * @param documentViews
+     *            A list of <code>DocumentView</code>, if a version is selected.
+     * @param latestVersion
+     *            A <code>Boolean</code>, true for the latest version.
+     */
+    private void addForVersion(final Container container,
+            final ContainerDraft draft, final ContainerVersion version,
+            final List<DocumentView> documentViews, final Boolean latestVersion) {
+
+        // display version comment
+        if (version.isSetComment()) {
+            final Data commentData = new Data(2);
+            commentData.set(DisplayVersionInfo.DataKey.CONTAINER_ID, version.getArtifactId());
+            commentData.set(DisplayVersionInfo.DataKey.VERSION_ID, version.getVersionId());
+            add(ActionId.CONTAINER_DISPLAY_VERSION_INFO, commentData);
+        }
+
+        // print
+        final List<DocumentView> documentViewsNotDeleted = getDocumentViewsNotDeleted(documentViews);
+        if (documentViewsNotDeleted.size() > 0) {
+            final Data printData = new Data(2);
+            printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.CONTAINER_ID, version.getArtifactId());
+            printData.set(com.thinkparity.ophelia.browser.platform.action.container.PrintVersion.DataKey.VERSION_ID, version.getVersionId());
+            add(ActionId.CONTAINER_PRINT_VERSION, printData);
+        }
+
+        // include the version's created on/updated on
+        if (model.isDevelopmentMode()) {
+            addSeparator();
+            add(MessageFormat.format(
+                    "getVersionId():{0,number,#}", version.getVersionId()));
+            add(MessageFormat.format(
+                    "createdOn():{0,date,yyyy-MM-dd HH:mm:ss.SSS Z}",
+                    version.getCreatedOn().getTime()));
+            add(MessageFormat.format(
+                    "updatedOn():{0,date,yyyy-MM-dd HH:mm:ss.SSS Z}",
+                    version.getUpdatedOn().getTime()));
         }
     }
 
@@ -714,13 +790,12 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             final List<DocumentView> documentViews,
             final Boolean latestVersion, final Document document,
             final DocumentVersion documentVersion, final User user) {
-        final boolean draftSelected = null == version && null != draft;
+        final boolean draftSelected = null == version && isLocalDraft(draft);
         final boolean versionSelected = null != version;
         final boolean draftDocumentSelected = null != document;
         final boolean versionDocumentSelected = null != documentVersion;
         final boolean versionUserSelected = null != user;
         final boolean online = isOnline();
-        final boolean distributed = isDistributed(container.getId());
         boolean needSeparator = false;
 
         // show menus for draft document, version document or version user (if selected)
@@ -741,38 +816,17 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             needSeparator = false;
         }
 
-        // create draft is not required because it is available on the 'common actions' button.
+        // show draft actions.
         // publish is not required because it is available on the 'common actions' button.
-        // add document
-        if (draftSelected && isLocalDraft(draft)) {
-            final Data addDocumentData = new Data(2);
-            addDocumentData.set(AddDocument.DataKey.CONTAINER_ID, draft.getContainerId());
-            addDocumentData.set(AddDocument.DataKey.FILES, new File[0]);
-            add(ActionId.CONTAINER_ADD_DOCUMENT, addDocumentData);
-            needSeparator = true;
-        }
-
-        // update draft comment
         if (draftSelected) {
-            final Data data = new Data(2);
-            data.set(UpdateDraftComment.DataKey.CONTAINER_ID, draft.getContainerId());
-            data.set(UpdateDraftComment.DataKey.DISPLAY_AVATAR, Boolean.TRUE);
-            add(ActionId.CONTAINER_UPDATE_DRAFT_COMMENT, data);
+            addForDraft(container, draft);
             needSeparator = true;
         }
 
-        // delete draft
-        // this command is no longer allowed if the package has not been distributed
-        if (draftSelected && isLocalDraft(draft) && distributed && online) {
-            final Data deleteData = new Data(1);
-            deleteData.set(DeleteDraft.DataKey.CONTAINER_ID, draft.getContainerId());
-            add(ActionId.CONTAINER_DELETE_DRAFT, deleteData);
-            needSeparator = true;
-        }
-
-        // publish version
-        // if nobody has the draft and the user selects the latest version,
-        // the 'common actions' button will have Create Draft. This is the one
+        // show version actions.
+        // create draft is not required because it is available on the 'common actions' button.
+        // If nobody has the draft and the user selects the latest version,
+        // the 'common actions' button will have Create Draft, not Forward. This is the one
         // case where we need to show the Forward command in this list.
         if (versionSelected && online && null == draft && latestVersion && container.isLatest()) {
             final Data publishData = new Data(3);
@@ -782,37 +836,9 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             add(ActionId.CONTAINER_PUBLISH_VERSION, publishData);
             needSeparator = true;
         }
-
-        // display version comment
-        if (versionSelected && version.isSetComment()) {
-            final Data commentData = new Data(2);
-            commentData.set(DisplayVersionInfo.DataKey.CONTAINER_ID, version.getArtifactId());
-            commentData.set(DisplayVersionInfo.DataKey.VERSION_ID, version.getVersionId());
-            add(ActionId.CONTAINER_DISPLAY_VERSION_INFO, commentData);
-            needSeparator = true;
-        }
-
-        // print draft documents
-        if (draftSelected) {
-            final List<Document> documentsNotDeleted = getDocumentsNotDeleted(draft);
-            if (documentsNotDeleted.size() > 0) {
-                final Data printData = new Data(1);
-                printData.set(PrintDraft.DataKey.CONTAINER_ID, draft.getContainerId());
-                add(ActionId.CONTAINER_PRINT_DRAFT, printData);
-                needSeparator = true;
-            }
-        }
-
-        // print version documents
         if (versionSelected) {
-            final List<DocumentView> documentViewsNotDeleted = getDocumentViewsNotDeleted(documentViews);
-            if (documentViewsNotDeleted.size() > 0) {
-                final Data printData = new Data(2);
-                printData.set(PrintVersion.DataKey.CONTAINER_ID, version.getArtifactId());
-                printData.set(PrintVersion.DataKey.VERSION_ID, version.getVersionId());
-                add(ActionId.CONTAINER_PRINT_VERSION, printData);
-                needSeparator = true;
-            }
+            addForVersion(container, draft, version, documentViews, latestVersion);
+            needSeparator = true;
         }
 
         // separator
@@ -821,47 +847,8 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             needSeparator = false;
         }
 
-        // bookmark
-        if (container.isBookmarked()) {
-            final Data removeBookmarkData = new Data(1);
-            removeBookmarkData.set(RemoveBookmark.DataKey.CONTAINER_ID, container.getId());
-            add(ActionId.CONTAINER_REMOVE_BOOKMARK, removeBookmarkData);
-        } else {
-            final Data addBookmarkData = new Data(1);
-            addBookmarkData.set(AddBookmark.DataKey.CONTAINER_ID, container.getId());
-            add(ActionId.CONTAINER_ADD_BOOKMARK, addBookmarkData);
-        }
-        needSeparator = true;
-
-        // Rename container
-        if (!distributed) {
-            final Data renameData = new Data(1);
-            renameData.set(Rename.DataKey.CONTAINER_ID, container.getId());
-            add(ActionId.CONTAINER_RENAME, renameData);
-            needSeparator = true;
-        }
-
-        // delete
-        // This menu is shown if online, or if it has never been published.
-        if (online || !distributed) {
-            final Data deleteData = new Data(1);
-            deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
-            add(ActionId.CONTAINER_DELETE, deleteData);
-            needSeparator = true;
-        }
-
-        // audit report and export
-        if (distributed) {
-            final Data reportData = new Data(1);
-            reportData.set(ExportAuditReport.DataKey.CONTAINER_ID, container.getId());
-            add(ActionId.CONTAINER_EXPORT_AUDIT_REPORT, reportData);
-            
-            final Data exportData = new Data(1);
-            exportData.set(Export.DataKey.CONTAINER_ID, container.getId());
-            add(ActionId.CONTAINER_EXPORT, exportData);
-            
-            needSeparator = true;
-        }
+        // add container menus
+        addForContainer(container);
 
         show();
     }

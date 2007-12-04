@@ -555,7 +555,6 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
                 final Data data = new Data(1);
                 data.set(CreateOutgoingUserInvitation.DataKey.USER_ID, user.getLocalId());
                 add(ActionId.CONTACT_CREATE_OUTGOING_USER_INVITATION, data);
-                addSeparator();
             }
         }
 

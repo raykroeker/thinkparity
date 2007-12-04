@@ -1703,7 +1703,10 @@ public class ContainerPanel extends DefaultTabPanel {
      * Select this panel.
      */
     private void selectPanel() {
-        PanelFocusHelper.setFocus(PanelFocusHelper.Focus.PANEL);
+        if (!isExpanded()) {
+            // if expanded, leave the focus east or west
+            PanelFocusHelper.setFocus(PanelFocusHelper.Focus.PANEL);
+        }
         tabDelegate.selectPanel(this);
     }
 

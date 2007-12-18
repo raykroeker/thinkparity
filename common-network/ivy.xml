@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<ivy-module version="2.0">
+    <info organisation="thinkparity" module="common-network" revision="${build.release}" />
+    <configurations>
+        <include file="${basedir}/../ivy-configurations.xml" />
+    </configurations>
+    <dependencies>
+        <dependency conf="main" name="common" rev="${build.release}" />
+    </dependencies>
+</ivy-module>

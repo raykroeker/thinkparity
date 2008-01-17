@@ -3,8 +3,11 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.profile;
 
+import java.util.List;
+
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
@@ -54,12 +57,13 @@ public class Update extends AbstractBrowserAction {
             final ProfileEMail email = profileModel.readEMail();
             final Profile existingProfile = profileModel.read();
             final Statistics statistics = profileModel.readStatistics();
+            final List<Feature> features = existingProfile.getFeatures();
             SwingUtil.ensureDispatchThread(new Runnable() {
                 public void run() {
                     browser.displayUpdateProfileDialog(backupEnabled,
                             signUpAvailable, paymentInfoAccessible,
                             backupStatistics, email, online, existingProfile,
-                            statistics);
+                            statistics, features);
                 }
             });
         } else {

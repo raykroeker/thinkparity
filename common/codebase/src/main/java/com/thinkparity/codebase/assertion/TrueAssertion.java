@@ -4,22 +4,22 @@
 package com.thinkparity.codebase.assertion;
 
 /**
+ * <b>Title:</b>thinkParity Common True Assertion<br>
+ * <b>Description:</b>An assertion of a conditional statement has incorrectly
+ * evaluated to false.<br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.2
+ * @version 1.1.2.1
  */
-public class TrueAssertion extends Assertion {
-
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
+public final class TrueAssertion extends Assertion {
 
 	/**
-     * Create NotTrueAssertion.
+     * Create TrueAssertion.
      * 
      * @param message
-     *            An assertion message.
+     *            A message <code>String</code>.
      */
-	TrueAssertion(final String message) { super(message); }
-
-	/** Create TrueAssertion. */
-	private TrueAssertion() { super(); }
+	TrueAssertion(final String message) {
+        super(message);
+    }
 }

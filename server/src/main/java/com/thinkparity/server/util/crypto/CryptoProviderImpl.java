@@ -13,9 +13,9 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.common.StringUtil;
 
-import com.thinkparity.codebase.model.util.codec.MD5Util;
+import com.thinkparity.codebase.codec.MD5Util;
 
 import org.apache.commons.codec.binary.Base64;
 

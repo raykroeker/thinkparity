@@ -11,7 +11,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.text.AbstractDocument;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 

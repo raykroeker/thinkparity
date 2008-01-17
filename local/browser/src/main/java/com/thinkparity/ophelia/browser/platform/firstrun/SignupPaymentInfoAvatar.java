@@ -12,7 +12,6 @@ import java.util.Calendar;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.AbstractDocument;
 
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
@@ -30,6 +29,8 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.Avatar
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.firstrun.SignupData.DataKey;
 import com.thinkparity.ophelia.browser.util.swing.CardNameCellRenderer;
+
+import com.thinkparity.common.StringUtil.Separator;
 
 /**
  * <b>Title:</b>thinkParity Ophelia UI Sign-Up Payment Info Avatar<br>
@@ -86,6 +87,9 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
         addValidationListeners();
         addFocusListeners();
         cardNameJComboBox.setRenderer(new CardNameCellRenderer("CardName", getLocalization()));
+        cardNameJComboBox.setSelectedIndex(-1);
+        cardMonthJComboBox.setSelectedIndex(-1);
+        cardYearJComboBox.setSelectedIndex(-1);
     }
 
     /**
@@ -145,7 +149,7 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
      */
     @Override
     public void setDefaultFocus() {
-        cardNameJComboBox.requestFocusInWindow();
+        signupDelegate.setFocusNextButton();
     }
 
     /**
@@ -214,7 +218,7 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
             logger.logError(ox, "An offline error has occured.");
             addInputError(getSharedString("ErrorOffline"));
         } catch (final ReservationExpiredException rex) {
-            logger.logWarning(rex, "The username/e-mail reservation has expired.");
+            logger.logWarning(rex, "The e-mail reservation has expired.");
             addInputError(getString("ErrorReservationExpired"));
         } catch (final Throwable t) {
             logger.logFatal(t, "An unexpected error has occured.");
@@ -388,6 +392,10 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
         super.validateInput();
         final PaymentInfo paymentInfo = extractPaymentInfo();
 
+        if (null == paymentInfo.getCardName()) {
+            addInputError(Separator.Space.toString());
+        }
+
         final int minimumCardNumberLength = constraints.getCardNumber().getMinLength();
         if (isEmpty(paymentInfo.getCardNumber())) {
             addInputError(Separator.Space.toString());
@@ -401,13 +409,18 @@ public final class SignupPaymentInfoAvatar extends DefaultSignupPage {
             addInputError(Separator.Space.toString());
         }
 
-        final Calendar now = Calendar.getInstance();
-        final short nowYear = (short) now.get(Calendar.YEAR);
-        final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
-        if (nowYear == paymentInfo.getCardExpiryYear() &&
-                nowMonth > paymentInfo.getCardExpiryMonth()) {
-            if (ignoreFocus) {
-                addInputError(getString("ErrorCardExpired"));
+        if (null == paymentInfo.getCardExpiryMonth() ||
+            null == paymentInfo.getCardExpiryYear()) {
+            addInputError(Separator.Space.toString());
+        } else {
+            final Calendar now = Calendar.getInstance();
+            final short nowYear = (short) now.get(Calendar.YEAR);
+            final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
+            if (nowYear == paymentInfo.getCardExpiryYear() &&
+                    nowMonth > paymentInfo.getCardExpiryMonth()) {
+                if (ignoreFocus) {
+                    addInputError(getString("ErrorCardExpired"));
+                }
             }
         }
 

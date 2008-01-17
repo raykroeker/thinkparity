@@ -1172,38 +1172,42 @@ public class ContainerPanel extends DefaultTabPanel {
     }
 
     /**
-     * Get the draft owner text associated with the container.
+     * Get the east text associated with the container.
      * 
      * @param container
      *       The <code>Container</code>.
      * @return A <code>String</code>.
      */
-    private String getContainerDraftOwnerText(final Container container) {
+    private String getContainerEastText(final Container container) {
         if (container.isLatest() && isSetDraft()) {
-            return localization.getString("ContainerDraftOwner",
-                    new Object[] { getDraft().getOwner().getName() });
+            if (isDistributed()) {
+                return localization.getString("ContainerDraftOwner",
+                        new Object[] { getDraft().getOwner().getName() });
+            } else {
+                return localization.getString("ContainerNotDistributed");
+            }
         } else {
             return null;
         }
     }
 
     /**
-     * Get the color for the container draft owner text.
+     * Get the color for the container east text.
      * 
      * @param container
      *       The <code>Container</code>.
      * @return A <code>Color</code>.
      */
-    private Color getContainerDraftOwnerTextColor(final Container container) {
+    private Color getContainerEastTextColor(final Container container) {
         return Colors.Browser.Panel.PANEL_ADDITIONAL_TEXT_FG;
     }
 
     /**
-     * Get the font for the container draft owner text.
+     * Get the font for the container east text.
      * 
      * @return A <code>Font</code>.
      */
-    private Font getContainerDraftOwnerTextFont() {
+    private Font getContainerEastTextFont() {
         return Fonts.DefaultFont;
     }
 
@@ -1615,7 +1619,7 @@ public class ContainerPanel extends DefaultTabPanel {
     private void paintText(final Graphics2D g2) {
         final String containerText = getContainerText(container);
         final String additionalText = getContainerAdditionalText(container);
-        final String draftOwnerText = getContainerDraftOwnerText(container);
+        final String draftOwnerText = getContainerEastText(container);
 
         // paint container name text
         g2.setFont(getContainerTextFont());
@@ -1641,12 +1645,12 @@ public class ContainerPanel extends DefaultTabPanel {
 
         // paint draft owner text on the right
         if (null != draftOwnerText) {
-            g2.setFont(getContainerDraftOwnerTextFont());
+            g2.setFont(getContainerEastTextFont());
             availableWidth = (int)(getWidth() * FRACTION_WIDTH_DRAFT_OWNER_NAME);
             final String clippedDraftOwnerText = SwingUtil.limitWidthWithEllipsis(draftOwnerText, availableWidth, g2);
             final int textWidth = SwingUtil.getStringWidth(clippedDraftOwnerText, g2);
             location.x = getWidth() - textWidth - CONTAINER_TEXT_SPACE_END;
-            paintText(g2, location, getContainerDraftOwnerTextColor(container), clippedDraftOwnerText);
+            paintText(g2, location, getContainerEastTextColor(container), clippedDraftOwnerText);
         }
     }
 
@@ -2220,7 +2224,7 @@ public class ContainerPanel extends DefaultTabPanel {
                 add(new VersionDocumentCell(this, documentView.getVersion(),
                         documentView.getDelta()));
             }
-            add(new VersionUserCell(this, publishedBy, version.getCreatedOn()));
+            // add version user east cells, but note that the publisher is not included.
             for (final ArtifactReceipt artifactReceipt : publishedTo.getArtifactReceipts()) {
                 add(new VersionUserCell(this, artifactReceipt));
             }
@@ -2415,28 +2419,11 @@ public class ContainerPanel extends DefaultTabPanel {
             if (receipt.isSetReceivedOn()) {
                 setAdditionalText(localization.getString("UserReceived",
                         new Object[] {formatFuzzy(receipt.getReceivedOn())}));
-            }                   
+            } else {
+                setAdditionalText(localization.getString("UserNotReceived"));
+            }
         }
 
-        /**
-         * Create VersionUserCell.
-         * 
-         * @param parent
-         *            The parent <code>WestCell</code>.
-         * @param publisher
-         *            The publisher <code>User</code>.
-         * @param publishedOn
-         *            The published on date <code>Calendar</code>.
-         */
-        private VersionUserCell(final WestCell parent,
-                final User publisher, final Calendar publishedOn) {
-            super(parent);
-            this.user = publisher;
-            setIcon(IMAGE_CACHE.read(TabPanelIcon.USER));
-            setText(publisher.getName());
-            setAdditionalText(localization.getString("UserPublished",
-                    new Object[] {formatFuzzy(publishedOn)}));
-        }
         /**
          * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.panel.DefaultCell#getId()
          */

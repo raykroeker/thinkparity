@@ -3,11 +3,11 @@
  */
 package com.thinkparity.ophelia.browser.build
 
+import com.thinkparity.codebase.codec.MD5Util
 import com.thinkparity.codebase.jabber.JabberId
 
 import com.thinkparity.codebase.model.migrator.Product
 import com.thinkparity.codebase.model.migrator.Release
-import com.thinkparity.codebase.model.util.codec.MD5Util
 
 import com.thinkparity.service.AuthToken
 import com.thinkparity.service.MigratorService

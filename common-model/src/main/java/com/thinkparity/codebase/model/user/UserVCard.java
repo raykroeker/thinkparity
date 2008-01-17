@@ -20,6 +20,8 @@ public abstract class UserVCard {
 
     private String country;
 
+    private String industry;
+
     private String language;
 
     private String mobilePhone;
@@ -83,6 +85,15 @@ public abstract class UserVCard {
      */
     public String getCountry() {
         return country;
+    }
+
+    /**
+     * Obtain the industry.
+     * 
+     * @return The industry <code>String</code>.
+     */
+    public String getIndustry() {
+        return industry;
     }
 
     /**
@@ -230,6 +241,15 @@ public abstract class UserVCard {
     }
 
     /**
+     * Determine if the industry is set.
+     * 
+     * @return True if the industry is set.
+     */
+    public Boolean isSetIndustry() {
+        return isSet(industry);
+    }
+
+    /**
      * Determine if the mobile phone is set.
      * 
      * @return True if the mobile phone is set.
@@ -311,6 +331,16 @@ public abstract class UserVCard {
      */
     public void setCountry(final String country) {
         this.country = country;
+    }
+
+    /**
+     * Set industry.
+     *
+     * @param industry
+     *      A String.
+     */
+    public void setIndustry(final String industry) {
+        this.industry = industry;
     }
 
     /**
@@ -476,5 +506,13 @@ public abstract class UserVCard {
      */
     private Boolean isSet(final Object field) {
         return null != field;
+    }
+
+    public enum Industry {
+        ACCOUNTING, AGRICULTURE, BANKING, BIOTECHNOLOGY, CONSTRUCTION,
+        CONSULTING, EMPLOYMENT, ENTERTAINMENT, ENVIRONMENTAL, FINANCIAL,
+        GOVERNMENT, HEALTH, HOSPITALITY, IT, INSURANCE, LEGAL, MANUFACTURING,
+        MILITARY, MINING, NONPROFIT, OIL, PRINTING, REALESTATE, RESTAURANT,
+        RETAIL, TELECOMMUNICATIONS, OTHER
     }
 }

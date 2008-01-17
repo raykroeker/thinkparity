@@ -10,9 +10,13 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.session.Environment;
 
+import com.thinkparity.service.client.Constants;
 import com.thinkparity.service.client.ServiceContext;
 
 import org.apache.commons.httpclient.HttpClient;
+
+import com.thinkparity.net.protocol.http.Http;
+import com.thinkparity.net.protocol.http.HttpException;
 
 /**
  * <b>Title:</b>thinkParity Service Http Context<br>
@@ -49,17 +53,11 @@ final class HttpServiceContext implements ServiceContext {
             .toString();
     }
 
-    /**
-     * Obtain the base service uri.
-     * 
-     * @return A <code>String</code>.
-     */
-    static String getBaseURI() {
-        return BASE_URI;
-    }
-
     /** The http content type. */
     private String contentType;
+
+    /** An instance of http. */
+    private final Http http;
 
     /** The http client. */
     private HttpClient httpClient;
@@ -76,6 +74,7 @@ final class HttpServiceContext implements ServiceContext {
      */
     HttpServiceContext() {
         super();
+        this.http = newHttp();
         this.logger = new Log4JWrapper("SERVICE_DEBUGGER");
         this.logWriter = new Log4JWriter();
     }
@@ -103,7 +102,16 @@ final class HttpServiceContext implements ServiceContext {
      *
      * @return A HttpClient.
      */
-    public HttpClient getHttpClient() {
+    public HttpClient getHttpClient() throws HttpException {
+        if (null == httpClient) {
+            /* first call to get client */
+            httpClient = newHttpClient();
+        } else {
+            /* check for dirty http configuration; and recreate as needed */
+            if (http.getConfiguration().isDirty(http)) {
+                httpClient = newHttpClient();
+            }
+        }
         return httpClient;
     }
 
@@ -152,6 +160,29 @@ final class HttpServiceContext implements ServiceContext {
      */
     public void setHttpClient(final HttpClient httpClient) {
         this.httpClient = httpClient;
+    }
+
+    /**
+     * Instantiate http.
+     * 
+     * @return An instance of <code>Http</code>.
+     */
+    private Http newHttp() {
+        final Http http = new Http();
+        http.getConfiguration().setMaxTotalConnections(http, Constants.Http.MAX_TOTAL_CONNECTIONS);
+        http.getConfiguration().setSoTimeout(http, Constants.Http.SO_TIMEOUT);
+        http.getConfiguration().setTcpNoDelay(http, Constants.Http.TCP_NO_DELAY);
+        return http;
+    }
+
+    /**
+     * Instantiate an http client.
+     * 
+     * @return An <code>HttpClient</code>.
+     * @throws HttpException
+     */
+    private HttpClient newHttpClient() throws HttpException {
+        return http.newClient();
     }
     
     /** <b>Title:</b>Http Service Context Log4J Writer<br> */

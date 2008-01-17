@@ -42,8 +42,8 @@ public abstract class Enum implements Serializable {
 	/**
 	 * Represents the map of all enum types to their list of options.
 	 */
-	private static final Map<Class, Vector<Enum>> globalEnums =
-		new Hashtable<Class, Vector<Enum>>();
+	private static final Map<Class<?>, Vector<Enum>> globalEnums =
+		new Hashtable<Class<?>, Vector<Enum>>();
 	
 	/**
 	 * Represents the map of all enum types to their list of option values.  This list of
@@ -51,8 +51,8 @@ public abstract class Enum implements Serializable {
 	 * are non unique.  It must not be used for any other purpose.  If using your 
 	 * own objects as values, override the equals method to examine for identity.
 	 */
-	private static final Map<Class, Vector<Object>> globalEnumValues =
-		new Hashtable<Class, Vector<Object>>();
+	private static final Map<Class<?>, Vector<Object>> globalEnumValues =
+		new Hashtable<Class<?>, Vector<Object>>();
 
 	/**
 	 * Locate the enumerated enumValue in the master list.  This method was given 
@@ -61,7 +61,7 @@ public abstract class Enum implements Serializable {
 	 * @param myEnum <code>java.lang.Class</code>
 	 * @param searchValue <code>java.lang.Object</code>
 	 */
-	protected static Enum find(Class myEnum, Object searchValue) {
+	protected static Enum find(final Class<?> myEnum, final Object searchValue) {
 		if(null == myEnum)
 			return null;
 		if(null == searchValue)
@@ -84,7 +84,7 @@ public abstract class Enum implements Serializable {
 	 * @return <code>java.util.Collection</code> or null if there is no
 	 * corresponding type list
 	 */
-	protected static Vector<Enum> getList(Class myEnum) {
+	protected static Vector<Enum> getList(final Class<?> myEnum) {
 		if(null == myEnum)
 			return null;
 		Vector<Enum> allEnums = globalEnums.get(myEnum);
@@ -100,8 +100,8 @@ public abstract class Enum implements Serializable {
 	 * @param myEnum <code>java.lang.Class</code>
 	 * @return <code>int</code>
 	 */
-	protected static int sizeOf(Class myEnum) {
-		Vector list = Enum.getList(myEnum);
+	protected static int sizeOf(final Class<?> myEnum) {
+		Vector<?> list = Enum.getList(myEnum);
 		if(null == list)
 			return 0;
 		return list.size();

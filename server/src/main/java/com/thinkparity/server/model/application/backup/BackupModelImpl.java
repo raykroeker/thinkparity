@@ -12,6 +12,7 @@ import java.util.UUID;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.artifact.Artifact;
+import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 import com.thinkparity.codebase.model.artifact.ArtifactReceipt;
 import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
@@ -454,7 +455,7 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
          * migrator code is complete */
         final List<Feature> features = getUserModel(user).readProductFeatures(Ophelia.PRODUCT_NAME);
         for (final Feature feature : features) {
-            if (Ophelia.Feature.BACKUP.equals(feature.getName())) {
+            if (Feature.Name.BACKUP == feature.getName()) {
                 return Boolean.TRUE;
             }
         }
@@ -594,7 +595,26 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
     private Container readContainerImpl(final UUID uniqueId) {
         if (isContainerBackedUpImpl(uniqueId)) {
             final Long containerId = getModelFactory().getArtifactModel().readId(uniqueId);
-            return getModelFactory().getContainerModel().read(containerId);
+            final com.thinkparity.ophelia.model.container.InternalContainerModel
+                containerModel = getModelFactory().getContainerModel();
+            final Container container = containerModel.read(containerId);
+            /* the backup will always have the latest flag applied to
+             * all packages; therefore a check is made and the flag
+             * removed as needed */
+            final ContainerVersion latestVersion =
+                containerModel.readLatestVersion(container.getId());
+            if (null == latestVersion) {
+                container.remove(ArtifactFlag.LATEST);
+            } else {
+                final User backupLocalUser = getModelFactory().getUserModel().read(this.user);
+                if (Boolean.FALSE == containerModel.isPublishedTo(
+                        latestVersion, backupLocalUser)
+                        && Boolean.FALSE == containerModel.isPublishedBy(
+                                latestVersion, backupLocalUser)) {
+                    container.remove(ArtifactFlag.LATEST);
+                }
+            }
+            return container;
         } else {
             logger.logWarning("Container {0} is not backed up.", uniqueId);
             return null;
@@ -737,7 +757,23 @@ public final class BackupModelImpl extends AbstractModelImpl implements BackupMo
                 if (null == container) {
                     logger.logWarning("Container {0} no longer exists in the backup.", containerId);
                 } else {
-                    backedUpContainers.add(containerModel.read(containerId));
+                    /* the backup will always have the latest flag applied to
+                     * all packages; therefore a check is made and the flag
+                     * removed as needed */
+                    final ContainerVersion latestVersion =
+                        containerModel.readLatestVersion(container.getId());
+                    if (null == latestVersion) {
+                        container.remove(ArtifactFlag.LATEST);
+                    } else {
+                        final User backupLocalUser = getModelFactory().getUserModel().read(user);
+                        if (Boolean.FALSE == containerModel.isPublishedTo(
+                                latestVersion, backupLocalUser)
+                                && Boolean.FALSE == containerModel.isPublishedBy(
+                                        latestVersion, backupLocalUser)) {
+                            container.remove(ArtifactFlag.LATEST);
+                        }
+                    }
+                    backedUpContainers.add(container);
                 }
             }
         }

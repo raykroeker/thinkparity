@@ -3,7 +3,7 @@
  */
 package com.thinkparity.codebase.bzip2;
 
-import com.thinkparity.codebase.StringUtil.Charset;
+import com.thinkparity.common.StringUtil.Charset;
 
 /**
  * <b>Title:</b>thinkParity Codebase BZip2 Constants<br>

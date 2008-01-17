@@ -11,7 +11,9 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.text.AbstractDocument;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextComponentLengthFilter;
 
@@ -107,7 +109,8 @@ public class UpdateDraftCommentAvatar extends Avatar {
      * Extract the comment.
      */
     private String extractComment() {
-        return SwingUtil.extract(commentJTextArea, Boolean.TRUE);
+        final String comment = SwingUtil.extract(commentJTextArea, Boolean.FALSE);
+        return StringUtil.trimTail(comment);
     }
 
     /**

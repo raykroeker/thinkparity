@@ -3,6 +3,8 @@
  */
 package com.thinkparity.codebase.constraint;
 
+import java.text.MessageFormat;
+
 import com.thinkparity.codebase.constraint.IllegalValueException.Reason;
 
 /**
@@ -12,7 +14,7 @@ import com.thinkparity.codebase.constraint.IllegalValueException.Reason;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class StringConstraint extends Constraint<String> {
+public class StringConstraint extends Constraint<String> implements Cloneable {
 
     /** The maximum string length <code>Integer</code>. */
     private Integer maxLength;
@@ -26,6 +28,24 @@ public class StringConstraint extends Constraint<String> {
      */
     public StringConstraint() {
         super();
+    }
+
+    /**
+     * @see java.lang.Object#clone()
+     *
+     */
+    @Override
+    public Object clone() {
+        try {
+            final StringConstraint clone = (StringConstraint) super.clone();
+            clone.setMaxLength(maxLength);
+            clone.setMinLength(minLength);
+            clone.setName(getName());
+            clone.setNullable(isNullable());
+            return clone;
+        } catch (final CloneNotSupportedException cnsx) {
+            throw new UnsupportedOperationException(cnsx);
+        }
     }
 
     /**
@@ -53,6 +73,7 @@ public class StringConstraint extends Constraint<String> {
      *		A Integer.
      */
     public void setMaxLength(final Integer maxLength) {
+        validateMaxLength(maxLength);
         this.maxLength = maxLength;
     }
 
@@ -63,6 +84,7 @@ public class StringConstraint extends Constraint<String> {
      *		A Integer.
      */
     public void setMinLength(final Integer minLength) {
+        validateMinLength(minLength);
         this.minLength = minLength;
     }
 
@@ -78,6 +100,50 @@ public class StringConstraint extends Constraint<String> {
                 invalidate(Reason.TOO_LONG, value);
             if (minLength.intValue() > value.length())
                 invalidate(Reason.TOO_SHORT, value);
+        }
+    }
+    
+    /**
+     * Validate max length.
+     * 
+     * @param maxLength
+     *            An <code>Integer</code>.
+     */
+    private void validateMaxLength(final Integer maxLength) {
+        if (null == maxLength) {
+            throw new IllegalArgumentException("Cannot set null max length.");
+        } else {
+            if (null == minLength) {
+                return;
+            } else {
+                if (minLength.intValue() > maxLength.intValue()) {
+                    throw new IllegalArgumentException(MessageFormat.format(
+                            "Cannot set max length less than min length.  {0}>{1}",
+                            minLength, maxLength));
+                }
+            }
+        }
+    }
+
+    /**
+     * Validate min length.
+     * 
+     * @param minLength
+     *            An <code>Integer</code>.
+     */
+    private void validateMinLength(final Integer minLength) {
+        if (null == minLength) {
+            throw new IllegalArgumentException("Cannot set null min length.");
+        } else {
+            if (null == maxLength) {
+                return;
+            } else {
+                if (maxLength.intValue() < minLength.intValue()) {
+                    throw new IllegalArgumentException(MessageFormat.format(
+                            "Cannot set min length greater than max length.  {0}>{1}",
+                            minLength, maxLength));
+                }
+            }
         }
     }
 }

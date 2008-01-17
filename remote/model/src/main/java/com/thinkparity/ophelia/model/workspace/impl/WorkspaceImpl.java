@@ -15,11 +15,12 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import com.thinkparity.common.StringUtil;
+
 import com.thinkparity.codebase.Constants;
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.StackUtil;
-import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.event.EventListener;

@@ -13,8 +13,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import com.thinkparity.common.StringUtil;
+
 import com.thinkparity.codebase.OSUtil;
-import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.Context;

@@ -3,6 +3,7 @@
  */
 package com.thinkparity.desdemona.model;
 
+
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Constants<br>
  * <b>Description:</b><br>
@@ -68,13 +69,6 @@ public interface Constants {
         public static final class Ophelia {
             /** Ophelia Product Name Constant */
             public static final String PRODUCT_NAME = "OpheliaProduct";
-            /** Ophelia Product Feature Constants */
-            public static final class Feature {
-                /** Ophelia Product Feature Backup */
-                public static final String BACKUP = "BACKUP";
-                /** Ophelia Product Feature Core */
-                public static final String CORE = "CORE";
-            }
         }
     }
 

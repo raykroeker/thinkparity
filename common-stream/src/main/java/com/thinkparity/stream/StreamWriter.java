@@ -8,17 +8,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.net.URI;
 import java.net.UnknownHostException;
 
 import com.thinkparity.codebase.model.stream.StreamSession;
 
-import com.thinkparity.network.NetworkException;
-import com.thinkparity.network.protocol.http.HttpUtils;
-
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
+
+import com.thinkparity.net.NetworkException;
+import com.thinkparity.net.protocol.http.HttpUtils;
 
 /**
  * <b>Title:</b>thinkParity CommonModel Stream Writer<br>
@@ -58,8 +57,8 @@ public final class StreamWriter implements RequestEntity {
         this.monitor = monitor;
         this.session = session;
         try {
-            this.utils = new StreamUtils(URI.create(session.getURI()));
-        } catch (final com.thinkparity.network.protocol.http.HttpException hx) {
+            this.utils = new StreamUtils();
+        } catch (final com.thinkparity.net.protocol.http.HttpException hx) {
             throw new RuntimeException(hx);
         }
     }

@@ -107,6 +107,13 @@ abstract class DefaultSignupPage extends Avatar implements SignupPage {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isNextExecutedImmediately()
+     */
+    public Boolean isNextExecutedImmediately() {
+        return Boolean.FALSE;
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isNextOk()
      */
     public Boolean isNextOk() {
@@ -145,6 +152,12 @@ abstract class DefaultSignupPage extends Avatar implements SignupPage {
      */
     public void setState(final State state) {
         throw Assert.createNotYetImplemented("SignupAvatar.DefaultSignupPage#setState");
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#setVisibleButtons()
+     */
+    public void setVisibleButtons() {
     }
 
     /**

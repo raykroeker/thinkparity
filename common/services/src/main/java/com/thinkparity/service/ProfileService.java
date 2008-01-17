@@ -128,23 +128,34 @@ public interface ProfileService {
     @WebMethod
     EMailReservation createEMailReservation(AuthToken authToken, EMail email);
 
+    @WebMethod
+    Token createToken(AuthToken authToken);
+
     /**
-     * Update the profile.
+     * Create a username reservation.
      * 
      * @param authToken
      *            An <code>AuthToken</code>.
      * @param profile
      *            A <code>Profile</code>.
-     * @param paymentInfo
-     *            A <code>PaymentInfo</code>.
+     * @return A <code>UsernameReservation</code>.
      */
     @WebMethod
-    void update(AuthToken authToken, Profile profile, PaymentInfo paymentInfo);
+    UsernameReservation createUsernameReservation(AuthToken authToken,
+            Profile profile);
 
+    /**
+     * Create a username reservation.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param username
+     *            A <code>String</code>.
+     * @return A <code>UsernameReservation</code>.
+     * @deprecated 20071231
+     */
     @WebMethod
-    Token createToken(AuthToken authToken);
-
-    @WebMethod
+    @Deprecated
     UsernameReservation createUsernameReservation(AuthToken authToken,
             String username);
 
@@ -185,6 +196,19 @@ public interface ProfileService {
 
     @WebMethod
     Token readToken(AuthToken authToken);
+
+    /**
+     * Update the profile.
+     * 
+     * @param authToken
+     *            An <code>AuthToken</code>.
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param paymentInfo
+     *            A <code>PaymentInfo</code>.
+     */
+    @WebMethod
+    void update(AuthToken authToken, Profile profile, PaymentInfo paymentInfo);
 
     @WebMethod
     void update(AuthToken authToken, ProfileVCard vcard);

@@ -8,17 +8,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.thinkparity.common.StringUtil;
+
 import com.thinkparity.codebase.BytesFormat;
 import com.thinkparity.codebase.StreamUtil;
-import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
-
-import com.thinkparity.network.protocol.http.HttpException;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -26,6 +24,8 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.xmlpull.mxp1.MXParser;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
+
+import com.thinkparity.net.protocol.http.HttpException;
 
 /**
  * <b>Title:</b><br>
@@ -101,14 +101,12 @@ public final class StreamUtils {
     /**
      * Create StreamUtils.
      * 
-     * @param uri
-     *            A <code>URI</code>.
      * @throws HttpException
      *             if the http client cannot be instantiated
      */
-    StreamUtils(final URI uri) throws HttpException {
+    StreamUtils() throws HttpException {
         super();
-        this.httpClient = getHttpClient(uri);
+        this.httpClient = getHttpClient();
     }
 
     /**
@@ -288,7 +286,7 @@ public final class StreamUtils {
      * 
      * @return An <code>HttpClient</code>.
      */
-    private HttpClient getHttpClient(final URI uri) throws HttpException {
-        return CONFIGURATION.getHttpClient(uri);
+    private HttpClient getHttpClient() throws HttpException {
+        return CONFIGURATION.getHttpClient();
     }
 }

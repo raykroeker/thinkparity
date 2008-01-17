@@ -378,6 +378,32 @@ public final class ContainerModelImpl extends
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#isPublishedBy(com.thinkparity.codebase.model.container.ContainerVersion, com.thinkparity.codebase.model.user.User)
+     *
+     */
+    @Override
+    public Boolean isPublishedBy(final ContainerVersion version, final User user) {
+        try {
+            return version.getCreatedBy().equals(user.getId());
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.ContainerModel#isPublishedTo(com.thinkparity.codebase.model.container.Container, com.thinkparity.codebase.model.user.User)
+     *
+     */
+    @Override
+    public Boolean isPublishedTo(final ContainerVersion version, final User user) {
+        try {
+            return containerIO.isPublishedTo(version, user);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * Read the containers.
      * 
      * @return A list of containers.

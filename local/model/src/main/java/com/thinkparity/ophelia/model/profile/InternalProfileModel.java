@@ -26,6 +26,14 @@ import com.thinkparity.ophelia.model.util.ProcessMonitor;
 public interface InternalProfileModel extends ProfileModel {
 
     /**
+     * Delete local profile data.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     */
+    void deleteLocal(ProcessMonitor monitor);
+
+    /**
      * Handle a profile disabled event.
      * 
      * @param event
@@ -50,13 +58,6 @@ public interface InternalProfileModel extends ProfileModel {
     void handleEvent(PaymentPlanArrearsEvent event);
 
     /**
-     * Initialize the user's profile. Download the profile data from the server
-     * and save it locally.
-     * 
-     */
-    void initialize();
-
-    /**
      * Read the user's credentials.
      * 
      * @return An instance of <code>Credentials</code>.
@@ -71,12 +72,12 @@ public interface InternalProfileModel extends ProfileModel {
     List<ProfileEMail> readEMails();
 
     /**
-     * Restore backup.
+     * Restore local profile data from the backup.
      * 
      * @param monitor
      *            A <code>ProcessMonitor</code>.
      */
-    void restoreBackup(ProcessMonitor monitor);
+    void restoreLocal(ProcessMonitor monitor);
 
     /**
      * Update the release for the profile.

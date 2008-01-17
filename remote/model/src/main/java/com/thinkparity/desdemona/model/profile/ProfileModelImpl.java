@@ -41,7 +41,11 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 
+import com.thinkparity.common.StringUtil;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.codec.MD5Util;
 import com.thinkparity.codebase.constraint.IllegalValueException;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -63,7 +67,6 @@ import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.Token;
 import com.thinkparity.codebase.model.util.VCardWriter;
-import com.thinkparity.codebase.model.util.codec.MD5Util;
 import com.thinkparity.codebase.model.util.jta.Transaction;
 import com.thinkparity.codebase.model.util.xmpp.event.ContactUpdatedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
@@ -254,7 +257,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             final PaymentInfo paymentInfo) {
         final Object xaContext = newXAContext(XAContextId.PROFILE_CREATE);
         try {
-            validate(profile.getVCard());
+            validate(profile, profile.getVCard());
             validate(paymentInfo);
             beginXA(xaContext);
             try {
@@ -431,6 +434,28 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.profile.ProfileModel#createUsernameReservation(com.thinkparity.codebase.model.profile.Profile)
+     *
+     */
+    @Override
+    public UsernameReservation createUsernameReservation(final Profile profile) {
+        try {
+            validate(profile, profile.getVCard());
+            final long maxAttempts = 7L;
+            long attempt = 0L;
+            String username;
+            UsernameReservation reservation = null;
+            while (null == reservation && attempt++ < maxAttempts) {
+                username = newUsername(profile, attempt);
+                reservation = createUsernameReservation(username);
+            }
+            return reservation;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.profile.ProfileModel#createUsernameReservation(com.thinkparity.codebase.jabber.JabberId,
      *      java.lang.String, java.util.Calendar)
      * 
@@ -581,10 +606,9 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         try {
             beginXA(xaContext);
             try {
-                final List<Feature> features = readFeatures();
-                for (final Feature feature : features) {
-                    if (Constants.Product.Ophelia.Feature.CORE.equals(feature
-                            .getName())) {
+                final List<Feature> featureList = readFeatures();
+                for (final Feature feature : featureList) {
+                    if (Feature.Name.CORE == feature.getName()) {
                         return Boolean.TRUE;
                     }
                 }
@@ -808,9 +832,9 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         try {
             beginXA(xaContext);
             try {
-                validate(vcard);
-
                 final Profile profile = read(xaContext);
+                validate(profile, vcard);
+
                 getUserModel(profile).updateVCard(vcard);
                 notifyContactUpdated();
             } catch (final Throwable t) {
@@ -1042,7 +1066,6 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         }
     }
 
-
     /**
      * @see com.thinkparity.desdemona.model.AbstractModelImpl#initialize()
      * 
@@ -1080,6 +1103,7 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
                     transactionContext));
         }
     }
+
 
     /**
      * Complete the transaction. If the transaction context matches the local
@@ -1406,8 +1430,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
             final Credentials credentials, final Profile profile,
             final EMail email, final SecurityCredentials securityCredentials)
             throws GeneralSecurityException, IOException {
-        validate(profile.getVCard());
-        validate(usernameReservation, emailReservation, credentials, email);
+        validate(profile, profile.getVCard());
+        validate(profile, usernameReservation, emailReservation, credentials, email);
 
         // delete expired reservations
         userSql.deleteReservations(currentDateTime());
@@ -1782,6 +1806,42 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
     }
 
     /**
+     * Instantiate a string username for the profile.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param attempt
+     *            An <code>int</code>.
+     * @return A <code>String</code>.
+     */
+    private String newUsername(final Profile profile, final long attempt) {
+        final String pattern = new StringBuilder(8)
+            .append("{0}.{1}")
+            .append(1 < attempt ? "_{2}" : "")
+            .toString();
+        final Object[] arguments = new Object[0 < attempt ? 3 : 2];
+        String organization = StringUtil.removeWhitespace(profile.getOrganization(), Separator.EmptyString).toString();
+        organization = StringUtil.searchAndReplace(organization, Separator.Period, Separator.EmptyString);
+        organization = StringUtil.searchAndReplace(organization, Separator.Comma, Separator.EmptyString);
+        organization = StringUtil.searchAndReplace(organization, Separator.Dash, Separator.EmptyString);
+        organization = StringUtil.searchAndReplace(organization, Separator.FullColon, Separator.EmptyString);
+        organization = StringUtil.searchAndReplace(organization, Separator.SemiColon, Separator.EmptyString);
+        String name = StringUtil.removeWhitespace(profile.getName(), "").toString();
+        name = StringUtil.searchAndReplace(name, Separator.Period, Separator.EmptyString);
+        name = StringUtil.searchAndReplace(name, Separator.Comma, Separator.EmptyString);
+        name = StringUtil.searchAndReplace(name, Separator.Dash, Separator.EmptyString);
+        name = StringUtil.searchAndReplace(name, Separator.FullColon, Separator.EmptyString);
+        name = StringUtil.searchAndReplace(name, Separator.SemiColon, Separator.EmptyString);
+
+        arguments[0] = organization;
+        arguments[1] = name;
+        if (1 < attempt) {
+            arguments[2] = String.valueOf(attempt);
+        }
+        return MessageFormat.format(pattern, arguments);
+    }
+
+    /**
      * Fire the contact updated event for a user. All contacts for that user
      * will be updated.
      * 
@@ -1908,9 +1968,20 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      * @param vcard
      *            A <code>ProfileVCard</code>.
      */
-    private void validate(final ProfileVCard vcard) {
-        constraints.getAddress().validate(vcard.getAddress());
-        constraints.getCity().validate(vcard.getCity());
+    private void validate(final Profile profile, final ProfileVCard vcard) {
+        final ProfileConstraintsInfo info = new ProfileConstraintsInfo() {
+
+            /**
+             * @see com.thinkparity.codebase.model.profile.ProfileConstraintsInfo#getFeatures()
+             *
+             */
+            @Override
+            public List<Feature> getFeatures() {
+                return profile.getFeatures();
+            }
+        };
+        constraints.getAddress(info).validate(vcard.getAddress());
+        constraints.getCity(info).validate(vcard.getCity());
         constraints.getCountry().validate(vcard.getCountry());
         constraints.getLanguage().validate(vcard.getLanguage());
         constraints.getMobilePhone().validate(vcard.getMobilePhone());
@@ -1923,8 +1994,8 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
         constraints.getOrganizationPostalCode().validate(vcard.getOrganizationPostalCode());
         constraints.getOrganizationProvince().validate(vcard.getOrganizationProvince());
         constraints.getPhone().validate(vcard.getPhone());
-        constraints.getPostalCode().validate(vcard.getPostalCode());
-        constraints.getProvince().validate(vcard.getProvince());
+        constraints.getPostalCode(info).validate(vcard.getPostalCode());
+        constraints.getProvince(info).validate(vcard.getProvince());
         constraints.getTimeZone().validate(vcard.getTimeZone());
         constraints.getTitle().validate(vcard.getTitle());
     }
@@ -1936,14 +2007,19 @@ public final class ProfileModelImpl extends AbstractModelImpl implements
      *            A <code>UsernameReservation</code>.
      * @param emailReservation
      *            An <code>EMailReservation</code>.
+     * @param profile
+     *            A <code>Profile</code>.
      * @param credentials
      *            A set of <code>Credentials</code>.
      * @param email
      *            An <code>EMail</code>.
      */
-    private void validate(final UsernameReservation usernameReservation,
+    private void validate(final Profile profile,
+            final UsernameReservation usernameReservation,
             final EMailReservation emailReservation,
             final Credentials credentials, final EMail email) {
+        Assert.assertIsNull(profile.getId(),
+                "Profile id {0} cannot be set.", profile.getId());
         Assert.assertTrue(usernameReservation.getUsername().equals(
                 credentials.getUsername()),
                 "Reservation username {0} does not match credentials username {1}.",

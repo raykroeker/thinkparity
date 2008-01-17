@@ -5,6 +5,9 @@ package com.thinkparity.ophelia.model.workspace.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
@@ -19,21 +22,27 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.sql.DataSource;
 
+import com.thinkparity.common.StringUtil;
+
 import com.thinkparity.codebase.Constants;
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.StackUtil;
-import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.Assertion;
 import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
+import com.thinkparity.codebase.model.session.Environment;
+
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.Constants.DirectoryNames;
 import com.thinkparity.ophelia.model.Constants.FileNames;
 import com.thinkparity.ophelia.model.Constants.Release;
+import com.thinkparity.ophelia.model.events.ConfigurationAdapter;
+import com.thinkparity.ophelia.model.events.ConfigurationEvent;
+import com.thinkparity.ophelia.model.events.ConfigurationListener;
 import com.thinkparity.ophelia.model.io.db.hsqldb.Session;
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.util.daemon.DaemonJob;
@@ -44,9 +53,20 @@ import com.thinkparity.ophelia.model.workspace.CannotLockException;
 import com.thinkparity.ophelia.model.workspace.Transaction;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceException;
+import com.thinkparity.ophelia.model.workspace.configuration.Configuration;
+import com.thinkparity.ophelia.model.workspace.configuration.Proxy;
+import com.thinkparity.ophelia.model.workspace.configuration.ProxyConfiguration;
+import com.thinkparity.ophelia.model.workspace.configuration.ProxyCredentials;
+import com.thinkparity.ophelia.model.workspace.configuration.ProxyType;
 
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.ProxyHost;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.PropertyConfigurator;
+
+import com.thinkparity.net.protocol.http.Http;
+import com.thinkparity.net.protocol.http.HttpConfiguration;
 
 /**
  * <b>Title:</b>thinkParity OpheliaModel Workspace Implementation<br>
@@ -73,6 +93,9 @@ public final class WorkspaceImpl implements Workspace {
     /** The workspace buffer synchronization lock <code>Object</code>. */
     private Object bufferLock;
 
+    /** The workspace configuration. */
+    private Configuration configuration;
+
     /** A list of event listeners for each of the implementation classes. */
     private ListenersImpl listenersImpl;
 
@@ -81,6 +104,9 @@ public final class WorkspaceImpl implements Workspace {
 
     /** The persistence manager. */
     private PersistenceManagerImpl persistenceManagerImpl;
+
+    /** A configuration listener monitoring for changes to the proxy configuration. */
+    private ConfigurationListener proxyUpdateListener;
 
     /** A scheduler. */
     private SchedulerImpl scheduler;
@@ -141,6 +167,7 @@ public final class WorkspaceImpl implements Workspace {
      */
     public void beginInitialize() {
         persistenceManagerImpl.beginInitialize();
+        initializeIOConfiguration();
     }
 
     /**
@@ -310,6 +337,15 @@ public final class WorkspaceImpl implements Workspace {
      */
     public Charset getCharset() {
         return StringUtil.Charset.UTF_8.getCharset();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.workspace.Workspace#getConfiguration()
+     * 
+     */
+    @Override
+    public Configuration getConfiguration() {
+        return configuration;
     }
 
     /**
@@ -513,6 +549,8 @@ public final class WorkspaceImpl implements Workspace {
         scheduler = new SchedulerImpl(this);
         scheduler.start();
 
+        openConfiguration();
+
         shutdownHooks = new ArrayList<ShutdownHook>();
 
         FileUtil.deleteTree(initChild(DirectoryNames.Workspace.TEMP));
@@ -539,7 +577,6 @@ public final class WorkspaceImpl implements Workspace {
         return listenersImpl.remove(impl, listener);
     }
 
-    
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#schedule(com.thinkparity.ophelia.model.util.daemon.DaemonJob, com.thinkparity.ophelia.model.util.daemon.DaemonSchedule)
      *
@@ -549,6 +586,7 @@ public final class WorkspaceImpl implements Workspace {
         scheduler.schedule(job, schedule);
     }
 
+    
     /**
      * @see com.thinkparity.ophelia.model.workspace.Workspace#setAttribute(java.lang.String, java.lang.Object)
      *
@@ -563,9 +601,7 @@ public final class WorkspaceImpl implements Workspace {
      */
     @Override
     public String toString() {
-        return new StringBuffer(getClass().getName()).append("//")
-                .append(workspace)
-                .toString();
+        return StringUtil.toString(WorkspaceImpl.class, "workspace", workspace);
     }
 
     /**
@@ -686,6 +722,71 @@ public final class WorkspaceImpl implements Workspace {
     }
 
     /**
+     * Clear the http proxy.
+     * 
+     */
+    private void clearHttpProxy() {
+        final HttpConfiguration httpConfiguration = new Http().getConfiguration();
+        httpConfiguration.clearProxyHost();
+        httpConfiguration.clearProxyCredentials();
+    }
+
+    /**
+     * Configure the http proxy.
+     * 
+     * @param configuration
+     *            A <code>ProxyConfiguration</code>.
+     */
+    private void configureHttpProxy(final Proxy proxy, final ProxyCredentials credentials) {
+        final HttpConfiguration httpConfiguration = new Http().getConfiguration();
+        final ProxyHost proxyHost = newHttpProxy(proxy);
+        if (null == proxyHost) {
+            httpConfiguration.clearProxyHost();
+            httpConfiguration.clearProxyCredentials();
+        } else {
+            httpConfiguration.setProxyHost(newHttpProxy(proxy));
+
+            final Credentials httpCredentials = newHttpCredentials(credentials);
+            if (null == httpCredentials) {
+                httpConfiguration.clearProxyCredentials();
+            } else {
+                httpConfiguration.setProxyCredentials(httpCredentials);
+            }
+        }
+    }
+
+    /**
+	 * Configure the proxy.
+	 * 
+	 */
+	private void configureProxy() {
+	    if (configuration.isSetProxyConfiguration()) {
+	        final ProxyConfiguration proxyConfiguration = configuration.readProxyConfiguration();
+	        configureHttpProxy(proxyConfiguration.getHttp(), proxyConfiguration.getHttpCredentials());
+	    } else {
+	        /* attempt to configure via the system proxy; note that if a proxy
+	         * requires authentication; this will not work as there is no way
+	         * to extract this information */
+	        final List<java.net.Proxy> javaProxyList = newHttpProxyList();
+	        if (javaProxyList.isEmpty()) {
+	            clearHttpProxy();
+	        } else {
+	            final java.net.Proxy javaProxy = javaProxyList.get(0);
+	            if (isSpecified(javaProxy)) {
+	                final InetSocketAddress javaAddress = (InetSocketAddress) javaProxy.address();
+	                final Proxy proxy = new Proxy();
+	                proxy.setHost(javaAddress.getHostName());
+	                proxy.setPort(javaAddress.getPort());
+	                proxy.setType(ProxyType.HTTP);
+	                configureHttpProxy(proxy, null);
+	            } else {
+	                clearHttpProxy();
+	            }
+	        }
+	    }
+	}
+
+	/**
      * Obtain an error id.
      * 
      * @return An error id.
@@ -697,7 +798,7 @@ public final class WorkspaceImpl implements Workspace {
                     t.getMessage());
     }
 
-    /**
+	/**
 	 * Initialize an immediate child of the workspace. This will create the
 	 * child (directory) if it does not already exist.
 	 * 
@@ -717,6 +818,40 @@ public final class WorkspaceImpl implements Workspace {
 	}
 
     /**
+     * Initialize the io configuration. Create an io configuration; transfer the
+     * memory configuration to the io.
+     * 
+     */
+    private void initializeIOConfiguration() {
+        Assert.assertNotNull("Persistence manager is null.", persistenceManagerImpl);
+        Assert.assertNotNull("Configuration is null.", configuration);
+        Assert.assertNotNull("Configuration proxy update listener is null.", proxyUpdateListener);
+        final ProxyConfiguration existingConfiguration;
+        if (configuration.isSetProxyConfiguration()) {
+            existingConfiguration = configuration.readProxyConfiguration();
+        } else {
+            existingConfiguration = null;
+        }
+        configuration.removeListener(proxyUpdateListener);
+        final Configuration configuration =
+            (Configuration) java.lang.reflect.Proxy.newProxyInstance(
+                    getClass().getClassLoader(),
+                    new Class<?>[] { Configuration.class },
+                    new ConfigurationProxy(this, new IOConfigurationImpl(this)));
+        if (null == existingConfiguration) {
+            /* the memory configuration contains no entries */
+            return;
+        } else {
+            /* the memory configuration contains entries */
+            configuration.updateProxyConfiguration(existingConfiguration);
+        }
+        /* the listener is added post update because the configuration has not
+         * been changed; only transferred from memory to io */
+        configuration.addListener(proxyUpdateListener);
+        this.configuration = configuration;
+    }
+
+    /**
 	 * Initialize the workspace root. This will obtain a handle to the workspace
 	 * root directory, and create it if it does not already exist; then convert
 	 * it to a URL.
@@ -729,4 +864,93 @@ public final class WorkspaceImpl implements Workspace {
                     "Cannot initialize workspace {0}.", workspace);
         return new FileSystem(workspace);
 	}
+
+    /**
+     * Determine whether or not a proxy is specified; must not be a reference to
+     * "no proxy" and must not be of type "direct."
+     * 
+     * @param proxy
+     *            A <code>java.net.Proxy</code>.
+     * @return True if a proxy is specified.
+     */
+	private boolean isSpecified(final java.net.Proxy proxy) {
+	    return java.net.Proxy.NO_PROXY != proxy
+                && java.net.Proxy.Type.DIRECT != proxy.type();
+	}
+
+    /**
+     * Instantiate a proxy host for the proxy configuration.
+     * 
+     * @param credentials
+     *            A set of <code>ProxyCredentials</code>.
+     * @return A set of <code>Credentials</code>.
+     */
+    private Credentials newHttpCredentials(final ProxyCredentials credentials) {
+        if (null == credentials) {
+            return null;
+        } else {
+            return new UsernamePasswordCredentials(
+                    credentials.getUsername(), credentials.getPassword());
+        }
+    }
+
+    /**
+     * Instantiate a proxy host for the proxy configuration.
+     * 
+     * @param proxy
+     *            A <code>Proxy</code>.
+     * @return A <code>ProxyHost</code>.
+     */
+    private ProxyHost newHttpProxy(final Proxy proxy) {
+        return new ProxyHost(proxy.getHost(), proxy.getPort());
+    }
+
+    /**
+     * Instantiate a new proxy list.
+     * 
+     * @return A <code>List<java.net.Proxy></code>.
+     */
+	private List<java.net.Proxy> newHttpProxyList() {
+	    final Environment environment = Environment.valueOf(System.getProperty("thinkparity.environment"));
+        final String pattern = "http://{0}:{1}";
+        return ProxySelector.getDefault().select(URI.create(MessageFormat.format(
+                pattern, environment.getServiceHost(), environment.getServicePort())));	    
+	}
+
+    /**
+     * Open the workspace configuration.
+     * 
+     */
+    private void openConfiguration() {
+        Assert.assertNotNull("Persistence manager is null.", persistenceManagerImpl);
+        this.configuration =
+            (Configuration) java.lang.reflect.Proxy.newProxyInstance(
+                    getClass().getClassLoader(),
+                    new Class<?>[] { Configuration.class },
+                    new ConfigurationProxy(this, isInitialized()
+                            ? new IOConfigurationImpl(this)
+                            : new MemoryConfigurationImpl(this)));
+        proxyUpdateListener = new ConfigurationAdapter() {
+
+            /**
+             * @see com.thinkparity.ophelia.model.events.ConfigurationAdapter#configurationDeleted(com.thinkparity.ophelia.model.events.ConfigurationEvent)
+             *
+             */
+            @Override
+            public void configurationDeleted(final ConfigurationEvent event) {
+                configureProxy();
+            }
+
+            /**
+             * @see com.thinkparity.ophelia.model.events.ConfigurationAdapter#configurationUpdated(com.thinkparity.ophelia.model.events.ConfigurationEvent)
+             *
+             */
+            @Override
+            public void configurationUpdated(final ConfigurationEvent event) {
+                configureProxy();
+            }
+        };
+        this.configuration.addListener(proxyUpdateListener);
+        configureProxy();
+    }
 }

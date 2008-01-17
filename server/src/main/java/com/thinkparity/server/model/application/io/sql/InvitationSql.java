@@ -702,7 +702,14 @@ public class InvitationSql extends AbstractSql {
                 session.setLong(1, node.getId());
                 int i = 2;
                 for (final ContactInvitation invitation : invitationList) {
-                    session.setLong(i++, invitation.getId());
+                    /* an invitation can be null if the opposite end of the
+                     * invitation is processed between when it is read and this
+                     * invitation is read */
+                    if (null == invitation) {
+                        continue;
+                    } else {
+                        session.setLong(i++, invitation.getId());
+                    }
                 }
                 final int locked = session.executeUpdate();
     

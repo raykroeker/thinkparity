@@ -37,6 +37,13 @@ public abstract class DefaultUpgradeAccountPage extends Avatar implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpgradeAccountPage#getAvatarId()
+     */
+    public AvatarId getAvatarId() {
+        return getId();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpgradeAccountPage#getNextButtonTextKey()
      */
     public String getNextButtonTextKey() {
@@ -134,6 +141,26 @@ public abstract class DefaultUpgradeAccountPage extends Avatar implements
     }
 
     /**
+     * Determine if the string is empty.
+     * 
+     * @param text
+     *            A <code>String</code>.
+     * @return true if the string is null or blank; false otherwise.
+     */
+    protected Boolean isEmpty(final String text) {
+        return (null==text || 0==text.length() ? Boolean.TRUE : Boolean.FALSE);
+    }
+
+    /**
+     * Determine if the logo is painted.
+     * 
+     * @return True if the logo is painted.
+     */
+    protected Boolean isLogoPainted() {
+        return Boolean.TRUE;
+    }
+
+    /**
      * Determine if the upgrade account delegate has been initialized yet.
      * 
      * @return true if the upgrade account delegate has been initialized.
@@ -148,14 +175,16 @@ public abstract class DefaultUpgradeAccountPage extends Avatar implements
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        final Graphics g2 = g.create();
-        try {
-            // Draw the logo.
-            g2.drawImage(Images.BrowserTitle.LOGO_LARGE,
-                    (getWidth() - Images.BrowserTitle.LOGO_LARGE.getWidth()) / 2, 35,
-                    Images.BrowserTitle.LOGO_LARGE.getWidth(),
-                    Images.BrowserTitle.LOGO_LARGE.getHeight(), this);
+        if (isLogoPainted()) {
+            final Graphics g2 = g.create();
+            try {
+                // Draw the logo.
+                g2.drawImage(Images.BrowserTitle.LOGO_LARGE,
+                        (getWidth() - Images.BrowserTitle.LOGO_LARGE.getWidth()) / 2, 35,
+                        Images.BrowserTitle.LOGO_LARGE.getWidth(),
+                        Images.BrowserTitle.LOGO_LARGE.getHeight(), this);
+            }
+            finally { g2.dispose(); }
         }
-        finally { g2.dispose(); }
     }
 }

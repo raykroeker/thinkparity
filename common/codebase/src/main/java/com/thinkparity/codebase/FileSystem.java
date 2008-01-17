@@ -15,7 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.nio.ChannelUtil;
 

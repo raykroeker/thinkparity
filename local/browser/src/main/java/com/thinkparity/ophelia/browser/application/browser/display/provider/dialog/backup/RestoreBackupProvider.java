@@ -4,6 +4,8 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.backup;
 
+import com.thinkparity.codebase.model.profile.ProfileEMail;
+
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ContentProvider;
@@ -31,6 +33,15 @@ public class RestoreBackupProvider extends ContentProvider {
      */
     public Boolean isBackupEnabled() {
         return profileModel.isBackupEnabled();
+    }
+
+    /**
+     * Get the profile email.
+     * 
+     * @return The <code>ProfileEMail</code>.             
+     */
+    public ProfileEMail readEMail() {
+        return profileModel.readEMail();
     }
 
     /**

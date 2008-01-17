@@ -63,9 +63,9 @@ public class AssertTypeTest extends CodebaseTestCase {
 		data.add(new Fixture(false, new Integer(0),
 				"An Integer extends Number.",
 				Number.class));
-		data.add(new Fixture(false, new LinkedList(),
+		data.add(new Fixture(false, new LinkedList<Object>(),
 				"A LinkedList implements List.", List.class));
-		data.add(new Fixture(false, new Vector(),
+		data.add(new Fixture(false, new Vector<Object>(),
 				"A Vector extends AbstractList extends AbstractCollection implements Collection.",
 				Collection.class));
 		data.add(new Fixture(true, new Float(0.0),

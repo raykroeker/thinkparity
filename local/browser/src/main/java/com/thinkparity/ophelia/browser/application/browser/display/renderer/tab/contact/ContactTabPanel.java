@@ -12,7 +12,8 @@ import java.util.Locale;
 
 import javax.swing.SwingUtilities;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.swing.SwingUtil;

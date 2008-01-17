@@ -31,6 +31,7 @@ import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.codec.MD5Util;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 import com.thinkparity.codebase.nio.ChannelUtil;
@@ -41,7 +42,6 @@ import com.thinkparity.codebase.model.annotation.ThinkParityBackupEvent;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.util.codec.MD5Util;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 

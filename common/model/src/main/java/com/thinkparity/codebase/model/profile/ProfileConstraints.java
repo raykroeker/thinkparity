@@ -307,7 +307,7 @@ public final class ProfileConstraints {
      * 
      * @return A EMailConstraint.
      */
-    public EMailConstraint getEmail() {
+    public EMailConstraint getEMail() {
         return email;
     }
 

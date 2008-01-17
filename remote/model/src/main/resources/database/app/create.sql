@@ -31,7 +31,7 @@ create table TPSD_EMAIL(
 );
 
 create table TPSD_USERNAME_RESERVATION(
-    USERNAME varchar(32) not null,
+    USERNAME varchar(136) not null,
     TOKEN varchar(64) not null,
     EXPIRES_ON timestamp not null,
     CREATED_ON timestamp not null,
@@ -40,7 +40,7 @@ create table TPSD_USERNAME_RESERVATION(
 );
 create table TPSD_USER(
     USER_ID bigint generated always as identity(start with 7000),
-    USERNAME varchar(32) not null,
+    USERNAME varchar(136) not null,
     PASSWORD varchar(64) not null,
     SECURITY_QUESTION varchar(64) not null,
     SECURITY_ANSWER varchar(128) not null,
@@ -375,7 +375,7 @@ create table TPSD_PAYMENT_INFO(
 create table TPSD_PAYMENT_PLAN(
     PLAN_ID bigint generated always as identity(start with 2000),
     PLAN_UNIQUE_ID varchar(256) not null,
-    PLAN_NAME varchar(64) not null,
+    PLAN_NAME varchar(160) not null,
     PLAN_CURRENCY smallint not null,
     PLAN_PASSWORD varchar(64),
     PLAN_BILLABLE char not null,

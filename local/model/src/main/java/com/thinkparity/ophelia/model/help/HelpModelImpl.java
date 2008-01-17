@@ -13,9 +13,10 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 
+import com.thinkparity.common.StringUtil;
+
 import com.thinkparity.codebase.PropertiesUtil;
 import com.thinkparity.codebase.ResourceUtil;
-import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.config.ConfigFactory;
 import com.thinkparity.codebase.event.EventListener;

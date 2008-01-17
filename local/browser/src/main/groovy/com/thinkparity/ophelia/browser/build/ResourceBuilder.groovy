@@ -9,12 +9,12 @@ import com.thinkparity.antx.DependencyTracker
 import com.thinkparity.codebase.Constants
 import com.thinkparity.codebase.FileUtil
 import com.thinkparity.codebase.FileSystem
+import com.thinkparity.codebase.codec.MD5Util
 import com.thinkparity.codebase.nio.ChannelUtil
 
 import com.thinkparity.codebase.model.migrator.Product
 import com.thinkparity.codebase.model.migrator.Release
 import com.thinkparity.codebase.model.migrator.Resource
-import com.thinkparity.codebase.model.util.codec.MD5Util
 
 import com.thinkparity.ophelia.model.util.UUIDGenerator
 

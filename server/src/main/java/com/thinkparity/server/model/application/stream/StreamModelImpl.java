@@ -8,13 +8,15 @@ import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.stream.StreamInfo;
 import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.util.http.HttpUtils;
+
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants;
 import com.thinkparity.desdemona.model.amazon.s3.AmazonS3StreamInfo;
 import com.thinkparity.desdemona.model.amazon.s3.InternalAmazonS3Model;
 import com.thinkparity.desdemona.model.migrator.Archive;
+
+import com.thinkparity.net.protocol.http.HttpUtils;
 
 /**
  * <b>Title:</b>thinkParity Stream Model Implementation</br>

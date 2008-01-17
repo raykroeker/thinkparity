@@ -167,7 +167,7 @@ public final class RuleModelImpl extends AbstractModelImpl implements
      * @return True if the feature is enabled.
      */
     private boolean isCoreEnabled(final User user) {
-        return isFeatureEnabled(user, Ophelia.Feature.CORE);
+        return isFeatureEnabled(user, Feature.Name.CORE);
     }
 
     /**
@@ -179,10 +179,10 @@ public final class RuleModelImpl extends AbstractModelImpl implements
      *            A feature name <code>String</code>.
      * @return True if the feature is enabled.
      */
-    private boolean isFeatureEnabled(final User user, final String name) {
+    private boolean isFeatureEnabled(final User user, final Feature.Name name) {
         final List<Feature> features = readFeatures(user);
         for (final Feature feature : features) {
-            if (feature.getName().equals(name)) {
+            if (name == feature.getName()) {
                 return Boolean.TRUE;
             }
         }
@@ -245,7 +245,7 @@ public final class RuleModelImpl extends AbstractModelImpl implements
      * @return A <code>List<Feature></code>.
      */
     private List<Feature> readFeatures(final User user) {
-        /* NOTE the product id/name should be read from the interface once the
+        /* NOTE the product id/name should be read from the sessiono once the
          * migrator code is complete */
         return getUserModel(user).readProductFeatures(Ophelia.PRODUCT_NAME);
     }

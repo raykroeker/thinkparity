@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.model.user;
 
 import java.util.List;
 
+import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.jabber.JabberId;
 
 import com.thinkparity.codebase.model.session.Environment;
@@ -23,7 +24,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
  * @author raymond@thinkparity.com
  * @version 1.1.2.8
  */
-public final class UserModelImpl extends Model implements UserModel,
+public final class UserModelImpl extends Model<EventListener> implements UserModel,
         InternalUserModel {
 
     /** The user db io. */
@@ -44,6 +45,19 @@ public final class UserModelImpl extends Model implements UserModel,
     public User read(final JabberId userId) {
         try {
             return userIO.read(userId);
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.user.InternalUserModel#read(com.thinkparity.codebase.model.user.User)
+     *
+     */
+    @Override
+    public User read(final User user) {
+        try {
+            return userIO.read(user.getId());
         } catch (final Throwable t) {
             throw panic(t);
         }

@@ -19,11 +19,12 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.stream.StreamMonitor;
-import com.thinkparity.codebase.model.stream.download.DownloadFile;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
+
+import com.thinkparity.stream.StreamMonitor;
+import com.thinkparity.stream.download.DownloadFile;
 
 /**
  * <b>Title:</b>thinkParity Internal Document Model<br>

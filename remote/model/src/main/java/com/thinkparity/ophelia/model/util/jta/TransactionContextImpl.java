@@ -3,7 +3,7 @@
  */
 package com.thinkparity.ophelia.model.util.jta;
 
-import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.common.StringUtil;
 
 import com.thinkparity.codebase.model.util.jta.TransactionContext;
 import com.thinkparity.codebase.model.util.jta.TransactionType;

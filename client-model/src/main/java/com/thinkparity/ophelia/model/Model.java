@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.List;
@@ -17,6 +18,9 @@ import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.Vector;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.thinkparity.codebase.DateUtil;
@@ -24,7 +28,9 @@ import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotTrueAssertion;
+import com.thinkparity.codebase.codec.MD5Util;
 import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -39,10 +45,12 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.Environment;
+import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.Token;
-import com.thinkparity.codebase.model.util.codec.MD5Util;
+
+import com.thinkparity.service.ServiceFactory;
 
 import com.thinkparity.ophelia.model.Constants.Versioning;
 import com.thinkparity.ophelia.model.artifact.ArtifactUtil;
@@ -72,8 +80,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.impl.DefaultRetryHandler;
 import com.thinkparity.ophelia.model.workspace.impl.FiniteRetryHandler;
 
-import com.thinkparity.network.NetworkException;
-import com.thinkparity.service.ServiceFactory;
+import com.thinkparity.net.NetworkException;
 
 /**
  * <b>Title:</b>thinkParity Model<br>
@@ -595,11 +602,20 @@ public abstract class Model<T extends EventListener> extends
      *            A user's <code>Credentials</code>.
      * @return The user's <code>Credentials</code>.
      */
-    protected Credentials createCredentials(final Credentials credentials) {
+    protected final Credentials createCredentials(final Credentials credentials)
+            throws InvalidCredentialsException {
         try {
+            validate(credentials);
+            if (credentials.isSetEMail()) {
+                configurationIO.create(ConfigurationKeys.Credentials.EMAIL, encrypt(credentials.getEMail()));
+            }
             configurationIO.create(ConfigurationKeys.Credentials.PASSWORD, encrypt(credentials.getPassword()));
-            configurationIO.create(ConfigurationKeys.Credentials.USERNAME, encrypt(credentials.getUsername()));
+            if (credentials.isSetUsername()) {
+                configurationIO.create(ConfigurationKeys.Credentials.USERNAME, encrypt(credentials.getUsername()));
+            }
             return readCredentials();
+        } catch (final InvalidCredentialsException icx) {
+            throw icx;
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -650,8 +666,13 @@ public abstract class Model<T extends EventListener> extends
     protected void deleteCredentials() {
         assertIsSetCredentials();
         try {
+            if (null != configurationIO.read(ConfigurationKeys.Credentials.EMAIL)) {
+                configurationIO.delete(ConfigurationKeys.Credentials.EMAIL);
+            }
             configurationIO.delete(ConfigurationKeys.Credentials.PASSWORD);
-            configurationIO.delete(ConfigurationKeys.Credentials.USERNAME);
+            if (null != configurationIO.read(ConfigurationKeys.Credentials.USERNAME)) {
+                configurationIO.delete(ConfigurationKeys.Credentials.USERNAME);
+            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -726,7 +747,7 @@ public abstract class Model<T extends EventListener> extends
             throw new OfflineException();
     }
 
-	/**
+    /**
      * Copy the content of a file to a channel. Create a channel to read the
      * file.
      * 
@@ -746,7 +767,7 @@ public abstract class Model<T extends EventListener> extends
         }
     }
 
-    /**
+	/**
      * Copy the content of a file to another file. Create a channel to read the
      * file.
      * 
@@ -1147,7 +1168,7 @@ public abstract class Model<T extends EventListener> extends
         }
     }
 
-	/**
+    /**
      * Notify all event listeners.
      * 
      * @param notifier
@@ -1157,7 +1178,7 @@ public abstract class Model<T extends EventListener> extends
         notifiers.add(notifier);
     }
 
-    /**
+	/**
      * @see com.thinkparity.codebase.model.AbstractModelImpl#panic(java.lang.Throwable)
      * 
      */
@@ -1215,14 +1236,17 @@ public abstract class Model<T extends EventListener> extends
     protected Credentials readCredentials() {
         final String password = configurationIO.read(ConfigurationKeys.Credentials.PASSWORD);
         final String username = configurationIO.read(ConfigurationKeys.Credentials.USERNAME);
+        final String email = configurationIO.read(ConfigurationKeys.Credentials.EMAIL);
 
-        if (null == username || null == password) {
+        /* one of username/e-mail must be specified; as well as the password */
+        if ((null == email && null == username) || null == password) {
             return null;
         } else {
             final Credentials credentials = new Credentials();
             try {
                 credentials.setPassword(decrypt(password));
-                credentials.setUsername(decrypt(username));
+                credentials.setEMail(null == email ? null : EMailBuilder.parse(decrypt(email)));
+                credentials.setUsername(null == username ? null : decrypt(username));
                 return credentials;
             } catch (final Throwable t) {
                 throw panic(t);
@@ -1333,10 +1357,27 @@ public abstract class Model<T extends EventListener> extends
      * @param credentials
      *            The user's credentials.
      */
-    protected void updateCredentials(final Credentials credentials) {
+    protected final void updateCredentials(final Credentials credentials)
+            throws InvalidCredentialsException {
         try {
+            validate(credentials);
+            if (credentials.isSetEMail()) {
+                if (null == configurationIO.read(ConfigurationKeys.Credentials.EMAIL)) {
+                    configurationIO.create(ConfigurationKeys.Credentials.EMAIL, encrypt(credentials.getEMail()));
+                } else {
+                    configurationIO.update(ConfigurationKeys.Credentials.EMAIL, encrypt(credentials.getEMail()));
+                }
+            }
             configurationIO.update(ConfigurationKeys.Credentials.PASSWORD, encrypt(credentials.getPassword()));
-            configurationIO.update(ConfigurationKeys.Credentials.USERNAME, encrypt(credentials.getUsername()));
+            if (credentials.isSetUsername()) {
+                if (null == configurationIO.read(ConfigurationKeys.Credentials.USERNAME)) {
+                    configurationIO.create(ConfigurationKeys.Credentials.USERNAME, encrypt(credentials.getUsername()));
+                } else {
+                    configurationIO.update(ConfigurationKeys.Credentials.USERNAME, encrypt(credentials.getUsername()));
+                }
+            }
+        } catch (final InvalidCredentialsException icx) {
+            throw icx;
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1400,6 +1441,25 @@ public abstract class Model<T extends EventListener> extends
         }
     }
 
+    /**
+     * Encrypt an e-mail address.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     * @return A <code>String</code>.
+     * @throws BadPaddingException
+     * @throws IOException
+     * @throws IllegalBlockSizeException
+     * @throws InvalidKeyException
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchPaddingException
+     */
+    private String encrypt(final EMail email) throws BadPaddingException,
+            IOException, IllegalBlockSizeException, InvalidKeyException,
+            NoSuchAlgorithmException, NoSuchPaddingException {
+        return encrypt(email.toString());
+    }
+
     private String formatAssertion(final ArtifactState currentState,
 			final ArtifactState intendedState,
 			final ArtifactState[] allowedStates) {
@@ -1436,10 +1496,33 @@ public abstract class Model<T extends EventListener> extends
         return null != readCredentials();
     }
 
+    /**
+     * Validate the credentials. They must not be null; they must not contain a
+     * null password; and they must contain either a username or an e-mail.
+     * 
+     * @param credentials
+     *            A set of <code>Credentials</code>.
+     * @throws InvalidCredentialsException
+     */
+    private void validate(final Credentials credentials)
+            throws InvalidCredentialsException {
+        if (null == credentials) {
+            throw new InvalidCredentialsException();
+        }
+        if (null == credentials.getPassword()) {
+            throw new InvalidCredentialsException();
+        }
+        if (Boolean.FALSE == credentials.isSetEMail()
+                && Boolean.FALSE == credentials.isSetUsername()) {
+            throw new InvalidCredentialsException();
+        }
+    }
+
     /** Configuration keys. */
     private static class ConfigurationKeys {
         private static final String TOKEN = "TOKEN";
         private class Credentials {
+            private static final String EMAIL = "Credentials.EMAIL";
             private static final String PASSWORD = "Credentials.PASSWORD";
             private static final String USERNAME = "Credentials.USERNAME";
         }

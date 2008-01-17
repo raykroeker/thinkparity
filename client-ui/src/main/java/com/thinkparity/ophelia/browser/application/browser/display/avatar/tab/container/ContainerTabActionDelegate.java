@@ -3,6 +3,9 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.container;
 
+import com.thinkparity.codebase.assertion.Assert;
+
+import com.thinkparity.codebase.model.artifact.Artifact;
 import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.container.ContainerVersionArtifactVersionDelta.Delta;
@@ -321,7 +324,25 @@ final class ContainerTabActionDelegate extends DefaultBrowserActionDelegate impl
      * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ActionDelegate#isCommonActionForDraftEnabled(com.thinkparity.codebase.model.container.Container, com.thinkparity.ophelia.model.container.ContainerDraft)
      */
     public Boolean isCommonActionForDraftEnabled(final Container container, final ContainerDraft draft) {
-        return (isOnline() && isLocalDraftModified(container.getId()));
+        // make sure there is at least one document, excluding removed documents.
+        Boolean publishable = Boolean.FALSE;
+        for (final Artifact artifact : draft.getArtifacts()) {
+            switch (draft.getState(artifact)) {
+            case ADDED:
+            case MODIFIED:
+            case NONE:
+                publishable = Boolean.TRUE;
+                break;
+            case REMOVED:
+                break;
+            default:
+                throw Assert.createUnreachable("Unknown artifact state.");
+            }
+            if (publishable) {
+                break;
+            }
+        }
+        return (isOnline() && isLocalDraftModified(container.getId()) && publishable);
     }
 
     /**

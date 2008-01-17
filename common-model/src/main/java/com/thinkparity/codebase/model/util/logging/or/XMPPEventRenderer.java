@@ -7,10 +7,11 @@ import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.thinkparity.common.StringUtil;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.DateUtil;
-import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.beans.BeanException;
 import com.thinkparity.codebase.beans.BeanUtils;
 

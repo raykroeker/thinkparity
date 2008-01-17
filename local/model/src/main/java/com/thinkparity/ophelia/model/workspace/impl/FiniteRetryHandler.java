@@ -3,9 +3,10 @@
  */
 package com.thinkparity.ophelia.model.workspace.impl;
 
-import com.thinkparity.codebase.model.stream.StreamRetryHandler;
 
 import com.thinkparity.ophelia.model.util.service.ServiceRetryHandler;
+
+import com.thinkparity.stream.StreamRetryHandler;
 
 /**
  * <b>Title:</b>thinKParity Ophelia Model Finite Retry Handler<br>
@@ -56,7 +57,7 @@ public final class FiniteRetryHandler implements ServiceRetryHandler,
     }
 
     /**
-     * @see com.thinkparity.codebase.model.stream.StreamRetryHandler#period()
+     * @see com.thinkparity.stream.StreamRetryHandler#period()
      *
      */
     @Override

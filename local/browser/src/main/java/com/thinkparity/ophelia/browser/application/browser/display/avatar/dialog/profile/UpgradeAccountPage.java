@@ -4,12 +4,21 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile;
 
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+
 
 /**
  * @author robert@thinkparity.com
  * @version $Revision$
  */
 public interface UpgradeAccountPage {
+
+    /**
+     * Get the avatar id.
+     * 
+     * @return The <code>AvatarId</code>.
+     */
+    public AvatarId getAvatarId();
 
     /**
      * Get the text key of the next button.

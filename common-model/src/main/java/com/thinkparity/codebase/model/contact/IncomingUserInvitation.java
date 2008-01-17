@@ -3,7 +3,7 @@
  */
 package com.thinkparity.codebase.model.contact;
 
-import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.common.StringUtil;
 
 import com.thinkparity.codebase.model.user.User;
 

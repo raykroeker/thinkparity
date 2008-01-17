@@ -4,6 +4,11 @@
  */
 package com.thinkparity.ophelia.browser.platform.action.profile;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.thinkparity.codebase.model.migrator.Feature;
+import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
 
 import com.thinkparity.ophelia.browser.application.browser.Browser;
@@ -39,7 +44,10 @@ public class UpgradeAccount extends AbstractBrowserAction {
         final PaymentInfo paymentInfo = (PaymentInfo) data.get(DataKey.PAYMENT_INFO);
         if (null == paymentInfo) {
             if (Boolean.TRUE == getProfileModel().readEMail().isVerified()) {
-                browser.displaySignUpDialog();
+                final Profile profile = getProfileModel().read();
+                final List<Feature> featureList = new ArrayList<Feature>();
+                featureList.addAll(getProfileModel().readFeatures());
+                browser.displaySignUpDialog(profile, featureList);
             } else {
                 browser.displayErrorDialog("UpgradeAccount.ErrorAccountNotActive");
             }

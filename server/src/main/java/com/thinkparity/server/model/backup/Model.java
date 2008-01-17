@@ -19,6 +19,7 @@ import javax.crypto.spec.SecretKeySpec;
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.StreamUtil;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.codec.MD5Util;
 import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -29,7 +30,6 @@ import com.thinkparity.codebase.model.ThinkParityException;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.ophelia.model.artifact.ArtifactUtil;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;

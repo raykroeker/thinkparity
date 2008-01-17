@@ -14,7 +14,6 @@ import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileVCard;
 import com.thinkparity.codebase.model.profile.SecurityCredentials;
-import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
@@ -59,10 +58,6 @@ public final class ProfileTest extends ProfileTestCase {
         credentials.setPassword("password");
         credentials.setUsername("junit." + System.currentTimeMillis());
 
-        final UsernameReservation usernameReservation =
-            getModel(datum.junit).createUsernameReservation(
-                    credentials.getUsername());
-
         final String emailInjection = "+" + String.valueOf(System.currentTimeMillis());
         final EMail email = EMailBuilder.parse("junit" + emailInjection + "@thinkparity.com");
         final EMailReservation emailReservation =
@@ -91,9 +86,8 @@ public final class ProfileTest extends ProfileTestCase {
         paymentPlanCredentials.setName("Test Payment Plan");
         paymentPlanCredentials.setPassword("Test Payment Plan");
         try {
-            getModel(datum.junit).create(usernameReservation, emailReservation,
-                    credentials, profile, email, securityCredentials,
-                    paymentPlanCredentials);
+            getModel(datum.junit).create(emailReservation, credentials, profile,
+                    email, securityCredentials, paymentPlanCredentials);
         } catch (final InvalidCredentialsException icx) {
             fail(icx, "Profile payment plan credentials are invalid.");
         } catch (final ReservationExpiredException rex) {

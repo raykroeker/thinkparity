@@ -11,7 +11,8 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 

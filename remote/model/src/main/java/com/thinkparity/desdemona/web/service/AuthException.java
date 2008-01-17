@@ -6,7 +6,8 @@ package com.thinkparity.desdemona.web.service;
 import java.text.MessageFormat;
 import java.util.Date;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil.Separator;
+
 
 import com.thinkparity.service.AuthToken;
 

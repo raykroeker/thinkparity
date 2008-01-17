@@ -98,6 +98,18 @@ public class UpgradeAccountAvatar extends Avatar implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setInput(java.lang.Object)
+     */
+    @Override
+    public void setInput(final Object input) {
+        super.setInput(input);
+        for (final UpgradeAccountPage page : upgradeAccountPages) {
+            final Avatar avatar = getAvatar(page.getAvatarId());
+            avatar.setInput(input);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.ophelia.browser.platform.util.State)
      * 
      */
@@ -242,6 +254,7 @@ public class UpgradeAccountAvatar extends Avatar implements
     private void initUpgradeAccountAvatar() {
         registerPage(getUpgradeAccountPage(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_INTRO));
         registerPage(getUpgradeAccountPage(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_AGREEMENT));
+        registerPage(getUpgradeAccountPage(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_PROFILE));
         registerPage(getUpgradeAccountPage(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_PAYMENT));
         registerPage(getUpgradeAccountPage(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_SUMMARY));
     }

@@ -19,6 +19,7 @@ import com.thinkparity.ophelia.model.events.ContactEvent;
 import com.thinkparity.ophelia.model.events.ContainerEvent;
 import com.thinkparity.ophelia.model.events.MigratorEvent;
 import com.thinkparity.ophelia.model.events.ProfileEvent;
+import com.thinkparity.ophelia.model.workspace.configuration.ProxyConfiguration;
 
 import com.thinkparity.ophelia.browser.BrowserException;
 import com.thinkparity.ophelia.browser.BrowserRestoreRequest;
@@ -40,6 +41,7 @@ import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingEM
 import com.thinkparity.ophelia.browser.platform.action.contact.DeclineIncomingUserInvitation;
 import com.thinkparity.ophelia.browser.platform.action.platform.browser.Iconify;
 import com.thinkparity.ophelia.browser.platform.action.profile.VerifyEMail;
+import com.thinkparity.ophelia.browser.platform.action.workspace.UpdateProxyConfiguration;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationId;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationRegistry;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
@@ -98,7 +100,7 @@ public final class SystemApplication extends AbstractApplication {
                 containerId));
     }
 
-    /**
+	/**
      * Clear the container notifications for a version.
      * 
      * @param containerId
@@ -156,6 +158,16 @@ public final class SystemApplication extends AbstractApplication {
     }
 
     /**
+     * Display the update configuration dialog.
+     * 
+     * @param configuration
+     *            A <code>ProxyConfiguration</code>.
+     */
+    public void displayUpdateConfigurationDialog(final ProxyConfiguration configuration) {
+        impl.displayUpdateConfigurationDialog(configuration);
+    }
+
+    /**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#end(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -199,7 +211,7 @@ public final class SystemApplication extends AbstractApplication {
         return ApplicationId.SYSTEM;
     }
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.browser.platform.application.Application#getMainWindow()
      *
      */
@@ -233,7 +245,7 @@ public final class SystemApplication extends AbstractApplication {
         return LinkFactory.getInstance().create();
     }
 
-    /**
+	/**
 	 * @see com.thinkparity.ophelia.browser.platform.application.Application#hibernate(com.thinkparity.ophelia.browser.platform.Platform)
 	 * 
 	 */
@@ -309,7 +321,7 @@ public final class SystemApplication extends AbstractApplication {
         invoke(ActionId.PLATFORM_LOGIN, Data.emptyData());
     }
 
-	/**
+    /**
      * Run the platform's move to front action for the browser.
      *
      */
@@ -317,7 +329,7 @@ public final class SystemApplication extends AbstractApplication {
         invoke(ActionId.PLATFORM_BROWSER_MOVE_TO_FRONT, Data.emptyData());
     }
 
-    /**
+	/**
      * Run the platform's open website action.
      *
      */
@@ -347,6 +359,34 @@ public final class SystemApplication extends AbstractApplication {
      */
 	public void runRestoreBrowser() {
         invoke(ActionId.PLATFORM_BROWSER_RESTORE, Data.emptyData());
+    }
+
+    /**
+     * Run the update configuration action for the proxy.
+     * 
+     * @param configuration
+     *            A <code>ProxyConfiguration</code>.
+     */
+    public void runUpdateProxyConfiguration(final ProxyConfiguration configuration) {
+        final Data data = new Data(1);
+        data.set(UpdateProxyConfiguration.DataKey.CONFIGURATION, configuration);
+        invoke(ActionId.WORKSPACE_UPDATE_PROXY_CONFIGURATION, data);
+    }
+
+    /**
+     * Run the delete configuration action for the proxy.
+     * 
+     */
+    public void runDeleteProxyConfiguration() {
+        invoke(ActionId.WORKSPACE_DELETE_PROXY_CONFIGURATION, Data.emptyData());
+    }
+
+    /**
+     * Run the update configuration action for the proxy (display the dialog).
+     * 
+     */
+    public void runUpdateProxyConfiguration() {
+        invoke(ActionId.WORKSPACE_UPDATE_PROXY_CONFIGURATION, Data.emptyData());
     }
 
     /**

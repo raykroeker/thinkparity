@@ -311,15 +311,6 @@ public interface ContainerIOHandler {
     public List<Container> readForTeamMember(final Long teamMemberId);
 
     /**
-     * Read a list of container versions a document is attached to.
-     * 
-     * @param documentId
-     *            A document id <code>Long</code>.
-     * @return A <code>List</code> of <code>ContainerVersion</code>s.
-     */
-    public List<ContainerVersion> readVersionsForDocument(final Long documentId);
-
-    /**
      * Read the latest container version.
      * 
      * @param containerId
@@ -387,6 +378,15 @@ public interface ContainerIOHandler {
     public List<ContainerVersion> readVersions(final Long containerId);
 
     /**
+     * Read a list of container versions a document is attached to.
+     * 
+     * @param documentId
+     *            A document id <code>Long</code>.
+     * @return A <code>List</code> of <code>ContainerVersion</code>s.
+     */
+    public List<ContainerVersion> readVersionsForDocument(final Long documentId);
+
+    /**
      * Remove an artifact version from a container version.
      * 
      * @param containerId
@@ -401,6 +401,7 @@ public interface ContainerIOHandler {
     public void removeVersion(final Long containerId,
             final Long containerVersionId, final Long artifactId,
             final Long artifactVersionId);
+
     /**
      * Remove all artifact versions.
      * 
@@ -433,7 +434,6 @@ public interface ContainerIOHandler {
     // TODO-javadoc ContainerIOHandler#updateDraftDocument
     public void updateDraftDocument(final ContainerDraftDocument draftDocument,
             final InputStream stream, final Integer bufferSize);
-
     /**
      * Update a container.
      * 
@@ -459,4 +459,15 @@ public interface ContainerIOHandler {
     public void updatePublishedTo(final Long containerId, final Long versionId,
             final Calendar publishedOn, final JabberId receivedBy,
             final Calendar receivedOn);
+
+    /**
+     * Determine if the container was published to the user.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @return A <code>Boolean</code>.
+     */
+    Boolean isPublishedTo(ContainerVersion version, User user);
 }

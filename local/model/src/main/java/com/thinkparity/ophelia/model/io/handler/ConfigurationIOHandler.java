@@ -15,18 +15,6 @@ import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 public interface ConfigurationIOHandler {
 
     /**
-     * Create a configuration entry.
-     * 
-     * @param key
-     *            The configuration key.
-     * @param value
-     *            The configuration value.
-     * @throws HypersonicException
-     */
-	public void create(final String key, final String value)
-            throws HypersonicException;
-
-    /**
      * Delete a configuration entry.
      * 
      * @param key
@@ -46,14 +34,60 @@ public interface ConfigurationIOHandler {
     public String read(final String key) throws HypersonicException;
 
     /**
-     * Update a configuration entry.
+     * Create a configuration entry.
      * 
      * @param key
-     *            The configuration key.
+     *            The key <code>String</code>.
      * @param value
-     *            The new configuration value.
-     * @throws HypersonicException
+     *            An <code>Integer</code> value.
      */
-	public void update(final String key, final String value)
-            throws HypersonicException;
+    void create(String key, Integer value);
+
+    /**
+     * Create a configuration entry.
+     * 
+     * @param key
+     *            The key <code>String</code>.
+     * @param value
+     *            A <code>String</code> value.
+     */
+    void create(String key, String value);
+
+    /**
+     * Determine if a configuration value is set.
+     * 
+     * @param key
+     *            A <code>String</code>.
+     * @return A <code>Boolean</code>.
+     */
+    Boolean isSet(String key);
+
+    /**
+     * Read an integer configuration value.
+     * 
+     * @param key
+     *            A <code>String</code>.
+     * @return An <code>Integer</code>.
+     */
+    Integer readInteger(String key);
+
+    /**
+     * Update an integer configuration entry.
+     * 
+     * @param key
+     *            The key <code>String</code>.
+     * @param value
+     *            An <code>Integer</code> value.
+     */
+    void update(String key, Integer value);
+
+	/**
+     * Update a string configuration entry.
+     * 
+     * @param key
+     *            The key <code>String</code>.
+     * @param value
+     *            An <code>Integer</code> value.
+     */
+	void update(String key, String value);
 }

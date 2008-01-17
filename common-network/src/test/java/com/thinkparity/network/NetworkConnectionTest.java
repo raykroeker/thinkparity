@@ -3,6 +3,12 @@
  */
 package com.thinkparity.network;
 
+import com.thinkparity.net.Network;
+import com.thinkparity.net.NetworkAddress;
+import com.thinkparity.net.NetworkConnection;
+import com.thinkparity.net.NetworkException;
+import com.thinkparity.net.NetworkProtocol;
+
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
@@ -71,7 +77,7 @@ public final class NetworkConnectionTest extends NetworkTestCase {
     }
 
     /**
-     * @see com.thinkparity.network.NetworkTestCase#setUp()
+     * @see com.thinkparity.net.NetworkTestCase#setUp()
      *
      */
     @Override
@@ -80,7 +86,7 @@ public final class NetworkConnectionTest extends NetworkTestCase {
     }
 
     /**
-     * @see com.thinkparity.network.NetworkTestCase#tearDown()
+     * @see com.thinkparity.net.NetworkTestCase#tearDown()
      *
      */
     @Override

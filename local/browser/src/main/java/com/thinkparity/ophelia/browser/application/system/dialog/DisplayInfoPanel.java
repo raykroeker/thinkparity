@@ -11,7 +11,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 
-import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.common.StringUtil;
+
 
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;

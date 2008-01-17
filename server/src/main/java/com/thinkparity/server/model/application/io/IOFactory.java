@@ -72,6 +72,15 @@ public interface IOFactory {
     ReportSql newReportIO(final DataSource dataSource);
 
     /**
+     * Instantiate a session io handler.
+     * 
+     * @param dataSource
+     *            A <code>DataSource</code>.
+     * @return A <code>SessionSql</code>.
+     */
+    SessionSql newSessionIO(DataSource dataSource);
+
+    /**
      * Instantiate a user io handler.
      * 
      * @param dataSource

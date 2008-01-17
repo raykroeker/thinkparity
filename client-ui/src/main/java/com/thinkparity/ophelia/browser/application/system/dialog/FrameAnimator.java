@@ -15,22 +15,11 @@ import javax.swing.Timer;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
-import com.thinkparity.ophelia.browser.Constants;
-import com.thinkparity.ophelia.browser.util.window.WindowUtil;
-import com.thinkparity.ophelia.browser.util.window.WindowUtilProvider;
-
 /**
  * @author rob_masako@shaw.ca
  * @version $Revision$
  */
 public final class FrameAnimator {
-
-    /** An instance of <code>WindowUtil</code>. */
-    private static final WindowUtil WINDOW_UTIL;
-
-    static {
-        WINDOW_UTIL = WindowUtilProvider.getInstance().getWindowUtil();
-    }
 
     /** The working <code>Timer</code>. */
     private Timer animator;
@@ -188,20 +177,10 @@ public final class FrameAnimator {
             done = true;
         }
         setBounds(jDialogLocation, jDialogSize);
-        if (jDialogSize.height == finalHeight) {
-            roundCorners();
-        }
         jDialog.validate();
         if (done) {
             stopAnimator();
         }
-    }
-
-    /**
-     * Make the corners of the notify frame round.
-     */
-    private void roundCorners() {
-        WINDOW_UTIL.applyRoundedEdges(jDialog, Constants.WindowUtil.NOTIFICATION_WINDOW_SIZE);
     }
 
     /**

@@ -18,7 +18,8 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.KeyStroke;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.swing.SwingUtil;

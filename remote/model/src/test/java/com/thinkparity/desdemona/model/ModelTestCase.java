@@ -14,11 +14,13 @@ import java.util.TimeZone;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
+import com.thinkparity.common.StringUtil;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.OSUtil;
-import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.Constants.ChecksumAlgorithm;
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.codebase.codec.MD5Util;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -39,7 +41,8 @@ import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.util.codec.MD5Util;
+
+import com.thinkparity.service.AuthToken;
 
 import com.thinkparity.desdemona.model.admin.AdminModelFactory;
 import com.thinkparity.desdemona.model.admin.InternalAdminModelFactory;
@@ -62,8 +65,6 @@ import com.thinkparity.desdemona.model.session.SessionModel;
 import com.thinkparity.desdemona.service.application.ApplicationService;
 
 import com.thinkparity.desdemona.util.DateTimeProvider;
-
-import com.thinkparity.service.AuthToken;
 
 /**
  * <b>Title:</b>thinkParity Desdemona Model Abstract Test Case<br>
@@ -93,6 +94,44 @@ public abstract class ModelTestCase extends TestCase {
         BUFFER = new Buffer();
         SESSION_ID = System.currentTimeMillis();
         TEST_LOGGER = new Log4JWrapper("TEST_DEBUGGER");
+    }
+
+    /**
+     * Ensure two homogeneous iterable objects' contents are equal.
+     * 
+     * @param <T>
+     *            A type of <code>Object</code>.
+     * @param assertion
+     *            A <code>String</code>.
+     * @param iExpected
+     *            An <code>Iterator<T></code>.
+     * @param iActual
+     *            An <code>Iterator<T></code>.
+     */
+    protected static final <T extends Object> void assertEquals(
+            final String assertion, final Iterable<T> iExpected,
+            final Iterable<T> iActual) {
+        boolean found = false;
+        for (final T tExpected : iExpected) {
+            found = false;
+            for (final T tActual : iActual) {
+                if (tActual.equals(tExpected)) {
+                    found = true;
+                    break;
+                }
+            }
+            assertTrue(assertion, found);
+        }
+        for (final T tActual : iActual) {
+            found = false;
+            for (final T tExpected : iExpected) {
+                if (tExpected.equals(tActual)) {
+                    found = true;
+                    break;
+                }
+            }
+            assertTrue(assertion, found);
+        }
     }
 
     /**
@@ -208,12 +247,12 @@ public abstract class ModelTestCase extends TestCase {
 
         final ProfileModel profileModel = getProfileModel();
         final EMail email = newEMail(username);
-        final UsernameReservation usernameReservation = profileModel.createUsernameReservation(username);
         final EMailReservation emailReservation = profileModel.createEMailReservation(email);
+        final Profile profile = newProfile(features);
+        final UsernameReservation usernameReservation = profileModel.createUsernameReservation(profile);
         final Credentials credentials = new Credentials();
         credentials.setPassword(lookupPassword(username));
-        credentials.setUsername(username);
-        final Profile profile = newProfile(features);
+        credentials.setUsername(usernameReservation.getUsername());
         final SecurityCredentials securityCredentials = new SecurityCredentials();
         securityCredentials.setAnswer(username);
         securityCredentials.setQuestion(username);
@@ -647,8 +686,8 @@ public abstract class ModelTestCase extends TestCase {
         profile.setAddress("Address");
         profile.setCity("City");
         profile.setLocale(Locale.getDefault());
-        profile.setName(MessageFormat.format("Name_{0}", getName()));
-        profile.setOrganization("Organization");
+        profile.setName(MessageFormat.format("Name.{0}", getName()));
+        profile.setOrganization(MessageFormat.format("{0}", String.valueOf(System.currentTimeMillis())));
         profile.setOrganizationCountry(profile.getCountry());
         profile.setPostalCode("PostalCode");
         profile.setProvince("Province");

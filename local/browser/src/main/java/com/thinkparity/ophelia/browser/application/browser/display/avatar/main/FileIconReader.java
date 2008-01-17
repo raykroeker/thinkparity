@@ -11,8 +11,9 @@ import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.filechooser.FileSystemView;
 
-import com.thinkparity.codebase.StringUtil;
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.document.Document;

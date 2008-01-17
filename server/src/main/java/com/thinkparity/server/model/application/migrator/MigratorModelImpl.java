@@ -20,11 +20,12 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import com.thinkparity.common.StringUtil;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.OS;
-import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.ZipUtil;
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
@@ -37,9 +38,7 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
-import com.thinkparity.codebase.model.stream.StreamRetryHandler;
 import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.stream.download.DownloadFile;
 import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEvent;
 import com.thinkparity.codebase.model.util.xstream.XStreamUtil;
 
@@ -50,6 +49,9 @@ import com.thinkparity.desdemona.model.user.InternalUserModel;
 
 import com.thinkparity.desdemona.util.DefaultRetryHandler;
 import com.thinkparity.desdemona.util.smtp.SMTPService;
+
+import com.thinkparity.stream.StreamRetryHandler;
+import com.thinkparity.stream.download.DownloadFile;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Migrator Model Implementation<br>
@@ -275,10 +277,11 @@ public final class MigratorModelImpl extends AbstractModelImpl implements
     }
 
     /**
-     * @see com.thinkparity.desdemona.model.migrator.InternalMigratorModel#readProductFeature(com.thinkparity.codebase.model.migrator.Product, java.lang.String)
+     * @see com.thinkparity.desdemona.model.migrator.InternalMigratorModel#readProductFeature(com.thinkparity.codebase.model.migrator.Product, com.thinkparity.codebase.model.migrator.Feature.Name)
      *
      */
-    public Feature readProductFeature(final Product product, final String name) {
+    @Override
+    public Feature readProductFeature(final Product product, final Feature.Name name) {
         try {
             return migratorSql.readProductFeature(product, name);
         } catch (final Throwable t) {

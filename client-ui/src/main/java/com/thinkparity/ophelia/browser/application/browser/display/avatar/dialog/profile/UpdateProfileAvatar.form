@@ -264,8 +264,7 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="phoneJTextField">
@@ -291,8 +290,7 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
-        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="mobilePhoneJTextField">
@@ -330,7 +328,7 @@
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) addressJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getAddress()));"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) addressJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getAddress(this)));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -356,7 +354,7 @@
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) cityJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getCity()));"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) cityJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getCity(this)));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -382,7 +380,7 @@
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) provinceJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getProvince()));"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) provinceJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getProvince(this)));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -489,7 +487,7 @@
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) postalCodeJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getPostalCode()));"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) postalCodeJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getPostalCode(this)));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
@@ -515,7 +513,7 @@
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create(Fonts.DialogTextEntryFont);"/>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getEmail()));"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getEMail()));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>

@@ -5,6 +5,7 @@ package com.thinkparity.ophelia.browser.build
 
 import com.thinkparity.codebase.BytesFormat
 import com.thinkparity.codebase.TimeFormat
+import com.thinkparity.codebase.codec.MD5Util
 import com.thinkparity.codebase.jabber.JabberId
 import com.thinkparity.codebase.nio.ChannelUtil
 
@@ -13,10 +14,8 @@ import com.thinkparity.codebase.model.migrator.Release
 import com.thinkparity.codebase.model.migrator.Resource
 import com.thinkparity.codebase.model.stream.StreamInfo
 import com.thinkparity.codebase.model.stream.StreamSession
-import com.thinkparity.codebase.model.stream.StreamMonitor
-import com.thinkparity.codebase.model.stream.StreamWriter
-import com.thinkparity.codebase.model.util.codec.MD5Util
-import com.thinkparity.codebase.model.util.http.HttpUtils
+import com.thinkparity.stream.StreamMonitor
+import com.thinkparity.stream.StreamWriter
 
 import com.thinkparity.service.AuthToken
 import com.thinkparity.service.MigratorService

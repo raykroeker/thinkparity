@@ -40,12 +40,16 @@ public final class ReadConfigurationTest extends SessionTestCase {
         final Configuration configuration =
             datum.getSessionModel(datum.authToken).readConfiguration(
                     datum.authToken);
-        assertContainsKey(configuration, "com.thinkparity.session.reaper.timeout");
-        assertContainsKey(configuration, "com.thinkparity.session.reaper.firstexecutiondelay");
-        assertContainsKey(configuration, "com.thinkparity.session.reaper.recurringexecutionperiod");
-        assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.timeout");
-        assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.firstexecutiondelay");
-        assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.recurringexecutionperiod");
+        if (configuration.containsKey("com.thinkparity.session.reaper.enabled")) {
+            if (Boolean.valueOf(configuration.getProperty("com.thinkparity.session.reaper.enabled"))) {
+                assertContainsKey(configuration, "com.thinkparity.session.reaper.timeout");
+                assertContainsKey(configuration, "com.thinkparity.session.reaper.firstexecutiondelay");
+                assertContainsKey(configuration, "com.thinkparity.session.reaper.recurringexecutionperiod");
+                assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.timeout");
+                assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.firstexecutiondelay");
+                assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.recurringexecutionperiod");
+            }
+        }
     }
 
     /**

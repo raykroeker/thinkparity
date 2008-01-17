@@ -32,6 +32,7 @@ import com.thinkparity.ophelia.model.workspace.CannotLockException;
 import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
+import com.thinkparity.ophelia.model.workspace.configuration.Configuration;
 
 import com.thinkparity.ophelia.browser.Version;
 import com.thinkparity.ophelia.browser.Constants.Directories;
@@ -68,7 +69,7 @@ import com.thinkparity.ophelia.browser.util.ModelFactory;
 
 import org.apache.log4j.Logger;
 
-import com.thinkparity.ThinkParity;
+import com.thinkparity.bootstrap.ThinkParity;
 
 /**
  * <b>Title:</b>thinkParity OpheliaUI Platform Implementation<br>
@@ -361,6 +362,13 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.Platform#getConfiguration()
+     */
+    public Configuration getConfiguration() {
+        return workspace.getConfiguration();
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.Platform#getEnvironment()
      */
     public Environment getEnvironment() {
@@ -604,14 +612,13 @@ public final class BrowserPlatform implements Platform, LifeCycleListener {
      *      com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor,
      *      com.thinkparity.ophelia.model.workspace.InitializeMediator)
      */
-    public void runLogin(final String username, final String password,
+    public void runLogin(final Credentials credentials,
             final ThinkParitySwingMonitor monitor,
             final InitializeMediator initializeMediator) {
-        final Data data = new Data(4);
+        final Data data = new Data(3);
+        data.set(Login.DataKey.CREDENTIALS, credentials);
         data.set(Login.DataKey.MONITOR, monitor);
         data.set(Login.DataKey.INITIALIZE_MEDIATOR, initializeMediator);
-        data.set(Login.DataKey.PASSWORD, password);
-        data.set(Login.DataKey.USERNAME, username);
         invoke(ActionId.PLATFORM_LOGIN, data);
     }
 

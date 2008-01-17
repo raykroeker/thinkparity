@@ -309,6 +309,13 @@ public class ActionFactory extends AbstractFactory {
             action = new com.thinkparity.ophelia.browser.platform.action.platform.system.EnableQuit(getSystem());
             break;
 
+        case WORKSPACE_DELETE_PROXY_CONFIGURATION:
+            action = new com.thinkparity.ophelia.browser.platform.action.workspace.DeleteProxyConfiguration(getSystem());
+            break;
+        case WORKSPACE_UPDATE_PROXY_CONFIGURATION:
+            action = new com.thinkparity.ophelia.browser.platform.action.workspace.UpdateProxyConfiguration(getSystem());
+            break;
+
         default:
 			throw Assert.createUnreachable("UNKNOWN ACTION ID");
 		}

@@ -9,8 +9,9 @@ import java.util.List;
 
 import javax.swing.text.JTextComponent;
 
-import com.thinkparity.codebase.StringUtil;
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil;
+import com.thinkparity.common.StringUtil.Separator;
+
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.DefaultTabPanel;

@@ -4,12 +4,13 @@
 package com.thinkparity.codebase.ui.application;
 
 import com.thinkparity.codebase.event.EventListener;
+import com.thinkparity.codebase.ui.platform.Platform;
 
 /**
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public interface ApplicationListener extends EventListener {
+public interface ApplicationListener<T extends Platform> extends EventListener {
 
 	/**
 	 * Notify the implementer that the application has ended.
@@ -17,7 +18,7 @@ public interface ApplicationListener extends EventListener {
 	 * @param application
 	 *            The application.
 	 */
-	public void notifyEnd(final Application application);
+	void notifyEnd(final Application<T> application);
 
 	/**
 	 * Notify the implementer that the application has hibernated.
@@ -25,7 +26,7 @@ public interface ApplicationListener extends EventListener {
 	 * @param application
 	 *            The application.
 	 */
-	public void notifyHibernate(final Application application);
+	void notifyHibernate(final Application<T> application);
 
 	/**
 	 * Notify the implementer that the application has been restored.
@@ -33,7 +34,7 @@ public interface ApplicationListener extends EventListener {
 	 * @param application
 	 *            The application.
 	 */
-	public void notifyRestore(final Application application);
+	void notifyRestore(final Application<T> application);
 
 	/**
 	 * Notify the implementer that the application has started.
@@ -41,5 +42,5 @@ public interface ApplicationListener extends EventListener {
 	 * @param application
 	 *            The application.
 	 */
-	public void notifyStart(final Application application);
+	void notifyStart(final Application<T> application);
 }

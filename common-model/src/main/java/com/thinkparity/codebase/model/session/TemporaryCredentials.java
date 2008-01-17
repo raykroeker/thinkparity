@@ -5,8 +5,9 @@ package com.thinkparity.codebase.model.session;
 
 import java.util.Calendar;
 
+import com.thinkparity.common.StringUtil;
+
 import com.thinkparity.codebase.HashCodeUtil;
-import com.thinkparity.codebase.StringUtil;
 
 import com.thinkparity.codebase.model.util.Token;
 

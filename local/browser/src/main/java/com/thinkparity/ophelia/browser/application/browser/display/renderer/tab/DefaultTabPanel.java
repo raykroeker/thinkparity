@@ -15,9 +15,10 @@ import javax.swing.Icon;
 import javax.swing.KeyStroke;
 import javax.swing.border.Border;
 
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.FuzzyDateFormat;
 import com.thinkparity.codebase.JVMUniqueId;
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.swing.AbstractJPanel;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.border.BottomBorder;

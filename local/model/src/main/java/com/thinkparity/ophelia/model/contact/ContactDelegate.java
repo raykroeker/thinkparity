@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.model.contact;
 
+import com.thinkparity.codebase.model.contact.Contact;
+
 import com.thinkparity.ophelia.model.DefaultDelegate;
 import com.thinkparity.ophelia.model.io.handler.ContactIOHandler;
 
@@ -35,5 +37,12 @@ public abstract class ContactDelegate extends DefaultDelegate<ContactModelImpl> 
         super.initialize(modelImplementation);
 
         contactIO = modelImplementation.getContactIO();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.contact.ContactModelImpl#createLocal(Contact)
+     */
+    protected Contact createLocal(final Contact remote) {
+        return modelImplementation.createLocal(remote);
     }
 }

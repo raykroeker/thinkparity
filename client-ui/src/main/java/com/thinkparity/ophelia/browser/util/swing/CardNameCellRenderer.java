@@ -47,8 +47,13 @@ public class CardNameCellRenderer extends DefaultListCellRenderer {
             final boolean cellHasFocus) {
         super.getListCellRendererComponent(list, value, index, isSelected,
                 cellHasFocus);
-        setText(localization.getString(MessageFormat.format("{0}.{1}", context,
-                ((CardName) value).name())));
+        if (null == value) {
+            // value can be null if the selection is -1
+            setText(" ");
+        } else {
+            setText(localization.getString(MessageFormat.format("{0}.{1}", context,
+                    ((CardName) value).name())));
+        }
         return this;
     }
 }

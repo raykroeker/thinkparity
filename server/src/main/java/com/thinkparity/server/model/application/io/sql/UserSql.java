@@ -1597,7 +1597,7 @@ public final class UserSql extends AbstractSql {
     Feature extractFeature(final HypersonicSession session) {
         final Feature feature = new Feature();
         feature.setFeatureId(session.getLong("FEATURE_ID"));
-        feature.setName(session.getString("FEATURE_NAME"));
+        feature.setName(Feature.Name.valueOf(session.getString("FEATURE_NAME")));
         feature.setProductId(session.getLong("PRODUCT_ID"));
         return feature;
     }

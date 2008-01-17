@@ -14,6 +14,7 @@ import com.thinkparity.ophelia.model.help.HelpModel;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.user.UserModel;
+import com.thinkparity.ophelia.model.workspace.Workspace;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.backup.RestoreBackupProvider;
@@ -87,6 +88,9 @@ public class ProviderFactory {
     /** An instance of <code>ProfileModel</code>. */
     private final ProfileModel profileModel;
 
+    /** The thinkParity <code>Workspace</code>. */
+    private final Workspace workspace;
+
     /**
      * Create ProviderFactory.
      * 
@@ -103,6 +107,7 @@ public class ProviderFactory {
         this.profileModel = modelFactory.getProfileModel(getClass());
 		this.sessionModel = modelFactory.getSessionModel(getClass());
         this.userModel = modelFactory.getUserModel(getClass());
+        this.workspace = modelFactory.getWorkspace(getClass());
 
 		this.logger = Logger.getLogger(getClass());
 	}
@@ -146,7 +151,8 @@ public class ProviderFactory {
         case DIALOG_PLATFORM_SIGNUP_PAYMENT_PLAN:
         case DIALOG_PLATFORM_SIGNUP_PROFILE:
         case DIALOG_PLATFORM_SIGNUP_SUMMARY:
-            provider = new SignupProvider(profileModel);
+        case DIALOG_PLATFORM_SIGNUP_UPDATE_CONFIGURATION:
+            provider = new SignupProvider(profileModel, workspace);
             break;
         case DIALOG_PROFILE_UPDATE:
             provider = new UpdateProfileProvider(profileModel);

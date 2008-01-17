@@ -48,23 +48,10 @@ class PackageTask {
             // $/thinkParity.jar
             jar(destfile:new File(packageDir,"thinkParity.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
                 manifest {
-                    attribute(name:"Main-Class",value:"com.thinkparity.ThinkParity")
+                    attribute(name:"Main-Class",value:"com.thinkparity.bootstrap.ThinkParity")
                 }
                 fileset(dir:classesDir) {
-                    include(name:"com/thinkparity/")
-                    exclude(name:"com/thinkparity/codebase/")
-                    exclude(name:"com/thinkparity/ophelia/")
-                    exclude(name:"com/thinkparity/service/")
-                }
-                fileset(dir:classesDir) {
-                    include(name:"com/thinkparity/codebase/assertion/")
-                    include(name:"com/thinkparity/codebase/Enum*")
-                    include(name:"com/thinkparity/codebase/JVMUtil*")
-                    include(name:"com/thinkparity/codebase/OS*")
-                    include(name:"com/thinkparity/codebase/OSUtil*")
-                    include(name:"com/thinkparity/codebase/Platform*")
-                    include(name:"com/thinkparity/codebase/StringUtil*")
-                    include(name:"com/thinkparity/codebase/SystemUtil*")
+                    include(name:"com/thinkparity/bootstrap/")
                 }
             }
             // $/LICENSE.txt

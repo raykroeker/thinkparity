@@ -72,6 +72,14 @@ public interface SignupPage {
     public Boolean isLastPage();
 
     /**
+     * Determine if the 'next' button action should be executed immediately,
+     * ie. as soon as the page is drawn.
+     * 
+     * @return true if the 'next' button action should execute immediately.
+     */
+    public Boolean isNextExecutedImmediately();
+
+    /**
      * Final check if it is OK to go to the next page.
      */
     public Boolean isNextOk();
@@ -110,6 +118,13 @@ public interface SignupPage {
      *            The <code>SignupDelegate</code>.
      */
     public void setSignupDelegate(final SignupDelegate signupDelegate);
+
+    /**
+     * Set buttons visible or not.
+     * This can be used to change which buttons are visible
+     * when the page is first displayed.
+     */
+    public void setVisibleButtons();
 
     /**
      * Validate input.

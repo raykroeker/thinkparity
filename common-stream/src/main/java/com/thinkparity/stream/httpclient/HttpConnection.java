@@ -11,11 +11,12 @@ import java.net.Socket;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpParser;
 
-import com.thinkparity.network.Network;
-import com.thinkparity.network.NetworkAddress;
-import com.thinkparity.network.NetworkConnection;
-import com.thinkparity.network.NetworkException;
-import com.thinkparity.network.NetworkProtocol;
+import com.thinkparity.net.Network;
+import com.thinkparity.net.NetworkAddress;
+import com.thinkparity.net.NetworkConnection;
+import com.thinkparity.net.NetworkException;
+import com.thinkparity.net.NetworkProtocol;
+
 
 /**
  * <b>Title:</b>thinkParity Common Model Stream Http Client Connection<br>

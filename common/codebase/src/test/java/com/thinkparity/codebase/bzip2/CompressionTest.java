@@ -7,9 +7,10 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.BytesFormat;
 import com.thinkparity.codebase.CodebaseTestCase;
-import com.thinkparity.codebase.StringUtil.Separator;
 
 /**
  * <b>Title:</b>thinkParity Codebase BZip2 Compression Test<br>

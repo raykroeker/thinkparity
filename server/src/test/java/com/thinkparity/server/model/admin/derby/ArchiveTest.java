@@ -3,7 +3,6 @@
  */
 package com.thinkparity.desdemona.model.admin.derby;
 
-import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.service.AuthToken;
@@ -54,11 +53,8 @@ public final class ArchiveTest extends DerbyTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        final Credentials credentials = new Credentials();
-        credentials.setPassword("pr3t0r1a");
-        credentials.setUsername(User.THINKPARITY.getSimpleUsername());
         datum = new Fixture();
-        datum.archive = datum.getSessionModel().login(credentials);
+        datum.archive = datum.login(User.THINKPARITY.getSimpleUsername());
     }
 
     /**

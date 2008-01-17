@@ -5,10 +5,11 @@ package com.thinkparity.service.client;
 
 import javax.jws.WebService;
 
-import com.thinkparity.network.protocol.http.HttpException;
 
 import com.thinkparity.service.*;
 import com.thinkparity.service.client.http.HttpProxyFactory;
+
+import com.thinkparity.net.protocol.http.HttpException;
 
 /**
  * <b>Title:</b>thinkParity Service Client Service Factory<br>

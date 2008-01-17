@@ -12,6 +12,10 @@ import java.util.List;
 
 import com.thinkparity.codebase.junitx.TestCase;
 
+import com.thinkparity.net.NetworkAddress;
+import com.thinkparity.net.NetworkProtocol;
+import com.thinkparity.net.NetworkProxy;
+
 /**
  * <b>Title:</b>thinkParity Network Test Case<br>
  * <b>Description:</b><br>

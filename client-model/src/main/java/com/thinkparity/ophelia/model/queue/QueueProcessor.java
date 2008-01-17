@@ -23,8 +23,6 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.stream.StreamException;
-import com.thinkparity.codebase.model.stream.download.DownloadFile;
 import com.thinkparity.codebase.model.util.xmpp.event.*;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent;
@@ -48,7 +46,10 @@ import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
-import com.thinkparity.network.NetworkException;
+import com.thinkparity.net.NetworkException;
+import com.thinkparity.stream.StreamException;
+import com.thinkparity.stream.download.DownloadFile;
+
 
 /**
  * <b>Title:</b>thinkParity Ophelia Model Queue Processor<br>
@@ -502,7 +503,7 @@ public final class QueueProcessor implements Cancelable, Runnable {
             getArtifactModel().handleReceived((ArtifactReceivedEvent) event);
         } else if (event.getClass() == ArtifactTeamMemberAddedEvent.class) {
             logger.logInfo("Handling artifact team member added.");
-            getArtifactModel().handleTeamMemberAdded((ArtifactTeamMemberAddedEvent) event);
+            getArtifactModel().handleEvent((ArtifactTeamMemberAddedEvent) event);
         } else if (event.getClass() == ArtifactTeamMemberRemovedEvent.class) {
             logger.logInfo("Handling artifact team member removed.");
             getArtifactModel().handleEvent((ArtifactTeamMemberRemovedEvent) event);
@@ -520,7 +521,7 @@ public final class QueueProcessor implements Cancelable, Runnable {
             getContactModel().handleEvent((ContactEMailInvitationExtendedEvent) event);
         } else if (event.getClass() == ContactInvitationAcceptedEvent.class) {
             logger.logInfo("Handling contact invitation accepted.");
-            getContactModel().handleInvitationAccepted((ContactInvitationAcceptedEvent) event);
+            getContactModel().handleEvent((ContactInvitationAcceptedEvent) event);
         } else if (event.getClass() == ContactUpdatedEvent.class) {
             logger.logInfo("Handling contact updated.");
             getContactModel().handleContactUpdated((ContactUpdatedEvent) event);

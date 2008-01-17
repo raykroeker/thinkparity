@@ -9,7 +9,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.common.StringUtil;
+
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.ophelia.model.InternalModelFactory;

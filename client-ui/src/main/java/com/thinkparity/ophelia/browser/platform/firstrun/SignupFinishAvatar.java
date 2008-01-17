@@ -119,7 +119,7 @@ public class SignupFinishAvatar extends DefaultSignupPage {
 
         setOpaque(false);
         explanationJLabel.setFont(Fonts.DialogFont);
-        explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Finiah.Explanation"));
+        explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Finish.Explanation"));
 
         importantNoteJLabel.setFont(Fonts.DialogFontBold);
         importantNoteJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Finish.ImportantNote"));

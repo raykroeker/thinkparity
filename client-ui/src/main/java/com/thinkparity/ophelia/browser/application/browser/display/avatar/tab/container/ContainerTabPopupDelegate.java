@@ -28,9 +28,7 @@ import com.thinkparity.ophelia.model.container.ContainerDraft;
 import com.thinkparity.ophelia.model.container.ContainerDraft.ArtifactState;
 
 import com.thinkparity.ophelia.browser.application.browser.DefaultBrowserPopupDelegate;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate;
-import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.ContainerPanel;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.PopupDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.container.view.DocumentView;
 import com.thinkparity.ophelia.browser.platform.action.ActionId;
@@ -171,56 +169,14 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
             needSeparator = false;
         }
 
-        // bookmark
-        if (container.isBookmarked()) {
-            final Data removeBookmarkData = new Data(1);
-            removeBookmarkData.set(RemoveBookmark.DataKey.CONTAINER_ID, container.getId());
-            add(ActionId.CONTAINER_REMOVE_BOOKMARK, removeBookmarkData);
-        } else {
-            final Data addBookmarkData = new Data(1);
-            addBookmarkData.set(AddBookmark.DataKey.CONTAINER_ID, container.getId());
-            add(ActionId.CONTAINER_ADD_BOOKMARK, addBookmarkData);
-        }
-        needSeparator = true;
-
-        // Rename container
-        if (!distributed) {
-            final Data renameData = new Data(1);
-            renameData.set(Rename.DataKey.CONTAINER_ID, container.getId());
-            addWithExpand(ActionId.CONTAINER_RENAME, renameData, container);
-            needSeparator = true;
-        }
-
-        // delete
-        // This menu is shown if online, or if it has never been published.
-        if (online || !distributed) {
-            final Data deleteData = new Data(1);
-            deleteData.set(Delete.DataKey.CONTAINER_ID, container.getId());
-            addWithExpand(ActionId.CONTAINER_DELETE, deleteData, container);
-            needSeparator = true;
-        }
-
-        // audit report
-        if (distributed) {
-            if (needSeparator) {
-                addSeparator();
-            }
-            final Data reportData = new Data(1);
-            reportData.set(ExportAuditReport.DataKey.CONTAINER_ID, container.getId());
-            addWithExpand(ActionId.CONTAINER_EXPORT_AUDIT_REPORT, reportData, container);
-            needSeparator = true;
-        }
-
-        // export
-        if (distributed) {
-            final Data exportData = new Data(1);
-            exportData.set(Export.DataKey.CONTAINER_ID, container.getId());
-            addWithExpand(ActionId.CONTAINER_EXPORT, exportData, container);
-            needSeparator = true;
-        }
+        // add container menus
+        addForContainer(container);
 
         // include the container's id and unique id in the menu
         if (model.isDevelopmentMode()) {
+            if (needSeparator) {
+                addSeparator();
+            }
             final Clipboard systemClipboard =
                 Toolkit.getDefaultToolkit().getSystemClipboard();
             final ActionListener debugActionListener = new ActionListener() {
@@ -285,16 +241,6 @@ final class ContainerTabPopupDelegate extends DefaultBrowserPopupDelegate
         addForContainer(container);
 
         show();
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanelPopupDelegate#showForPanel(com.thinkparity.ophelia.browser.application.browser.display.renderer.tab.TabPanel)
-     *
-     */
-    public void showForPanel(final TabPanel tabPanel) {
-        final ContainerPanel containerPanel = (ContainerPanel) tabPanel;
-        showForContainer(containerPanel.getContainer(),
-                containerPanel.getDraft());
     }
 
     /**

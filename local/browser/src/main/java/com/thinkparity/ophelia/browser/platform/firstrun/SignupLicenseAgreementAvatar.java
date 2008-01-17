@@ -13,6 +13,8 @@ import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.firstrun.SignupData.DataKey;
 
 /**
  *
@@ -45,7 +47,11 @@ public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getNextPageName()
      */
     public String getNextPageName() {
-        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PROFILE);
+        if (FeatureSet.FREE == getInputFeatureSet()) {
+            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_ACCOUNT);
+        } else {
+            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_PROFILE);
+        }
     }
 
     /**
@@ -93,6 +99,16 @@ public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
         declineJRadioButton.setSelected(true);
         validateInput();
     }//GEN-LAST:event_declineJRadioButtonActionPerformed
+
+    /**
+     * Get the feature set based upon the account type selection.
+     * 
+     * @return A <code>FeatureSet</code>.
+     */
+    private FeatureSet getInputFeatureSet() {
+        final FeatureSet featureSet = (FeatureSet) ((Data) input).get(DataKey.FEATURE_SET);
+        return featureSet;
+    }
 
     /** This method is called from within the constructor to
      * initialize the form.
@@ -159,8 +175,8 @@ public class SignupLicenseAgreementAvatar extends DefaultSignupPage {
                 .addContainerGap()
                 .addComponent(explanationJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(licenseAgreementJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(licenseAgreementJScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE)
+                .addGap(19, 19, 19)
                 .addComponent(acceptJRadioButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(declineJRadioButton)

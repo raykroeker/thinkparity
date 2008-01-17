@@ -18,10 +18,11 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import com.thinkparity.common.StringUtil.Separator;
+
 import au.com.bytecode.opencsv.CSVWriter;
 
 import com.thinkparity.codebase.FileSystem;
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.crypto.EncryptFile;
 import com.thinkparity.codebase.tar.ArchiveDirectory;

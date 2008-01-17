@@ -11,7 +11,7 @@ import com.thinkparity.codebase.ui.platform.event.LifeCycleListener;
  * @author raykroeker@gmail.com
  * @version 1.1
  */
-public interface Platform extends ApplicationListener {
+public interface Platform extends ApplicationListener<Platform> {
 
     /**
      * Add a platform life cycle listener.

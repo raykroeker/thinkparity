@@ -65,8 +65,8 @@ public final class ActionContext {
      * @return A <code>File</code>.
      */
     public File getImageDirectory() {
-        return new File(com.thinkparity.Constants.Directories.ThinkParity.Directory,
-                System.getProperty(com.thinkparity.Constants.PropertyNames.ThinkParity.Image)); 
+        return new File(com.thinkparity.bootstrap.Constants.Directories.ThinkParity.Directory,
+                System.getProperty(com.thinkparity.bootstrap.Constants.PropertyNames.ThinkParity.Image)); 
     }
 
     /**

@@ -6,12 +6,18 @@
 
 package com.thinkparity.ophelia.browser.platform.firstrun;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.List;
 
 import javax.swing.text.AbstractDocument;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.email.EMail;
+import com.thinkparity.codebase.email.EMailBuilder;
+import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
@@ -38,26 +44,27 @@ import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 public class SignupCredentialsAvatar extends DefaultSignupPage
         implements InitializeMediator, LoginCredentialsDisplay {
 
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JTextField emailJTextField = TextFactory.create();
+    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
+    private final javax.swing.JLabel forgotPasswordJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
+    private final javax.swing.JPasswordField passwordJPasswordField = new javax.swing.JPasswordField();
+    // End of variables declaration//GEN-END:variables
+
     /** The list of <code>Feature</code>. */
     private List<Feature> features;
 
     /** An instance of <code>ProfileConstraints</code>. */
     private final ProfileConstraints profileConstraints;
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
-    private final javax.swing.JLabel forgotPasswordJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
-    private final javax.swing.JPasswordField passwordJPasswordField = new javax.swing.JPasswordField();
-    private final javax.swing.JTextField usernameJTextField = TextFactory.create();
-    // End of variables declaration//GEN-END:variables
-
     /** Creates new form SignupCredentialsAvatar */
     public SignupCredentialsAvatar() {
         super("SignupAvatar.Credentials", BrowserConstants.DIALOGUE_BACKGROUND);
         this.profileConstraints = ProfileConstraints.getInstance();
         initComponents();
-        addValidationListener(usernameJTextField);
+        addValidationListener(emailJTextField);
         addValidationListener(passwordJPasswordField);
+        initFocusListener();
         SignupLoginHelper.getInstance().setLoginCredentialsDisplay(this);
     }
 
@@ -153,7 +160,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
      */
     @Override
     public void setDefaultFocus() {
-        usernameJTextField.requestFocusInWindow();
+        emailJTextField.requestFocusInWindow();
     }
 
     /**
@@ -175,24 +182,16 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
      */
     @Override
     public final void validateInput() {
-        super.validateInput();
-        final String username = extractUsername();
-        final String password = extractPassword();
+        validateInput(Boolean.FALSE);
+    }
 
-        if (null == username) {
-            addInputError(Separator.Space.toString());
-        }
-        if (null == password) {
-            addInputError(Separator.Space.toString());
-        }
-
-        errorMessageJLabel.setText(" ");
-        if (containsInputErrors()) {
-            errorMessageJLabel.setText(getInputErrors().get(0));
-        }
-        if (isSignupDelegateInitialized()) {
-            signupDelegate.enableNextButton(!containsInputErrors());
-        }
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#isInputValid()
+     */
+    @Override
+    protected Boolean isInputValid() {
+        validateInput(Boolean.TRUE);
+        return !containsInputErrors();
     }
 
     /**
@@ -214,8 +213,35 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
     private Credentials extractCredentials() {
         final Credentials credentials = new Credentials();
         credentials.setPassword(extractPassword());
-        credentials.setUsername(extractUsername().toLowerCase());
+        credentials.setEMail(extractEMail());
         return credentials;
+    }
+
+    /**
+     * Extract the input e-mail from the control.
+     * 
+     * @return The <code>EMail</code>.
+     */
+    private EMail extractEMail() {
+        final String emailAddress = extractEMailAddress();
+        if (null == emailAddress) {
+            return null;
+        } else {
+            try {
+                return EMailBuilder.parse(emailAddress);
+            } catch (final EMailFormatException emfx) {
+                return null;
+            }
+        }
+    }
+
+    /**
+     * Extract the input e-mail address string from the control.
+     * 
+     * @return The e-mail address <code>String</code>.
+     */
+    private String extractEMailAddress() {
+        return SwingUtil.extract(emailJTextField, Boolean.TRUE);
     }
 
     /**
@@ -225,15 +251,6 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
      */
     private String extractPassword() {
         return SwingUtil.extract(passwordJPasswordField, Boolean.TRUE);
-    }
-
-    /**
-     * Extract the username from the control.
-     * 
-     * @return The username <code>String</code>.
-     */
-    private String extractUsername() {
-        return SwingUtil.extract(usernameJTextField, Boolean.TRUE);
     }
 
     private void forgotPasswordJLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_forgotPasswordJLabelMousePressed
@@ -248,7 +265,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel usernameJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel emailJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel passwordJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel forgotPasswordExplanationJLabel = new javax.swing.JLabel();
 
@@ -256,14 +273,14 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
         explanationJLabel.setFont(Fonts.DialogFont);
         explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Credentials.Explanation"));
 
-        usernameJLabel.setFont(Fonts.DialogFont);
-        usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Credentials.Username"));
+        emailJLabel.setFont(Fonts.DialogFont);
+        emailJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Credentials.EMail"));
 
-        usernameJTextField.setFont(Fonts.DialogTextEntryFont);
-        usernameJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
-        usernameJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
-        usernameJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
-        ((AbstractDocument) usernameJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getUsername()));
+        emailJTextField.setFont(Fonts.DialogTextEntryFont);
+        emailJTextField.setMaximumSize(new java.awt.Dimension(275, 2147483647));
+        emailJTextField.setMinimumSize(new java.awt.Dimension(275, 20));
+        emailJTextField.setPreferredSize(new java.awt.Dimension(275, 20));
+        ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getEMail()));
 
         passwordJLabel.setFont(Fonts.DialogFont);
         passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Credentials.Password"));
@@ -288,6 +305,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
         errorMessageJLabel.setText("!error message!");
+        errorMessageJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -301,17 +319,17 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(forgotPasswordExplanationJLabel)
                             .addComponent(passwordJLabel)
-                            .addComponent(usernameJLabel))
+                            .addComponent(emailJLabel))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(forgotPasswordJLabel)
-                            .addComponent(usernameJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                            .addComponent(emailJTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
                             .addComponent(passwordJPasswordField, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE))
                         .addGap(26, 26, 26))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(explanationJLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
-                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
+                            .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)
+                            .addComponent(explanationJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -321,8 +339,8 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
                 .addComponent(explanationJLabel)
                 .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(usernameJLabel)
-                    .addComponent(usernameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(emailJLabel)
+                    .addComponent(emailJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(passwordJLabel)
@@ -332,10 +350,26 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
                     .addComponent(forgotPasswordExplanationJLabel)
                     .addComponent(forgotPasswordJLabel))
                 .addGap(24, 24, 24)
-                .addComponent(errorMessageJLabel)
-                .addContainerGap(109, Short.MAX_VALUE))
+                .addComponent(errorMessageJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(94, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Initialize the focus listener.
+     */
+    private void initFocusListener() {
+        final FocusListener focusListener = new FocusListener() {
+            public void focusGained(FocusEvent e) {
+                validateInput();
+            }
+            public void focusLost(FocusEvent e) {
+                validateInput();
+            }
+        };
+        emailJTextField.addFocusListener(focusListener);
+        passwordJPasswordField.addFocusListener(focusListener);
+    }
 
     /**
      * Install the progress bar.
@@ -347,6 +381,24 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
     }
 
     /**
+     * Determine if the input email is valid.
+     * 
+     * @return True if the input email is valid; false otherwise.
+     */
+    private Boolean isEmailAddressValid() {
+        final String emailAddress = extractEMailAddress();
+        if (null == emailAddress) {
+            return Boolean.FALSE;
+        } else {
+            try {
+                return null != EMailBuilder.parse(emailAddress);
+            } catch (final EMailFormatException emfx) {
+                return Boolean.FALSE;
+            }
+        }
+    }
+
+    /**
      * Login.
      */
     private void login() {
@@ -355,8 +407,7 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
         SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
         errorMessageJLabel.setText(getString("LoggingIn"));
         errorMessageJLabel.paintImmediately(0, 0, errorMessageJLabel.getWidth(), errorMessageJLabel.getHeight());
-        final Credentials credentials = extractCredentials();
-        platform.runLogin(credentials.getUsername(), credentials.getPassword(), createMonitor(), this);
+        platform.runLogin(extractCredentials(), createMonitor(), this);
     }
 
     /**
@@ -387,5 +438,36 @@ public class SignupCredentialsAvatar extends DefaultSignupPage
     private void setVisibleButtons(final Boolean visible) {
         signupDelegate.setVisibleNextButton(visible);
         signupDelegate.setVisibleCancelButton(visible);
+    }
+
+    /**
+     * Validate input.
+     * 
+     * @param ignoreFocus
+     *            A <code>Boolean</code> to ignore focus or not.
+     */
+    private void validateInput(final Boolean ignoreFocus) {
+        super.validateInput();
+        final String emailAddress = extractEMailAddress();
+        final String password = extractPassword();
+
+        if (null == emailAddress) {
+            addInputError(Separator.Space.toString());
+        } else if (!isEmailAddressValid()) {
+            if (ignoreFocus || !emailJTextField.isFocusOwner()) {
+                addInputError(getString("ErrorInvalidEmail"));
+            }
+        }
+        if (null == password) {
+            addInputError(Separator.Space.toString());
+        }
+
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors()) {
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        }
+        if (isSignupDelegateInitialized()) {
+            signupDelegate.enableNextButton(!containsInputErrors());
+        }
     }
 }

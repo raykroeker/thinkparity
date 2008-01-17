@@ -8,13 +8,13 @@ import java.util.List;
 import com.thinkparity.codebase.constraint.IllegalValueException.Reason;
 
 /**
- * <b>Title:</b><br>
+ * <b>Title:</b>thinkParity Common List Constraint<br>
  * <b>Description:</b><br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public final class ListConstraint extends Constraint<List> {
+public final class ListConstraint<T extends Object> extends Constraint<List<T>> {
 
     /** The maximum list size. */
     private Integer maxSize;
@@ -73,7 +73,7 @@ public final class ListConstraint extends Constraint<List> {
      *
      */
     @Override
-    public void validate(final List value) {
+    public void validate(final List<T> value) {
         super.validate(value);
         if (!isNullable().booleanValue()) {
             if (maxSize.intValue() < value.size()) {

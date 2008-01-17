@@ -13,12 +13,7 @@ import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
-import com.thinkparity.codebase.model.profile.EMailReservation;
-import com.thinkparity.codebase.model.profile.Profile;
-import com.thinkparity.codebase.model.profile.ProfileConstraints;
-import com.thinkparity.codebase.model.profile.ProfileVCard;
-import com.thinkparity.codebase.model.profile.SecurityCredentials;
-import com.thinkparity.codebase.model.profile.UsernameReservation;
+import com.thinkparity.codebase.model.profile.*;
 import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
 import com.thinkparity.codebase.model.session.Credentials;
 
@@ -59,24 +54,30 @@ public final class Ticket1067Test extends TicketTestCase {
             final StringBuilder buffer = new StringBuilder();
             final String username = datum.newUniqueUsername();
             final EMail email = datum.newEMail(username);
-            final UsernameReservation usernameReservation =
-                datum.getProfileModel(datum.createAs).createUsernameReservation(username);
             final EMailReservation emailReservation =
                 datum.getProfileModel(datum.createAs).createEMailReservation(email);
-            final Credentials credentials = new Credentials();
-            credentials.setPassword(datum.lookupPassword(username));
-            credentials.setUsername(username);
             final ProfileConstraints constraints = ProfileConstraints.getInstance();
             final Profile profile = new Profile();
             profile.setVCard(new ProfileVCard());
             profile.setFeatures(datum.allFeatures);
+            final ProfileConstraintsInfo constraintsInfo = new ProfileConstraintsInfo() {
+
+                /**
+                 * @see com.thinkparity.codebase.model.profile.ProfileConstraintsInfo#getFeatures()
+                 *
+                 */
+                @Override
+                public List<Feature> getFeatures() {
+                    return profile.getFeatures();
+                }
+            };
             buffer.setLength(0);
             buffer.append("Address_");
-            padToMaximumLength(buffer, constraints.getAddress());
+            padToMaximumLength(buffer, constraints.getAddress(constraintsInfo));
             profile.setAddress(buffer.toString());
             buffer.setLength(0);
             buffer.append("City_");
-            padToMaximumLength(buffer, constraints.getCity());
+            padToMaximumLength(buffer, constraints.getCity(constraintsInfo));
             profile.setCity(buffer.toString());
             profile.setLocale(Locale.getDefault());
             buffer.setLength(0);
@@ -97,17 +98,22 @@ public final class Ticket1067Test extends TicketTestCase {
             profile.setPhone(buffer.toString());
             buffer.setLength(0);
             buffer.append("PostalCode_");
-            padToMaximumLength(buffer, constraints.getPostalCode());
+            padToMaximumLength(buffer, constraints.getPostalCode(constraintsInfo));
             profile.setPostalCode(buffer.toString());
             buffer.setLength(0);
             buffer.append("Province_");
-            padToMaximumLength(buffer, constraints.getProvince());
+            padToMaximumLength(buffer, constraints.getProvince(constraintsInfo));
             profile.setProvince(buffer.toString());
             profile.setTimeZone(TimeZone.getDefault());
             buffer.setLength(0);
             buffer.append("Title_");
             padToMaximumLength(buffer, constraints.getTitle());
             profile.setTitle(buffer.toString());
+            final UsernameReservation usernameReservation =
+                datum.getProfileModel(datum.createAs).createUsernameReservation(profile);
+            final Credentials credentials = new Credentials();
+            credentials.setPassword(datum.lookupPassword(username));
+            credentials.setUsername(usernameReservation.getUsername());
             final SecurityCredentials securityCredentials = new SecurityCredentials();
             securityCredentials.setAnswer(username);
             securityCredentials.setQuestion(username);

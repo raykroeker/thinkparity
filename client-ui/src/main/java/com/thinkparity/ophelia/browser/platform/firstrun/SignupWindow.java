@@ -106,6 +106,7 @@ public final class SignupWindow extends OpheliaJFrame {
         signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_FINISH));
         signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_CREDENTIALS));
         signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_LOGIN));
+        signupAvatar.registerPage(getSignupPage(AvatarId.DIALOG_PLATFORM_SIGNUP_UPDATE_CONFIGURATION));
         signupAvatar.reload();
     }
 }

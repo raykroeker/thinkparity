@@ -18,7 +18,8 @@ import java.util.Map;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.common.StringUtil;
+
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.ThinkParityException;
@@ -26,7 +27,7 @@ import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.util.http.HttpUtils;
+
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.migrator.Archive;
@@ -35,6 +36,8 @@ import com.thinkparity.desdemona.util.DateTimeProvider;
 import com.thinkparity.desdemona.util.DesdemonaProperties;
 
 import org.apache.commons.codec.binary.Base64;
+
+import com.thinkparity.net.protocol.http.HttpUtils;
 
 /**
  * <b>Title:</b>thinkParity Desdemona Amazon S3 Model Implementation<br>

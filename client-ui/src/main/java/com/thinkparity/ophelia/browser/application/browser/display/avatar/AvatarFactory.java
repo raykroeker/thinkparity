@@ -19,6 +19,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.co
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.help.HelpTabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.event.EventDispatcherFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.provider.ProviderFactory;
+import com.thinkparity.ophelia.browser.application.system.dialog.UpdateConfigurationAvatar;
 import com.thinkparity.ophelia.browser.platform.BrowserPlatform;
 import com.thinkparity.ophelia.browser.platform.Platform;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
@@ -208,6 +209,13 @@ public final class AvatarFactory {
             avatar = newAvatar(SignupSummaryAvatar.class);
             avatar.setContentProvider(ProviderFactory.getProvider(id));
             break;
+        case DIALOG_PLATFORM_SIGNUP_UPDATE_CONFIGURATION:
+            avatar = newAvatar(SignupUpdateConfigurationAvatar.class);
+            avatar.setContentProvider(ProviderFactory.getProvider(id));
+            break;
+        case DIALOG_PLATFORM_UPDATE_CONFIGURATION:
+            avatar = newAvatar(UpdateConfigurationAvatar.class);
+            break;
 
         case DIALOG_PROFILE_UPDATE:
             avatar = newAvatar(UpdateProfileAvatar.class);
@@ -232,6 +240,9 @@ public final class AvatarFactory {
             break;
         case DIALOG_PROFILE_UPGRADE_ACCOUNT_PAYMENT:
             avatar = newAvatar(UpgradeAccountPaymentAvatar.class);
+            break;
+        case DIALOG_PROFILE_UPGRADE_ACCOUNT_PROFILE:
+            avatar = newAvatar(UpgradeAccountProfileAvatar.class);
             break;
         case DIALOG_PROFILE_UPGRADE_ACCOUNT_SUMMARY:
             avatar = newAvatar(UpgradeAccountSummaryAvatar.class);

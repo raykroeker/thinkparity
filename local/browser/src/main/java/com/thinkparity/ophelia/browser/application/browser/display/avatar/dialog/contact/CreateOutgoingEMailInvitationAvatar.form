@@ -94,7 +94,7 @@
       </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="TextFactory.create();"/>
-        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getEmail()));"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value=" ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getEMail()));"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>

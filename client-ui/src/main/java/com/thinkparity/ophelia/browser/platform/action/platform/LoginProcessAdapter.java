@@ -8,8 +8,8 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.ophelia.model.contact.monitor.DownloadData;
 import com.thinkparity.ophelia.model.contact.monitor.DownloadStep;
-import com.thinkparity.ophelia.model.container.monitor.RestoreBackupData;
-import com.thinkparity.ophelia.model.container.monitor.RestoreBackupStep;
+import com.thinkparity.ophelia.model.container.monitor.RestoreLocalData;
+import com.thinkparity.ophelia.model.container.monitor.RestoreLocalStep;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.Step;
 import com.thinkparity.ophelia.model.workspace.monitor.InitializeData;
@@ -45,11 +45,11 @@ class LoginProcessAdapter extends ProcessAdapter {
     /** A swing monitor. */
     private ThinkParitySwingMonitor monitor;
 
-    /** The current step. */
-    private int step;
-
     /** The restore document version step. */
     private int restoreDocumentVersionStep;
+
+    /** The current step. */
+    private int step;
 
     /** The number of steps. */
     private int steps;
@@ -72,17 +72,11 @@ class LoginProcessAdapter extends ProcessAdapter {
     @Override
     public void beginStep(final Step step, final Object data) {
         if (step instanceof InitializeStep) {
-            final InitializeStep initializeStep = (InitializeStep) step;
-            final InitializeData initializeData = (InitializeData) data;
-            beginStep(initializeStep, initializeData);
-        } else if (step instanceof RestoreBackupStep) {
-            final RestoreBackupStep restoreBackupStep = (RestoreBackupStep) step;
-            final RestoreBackupData restoreBackupData = (RestoreBackupData) data;
-            beginStep(restoreBackupStep, restoreBackupData);
+            beginStep((InitializeStep) step, (InitializeData) data);
+        } else if (step instanceof RestoreLocalStep) {
+            beginStep((RestoreLocalStep) step, (RestoreLocalData) data);
         } else if (step instanceof DownloadStep) {
-            final DownloadStep downloadStep = (DownloadStep) step;
-            final DownloadData downloadData = (DownloadData) data;
-            beginStep(downloadStep, downloadData);
+            beginStep((DownloadStep) step, (DownloadData) data);
         } else {
             Assert.assertUnreachable("Unknown login step {0}.", step);
         }
@@ -162,16 +156,13 @@ class LoginProcessAdapter extends ProcessAdapter {
      * Begin a step for restoring backup.
      * 
      * @param step
-     *            A <code>RestoreBackupStep</code>.
+     *            A <code>RestoreLocalStep</code>.
      * @param data
-     *            A <code>RestoreBackupData</code>.
+     *            A <code>RestoreLocalData</code>.
      */
-    private void beginStep(final RestoreBackupStep step,
-            final RestoreBackupData data) {
+    private void beginStep(final RestoreLocalStep step,
+            final RestoreLocalData data) {
         switch (step) {
-        case DELETE_CONTAINER:
-        case DELETE_CONTAINERS:
-            break;
         case FINALIZE_RESTORE:
             this.step += 5;
             monitor.setStep(this.step, getStepNote(step, data));
@@ -260,18 +251,14 @@ class LoginProcessAdapter extends ProcessAdapter {
      * Obtain the progress note for a restore step.
      * 
      * @param step
-     *            A <code>RestoreBackupStep</code>.
+     *            A <code>RestoreLocalStep</code>.
      * @param data
-     *            The <code>RestoreBackupData</code>.
+     *            The <code>RestoreLocalData</code>.
      * @return A <code>String</code>.
      */
-    private String getStepNote(final RestoreBackupStep step,
-            final RestoreBackupData data) {
-        switch ((RestoreBackupStep) step) {
-        case DELETE_CONTAINER:
-            return null;
-        case DELETE_CONTAINERS:
-            return null;
+    private String getStepNote(final RestoreLocalStep step,
+            final RestoreLocalData data) {
+        switch ((RestoreLocalStep) step) {
         case FINALIZE_RESTORE:
             return getString("StepFinalize");
         case RESET_RESTORE_DOCUMENT_VERSION:
@@ -432,12 +419,12 @@ class LoginProcessAdapter extends ProcessAdapter {
      * Set the restore backup steps.
      * 
      * @param step
-     *            A <code>RestoreBackupStep</code>.
+     *            A <code>RestoreLocalStep</code>.
      * @param data
-     *            An <code>RestoreBackupData</code>.
+     *            An <code>RestoreLocalData</code>.
      */
-    private void setSteps(final RestoreBackupStep step,
-            final RestoreBackupData data) {
+    private void setSteps(final RestoreLocalStep step,
+            final RestoreLocalData data) {
         switch (step) {
         case RESTORE_CONTAINERS:
             this.step = 0;
@@ -447,8 +434,6 @@ class LoginProcessAdapter extends ProcessAdapter {
             break;
         case RESTORE_DOCUMENT_VERSIONS:
         case RESTORE_CONTAINER:
-        case DELETE_CONTAINER:
-        case DELETE_CONTAINERS:
         case FINALIZE_RESTORE:
         case RESTORE_DOCUMENT_VERSION:
         case RESTORE_DOCUMENT_VERSION_DECRYPT_BYTES:

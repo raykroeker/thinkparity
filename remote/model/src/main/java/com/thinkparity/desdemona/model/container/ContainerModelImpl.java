@@ -31,7 +31,6 @@ import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamInfo;
-import com.thinkparity.codebase.model.stream.StreamRetryHandler;
 import com.thinkparity.codebase.model.stream.StreamSession;
 import com.thinkparity.codebase.model.user.TeamMember;
 import com.thinkparity.codebase.model.user.User;
@@ -40,6 +39,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedNotificationEvent;
+
 
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
 
@@ -56,6 +56,8 @@ import com.thinkparity.desdemona.model.user.InternalUserModel;
 import com.thinkparity.desdemona.util.DateTimeProvider;
 import com.thinkparity.desdemona.util.DefaultRetryHandler;
 import com.thinkparity.desdemona.util.stream.UploadFile;
+
+import com.thinkparity.stream.StreamRetryHandler;
 
 /**
  * <b>Title:</b>thinkParity DesdemonaModel Container Model Implementation</br>

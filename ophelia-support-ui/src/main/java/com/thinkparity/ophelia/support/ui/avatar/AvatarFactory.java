@@ -28,6 +28,8 @@ public final class AvatarFactory {
     static {
         ID_CLASS_MAP = new HashMap<String, Class<? extends Avatar>>();
         ID_CLASS_MAP.put("/main/main", com.thinkparity.ophelia.support.ui.avatar.main.MainAvatar.class);
+        ID_CLASS_MAP.put("/application/application", com.thinkparity.ophelia.support.ui.avatar.application.ApplicationAvatar.class);
+        ID_CLASS_MAP.put("/network/network", com.thinkparity.ophelia.support.ui.avatar.network.NetworkAvatar.class);
 
         ILLEGAL_STATE_INSTANTIATED_PATTERN = "Window \"{0}\" has already been instantiated.";
         SINGLETON = new AvatarFactory();

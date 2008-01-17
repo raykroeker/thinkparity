@@ -18,8 +18,8 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 
-import com.thinkparity.network.NetworkException;
 
+import com.thinkparity.net.NetworkException;
 import com.thinkparity.stream.StreamException;
 import com.thinkparity.stream.StreamMonitor;
 import com.thinkparity.stream.StreamReader;

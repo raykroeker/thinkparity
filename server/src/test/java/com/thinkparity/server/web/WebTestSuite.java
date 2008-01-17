@@ -22,25 +22,26 @@ public final class WebTestSuite {
      */
     public static Test suite() {
         final TestSuite suite = new TestSuite();
-//        suite.addTestSuite(com.thinkparity.desdemona.model.admin.derby.ArchiveTest.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.admin.report.GenerateTest.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.admin.derby.ArchiveTest.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.admin.report.GenerateTest.class);
         suite.addTestSuite(com.thinkparity.desdemona.model.admin.message.EnqueueTest.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.contact.CreateInvitationTest.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.contact.AcceptInvitationTest.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.contact.DeclineInvitationTest.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.contact.DeleteInvitationTest.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.profile.CreateTest.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.profile.UpdatePasswordTest.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.profile.VerifyEMailTest.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.session.LoginTest.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.session.ReadConfigurationTest.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.session.ReadCustomConfigurationTest.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1000Test.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1000ComplexTest.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1008Test.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1028Test.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1067Test.class);
-//        suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1080Test.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.contact.CreateInvitationTest.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.contact.AcceptInvitationTest.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.contact.DeclineInvitationTest.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.contact.DeleteInvitationTest.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.profile.CreateTest.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.profile.UpdatePasswordTest.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.profile.VerifyEMailTest.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.session.LoginTest.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.session.ReadConfigurationTest.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.session.ReadCustomConfigurationTest.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1000Test.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1000ComplexTest.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1008Test.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1028Test.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1067Test.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1080Test.class);
+        suite.addTestSuite(com.thinkparity.desdemona.model.ticket.Ticket1222Test.class);
         return suite;
     }
 

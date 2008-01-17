@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.net.URI;
 import java.net.UnknownHostException;
 
 import com.thinkparity.codebase.delegate.CancelException;
@@ -16,10 +15,10 @@ import com.thinkparity.codebase.delegate.Cancelable;
 
 import com.thinkparity.codebase.model.stream.StreamSession;
 
-import com.thinkparity.network.NetworkException;
-
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
+
+import com.thinkparity.net.NetworkException;
 
 /**
  * <b>Title:</b>thinkParity Stream Reader<br>
@@ -62,8 +61,8 @@ public final class StreamReader implements Cancelable {
         this.running = false;
         this.session = session;
         try {
-            this.utils = new StreamUtils(URI.create(session.getURI()));
-        } catch (final com.thinkparity.network.protocol.http.HttpException hx) {
+            this.utils = new StreamUtils();
+        } catch (final com.thinkparity.net.protocol.http.HttpException hx) {
             throw new RuntimeException(hx);
         }
     }

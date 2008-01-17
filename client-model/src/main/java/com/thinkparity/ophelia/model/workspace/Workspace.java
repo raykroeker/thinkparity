@@ -10,12 +10,13 @@ import java.nio.charset.Charset;
 
 import javax.sql.DataSource;
 
+import com.thinkparity.service.ServiceFactory;
+
 import com.thinkparity.ophelia.model.util.ShutdownHook;
 import com.thinkparity.ophelia.model.util.daemon.DaemonJob;
 import com.thinkparity.ophelia.model.util.daemon.DaemonSchedule;
 import com.thinkparity.ophelia.model.util.service.ServiceRetryHandler;
-
-import com.thinkparity.service.ServiceFactory;
+import com.thinkparity.ophelia.model.workspace.configuration.Configuration;
 
 /**
  * <b>Title:</b>thinkParity Workspace<br>
@@ -203,7 +204,7 @@ public interface Workspace {
      */
     public File getWorkspaceDirectory();
 
-	/**
+    /**
      * Determine whether or not an attribute is set.
      * 
      * @param name
@@ -211,7 +212,7 @@ public interface Workspace {
      */
     public Boolean isSetAttribute(final String name);
 
-    /**
+	/**
      * Remove an attribute.
      * 
      * @param name
@@ -229,6 +230,13 @@ public interface Workspace {
      * @return The previous attribute value.
      */
     public Object setAttribute(final String name, final Object value);
+
+    /**
+     * Obtain the workspace configuration.
+     * 
+     * @return A <code>WorkspaceConfiguration</code>.
+     */
+    Configuration getConfiguration();
 
     /**
      * Create a thread; providing the name and runnable.

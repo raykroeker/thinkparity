@@ -3,8 +3,8 @@
  */
 package com.thinkparity.desdemona.util.logging.or;
 
-import com.thinkparity.codebase.StringUtil;
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil;
+import com.thinkparity.common.StringUtil.Separator;
 
 import com.thinkparity.desdemona.web.service.Service;
 

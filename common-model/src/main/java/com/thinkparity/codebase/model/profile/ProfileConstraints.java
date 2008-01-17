@@ -3,8 +3,12 @@
  */
 package com.thinkparity.codebase.model.profile;
 
+import java.util.List;
+
 import com.thinkparity.codebase.constraint.*;
 import com.thinkparity.codebase.constraint.IllegalValueException.Reason;
+
+import com.thinkparity.codebase.model.migrator.Feature;
 
 /**
  * <b>Title:</b>thinkParity CommonModel Profile Constraints<br>
@@ -30,6 +34,25 @@ public final class ProfileConstraints {
         return INSTANCE;
     }
 
+    /**
+     * Determine whether or not the feature list contains a feature with a given
+     * name.
+     * 
+     * @param featureList
+     *            A <code>List<Feature></code>.
+     * @param name
+     *            A <code>Feature.Name</code>.
+     * @return A <code>Boolean</code>.
+     */
+    private static Boolean contains(final List<Feature> featureList, final Feature.Name name) {
+        for (final Feature feature : featureList) {
+            if (feature.getName() == name) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+
     /** The profile address <code>StringConstraint</code>. */
     private final StringConstraint address;
 
@@ -41,6 +64,9 @@ public final class ProfileConstraints {
 
     /** The profile e-mail address <code>EMailConstraint</code>. */
     private final EMailConstraint email;
+
+    /** The profile industry <code>StringConstraint</code>. */
+    private final StringConstraint industry;
 
     /** The profile language <code>LanguageConstraint</code>. */
     private final LanguageConstraint language;
@@ -129,6 +155,12 @@ public final class ProfileConstraints {
         this.email.setMinLength(1);
         this.email.setName("EMail");
         this.email.setNullable(Boolean.TRUE);
+
+        this.industry = new StringConstraint();
+        this.industry.setMaxLength(64);
+        this.industry.setMinLength(1);
+        this.industry.setName("Industry");
+        this.industry.setNullable(Boolean.FALSE);
 
         this.mobilePhone = new PhoneNumberConstraint();
         this.mobilePhone.setMaxLength(64);
@@ -263,7 +295,7 @@ public final class ProfileConstraints {
                 }
             }
         };
-        this.username.setMaxLength(32);
+        this.username.setMaxLength(name.getMaxLength() + organization.getMaxLength() + 5);
         this.username.setMinLength(6);
         this.username.setName("Username");
         this.username.setNullable(Boolean.FALSE);
@@ -280,17 +312,23 @@ public final class ProfileConstraints {
      * 
      * @return A StringConstraint.
      */
-    public StringConstraint getAddress() {
-        return address;
+    public StringConstraint getAddress(final ProfileConstraintsInfo info) {
+        final StringConstraint clone = (StringConstraint) address.clone();
+        clone.setNullable(Boolean.FALSE == contains(info.getFeatures(), Feature.Name.CORE));
+        return clone;
     }
 
     /**
      * Obtain city.
      * 
-     * @return A StringConstraint.
+     * @param info
+     *            A <code>ProfileConstraintsInfo</code>.
+     * @return A <code>StringConstraint</code>.
      */
-    public StringConstraint getCity() {
-        return city;
+    public StringConstraint getCity(final ProfileConstraintsInfo info) {
+        final StringConstraint clone = (StringConstraint) city.clone();
+        clone.setNullable(Boolean.FALSE == contains(info.getFeatures(), Feature.Name.CORE));
+        return clone;
     }
 
     /**
@@ -309,6 +347,19 @@ public final class ProfileConstraints {
      */
     public EMailConstraint getEMail() {
         return email;
+    }
+
+    /**
+     * Obtain industry.
+     * 
+     * @param info
+     *            A <code>ProfileConstraintsInfo</code>.
+     * @return A StringConstraint.
+     */
+    public StringConstraint getIndustry(final ProfileConstraintsInfo info) {
+        final StringConstraint clone = (StringConstraint) industry.clone();
+        clone.setNullable(Boolean.FALSE == contains(info.getFeatures(), Feature.Name.CORE));
+        return clone;
     }
 
     /**
@@ -420,21 +471,29 @@ public final class ProfileConstraints {
     }
 
     /**
-     * Obtain postalCode.
+     * Obtain postal code constraints.
      * 
-     * @return A StringConstraint.
+     * @param info
+     *            A <code>ProfileConstraintsInfo</code>.
+     * @return A <code>StringConstraint</code>.
      */
-    public StringConstraint getPostalCode() {
-        return postalCode;
+    public StringConstraint getPostalCode(final ProfileConstraintsInfo info) {
+        final StringConstraint clone = (StringConstraint) postalCode.clone();
+        clone.setNullable(Boolean.FALSE == contains(info.getFeatures(), Feature.Name.CORE));
+        return clone;
     }
 
     /**
-     * Obtain province.
+     * Obtain province constraints.
      * 
-     * @return A StringConstraint.
+     * @param info
+     *            A <code>ProfileConstraintsInfo</code>.
+     * @return A <code>StringConstraint</code>.
      */
-    public StringConstraint getProvince() {
-        return province;
+    public StringConstraint getProvince(final ProfileConstraintsInfo info) {
+        final StringConstraint clone = (StringConstraint) province.clone();
+        clone.setNullable(Boolean.FALSE == contains(info.getFeatures(), Feature.Name.CORE));
+        return clone;
     }
 
     /**

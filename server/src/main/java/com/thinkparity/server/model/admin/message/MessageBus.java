@@ -14,6 +14,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 
 import com.thinkparity.codebase.StackUtil;
+import com.thinkparity.codebase.codec.MD5Util;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.codebase.model.migrator.Error;
@@ -22,7 +23,6 @@ import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.InvalidTokenException;
 import com.thinkparity.codebase.model.util.Token;
-import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.desdemona.model.migrator.MigratorModel;
 import com.thinkparity.desdemona.model.node.Node;

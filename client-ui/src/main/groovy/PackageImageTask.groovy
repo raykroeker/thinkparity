@@ -82,13 +82,39 @@ class PackageImageTask {
                     include(name:"version.properties")
                 }
             }
-            // /core/codebase.jar
-            jar(destfile:new File(imageCoreDir,"codebase.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
+            // /core/common.jar
+            jar(destfile:new File(imageCoreDir,"common.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
                 fileset(dir:classesDir) {
                     include(name:"com/thinkparity/codebase/")
+                    include(name:"com/thinkparity/common/")
                     include(name:"org/apache/tools/bzip2/")
                     include(name:"net/online/")
                     include(name:"carol.properties")
+                }
+            }
+            // /core/common-net.jar
+            jar(destfile:new File(imageCoreDir,"common-net.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
+                fileset(dir:classesDir) {
+                    include(name:"com/thinkparity/net/")
+                    exclude(name:"com/thinkparity/net/protocol/")
+                }
+            }
+            // /core/common-net-http.jar
+            jar(destfile:new File(imageCoreDir,"common-net-http.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
+                fileset(dir:classesDir) {
+                    include(name:"com/thinkparity/net/protocol/http/")
+                }
+            }
+            // /core/common-service.jar
+            jar(destfile:new File(imageCoreDir,"common-service.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
+                fileset(dir:classesDir) {
+                    include(name:"com/thinkparity/service/")
+                }
+            }
+            // /core/common-stream.jar
+            jar(destfile:new File(imageCoreDir,"common-stream.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
+                fileset(dir:classesDir) {
+                    include(name:"com/thinkparity/stream/")
                 }
             }
             // /core/model.jar
@@ -102,20 +128,8 @@ class PackageImageTask {
                     include(name:"xml/")
                 }
             }
-            // /core/network.jar
-            jar(destfile:new File(imageCoreDir,"network.jar"),duplicate:"fail",update:"false",whenempty:"fail") {
-                fileset(dir:classesDir) {
-                    include(name:"com/thinkparity/network/")
-                }
-            }
-            // /core/services.jar
-            jar(destfile:new File(imageCoreDir,"services.jar"),duplicate:"fail",update:"true",whenempty:"fail") {
-                fileset(dir:classesDir) {
-                    include(name:"com/thinkparity/service/")
-                }
-            }
             // /core/support.jar
-            def supportClassPath = "codebase.jar"
+            def supportClassPath = "common.jar common-net.jar common-net-http.jar common-service.jar common-stream.jar model.jar ui.jar"
 			for (dependency in dependencies) {
                 if (dependency.getType().equals(Dependency.Type.JAVA)) {
 	                supportClassPath += " ../"
@@ -160,7 +174,7 @@ class PackageImageTask {
             writer.write("# thinkParity Image")
             // thinkparity.image-classpath
             newLine(writer)
-            writer.write("thinkparity.image-classpath:core/codebase.jar,core/model.jar,core/network.jar,core/services.jar,core/ui.jar")
+            writer.write("thinkparity.image-classpath:core/common.jar,core/common-net.jar,core/common-net-http.jar,core/common-service.jar,core/common-stream.jar,core/model.jar,core/ui.jar")
             for (dependency in dependencies) {
                 if (dependency.getType().equals(Dependency.Type.JAVA)) {
 	                writer.write(",")

@@ -5,7 +5,6 @@ package com.thinkparity.ophelia.model.contact;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -29,9 +28,14 @@ import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.xmpp.event.*;
 
+import com.thinkparity.service.AuthToken;
+import com.thinkparity.service.ContactService;
+import com.thinkparity.service.ServiceFactory;
+
 import com.thinkparity.ophelia.model.Delegate;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.contact.delegate.HandleEMailInvitationExtended;
+import com.thinkparity.ophelia.model.contact.delegate.HandleInvitationAccepted;
 import com.thinkparity.ophelia.model.contact.delegate.HandleUserInvitationExtended;
 import com.thinkparity.ophelia.model.contact.monitor.DownloadData;
 import com.thinkparity.ophelia.model.contact.monitor.DownloadStep;
@@ -47,10 +51,6 @@ import com.thinkparity.ophelia.model.util.filter.UserFilterManager;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.util.sort.contact.NameComparator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-
-import com.thinkparity.service.AuthToken;
-import com.thinkparity.service.ContactService;
-import com.thinkparity.service.ServiceFactory;
 
 /**
  * <b>Title:</b>thinkParity Contact Model Implementation<br>
@@ -509,6 +509,49 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#deleteLocal(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     *
+     */
+    @Override
+    public void deleteLocal(final ProcessMonitor monitor) {
+        try {
+            final InternalIndexModel indexModel = getIndexModel();
+
+            /* delete contacts */
+            final List<Contact> contacts = read();
+            for (final Contact contact : contacts) {
+                deleteLocal(contact);
+            }
+            /* delete incoming e-mail invitations */
+            final List<IncomingEMailInvitation> incomingEMail = readIncomingEMailInvitations();
+            for (final IncomingEMailInvitation invitation : incomingEMail) {
+                contactIO.deleteInvitation(invitation);
+                indexModel.deleteIncomingEMailInvitation(invitation.getId());
+            }
+            /* delete incoming user invitations */
+            final List<IncomingUserInvitation> incomingUser = readIncomingUserInvitations();
+            for (final IncomingUserInvitation invitation : incomingUser) {
+                contactIO.deleteInvitation(invitation);
+                indexModel.deleteIncomingUserInvitation(invitation.getId());
+            }
+            /* delete outgoing e-mail invitations */
+            final List<OutgoingEMailInvitation> outgoingEMail = readOutgoingEMailInvitations();
+            for (final OutgoingEMailInvitation invitation : outgoingEMail) {
+                contactIO.deleteInvitation(invitation);
+                indexModel.deleteOutgoingEMailInvitation(invitation.getId());
+            }
+            /* delete outgoing user invitations */
+            final List<OutgoingUserInvitation> outgoingUser = readOutgoingUserInvitations();
+            for (final OutgoingUserInvitation invitation : outgoingUser) {
+                contactIO.deleteInvitation(invitation);
+                indexModel.deleteOutgoingUserInvitation(invitation.getId());
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.contact.InternalContactModel#deleteLocalOutgoingEMailInvitation(com.thinkparity.codebase.email.EMail)
      * 
      */
@@ -568,45 +611,6 @@ public final class ContactModelImpl extends Model<ContactListener>
     public Boolean doesExistOutgoingUserInvitationForUser(final Long userId) {
         try {
             return contactIO.doesExistOutgoingUserInvitation(userId);
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#download(com.thinkparity.ophelia.model.util.ProcessMonitor)
-     * 
-     */
-    public void download(final ProcessMonitor monitor) {
-        try {
-            final InternalSessionModel sessionModel = getSessionModel();
-            final List<Contact> contacts = sessionModel.readContacts();
-            final DownloadData monitorData = new DownloadData();
-            monitorData.setSize(contacts.size());
-            notifyStepBegin(monitor, DownloadStep.DOWNLOAD_SIZE, monitorData);
-            notifyStepEnd(monitor, DownloadStep.DOWNLOAD_SIZE);
-            for (final Contact contact : contacts) {
-                monitorData.setContact(contact);
-                notifyStepBegin(monitor, DownloadStep.DOWNLOAD_CONTACT, monitorData);
-                createLocal(contact);
-                notifyStepEnd(monitor, DownloadStep.DOWNLOAD_CONTACT);
-            }
-            final List<IncomingEMailInvitation> incomingEMail = sessionModel.readIncomingEMailInvitations();
-            for (final IncomingEMailInvitation iei : incomingEMail) {
-                createLocal(iei);
-            }
-            final List<IncomingUserInvitation> incomingUser = sessionModel.readIncomingUserInvitations();
-            for (final IncomingUserInvitation iui : incomingUser) {
-                createLocal(iui);
-            }
-            final List<OutgoingEMailInvitation> outgoingEMail = sessionModel.readOutgoingEMailInvitations();
-            for (final OutgoingEMailInvitation oei : outgoingEMail) {
-                createLocal(oei);
-            }
-            final List<OutgoingUserInvitation> outgoingUser = sessionModel.readOutgoingUserInvitations();
-            for (final OutgoingUserInvitation oui : outgoingUser) {
-                createLocal(oui);
-            }
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -755,6 +759,39 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent)
+     */
+    public void handleEvent(final ContactInvitationAcceptedEvent event) {
+        try {
+            final HandleInvitationAccepted delegate = createDelegate(HandleInvitationAccepted.class);
+            delegate.setEvent(event);
+            delegate.handleInvitationAccepted();
+
+            // fire events
+            for (final IncomingEMailInvitation iei : delegate.getIncomingEMailInvitations()) {
+                notifyIncomingEMailInvitationDeleted(iei, remoteEventGenerator);
+            }
+            for (final OutgoingEMailInvitation oei : delegate.getOutgoingEMailInvitations()) {
+                notifyOutgoingEMailInvitationDeleted(oei, remoteEventGenerator);
+            }
+            if (delegate.isSetIncomingUserInvitation()) {
+                notifyIncomingUserInvitationDeleted(delegate.getIncomingUserInvitation(),
+                        remoteEventGenerator);
+            }
+            if (delegate.isSetOutgoingUserInvitation()) {
+                notifyOutgoingUserInvitationDeleted(delegate.getOutgoingUserInvitation(),
+                        remoteEventGenerator);
+            }
+            if (delegate.isSetContact()) {
+                // fire event
+                notifyContactCreated(delegate.getContact(), remoteEventGenerator);
+            }
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.contact.InternalContactModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.ContactUserInvitationExtendedEvent)
      * 
      */
@@ -772,88 +809,6 @@ public final class ContactModelImpl extends Model<ContactListener>
         } catch (final Throwable t) {
             throw panic(t);
         }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#handleInvitationAccepted(com.thinkparity.codebase.model.util.xmpp.event.ContactInvitationAcceptedEvent)
-     * 
-     */
-    public void handleInvitationAccepted(
-            final ContactInvitationAcceptedEvent event) {
-       try {
-           final InternalIndexModel indexModel = getIndexModel();
-           final InternalSessionModel sessionModel = getSessionModel();
-           final User acceptedBy = getUserModel().read(event.getAcceptedBy());
-           final Contact contact = sessionModel.readContact(event.getAcceptedBy());
-
-           final List<IncomingEMailInvitation> incomingEMailInvitations;
-           final IncomingUserInvitation incomingUserInvitation;
-           final OutgoingUserInvitation outgoingUserInvitation;
-           /* if the accepted by user is not null, there exists the possibility
-            * of incoming e-mail invitations; incoming user invitations and
-            * outgoing user invitations; if it is null these invitations cannot
-            * exist
-            */
-           if (null != acceptedBy) {
-               incomingEMailInvitations =
-                   contactIO.readIncomingEMailInvitations(acceptedBy);
-               for (final IncomingEMailInvitation iei : incomingEMailInvitations) {
-                   contactIO.deleteInvitation(iei);
-                   indexModel.deleteIncomingEMailInvitation(iei.getId());
-               }
-
-               // delete incoming user invitation and index
-               incomingUserInvitation = contactIO.readIncomingUserInvitation(
-                       acceptedBy);
-               if (null != incomingUserInvitation) {
-                   contactIO.deleteInvitation(incomingUserInvitation);
-                   indexModel.deleteIncomingUserInvitation(
-                           incomingUserInvitation.getId());
-               }
-
-               // delete outgoing user invitation and index
-               outgoingUserInvitation = contactIO.readOutgoingUserInvitation(
-                       acceptedBy);
-               if (null != outgoingUserInvitation) {
-                   contactIO.deleteInvitation(outgoingUserInvitation);
-                   indexModel.deleteOutgoingUserInvitation(
-                           outgoingUserInvitation.getId());
-               }
-           } else {
-               incomingEMailInvitations = Collections.emptyList();
-               incomingUserInvitation = null;
-               outgoingUserInvitation = null;
-           }
-
-           // delete outgoing e-mail invitations and indicies
-           final List<OutgoingEMailInvitation> outgoingEMailInvitations =
-               contactIO.readOutgoingEMailInvitations(contact.getEmails());
-           for (final OutgoingEMailInvitation oei : outgoingEMailInvitations) {
-               // delete the published to reference
-               getContainerModel().deletePublishedTo(oei.getInvitationEMail());
-               // delete invitation and e-mail
-               contactIO.deleteInvitation(oei);
-               indexModel.deleteOutgoingEMailInvitation(oei.getId());
-           }
-
-           // create contact data
-           final Contact localContact = createLocal(contact);
-
-           // fire events
-           for (final IncomingEMailInvitation iei : incomingEMailInvitations)
-               notifyIncomingEMailInvitationDeleted(iei, remoteEventGenerator);
-           if (null != incomingUserInvitation)
-               notifyIncomingUserInvitationDeleted(incomingUserInvitation,
-                       remoteEventGenerator);
-           for (final OutgoingEMailInvitation oei : outgoingEMailInvitations)
-               notifyOutgoingEMailInvitationDeleted(oei, remoteEventGenerator);
-           if (null != outgoingUserInvitation)
-               notifyOutgoingUserInvitationDeleted(outgoingUserInvitation,
-                       remoteEventGenerator);
-           notifyContactCreated(localContact, remoteEventGenerator);
-       } catch (final Throwable t) {
-           throw panic(t);
-       }
     }
 
     /**
@@ -1184,49 +1139,40 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#restoreBackup(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     * @see com.thinkparity.ophelia.model.contact.InternalContactModel#restoreLocal(com.thinkparity.ophelia.model.util.ProcessMonitor)
      * 
      */
     @Override
-    public void restoreBackup(final ProcessMonitor monitor) {
+    public void restoreLocal(final ProcessMonitor monitor) {
         try {
-            final InternalIndexModel indexModel = getIndexModel();
-
-            /* delete contacts */
-            final List<Contact> contacts = read();
+            final InternalSessionModel sessionModel = getSessionModel();
+            final List<Contact> contacts = sessionModel.readContacts();
+            final DownloadData monitorData = new DownloadData();
+            monitorData.setSize(contacts.size());
+            notifyStepBegin(monitor, DownloadStep.DOWNLOAD_SIZE, monitorData);
+            notifyStepEnd(monitor, DownloadStep.DOWNLOAD_SIZE);
             for (final Contact contact : contacts) {
-                deleteLocal(contact);
+                monitorData.setContact(contact);
+                notifyStepBegin(monitor, DownloadStep.DOWNLOAD_CONTACT, monitorData);
+                createLocal(contact);
+                notifyStepEnd(monitor, DownloadStep.DOWNLOAD_CONTACT);
             }
-
-            /* delete incoming e-mail invitations */
-            final List<IncomingEMailInvitation> incomingEMail = readIncomingEMailInvitations();
-            for (final IncomingEMailInvitation invitation : incomingEMail) {
-                contactIO.deleteInvitation(invitation);
-                indexModel.deleteIncomingEMailInvitation(invitation.getId());
+            final List<IncomingEMailInvitation> incomingEMail = sessionModel.readIncomingEMailInvitations();
+            for (final IncomingEMailInvitation iei : incomingEMail) {
+                createLocal(iei);
             }
-
-            /* delete incoming user invitations */
-            final List<IncomingUserInvitation> incomingUser = readIncomingUserInvitations();
-            for (final IncomingUserInvitation invitation : incomingUser) {
-                contactIO.deleteInvitation(invitation);
-                indexModel.deleteIncomingUserInvitation(invitation.getId());
+            final List<IncomingUserInvitation> incomingUser = sessionModel.readIncomingUserInvitations();
+            for (final IncomingUserInvitation iui : incomingUser) {
+                createLocal(iui);
             }
-
-            /* delete outgoing e-mail invitations */
-            final List<OutgoingEMailInvitation> outgoingEMail = readOutgoingEMailInvitations();
-            for (final OutgoingEMailInvitation invitation : outgoingEMail) {
-                contactIO.deleteInvitation(invitation);
-                indexModel.deleteOutgoingEMailInvitation(invitation.getId());
+            final List<OutgoingEMailInvitation> outgoingEMail = sessionModel.readOutgoingEMailInvitations();
+            for (final OutgoingEMailInvitation oei : outgoingEMail) {
+                createLocal(oei);
             }
-
-            /* delete outgoing user invitations */
-            final List<OutgoingUserInvitation> outgoingUser = readOutgoingUserInvitations();
-            for (final OutgoingUserInvitation invitation : outgoingUser) {
-                contactIO.deleteInvitation(invitation);
-                indexModel.deleteOutgoingUserInvitation(invitation.getId());
+            final List<OutgoingUserInvitation> outgoingUser = sessionModel.readOutgoingUserInvitations();
+            for (final OutgoingUserInvitation oui : outgoingUser) {
+                createLocal(oui);
             }
-
-            download(monitor);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -1306,6 +1252,35 @@ public final class ContactModelImpl extends Model<ContactListener>
     }
 
     /**
+     * Create the local contact data.
+     * 
+     * @param contact
+     *            A contact.
+     * @return The new contact.
+     */
+    Contact createLocal(final Contact remote) {
+        // create user (if required)
+        final InternalUserModel userModel = getUserModel();
+        final User user = userModel.readLazyCreate(remote.getId());
+
+        // create contact
+        final Contact local = new Contact();
+        local.setEMails(remote.getEmails());
+        local.setFlags(remote.getFlags());
+        local.setId(remote.getId());
+        local.setLocalId(user.getLocalId());
+        local.setName(remote.getName());
+        local.setOrganization(remote.getOrganization());
+        local.setTitle(remote.getTitle());
+        local.setVCard(remote.getVCard());
+        contactIO.create(local);
+
+        // index
+        getIndexModel().indexContact(local);
+        return contactIO.read(local.getId());
+    }
+
+    /**
      * Obtain a contact persistence interface.
      * 
      * @return A <code>ContactIOHandler</code>.
@@ -1334,35 +1309,6 @@ public final class ContactModelImpl extends Model<ContactListener>
         } catch (final InstantiationException ix) {
             throw new ThinkParityException("Could not create delegate.", ix);
         }
-    }
-
-    /**
-     * Create the local contact data.
-     * 
-     * @param contact
-     *            A contact.
-     * @return The new contact.
-     */
-    private Contact createLocal(final Contact remote) {
-        // create user (if required)
-        final InternalUserModel userModel = getUserModel();
-        final User user = userModel.readLazyCreate(remote.getId());
-
-        // create contact
-        final Contact local = new Contact();
-        local.setEMails(remote.getEmails());
-        local.setFlags(remote.getFlags());
-        local.setId(remote.getId());
-        local.setLocalId(user.getLocalId());
-        local.setName(remote.getName());
-        local.setOrganization(remote.getOrganization());
-        local.setTitle(remote.getTitle());
-        local.setVCard(remote.getVCard());
-        contactIO.create(local);
-
-        // index
-        getIndexModel().indexContact(local);
-        return contactIO.read(local.getId());
     }
 
     /**

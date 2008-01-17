@@ -11,7 +11,8 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.ophelia.model.util.service.ServiceProxyMetrics.Context;
 
-import com.thinkparity.network.NetworkException;
+import com.thinkparity.net.NetworkException;
+
 
 /**
  * <b>Title:</b>thinkParity Ophelia Service Client Proxy<br>

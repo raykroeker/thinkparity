@@ -24,7 +24,6 @@ import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.stream.StreamInfo;
 import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.stream.upload.UploadFile;
 
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
 
@@ -40,6 +39,7 @@ import com.thinkparity.desdemona.service.persistence.PersistenceService;
 import com.thinkparity.desdemona.util.DateTimeProvider;
 import com.thinkparity.desdemona.util.DefaultRetryHandler;
 import com.thinkparity.desdemona.util.DesdemonaProperties;
+import com.thinkparity.desdemona.util.stream.UploadFile;
 
 /**
  * <b>Title:</b>thinkParity Desdemona Model Derby Model Implementation<br>

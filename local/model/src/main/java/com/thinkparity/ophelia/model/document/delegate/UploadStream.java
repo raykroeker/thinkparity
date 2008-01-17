@@ -23,9 +23,8 @@ import com.thinkparity.codebase.io.StreamOpener;
 import com.thinkparity.codebase.model.crypto.Secret;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.stream.StreamInfo;
-import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.stream.upload.UploadFile;
+
 
 import com.thinkparity.ophelia.model.container.monitor.PublishData;
 import com.thinkparity.ophelia.model.container.monitor.PublishStep;
@@ -34,7 +33,10 @@ import com.thinkparity.ophelia.model.document.DocumentDelegate;
 import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
-import com.thinkparity.network.NetworkException;
+import com.thinkparity.net.NetworkException;
+import com.thinkparity.stream.StreamMonitor;
+import com.thinkparity.stream.upload.UploadFile;
+
 
 /**
  * <b>Title:</b>thinkParity Ophelia Model Document Upload Stream Delegate<br>

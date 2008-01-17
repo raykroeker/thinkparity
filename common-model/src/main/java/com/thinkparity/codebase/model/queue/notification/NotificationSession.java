@@ -5,7 +5,8 @@ package com.thinkparity.codebase.model.queue.notification;
 
 import java.nio.charset.Charset;
 
-import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.common.StringUtil;
+
 
 /**
  * <b>Title:</b><br>

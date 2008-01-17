@@ -21,13 +21,13 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="usernameJTextField" linkSize="2" alignment="1" min="-2" max="-2" attributes="1"/>
+                          <Component id="emailJTextField" linkSize="2" alignment="1" min="-2" max="-2" attributes="1"/>
                           <Component id="explanationJLabel" alignment="1" min="-2" pref="350" max="-2" attributes="0"/>
                           <Component id="passwordJPasswordField" linkSize="2" alignment="1" min="-2" pref="272" max="-2" attributes="1"/>
                       </Group>
                   </Group>
                   <Component id="passwordJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="usernameJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="emailJLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="forgotPasswordExplanationJLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
@@ -47,8 +47,8 @@
               <Component id="explanationJLabel" min="-2" pref="80" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="usernameJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="usernameJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="emailJLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="emailJTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -88,7 +88,7 @@
           <Connection code="Fonts.DialogFont" type="code"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="localization/Browser_Messages.properties" key="RestoreBackupAvatar.ExplanationNoBackup" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="localization/Browser_Messages.properties" key="RestoreBackupAvatar.ExplanationBackup" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
         <Property name="verticalAlignment" type="int" value="1"/>
       </Properties>
@@ -96,13 +96,13 @@
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="18"/>
       </AuxValues>
     </Component>
-    <Component class="javax.swing.JLabel" name="usernameJLabel">
+    <Component class="javax.swing.JLabel" name="emailJLabel">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
           <Connection code="Fonts.DialogFont" type="code"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="localization/Browser_Messages.properties" key="RestoreBackupAvatar.Username" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="localization/Browser_Messages.properties" key="RestoreBackupAvatar.Email" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <AuxValues>
@@ -110,13 +110,13 @@
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="16"/>
       </AuxValues>
     </Component>
-    <Component class="javax.swing.JTextField" name="usernameJTextField">
+    <Component class="javax.swing.JTextField" name="emailJTextField">
       <Properties>
         <Property name="editable" type="boolean" value="false"/>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
           <Connection code="Fonts.DialogFont" type="code"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="!username!"/>
+        <Property name="text" type="java.lang.String" value="!email!"/>
         <Property name="focusable" type="boolean" value="false"/>
         <Property name="opaque" type="boolean" value="false"/>
       </Properties>

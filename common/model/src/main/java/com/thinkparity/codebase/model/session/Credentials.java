@@ -3,6 +3,8 @@
  */
 package com.thinkparity.codebase.model.session;
 
+import com.thinkparity.codebase.email.EMail;
+
 /**
  * <b>Title:</b>thinkParity CommonModel Session Credentials<br>
  * <b>Description:</b><br>
@@ -11,6 +13,9 @@ package com.thinkparity.codebase.model.session;
  * @version 1.1.2.6
  */
 public final class Credentials {
+
+    /** The e-mail address. */
+    private EMail email;
 
     /** The password. */
     private String password;
@@ -32,14 +37,40 @@ public final class Credentials {
      */
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj)
-            return true;
-        if (null == obj)
+        if (null == obj) {
             return false;
-        if (getClass() != obj.getClass())
-            return false;
-        return ((Credentials) obj).username.equals(username)
-                && ((Credentials) obj).password.equals(password);
+        } else {
+            if (this == obj) {
+                return true;
+            } else {
+                if (getClass() == obj.getClass()) {
+                    if (null == username && null == ((Credentials) obj).username) {
+                        if (null == email && null == ((Credentials) obj).email) {
+                            return ((Credentials) obj).password.equals(password);
+                        } else {
+                            return ((Credentials) obj).password.equals(password)
+                                && ((Credentials) obj).email.equals(email);
+                        }
+                    } else {
+                        return ((Credentials) obj).password.equals(password)
+                                && ((Credentials) obj).username.equals(username)
+                                && ((Credentials) obj).email.equals(email);
+
+                    }
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+
+    /**
+     * Obtain the email.
+     *
+     * @return A <code>EMail</code>.
+     */
+    public EMail getEMail() {
+        return email;
     }
 
     /**
@@ -62,13 +93,43 @@ public final class Credentials {
 
     /**
      * @see java.lang.Object#hashCode()
+     * 
      */
     @Override
     public int hashCode() {
         final int PRIME = 31;
         int result = 1;
-        result = PRIME * result + ((username == null) ? 0 : username.hashCode());
+        result = PRIME * result + (null == username ? 0 : username.hashCode());
+        result = PRIME * result + (null == email ? 0 : email.hashCode());
         return result;
+    }
+
+    /**
+     * Determine if the email is set.
+     * 
+     * @return A <code>Boolean</code>.
+     */
+    public Boolean isSetEMail() {
+        return null != email;
+    }
+
+    /**
+     * Determine if the username is set.
+     * 
+     * @return A <code>Boolean</code>.
+     */
+    public Boolean isSetUsername() {
+        return null != username;
+    }
+
+    /**
+     * Set the email.
+     *
+     * @param email
+     *		A <code>EMail</code>.
+     */
+    public void setEMail(final EMail email) {
+        this.email = email;
     }
 
     /**

@@ -192,7 +192,7 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_CREATE_FEATURE);
             session.setLong(1, profile.getLocalId());
             for (final Feature feature : profile.getFeatures()) {
-                session.setString(2, feature.getName());
+                session.setString(2, feature.getName().name());
                 if (1 != session.executeUpdate()) {
                     throw translateError(
                             "Could not create feature {0} for profile {1}.",
@@ -251,17 +251,20 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.io.handler.ProfileIOHandler#deleteEmail(java.lang.Long)
+     * @see com.thinkparity.ophelia.model.io.handler.ProfileIOHandler#delete(com.thinkparity.codebase.model.profile.Profile, com.thinkparity.codebase.model.profile.ProfileEMail)
+     *
      */
-    public void deleteEmail(final Long profileId, final Long emailId) {
+    @Override
+    public void delete(final Profile profile, final ProfileEMail email) {
         final Session session = openSession();
         try {
             session.prepareStatement(SQL_DELETE_EMAIL);
-            session.setLong(1, profileId);
-            session.setLong(2, emailId);
-            if (1 != session.executeUpdate())
-                throw new HypersonicException("COULD NOT DELETE EMAIL");
-            emailIO.delete(session, emailId);
+            session.setLong(1, profile.getLocalId());
+            session.setLong(2, email.getEmailId());
+            if (1 != session.executeUpdate()) {
+                throw new HypersonicException("Could not delete profile e-mail.");
+            }
+            emailIO.delete(session, email.getEmailId());
         } finally { 
             session.close();
         }
@@ -433,7 +436,7 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
             session.prepareStatement(SQL_CREATE_FEATURE);
             session.setLong(1, profile.getLocalId());
             for (final Feature feature : profile.getFeatures()) {
-                session.setString(2, feature.getName());
+                session.setString(2, feature.getName().toString());
                 if (1 != session.executeUpdate()) {
                     throw translateError(
                             "Could not create feature {0} for profile {1}.",
@@ -531,7 +534,7 @@ public final class ProfileIOHandler extends AbstractIOHandler implements
     private Feature extractFeature(final Session session) {
         final Feature feature = new Feature();
         feature.setFeatureId(session.getLong("FEATURE_ID"));
-        feature.setName(session.getString("FEATURE_NAME"));
+        feature.setName(Feature.Name.valueOf(session.getString("FEATURE_NAME")));
         return feature;
     }
 

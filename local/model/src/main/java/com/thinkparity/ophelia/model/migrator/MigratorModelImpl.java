@@ -11,13 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import com.thinkparity.common.StringUtil;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.FileUtil;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.ResourceUtil;
-import com.thinkparity.codebase.StringUtil;
 import com.thinkparity.codebase.ZipUtil;
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.event.EventNotifier;
 
@@ -26,10 +27,7 @@ import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.migrator.Release;
 import com.thinkparity.codebase.model.migrator.Resource;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamException;
-import com.thinkparity.codebase.model.stream.StreamRetryHandler;
 import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.stream.download.DownloadFile;
 import com.thinkparity.codebase.model.util.xmpp.event.ProductReleaseDeployedEvent;
 
 import com.thinkparity.ophelia.model.Constants;
@@ -46,7 +44,11 @@ import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
 
-import com.thinkparity.network.NetworkException;
+import com.thinkparity.net.NetworkException;
+import com.thinkparity.stream.StreamException;
+import com.thinkparity.stream.StreamRetryHandler;
+import com.thinkparity.stream.download.DownloadFile;
+
 
 /**
  * <b>Title:</b>thinkParity Migrator Model Implementation<br>
@@ -99,7 +101,7 @@ public final class MigratorModelImpl extends Model<MigratorListener> implements
                 "v1_0-20071011-1300", "v1_0-20071013-1100",
                 "v1_0-20071016-0915", "v1_0-20071019-1100",
                 "v1_0-20071101-0945", "v1_0-20071102-1630",
-                "20071105", "20071115", "20071204"
+                "20071105", "20071115", "20071204", "20071231"
         };
         WS_ATTRIBUTE_KEY_DOWNLOAD = "MigratorModelImpl#download";
         WS_ATTRIBUTE_KEY_INSTALL = "MigratorModelImpl#install";

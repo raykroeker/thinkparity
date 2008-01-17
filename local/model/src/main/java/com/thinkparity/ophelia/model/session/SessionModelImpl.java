@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import com.thinkparity.codebase.OS;
 import com.thinkparity.codebase.OSUtil;
-import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.event.EventNotifier;
 import com.thinkparity.codebase.jabber.JabberId;
@@ -43,6 +42,8 @@ import com.thinkparity.codebase.model.session.InvalidLocationException;
 import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.Token;
 
+import com.thinkparity.service.*;
+
 import com.thinkparity.ophelia.model.Constants;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -53,8 +54,6 @@ import com.thinkparity.ophelia.model.util.configuration.ReconfigureEvent;
 import com.thinkparity.ophelia.model.util.configuration.ReconfigureListener;
 import com.thinkparity.ophelia.model.util.service.ServiceRetryHandler;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-
-import com.thinkparity.service.*;
 
 /**
  * <b>Title:</b>thinkParity OpheliaModel Session Model Implementation<br>
@@ -535,13 +534,6 @@ public final class SessionModelImpl extends Model<SessionListener>
 
             notifyProcessBegin(monitor);
             final Credentials credentials = readCredentials();
-            // check that the credentials match
-            final Credentials localCredentials = readCredentials();
-            Assert.assertTrue(
-                    localCredentials.getUsername().equals(credentials.getUsername()) &&
-                    localCredentials.getPassword().equals(credentials.getPassword()),
-                    "Credentials {0} do not match local credentials {1}.",
-                    credentials, localCredentials);
             // login and set auth token
             try {
                 setAuthToken(serviceLogin(credentials));
@@ -923,9 +915,8 @@ public final class SessionModelImpl extends Model<SessionListener>
             if (isSetAuthToken()) {
                 return migratorService.readProductFeatures(getAuthToken(), name);
             } else {
-                /* HACK - ProfileModelImpl#newEmptyAuthToken() - here we need to ensure
-                 * correct client id; client version */
-                return migratorService.readProductFeatures(null, name);
+                final ServiceFactory factory = workspace.getServiceFactory(newFiniteRetryHandler());
+                return factory.getMigratorService().readProductFeatures(newNullAuthToken(), name);
             }
         } catch (final Throwable t) {
             throw panic(t);
@@ -1010,7 +1001,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         }
 	}
 
-	/**
+    /**
      * @see com.thinkparity.ophelia.model.Model#removeListener(com.thinkparity.ophelia.model.util.EventListener)
      * 
      */
@@ -1019,7 +1010,7 @@ public final class SessionModelImpl extends Model<SessionListener>
         super.removeListener(listener);
     }
 
-    /**
+	/**
      * @see com.thinkparity.ophelia.model.session.InternalSessionModel#updateProfile(com.thinkparity.codebase.jabber.JabberId,
      *      com.thinkparity.codebase.model.profile.Profile)
      * 
@@ -1223,6 +1214,15 @@ public final class SessionModelImpl extends Model<SessionListener>
      */
     private boolean isSetOfflineCode() {
         return 0 < getOfflineCodes().size();
+    }
+
+    /**
+     * Instantiate a null authentication token.
+     * 
+     * @return An <code>AuthToken</code>.
+     */
+    private AuthToken newNullAuthToken() {
+        return null;
     }
 
     /**

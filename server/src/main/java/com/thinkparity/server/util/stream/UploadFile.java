@@ -3,12 +3,14 @@
  */
 package com.thinkparity.desdemona.util.stream;
 
-import com.thinkparity.codebase.model.stream.StreamConfiguration;
-import com.thinkparity.codebase.model.stream.StreamRetryHandler;
+
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+
+import com.thinkparity.stream.StreamConfiguration;
+import com.thinkparity.stream.StreamRetryHandler;
 
 /**
  * <b>Title:</b>thinkParity Desdemona Util Stream Upload File Delegate<br>
@@ -18,7 +20,7 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
  * @version 1.1.2.1
  */
 public class UploadFile extends
-        com.thinkparity.codebase.model.stream.upload.UploadFile {
+        com.thinkparity.stream.upload.UploadFile {
 
     static {
         final StreamConfiguration configuration = new StreamConfiguration();

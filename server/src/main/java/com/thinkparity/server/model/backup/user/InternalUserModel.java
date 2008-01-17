@@ -27,4 +27,13 @@ public interface InternalUserModel extends UserModel {
      * @return A <code>User</code>.
      */
     public User readLazyCreate(final JabberId userId);
+
+    /**
+     * Read a user.
+     * 
+     * @param user
+     *            A <code>User</code>.
+     * @return A <code>User</code>.
+     */
+    User read(User user);
 }

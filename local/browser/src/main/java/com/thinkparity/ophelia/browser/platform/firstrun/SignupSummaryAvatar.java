@@ -20,6 +20,7 @@ import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
 import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.firstrun.SignupData.DataKey;
@@ -35,6 +36,7 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JProgressBar loginJProgressBar = new javax.swing.JProgressBar();
     private final javax.swing.JPanel progressBarJPanel = new javax.swing.JPanel();
+    private final javax.swing.JLabel showMovieJLabel = LabelFactory.createLink("",Fonts.DefaultFont);
     private final javax.swing.JLabel stepJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
@@ -60,10 +62,14 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
         // Cancel is meaningless at this point (the browser will start anyway)
         // so disable the cancel button.
         SwingUtil.setCursor(this, null);
-        signupDelegate.setVisibleSpecialNextButton(Boolean.FALSE);
-        signupDelegate.setVisibleCancelButton(Boolean.FALSE);
-        signupDelegate.setVisibleNextButton(Boolean.TRUE);
-        signupDelegate.setNextPage();
+        if (isLastPage()) {
+            disposeWindow();
+        } else {
+            signupDelegate.setVisibleSpecialNextButton(Boolean.FALSE);
+            signupDelegate.setVisibleCancelButton(Boolean.FALSE);
+            signupDelegate.setVisibleNextButton(Boolean.TRUE);
+            signupDelegate.setNextPage();
+        }
     }
 
     /**
@@ -94,7 +100,11 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#getNextPageName()
      */
     public String getNextPageName() {
-        return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_FINISH);
+        if (isLastPage()) {
+            return null;
+        } else {
+            return getPageName(AvatarId.DIALOG_PLATFORM_SIGNUP_FINISH);
+        }
     }
 
     /**
@@ -128,6 +138,24 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#isLastPage()
+     */
+    @Override
+    public Boolean isLastPage() {
+        // for standard users proceed to the finish page, for guests simply start the browser
+        return (FeatureSet.FREE == getInputFeatureSet());
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#isNextExecutedImmediately()
+     */
+    @Override
+    public Boolean isNextExecutedImmediately() {
+        // for guests users don't wait for a button press
+        return (FeatureSet.FREE == getInputFeatureSet());
+    }
+
+    /**
      * @see com.thinkparity.ophelia.browser.platform.firstrun.SignupPage#isNextOk()
      */
     public Boolean isNextOk() {
@@ -145,7 +173,7 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
      */
     @Override
     public Boolean isSpecialNextButton() {
-        return Boolean.TRUE;
+        return (Boolean.FALSE == isNextExecutedImmediately());
     }
 
     /**
@@ -156,6 +184,15 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
         reloadProgressBar();
         setVisibleButtons(Boolean.TRUE);
         validateInput();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#reloadData()
+     */
+    @Override
+    public void reloadData() {
+        showMovieJLabel.setVisible(Boolean.TRUE == isNextExecutedImmediately());
+        validate();
     }
 
     /**
@@ -197,6 +234,14 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
             message = getString(errorMessageKey);
         }
         errorMessageJLabel.setText(message);
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.firstrun.DefaultSignupPage#setVisibleButtons()
+     */
+    @Override
+    public void setVisibleButtons() {
+        setVisibleButtons(Boolean.FALSE == isNextExecutedImmediately());
     }
 
     /**
@@ -246,6 +291,16 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
         finally { g2.dispose(); }
     }
 
+    /**
+     * Get the feature set based upon the account type selection.
+     * 
+     * @return A <code>FeatureSet</code>.
+     */
+    private FeatureSet getInputFeatureSet() {
+        final FeatureSet featureSet = (FeatureSet) ((Data) input).get(DataKey.FEATURE_SET);
+        return featureSet;
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -259,6 +314,13 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
         explanationJLabel.setFont(Fonts.DialogFont);
         explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Summary.Explanation"));
         explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+
+        showMovieJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("SignupAvatar.Summary.ShowMovieLink"));
+        showMovieJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                showMovieJLabelMousePressed(evt);
+            }
+        });
 
         errorMessageJLabel.setFont(Fonts.DialogFont);
         errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
@@ -305,15 +367,19 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
                             .addComponent(errorMessageJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(64, 64, 64)
-                        .addComponent(explanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 367, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(showMovieJLabel)
+                            .addComponent(explanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 367, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(166, 166, 166)
-                .addComponent(explanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(105, 105, 105)
+                .addComponent(explanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(showMovieJLabel)
+                .addGap(91, 91, 91)
                 .addComponent(errorMessageJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(17, 17, 17)
                 .addComponent(progressBarJPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -326,10 +392,11 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
      */
     private void login() {
         setVisibleButtons(Boolean.FALSE);
-        SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
+        if (!showMovieJLabel.isVisible()) {
+            SwingUtil.setCursor(this, java.awt.Cursor.WAIT_CURSOR);
+        }
         final Credentials credentials = (Credentials) ((Data) input).get(DataKey.CREDENTIALS);
-        platform.runLogin(credentials.getUsername(), credentials.getPassword(),
-                new LoginSwingMonitor(this), this);
+        platform.runLogin(credentials, new LoginSwingMonitor(this), this);
     }
 
     /**
@@ -354,4 +421,8 @@ public class SignupSummaryAvatar extends DefaultSignupPage implements
             signupDelegate.setVisibleCancelButton(visible);
         }
     }
+
+    private void showMovieJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_showMovieJLabelMousePressed
+        platform.runShowGettingStartedMovie();
+    }//GEN-LAST:event_showMovieJLabelMousePressed
 }

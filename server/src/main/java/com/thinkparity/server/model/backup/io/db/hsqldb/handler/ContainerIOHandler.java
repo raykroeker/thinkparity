@@ -111,7 +111,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         new StringBuilder("delete from CONTAINER ")
         .append("where CONTAINER_ID=?")
         .toString();
-    
+
     /** Sql to delete a container version delta. */
     private static final String SQL_DELETE_ARTIFACT_DELTA =
         new StringBuilder("delete from CONTAINER_VERSION_ARTIFACT_VERSION_DELTA ")
@@ -133,7 +133,7 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("(COMPARE_CONTAINER_VERSION_ID=? or ")
         .append("COMPARE_TO_CONTAINER_VERSION_ID=?))")
         .toString();
-
+    
     /** Sql to delete a container version delta. */
     private static final String SQL_DELETE_DELTA =
         new StringBuilder("delete from CONTAINER_VERSION_DELTA ")
@@ -322,6 +322,21 @@ public class ContainerIOHandler extends AbstractIOHandler implements
         .append("inner join PARITY_USER UU on A.UPDATED_BY=UU.USER_ID ")
         .append("inner join DOCUMENT D on A.ARTIFACT_ID=D.DOCUMENT_ID ")
         .append("where CVAVR.CONTAINER_ID=? and CVAVR.CONTAINER_VERSION_ID=?")
+        .toString();
+
+    /** Sql to read published to existence. */
+    private static final String SQL_READ_DOES_EXIST_PUBLISHED_TO =
+        new StringBuilder("select count(U.USER_ID) \"USER_COUNT\" ")
+        .append("from CONTAINER C ")
+        .append("inner join ARTIFACT A on C.CONTAINER_ID=A.ARTIFACT_ID ")
+        .append("inner join ARTIFACT_VERSION AV on A.ARTIFACT_ID=AV.ARTIFACT_ID ")
+        .append("inner join CONTAINER_VERSION CV on AV.ARTIFACT_ID=CV.CONTAINER_ID ")
+        .append("and AV.ARTIFACT_VERSION_ID=CV.CONTAINER_VERSION_ID ")
+        .append("inner join CONTAINER_VERSION_PUBLISHED_TO CVPT on CV.CONTAINER_ID=CVPT.CONTAINER_ID ")
+        .append("and CV.CONTAINER_VERSION_ID=CVPT.CONTAINER_VERSION_ID ")
+        .append("inner join PARITY_USER U on CVPT.USER_ID=U.USER_ID ")
+        .append("where CV.CONTAINER_ID=? and CV.CONTAINER_VERSION_ID=? ")
+        .append("and CVPT.USER_ID=?")
         .toString();
 
     /** Sql to read a draft count by its pk. */
@@ -545,13 +560,13 @@ public class ContainerIOHandler extends AbstractIOHandler implements
 
     /** Generic artifact io. */
     private final ArtifactIOHandler artifactIO;
-    
+
     /** Document io. */
     private final DocumentIOHandler documentIO;
     
     /** User io. */
     private final UserIOHandler userIO;
-
+    
     /**
      * Create ContainerIOHandler.
      * 
@@ -1007,6 +1022,37 @@ public class ContainerIOHandler extends AbstractIOHandler implements
                 }
             } else {
                 throw new HypersonicException("Could not determine artifact existance.");
+            }
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.io.handler.ContainerIOHandler#isPublishedTo(com.thinkparity.codebase.model.container.ContainerVersion,
+     *      com.thinkparity.codebase.model.user.User)
+     * 
+     */
+    @Override
+    public Boolean isPublishedTo(final ContainerVersion version, final User user) {
+        final Session session = openSession();
+        try {
+            session.prepareStatement(SQL_READ_DOES_EXIST_PUBLISHED_TO);
+            session.setLong(1, version.getArtifactId());
+            session.setLong(2, version.getVersionId());
+            session.setLong(3, user.getLocalId());
+            session.executeQuery();
+            if (session.nextResult()) {
+                final int userCount = session.getInteger("USER_COUNT");
+                if (0 == userCount) {
+                    return Boolean.FALSE;
+                } else if (0 < userCount) {
+                    return Boolean.TRUE;
+                } else {
+                    throw new HypersonicException("Could not determine if published to.");
+                }
+            } else {
+                throw new HypersonicException("Could not determine if published to.");
             }
         } finally {
             session.close();

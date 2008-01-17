@@ -4,7 +4,12 @@
 package com.thinkparity.ophelia.model.queue.notification;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
+import java.net.URI;
+import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Observable;
 
 import com.thinkparity.codebase.log4j.Log4JWrapper;
@@ -12,11 +17,17 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.model.queue.notification.NotificationHeader;
 import com.thinkparity.codebase.model.queue.notification.NotificationSession;
 
-import com.thinkparity.network.Network;
-import com.thinkparity.network.NetworkAddress;
-import com.thinkparity.network.NetworkConnection;
-import com.thinkparity.network.NetworkException;
-import com.thinkparity.network.NetworkProtocol;
+import com.thinkparity.ophelia.model.events.ConfigurationAdapter;
+import com.thinkparity.ophelia.model.events.ConfigurationEvent;
+import com.thinkparity.ophelia.model.workspace.configuration.Configuration;
+import com.thinkparity.ophelia.model.workspace.configuration.Proxy;
+
+import com.thinkparity.net.Network;
+import com.thinkparity.net.NetworkAddress;
+import com.thinkparity.net.NetworkConnection;
+import com.thinkparity.net.NetworkException;
+import com.thinkparity.net.NetworkProtocol;
+import com.thinkparity.net.NetworkProxy;
 
 /**
  * <b>Title:</b>thinkParity Ophelia Model Queue Notification Client<br>
@@ -51,6 +62,9 @@ public final class NotificationClient extends Observable implements Runnable {
     /** An online flag. */
     private Boolean online;
 
+    /** The workspace configuration. */
+    private final Configuration configuration;
+
     /** A run indicator. */
     private boolean run;
 
@@ -60,12 +74,33 @@ public final class NotificationClient extends Observable implements Runnable {
     /**
      * Create NotificationReaderRunnable.
      * 
-     * @param session
-     *            A <code>NotificationSession</code>.
+     * @param configuration
+     *            A <code>Configuration</code>.
      * @throws IOException
      */
-    public NotificationClient() {
+    public NotificationClient(final Configuration configuration) {
         super();
+        this.configuration = configuration;
+        this.configuration.addListener(new ConfigurationAdapter() {
+
+            /**
+             * @see com.thinkparity.ophelia.model.events.ConfigurationAdapter#configurationDeleted(com.thinkparity.ophelia.model.events.ConfigurationEvent)
+             *
+             */
+            @Override
+            public void configurationDeleted(final ConfigurationEvent event) {
+                configurationUpdated(event);
+            }
+
+            /**
+             * @see com.thinkparity.ophelia.model.events.ConfigurationAdapter#configurationUpdated(com.thinkparity.ophelia.model.events.ConfigurationEvent)
+             *
+             */
+            @Override
+            public void configurationUpdated(final ConfigurationEvent event) {
+                NotificationClient.this.connection.disconnect();
+            }
+        });
         this.logger = new Log4JWrapper(getClass());
         this.network = new Network();
     }
@@ -157,16 +192,18 @@ public final class NotificationClient extends Observable implements Runnable {
      */
     private void connect() {
         online = Boolean.FALSE;
-        connection = network.newConnection(
-                NetworkProtocol.getProtocol("socket"), new NetworkAddress(
-                        session.getServerHost(), session.getServerPort()));
+        connection = network.newConnection(NetworkProtocol.getProtocol("socket"),
+                new NetworkAddress(session.getServerHost(), session.getServerPort()));
         network.getConfiguration().setConnectTimeout(connection, 750 * 2);
         network.getConfiguration().setSoTimeout(connection, 35 * 1000);
+        final NetworkProxy proxy = newProxy();
+        if (null != proxy) {
+            network.getConfiguration().setProxy(connection, proxy);
+        }
 
         for (int i = 0; i < CONNECT_RETRY; i++) {
             try {
                 connection.connect();
-                connection.write(getHeaderBytes());
                 online = Boolean.TRUE;
                 break;
             } catch (final NetworkException nx) {
@@ -183,6 +220,64 @@ public final class NotificationClient extends Observable implements Runnable {
     private byte[] getHeaderBytes() {
         return new NotificationHeader(NotificationHeader.Type.SESSION_ID,
                 session.getId()).toHeader().getBytes(session.getCharset());
+    }
+
+    /**
+     * Determine whether or not a proxy is specified; must not be a reference to
+     * "no proxy" and must not be of type "direct."
+     * 
+     * @param proxy
+     *            A <code>java.net.Proxy</code>.
+     * @return True if a proxy is specified.
+     */
+    private boolean isSpecified(final java.net.Proxy proxy) {
+        return java.net.Proxy.NO_PROXY != proxy
+                && java.net.Proxy.Type.DIRECT != proxy.type();
+    }
+
+    /**
+     * Instantiate a network proxy for a connection.
+     * 
+     * @return A <code>NetworkProxy</code>.
+     */
+    private NetworkProxy newProxy() {
+        if (configuration.isSetProxyConfiguration()) {
+            final Proxy proxy = configuration.readProxyConfiguration().getSocks();
+            if (null == proxy) {
+                return null;
+            } else {
+                return new NetworkProxy(new NetworkAddress(proxy.getHost(), proxy.getPort()));
+            }
+        } else {
+            /* attempt to configure via the system proxy; note that if a proxy
+             * requires authentication; this will not work as there is no way
+             * to extract this information */
+            final List<java.net.Proxy> javaProxyList = newSocketProxyList();
+            if (javaProxyList.isEmpty()) {
+                return null;
+            } else {
+                final java.net.Proxy javaProxy = javaProxyList.get(0);
+                if (isSpecified(javaProxy)) {
+                    final InetSocketAddress javaAddress = (InetSocketAddress) javaProxy.address();
+                    final NetworkProxy proxy = new NetworkProxy();
+                    proxy.setAddress(new NetworkAddress(javaAddress.getHostName(), javaAddress.getPort()));
+                    return proxy;
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
+
+    /**
+     * Instantiate a system socket proxy list.
+     * 
+     * @return A <code>List<java.net.Proxy></code>.
+     */
+    private List<java.net.Proxy> newSocketProxyList() {
+        final String pattern = "socket://{0}:{1}";
+        return ProxySelector.getDefault().select(URI.create(MessageFormat.format(
+                pattern, session.getServerHost(), session.getServerPort())));        
     }
 
     /**
@@ -248,7 +343,11 @@ public final class NotificationClient extends Observable implements Runnable {
      */
     private void writeHeader() throws NetworkException {
         online = Boolean.FALSE;
-        connection.write(getHeaderBytes());
+        try {
+            connection.write(getHeaderBytes());
+        } catch (final IllegalStateException isx) {
+            throw new NetworkException(isx);
+        }
         online = Boolean.TRUE;
     }
 

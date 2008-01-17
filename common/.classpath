@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="codebase/src/main/java"/>
-	<classpathentry kind="src" path="network/src/main/java"/>
-	<classpathentry kind="src" path="model/src/main/java"/>
-	<classpathentry kind="src" path="services/src/main/java"/>
-	<classpathentry kind="src" path="services/src/main/resources"/>
 	<classpathentry kind="src" path="xdoclet/src/main/java"/>
 	<classpathentry kind="src" path="junitx/src/main/java"/>
 	<classpathentry kind="src" path="junitx/src/main/resources"/>
 	<classpathentry kind="src" path="codebase/src/test/java"/>
-	<classpathentry kind="src" path="network/src/test/java"/>
-	<classpathentry kind="src" path="network/src/test/resources"/>
-	<classpathentry kind="src" path="model/src/test/java"/>
-	<classpathentry kind="src" path="services/src/test/java"/>
 	<classpathentry kind="src" path="codebase/src/main/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/commons-codec/1.3/commons-codec.jar" sourcepath="/THINKPARITY_HOME/vendor/commons-codec/1.3/commons-codec-sources.jar"/>
 	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/dom4j/1.6.1/dom4j.jar" sourcepath="/THINKPARITY_HOME/vendor/dom4j/1.6.1/dom4j-sources.jar"/>
 	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/junit/3.8.1/junit.jar" sourcepath="/THINKPARITY_HOME/vendor/junit/3.8.1/junit-sources.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xpp3/1.1.3.4.O/xpp3.jar" sourcepath="/THINKPARITY_HOME/vendor/xpp3/1.1.3.4.O/xpp3-sources.jar"/>
@@ -39,7 +30,7 @@
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xdoclet/1.0.3/saxpath-1.0-FCS.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xdoclet/1.0.3/velocity-1.4.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/xdoclet/1.0.3/xerces-2.4.0.jar"/>
-	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/apache.org/jakarta/commons/httpclient/3.0.1/httpclient.jar" sourcepath="/THINKPARITY_HOME/vendor/apache.org/jakarta/commons/httpclient/3.0.1/httpclient-sources.zip"/>
+	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/commons-codec/1.3/commons-codec.jar" sourcepath="/THINKPARITY_HOME/vendor/commons-codec/1.3/commons-codec-sources.jar"/>
 	<classpathentry exported="true" kind="var" path="THINKPARITY_HOME/vendor/apache.org/logging/log4j/1.2.8/log4j.jar" sourcepath="/THINKPARITY_HOME/vendor/apache.org/logging/log4j/1.2.8/log4j-sources.jar"/>
-	<classpathentry kind="output" path="target/classes"/>
+	<classpathentry kind="output" path="target/eclipse-classes"/>
 </classpath>

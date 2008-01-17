@@ -3,6 +3,9 @@
  */
 package com.thinkparity.ophelia.support.ui.window;
 
+import java.awt.Dimension;
+import java.awt.Point;
+
 /**
  * <b>Title:</b><br>
  * <b>Description:</b><br>
@@ -23,6 +26,22 @@ public interface Window {
      * @return A <code>String</code>.
      */
     String getId();
+
+    /**
+     * Set the window size.
+     * 
+     * @param location
+     *            A <code>Point</code>.
+     */
+    void setLocation(Point location);
+
+    /**
+     * Set the window size.
+     * 
+     * @param size
+     *            A <code>Dimension</code>.
+     */
+    void setSize(Dimension size);
 
     /**
      * Set the window's visiblity.

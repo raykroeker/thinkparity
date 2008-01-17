@@ -14,8 +14,8 @@ public class Feature {
     /** The feature id <code>Long</code>. */
     private transient Long featureId;
 
-    /** The feature name <code>String</code>. */
-    private String name;
+    /** The feature name <code>Name</code>. */
+    private Name name;
 
     /** The product id <code>Long</code>. */
     private transient Long productId;
@@ -40,9 +40,9 @@ public class Feature {
     /**
      * Obtain name.
      *
-     * @return A String.
+     * @return A Name.
      */
-    public String getName() {
+    public Name getName() {
         return name;
     }
 
@@ -71,7 +71,7 @@ public class Feature {
      * @param name
      *		A String.
      */
-    public void setName(final String name) {
+    public void setName(final Name name) {
         this.name = name;
     }
 
@@ -84,4 +84,7 @@ public class Feature {
     public void setProductId(final Long productId) {
         this.productId = productId;
     }
+
+    /** <b>Title:</b>Feature Name<br> */
+    public enum Name { BACKUP, CORE }
 }

@@ -13,8 +13,6 @@ import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.migrator.Feature;
 
-import com.thinkparity.ophelia.model.Constants.Product.Features;
-
 import com.thinkparity.ophelia.browser.Constants.Images;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
@@ -134,6 +132,7 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
     @Override
     public void reloadData() {
         reloadExplanation();
+        validate();
     }
 
     /**
@@ -321,7 +320,7 @@ public class SignupLoginAvatar extends DefaultSignupPage implements LoginSwingDi
      */
     private Boolean isBackupEnabled(final List<Feature> features) {
         for (final Feature feature : features) {
-            if (Features.BACKUP.equals(feature.getName())) {
+            if (Feature.Name.BACKUP.equals(feature.getName())) {
                 return Boolean.TRUE;
             }
         }

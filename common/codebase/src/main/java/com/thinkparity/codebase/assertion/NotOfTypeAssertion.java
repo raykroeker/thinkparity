@@ -4,13 +4,14 @@
 package com.thinkparity.codebase.assertion;
 
 /**
+ * <b>Title:</b>thinkParity Common Not Of Type Assertion<br>
+ * <b>Description:</b>A type has been determined to be of an incorrect
+ * hierarchy.<br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.2
+ * @version 1.1.2.1
  */
-public class NotOfTypeAssertion extends Assertion {
-
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
+public final class NotOfTypeAssertion extends Assertion {
 
 	/**
      * Create NotOfTypeAssertion.
@@ -26,7 +27,4 @@ public class NotOfTypeAssertion extends Assertion {
             final Object instance) {
 		super(message);
 	}
-
-	/** Create NotTrueAssertion. */
-	private NotOfTypeAssertion() { super(); }
 }

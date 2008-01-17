@@ -160,6 +160,9 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     public void setNextPage() {
         setPage(lookupPage(currentPage.getNextPageName()));
         currentPage.reloadData();
+        if (currentPage.isNextExecutedImmediately()) {
+            nextJButtonActionPerformed();
+        }
     }
 
     /**
@@ -358,6 +361,10 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
     }
 
     private void nextJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextJButtonActionPerformed
+        nextJButtonActionPerformed();
+    }//GEN-LAST:event_nextJButtonActionPerformed
+
+    private void nextJButtonActionPerformed() {
         if (currentPage.isNextOk()) {
             currentPage.saveData();
             if (currentPage.isLastPage()) {
@@ -369,7 +376,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
         synchronized (this) {
             notifyAll();
         }
-    }//GEN-LAST:event_nextJButtonActionPerformed
+    }
 
     private void prevJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prevJButtonActionPerformed
         Assert.assertNotTrue("Invalid first page in signup dialog.", currentPage.isFirstPage());
@@ -435,6 +442,7 @@ public class SignupAvatar extends Avatar implements SignupDelegate {
         reloadNextButton();
         reloadPrevButton();
         reloadWindowTitle();
+        page.setVisibleButtons();
         page.validateInput();
         page.setDefaultFocus();
         repaint();

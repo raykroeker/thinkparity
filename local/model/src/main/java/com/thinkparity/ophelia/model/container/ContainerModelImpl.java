@@ -47,6 +47,10 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactReceivedEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.PublishedNotificationEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublishedNotificationEvent;
 
+import com.thinkparity.service.AuthToken;
+import com.thinkparity.service.ContainerService;
+import com.thinkparity.service.ServiceFactory;
+
 import com.thinkparity.ophelia.model.Delegate;
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.artifact.InternalArtifactModel;
@@ -78,10 +82,6 @@ import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.util.sort.ModelSorter;
 import com.thinkparity.ophelia.model.util.sort.user.UserComparatorFactory;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-
-import com.thinkparity.service.AuthToken;
-import com.thinkparity.service.ContainerService;
-import com.thinkparity.service.ServiceFactory;
 
 /**
  * <b>Title:</b>thinkParity Container Model Implementation</br>
@@ -399,7 +399,7 @@ public final class ContainerModelImpl extends
         try {
             final Container container = read(containerId);
             // delete
-            final Delete delegate = createDelegate(Delete.class);
+            final Delete delegate = newDelegate(Delete.class);
             delegate.setContainerId(containerId);
             delegate.delete();
             // fire event
@@ -454,6 +454,21 @@ public final class ContainerModelImpl extends
             }
         } catch (final CannotLockException clx) {
             throw clx;
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#deleteLocal(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     *
+     */
+    @Override
+    public void deleteLocal(final ProcessMonitor monitor) {
+        try {
+            final DeleteLocal delegate = newDelegate(DeleteLocal.class);
+            delegate.setMonitor(monitor);
+            delegate.deleteLocal();
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -570,7 +585,7 @@ public final class ContainerModelImpl extends
             final JabberId createdBy, final Calendar createdOn)
             throws DraftExistsException {
         try {
-            final HandleDraftCreated delegate = createDelegate(HandleDraftCreated.class);
+            final HandleDraftCreated delegate = newDelegate(HandleDraftCreated.class);
             delegate.setContainerId(containerId);
             delegate.setCreatedBy(createdBy);
             delegate.handleDraftCreated();
@@ -627,7 +642,7 @@ public final class ContainerModelImpl extends
     public void handleEvent(final LocalPublishedEvent event) {
         try {
             // handle publish
-            final HandlePublished delegate = createDelegate(
+            final HandlePublished delegate = newDelegate(
                     HandlePublished.class);
             delegate.setEvent(event);
             delegate.handlePublished();
@@ -657,7 +672,7 @@ public final class ContainerModelImpl extends
      */
     public void handleEvent(final LocalVersionPublishedEvent event) {
         try {
-            final HandleVersionPublished delegate = createDelegate(HandleVersionPublished.class);
+            final HandleVersionPublished delegate = newDelegate(HandleVersionPublished.class);
             delegate.setEvent(event);
             delegate.handleVersionPublished();
             // fire event
@@ -687,7 +702,7 @@ public final class ContainerModelImpl extends
     public void handleEvent(final PublishedNotificationEvent event) {
         try {
             final HandlePublishedNotification delegate =
-                createDelegate(HandlePublishedNotification.class);
+                newDelegate(HandlePublishedNotification.class);
             delegate.setEvent(event);
             delegate.handlePublishedNotification();
             // fire event
@@ -711,7 +726,7 @@ public final class ContainerModelImpl extends
     public void handleEvent(final VersionPublishedNotificationEvent event) {
         try {
             final HandleVersionPublishedNotification delegate =
-                createDelegate(HandleVersionPublishedNotification.class);
+                newDelegate(HandleVersionPublishedNotification.class);
             delegate.setEvent(event);
             delegate.handleVersionPublishedNotification();
 
@@ -731,7 +746,7 @@ public final class ContainerModelImpl extends
      */
     public void handleReceived(final ArtifactReceivedEvent event) {
         try {
-            final HandleReceived delegate = createDelegate(HandleReceived.class);
+            final HandleReceived delegate = newDelegate(HandleReceived.class);
             delegate.setEvent(event);
             delegate.handleReceived();
             // fire event
@@ -940,7 +955,7 @@ public final class ContainerModelImpl extends
         try {
             final ContainerDraft draft = readDraft(containerId);
             // publish
-            final Publish delegate = createDelegate(Publish.class);
+            final Publish delegate = newDelegate(Publish.class);
             delegate.setContacts(contacts);
             delegate.setContainerId(containerId);
             delegate.setEmails(emails);
@@ -980,7 +995,7 @@ public final class ContainerModelImpl extends
             final List<TeamMember> teamMembers) {
         try {
             // publish version
-            final PublishVersion delegate = createDelegate(PublishVersion.class);
+            final PublishVersion delegate = newDelegate(PublishVersion.class);
             delegate.setContacts(contacts);
             delegate.setContainerId(containerId);
             delegate.setEmails(emails);
@@ -1906,20 +1921,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#restoreBackup(com.thinkparity.ophelia.model.util.ProcessMonitor)
-     * 
-     */
-    public void restoreBackup(final ProcessMonitor monitor) {
-        try {
-            final RestoreBackup delegate = createDelegate(RestoreBackup.class);
-            delegate.setMonitor(monitor);
-            delegate.restoreBackup();
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.container.ContainerModel#restoreDraft(java.lang.Long)
      *
      */
@@ -1952,6 +1953,21 @@ public final class ContainerModelImpl extends
             throw panic(t);
         }
 
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.container.InternalContainerModel#restoreLocal(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     *
+     */
+    @Override
+    public void restoreLocal(final ProcessMonitor monitor) {
+        try {
+            final RestoreLocal delegate = newDelegate(RestoreLocal.class);
+            delegate.setMonitor(monitor);
+            delegate.restoreLocal();
+        } catch (final Throwable t) {
+            throw panic(t);
+        }
     }
 
     /**
@@ -2073,7 +2089,7 @@ public final class ContainerModelImpl extends
      */
     public void updateDraftComment(final Long containerId, final String comment) {
         try {
-            final UpdateDraftComment delegate = createDelegate(UpdateDraftComment.class);
+            final UpdateDraftComment delegate = newDelegate(UpdateDraftComment.class);
             delegate.setComment(comment);
             delegate.setContainerId(containerId);
             delegate.updateDraftComment();
@@ -2749,28 +2765,6 @@ public final class ContainerModelImpl extends
     }
 
     /**
-     * Create an instance of a delegate.
-     * 
-     * @param <D>
-     *            A delegate type.
-     * @param type
-     *            The delegate type <code>Class</code>.
-     * @return An instance of <code>D</code>.
-     */
-    private <D extends Delegate<ContainerModelImpl>> D createDelegate(
-            final Class<D> type) {
-        try {
-            final D instance = type.newInstance();
-            instance.initialize(this);
-            return instance;
-        } catch (final IllegalAccessException iax) {
-            throw new ThinkParityException("Could not create delegate.", iax);
-        } catch (final InstantiationException ix) {
-            throw new ThinkParityException("Could not create delegate.", ix);
-        }
-    }
-
-    /**
      * Create a container draft.
      * 
      * @param containerDraftId
@@ -3040,6 +3034,28 @@ public final class ContainerModelImpl extends
      */
     private Boolean isFirstDraft(final Long containerId) {
         return 0 == readVersions(containerId).size();
+    }
+
+    /**
+     * Create an instance of a delegate.
+     * 
+     * @param <D>
+     *            A delegate type.
+     * @param type
+     *            The delegate type <code>Class</code>.
+     * @return An instance of <code>D</code>.
+     */
+    private <D extends Delegate<ContainerModelImpl>> D newDelegate(
+            final Class<D> type) {
+        try {
+            final D instance = type.newInstance();
+            instance.initialize(this);
+            return instance;
+        } catch (final IllegalAccessException iax) {
+            throw new ThinkParityException("Could not create delegate.", iax);
+        } catch (final InstantiationException ix) {
+            throw new ThinkParityException("Could not create delegate.", ix);
+        }
     }
 
     /**

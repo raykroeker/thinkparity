@@ -51,12 +51,12 @@ public interface ProfileIOHandler extends IOHandler {
     /**
      * Delete a profile email.
      * 
-     * @param profileId
-     *            A profile id <code>Long</code>.
-     * @param emailId
-     *            An email id <code>Long</code>.
+     * @param profile
+     *            A <code>Profile</code>.
+     * @param email
+     *            A <code>ProfileEMail</code>.
      */
-    void deleteEmail(Long profileId, final Long emailId);
+    void delete(Profile profile, ProfileEMail email);
 
     /**
      * Determine if the profile is active.

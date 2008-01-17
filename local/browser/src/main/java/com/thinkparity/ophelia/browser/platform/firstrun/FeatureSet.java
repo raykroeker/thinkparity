@@ -10,4 +10,4 @@ package com.thinkparity.ophelia.browser.platform.firstrun;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-enum FeatureSet { FREE, PREMIUM }
+enum FeatureSet { FREE, STANDARD }

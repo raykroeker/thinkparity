@@ -15,8 +15,9 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.text.AbstractDocument;
 
-import com.thinkparity.codebase.StringUtil;
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
@@ -208,7 +209,7 @@ public class CreateOutgoingEMailInvitationAvatar extends Avatar {
         emailJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("CreateOutgoingEMailInvitationAvatar.EMail"));
 
         emailJTextField.setFont(Fonts.DialogTextEntryFont);
-        ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getEmail()));
+        ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getEMail()));
         emailJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 emailJTextFieldActionPerformed(evt);

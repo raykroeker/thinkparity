@@ -810,12 +810,4 @@ public interface ContainerModel {
      *            The comment <code>String</code>.
      */
     public void updateDraftComment(final Long containerId, final String comment);
-
-    /**
-     * Restore all containers from the backup.
-     * 
-     * @param monitor
-     *            A <code>ProcessMonitor</code>.
-     */
-    public void restoreBackup(final ProcessMonitor monitor);
 }

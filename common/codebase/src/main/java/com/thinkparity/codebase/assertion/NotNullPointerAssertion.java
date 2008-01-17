@@ -4,20 +4,21 @@
 package com.thinkparity.codebase.assertion;
 
 /**
+ * <b>Title:</b>thinkParity Common Not Null Pointer Assertion<br>
+ * <b>Description:</b><br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.2
+ * @version 1.1.2.1
  */
-public class NotNullPointerAssertion extends Assertion {
+public final class NotNullPointerAssertion extends Assertion {
 
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
-
-	/**
-	 * Create a NullPointerAssertion
-	 * @param message <code>java.lang.String</code>
-	 */
-	NotNullPointerAssertion(final String message) { super(message); }
-
-	/** Create NotNullPointerAssertion. */
-	private NotNullPointerAssertion() { super(); }
+    /**
+     * Create NotNullPointerAssertion.
+     * 
+     * @param message
+     *            A <code>String</code>.
+     */
+	NotNullPointerAssertion(final String message) {
+        super(message);
+    }
 }

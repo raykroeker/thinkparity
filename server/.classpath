@@ -21,5 +21,10 @@
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/apache.org/jakarta/commons/pool/1.3/commons-pool.jar" sourcepath="/THINKPARITY_HOME/vendor/apache.org/jakarta/commons/pool/1.3/commons-pool-sources.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/sourceforge.net/opencsv/1.8/opencsv.jar" sourcepath="/THINKPARITY_HOME/vendor/sourceforge.net/opencsv/1.8/opencsv-sources.jar"/>
 	<classpathentry kind="var" path="THINKPARITY_HOME/vendor/opensymphony.com/quartz/1.6.0/quartz.jar" sourcepath="/THINKPARITY_HOME/vendor/opensymphony.com/quartz/1.6.0/quartz-sources.jar"/>
-	<classpathentry kind="output" path="target/classes"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common-stream"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common-network-http"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common-service"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common-network"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common-model"/>
+	<classpathentry kind="output" path="target/eclipse-classes"/>
 </classpath>

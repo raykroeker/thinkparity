@@ -41,30 +41,34 @@ public final class ReadCustomConfigurationTest extends SessionTestCase {
         final Configuration configuration =
             datum.getSessionModel(datum.authToken).readConfiguration(
                     datum.authToken);
-        assertContainsKey(configuration, "com.thinkparity.session.reaper.timeout");
-        assertContainsKey(configuration, "com.thinkparity.session.reaper.firstexecutiondelay");
-        assertContainsKey(configuration, "com.thinkparity.session.reaper.recurringexecutionperiod");
-        assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.timeout");
-        assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.firstexecutiondelay");
-        assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.recurringexecutionperiod");
-        configuration.setProperty("com.thinkparity.session.reaper.timeout", "-1");
-        configuration.setProperty("com.thinkparity.session.reaper.firstexecutiondelay", "-1");
-        configuration.setProperty("com.thinkparity.session.reaper.recurringexecutionperiod", "-1");
-        /* update the user's configuration */
-        datum.newAdminUserModel(datum.adminAuthToken).updateProductConfiguration(
-                datum.user, datum.readOpheliaProduct(), configuration);
-        final Configuration customConfiguration =
-            datum.getSessionModel(datum.authToken).readConfiguration(
-                    datum.authToken);
-        assertContainsKey(configuration, "com.thinkparity.session.reaper.timeout");
-        assertContainsKey(configuration, "com.thinkparity.session.reaper.firstexecutiondelay");
-        assertContainsKey(configuration, "com.thinkparity.session.reaper.recurringexecutionperiod");
-        assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.timeout");
-        assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.firstexecutiondelay");
-        assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.recurringexecutionperiod");
-        assertEquals(configuration, customConfiguration, "com.thinkparity.session.reaper.timeout");
-        assertEquals(configuration, customConfiguration, "com.thinkparity.session.reaper.firstexecutiondelay");
-        assertEquals(configuration, customConfiguration, "com.thinkparity.session.reaper.recurringexecutionperiod");
+        if (configuration.containsKey("com.thinkparity.session.reaper.enabled")) {
+            if (Boolean.valueOf(configuration.getProperty("com.thinkparity.session.reaper.enabled"))) {
+                assertContainsKey(configuration, "com.thinkparity.session.reaper.timeout");
+                assertContainsKey(configuration, "com.thinkparity.session.reaper.firstexecutiondelay");
+                assertContainsKey(configuration, "com.thinkparity.session.reaper.recurringexecutionperiod");
+                assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.timeout");
+                assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.firstexecutiondelay");
+                assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.recurringexecutionperiod");
+                configuration.setProperty("com.thinkparity.session.reaper.timeout", "-1");
+                configuration.setProperty("com.thinkparity.session.reaper.firstexecutiondelay", "-1");
+                configuration.setProperty("com.thinkparity.session.reaper.recurringexecutionperiod", "-1");
+                /* update the user's configuration */
+                datum.newAdminUserModel(datum.adminAuthToken).updateProductConfiguration(
+                        datum.user, datum.readOpheliaProduct(), configuration);
+                final Configuration customConfiguration =
+                    datum.getSessionModel(datum.authToken).readConfiguration(
+                            datum.authToken);
+                assertContainsKey(configuration, "com.thinkparity.session.reaper.timeout");
+                assertContainsKey(configuration, "com.thinkparity.session.reaper.firstexecutiondelay");
+                assertContainsKey(configuration, "com.thinkparity.session.reaper.recurringexecutionperiod");
+                assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.timeout");
+                assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.firstexecutiondelay");
+                assertValueIsNotNull(configuration, "com.thinkparity.session.reaper.recurringexecutionperiod");
+                assertEquals(configuration, customConfiguration, "com.thinkparity.session.reaper.timeout");
+                assertEquals(configuration, customConfiguration, "com.thinkparity.session.reaper.firstexecutiondelay");
+                assertEquals(configuration, customConfiguration, "com.thinkparity.session.reaper.recurringexecutionperiod");
+            }
+        }
     }
 
     /**

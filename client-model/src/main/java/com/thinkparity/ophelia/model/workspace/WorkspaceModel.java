@@ -245,14 +245,14 @@ public class WorkspaceModel {
             // initialize migrator
             final InternalMigratorModel migratorModel = modelFactory.getMigratorModel();
             migratorModel.initialize(monitor);
-            // create the profile
+            /* restore local profile */
             notifyStepBegin(monitor, InitializeStep.PROFILE_CREATE);
-            modelFactory.getProfileModel().initialize();
+            modelFactory.getProfileModel().restoreLocal(monitor);
             notifyStepEnd(monitor, InitializeStep.PROFILE_CREATE);
-            // download contacts
-            modelFactory.getContactModel().download(monitor);
-            // restore backup
-            modelFactory.getContainerModel().restoreBackup(monitor);
+            /* restore local contacts */
+            modelFactory.getContactModel().restoreLocal(monitor);
+            /* restore local containers */
+            modelFactory.getContainerModel().restoreLocal(monitor);
             // start download of new release if required
             final Release latestRelease = sessionModel.readMigratorLatestRelease(
                     Constants.Product.NAME, OSUtil.getOS());

@@ -4,7 +4,6 @@
 package com.thinkparity.codebase.config;
 
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,9 +11,6 @@ import java.io.Serializable;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Properties;
-
-import com.thinkparity.codebase.ResourceUtil;
-import com.thinkparity.codebase.StringUtil;
 
 
  /**
@@ -45,62 +41,35 @@ public class Config extends Properties implements Serializable {
 	 * @version 1.0.0
 	 */
 	public static final class ConfigError extends Error {
-		private static final long serialVersionUID = 1;
 		
-		/**
-		 * <b>Title:</b>  ErrorType
-		 * <br><b>Description:</b>  The actual error message definitions thrown by
-		 * Config.
-		 * @author raykroeker@gmail.com
-		 * @version 1.0.1
-		 */
-		public static final class ErrorType extends com.thinkparity.codebase.Enum {
-			private static final long serialVersionUID = 1;
-			
-			/**
-			 * Config file could not be loaded due to unknown IOException
-			 */
-			private static final ErrorType CouldNotLoad =
-				new ErrorType("Config file specified could not be loaded.");
-
-			/**
-			 * Config file could not be stored due to unknown IOException
-			 */
-			private static final ErrorType CouldNotStore =
-				new ErrorType("Config file specified could not be stored.");
-		
-			/**
-			 * Config file does not exist in the location specified
-			 */
-			private static final ErrorType FileNotFound =
-				new ErrorType("Config file specified could not be found.");
-
-			/**
-			 * Create a new ErrorType
-			 * @param errorType <code>java.lang.String</code>
-			 */
-			private ErrorType(String errorType) {super(errorType);}
+		/** <b>Title:</b>Config Error Type<br> */
+		private enum Type  {
+			COULD_NOT_LOAD, COULD_NOT_STORE, FILE_NOT_FOUND
 		}
 
 		/**
-		 * Create a new ConfigError
+		 * Create ConfigError.
+		 * 
 		 */
-		private ConfigError() {super();}
+		private ConfigError() {
+            super();
+        }
 
 		/**
-		 * Create a new ConfigError
-		 * @param url <code>java.net.URL</code>
-		 * @param errorType <code>Config$ErrorType</code>
-		 * @param cause <code>java.lang.Throwable</code>
-		 */
-		private ConfigError(URL url, ErrorType errorType, Throwable cause) {
-			super(
-				new StringBuffer()
-					.append(errorType)
-					.append(":  ")
-					.append(url)
-					.append(", ")
-					.append(cause.getMessage())
+         * Create ConfigError.
+         * 
+         * @param url
+         *            A <code>URL</code>.
+         * @param errorType
+         *            A <code>Type</code>
+         * @param cause
+         *            A <code>Throwable</code>.
+         */
+		private ConfigError(final URL url, final Type type,
+                final Throwable cause) {
+			super(new StringBuilder(type.name())
+					.append(":  ").append(url)
+					.append(", ").append(cause.getMessage())
 					.toString());
 		}
 	}
@@ -111,107 +80,40 @@ public class Config extends Properties implements Serializable {
 	private URL configURL;
 
 	/**
-	 * Create a new Config
+	 * Create Config.
+	 *
 	 */
-	Config() {super();}
+	Config() {
+        super();
+    }
 
 	/**
-	 * Create a new Config
-	 * @param clasz <code>java.lang.Class</code>
-	 */
-	Config(Class clasz) {this(clasz, null);}
-
-	/**
-	 * Create a new Config
-	 * @param clasz <code>java.lang.Class</code>
-	 * @param defaults <code>java.util.Properties</code>
-	 */
-	Config(Class clasz, Properties defaults) {
-		super(defaults);
-		try {
-			if(null == clasz)
-				configURL = null;
-			else
-				configURL = resolveUrl(clasz);
-			loadConfig();
-		}
-		catch (FileNotFoundException fnfx) {
-			throw new ConfigError(
-				configURL,
-				ConfigError.ErrorType.FileNotFound,
-				fnfx);
-		}
-		catch (IOException iox) {
-			throw new ConfigError(
-				configURL,
-				ConfigError.ErrorType.CouldNotLoad,
-				iox);
-		}
-	}
-
-	/**
-	 * Create a new Config
-	 * @param file <code>java.io.File</code>
-	 */	
-	Config(File file) {this(file, null);}
-
-	/**
-     * Create a new Config
+     * Create Config.
      * 
-     * @param file
-     *            <code>java.io.File</code>
+     * @param url
+     *            A <code>URL</code>.
+     */
+	Config(URL url) {
+        this(url, null);
+    }
+
+	/**
+     * Create Config.
+     * 
+     * @param url
+     *            A <code>URL</code>.
      * @param defaults
-     *            <code>java.util.Properties</code>
-     */	
-	Config(final File file, final Properties defaults) {
-		super(defaults);
-		try {
-			if(null == file)
-				configURL = null;
-			else
-				configURL = file.toURI().toURL();
-			loadConfig();
-		} catch (final FileNotFoundException fnfx) {
-			throw new ConfigError(
-				configURL,
-				ConfigError.ErrorType.FileNotFound,
-				fnfx);
-		} catch (IOException iox) {
-			throw new ConfigError(
-				configURL,
-				ConfigError.ErrorType.CouldNotLoad,
-				iox);
-		}
-	}
-
-	/**
-	 * Create a new Config
-	 * @param defaults <code>java.util.Properties</code>
-	 */
-	Config(Properties defaults) {this((Class) null, defaults);}
-	
-	/**
-	 * Create a new Config
-	 * @param url <code>java.net.URL</code>
-	 */
-	Config(URL url) {this(url, null);}
-
-	/**
-	 * Create a new Config
-	 * @param url <code>java.net.URL</code>
-	 * @param defaults <code>java.util.Properties</code>
-	 */
-	Config(URL url, Properties defaults) {
+     *            A set of default <code>Properties</code>.
+     */
+	private Config(final URL url, final Properties defaults) {
 		super(defaults);
 		try {
 			configURL = url;
 			loadConfig();
 		}
-		catch(IOException iox) {
-			throw new ConfigError(
-				configURL,
-				ConfigError.ErrorType.CouldNotLoad,
-				iox);
+		catch(final IOException iox) {
+			throw new ConfigError(configURL, ConfigError.Type.COULD_NOT_LOAD,
+			        iox);
 		}
 	}
 
@@ -261,30 +163,9 @@ public class Config extends Properties implements Serializable {
 		load(configURL.openStream());
 	}
 
-
-	/**
-	 * Build a URL to identify the properties object, using clasz as input.
-	 * @param clasz <code>java.lang.Class</code>
-	 * @return <code>java.net.URL</code>
-	 */
-	private URL resolveUrl(Class clasz) {
-		// codebase.util.Config
-		final String qualifiedClaszName = clasz.getName();
-		// Config
-		final String claszName = qualifiedClaszName.substring(
-			qualifiedClaszName.lastIndexOf(".") + 1);
-		// codebase.util.config
-		final String claszUrl = clasz.getPackage().getName() + "." +
-			claszName.substring(0, 1).toLowerCase() +
-			claszName.substring(1);
-		// codebase.util.config.properties
-		return ResourceUtil.getURL(
-			StringUtil.searchAndReplace(claszUrl, ".", "/") 
-			.append(".properties").toString());
-	}
-
 	/**
 	 * Save the configuration represented by this object.
+	 * 
 	 */
 	public void save(String configHeader) {
 		try {
@@ -293,16 +174,12 @@ public class Config extends Properties implements Serializable {
 					new FileOutputStream(configURL.getFile())),
 				configHeader);
 		}
-		catch (FileNotFoundException fnfx) {
-			throw new ConfigError(
-				configURL,
-				ConfigError.ErrorType.FileNotFound,
+		catch (final FileNotFoundException fnfx) {
+			throw new ConfigError(configURL, ConfigError.Type.FILE_NOT_FOUND,
 				fnfx);
 		}
-		catch (IOException iox) {
-			throw new ConfigError(
-				configURL,
-				ConfigError.ErrorType.CouldNotStore,
+		catch (final IOException iox) {
+			throw new ConfigError(configURL, ConfigError.Type.COULD_NOT_STORE,
 				iox);
 		}
 	}

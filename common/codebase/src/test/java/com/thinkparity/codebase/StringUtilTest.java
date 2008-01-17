@@ -2,6 +2,8 @@ package com.thinkparity.codebase;
 
 import java.nio.charset.Charset;
 
+import com.thinkparity.common.StringUtil;
+
 import junit.framework.Assert;
 
 public class StringUtilTest extends CodebaseTestCase {

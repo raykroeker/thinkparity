@@ -750,12 +750,13 @@ public final class MigratorSql extends AbstractSql {
      *            A feature name <code>String</code>.
      * @return A <code>Feature</code>.
      */
-    public Feature readProductFeature(final Product product, final String name) {
+    public Feature readProductFeature(final Product product,
+            final Feature.Name name) {
         final HypersonicSession session = openSession();
         try {
             session.prepareStatement(SQL_READ_PRODUCT_FEATURE_UK);
             session.setLong(1, product.getId());
-            session.setString(2, name);
+            session.setString(2, name.name());
             session.executeQuery();
             if (session.nextResult()) {
                 return extractProductFeature(session);
@@ -993,7 +994,7 @@ public final class MigratorSql extends AbstractSql {
     private Feature extractProductFeature(final HypersonicSession session) {
         final Feature feature = new Feature();
         feature.setFeatureId(session.getLong("FEATURE_ID"));
-        feature.setName(session.getString("FEATURE_NAME"));
+        feature.setName(Feature.Name.valueOf(session.getString("FEATURE_NAME")));
         feature.setProductId(session.getLong("PRODUCT_ID"));
         return feature;
     }

@@ -17,13 +17,13 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.Document;
 import com.thinkparity.codebase.model.document.DocumentVersion;
-import com.thinkparity.codebase.model.stream.StreamException;
 import com.thinkparity.codebase.model.user.User;
 
 import com.thinkparity.ophelia.model.container.ContainerTestCase;
 
-import com.thinkparity.network.NetworkException;
+import com.thinkparity.net.NetworkException;
 import com.thinkparity.ophelia.OpheliaTestUser;
+import com.thinkparity.stream.StreamException;
 
 /**
  * <b>Title:</b>thinkParity Backup Test<br>

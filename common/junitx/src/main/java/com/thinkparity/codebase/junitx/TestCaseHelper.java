@@ -16,19 +16,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import com.thinkparity.common.StringUtil;
+import com.thinkparity.common.StringUtil.Separator;
+
 import junit.framework.TestCase;
 
 import com.thinkparity.codebase.FileSystem;
 import com.thinkparity.codebase.ResourceUtil;
 import com.thinkparity.codebase.StreamUtil;
-import com.thinkparity.codebase.StringUtil;
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.codec.MD5Util;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.nio.ChannelUtil;
-
-import com.thinkparity.codebase.model.util.codec.MD5Util;
-
 
 /**
  * @author raykroeker@gmail.com

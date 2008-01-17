@@ -34,9 +34,13 @@ import com.thinkparity.codebase.model.util.xmpp.event.profile.ActiveEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.profile.payment.PaymentEvent;
 import com.thinkparity.codebase.model.util.xmpp.event.profile.payment.PaymentPlanArrearsEvent;
 
+import com.thinkparity.service.AuthToken;
+import com.thinkparity.service.ProfileService;
+import com.thinkparity.service.ServiceFactory;
+import com.thinkparity.service.SessionService;
+
 import com.thinkparity.ophelia.model.Constants;
 import com.thinkparity.ophelia.model.Model;
-import com.thinkparity.ophelia.model.Constants.Product.Features;
 import com.thinkparity.ophelia.model.events.ProfileEvent;
 import com.thinkparity.ophelia.model.events.ProfileListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
@@ -44,11 +48,6 @@ import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 import com.thinkparity.ophelia.model.io.handler.ProfileIOHandler;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-
-import com.thinkparity.service.AuthToken;
-import com.thinkparity.service.ProfileService;
-import com.thinkparity.service.ServiceFactory;
-import com.thinkparity.service.SessionService;
 
 /**
  * <b>Title:</b>thinkParity Profile Model Implementation<br>
@@ -120,18 +119,22 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.profile.ProfileModel#create(com.thinkparity.codebase.model.profile.UsernameReservation, com.thinkparity.codebase.model.profile.EMailReservation, com.thinkparity.codebase.model.session.Credentials, com.thinkparity.codebase.model.profile.Profile, com.thinkparity.codebase.email.EMail, com.thinkparity.codebase.model.profile.SecurityCredentials)
-     *
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#create(com.thinkparity.codebase.model.profile.EMailReservation,
+     *      com.thinkparity.codebase.model.session.Credentials,
+     *      com.thinkparity.codebase.model.profile.Profile,
+     *      com.thinkparity.codebase.email.EMail,
+     *      com.thinkparity.codebase.model.profile.SecurityCredentials)
+     * 
      */
     @Override
-    public void create(final UsernameReservation usernameReservation,
-            final EMailReservation emailReservation,
+    public void create(final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
             final EMail email, final SecurityCredentials securityCredentials)
             throws ReservationExpiredException {
         try {
             validate(profile);
             validate(securityCredentials);
+            final UsernameReservation usernameReservation = createUsernameReservation(profile, credentials);
 
             final Product product = new Product();
             product.setName(Constants.Product.NAME);
@@ -151,8 +154,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.profile.ProfileModel#create(com.thinkparity.codebase.model.profile.UsernameReservation,
-     *      com.thinkparity.codebase.model.profile.EMailReservation,
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#create(com.thinkparity.codebase.model.profile.EMailReservation,
      *      com.thinkparity.codebase.model.session.Credentials,
      *      com.thinkparity.codebase.model.profile.Profile,
      *      com.thinkparity.codebase.email.EMail,
@@ -160,8 +162,8 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
      *      com.thinkparity.codebase.model.profile.payment.PaymentInfo)
      * 
      */
-    public void create(final UsernameReservation usernameReservation,
-            final EMailReservation emailReservation,
+    @Override
+    public void create(final EMailReservation emailReservation,
             final Credentials credentials, final Profile profile,
             final EMail email, final SecurityCredentials securityCredentials,
             final PaymentInfo paymentInfo) throws ReservationExpiredException {
@@ -169,6 +171,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             validate(profile);
             validate(securityCredentials);
             validate(paymentInfo);
+            final UsernameReservation usernameReservation = createUsernameReservation(profile, credentials);
 
             final long now = currentDateTime().getTimeInMillis();
             if (now > usernameReservation.getExpiresOn().getTimeInMillis())
@@ -203,20 +206,25 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.profile.ProfileModel#create(com.thinkparity.codebase.model.profile.UsernameReservation, com.thinkparity.codebase.model.profile.EMailReservation, com.thinkparity.codebase.model.session.Credentials, com.thinkparity.codebase.model.profile.Profile, com.thinkparity.codebase.email.EMail, com.thinkparity.codebase.model.profile.SecurityCredentials, com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials)
-     *
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#create(com.thinkparity.codebase.model.profile.EMailReservation,
+     *      com.thinkparity.codebase.model.session.Credentials,
+     *      com.thinkparity.codebase.model.profile.Profile,
+     *      com.thinkparity.codebase.email.EMail,
+     *      com.thinkparity.codebase.model.profile.SecurityCredentials,
+     *      com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials)
+     * 
      */
     @Override
-    public void create(final UsernameReservation usernameReservation,
-            final EMailReservation emailReservation, final Credentials credentials,
-            final Profile profile, final EMail email,
-            final SecurityCredentials securityCredentials,
+    public void create(final EMailReservation emailReservation,
+            final Credentials credentials, final Profile profile,
+            final EMail email, final SecurityCredentials securityCredentials,
             final PaymentPlanCredentials paymentPlanCredentials)
             throws ReservationExpiredException, InvalidCredentialsException {
         try {
             validate(profile);
             validate(securityCredentials);
             validate(paymentPlanCredentials);
+            final UsernameReservation usernameReservation = createUsernameReservation(profile, credentials);
 
             final long now = currentDateTime().getTimeInMillis();
             if (now > usernameReservation.getExpiresOn().getTimeInMillis())
@@ -267,14 +275,23 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.profile.ProfileModel#createUsernameReservation(java.lang.String)
+     * @see com.thinkparity.ophelia.model.profile.InternalProfileModel#deleteLocal(com.thinkparity.ophelia.model.util.ProcessMonitor)
      *
      */
-    public UsernameReservation createUsernameReservation(final String username) {
+    @Override
+    public void deleteLocal(final ProcessMonitor monitor) {
         try {
-            final ServiceFactory serviceFactory = workspace.getServiceFactory(newFiniteRetryHandler());
-            final ProfileService profileService = serviceFactory.getProfileService();
-            return profileService.createUsernameReservation(newEmptyAuthToken(), username);
+            final Profile profile = read();
+
+            /* delete index */
+            getIndexModel().deleteProfile();
+            /* delete e-mail */
+            final List<ProfileEMail> emailList = readEMails();
+            for (final ProfileEMail email : emailList) {
+                profileIO.delete(profile, email);
+            }
+            /* delete profile */
+            profileIO.delete(profile);
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -388,37 +405,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.profile.InternalProfileModel#initialize()
-     * 
-     */
-    public void initialize() {
-        try {
-            /* download */
-            final AuthToken authToken = getAuthToken();
-            final Profile profile = profileService.read(authToken);
-            final ProfileEMail remoteEMail = profileService.readEMail(authToken);
-
-            /* create */
-            final User profileUser = getUserModel().readLazyCreate(
-                    profile.getId());
-            profile.setLocalId(profileUser.getLocalId());
-            profileIO.create(profile);
-
-            /* create e-mail */
-            final ProfileEMail localEMail = new ProfileEMail();
-            localEMail.setEmail(remoteEMail.getEmail());
-            localEMail.setProfileId(profile.getLocalId());
-            localEMail.setVerified(remoteEMail.isVerified());
-            profileIO.createEmail(profile.getLocalId(), localEMail);
-
-            /* index */
-            getIndexModel().indexProfile();
-        } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#isAccessiblePaymentInfo()
      *
      */
@@ -461,7 +447,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final Profile profile = read();
             final List<Feature> features = profileIO.readFeatures(profile.getLocalId());
             for (final Feature feature : features) {
-                if (Features.BACKUP.equals(feature.getName())) {
+                if (Feature.Name.BACKUP.equals(feature.getName())) {
                     return Boolean.TRUE;
                 }
             }
@@ -480,7 +466,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             final Profile profile = read();
             final List<Feature> features = profileIO.readFeatures(profile.getLocalId());
             for (final Feature feature : features) {
-                if (Features.CORE.equals(feature.getName())) {
+                if (Feature.Name.CORE.equals(feature.getName())) {
                     return Boolean.TRUE;
                 }
             }
@@ -488,6 +474,15 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         } catch (final Throwable t) {
             throw panic(t);
         }
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.profile.ProfileModel#isInviteAvailable()
+     *
+     */
+    @Override
+    public Boolean isInviteAvailable() {
+        return Boolean.TRUE;
     }
 
     /**
@@ -658,15 +653,6 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     }
 
     /**
-     * @see com.thinkparity.ophelia.model.profile.ProfileModel#isInviteAvailable()
-     *
-     */
-    @Override
-    public Boolean isInviteAvailable() {
-        return Boolean.TRUE;
-    }
-
-    /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#readStatistics()
      *
      */
@@ -679,6 +665,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             throw panic(t);
         }
     }
+
 
     /**
      * @see com.thinkparity.ophelia.model.profile.ProfileModel#readUsername()
@@ -703,29 +690,36 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
         super.removeListener(listener);
     }
 
-
     /**
-     * @see com.thinkparity.ophelia.model.profile.InternalProfileModel#restoreBackup(com.thinkparity.ophelia.model.util.ProcessMonitor)
+     * @see com.thinkparity.ophelia.model.profile.InternalProfileModel#restoreLocal(com.thinkparity.ophelia.model.util.ProcessMonitor)
      *
      */
     @Override
-    public void restoreBackup(final ProcessMonitor monitor) {
+    public void restoreLocal(final ProcessMonitor monitor) {
         try {
-            final Profile profile = read();
-            /* delete e-mail */
-            final List<ProfileEMail> emails = readEMails();
-            for (final ProfileEMail email : emails) {
-                profileIO.deleteEmail(profile.getLocalId(), email.getEmailId());
-            }
-
-            /* delete */
-            profileIO.delete(profile);
-
+            /* download */
+            final Profile profile = profileService.read(getAuthToken());
             /* create */
-            initialize();
+            final User profileUser = getUserModel().readLazyCreate(
+                    profile.getId());
+            profile.setLocalId(profileUser.getLocalId());
+            profileIO.create(profile);
 
-            /* fire event */
-            //notifyProfileUpdated(profile, localEventGen);
+            /* create e-mail */
+            final ProfileEMail remoteEMail = profileService.readEMail(getAuthToken());
+            final ProfileEMail localEMail = new ProfileEMail();
+            localEMail.setEmail(remoteEMail.getEmail());
+            localEMail.setProfileId(profile.getLocalId());
+            localEMail.setVerified(remoteEMail.isVerified());
+            profileIO.createEmail(profile.getLocalId(), localEMail);
+
+            /* update credentials */
+            final Credentials credentials = readCredentials();
+            credentials.setUsername(profile.getSimpleUsername());
+            updateCredentials(credentials);
+
+            /* index */
+            getIndexModel().indexProfile();
         } catch (final Throwable t) {
             throw panic(t);
         }
@@ -813,8 +807,7 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
             }
             for (final ProfileEMail profileEMail : profileEMails) {
                 try {
-                    profileIO.deleteEmail(profileEMail.getProfileId(),
-                            profileEMail.getEmailId());
+                    profileIO.delete(profile, profileEMail);
                 } catch (final HypersonicException hx) {
                     if (isSQLIntegrityConstraintViolation(hx)) {
                         logger.logWarning("Could not delete e-mail {0}.  {1}",
@@ -1011,6 +1004,22 @@ public final class ProfileModelImpl extends Model<ProfileListener> implements
     private void assertIsValidTimeZone(final String name, final String value) {
         final TimeZone timeZone = TimeZone.getTimeZone(value);
         Assert.assertTrue(timeZone.getID().equals(value), "Profile field {0} contains invalid value {1}.", name, value);
+    }
+
+    /**
+     * Create a username reservation.
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     * @return A <code>UsernameReservation</code>.
+     */
+    private UsernameReservation createUsernameReservation(final Profile profile, final Credentials credentials) {
+        final ServiceFactory serviceFactory = workspace.getServiceFactory(newFiniteRetryHandler());
+        final ProfileService profileService = serviceFactory.getProfileService();
+        final UsernameReservation reservation =
+            profileService.createUsernameReservation(newEmptyAuthToken(), profile);
+        credentials.setUsername(reservation.getUsername());
+        return reservation;
     }
 
     /**

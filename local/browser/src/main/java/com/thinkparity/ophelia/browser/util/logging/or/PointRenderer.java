@@ -5,8 +5,9 @@ package com.thinkparity.ophelia.browser.util.logging.or;
 
 import java.awt.Point;
 
-import com.thinkparity.codebase.StringUtil;
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil;
+import com.thinkparity.common.StringUtil.Separator;
+
 
 import org.apache.log4j.or.ObjectRenderer;
 

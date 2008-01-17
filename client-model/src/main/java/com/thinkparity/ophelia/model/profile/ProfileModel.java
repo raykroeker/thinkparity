@@ -15,7 +15,6 @@ import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.SecurityCredentials;
-import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
 import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials;
 import com.thinkparity.codebase.model.session.Credentials;
@@ -46,8 +45,6 @@ public interface ProfileModel {
     public void addListener(final ProfileListener listener);
 
     public EMailReservation createEMailReservation(final EMail email);
-
-    public UsernameReservation createUsernameReservation(final String username);
 
     /**
      * Determine if the payment info is accessible.
@@ -204,8 +201,6 @@ public interface ProfileModel {
     /**
      * Create a profile.
      * 
-     * @param usernameReservation
-     *            A <code>UsernameReservation</code>.
      * @param emailReservation
      *            An <code>EMailReservation</code>.
      * @param credentials
@@ -218,8 +213,7 @@ public interface ProfileModel {
      *            A set of <code>SecurityCredentials</code>.
      * @throws ReservationExpiredException
      */
-    void create(UsernameReservation usernameReservation,
-            EMailReservation emailReservation, Credentials credentials,
+    void create(EMailReservation emailReservation, Credentials credentials,
             Profile profile, EMail email,
             SecurityCredentials securityCredentials)
             throws ReservationExpiredException;
@@ -227,8 +221,6 @@ public interface ProfileModel {
     /**
      * Create a profile.
      * 
-     * @param usernameReservation
-     *            A <code>UsernameReservation</code>.
      * @param emailReservation
      *            An <code>EMailReservation</code>.
      * @param credentials
@@ -243,8 +235,7 @@ public interface ProfileModel {
      *            A <code>PaymentInfo</code>.
      * @throws ReservationExpiredException
      */
-    void create(UsernameReservation usernameReservation,
-            EMailReservation emailReservation, Credentials credentials,
+    void create(EMailReservation emailReservation, Credentials credentials,
             Profile profile, EMail email,
             SecurityCredentials securityCredentials, PaymentInfo paymentInfo)
             throws ReservationExpiredException;
@@ -252,8 +243,6 @@ public interface ProfileModel {
     /**
      * Create a profile.
      * 
-     * @param usernameReservation
-     *            A <code>UsernameReservation</code>.
      * @param emailReservation
      *            An <code>EMailReservation</code>.
      * @param credentials
@@ -269,8 +258,7 @@ public interface ProfileModel {
      * @throws ReservationExpiredException
      * @throws InvalidCredentialsException
      */
-    void create(UsernameReservation usernameReservation,
-            EMailReservation emailReservation, Credentials credentials,
+    void create(EMailReservation emailReservation, Credentials credentials,
             Profile profile, EMail email,
             SecurityCredentials securityCredentials,
             PaymentPlanCredentials paymentPlanCredentials)

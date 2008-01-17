@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.InitializeMediator;
 import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.ophelia.model.workspace.configuration.Configuration;
 
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarRegistry;
 import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
@@ -117,6 +118,13 @@ public interface Platform extends ApplicationListener {
      * @return A build id <code>String</code>.
      */
     public String getBuildId();
+
+    /**
+     * Obtain the configuration.
+     * 
+     * @return The <code>Configuration</code>.
+     */
+    public Configuration getConfiguration();
 
     /**
      * Obtain the environment.
@@ -278,16 +286,14 @@ public interface Platform extends ApplicationListener {
     /**
      * Run the login action.
      * 
-     * @param username
-     *            The username <code>String</code>.
-     * @param password
-     *            The password <code>String</code>.
+     * @param credentials
+     *            The <code>Credentials</code>.
      * @param monitor
      *            A <code>ThinkParitySwingMonitor</code>.
      * @param mediator
      *            A <code>InitializeMediator</code>.   
      */
-    public void runLogin(final String username, final String password,
+    public void runLogin(final Credentials credentials,
             final ThinkParitySwingMonitor monitor,
             final InitializeMediator mediator);
 

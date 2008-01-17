@@ -44,7 +44,7 @@ public class FilterChain<T> extends AbstractFilter<T> implements Iterable<Filter
      *            A <code>Filter</code>.
      * @return A reference to the filter chain.
      */
-	public FilterChain addFilter(final Filter<T> filter) {
+	public FilterChain<T> addFilter(final Filter<T> filter) {
 		chain.add(filter);
 		return this;
 	}
@@ -54,7 +54,7 @@ public class FilterChain<T> extends AbstractFilter<T> implements Iterable<Filter
      * 
      * @return A reference to the filter chain.
      */
-    public FilterChain clearFilters() {
+    public FilterChain<T> clearFilters() {
         chain.clear();
         return this;
     }
@@ -103,7 +103,7 @@ public class FilterChain<T> extends AbstractFilter<T> implements Iterable<Filter
      *            The filter.
      * @return A reference to the filter chain.
      */
-	public FilterChain removeFilter(final Filter<T> filter) {
+	public FilterChain<T> removeFilter(final Filter<T> filter) {
 		chain.remove(filter);
 		return this;
 	}

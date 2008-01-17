@@ -11,8 +11,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.DateUtil.DateImage;
-import com.thinkparity.codebase.StringUtil.Separator;
 
 /**
  * <b>Title:</b>thinkParity CommonCodebase Properties Util<br>

@@ -17,7 +17,8 @@ import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.AbstractDocument;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
 import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
@@ -421,11 +422,11 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
      * 
      */
     private void reloadCreditCardControls() {
-        cardNameJComboBox.setSelectedIndex(0);
+        cardNameJComboBox.setSelectedIndex(-1);
+        cardExpiryMonthJComboBox.setSelectedIndex(-1);
+        cardExpiryYearJComboBox.setSelectedIndex(-1);
         cardNumberJTextField.setText(null);
         cardholderNameJTextField.setText(null);
-        cardExpiryMonthJComboBox.setSelectedIndex(0);
-        cardExpiryYearJComboBox.setSelectedIndex(0);
         if (null != input) {
             final PaymentInfo paymentInfo = (PaymentInfo) input;
             cardNameJComboBox.setSelectedItem(paymentInfo.getCardName());
@@ -461,6 +462,10 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
             addInputError(getString("ErrorOffline"));
         }
 
+        if (null == paymentInfo.getCardName()) {
+            addInputError(Separator.Space.toString());
+        }
+
         final int minimumCardNumberLength = constraints.getCardNumber().getMinLength();
         if (null == paymentInfo.getCardNumber()) {
             addInputError(Separator.Space.toString());
@@ -474,13 +479,18 @@ public final class UpdatePaymentInfoAvatar extends Avatar {
             addInputError(Separator.Space.toString());
         }
 
-        final Calendar now = Calendar.getInstance();
-        final short nowYear = (short) now.get(Calendar.YEAR);
-        final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
-        if (nowYear == paymentInfo.getCardExpiryYear() &&
-                nowMonth > paymentInfo.getCardExpiryMonth()) {
-            if (ignoreFocus) {
-                addInputError(getString("ErrorCardExpired"));
+        if (null == paymentInfo.getCardExpiryMonth() ||
+            null == paymentInfo.getCardExpiryYear()) {
+            addInputError(Separator.Space.toString());
+        } else {
+            final Calendar now = Calendar.getInstance();
+            final short nowYear = (short) now.get(Calendar.YEAR);
+            final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
+            if (nowYear == paymentInfo.getCardExpiryYear() &&
+                    nowMonth > paymentInfo.getCardExpiryMonth()) {
+                if (ignoreFocus) {
+                    addInputError(getString("ErrorCardExpired"));
+                }
             }
         }
 

@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
-<booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/ophelia"/>
 </listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="${TPSO_JAVA_OPTS_DIRECTORY} ${TPSO_JAVA_OPTS_LIBRARY_PATH} ${TPSO_JAVA_OPTS_ENVIRONMENT} ${TPSO_JAVA_OPTS_EXECUTABLE} ${TPSO_JAVA_OPTS_IMAGE_EXECUTABLE}"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ophelia"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>
 </listAttribute>
+<booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
+<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+<listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+</listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.thinkparity.ophelia.support.Support"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="ophelia"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="${TPSO_JAVA_OPTS_DIRECTORY} ${TPSO_JAVA_OPTS_LIBRARY_PATH} ${TPSO_JAVA_OPTS_ENVIRONMENT} ${TPSO_JAVA_OPTS_EXECUTABLE} ${TPSO_JAVA_OPTS_IMAGE_EXECUTABLE}"/>
 </launchConfiguration>

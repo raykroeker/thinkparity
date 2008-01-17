@@ -28,6 +28,9 @@ class TrayMenuBuilder {
     /** The display info action. */
     private final MenuItem displayInfo;
 
+    /** The update configuration action. */
+    private final MenuItem updateConfiguration;
+
     /** The quit action. */
     private final MenuItem quit;
 
@@ -60,6 +63,18 @@ class TrayMenuBuilder {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 application.displayInfo();
+            }
+        });
+
+        this.updateConfiguration = new MenuItem(getString("Menu.UpdateConfiguration"));
+        this.updateConfiguration.addActionListener(new ActionListener() {
+            /**
+             * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+             *
+             */
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                application.runUpdateProxyConfiguration();
             }
         });
 
@@ -105,6 +120,7 @@ class TrayMenuBuilder {
         if (application.isDevelopmentMode()) {
             popupMenu.add(restart);
         }
+        popupMenu.add(updateConfiguration);
         popupMenu.add(displayInfo);
         popupMenu.addSeparator();
         popupMenu.add(quit);

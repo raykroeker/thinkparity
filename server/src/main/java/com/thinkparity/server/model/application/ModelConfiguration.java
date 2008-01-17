@@ -3,7 +3,8 @@
  */
 package com.thinkparity.desdemona.model;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
 import com.thinkparity.desdemona.util.DesdemonaProperties;

@@ -35,9 +35,7 @@ import com.thinkparity.codebase.model.document.DocumentConstraints;
 import com.thinkparity.codebase.model.document.DocumentDraft;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamMonitor;
 import com.thinkparity.codebase.model.stream.StreamSession;
-import com.thinkparity.codebase.model.stream.download.DownloadFile;
 
 import com.thinkparity.ophelia.model.Delegate;
 import com.thinkparity.ophelia.model.Model;
@@ -54,6 +52,9 @@ import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.util.UUIDGenerator;
 import com.thinkparity.ophelia.model.util.sort.ComparatorBuilder;
 import com.thinkparity.ophelia.model.workspace.Workspace;
+
+import com.thinkparity.stream.StreamMonitor;
+import com.thinkparity.stream.download.DownloadFile;
 
 /**
  * Implementation of the document model interface.

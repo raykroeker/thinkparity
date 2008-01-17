@@ -48,8 +48,8 @@ public abstract class DefaultApplication<T extends Platform> implements Applicat
      * @see com.thinkparity.codebase.ui.application.Application#addListener(com.thinkparity.codebase.ui.application.ApplicationListener)
      * 
      */
-    public boolean addListener(final ApplicationListener l) {
-        return listenerHelper.addListener(l);
+    public boolean addListener(final ApplicationListener<T> listener) {
+        return listenerHelper.addListener(listener);
     }
 
     /**
@@ -65,7 +65,7 @@ public abstract class DefaultApplication<T extends Platform> implements Applicat
      * @see com.thinkparity.codebase.ui.application.Application#removeListener(com.thinkparity.codebase.ui.application.ApplicationListener)
      * 
      */
-    public boolean removeListener(ApplicationListener listener) {
+    public boolean removeListener(final ApplicationListener<T> listener) {
         return listenerHelper.removeListener(listener);
         
     }
@@ -153,7 +153,7 @@ public abstract class DefaultApplication<T extends Platform> implements Applicat
     public final class ListenerHelper {
 
         /** A <code>ApplicationListener</code> <code>List</code>. */
-        private final List<ApplicationListener> listeners;
+        private final List<ApplicationListener<T>> listeners;
 
         /**
          * Create ListenerHelper.
@@ -161,7 +161,7 @@ public abstract class DefaultApplication<T extends Platform> implements Applicat
          */
         private ListenerHelper() {
             super();
-            this.listeners = new ArrayList<ApplicationListener>();
+            this.listeners = new ArrayList<ApplicationListener<T>>();
         }
 
         /**
@@ -171,7 +171,7 @@ public abstract class DefaultApplication<T extends Platform> implements Applicat
          *            A <code>LifeCycleListener</code>.
          * @return True if the listeners list was updated.
          */
-        public final boolean addListener(final ApplicationListener listener) {
+        public final boolean addListener(final ApplicationListener<T> listener) {
             synchronized (listeners) {
                 if (listeners.contains(listener)) {
                     return false;
@@ -189,9 +189,9 @@ public abstract class DefaultApplication<T extends Platform> implements Applicat
          *            <code>LifeCycleListener</code> <code>EventNotifier</code>.
          */
         public final void notifyListeners(
-                final EventNotifier<ApplicationListener> notifier) {
+                final EventNotifier<ApplicationListener<T>> notifier) {
             synchronized (listeners) {
-                for (final ApplicationListener listener : listeners) {
+                for (final ApplicationListener<T> listener : listeners) {
                     notifier.notifyListener(listener);
                 }
             }
@@ -204,7 +204,7 @@ public abstract class DefaultApplication<T extends Platform> implements Applicat
          *            A <code>LifeCycleListener</code>.
          * @return True if the listeners list was updated.
          */
-        public final boolean removeListener(final ApplicationListener listener) {
+        public final boolean removeListener(final ApplicationListener<T> listener) {
             synchronized (listeners) {
                 if (!listeners.contains(listener)) {
                     return false;

@@ -15,6 +15,7 @@ import com.thinkparity.codebase.model.container.Container;
 import com.thinkparity.codebase.model.container.ContainerVersion;
 import com.thinkparity.codebase.model.document.DocumentVersion;
 import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.codebase.model.util.jta.TransactionType;
 
 import com.thinkparity.ophelia.model.document.CannotLockException;
@@ -216,7 +217,7 @@ public interface ContainerModel {
     public ContainerVersion readVersion(final Long containerId,
             final Long versionId);
 
-	/**
+    /**
      * Read a list of versions for the container.
      * 
      * @param containerId
@@ -225,7 +226,7 @@ public interface ContainerModel {
      */
     public List<ContainerVersion> readVersions(final Long containerId);
 
-    /**
+	/**
      * Read a list of versions for the container.
      * 
      * @param containerId
@@ -251,4 +252,26 @@ public interface ContainerModel {
     public List<ContainerVersion> readVersions(final Long containerId,
             final Comparator<ArtifactVersion> comparator,
             final Filter<? super ArtifactVersion> filter);
+
+    /**
+     * Determine whether or not the container is published to the user.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @return A <code>Boolean</code>.
+     */
+    Boolean isPublishedBy(ContainerVersion version, User user);
+
+    /**
+     * Determine whether or not the container is published to the user.
+     * 
+     * @param version
+     *            A <code>ContainerVersion</code>.
+     * @param user
+     *            A <code>User</code>.
+     * @return A <code>Boolean</code>.
+     */
+    Boolean isPublishedTo(ContainerVersion version, User user);
 }

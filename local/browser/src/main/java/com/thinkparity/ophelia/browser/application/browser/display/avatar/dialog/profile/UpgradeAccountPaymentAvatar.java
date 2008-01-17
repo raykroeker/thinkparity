@@ -15,7 +15,8 @@ import java.util.Calendar;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.AbstractDocument;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
 import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
@@ -34,7 +35,7 @@ import com.thinkparity.ophelia.browser.util.swing.CardNameCellRenderer;
  * <b>Title:</b>thinkParity Ophelia UI Browser Profile Signup<br>
  * <b>Description:</b><br>
  * 
- * @author raymond@thinkparity.com
+ * @author robert@thinkparity.com
  * @version 1.1.2.1
  */
 public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
@@ -108,7 +109,7 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpgradeAccountPage#getPreviousPageName()
      */
     public String getPreviousPageName() {
-        return getPageName(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_AGREEMENT);
+        return getPageName(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_PROFILE);
     }
 
     /**
@@ -365,11 +366,11 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
      * 
      */
     private void reloadCreditCardControls() {
-        cardTypeJComboBox.setSelectedIndex(0);
+        cardTypeJComboBox.setSelectedIndex(-1);
         cardNumberJTextField.setText(null);
         cardholderNameJTextField.setText(null);
-        cardMonthJComboBox.setSelectedIndex(0);
-        cardYearJComboBox.setSelectedIndex(0);
+        cardMonthJComboBox.setSelectedIndex(-1);
+        cardYearJComboBox.setSelectedIndex(-1);
     }
 
     /**
@@ -390,6 +391,10 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
         super.validateInput();
         final PaymentInfo paymentInfo = extractPaymentInfo();
 
+        if (null == paymentInfo.getCardName()) {
+            addInputError(Separator.Space.toString());
+        }
+
         final int minimumCardNumberLength = constraints.getCardNumber().getMinLength();
         if (null == paymentInfo.getCardNumber()) {
             addInputError(Separator.Space.toString());
@@ -403,13 +408,18 @@ public class UpgradeAccountPaymentAvatar extends DefaultUpgradeAccountPage {
             addInputError(Separator.Space.toString());
         }
 
-        final Calendar now = Calendar.getInstance();
-        final short nowYear = (short) now.get(Calendar.YEAR);
-        final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
-        if (nowYear == paymentInfo.getCardExpiryYear() &&
-                nowMonth > paymentInfo.getCardExpiryMonth()) {
-            if (ignoreFocus) {
-                addInputError(getString("ErrorCardExpired"));
+        if (null == paymentInfo.getCardExpiryMonth() ||
+            null == paymentInfo.getCardExpiryYear()) {
+            addInputError(Separator.Space.toString());
+        } else {
+            final Calendar now = Calendar.getInstance();
+            final short nowYear = (short) now.get(Calendar.YEAR);
+            final short nowMonth = (short) (now.get(Calendar.MONTH) + 1);
+            if (nowYear == paymentInfo.getCardExpiryYear() &&
+                    nowMonth > paymentInfo.getCardExpiryMonth()) {
+                if (ignoreFocus) {
+                    addInputError(getString("ErrorCardExpired"));
+                }
             }
         }
 

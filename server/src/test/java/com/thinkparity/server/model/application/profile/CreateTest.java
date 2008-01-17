@@ -22,8 +22,6 @@ import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
-import com.thinkparity.desdemona.model.Constants;
-
 import com.thinkparity.service.AuthToken;
 
 /**
@@ -60,14 +58,14 @@ public final class CreateTest extends ProfileTestCase {
         try {
             final String username = datum.newUniqueUsername();
             final EMail email = datum.newEMail(username);
-            final UsernameReservation usernameReservation =
-                datum.getProfileModel(datum.create).createUsernameReservation(username);
             final EMailReservation emailReservation =
                 datum.getProfileModel(datum.create).createEMailReservation(email);
+            final Profile profile = datum.newProfile(datum.allFeatures);
+            final UsernameReservation usernameReservation =
+                datum.getProfileModel(datum.create).createUsernameReservation(profile);
             final Credentials credentials = new Credentials();
             credentials.setPassword(datum.lookupPassword(username));
-            credentials.setUsername(username);
-            final Profile profile = datum.newProfile(datum.allFeatures);
+            credentials.setUsername(usernameReservation.getUsername());
             final SecurityCredentials securityCredentials = new SecurityCredentials();
             securityCredentials.setAnswer(username);
             securityCredentials.setQuestion(username);
@@ -93,14 +91,14 @@ public final class CreateTest extends ProfileTestCase {
         try {
             final String username = datum.newUniqueUsername();
             final EMail email = datum.newEMail(username);
-            final UsernameReservation usernameReservation =
-                datum.getProfileModel(datum.create).createUsernameReservation(username);
             final EMailReservation emailReservation =
                 datum.getProfileModel(datum.create).createEMailReservation(email);
+            final Profile profile = datum.newProfile(datum.allFeatures);
+            final UsernameReservation usernameReservation =
+                datum.getProfileModel(datum.create).createUsernameReservation(profile);
             final Credentials credentials = new Credentials();
             credentials.setPassword(datum.lookupPassword(username));
-            credentials.setUsername(username);
-            final Profile profile = datum.newProfile(datum.allFeatures);
+            credentials.setUsername(usernameReservation.getUsername());
             final SecurityCredentials securityCredentials = new SecurityCredentials();
             securityCredentials.setAnswer(username);
             securityCredentials.setQuestion(username);
@@ -134,14 +132,14 @@ public final class CreateTest extends ProfileTestCase {
         try {
             final String username = datum.newUniqueUsername();
             final EMail email = datum.newEMail(username);
-            final UsernameReservation usernameReservation =
-                datum.getProfileModel(datum.create).createUsernameReservation(username);
             final EMailReservation emailReservation =
                 datum.getProfileModel(datum.create).createEMailReservation(email);
+            final Profile profile = datum.newProfile(datum.allFeatures);
+            final UsernameReservation usernameReservation =
+                datum.getProfileModel(datum.create).createUsernameReservation(profile);
             final Credentials credentials = new Credentials();
             credentials.setPassword(datum.lookupPassword(username));
-            credentials.setUsername(username);
-            final Profile profile = datum.newProfile(datum.allFeatures);
+            credentials.setUsername(usernameReservation.getUsername());
             final SecurityCredentials securityCredentials = new SecurityCredentials();
             securityCredentials.setAnswer(username);
             securityCredentials.setQuestion(username);
@@ -171,14 +169,14 @@ public final class CreateTest extends ProfileTestCase {
         try {
             final String username = datum.newUniqueUsername();
             final EMail email = datum.newEMail(username);
-            final UsernameReservation usernameReservation =
-                datum.getProfileModel(datum.create).createUsernameReservation(username);
             final EMailReservation emailReservation =
                 datum.getProfileModel(datum.create).createEMailReservation(email);
+            final Profile profile = datum.newProfile(datum.allFeatures);
+            final UsernameReservation usernameReservation =
+                datum.getProfileModel(datum.create).createUsernameReservation(profile);
             final Credentials credentials = new Credentials();
             credentials.setPassword(datum.lookupPassword(username));
-            credentials.setUsername(username);
-            final Profile profile = datum.newProfile(datum.allFeatures);
+            credentials.setUsername(usernameReservation.getUsername());
             final SecurityCredentials securityCredentials = new SecurityCredentials();
             securityCredentials.setAnswer(username);
             securityCredentials.setQuestion(username);
@@ -212,14 +210,14 @@ public final class CreateTest extends ProfileTestCase {
         try {
             final String username = datum.newUniqueUsername();
             final EMail email = datum.newEMail(username);
-            final UsernameReservation usernameReservation =
-                datum.getProfileModel(datum.create).createUsernameReservation(username);
             final EMailReservation emailReservation =
                 datum.getProfileModel(datum.create).createEMailReservation(email);
+            final Profile profile = datum.newProfile(datum.guestFeatures);
+            final UsernameReservation usernameReservation =
+                datum.getProfileModel(datum.create).createUsernameReservation(profile);
             final Credentials credentials = new Credentials();
             credentials.setPassword(datum.lookupPassword(username));
-            credentials.setUsername(username);
-            final Profile profile = datum.newProfile(datum.guestFeatures);
+            credentials.setUsername(usernameReservation.getUsername());
             final SecurityCredentials securityCredentials = new SecurityCredentials();
             securityCredentials.setAnswer(username);
             securityCredentials.setQuestion(username);
@@ -248,8 +246,7 @@ public final class CreateTest extends ProfileTestCase {
         datum.guestFeatures.addAll(datum.allFeatures);
         final Iterator<Feature> iFeatures = datum.guestFeatures.iterator();
         while (iFeatures.hasNext()) {
-            if (iFeatures.next().getName().equals(
-                    Constants.Product.Ophelia.Feature.CORE)) {
+            if (Feature.Name.CORE == iFeatures.next().getName()) {
                 iFeatures.remove();
             }
         }

@@ -131,10 +131,21 @@ public interface ProfileModel {
     /**
      * Create a username reservation.
      * 
+     * @param profile
+     *            A <code>Profile</code>.
+     * @return A <code>UsernameReservation</code>.
+     */
+    UsernameReservation createUsernameReservation(Profile profile);
+
+    /**
+     * Create a username reservation.
+     * 
      * @param username
      *            A username <code>String</code>.
      * @return A <code>UsernameReservation</code>.
+     * @deprecated 20071231
      */
+    @Deprecated
     UsernameReservation createUsernameReservation(String username);
 
     /**
@@ -210,16 +221,6 @@ public interface ProfileModel {
     Token readToken();
 
     /**
-     * Update an e-mail address.
-     * 
-     * @param email
-     *            An <code>EMail</code>.
-     * @throws EMailReferenceException
-     *             if the e-mail cannot be updated
-     */
-    void update(ProfileVCard vcard);
-
-    /**
      * Update a profile.
      * 
      * @param profile
@@ -228,6 +229,16 @@ public interface ProfileModel {
      *            A <code>PaymentInfo</code>.
      */
     void update(Profile profile, PaymentInfo paymentInfo);
+
+    /**
+     * Update an e-mail address.
+     * 
+     * @param email
+     *            An <code>EMail</code>.
+     * @throws EMailReferenceException
+     *             if the e-mail cannot be updated
+     */
+    void update(ProfileVCard vcard);
 
     /**
      * Update a profile's e-mail address.

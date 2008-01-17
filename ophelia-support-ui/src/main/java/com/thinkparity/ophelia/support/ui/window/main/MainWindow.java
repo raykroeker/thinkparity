@@ -61,6 +61,7 @@ public final class MainWindow extends AbstractWindow {
     private void initComponents() {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle(java.util.ResourceBundle.getBundle("localization/UIMessages").getString("window.main.mainwindow.title"));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

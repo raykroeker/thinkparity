@@ -3,6 +3,8 @@
  */
 package com.thinkparity.ophelia.browser.application.browser.component;
 
+import java.awt.Font;
+
 import javax.swing.JCheckBox;
 
 /**
@@ -38,6 +40,17 @@ public class CheckBoxFactory extends ComponentFactory {
 	}
 
 	/**
+     * Create a JCheckBox.
+     * 
+     * @param font
+     *            A <code>Font</code>.
+     * @return A <code>JCheckBox</code>.
+     */
+	public static JCheckBox create(final Font font) {
+	    return singleton.doCreate(font);
+	}
+
+	/**
 	 * Create a JCheckBox with the specified text.
 	 * 
 	 * @param text
@@ -53,16 +66,29 @@ public class CheckBoxFactory extends ComponentFactory {
 	 */
 	private CheckBoxFactory() { super(); }
 
-	/**
-	 * Create a JChceckBox.
-	 * 
-	 * @return The JCheckBox.
-	 */
-	private JCheckBox doCreate() {
-		final JCheckBox jCheckBox = new JCheckBox();
-		applyDefaultFont(jCheckBox);
-		return jCheckBox;
-	}
+    /**
+     * Create a JChceckBox.
+     * 
+     * @return The JCheckBox.
+     */
+    private JCheckBox doCreate() {
+        final JCheckBox jCheckBox = new JCheckBox();
+        applyDefaultFont(jCheckBox);
+        return jCheckBox;
+    }
+
+    /**
+     * Create a JChceckBox.
+     * 
+     * @param font
+     *            A <code>Font</code>.
+     * @return The JCheckBox.
+     */
+    private JCheckBox doCreate(final Font font) {
+        final JCheckBox jCheckBox = doCreate();
+        applyFont(jCheckBox, font);
+        return jCheckBox;
+    }
 
 	/**
 	 * Create a JCheckBox with the specified text.

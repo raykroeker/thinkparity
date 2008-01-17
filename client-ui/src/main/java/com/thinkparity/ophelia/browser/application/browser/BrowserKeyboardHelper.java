@@ -102,7 +102,9 @@ public class BrowserKeyboardHelper extends BrowserHelper {
                         if (isSelectedContainerTab()) {
                             runCreateContainer();
                         } else if (isSelectedContactTab()) {
-                            runCreateOutgoingEMailInvitation();
+                            if (browserApplication.isOnline()) {
+                                runCreateOutgoingEMailInvitation();
+                            }
                         }
                     }
                 });

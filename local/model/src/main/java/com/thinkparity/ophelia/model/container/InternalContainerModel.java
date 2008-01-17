@@ -23,6 +23,7 @@ import com.thinkparity.codebase.model.util.xmpp.event.container.VersionPublished
 
 import com.thinkparity.ophelia.model.container.event.LocalPublishedEvent;
 import com.thinkparity.ophelia.model.container.event.LocalVersionPublishedEvent;
+import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
 /**
  * <b>Title:</b>thinkParity Container Internal Model<br>
@@ -129,7 +130,7 @@ public interface InternalContainerModel extends ContainerModel {
     @Deprecated
     @ThinkParityTransaction(TransactionType.SUPPORTED)
     public void notifyTeamMemberAdded(final TeamMember teamMember);
-    
+
     /**
      * Notify the container listenter a team member has been removed.
      * 
@@ -146,7 +147,7 @@ public interface InternalContainerModel extends ContainerModel {
      * 
      */
     public void publishWelcome();
-
+    
     /**
      * Read a list of of documents for a container version.
      * 
@@ -196,4 +197,20 @@ public interface InternalContainerModel extends ContainerModel {
      */
     public List<User> readPublishedToUsers(final Long containerId,
             final Long versionId);
+
+    /**
+     * Delete local container data.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     */
+    void deleteLocal(final ProcessMonitor monitor);
+
+    /**
+     * Restore local container data from the backup.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     */
+    void restoreLocal(final ProcessMonitor monitor);
 }

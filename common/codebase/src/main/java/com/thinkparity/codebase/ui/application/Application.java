@@ -19,7 +19,7 @@ public interface Application<T extends Platform> extends Saveable {
 	 * @param l
      *      The application listener.
 	 */
-	public boolean addListener(final ApplicationListener listener);
+	boolean addListener(final ApplicationListener<T> listener);
 
 	/**
 	 * End the application.
@@ -27,21 +27,21 @@ public interface Application<T extends Platform> extends Saveable {
      * @param platform
      *      The platform.
 	 */
-	public void end(final T platform);
+	void end(final T platform);
 
     /**
      * Obtain the application's unique id.
      * 
      * @return An <code>ApplicationId</code>.
      */
-    public ApplicationId getId();
+    ApplicationId getId();
 
     /**
 	 * Determine the application's current status.
 	 * 
 	 * @return The application's current status.
 	 */
-	public ApplicationStatus getStatus();
+	ApplicationStatus getStatus();
 
 	/**
 	 * Hibernate the application.
@@ -49,7 +49,7 @@ public interface Application<T extends Platform> extends Saveable {
      * @param platform
      *      The platform.
 	 */
-	public void hibernate(final T platform);
+	void hibernate(final T platform);
 
     /**
      * Add a listener to the application. The listener is used to generate
@@ -58,7 +58,7 @@ public interface Application<T extends Platform> extends Saveable {
      * @param l
      *            The application listener.
      */
-	public boolean removeListener(final ApplicationListener listener);
+	boolean removeListener(final ApplicationListener<T> listener);
 
 	/**
      * Restore the application from hibernation.
@@ -66,7 +66,7 @@ public interface Application<T extends Platform> extends Saveable {
      * @param platform
      *            The platform.
      */
-	public void restore(final T platform);
+	void restore(final T platform);
 
     /**
 	 * Start the application.
@@ -74,5 +74,5 @@ public interface Application<T extends Platform> extends Saveable {
      * @param platform
      *      The platform.
 	 */
-	public void start(final T platform);
+	void start(final T platform);
 }

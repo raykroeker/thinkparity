@@ -8,6 +8,9 @@ import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.session.InvalidLocationException;
 
 import com.thinkparity.ophelia.model.backup.BackupDelegate;
+import com.thinkparity.ophelia.model.contact.InternalContactModel;
+import com.thinkparity.ophelia.model.container.InternalContainerModel;
+import com.thinkparity.ophelia.model.profile.InternalProfileModel;
 import com.thinkparity.ophelia.model.session.InternalSessionModel;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 
@@ -49,11 +52,20 @@ public final class Restore extends BackupDelegate {
         sessionModel.login(credentials);    /* will create credentials */
         try {
             sessionModel.initializeToken(); /* will invalidate other profiles */
-    
+
+            final InternalContactModel contactModel = getContactModel();
+            final InternalContainerModel containerModel = getContainerModel();
+            final InternalProfileModel profileModel = getProfileModel();
+
+            /* delete */
+            containerModel.deleteLocal(monitor);
+            contactModel.deleteLocal(monitor);
+            profileModel.deleteLocal(monitor);
+
             /* restore */
-            getProfileModel().restoreBackup(monitor);
-            getContactModel().restoreBackup(monitor);
-            getContainerModel().restoreBackup(monitor);
+            profileModel.restoreLocal(monitor);
+            contactModel.restoreLocal(monitor);
+            containerModel.restoreLocal(monitor);
         } finally {
             sessionModel.logout();
         }

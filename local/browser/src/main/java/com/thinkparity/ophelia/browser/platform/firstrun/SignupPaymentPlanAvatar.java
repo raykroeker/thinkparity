@@ -14,7 +14,8 @@ import java.awt.event.FocusListener;
 
 import javax.swing.text.AbstractDocument;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.constraint.IllegalValueException;
 import com.thinkparity.codebase.swing.SwingUtil;
@@ -40,7 +41,7 @@ import com.thinkparity.ophelia.browser.platform.util.State;
 /**
  * <b>Title:</b>thinkParity Ophelia UI Platform First Run Payment Plan Avatar<br>
  * <b>Description:</b>The avatar that allows a user to select an existing
- * payment plan by specifying a username/password.<br>
+ * payment plan by specifying a name/password.<br>
  * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
@@ -204,17 +205,17 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
         if (infoJRadioButton.isSelected()) {
             /* no checking required */
         } else if (planJRadioButton.isSelected()) {
-            final String username = extractName();
+            final String name = extractName();
             final String password = extractPassword();
-            if (null == username) {
-                addInputError(getString("ErrorNoUsername"));
+            if (null == name) {
+                addInputError(Separator.Space.toString());
             } else {
                 try {
-                    constraints.getName().validate(username);
+                    constraints.getName().validate(name);
                 } catch (final IllegalValueException ivx) {
                     switch (ivx.getReason()) {
                     case TOO_SHORT:
-                        addInputError("ErrorUsernameTooShort",
+                        addInputError("ErrorNameTooShort",
                                 constraints.getName().getMinLength());
                         break;
                     case FORMAT:
@@ -229,14 +230,14 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
                 }
             }
             if (null == password) {
-                addInputError(getString("ErrorNoPassword"));
+                addInputError(Separator.Space.toString());
             } else {
                 try {
                     constraints.getPassword().validate(password);
                 } catch (final IllegalValueException ivx) {
                     switch (ivx.getReason()) {
                     case TOO_SHORT:
-                        addInputError("ErrorUsernameTooShort",
+                        addInputError("ErrorPasswordTooShort",
                                 constraints.getPassword().getMinLength());
                         break;
                     case FORMAT:
@@ -315,7 +316,7 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
             logger.logWarning(icx, "The plan name/password are invalid.");
             addInputError(getString("ErrorInvalidCredentials"));
         } catch (final ReservationExpiredException rex) {
-            logger.logWarning(rex, "The username/e-mail reservation has expired.");
+            logger.logWarning(rex, "The e-mail reservation has expired.");
             addInputError(getSharedString("ErrorReservationExpired"));
         } catch (final Throwable t) {
             logger.logFatal(t, "An unexpected error has occured.");
@@ -332,8 +333,8 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
     }
 
     /**
-     * Extract the credentials.  If either the username or the password are not
-     * set; null is returned.
+     * Extract the credentials.  If either the name or the password are not
+     * set, null is returned.
      * 
      * @return A <code>PaymentPlanCredentials</code>.
      */
@@ -368,24 +369,16 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
     }
 
     /**
-     * Initialize focus listeners on the username/password controls to validate
+     * Initialize focus listeners on the name/password controls to validate
      * input.
      * 
      */
     private void initComponentFocusListeners() {
         final FocusListener listener = new FocusAdapter() {
-            /**
-             * @see java.awt.event.FocusAdapter#focusGained(java.awt.event.FocusEvent)
-             *
-             */
             @Override
             public void focusGained(final FocusEvent e) {
                 validateInput();
             }
-            /**
-             * @see java.awt.event.FocusAdapter#focusLost(java.awt.event.FocusEvent)
-             *
-             */
             @Override
             public void focusLost(final FocusEvent e) {
                 validateInput();
@@ -445,15 +438,6 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(eaJLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE)
-                            .addComponent(errorJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(12, 12, 12)
-                                .addComponent(infoJRadioButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 122, Short.MAX_VALUE))))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(24, 24, 24)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -468,7 +452,14 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
                                         .addComponent(passwordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                     .addComponent(nameJTextField, 0, 0, Short.MAX_VALUE)))
-                            .addComponent(planJRadioButton, javax.swing.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE))))
+                            .addComponent(planJRadioButton, javax.swing.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)
+                            .addComponent(infoJRadioButton)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(errorJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(eaJLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 455, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -477,11 +468,11 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(eaJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(15, 15, 15)
+                .addGap(24, 24, 24)
+                .addComponent(eaJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(21, 21, 21)
                 .addComponent(infoJRadioButton)
-                .addGap(19, 19, 19)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(planJRadioButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -493,7 +484,7 @@ public final class SignupPaymentPlanAvatar extends DefaultSignupPage {
                     .addComponent(passwordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(errorJLabel)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(63, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

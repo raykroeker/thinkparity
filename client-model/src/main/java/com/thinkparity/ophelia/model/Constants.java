@@ -63,10 +63,6 @@ public final class Constants {
     }
     public static final class Product {
         public static final String NAME = System.getProperty("thinkparity.product-name");
-        public static final class Features {
-            public static final String BACKUP = "BACKUP";
-            public static final String CORE = "CORE";
-        }
     }
     public static final class PropertyNames {
         public static final class ThinkParity {

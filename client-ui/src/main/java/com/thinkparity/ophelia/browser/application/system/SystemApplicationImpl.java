@@ -8,9 +8,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.thinkparity.ophelia.model.workspace.configuration.ProxyConfiguration;
+
 import com.thinkparity.ophelia.browser.application.system.dialog.DisplayInfoFrame;
 import com.thinkparity.ophelia.browser.application.system.dialog.Notification;
 import com.thinkparity.ophelia.browser.application.system.dialog.NotifyFrame;
+import com.thinkparity.ophelia.browser.application.system.dialog.UpdateConfigurationFrame;
 import com.thinkparity.ophelia.browser.application.system.tray.Tray;
 
 /**
@@ -26,10 +29,13 @@ class SystemApplicationImpl extends Thread {
 	 */
 	Boolean running = Boolean.FALSE;
 
+    /** The proxy configuration. */
+    private ProxyConfiguration configuration;
+
 	/** Flag indicating the DisplayInfo dialog has been requested. */
     private Boolean displayInfoRequested = Boolean.FALSE;
 
-	/** Queue of notifications not yet displayed. */
+    /** Queue of notifications not yet displayed. */
     private final List<Notification> notificationQueue;
 
 	/** The system application. */
@@ -37,6 +43,9 @@ class SystemApplicationImpl extends Thread {
 
 	/** The system tray functionality. */
 	private Tray sysTray;
+
+	/** Flag indicating the UpdateConfiguration dialog has been requested. */
+    private Boolean updateConfigurationRequested = Boolean.FALSE;
 
 	SystemApplicationImpl(final SystemApplication sysApp) {
 		super("TPS-OpheliaUI-SystemApplication");
@@ -59,6 +68,7 @@ class SystemApplicationImpl extends Thread {
             // we are no longer running
             if (running) {
     			try {
+                    processUpdateConfiguration();
                     processDisplayInfo();
                     processNotificationQueue();
     			} catch (final RuntimeException rx) {
@@ -95,6 +105,20 @@ class SystemApplicationImpl extends Thread {
         }
     }
 
+    /**
+     * Display the update configuration dialog.
+     * 
+     * @param configuration
+     *            A <code>ProxyConfiguration</code>.
+     */
+    void displayUpdateConfigurationDialog(final ProxyConfiguration configuration) {
+        synchronized (this) {
+            this.configuration = configuration;
+            updateConfigurationRequested = Boolean.TRUE;
+            notifyAll();
+        }
+    }
+
 	/**
 	 * End the application.
 	 */
@@ -109,6 +133,9 @@ class SystemApplicationImpl extends Thread {
         }
         if (DisplayInfoFrame.isDisplayed()) {
             DisplayInfoFrame.close();
+        }
+        if (UpdateConfigurationFrame.isDisplayed()) {
+            UpdateConfigurationFrame.close();
         }
 
         synchronized (this) {
@@ -211,7 +238,7 @@ class SystemApplicationImpl extends Thread {
         }
     }
 
-	/**
+    /**
      * Process pending notification queue events.
      */
     private void processNotificationQueue() {
@@ -224,6 +251,18 @@ class SystemApplicationImpl extends Thread {
                     NotifyFrame.display(notification, sysApp);
                     i.remove();
                 }
+            }
+        }
+    }
+
+	/**
+     * Process a request for the update configuration dialog.
+     */
+    private void processUpdateConfiguration() {
+        if (updateConfigurationRequested) {
+            synchronized (this) {
+                UpdateConfigurationFrame.display(configuration);
+                updateConfigurationRequested = Boolean.FALSE;
             }
         }
     }

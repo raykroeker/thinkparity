@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.common.StringUtil;
+
 import com.thinkparity.codebase.assertion.Assert;
 
 /**

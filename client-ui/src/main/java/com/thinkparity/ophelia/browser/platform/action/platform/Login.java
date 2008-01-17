@@ -44,9 +44,8 @@ public class Login extends AbstractAction {
     public void invoke(Data data) {
         final InitializeMediator mediator = (InitializeMediator) data.get(DataKey.INITIALIZE_MEDIATOR);
         final ThinkParitySwingMonitor monitor = (ThinkParitySwingMonitor) data.get(DataKey.MONITOR);
-        final String password = (String) data.get(DataKey.PASSWORD);
-        final String username = (String) data.get(DataKey.USERNAME);
-        invoke(monitor, username, password, mediator);
+        final Credentials credentials = (Credentials) data.get(DataKey.CREDENTIALS);
+        invoke(monitor, credentials, mediator);
     }
 
     /**
@@ -54,19 +53,14 @@ public class Login extends AbstractAction {
      * 
      * @param monitor
      *            A <code>ThinkParitySwingMonitor</code>.
-     * @param username
-     *            A <code>String</code>.
-     * @param password
-     *            A <code>String</code>.
+     * @param credentials
+     *            The <code>Credentials</code>.
      * @param initializeMediator
      *            An <code>InitializeMediator</code>.
      */
     public void invoke(final ThinkParitySwingMonitor monitor,
-            final String username, final String password,
+            final Credentials credentials,
             final InitializeMediator mediator) {
-        final Credentials credentials = new Credentials();
-        credentials.setPassword(password);
-        credentials.setUsername(username);
         final ThinkParitySwingWorker<Login> worker = new LoginWorker(this,
                 credentials, mediator);
         worker.setMonitor(monitor);
@@ -87,7 +81,7 @@ public class Login extends AbstractAction {
     }
 
     /** Data keys. */
-    public enum DataKey {INITIALIZE_MEDIATOR, MONITOR, PASSWORD, USERNAME}
+    public enum DataKey {CREDENTIALS, INITIALIZE_MEDIATOR, MONITOR}
 
     /** <b>Title:</b>Login Swing Worker<br> */
     private static class LoginWorker extends ThinkParitySwingWorker<Login> {

@@ -92,7 +92,7 @@ public class TxUtils {
      */
     private List<File> doExtractFiles(final Transferable t) throws IOException,
             UnsupportedFlavorException {
-        final List data = (List) t.getTransferData(DataFlavor.javaFileListFlavor);
+        final List<?> data = (List<?>) t.getTransferData(DataFlavor.javaFileListFlavor);
         final List<File> fileData = new LinkedList<File>();
         File file;
         for(final Object datum : data) {

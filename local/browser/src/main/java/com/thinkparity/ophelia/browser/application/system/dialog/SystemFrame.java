@@ -11,14 +11,24 @@ import javax.swing.border.Border;
 import com.thinkparity.codebase.swing.AbstractJDialog;
 import com.thinkparity.codebase.swing.SwingUtil;
 
+import com.thinkparity.ophelia.browser.Constants;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2;
 import com.thinkparity.ophelia.browser.platform.application.window.WindowBorder2Animating;
+import com.thinkparity.ophelia.browser.util.window.WindowUtil;
+import com.thinkparity.ophelia.browser.util.window.WindowUtilProvider;
 
 /**
- * @author rob_masako@shaw.ca
+ * @author robert@thinkparity.com
  * @version $Revision$
  */
 public abstract class SystemFrame extends AbstractJDialog {
+
+    /** An instance of <code>WindowUtil</code>. */
+    private static final WindowUtil WINDOW_UTIL;
+
+    static {
+        WINDOW_UTIL = WindowUtilProvider.getInstance().getWindowUtil();
+    }
 
     /** The <code>Border</code>. */
     private final Border border;
@@ -29,8 +39,8 @@ public abstract class SystemFrame extends AbstractJDialog {
     /** The system frame's <code>FrameAnimator</code>. */
     private final FrameAnimator frameAnimator;
 
-    /** The <code>SystemPanel</code>. */
-    protected SystemPanel panel;
+    /** The <code>Component</code>. */
+    protected Component panel;
 
     /**
      * Create SystemFrame.
@@ -138,6 +148,7 @@ public abstract class SystemFrame extends AbstractJDialog {
                     getFinalLocation().y, getFinalSize().height,
                     new Runnable() {
                         public void run() {
+                            roundCorners();
                             getRootPane().setBorder(getFinalBorder());
                         }
             });
@@ -145,7 +156,15 @@ public abstract class SystemFrame extends AbstractJDialog {
         } else {
             setLocation(getFinalLocation());
             setVisible(true);
+            roundCorners();
         }
+    }
+
+    /**
+     * Make the corners of the notify frame round.
+     */
+    private void roundCorners() {
+        WINDOW_UTIL.applyRoundedEdges(this, Constants.WindowUtil.NOTIFICATION_WINDOW_SIZE);
     }
 
     /**

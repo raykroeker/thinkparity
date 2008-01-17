@@ -121,21 +121,21 @@ public class ProfileSEI extends ServiceSEI implements ProfileService {
     }
 
     /**
-     * @see com.thinkparity.service.ProfileService#update(AuthToken, Profile, PaymentInfo)
-     * 
-     */
-    @Override
-    public void update(final AuthToken authToken, final Profile profile,
-            final PaymentInfo paymentInfo) {
-        getModel(authToken).update(profile, paymentInfo);
-    }
-
-    /**
      * @see com.thinkparity.service.ProfileService#createToken(com.thinkparity.service.AuthToken)
      *
      */
     public Token createToken(final AuthToken authToken) {
         return getModel(authToken).createToken();
+    }
+
+    /**
+     * @see com.thinkparity.service.ProfileService#createUsernameReservation(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.profile.Profile)
+     *
+     */
+    @Override
+    public UsernameReservation createUsernameReservation(
+            final AuthToken authToken, final Profile profile) {
+        return getModel().createUsernameReservation(profile);
     }
 
     /**
@@ -213,6 +213,16 @@ public class ProfileSEI extends ServiceSEI implements ProfileService {
      */
     public Token readToken(final AuthToken authToken) {
         return getModel(authToken).readToken();
+    }
+
+    /**
+     * @see com.thinkparity.service.ProfileService#update(AuthToken, Profile, PaymentInfo)
+     * 
+     */
+    @Override
+    public void update(final AuthToken authToken, final Profile profile,
+            final PaymentInfo paymentInfo) {
+        getModel(authToken).update(profile, paymentInfo);
     }
 
     /**

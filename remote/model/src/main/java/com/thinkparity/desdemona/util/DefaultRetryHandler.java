@@ -5,7 +5,8 @@ package com.thinkparity.desdemona.util;
 
 import java.net.URISyntaxException;
 
-import com.thinkparity.codebase.model.stream.StreamRetryHandler;
+import com.thinkparity.stream.StreamRetryHandler;
+
 import com.thinkparity.codebase.model.stream.StreamSession;
 
 /**
@@ -45,7 +46,7 @@ public class DefaultRetryHandler implements StreamRetryHandler {
     }
 
     /**
-     * @see com.thinkparity.codebase.model.stream.StreamRetryHandler#retry()
+     * @see com.thinkparity.stream.StreamRetryHandler#retry()
      *
      */
     @Override
@@ -58,7 +59,7 @@ public class DefaultRetryHandler implements StreamRetryHandler {
     }
 
     /**
-     * @see com.thinkparity.codebase.model.stream.StreamRetryHandler#period()
+     * @see com.thinkparity.stream.StreamRetryHandler#period()
      *
      */
     @Override

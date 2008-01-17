@@ -5,7 +5,8 @@ package com.thinkparity.stream.httpclient;
 
 import org.apache.commons.httpclient.protocol.Protocol;
 
-import com.thinkparity.network.NetworkProtocol;
+import com.thinkparity.net.NetworkProtocol;
+
 
 /**
  * <b>Title:</b>thinkParity Common Model Stream Http Client Util<br>

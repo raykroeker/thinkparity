@@ -30,10 +30,14 @@ public final class ActionFactory {
 
     static {
         ID_CLASS_MAP = new HashMap<String, Class<?>>();
-        ID_CLASS_MAP.put("/application/terminate", com.thinkparity.ophelia.support.ui.action.application.Terminate.class);
+        ID_CLASS_MAP.put("/application/data/delete", com.thinkparity.ophelia.support.ui.action.application.data.Delete.class);
+        ID_CLASS_MAP.put("/application/process/terminate", com.thinkparity.ophelia.support.ui.action.application.process.Terminate.class);
+        ID_CLASS_MAP.put("/application/selecttab", com.thinkparity.ophelia.support.ui.action.application.SelectTab.class);
+        ID_CLASS_MAP.put("/network/reloadtab", com.thinkparity.ophelia.support.ui.action.network.ReloadTab.class);
+        ID_CLASS_MAP.put("/network/selecttab", com.thinkparity.ophelia.support.ui.action.network.SelectTab.class);
+        ID_CLASS_MAP.put("/network/test", com.thinkparity.ophelia.support.ui.action.network.Test.class);
         ID_CLASS_MAP.put("/main/quit", com.thinkparity.ophelia.support.ui.action.main.Quit.class);
         ID_CLASS_MAP.put("/main/start", com.thinkparity.ophelia.support.ui.action.main.Start.class);
-        ID_CLASS_MAP.put("/data/delete", com.thinkparity.ophelia.support.ui.action.data.Delete.class);
 
         ILLEGAL_STATE_INSTANTIATED_PATTERN = "Action \"{0}\" has already been instantiated.";
 

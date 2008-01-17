@@ -10,6 +10,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import com.thinkparity.common.StringUtil;
+
 import com.thinkparity.codebase.assertion.Assert;
 
 /**

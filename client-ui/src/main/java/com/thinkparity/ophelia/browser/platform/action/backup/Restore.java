@@ -12,8 +12,10 @@ import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.ophelia.model.backup.BackupModel;
 import com.thinkparity.ophelia.model.contact.monitor.DownloadData;
 import com.thinkparity.ophelia.model.contact.monitor.DownloadStep;
-import com.thinkparity.ophelia.model.container.monitor.RestoreBackupData;
-import com.thinkparity.ophelia.model.container.monitor.RestoreBackupStep;
+import com.thinkparity.ophelia.model.container.monitor.DeleteLocalData;
+import com.thinkparity.ophelia.model.container.monitor.DeleteLocalStep;
+import com.thinkparity.ophelia.model.container.monitor.RestoreLocalData;
+import com.thinkparity.ophelia.model.container.monitor.RestoreLocalStep;
 import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.util.ProcessAdapter;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
@@ -180,20 +182,30 @@ public final class Restore extends AbstractBrowserAction {
                  */
                 @Override
                 public void beginStep(final Step step, final Object data) {
-                    if (step instanceof RestoreBackupStep) {
-                        final RestoreBackupStep restoreBackupStep = (RestoreBackupStep) step;
-                        final RestoreBackupData restoreBackupData = (RestoreBackupData) data;
-                        beginStep(restoreBackupStep, restoreBackupData);
+                    if (step instanceof RestoreLocalStep) {
+                        beginStep((RestoreLocalStep) step, (RestoreLocalData) data);
+                    } else if (step instanceof DeleteLocalStep) {
+                        beginStep((DeleteLocalStep) step, (DeleteLocalData) data);
                     } else if (step instanceof DownloadStep) {
-                        final DownloadStep downloadStep = (DownloadStep) step;
-                        final DownloadData downloadData = (DownloadData) data;
-                        beginStep(downloadStep, downloadData);
+                        beginStep((DownloadStep) step, (DownloadData) data);
                     } else {
                         Assert.assertUnreachable("Unknown restore step {0}.", step);
                     }
                 }
                 @Override
                 public void endStep(final Step step) {
+                }
+                private void beginStep(final DeleteLocalStep step, final DeleteLocalData data) {
+                    switch (step) {
+                    case DELETE_CONTAINER:
+                        this.step++;
+                        monitor.setStep(this.step);
+                        break;
+                    case DELETE_CONTAINERS:
+                        setSteps(step, data);
+                        monitor.setStep(this.step, getStepNote(step, data));
+                        break;
+                    }
                 }
                 /**
                  * Begin a step for download.
@@ -221,21 +233,13 @@ public final class Restore extends AbstractBrowserAction {
                  * Begin a step for restoring backup.
                  * 
                  * @param step
-                 *            A <code>RestoreBackupStep</code>.
+                 *            A <code>RestoreLocalStep</code>.
                  * @param data
-                 *            A <code>RestoreBackupData</code>.
+                 *            A <code>RestoreLocalData</code>.
                  */
-                private void beginStep(final RestoreBackupStep step,
-                        final RestoreBackupData data) {
+                private void beginStep(final RestoreLocalStep step,
+                        final RestoreLocalData data) {
                     switch (step) {
-                    case DELETE_CONTAINER:
-                        this.step++;
-                        monitor.setStep(this.step);
-                        break;
-                    case DELETE_CONTAINERS:
-                        setSteps(step, data);
-                        monitor.setStep(this.step, getStepNote(step, data));
-                        break;
                     case FINALIZE_RESTORE:
                         this.step += 5;
                         monitor.setStep(this.step, getStepNote(step, data));
@@ -272,6 +276,25 @@ public final class Restore extends AbstractBrowserAction {
                     }
                 }
                 /**
+                 * Obtain the step note for deleting local data.
+                 * 
+                 * @param step
+                 *            A <code>DeleteLocalStep</code>.
+                 * @param data
+                 *            A <code>DeleteLocalData</code>.
+                 * @return A <code>String</code>.
+                 */
+                private String getStepNote(final DeleteLocalStep step,
+                        final DeleteLocalData data) {
+                    switch (step) {
+                        case DELETE_CONTAINERS:
+                            return getString("StepDeleteContainers");
+                        case DELETE_CONTAINER:      // deliberate fall-through
+                        default:
+                            throw Assert.createUnreachable("Unsupported delete local step.");
+                    }
+                }
+                /**
                  * Obtain a progress note for an initialize step.
                  * 
                  * @param step
@@ -296,18 +319,14 @@ public final class Restore extends AbstractBrowserAction {
                  * Obtain the progress note for a restore step.
                  * 
                  * @param step
-                 *            A <code>RestoreBackupStep</code>.
+                 *            A <code>RestoreLocalStep</code>.
                  * @param data
-                 *            The <code>RestoreBackupData</code>.
+                 *            The <code>RestoreLocalData</code>.
                  * @return A <code>String</code>.
                  */
-                private String getStepNote(final RestoreBackupStep step,
-                        final RestoreBackupData data) {
-                    switch ((RestoreBackupStep) step) {
-                    case DELETE_CONTAINER:
-                        return null;
-                    case DELETE_CONTAINERS:
-                        return getString("StepDeleteContainers");
+                private String getStepNote(final RestoreLocalStep step,
+                        final RestoreLocalData data) {
+                    switch (step) {
                     case FINALIZE_RESTORE:
                         return getString("StepFinalize");
                     case RESET_RESTORE_DOCUMENT_VERSION:
@@ -370,6 +389,29 @@ public final class Restore extends AbstractBrowserAction {
                     }
                 }
                 /**
+                 * Adjust the number of steps based upon the delete local
+                 * step/data.
+                 * 
+                 * @param step
+                 *            A <code>DeleteLocalStep</code>.
+                 * @param data
+                 *            A <code>DeleteLocalData</code>.
+                 */
+                private void setSteps(final DeleteLocalStep step,
+                        final DeleteLocalData data) {
+                    switch (step) {
+                    case DELETE_CONTAINERS:
+                        this.step = 0;
+                        this.steps = data.getDeleteContainers().size();
+                        monitor.setSteps(this.steps);
+                        monitor.setStep(this.step, getStepNote(step, data));
+                        break;
+                    case DELETE_CONTAINER:  // deliberate fall through
+                    default:
+                        Assert.assertUnreachable("Unsupported delete local step.");
+                    }
+                }
+                /**
                  * Set the download steps.
                  * 
                  * @param step
@@ -395,26 +437,19 @@ public final class Restore extends AbstractBrowserAction {
                  * Set the restore backup steps.
                  * 
                  * @param step
-                 *            A <code>RestoreBackupStep</code>.
+                 *            A <code>RestoreLocalStep</code>.
                  * @param data
-                 *            An <code>RestoreBackupData</code>.
+                 *            An <code>RestoreLocalData</code>.
                  */
-                private void setSteps(final RestoreBackupStep step,
-                        final RestoreBackupData data) {
+                private void setSteps(final RestoreLocalStep step,
+                        final RestoreLocalData data) {
                     switch (step) {
-                    case DELETE_CONTAINERS:
-                        this.step = 0;
-                        this.steps = data.getDeleteContainers().size();
-                        monitor.setSteps(this.steps);
-                        monitor.setStep(this.step, getStepNote(step, data));
-                        break;
                     case RESTORE_CONTAINERS:
                         this.step = 0;
                         this.steps = data.getRestoreContainers().size() + 5;
                         monitor.setSteps(this.steps);
                         monitor.setStep(this.step, getStepNote(step, data));
                         break;
-                    case DELETE_CONTAINER:
                     case FINALIZE_RESTORE:
                     case RESTORE_DOCUMENT_VERSIONS:
                     case RESTORE_CONTAINER:

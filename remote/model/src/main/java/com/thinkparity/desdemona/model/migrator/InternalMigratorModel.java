@@ -64,10 +64,10 @@ public interface InternalMigratorModel extends MigratorModel {
      * @param product
      *            A <code>Product</code>.
      * @param name
-     *            A product feature name <code>String</code>.
+     *            A <code>Feature.Name</code>.
      * @return A <code>Feature</code>.
      */
-    Feature readProductFeature(Product product, String name);
+    Feature readProductFeature(Product product, Feature.Name name);
 
     /**
      * Update the user's product configuration.

@@ -4,28 +4,21 @@
 package com.thinkparity.codebase.assertion;
 
 /**
+ * <b>Title:</b>thinkParity Common Not Yet Implemented Assertion<br>
+ * <b>Description:</b>An method defintion has been defined and not implemented.<br>
+ * 
  * @author raymond@thinkparity.com
- * @version 1.1.2.2
+ * @version 1.1.2.1
  */
-public class NotYetImplementedAssertion extends Assertion {
-
-	/** The assertion message prefix. */
-	private static final String MESSAGE_PREFIX =
-		"This api method has not yet been implemented:  ";
-
-	/** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
+public final class NotYetImplementedAssertion extends Assertion {
 
 	/**
-     * Create NotTrueAssertion.
+     * Create NotYetImplementedAssertion.
      * 
      * @param message
-     *            An assertion message.
+     *            A message <code>String</code>.
      */
 	NotYetImplementedAssertion(final String message) {
-		super(new StringBuffer(MESSAGE_PREFIX).append(message).toString());
+		super(message);
 	}
-
-	/** Create NotYetImplementedAssertion. */
-	private NotYetImplementedAssertion() { super(); }
 }

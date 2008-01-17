@@ -94,6 +94,15 @@ public class Profile extends User {
     }
 
     /**
+     * Obtain the industry.
+     * 
+     * @return An industry <code>String</code>.
+     */
+    public String getIndustry() {
+        return vcard.getIndustry();
+    }
+
+    /**
      * Obtain the user's language preference.
      * 
      * @return A language <code>String</code>.
@@ -186,6 +195,15 @@ public class Profile extends User {
     }
 
     /**
+     * Determine whether or not the user's industry is set.
+     * 
+     * @return True if industry is set; false otherwise.
+     */
+    public Boolean isSetIndustry() {
+        return vcard.isSetIndustry();
+    }
+
+    /**
      * Determine whether or not the user's mobile phone number is set.
      * 
      * @return True if it is set; false otherwise.
@@ -254,6 +272,16 @@ public class Profile extends User {
     public void setFeatures(final List<Feature> features) {
         this.features.clear();
         this.features.addAll(features);
+    }
+
+    /**
+     * Set the industry.
+     * 
+     * @param industry
+     *            The industry <code>String</code>.
+     */
+    public void setIndustry(final String industry) {
+        vcard.setIndustry(industry);
     }
 
     /**

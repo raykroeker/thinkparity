@@ -7,7 +7,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.jabber.JabberId;
 

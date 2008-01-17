@@ -171,17 +171,6 @@ public interface InternalArtifactModel extends ArtifactModel {
 	public void handleReceived(final ArtifactReceivedEvent event);
 
     /**
-     * Handle the remote event generated when a team member is added. This will
-     * download the user's info if required and create the team data locally.
-     * 
-     * @param uniqueId
-     *            The artifact unique id.
-     * @param jabberId
-     *            The user's jabber id.
-     */
-    public void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event);
-
-    /**
      * Determine whether or not the seen flag is applied to any version.
      * 
      * @param containerId
@@ -306,6 +295,14 @@ public interface InternalArtifactModel extends ArtifactModel {
      *            The team member.
      */
     public void removeTeamMember(final Long artifactId, final JabberId userId);
+
+    /**
+     * Handle the team member added remote event.
+     * 
+     * @param event
+     *            An <code>ArtifactTeamMemberAddedEvent</code>.
+     */
+    void handleEvent(final ArtifactTeamMemberAddedEvent event);
 
     /**
      * Handle the team member removed remote event.

@@ -92,7 +92,7 @@ Local Configuration:                ${localconfig}
     <!-- cvs configuration -->
     <property name="cvs.compressionlevel" value="9"/>
     <property name="cvs.cvsroot" value=":pserver:${scm.credentials}@tps-yxx-0.thinkparity.org:2401/cvs/repo/thinkparity"/>
-    <property name="cvs.branch" value="v1_0"/>
+    <property name="cvs.branch" value="M20071231"/>
     <property name="cvs.modules" value="remote/model"/>
 
     <!-- groovy configuration -->
@@ -105,7 +105,12 @@ Local Configuration:                ${localconfig}
     </path>
 
     <!-- input directories -->
-    <property name="thinkparity.common.home" value="${basedir}/../common"/>
+    <property name="thinkparity.common" value="${basedir}/../common"/>
+    <property name="thinkparity.common-model" value="${basedir}/../common-model"/>
+    <property name="thinkparity.common-net" value="${basedir}/../common-network"/>
+    <property name="thinkparity.common-net-http" value="${basedir}/../common-network-http"/>
+    <property name="thinkparity.common-service" value="${basedir}/../common-service"/>
+    <property name="thinkparity.common-stream" value="${basedir}/../common-stream"/>
     <property name="webapp-dir" value="${basedir}/remote/model/src/main/webapp"/>
 	<property name="test-webapp-dir" value="${basedir}/remote/model/src/test/webapp"/>
 
@@ -286,28 +291,42 @@ Local Configuration:                ${localconfig}
     <!-- compile -->
     <target name="compile" depends="init,process-resources,generate">
         <!-- common/codebase -->
-        <javac srcdir="${thinkparity.common.home}/codebase/src/main/java"
+        <javac srcdir="${thinkparity.common}/codebase/src/main/java"
                 destdir="${target.classes.dir}" debug="${javac.debug}"
                 debuglevel="${javac.debug-level}">
             <classpath refid="compile.classpath"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
-        <!-- common/network -->
-        <javac srcdir="${thinkparity.common.home}/network/src/main/java"
+        <!-- common-net -->
+        <javac srcdir="${thinkparity.common-net}/src/main/java"
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="compile.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
+        <!-- common-net-http -->
+        <javac srcdir="${thinkparity.common-net-http}/src/main/java"
                 destdir="${target.classes.dir}" debug="${javac.debug}"
                 debuglevel="${javac.debug-level}">
             <classpath refid="compile.classpath"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
         <!-- common/model -->
-        <javac srcdir="${thinkparity.common.home}/model/src/main/java"
+        <javac srcdir="${thinkparity.common-model}/src/main/java"
                 destdir="${target.classes.dir}" debug="${javac.debug}"
                 debuglevel="${javac.debug-level}">
             <classpath refid="compile.classpath"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
-        <!-- common/services -->
-        <javac srcdir="${thinkparity.common.home}/services/src/main/java"
+        <!-- common-service -->
+        <javac srcdir="${thinkparity.common-service}/src/main/java"
+                destdir="${target.classes.dir}" debug="${javac.debug}"
+                debuglevel="${javac.debug-level}">
+            <classpath refid="compile.classpath"/>
+            <compilerarg line="${javac.compilerargs}"/>
+        </javac>
+        <!-- common-stream -->
+        <javac srcdir="${thinkparity.common-stream}/src/main/java"
                 destdir="${target.classes.dir}" debug="${javac.debug}"
                 debuglevel="${javac.debug-level}">
             <classpath refid="compile.classpath"/>
@@ -331,7 +350,7 @@ Local Configuration:                ${localconfig}
 
     <target name="generate-compile">
         <!-- common/xdoclet -->
-        <javac srcdir="${thinkparity.common.home}/xdoclet/src/main/java"
+        <javac srcdir="${thinkparity.common}/xdoclet/src/main/java"
                 destdir="${target.generate-classes.dir}" debug="${javac.debug}"
                 debuglevel="${javac.debug-level}">
             <classpath refid="generate.classpath"/>
@@ -342,7 +361,7 @@ Local Configuration:                ${localconfig}
     <target name="generate-process-resources">
         <!-- common/xdoclet -->
         <copy todir="${target.generate-classes.dir}">
-            <fileset dir="${thinkparity.common.home}/xdoclet/src/main/resources"/>
+            <fileset dir="${thinkparity.common}/xdoclet/src/main/resources"/>
         </copy>
     </target>
 
@@ -430,9 +449,9 @@ Examples:
     <target name="process-resources">
         <!-- common/codebase -->
         <copy todir="${target.classes.dir}">
-            <fileset dir="${thinkparity.common.home}/codebase/src/main/resources"/>
-            <fileset dir="${thinkparity.common.home}/model/src/main/resources"/>
-            <fileset dir="${thinkparity.common.home}/services/src/main/resources"/>
+            <fileset dir="${thinkparity.common}/codebase/src/main/resources"/>
+            <fileset dir="${thinkparity.common-model}/src/main/resources"/>
+            <fileset dir="${thinkparity.common-service}/src/main/resources"/>
             <fileset dir="${basedir}/remote/model/src/main/resources"/>
         </copy>
         <copy todir="${target.classes.dir}">
@@ -515,14 +534,14 @@ Examples:
     <!-- compile tests -->
     <target name="test-compile" depends="compile,test-process-resources">
         <!-- common/junitx -->
-        <javac srcdir="${thinkparity.common.home}/junitx/src/main/java"
+        <javac srcdir="${thinkparity.common}/junitx/src/main/java"
                 destdir="${target.test-classes.dir}" debug="${javac.debug}"
                 debuglevel="${javac.debug-level}">
             <classpath refid="test.classpath"/>
             <compilerarg line="${javac.compilerargs}"/>
         </javac>
-        <!-- common/codebase -->
-        <javac srcdir="${thinkparity.common.home}/codebase/src/test/java"
+        <!-- common -->
+        <javac srcdir="${thinkparity.common}/codebase/src/test/java"
                 destdir="${target.test-classes.dir}" debug="${javac.debug}"
                 debuglevel="${javac.debug-level}">
             <classpath refid="test.classpath"/>
@@ -547,7 +566,7 @@ Examples:
     <!-- process test resources -->
     <target name="test-process-resources">
         <copy todir="${target.test-classes.dir}">
-            <fileset dir="${thinkparity.common.home}/junitx/src/main/resources"/>
+            <fileset dir="${thinkparity.common}/junitx/src/main/resources"/>
         </copy>
     </target>
 

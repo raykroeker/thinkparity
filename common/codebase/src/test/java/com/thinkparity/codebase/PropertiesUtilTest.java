@@ -10,7 +10,8 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.Map.Entry;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil.Separator;
+
 
 /**
  * @author raykroeker@gmail.com

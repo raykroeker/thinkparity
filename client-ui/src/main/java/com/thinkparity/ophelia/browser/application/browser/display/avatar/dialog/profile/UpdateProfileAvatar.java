@@ -6,6 +6,8 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialo
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import javax.swing.AbstractAction;
@@ -13,16 +15,16 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.AbstractDocument;
 
 import com.thinkparity.codebase.BytesFormat;
-import com.thinkparity.codebase.StringUtil;
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.email.EMailBuilder;
 import com.thinkparity.codebase.email.EMailFormatException;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileConstraints;
+import com.thinkparity.codebase.model.profile.ProfileConstraintsInfo;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 
 import com.thinkparity.ophelia.model.profile.BackupStatistics;
@@ -40,6 +42,9 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
+import com.thinkparity.common.StringUtil;
+import com.thinkparity.common.StringUtil.Separator;
+
 /**
  * <b>Title:</b>thinkParity OpheliaUI Update Profile Avatar<br>
  * <b>Description:</b><br>
@@ -47,7 +52,7 @@ import com.thinkparity.ophelia.browser.platform.util.State;
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class UpdateProfileAvatar extends Avatar {
+public class UpdateProfileAvatar extends Avatar implements ProfileConstraintsInfo {
 
     /** A size format to use for the backup statistics. */
     private static final BytesFormat BYTES_FORMAT;
@@ -71,11 +76,13 @@ public class UpdateProfileAvatar extends Avatar {
     private final javax.swing.JTextField emailJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JButton manageAccountJButton = ButtonFactory.create();
+    private final javax.swing.JLabel mobilePhoneJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField mobilePhoneJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JLabel nameJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField nameJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JLabel organizationJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField organizationJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
+    private final javax.swing.JLabel phoneJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField phoneJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
     private final javax.swing.JLabel postalCodeJLabel = new javax.swing.JLabel();
     private final javax.swing.JTextField postalCodeJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
@@ -110,6 +117,19 @@ public class UpdateProfileAvatar extends Avatar {
         initComponents();
         addValidationListeners();
         bindEscapeKey();
+    }
+
+    /**
+     * @see com.thinkparity.codebase.model.profile.ProfileConstraintsInfo#getFeatures()
+     *
+     */
+    @Override
+    public List<Feature> getFeatures() {
+        if (null == input) {
+            return Collections.emptyList();
+        } else {
+            return ((Data) input).getList(DataKey.FEATURES);
+        }
     }
 
     public AvatarId getId() {
@@ -174,23 +194,27 @@ public class UpdateProfileAvatar extends Avatar {
         }
 
         // check for blank required fields
-        if (isEmpty(extractInputName())) {
+        if (isEmpty(extractInputName()) && !profileConstraints.getName().isNullable()) {
             addInputError(getString("ErrorRequiredField", new Object[] {getLabelText(nameJLabel)}));
-        } else if (isEmpty(extractInputTitle())) {
+        } else if (isEmpty(extractInputTitle()) && !profileConstraints.getTitle().isNullable()) {
             addInputError(getString("ErrorRequiredField", new Object[] {getLabelText(titleJLabel)}));
-        } else if (isEmpty(extractInputOrganization())) {
+        } else if (isEmpty(extractInputOrganization()) && !profileConstraints.getOrganization().isNullable()) {
             addInputError(getString("ErrorRequiredField", new Object[] {getLabelText(organizationJLabel)}));
-        } else if (isEmpty(extractInputAddress())) {
+        } else if (isEmpty(extractInputPhone()) && !profileConstraints.getPhone().isNullable()) {
+            addInputError(getString("ErrorRequiredField", new Object[] {getLabelText(phoneJLabel)}));
+        } else if (isEmpty(extractInputMobilePhone()) && !profileConstraints.getMobilePhone().isNullable()) {
+            addInputError(getString("ErrorRequiredField", new Object[] {getLabelText(mobilePhoneJLabel)}));
+        } else if (isEmpty(extractInputAddress()) && !profileConstraints.getAddress(this).isNullable()) {
             addInputError(getString("ErrorRequiredField", new Object[] {getLabelText(addressJLabel)}));
-        } else if (isEmpty(extractInputCity())) {
+        } else if (isEmpty(extractInputCity()) && !profileConstraints.getCity(this).isNullable()) {
             addInputError(getString("ErrorRequiredField", new Object[] {getLabelText(cityJLabel)}));
-        } else if (isEmpty(extractInputProvince())) {
+        } else if (isEmpty(extractInputProvince()) && !profileConstraints.getProvince(this).isNullable()) {
             addInputError(getString("ErrorRequiredField", new Object[] {getLabelText(provinceJLabel)}));
-        } else if (isEmpty(extractInputCountry())) {
+        } else if (isEmpty(extractInputCountry()) && !profileConstraints.getCountry().isNullable()) {
             addInputError(getString("ErrorRequiredField", new Object[] {getLabelText(countryJLabel)}));
-        } else if (isEmpty(extractInputPostalCode())) {
+        } else if (isEmpty(extractInputPostalCode()) && !profileConstraints.getPostalCode(this).isNullable()) {
             addInputError(getString("ErrorRequiredField", new Object[] {getLabelText(postalCodeJLabel)}));
-        } else if (isEmpty(extractInputEmail())) {
+        } else if (isEmpty(extractInputEmail()) && !profileConstraints.getEMail().isNullable()) {
             addInputError(getString("ErrorRequiredField", new Object[] {getLabelText(emailJLabel)}));
         }
 
@@ -340,6 +364,24 @@ public class UpdateProfileAvatar extends Avatar {
     }
 
     /**
+     * Get the industry.
+     * 
+     * For backwards compatibility, if the industry is not known but
+     * it is required, return "UNKNOWN".
+     * 
+     * @param profile
+     *            A <code>Profile</code>.
+     * @return The industry <code>String</code>.
+     */
+    private String getIndustry(final Profile profile) {
+        if (!profile.isSetIndustry() && !profileConstraints.getIndustry(this).isNullable()) {
+            return "UNKNOWN";
+        } else {
+            return profile.getIndustry();
+        }
+    }
+
+    /**
      * Read the backup statistics.
      * 
      * @return The <code>BackupStatistics</code>.
@@ -394,8 +436,6 @@ public class UpdateProfileAvatar extends Avatar {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         final javax.swing.JLabel profileExplanationJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel phoneJLabel = new javax.swing.JLabel();
-        final javax.swing.JLabel mobilePhoneJLabel = new javax.swing.JLabel();
         final javax.swing.JSeparator profileJSeparator = new javax.swing.JSeparator();
         final javax.swing.JLabel backupExplanationJLabel = new javax.swing.JLabel();
         final javax.swing.JButton cancelJButton = ButtonFactory.create();
@@ -462,7 +502,7 @@ public class UpdateProfileAvatar extends Avatar {
         addressJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateProfileAvatar.Address"));
 
         addressJTextField.setText("1234 5th Street");
-        ((AbstractDocument) addressJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getAddress()));
+        ((AbstractDocument) addressJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getAddress(this)));
         addressJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 profileJTextFieldActionPerformed(evt);
@@ -473,7 +513,7 @@ public class UpdateProfileAvatar extends Avatar {
         cityJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateProfileAvatar.City"));
 
         cityJTextField.setText("NYC");
-        ((AbstractDocument) cityJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getCity()));
+        ((AbstractDocument) cityJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getCity(this)));
         cityJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 profileJTextFieldActionPerformed(evt);
@@ -484,7 +524,7 @@ public class UpdateProfileAvatar extends Avatar {
         provinceJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateProfileAvatar.Province"));
 
         provinceJTextField.setText("NY");
-        ((AbstractDocument) provinceJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getProvince()));
+        ((AbstractDocument) provinceJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getProvince(this)));
         provinceJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 profileJTextFieldActionPerformed(evt);
@@ -516,7 +556,7 @@ public class UpdateProfileAvatar extends Avatar {
         postalCodeJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateProfileAvatar.PostalCode"));
 
         postalCodeJTextField.setText("90210");
-        ((AbstractDocument) postalCodeJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getPostalCode()));
+        ((AbstractDocument) postalCodeJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getPostalCode(this)));
         postalCodeJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 profileJTextFieldActionPerformed(evt);
@@ -527,7 +567,7 @@ public class UpdateProfileAvatar extends Avatar {
         emailJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("UpdateProfileAvatar.Email"));
 
         emailJTextField.setText("john@nypd.org");
-        ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getEmail()));
+        ((AbstractDocument) emailJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getEMail()));
         emailJTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 profileJTextFieldActionPerformed(evt);
@@ -1062,12 +1102,13 @@ public class UpdateProfileAvatar extends Avatar {
         profile.setProvince(extractInputProvince());
         profile.setCountry(extractInputCountry());
         profile.setPostalCode(extractInputPostalCode());
+        profile.setIndustry(getIndustry(profile));
         getController().runUpdateProfile(profile);
     }
 
     /** <b>Title:</b>Update Profile Avatar Data Key<br> */
     public enum DataKey {
-        BACKUP_ENABLED, BACKUP_STATISTICS, EMAIL, PAYMENT_INFO_ACCESSIBLE,
+        BACKUP_ENABLED, BACKUP_STATISTICS, EMAIL, FEATURES, PAYMENT_INFO_ACCESSIBLE,
         ONLINE, PROFILE, SIGNUP_AVAILABLE, STATISTICS
     }
 }

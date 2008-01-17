@@ -45,7 +45,7 @@ public class UpgradeAccountAgreementAvatar extends DefaultUpgradeAccountPage {
      * @see com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpgradeAccountPage#getNextPageName()
      */
     public String getNextPageName() {
-        return getPageName(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_PAYMENT);
+        return getPageName(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT_PROFILE);
     }
 
     /**
@@ -160,11 +160,11 @@ public class UpgradeAccountAgreementAvatar extends DefaultUpgradeAccountPage {
                 .addComponent(explanationJLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(licenseAgreementJScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(19, 19, 19)
                 .addComponent(acceptJRadioButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(declineJRadioButton)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 

@@ -13,13 +13,11 @@ import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.EMailReservation;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.SecurityCredentials;
-import com.thinkparity.codebase.model.profile.UsernameReservation;
 import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
 import com.thinkparity.codebase.model.profile.payment.PaymentPlanCredentials;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 
-import com.thinkparity.ophelia.model.Constants.Product;
 import com.thinkparity.ophelia.model.profile.ReservationExpiredException;
 
 import com.thinkparity.ophelia.browser.platform.action.Data;
@@ -59,18 +57,15 @@ final class SignupHelper {
      * 
      */
     public void createGuestProfile() throws ReservationExpiredException {
-        final UsernameReservation usernameReservation = (UsernameReservation) ((Data) input).get(SignupData.DataKey.USERNAME_RESERVATION);
         final EMailReservation emailReservation = (EMailReservation) ((Data) input).get(SignupData.DataKey.EMAIL_RESERVATION);
         final Credentials credentials = (Credentials) ((Data) input).get(SignupData.DataKey.CREDENTIALS);
         final Profile profile = (Profile) ((Data) input).get(SignupData.DataKey.PROFILE);
         final EMail email = (EMail) ((Data) input).get(SignupData.DataKey.EMAIL);
-        final SecurityCredentials securityCredentials = new SecurityCredentials();
-        securityCredentials.setQuestion((String) ((Data) input).get(SignupData.DataKey.SECURITY_QUESTION));
-        securityCredentials.setAnswer((String) ((Data) input).get(SignupData.DataKey.SECURITY_ANSWER));
+        final SecurityCredentials securityCredentials = (SecurityCredentials) ((Data) input).get(SignupData.DataKey.SECURITY_CREDENTIALS);
         profile.setFeatures(extractFeatures());
 
-        signupProvider.createProfile(usernameReservation, emailReservation,
-                credentials, profile, email, securityCredentials);
+        signupProvider.createProfile(emailReservation, credentials, profile,
+                email, securityCredentials);
     }
 
     /**
@@ -79,20 +74,16 @@ final class SignupHelper {
      */
     public void createPlanProfile() throws ReservationExpiredException,
             InvalidCredentialsException {
-        final UsernameReservation usernameReservation = (UsernameReservation) ((Data) input).get(SignupData.DataKey.USERNAME_RESERVATION);
         final EMailReservation emailReservation = (EMailReservation) ((Data) input).get(SignupData.DataKey.EMAIL_RESERVATION);
         final Credentials credentials = (Credentials) ((Data) input).get(SignupData.DataKey.CREDENTIALS);
         final Profile profile = (Profile) ((Data) input).get(SignupData.DataKey.PROFILE);
         final EMail email = (EMail) ((Data) input).get(SignupData.DataKey.EMAIL);
-        final SecurityCredentials securityCredentials = new SecurityCredentials();
-        securityCredentials.setQuestion((String) ((Data) input).get(SignupData.DataKey.SECURITY_QUESTION));
-        securityCredentials.setAnswer((String) ((Data) input).get(SignupData.DataKey.SECURITY_ANSWER));
+        final SecurityCredentials securityCredentials = (SecurityCredentials) ((Data) input).get(SignupData.DataKey.SECURITY_CREDENTIALS);
         profile.setFeatures(extractFeatures());
         final PaymentPlanCredentials paymentPlanCredentials = (PaymentPlanCredentials) ((Data) input).get(SignupData.DataKey.PAYMENT_CREDENTIALS);
 
-        signupProvider.createProfile(usernameReservation, emailReservation,
-                credentials, profile, email,securityCredentials,
-                paymentPlanCredentials);
+        signupProvider.createProfile(emailReservation, credentials, profile,
+                email, securityCredentials, paymentPlanCredentials);
     }
 
     /**
@@ -100,19 +91,16 @@ final class SignupHelper {
      * 
      */
     public void createProfile() throws ReservationExpiredException {
-        final UsernameReservation usernameReservation = (UsernameReservation) ((Data) input).get(SignupData.DataKey.USERNAME_RESERVATION);
         final EMailReservation emailReservation = (EMailReservation) ((Data) input).get(SignupData.DataKey.EMAIL_RESERVATION);
         final Credentials credentials = (Credentials) ((Data) input).get(SignupData.DataKey.CREDENTIALS);
         final Profile profile = (Profile) ((Data) input).get(SignupData.DataKey.PROFILE);
         final EMail email = (EMail) ((Data) input).get(SignupData.DataKey.EMAIL);
-        final SecurityCredentials securityCredentials = new SecurityCredentials();
-        securityCredentials.setQuestion((String) ((Data) input).get(SignupData.DataKey.SECURITY_QUESTION));
-        securityCredentials.setAnswer((String) ((Data) input).get(SignupData.DataKey.SECURITY_ANSWER));
+        final SecurityCredentials securityCredentials = (SecurityCredentials) ((Data) input).get(SignupData.DataKey.SECURITY_CREDENTIALS);
         profile.setFeatures(extractFeatures());
         final PaymentInfo paymentInfo = (PaymentInfo) ((Data) input).get(SignupData.DataKey.PAYMENT_INFO);
 
-        signupProvider.createProfile(usernameReservation, emailReservation,
-                credentials, profile, email, securityCredentials, paymentInfo);
+        signupProvider.createProfile(emailReservation, credentials, profile,
+                email, securityCredentials, paymentInfo);
     }
 
     /**
@@ -145,12 +133,12 @@ final class SignupHelper {
         switch (featureSet) {
         case FREE:
             for (final Feature feature : allFeatures) {
-                if (feature.getName().equals(Product.Features.BACKUP)) {
+                if (feature.getName().equals(Feature.Name.BACKUP)) {
                     features.add(feature);
                 }
             }
             break;
-        case PREMIUM:
+        case STANDARD:
             for (final Feature feature : allFeatures)
                 features.add(feature);
             break;

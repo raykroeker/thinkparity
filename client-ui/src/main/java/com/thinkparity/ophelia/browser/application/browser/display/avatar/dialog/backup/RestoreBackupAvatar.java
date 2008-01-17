@@ -12,7 +12,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.text.AbstractDocument;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.codebase.email.EMail;
 import com.thinkparity.codebase.swing.SwingUtil;
 import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
 
@@ -30,6 +30,8 @@ import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingMonitor;
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
 import com.thinkparity.ophelia.browser.platform.util.State;
 
+import com.thinkparity.common.StringUtil.Separator;
+
 /**
  * <b>Title:</b>thinkParity OpheliaUI Restore Backup Avatar<br>
  * <b>Description:</b><br>
@@ -42,6 +44,7 @@ public class RestoreBackupAvatar extends Avatar implements
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private final javax.swing.JPanel buttonBarJPanel = new javax.swing.JPanel();
     private final javax.swing.JButton cancelJButton = ButtonFactory.create();
+    private final javax.swing.JTextField emailJTextField = new javax.swing.JTextField();
     private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
     private final javax.swing.JLabel forgotPasswordExplanationJLabel = new javax.swing.JLabel();
@@ -51,7 +54,6 @@ public class RestoreBackupAvatar extends Avatar implements
     private final javax.swing.JButton restoreJButton = ButtonFactory.create();
     private final javax.swing.JProgressBar restoreJProgressBar = new javax.swing.JProgressBar();
     private final javax.swing.JLabel statusJLabel = new javax.swing.JLabel();
-    private final javax.swing.JTextField usernameJTextField = new javax.swing.JTextField();
     private final javax.swing.JLabel warningJLabel = new javax.swing.JLabel();
     // End of variables declaration//GEN-END:variables
 
@@ -265,24 +267,24 @@ public class RestoreBackupAvatar extends Avatar implements
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        final javax.swing.JLabel usernameJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel emailJLabel = new javax.swing.JLabel();
         final javax.swing.JLabel passwordJLabel = new javax.swing.JLabel();
 
         warningJLabel.setFont(Fonts.DialogFontBold);
         warningJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RestoreBackupAvatar.WarningNoBackup"));
 
         explanationJLabel.setFont(Fonts.DialogFont);
-        explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RestoreBackupAvatar.ExplanationNoBackup"));
+        explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RestoreBackupAvatar.ExplanationBackup"));
         explanationJLabel.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        usernameJLabel.setFont(Fonts.DialogFont);
-        usernameJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RestoreBackupAvatar.Username"));
+        emailJLabel.setFont(Fonts.DialogFont);
+        emailJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RestoreBackupAvatar.Email"));
 
-        usernameJTextField.setEditable(false);
-        usernameJTextField.setFont(Fonts.DialogFont);
-        usernameJTextField.setText("!username!");
-        usernameJTextField.setFocusable(false);
-        usernameJTextField.setOpaque(false);
+        emailJTextField.setEditable(false);
+        emailJTextField.setFont(Fonts.DialogFont);
+        emailJTextField.setText("!email!");
+        emailJTextField.setFocusable(false);
+        emailJTextField.setOpaque(false);
 
         passwordJLabel.setFont(Fonts.DialogFont);
         passwordJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("RestoreBackupAvatar.Password"));
@@ -394,11 +396,11 @@ public class RestoreBackupAvatar extends Avatar implements
                     .addGroup(layout.createSequentialGroup()
                         .addGap(10, 10, 10)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(usernameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(emailJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(explanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(passwordJPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 272, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(passwordJLabel)
-                    .addComponent(usernameJLabel)
+                    .addComponent(emailJLabel)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(forgotPasswordExplanationJLabel)
                         .addGap(19, 19, 19)
@@ -406,7 +408,7 @@ public class RestoreBackupAvatar extends Avatar implements
                 .addContainerGap())
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {passwordJPasswordField, usernameJTextField});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {emailJTextField, passwordJPasswordField});
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -417,8 +419,8 @@ public class RestoreBackupAvatar extends Avatar implements
                 .addComponent(explanationJLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(14, 14, 14)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(usernameJLabel)
-                    .addComponent(usernameJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(emailJLabel)
+                    .addComponent(emailJTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(passwordJLabel)
@@ -444,7 +446,16 @@ public class RestoreBackupAvatar extends Avatar implements
     }
 
     /**
-     * Get the username.
+     * Read the email.
+     * 
+     * @return The <code>EMail</code>.             
+     */
+    private EMail readEMail() {
+        return ((RestoreBackupProvider)contentProvider).readEMail().getEmail();
+    }
+
+    /**
+     * Read the username.
      * 
      * @return The username <code>String</code>.             
      */
@@ -453,10 +464,10 @@ public class RestoreBackupAvatar extends Avatar implements
     }
 
     /**
-     * Reload the username and password controls.
+     * Reload the email and password controls.
      */
     private void reloadCredentials() {
-        usernameJTextField.setText(readUsername());
+        emailJTextField.setText(readEMail().toString());
         passwordJPasswordField.setText("");
     }
 

@@ -92,6 +92,15 @@ class IOFactoryImpl implements IOFactory {
     }
 
     /**
+     * @see com.thinkparity.desdemona.model.io.IOFactory#newSessionIO(javax.sql.DataSource)
+     *
+     */
+    @Override
+    public SessionSql newSessionIO(final DataSource dataSource) {
+        return newIO(SessionSql.class, dataSource);
+    }
+
+    /**
      * @see com.thinkparity.desdemona.model.io.IOFactory#newUserIO(javax.sql.DataSource)
      *
      */

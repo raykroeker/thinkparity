@@ -3,6 +3,9 @@
  */
 package com.thinkparity.ophelia.model.artifact;
 
+import com.thinkparity.codebase.model.user.TeamMember;
+import com.thinkparity.codebase.model.user.User;
+
 import com.thinkparity.ophelia.model.DefaultDelegate;
 import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
 
@@ -35,5 +38,13 @@ public abstract class ArtifactDelegate extends DefaultDelegate<ArtifactModelImpl
         super.initialize(modelImplementation);
 
         artifactIO = modelImplementation.getArtifactIO();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.model.artifact.ArtifactModelImpl#addTeamMember(Long, User)
+     * 
+     */
+    protected final TeamMember addTeamMember(final Long artifactId, final User user) {
+        return modelImplementation.addTeamMember(artifactId, user);
     }
 }

@@ -25,6 +25,7 @@ import com.thinkparity.codebase.swing.ThinkParityJFileChooser;
 import com.thinkparity.codebase.model.contact.Contact;
 import com.thinkparity.codebase.model.contact.OutgoingEMailInvitation;
 import com.thinkparity.codebase.model.document.Document;
+import com.thinkparity.codebase.model.migrator.Feature;
 import com.thinkparity.codebase.model.profile.Profile;
 import com.thinkparity.codebase.model.profile.ProfileEMail;
 import com.thinkparity.codebase.model.profile.payment.PaymentInfo;
@@ -48,6 +49,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.contact.CreateOutgoingEMailInvitationAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container.*;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpdateProfileAvatar;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile.UpgradeAccountData;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatar;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabAvatarFilterDelegate;
 import com.thinkparity.ophelia.browser.application.browser.display.avatar.tab.TabPanelAvatar;
@@ -565,10 +567,19 @@ public class Browser extends AbstractApplication {
 
     /**
      * Display the sign up dialog.
-     * 
      * Generally it is better to call runSignup() to display the dialog.
+     * 
+     * @param profile
+     *            The <code>Profile</code>.
+     * @param features
+     *            The List of <code>Feature</code>.
      */
-    public void displaySignUpDialog() {
+    public void displaySignUpDialog(final Profile profile,
+            final List<Feature> features) {
+        final Data input = new Data(2);
+        input.set(UpgradeAccountData.DataKey.PROFILE, profile);
+        input.set(UpgradeAccountData.DataKey.FEATURES, features);
+        setInput(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT, input);
         displayAvatar(AvatarId.DIALOG_PROFILE_UPGRADE_ACCOUNT);
     }
 
@@ -627,8 +638,8 @@ public class Browser extends AbstractApplication {
             final Boolean signUpAvailable, final Boolean paymentInfoAccessible,
             final BackupStatistics backupStatistics, final ProfileEMail email,
             final Boolean online, final Profile profile,
-            final Statistics statistics) {
-        final Data data = new Data(7);
+            final Statistics statistics, final List<Feature> features) {
+        final Data data = new Data(9);
         data.set(UpdateProfileAvatar.DataKey.BACKUP_ENABLED, backupEnabled);
         data.set(UpdateProfileAvatar.DataKey.SIGNUP_AVAILABLE, signUpAvailable);
         data.set(UpdateProfileAvatar.DataKey.PAYMENT_INFO_ACCESSIBLE, paymentInfoAccessible);
@@ -637,6 +648,7 @@ public class Browser extends AbstractApplication {
         data.set(UpdateProfileAvatar.DataKey.ONLINE, online);
         data.set(UpdateProfileAvatar.DataKey.PROFILE, profile);
         data.set(UpdateProfileAvatar.DataKey.STATISTICS, statistics);
+        data.set(UpdateProfileAvatar.DataKey.FEATURES, features);
         setInput(AvatarId.DIALOG_PROFILE_UPDATE, data);
         displayAvatar(AvatarId.DIALOG_PROFILE_UPDATE);
     }

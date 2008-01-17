@@ -7,19 +7,25 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.Properties;
 
+import javax.sql.DataSource;
+
+import com.thinkparity.codebase.codec.MD5Util;
+
 import com.thinkparity.codebase.model.migrator.Product;
 import com.thinkparity.codebase.model.session.Configuration;
 import com.thinkparity.codebase.model.session.Credentials;
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
 import com.thinkparity.codebase.model.user.User;
-import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.Constants;
 import com.thinkparity.desdemona.model.admin.message.MessageBus;
+import com.thinkparity.desdemona.model.io.IOFactory;
+import com.thinkparity.desdemona.model.io.IOService;
 import com.thinkparity.desdemona.model.io.sql.SessionSql;
-import com.thinkparity.desdemona.model.io.sql.UserSql;
 import com.thinkparity.desdemona.model.migrator.InternalMigratorModel;
+
+import com.thinkparity.desdemona.service.persistence.PersistenceService;
 
 import com.thinkparity.desdemona.util.DateTimeProvider;
 
@@ -34,14 +40,18 @@ import com.thinkparity.service.AuthToken;
 public final class SessionModelImpl extends AbstractModelImpl implements
         SessionModel, InternalSessionModel {
 
+    /** An io factory. */
+    private static final IOFactory ioFactory;
+
+    static {
+        ioFactory = IOService.getInstance().getFactory();
+    }
+
     /** A message bus. */
     private MessageBus messageBus;
 
     /** A session sql interface. */
     private SessionSql sessionSql;
-
-    /** A user sql interface. */
-    private UserSql userSql;
 
     /**
      * Create SessionModelImpl.
@@ -58,7 +68,6 @@ public final class SessionModelImpl extends AbstractModelImpl implements
      */
     public SessionModelImpl(final Session session) {
         super();
-        this.userSql = new UserSql();
     }
 
     /**
@@ -69,19 +78,15 @@ public final class SessionModelImpl extends AbstractModelImpl implements
             throws InvalidCredentialsException {
         validate(credentials);
         try {
-            final User user = userSql.read(encryptPassword(credentials));
-            if (null == user) {
-                throw new InvalidCredentialsException();
-            } else {
-                sessionSql.delete(user.getLocalId());
-                final String sessionId = newSessionId();
-                final Session session = newSession(sessionId, user);
-                sessionSql.create(user.getLocalId(), sessionId, session);
-                deliverMessage("session/created", session, user);
-                logger.logInfo("Session {0} created for user {1}.",
-                        session.getId(), user.getSimpleUsername());
-                return newAuthToken(session);
-            }
+            final User user = authenticate(credentials);
+            sessionSql.delete(user.getLocalId());
+            final String sessionId = newSessionId();
+            final Session session = newSession(sessionId, user);
+            sessionSql.create(user.getLocalId(), sessionId, session);
+            deliverMessage("session/created", session, user);
+            logger.logInfo("Session {0} created for user {1}.",
+                    session.getId(), user.getSimpleUsername());
+            return newAuthToken(session);
         } catch (final InvalidCredentialsException icx) {
             throw icx;
         } catch (final Throwable t) {
@@ -113,7 +118,6 @@ public final class SessionModelImpl extends AbstractModelImpl implements
             throw panic(t);
         }
     }
-
     /**
      * @see com.thinkparity.desdemona.model.session.SessionModel#readConfiguration(com.thinkparity.service.AuthToken, com.thinkparity.codebase.model.migrator.Product)
      *
@@ -184,8 +188,35 @@ public final class SessionModelImpl extends AbstractModelImpl implements
     @Override
     protected void initialize() {
         messageBus = MessageBus.getInstance(user, "/com/thinkparity/session");
-        sessionSql = new SessionSql();
-        userSql = new UserSql();
+
+        final PersistenceService persistenceService = PersistenceService.getInstance();
+        final DataSource dataSource = persistenceService.getDataSource();
+        this.sessionSql = ioFactory.newSessionIO(dataSource);
+    }
+
+    /**
+     * Authenticate the credentials. Attempt to match a username/password or an
+     * e-mail address/password. If no match is found; throw an exception.
+     * 
+     * @param credentials
+     *            A set of <code>Credentials</code>.
+     * @return A <code>User</code>.
+     * @throws InvalidCredentialsException
+     *             if the credentials cannot be matched
+     */
+    private User authenticate(final Credentials credentials)
+            throws InvalidCredentialsException {
+        final User username = sessionSql.authenticateUsername(credentials);
+        if (null == username) {
+            final User email = sessionSql.authenticateEMail(credentials);
+            if (null == email) {
+                throw new InvalidCredentialsException();
+            } else {
+                return email;
+            }
+        } else {
+            return username;
+        }
     }
 
     /**
@@ -353,8 +384,8 @@ public final class SessionModelImpl extends AbstractModelImpl implements
             logger.logDebug("Null credentials password.");
             throw new InvalidCredentialsException();
         }
-        if (null == credentials.getUsername()) {
-            logger.logDebug("Null credentials username.");
+        if (null == credentials.getUsername() && null == credentials.getEMail()) {
+            logger.logDebug("Null credentials username/e-mail.");
             throw new InvalidCredentialsException();
         }
     }

@@ -12,10 +12,11 @@ import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.*;
 
+import com.thinkparity.common.StringUtil.Separator;
+
 import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.OSUtil;
 import com.thinkparity.codebase.DateUtil.DateImage;
-import com.thinkparity.codebase.StringUtil.Separator;
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotYetImplementedAssertion;
 import com.thinkparity.codebase.email.EMail;

@@ -32,6 +32,8 @@ import com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedE
 
 import com.thinkparity.ophelia.model.Delegate;
 import com.thinkparity.ophelia.model.Model;
+import com.thinkparity.ophelia.model.artifact.delegate.HandleTeamMemberAdded;
+import com.thinkparity.ophelia.model.artifact.delegate.HandleTeamMemberRemoved;
 import com.thinkparity.ophelia.model.events.ArtifactListener;
 import com.thinkparity.ophelia.model.io.IOFactory;
 import com.thinkparity.ophelia.model.io.handler.ArtifactIOHandler;
@@ -259,6 +261,21 @@ public final class ArtifactModelImpl extends Model<ArtifactListener> implements
     }
 
     /**
+     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent)
+     *
+     */
+    @Override
+    public void handleEvent(final ArtifactTeamMemberAddedEvent event) {
+        try {
+            final HandleTeamMemberAdded delegate = createDelegate(HandleTeamMemberAdded.class);
+            delegate.setEvent(event);
+            delegate.handleTeamMemberAdded();
+        } catch(final Throwable t) {
+            throw panic(t);
+        }
+    }
+
+    /**
      * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#handleEvent(com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberRemovedEvent)
      *
      */
@@ -298,31 +315,6 @@ public final class ArtifactModelImpl extends Model<ArtifactListener> implements
                 }
             }
         } catch (final Throwable t) {
-            throw panic(t);
-        }
-    }
-
-    /**
-     * @see com.thinkparity.ophelia.model.artifact.InternalArtifactModel#handleTeamMemberAdded(com.thinkparity.codebase.model.util.xmpp.event.ArtifactTeamMemberAddedEvent)
-     * 
-     */
-    public void handleTeamMemberAdded(final ArtifactTeamMemberAddedEvent event) {
-        try {
-            if (localUserId().equals(event.getJabberId())) {
-                logger.logInfo("Ignoring local user.");
-            } else {
-                final Long artifactId = readId(event.getUniqueId());
-                if (null == artifactId) {
-                    logger.logWarning("Artifact for event {0} does not exist locally.",
-                            event);
-                } else {
-                    final User user = getUserModel().readLazyCreate(event.getJabberId());
-                    final TeamMember teamMember = addTeamMember(artifactId, user);
-                    // HACK assuming container
-                    getContainerModel().notifyTeamMemberAdded(teamMember);
-                }
-            }
-        } catch(final Throwable t) {
             throw panic(t);
         }
     }
@@ -564,15 +556,6 @@ public final class ArtifactModelImpl extends Model<ArtifactListener> implements
     }
 
     /**
-     * Obtain an artifact persistence interface.
-     * 
-     * @return An <code>ArtifactIOHandler</code>.
-     */
-    ArtifactIOHandler getArtifactIO() {
-        return artifactIO;
-    }
-
-    /**
      * Add a team member to an artifact.
      * 
      * @param artifactId
@@ -581,12 +564,21 @@ public final class ArtifactModelImpl extends Model<ArtifactListener> implements
      *            A <code>User</code>.
      * @return A <code>TeamMember</code>.
      */
-    private TeamMember addTeamMember(final Long artifactId, final User user) {
+    TeamMember addTeamMember(final Long artifactId, final User user) {
         // create local team data
         artifactIO.createTeamRel(artifactId, user.getLocalId());
         // reindex NOTE no practical assurance that this is a container id
         getIndexModel().indexContainer(artifactId);
         return artifactIO.readTeamRel(artifactId, user.getLocalId());
+    }
+
+    /**
+     * Obtain an artifact persistence interface.
+     * 
+     * @return An <code>ArtifactIOHandler</code>.
+     */
+    ArtifactIOHandler getArtifactIO() {
+        return artifactIO;
     }
 
     /**

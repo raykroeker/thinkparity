@@ -13,7 +13,8 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
 
-import com.thinkparity.codebase.StringUtil;
+import com.thinkparity.common.StringUtil;
+
 import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.log4j.Log4JWrapper;
 
@@ -21,9 +22,10 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 
-import com.thinkparity.network.NetworkException;
 import com.thinkparity.service.ServiceHelper;
 import com.thinkparity.service.client.*;
+
+import com.thinkparity.net.NetworkException;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.XppReader;

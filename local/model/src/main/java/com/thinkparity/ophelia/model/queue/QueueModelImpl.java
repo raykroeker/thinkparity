@@ -15,6 +15,10 @@ import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.model.session.Environment;
 import com.thinkparity.codebase.model.util.xmpp.event.XMPPEvent;
 
+import com.thinkparity.service.AuthToken;
+import com.thinkparity.service.QueueService;
+import com.thinkparity.service.ServiceFactory;
+
 import com.thinkparity.ophelia.model.Model;
 import com.thinkparity.ophelia.model.queue.notification.NotificationClient;
 import com.thinkparity.ophelia.model.queue.notification.NotificationClient.ObservableEvent;
@@ -22,10 +26,6 @@ import com.thinkparity.ophelia.model.session.OfflineCode;
 import com.thinkparity.ophelia.model.session.OfflineException;
 import com.thinkparity.ophelia.model.util.ProcessMonitor;
 import com.thinkparity.ophelia.model.workspace.Workspace;
-
-import com.thinkparity.service.AuthToken;
-import com.thinkparity.service.QueueService;
-import com.thinkparity.service.ServiceFactory;
 
 /**
  * <b>Title:</b>thinkParity Ophelia Model Queue Model Implementation<br>
@@ -299,7 +299,7 @@ public final class QueueModelImpl extends Model<EventListener> implements
      * @return A <code>NotificationClient</code>.
      */
     private NotificationClient newNotificationClient() {
-        final NotificationClient notificationClient = new NotificationClient();
+        final NotificationClient notificationClient = new NotificationClient(workspace.getConfiguration());
         notificationClient.addObserver(new Observer() {
             public void update(final Observable o, final Object arg) {
                 final ObservableEvent observableEvent = (ObservableEvent) arg;

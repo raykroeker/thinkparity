@@ -4,28 +4,22 @@
 package com.thinkparity.codebase.assertion;
 
 /**
+ * <b>Title:</b>thinkParity Common Index Out Of Bounds Assertion<br>
+ * <b>Description:</b>An index has been determined to lie outside a bound
+ * range.<br>
+ * 
  * @author raymond@thinkparity.com
  * @version 1.1.2.1
  */
-public class IndexOutOfBoundsAssertion extends Assertion {
-
-    /** A default assertion message. */
-    private static final String DEFAULT_MESSAGE =
-            "Assert:  Index out of bounds.";
-
-    /** @see java.io.Serializable */
-    private static final long serialVersionUID = 1;
-
-	/**
-     * Create IndexOutOfBoundsAssertion.
-     */
-    IndexOutOfBoundsAssertion() { super(DEFAULT_MESSAGE); }
+public final class IndexOutOfBoundsAssertion extends Assertion {
 
     /**
      * Create IndexOutOfBoundsAssertion.
      * 
      * @param message
-     *            An assertion message.
+     *            A message <code>String</code>.
      */
-	IndexOutOfBoundsAssertion(final String message) { super(message); }
+	IndexOutOfBoundsAssertion(final String message) {
+        super(message);
+    }
 }

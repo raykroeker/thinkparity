@@ -7,8 +7,9 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Calendar;
 
+import com.thinkparity.codebase.codec.MD5Util;
+
 import com.thinkparity.codebase.model.session.InvalidCredentialsException;
-import com.thinkparity.codebase.model.util.codec.MD5Util;
 
 import com.thinkparity.desdemona.model.AbstractModelImpl;
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicException;

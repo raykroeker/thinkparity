@@ -50,6 +50,9 @@ import com.thinkparity.ophelia.browser.util.localization.Localization;
  */
 public abstract class Avatar extends AbstractJPanel {
 
+    /** The thinkparity application registry. */
+    protected final ApplicationRegistry applicationRegistry;
+
     /** The avatar's content provider. */
     protected ContentProvider contentProvider;
 
@@ -70,9 +73,6 @@ public abstract class Avatar extends AbstractJPanel {
 
     /** The application listener. */
     private ApplicationListener applicationListener;
-
-	/** The thinkparity application registry. */
-    private final ApplicationRegistry applicationRegistry;
 
     /** The clipped background image. */
     private BufferedImage clippedBackgroundImage;

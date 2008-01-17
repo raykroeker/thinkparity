@@ -5,7 +5,8 @@ package com.thinkparity.codebase.jabber;
 
 import java.text.MessageFormat;
 
-import com.thinkparity.codebase.StringUtil.Separator;
+import com.thinkparity.common.StringUtil.Separator;
+
 
 /**
  * @author raykroeker@gmail.com

@@ -6,13 +6,14 @@ package com.thinkparity.ophelia.model.workspace.impl;
 import com.thinkparity.codebase.assertion.Assert;
 
 import com.thinkparity.codebase.model.session.Environment;
-import com.thinkparity.codebase.model.stream.StreamRetryHandler;
 
 import com.thinkparity.ophelia.model.ModelFactory;
 import com.thinkparity.ophelia.model.session.OfflineCode;
 import com.thinkparity.ophelia.model.session.SessionModel;
 import com.thinkparity.ophelia.model.util.service.ServiceRetryHandler;
 import com.thinkparity.ophelia.model.workspace.Workspace;
+
+import com.thinkparity.stream.StreamRetryHandler;
 
 /**
  * <b>Title:</b>thinkParity Ophelia Model Workspace Default Retry Handler<br>
@@ -50,7 +51,7 @@ public class DefaultRetryHandler implements ServiceRetryHandler,
     }
 
     /**
-     * @see com.thinkparity.codebase.model.stream.StreamRetryHandler#retry()
+     * @see com.thinkparity.stream.StreamRetryHandler#retry()
      * @see com.thinkparity.ophelia.model.util.service.ServiceRetryHandler#retry()
      *
      */
@@ -75,7 +76,7 @@ public class DefaultRetryHandler implements ServiceRetryHandler,
     }
 
     /**
-     * @see com.thinkparity.codebase.model.stream.StreamRetryHandler#period()
+     * @see com.thinkparity.stream.StreamRetryHandler#period()
      *
      */
     @Override

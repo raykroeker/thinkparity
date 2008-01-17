@@ -5,6 +5,11 @@ package com.thinkparity.desdemona.model.io.sql;
 
 import java.util.Calendar;
 
+import javax.sql.DataSource;
+
+import com.thinkparity.codebase.model.session.Credentials;
+import com.thinkparity.codebase.model.user.User;
+
 import com.thinkparity.desdemona.model.io.hsqldb.HypersonicSession;
 import com.thinkparity.desdemona.model.session.Session;
 
@@ -16,6 +21,22 @@ import com.thinkparity.desdemona.model.session.Session;
  * @version 1.1.2.1
  */
 public final class SessionSql extends AbstractSql {
+
+    /** Sql to authenticate a user by email/password. */
+    private static final String SQL_AUTHENTICATE_BY_EMAIL =
+        new StringBuilder("select U.USER_ID,U.USERNAME ")
+        .append("from TPSD_USER U ")
+        .append("inner join TPSD_USER_EMAIL UE on UE.USER_ID=U.USER_ID ")
+        .append("inner join TPSD_EMAIL E on E.EMAIL_ID=UE.EMAIL_ID ")
+        .append("where E.EMAIL=? and U.PASSWORD=?")
+        .toString();
+
+    /** Sql to authenticate a user by username/password. */
+    private static final String SQL_AUTHENTICATE_BY_USERNAME =
+        new StringBuilder("select U.USER_ID,U.USERNAME ")
+        .append("from TPSD_USER U ")
+        .append("where U.USERNAME=? and U.PASSWORD=?")
+        .toString();
 
     /** Sql to create a session. */
     private static final String SQL_CREATE_SESSION =
@@ -65,12 +86,70 @@ public final class SessionSql extends AbstractSql {
         .append("where TOKEN=?")
         .toString();
 
+    /** An instance of user sql. */
+    private final UserSql userSql;
+
     /**
      * Create SessionSql.
-     *
+     * 
+     * @param dataSource
+     *            A <code>DataSource</code>.
      */
-    public SessionSql() {
-        super();
+    public SessionSql(final DataSource dataSource) {
+        super(dataSource);
+        this.userSql = new UserSql(dataSource);
+    }
+
+    /**
+     * Authenticate a user by the credential's e-mail address.
+     * 
+     * @param credentials
+     *            A <code>Credentials</code>.
+     * @return A <code>User</code>.
+     */
+    public User authenticateEMail(final Credentials credentials) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_AUTHENTICATE_BY_EMAIL);
+            session.setEMail(1, credentials.getEMail());
+            session.setEncryptedString(2, credentials.getPassword());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return userSql.extract(session);
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
+    }
+
+    /**
+     * Authenticate a user by the credential's username.
+     * 
+     * @param credentials
+     *            A <code>Credentials</code>.
+     * @return A <code>User</code>.
+     */
+    public User authenticateUsername(final Credentials credentials) {
+        final HypersonicSession session = openSession();
+        try {
+            session.prepareStatement(SQL_AUTHENTICATE_BY_USERNAME);
+            session.setString(1, credentials.getUsername());
+            session.setEncryptedString(2, credentials.getPassword());
+            session.executeQuery();
+            if (session.nextResult()) {
+                return userSql.extract(session);
+            } else {
+                return null;
+            }
+        } catch (final Throwable t) {
+            throw translateError(session, t);
+        } finally {
+            session.close();
+        }
     }
 
     /**

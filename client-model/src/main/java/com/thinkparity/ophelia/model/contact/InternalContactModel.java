@@ -57,14 +57,6 @@ public interface InternalContactModel extends ContactModel {
     public Boolean doesExistOutgoingEMailInvitation(final EMail email);
 
     /**
-     * Download the contacts from the server and create local contacts.
-     * 
-     * @param monitor
-     *            A <code>ProcessMonitor</code>.
-     */
-    public void download(final ProcessMonitor monitor);
-
-    /**
      * Handle the remote event generated when a contact is deleted.
      * 
      * @param deletedBy
@@ -111,21 +103,20 @@ public interface InternalContactModel extends ContactModel {
     public void handleEvent(final ContactEMailInvitationExtendedEvent event);
 
     /**
+     * Handle the invitation accepted remote event.
+     * 
+     * @param event
+     *            A <code>ContactInvitationAcceptedEvent</code>.
+     */
+    public void handleEvent(final ContactInvitationAcceptedEvent event);
+
+    /**
      * Handle the invitation extended remote event.
      * 
      * @param event
      *            A <code>ContactUserInvitationExtendedEvent</code>.
      */
     public void handleEvent(final ContactUserInvitationExtendedEvent event);
-
-    /**
-     * Handle the invitation accepted remote event.
-     * 
-     * @param event
-     *            A <code>ContactInvitationAcceptedEvent</code>.
-     */
-    public void handleInvitationAccepted(
-            final ContactInvitationAcceptedEvent event);
 
     /**
      * Handle the user invitation declined remote event.
@@ -165,10 +156,18 @@ public interface InternalContactModel extends ContactModel {
             final ContainerVersion version);
 
     /**
-     * Restore backup.
+     * Delete local contact information.
      * 
      * @param monitor
      *            A <code>ProcessMonitor</code>.
      */
-    void restoreBackup(ProcessMonitor monitor);
+    void deleteLocal(ProcessMonitor monitor);
+
+    /**
+     * Restore local contact information from backup.
+     * 
+     * @param monitor
+     *            A <code>ProcessMonitor</code>.
+     */
+    void restoreLocal(ProcessMonitor monitor);
 }

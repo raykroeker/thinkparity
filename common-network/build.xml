@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<project name="common-network" default="help" basedir=".">
+    <!-- build.properties -->
+	<property file="build.properties"/>
+
+    <!-- compile -->
+    <path id="compile.srcrefid">
+        <pathelement location="${basedir}/src/main/java"/>
+    </path>
+
+	<!-- build-core.xml -->
+    <import file="${basedir}/../build-core.xml"/>
+</project>

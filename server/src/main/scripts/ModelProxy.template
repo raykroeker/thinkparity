@@ -1,0 +1,36 @@
+/*
+ * Generated On: ${environment.generatedOn}
+ */
+package ${proxy.packageName};
+
+import com.thinkparity.desdemona.model.AbstractModel;
+import com.thinkparity.desdemona.model.session.Session;
+
+/**
+ * <b>Title:</b>thinkParity ${proxy.name} Model<br>
+ * <b>Description:</b>
+ *
+ * @author ${environment.author}
+ * @version 1.1
+ */
+${proxy.classModifier}class ${proxy.className} extends AbstractModel<${proxyImpl.className}> {
+
+	/**
+	 * Obtain a thinkParity ${proxy.name} interface.
+	 * 
+	 * @return A thinkParity ${proxy.name} interface.
+	 */
+	public static ${proxy.className} getModel(final Session session) {
+		return new ${proxy.className}(session);
+	}
+
+	/**
+	 * Create ${proxy.className}.
+	 *
+	 * @param workspace
+	 *		The thinkParity workspace.
+	 */
+	protected ${proxy.className}(final Session session) {
+		super(new ${proxyImpl.className}(session));
+	}
+}

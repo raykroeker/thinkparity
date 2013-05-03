@@ -1,0 +1,12 @@
+/*
+ * Generated Source
+ * Generated On: ${tpi-external.getGeneratedOn()}
+ * Generated For: ${tpi-external.getImplName()}
+ */
+package ${tpi-external.getPackage()};
+
+/**
+ * ${tpi-external.getComment()}
+ */
+public interface ${tpi-external.getName()} {
+}

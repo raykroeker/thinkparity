@@ -1,0 +1,271 @@
+/*
+ * Created on August 28, 2006, 12:59 PM
+ */
+package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.profile;
+
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+import javax.swing.text.AbstractDocument;
+
+import com.thinkparity.common.StringUtil.Separator;
+
+import com.thinkparity.codebase.assertion.Assert;
+import com.thinkparity.codebase.swing.SwingUtil;
+import com.thinkparity.codebase.swing.text.JTextFieldLengthFilter;
+
+import com.thinkparity.codebase.model.profile.ProfileConstraints;
+import com.thinkparity.codebase.model.profile.ProfileEMail;
+
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Colours;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
+import com.thinkparity.ophelia.browser.application.browser.component.TextFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.application.browser.display.provider.dialog.profile.VerifyEMailProvider;
+import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.ophelia.browser.platform.util.State;
+
+
+/**
+ *
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
+ */
+public class VerifyEMailAvatar extends Avatar {
+
+    /** The emails. */
+    private ProfileEMail email;
+
+    /** An instance of <code>ProfileConstraints</code>. */
+    private final ProfileConstraints profileConstraints;
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JLabel errorMessageJLabel = new javax.swing.JLabel();
+    private final javax.swing.JTextField keyJTextField = TextFactory.create(Fonts.DialogTextEntryFont);
+    private final javax.swing.JButton verifyJButton = ButtonFactory.create();
+    // End of variables declaration//GEN-END:variables
+
+    /** Creates new form VerifyEMailAvatar */
+    public VerifyEMailAvatar() {
+        super("VerifyEMailAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
+        this.profileConstraints = ProfileConstraints.getInstance();
+        initComponents();
+        addValidationListener(keyJTextField);
+        bindEscapeKey();
+    }
+
+    /**
+     * Obtain the avatar id.
+     * 
+     * @return The avatar id.
+     */
+    public AvatarId getId() {
+        return AvatarId.DIALOG_PROFILE_VERIFY_EMAIL;
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#getState()
+     */
+    @Override
+    public State getState() {
+        throw Assert.createNotYetImplemented("VerifyEMailAvatar#getState");
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#reload()
+     */
+    @Override
+    public void reload() {
+        keyJTextField.setText("");
+        this.email = readEMail();
+        validateInput();
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#setState(com.thinkparity.ophelia.browser.platform.util.State)
+     */
+    @Override
+    public void setState(final State state) {
+        throw Assert.createNotYetImplemented("VerifyEMailAvatar#setState");
+    }
+
+    /**
+     * @see com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar#validateInput()
+     *
+     */
+    @Override
+    public final void validateInput() {
+        super.validateInput();
+        final String key = extractInputKey();
+        if (null == key) {
+            addInputError(Separator.Space.toString());
+        }
+
+        errorMessageJLabel.setText(" ");
+        if (containsInputErrors()) {
+            errorMessageJLabel.setText(getInputErrors().get(0));
+        }
+        verifyJButton.setEnabled(!containsInputErrors());
+    }
+
+    /**
+     * Make the escape key behave like cancel.
+     */
+    private void bindEscapeKey() {
+        bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                cancelJButtonActionPerformed(e);
+            }
+        });
+    }
+
+    private void cancelJButtonActionPerformed(final java.awt.event.ActionEvent e) {//GEN-FIRST:event_cancelJButtonActionPerformed
+        disposeWindow();
+    }//GEN-LAST:event_cancelJButtonActionPerformed
+
+    private String extractInputKey() {
+        return SwingUtil.extract(keyJTextField, Boolean.TRUE);
+    }
+
+    /**
+     * Obtain the profile e-mail address.
+     * 
+     * @return A <code>ProfileEMail</code>.
+     */
+    private ProfileEMail getEMail() {
+        return email;
+    }
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    private void initComponents() {
+        final javax.swing.JLabel explanationJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel keyJLabel = new javax.swing.JLabel();
+        final javax.swing.JButton cancelJButton = ButtonFactory.create();
+
+        explanationJLabel.setFont(Fonts.DialogFont);
+        explanationJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("VerifyEMailAvatar.Explanation"));
+
+        keyJLabel.setFont(Fonts.DialogFont);
+        keyJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("VerifyEMailAvatar.VerificationKey"));
+
+        keyJTextField.setFont(Fonts.DialogTextEntryFont);
+        ((AbstractDocument) keyJTextField.getDocument()).setDocumentFilter(new JTextFieldLengthFilter(profileConstraints.getVerifyEmailKey()));
+        keyJTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                keyJTextFieldActionPerformed(evt);
+            }
+        });
+
+        errorMessageJLabel.setFont(Fonts.DialogFont);
+        errorMessageJLabel.setForeground(Colours.DIALOG_ERROR_TEXT_FG);
+        errorMessageJLabel.setText("!Error Message!");
+
+        verifyJButton.setFont(Fonts.DialogButtonFont);
+        verifyJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("VerifyEMailAvatar.Verify"));
+        verifyJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                verifyJButtonActionPerformed(evt);
+            }
+        });
+
+        cancelJButton.setFont(Fonts.DialogButtonFont);
+        cancelJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("VerifyEMailAvatar.Cancel"));
+        cancelJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelJButtonActionPerformed(evt);
+            }
+        });
+
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(explanationJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .add(errorMessageJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 360, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(verifyJButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelJButton))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(keyJLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 86, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(keyJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 270, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+        );
+
+        layout.linkSize(new java.awt.Component[] {cancelJButton, verifyJButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .add(27, 27, 27)
+                .add(explanationJLabel)
+                .add(15, 15, 15)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(keyJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(keyJLabel))
+                .add(14, 14, 14)
+                .add(errorMessageJLabel)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 19, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(cancelJButton)
+                    .add(verifyJButton))
+                .addContainerGap())
+        );
+    }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * Determine if the model is online.
+     * 
+     * @return True if the model is online.
+     */
+    private boolean isOnline() {
+        return ((VerifyEMailProvider) contentProvider).isOnline().booleanValue();
+    }
+
+    private void keyJTextFieldActionPerformed(final java.awt.event.ActionEvent e) {//GEN-FIRST:event_keyJTextFieldActionPerformed
+        verifyJButtonActionPerformed(e);
+    }//GEN-LAST:event_keyJTextFieldActionPerformed
+
+    /**
+     * Read the profile e-mail address.
+     * 
+     * @return A <code>ProfileEMail</code>.
+     */
+    private ProfileEMail readEMail() {
+        return ((VerifyEMailProvider) contentProvider).readEMail();
+    }
+
+    /**
+     * Verify the email.
+     */
+    private void verifyEMail() {
+        final ProfileEMail email = getEMail();
+        if (null != email) {
+            final Long emailId = email.getEmailId();
+            final String verificationKey = extractInputKey();
+            getController().runVerifyEMail(emailId, verificationKey);
+        }
+    }
+
+    private void verifyJButtonActionPerformed(final java.awt.event.ActionEvent e) {//GEN-FIRST:event_verifyJButtonActionPerformed
+        if (isInputValid()) {
+            if (isOnline()) {
+                disposeWindow();
+                verifyEMail();
+            } else {
+                errorMessageJLabel.setText(getString("ErrorOffline"));
+            }
+        }
+    }//GEN-LAST:event_verifyJButtonActionPerformed
+}

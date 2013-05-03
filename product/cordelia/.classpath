@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
+	<classpathentry kind="lib" path="vendor/smack/2.2.1/smack.jar" sourcepath="vendor/smack/2.2.1/smack-sources.jar"/>
+	<classpathentry kind="lib" path="vendor/smackx/2.2.1/smackx.jar" sourcepath="vendor/smackx/2.2.1/smackx-sources.jar"/>
+	<classpathentry kind="lib" path="vendor/swing-layout/1.0/swing-layout.jar" sourcepath="vendor/swing-layout/1.0/swing-layout-sources.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

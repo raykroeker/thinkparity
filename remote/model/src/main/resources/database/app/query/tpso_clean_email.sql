@@ -1,0 +1,6 @@
+delete from EMAIL
+where EMAIL_ID not in (select EMAIL_ID from PROFILE_EMAIL_REL)
+    and EMAIL_ID not in (select EMAIL_ID from CONTAINER_VERSION_PUBLISHED_TO_EMAIL)
+    and EMAIL_ID not in (select EMAIL_ID from CONTACT_EMAIL_REL)
+    and EMAIL_ID not in (select EMAIL_ID from CONTACT_INVITATION_INCOMING_EMAIL)
+    and EMAIL_ID not in (select EMAIL_ID from CONTACT_INVITATION_OUTGOING_EMAIL);

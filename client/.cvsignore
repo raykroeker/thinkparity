@@ -1,0 +1,6 @@
+target*
+vendor*
+local.properties
+*.ncb
+*.suo
+*.vcproj.*.user

@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<project name="AdrianaProduct" default="help" basedir="."
+        xmlns:cs="antlib:com.puppycrawl.tools.checkstyle"
+        xmlns:antx="antlib:com.thinkparity.antx">
+    <property name="build.sysclasspath" value="ignore"/>
+
+    <!-- build configuration -->
+    <property environment="env"/>
+    <tstamp>
+        <format property="thinkparity.build-id" pattern="yyyyMMddHHmmssZ" timezone="PST"/>
+    </tstamp>
+    <property name="javac.compilerargs" value="-Xlint:deprecation -Xlint:unchecked"/>
+    <property name="javac.debug" value="true"/>
+    <property name="javac.debug-level" value="lines,vars,source"/>
+    <property name="java.jvmarg-debug" value="-XX:+PrintConcurrentLocks -Xdebug -Xint -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000"/>
+
+    <!-- local configuration  -->
+    <property name="localconfig" value="local.properties"/>
+    <property file="${localconfig}"/>
+    <fail>
+        <condition>
+            <not>
+                <contains string="${ant.version}" substring="1.7.0"/>
+            </not>
+        </condition>
+Please install version 1.7.0 of ant.
+http://ant.apache.org
+    </fail>
+    <fail>
+        <condition>
+            <not>
+                <available file="${localconfig}"/>
+            </not>
+        </condition>
+Local configuration ${localconfig} does not exist.  Please create:
+    antx.vendor-dir             Ant eXtensions vendor directory.    /home/username/Projects/thinkParity/vendor
+                                                                    C\:\\Documents and Settings\\username\\Projects\\thinkParity\\vendor
+    scm.credentials             Source control credentials.         username:password
+    </fail>
+    <fail>
+        <condition>
+            <not>
+                <and>
+                    <isset property="scm.credentials"/>
+                </and>
+            </not>
+        </condition>
+Local configuration ${localconfig} is incomplete.  Please specify:
+    antx.vendor-dir             Ant eXtensions vendor directory.    /home/username/Projects/thinkParity/vendor
+                                                                    C\:\\Documents and Settings\\username\\Projects\\thinkParity\\vendor
+    scm.credentials             XXXXXXXXXXXXXXXXXXXXXXXXXX
+    </fail>
+    <echo>
+Environment Configuration:
+    Java Home:                  ${env.JAVA_HOME}
+Build Configuration:
+    Build Id:                   ${thinkparity.build-id}
+    Compiler Arguments:         ${javac.compilerargs}
+    Compiler Debugging:         ${javac.debug} ${javac.debug-level}
+    Java JVM Debug:             ${java.jvmarg-debug}
+Local Configuration:            ${localconfig}
+    Source Control Credentials: XXXXXXXXXXXXXXXXXXXXXXXXXX
+    </echo>
+
+    <!-- cvs configuration -->
+    <property name="cvs.compressionlevel" value="9"/>
+    <property name="cvs.cvsroot" value=":pserver:${scm.credentials}@tps-yxx-0.thinkparity.org:2401/cvs/repo/thinkparity"/>
+    <property name="cvs.branch" value="v1_0"/>
+    <property name="cvs.modules" value="product/adriana"/>
+
+    <!-- input directories -->
+    <property name="thinkparity.common.home" value="${basedir}/../common"/>
+
+    <!-- output directories -->
+    <property name="target.dir" value="${basedir}/target"/>
+    <property name="target.analyze-report.dir" value="${basedir}/target/analyze-report"/>   
+    <property name="target.package.dir" value="${target.dir}/package"/>
+    <property name="target.classes.dir" value="${target.dir}/classes"/>
+    <property name="target.generate-classes.dir" value="${target.dir}/classes"/>   
+    <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
+    <property name="target.native.dir" value="${target.dir}/i686/${thinkparity.os-platform}"/>
+    <property name="target.test-javadoc.dir" value="${target.dir}/test-docs/api"/>
+    <property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
+    <property name="target.test-report.dir" value="${target.dir}/test-report"/>
+    <property name="target.test-sessions.dir" value="${target.dir}/test-sessions"/>
+
+    <!-- generate depenencies -->   
+    <!-- compile dependencies -->
+    <antx:dependency type="java" scope="compile" provider="apache.org" version="1.3"
+        path="apache.org/jakarta/commons/cli/1.0/cli.jar"/>
+    <!-- run dependencies -->
+    <!-- test dependencies -->
+    <antx:dependency type="java" scope="test" provider="junit.org" version="3.8.1"
+        path="junit/3.8.1/junit.jar"/>
+
+    <!-- delete output -->
+    <target name="clean">
+        <delete dir="${target.dir}"/>
+    </target>
+
+    <!-- help -->
+    <target name="help">
+        <echo>
+Build Configuration:
+    Build Id:                   ${thinkparity.build-id}
+    Compiler Arguments:         ${javac.compilerargs}
+    Compiler Debugging:         ${javac.debug} ${javac.debug-level}
+    Java JVM Debug:             ${java.jvmarg-debug}
+Local Configuration:            ${localconfig}
+    Source Control Credentials: XXXXXXXXXXXXXXXXXXXXXXXXXX
+    Environment:                ${thinkparity.environment}
+    Mode:                       ${thinkparity.mode}
+    Operating System:           ${thinkparity.os}
+    Operating System Platform:  ${thinkparity.os-platform}
+    Product Name:               ${thinkparity.product-name}
+    Release Name:               ${thinkparity.release-name}
+        </echo>
+    </target>
+
+    <!-- initialize -->
+    <target name="init">
+        <sleep seconds="1"/>
+    </target>
+
+    <!-- pathinfo -->
+    <target name="pathinfo">
+        <pathconvert refid="compile.classpath" property="tmp.cc"/>
+        <echo>
+Compile Classpath:
+${tmp.cc}
+        </echo>
+        <pathconvert refid="test.classpath" property="tmp.tc"/>
+        <echo>
+Test Classpath:
+${tmp.tc}
+        </echo>
+        <pathconvert refid="run.classpath" property="tmp.rc"/>
+        <echo>
+Runtime Classpath:
+${tmp.rc}
+        </echo>
+        <pathconvert refid="run.dependencies-java" property="tmp.rdj"/>
+        <echo>
+Runtime Dependencies (Java):
+${tmp.rdj}
+        </echo>
+        <pathconvert refid="run.dependencies-native" property="tmp.rdn"/>
+        <echo>
+Runtime Dependencies (Native):
+${tmp.rdn}
+        </echo>
+        <pathconvert refid="test.dependencies-java" property="tmp.tdj"/>
+        <echo>
+Test Dependencies (Java):
+${tmp.tdj}
+        </echo>
+        <pathconvert refid="test.dependencies-native" property="tmp.tdn"/>
+        <echo>
+Test Dependencies (Native):
+${tmp.tdn}
+        </echo>
+    </target>
+</project>

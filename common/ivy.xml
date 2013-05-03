@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ivy-module version="2.0">
+    <info organisation="thinkparity" module="common" revision="${build.release}" />
+    <configurations>
+        <include file="${basedir}/../ivy-configurations.xml" />
+    </configurations>
+    <dependencies>
+        <dependency conf="main->default" org="apache.org" name="log4j" rev="1.2.8"/>
+        <dependency conf="main->default" org="apache.org" name="commons-codec" rev="1.3"/>
+
+        <dependency conf="test->default" org="junit.org" name="junit" rev="3.8.1"/>
+    </dependencies>
+</ivy-module>

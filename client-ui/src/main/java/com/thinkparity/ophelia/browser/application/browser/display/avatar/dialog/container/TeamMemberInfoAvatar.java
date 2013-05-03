@@ -1,0 +1,275 @@
+/*
+ * TeamMemberInfoAvatar.java
+ *
+ * Created on December 6, 2006, 10:09 AM
+ */
+
+package com.thinkparity.ophelia.browser.application.browser.display.avatar.dialog.container;
+
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+
+import com.thinkparity.codebase.assertion.Assert;
+
+import com.thinkparity.codebase.model.contact.Contact;
+import com.thinkparity.codebase.model.user.User;
+
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
+import com.thinkparity.ophelia.browser.application.browser.BrowserConstants.Fonts;
+import com.thinkparity.ophelia.browser.application.browser.component.ButtonFactory;
+import com.thinkparity.ophelia.browser.application.browser.component.LabelFactory;
+import com.thinkparity.ophelia.browser.application.browser.display.avatar.AvatarId;
+import com.thinkparity.ophelia.browser.platform.action.Data;
+import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar;
+import com.thinkparity.ophelia.browser.platform.util.State;
+
+/**
+ * <b>Title:</b>thinkParity Ophelia UI User Info Avatar<br>
+ * <b>Description:</b>Display user information.<br>
+ * 
+ * @author raymond@thinkparity.com
+ * @version 1.1.2.1
+ */
+public final class TeamMemberInfoAvatar extends Avatar {
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private final javax.swing.JTextField companyJTextField = new javax.swing.JTextField();
+    private final javax.swing.JLabel inviteJLabel = LabelFactory.createLink("",Fonts.DialogFont);
+    private final javax.swing.JTextField nameJTextField = new javax.swing.JTextField();
+    private final javax.swing.JTextField titleJTextField = new javax.swing.JTextField();
+    // End of variables declaration//GEN-END:variables
+
+    /**
+     * Create TeamMemberInfoAvatar.
+     * 
+     */
+    public TeamMemberInfoAvatar() {
+        super("TeamMemberInfoAvatar", BrowserConstants.DIALOGUE_BACKGROUND);
+        initComponents();
+        bindKeys();
+    }
+
+    public AvatarId getId() {
+        return AvatarId.DIALOG_CONTAINER_TEAM_MEMBER_INFO;
+    }
+
+    public State getState() {
+        return null;
+    }
+
+    public void reload() {
+        if (input != null) {
+            final User user;
+            if (isSetInputUser()) {
+                user = getInputUser();
+            } else if (isSetInputContact()) {
+                user = getInputContact();
+            } else {
+                throw Assert.createUnreachable(
+                        "Either contact or user must be set.");
+            }
+            reloadInvite();
+            nameJTextField.setText(user.getName());
+            companyJTextField.setText(user.getOrganization());
+            titleJTextField.setText(user.getTitle());
+            nameJTextField.setCaretPosition(0);
+            companyJTextField.setCaretPosition(0);
+            titleJTextField.setCaretPosition(0);
+        }
+    }
+
+    public void setState(final State state) {
+    }
+
+    /**
+     * Bind the escape and enter keys.
+     */
+    private void bindKeys() {
+        bindEscapeKey("Cancel", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                disposeWindow();
+            }
+        });
+        bindEnterKey("Enter", new AbstractAction() {
+            public void actionPerformed(final ActionEvent e) {
+                disposeWindow();
+            }
+        });
+    }
+
+    private void closeJButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeJButtonActionPerformed
+        disposeWindow();
+    }//GEN-LAST:event_closeJButtonActionPerformed
+
+    /**
+     * Obtain the input contact.
+     *
+     * @return A <code>Contact</code>.
+     */
+    private Contact getInputContact() {
+        return null == input ? null : (Contact) ((Data) input).get(DataKey.CONTACT);
+    }
+
+    /**
+     * Obtain the input user.
+     *
+     * @return A <code>User</code>.
+     */
+    private User getInputUser() {
+        return null == input ? null : (User) ((Data) input).get(DataKey.USER);
+    }
+
+    /**
+     * Obtain the input user allow invite.
+     * 
+     * @return A <code>Boolean</code>.
+     */
+    private Boolean getInputUserAllowInvite() {
+        return null == input ? null : (Boolean) ((Data) input).get(DataKey.USER_ALLOW_INVITE);
+    }
+
+    /**
+     * Determine if the input user is set.
+     * 
+     * @return True if the user is set.
+     */
+    private boolean isSetInputContact() {
+        return null == input ? false : ((Data) input).isSet(DataKey.CONTACT);
+    }
+
+    /**
+     * Determine if the input user is set.
+     * 
+     * @return True if the user is set.
+     */
+    private boolean isSetInputUser() {
+        return null == input ? false : ((Data) input).isSet(DataKey.USER);
+    }
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    private void initComponents() {
+        final javax.swing.JButton closeJButton = ButtonFactory.create();
+        final javax.swing.JLabel nameHeadingJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel titleHeadingJLabel = new javax.swing.JLabel();
+        final javax.swing.JLabel companyHeadingJLabel = new javax.swing.JLabel();
+
+        closeJButton.setFont(Fonts.DialogButtonFont);
+        closeJButton.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("TeamMemberInfoAvatar.Close"));
+        closeJButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeJButtonActionPerformed(evt);
+            }
+        });
+
+        nameHeadingJLabel.setFont(Fonts.DialogFont);
+        nameHeadingJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("TeamMemberInfoAvatar.Name"));
+
+        nameJTextField.setEditable(false);
+        nameJTextField.setFont(Fonts.DialogFont);
+        nameJTextField.setOpaque(false);
+
+        titleHeadingJLabel.setFont(Fonts.DialogFont);
+        titleHeadingJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("TeamMemberInfoAvatar.TitleLabel"));
+
+        titleJTextField.setEditable(false);
+        titleJTextField.setFont(Fonts.DialogFont);
+        titleJTextField.setOpaque(false);
+
+        companyHeadingJLabel.setFont(Fonts.DialogFont);
+        companyHeadingJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("TeamMemberInfoAvatar.Company"));
+
+        companyJTextField.setEditable(false);
+        companyJTextField.setFont(Fonts.DialogFont);
+        companyJTextField.setOpaque(false);
+
+        inviteJLabel.setText(java.util.ResourceBundle.getBundle("localization/Browser_Messages").getString("TeamMemberInfoAvatar.Invite"));
+        inviteJLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                inviteJLabelMousePressed(evt);
+            }
+        });
+
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(inviteJLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 181, Short.MAX_VALUE)
+                        .add(closeJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 59, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(nameHeadingJLabel)
+                            .add(titleHeadingJLabel)
+                            .add(companyHeadingJLabel))
+                        .add(49, 49, 49)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 262, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(titleJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 262, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(companyJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 262, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(24, 24, 24)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(nameHeadingJLabel)
+                    .add(nameJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(titleHeadingJLabel)
+                    .add(titleJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(companyHeadingJLabel)
+                    .add(companyJTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 16, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(closeJButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(inviteJLabel))
+                .addContainerGap())
+        );
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void inviteJLabelMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_inviteJLabelMousePressed
+        disposeWindow();
+        final User inputUser = getInputUser();
+        getController().runCreateOutgoingUserInvitation(inputUser.getLocalId());
+    }//GEN-LAST:event_inviteJLabelMousePressed
+
+    /**
+     * Determine if we are online.
+     * 
+     * @return True if we are online.
+     */
+    private boolean isOnline() {
+        return getController().isOnline().booleanValue();
+    }
+
+    /**
+     * Set the invite link visible or not as appropriate. The link is visible if
+     * the contact input is not set; and the user is allowed to invite other
+     * users.
+     * 
+     */
+    private void reloadInvite() {
+        boolean visible = false;
+        final Contact contact = getInputContact();
+        if (null == contact) {
+            visible = getInputUserAllowInvite().booleanValue();
+        }
+        inviteJLabel.setVisible(isOnline() && visible);
+    }
+
+    public enum DataKey { CONTACT, USER, USER_ALLOW_INVITE }
+}

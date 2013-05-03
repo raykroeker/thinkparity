@@ -1,0 +1,31 @@
+/*
+ * Generated On: ${environment.generatedOn}
+ */
+package ${proxyImpl.packageName};
+
+import com.thinkparity.codebase.model.session.Environment;
+
+import com.thinkparity.ophelia.model.AbstractModelImpl;
+import com.thinkparity.ophelia.model.workspace.Workspace;
+
+/**
+ * <b>Title:</b>thinkParity ${proxyImpl.name} Model Implementation</br>
+ * <b>Description:</b><br>
+ *
+ * @author ${environment.author}
+ * @version ${proxyImpl.version}
+ */
+final ${proxyImpl.classModifier}class ${proxyImpl.className} extends ${proxyImpl.superClassName} {
+
+    /**
+     * Create ${proxyImpl.className}.
+     *
+     * @param environment
+     *      A thinkParity <code>Environment</code>.
+     * @param workspace
+     *		The thinkParity <code>Workspace</code>.
+     */
+    ${proxyImpl.className}(final Environment environment, final Workspace workspace) {
+        super(environment, workspace);
+    }
+}

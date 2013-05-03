@@ -1,0 +1,6 @@
+select A.ARTIFACT_UNIQUE_ID "id",A.CREATED_ON "created on",CBU.USERNAME "created by",TU.USERNAME "team member username"
+from TPSD_ARTIFACT_TEAM_REL ATR
+inner join TPSD_ARTIFACT A on A.ARTIFACT_ID=ATR.ARTIFACT_ID
+inner join TPSD_USER TU on TU.USER_ID=ATR.USER_ID
+inner join TPSD_USER CBU on CBU.USER_ID=A.CREATED_BY
+where A.ARTIFACT_UNIQUE_ID = '2ce66ba0-4382-4441-abdc-2cff1c20d1a9';

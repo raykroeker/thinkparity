@@ -1,0 +1,27 @@
+/*
+ * Generated On: ${environment.generatedOn}
+ */
+package ${proxyImpl.packageName};
+
+import com.thinkparity.desdemona.model.AbstractModelImpl;
+import com.thinkparity.desdemona.model.session.Session;
+
+/**
+ * <b>Title:</b>thinkParity ${proxyImpl.name} Model Implementation</br>
+ * <b>Description:</b>
+ *
+ * @author ${environment.author}
+ * @version 1.1
+ */
+final ${proxyImpl.classModifier}class ${proxyImpl.className} extends ${proxyImpl.superClassName} {
+
+    /**
+     * Create ${proxyImpl.className}.
+     *
+     * @param session
+     *		The user's session.
+     */
+    ${proxyImpl.className}(final Session session) {
+        super(session);
+    }
+}

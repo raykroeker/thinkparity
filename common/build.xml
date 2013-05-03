@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<project name="common" default="help" basedir=".">
+    <!-- build.properties -->
+    <property file="build.properties"/>
+
+    <!-- main source -->
+    <path id="compile.main.srcrefid">
+        <pathelement location="${basedir}/codebase/src/main/java"/>
+    </path>
+    <!-- test source -->
+    <path id="compile.test.srcrefid">
+        <pathelement location="${basedir}/junitx/src/main/java"/>
+        <pathelement location="${basedir}/codebase/src/test/java"/>
+    </path>
+
+    <!-- build-core.xml -->
+    <import file="${basedir}/../build-core.xml"/>
+</project>

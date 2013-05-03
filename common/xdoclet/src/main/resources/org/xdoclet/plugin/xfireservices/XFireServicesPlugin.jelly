@@ -1,0 +1,10 @@
+<j:jelly xmlns:j="jelly:core" xmlns:x="jelly:xml">
+    <x:comment text="${dontedit}" trim="true"/>
+    <services>
+        <j:forEach var="class" items="${metadata}">
+            <j:if test="${plugin.shouldGenerate(class)}">
+                <service>${class.fullyQualifiedName}</service>
+            </j:if>
+        </j:forEach>
+    </services>
+</j:jelly>

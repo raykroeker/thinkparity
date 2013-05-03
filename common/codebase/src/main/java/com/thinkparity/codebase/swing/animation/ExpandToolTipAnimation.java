@@ -1,0 +1,108 @@
+/*
+ * Jan 16, 2006
+ */
+package com.thinkparity.codebase.swing.animation;
+
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+
+import javax.swing.JPanel;
+import javax.swing.Timer;
+
+
+/**
+ * @author raykroeker@gmail.com
+ * @version 1.1
+ */
+public class ExpandToolTipAnimation extends AbstractJPanelAnimation {
+
+	private static final int LOCATION_Y_STEP;
+
+	private static final int SIZE_HEIGHT_STEP;
+
+	private static final int TIMER_INTERVAL;
+
+	static {
+		LOCATION_Y_STEP = 3;
+		SIZE_HEIGHT_STEP = 3;
+		TIMER_INTERVAL = 10;
+	}
+
+	/**
+	 * Animation flag indicating whether the animation is complete.
+	 * 
+	 */
+	private boolean isDone;
+
+	private final int maxSizeHeight;
+
+	private final int minLocationY;
+
+	private final Timer timer;
+
+	private final JPanel toolTip;
+
+	/**
+	 * Create a ExpandToolTipAnimation.
+	 * @param toolTip
+	 * @param maxSizeHeight
+	 */
+	public ExpandToolTipAnimation(final JPanel toolTip,
+			final int maxSizeHeight, final int minLocationY) {
+		super();
+		this.isDone = false;
+		this.maxSizeHeight = maxSizeHeight;
+		this.minLocationY = minLocationY;
+		this.toolTip = toolTip;
+		this.timer = new Timer(TIMER_INTERVAL, new ActionListener() {
+			public void actionPerformed(final ActionEvent e) { animate(); }
+		});
+	}
+
+	public void animate() {
+		if(isDone) {
+			stop();
+			fireComplete();
+		}
+		else {
+			toolTip.setSize(incrementSize(toolTip.getSize()));
+			toolTip.setLocation(decrementLocation(toolTip.getLocation()));
+			toolTip.dispatchEvent(new ComponentEvent(toolTip, ComponentEvent.COMPONENT_RESIZED));
+			toolTip.doLayout();
+		}
+	}
+
+	/**
+	 * @see com.thinkparity.codebase.swing.animation.IAnimator#isRunning()
+	 * 
+	 */
+	public boolean isRunning() { return timer.isRunning(); }
+
+	public void start() {
+		timer.start();
+	}
+
+	public void stop() {
+		timer.stop();
+	}
+
+	private Point decrementLocation(final Point location) {
+		final int newY = location.y - LOCATION_Y_STEP;
+		if(newY > minLocationY) { location.y = newY; }
+		else if(location.y > minLocationY) { location.y = minLocationY; }
+		return location;
+	}
+
+	private Dimension incrementSize(final Dimension size) {
+		final int newHeight = size.height + SIZE_HEIGHT_STEP;
+		if(newHeight <= maxSizeHeight) { size.height = newHeight; }
+		else {
+			if(size.height < maxSizeHeight) { size.height = maxSizeHeight; }
+			else { isDone = true; }
+		}
+		return size;
+	}
+}

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+<!--
+    thinkParity Illegal Style Checks
+-->
+<module name="Checker">
+    <module name="TreeWalker">
+        <module name="GenericIllegalRegexp">
+            <property name="format" value="System\.out\.println"/>
+            <property name="message" value="Cannot use System.out.println()."/>
+        </module>
+        <module name="GenericIllegalRegexp">
+            <property name="format" value="System\.err\.println"/>
+            <property name="message" value="Cannot use System.err.println()."/>
+        </module>
+        <module name="GenericIllegalRegexp">
+            <property name="format" value="\.printStackTrace"/>
+            <property name="message" value="Cannot use x.printStackTrace()."/>
+        </module>
+        <module name="GenericIllegalRegexp">
+            <property name="format" value="NOCOMMIT"/>
+            <property name="message" value="The &quot;NOCOMMIT&quot; compiler tag left in."/>
+        </module>
+
+        <!-- Checks for imports -->
+        <!-- See http://checkstyle.sf.net/config_import.html -->
+        <module name="AvoidStarImport"/>
+        <module name="IllegalImport"/>
+        <!-- defaults to sun.* packages -->
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
+    </module>
+</module>

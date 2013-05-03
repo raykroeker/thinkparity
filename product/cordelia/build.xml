@@ -1,0 +1,383 @@
+<?xml version="1.0"?>
+<project name="cordelia" default="help" basedir=".">
+    <property name="build.sysclasspath" value="ignore"/>
+
+    <!-- build configuration -->
+    <tstamp>
+        <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
+    </tstamp>
+
+    <!-- release configuration -->
+    <property name="release.name" value="${ant.project.name}"/>
+    <property name="release.version" value="1.0.0-RC18"/>
+    <property name="release.serverhost" value="thinkparity.dyndns.org"/>
+
+    <!-- cvs configuration -->
+    <property name="cvs.compressionlevel" value="9"/>
+    <property name="cvs.cvsroot" value=":pserver:tpdev.thinkparity.com:2401/home/cvs/repositories/thinkparity.com"/>
+    <property name="cvs.branch" value="v1_0"/>
+    <property name="cvs.modules" value="common/codebase common/junitx common/migrator local/model vendor/commons-codec vendor/log4j vendor/smack vendor/smackx vendor/swing-layout vendor/xpp3 vendor/xstream/1.1.2"/>
+    <property name="cvs.modules.ide" value="ide/eclipse/product/cordelia"/>
+
+    <!-- output directories -->
+	<property name="target.dir" value="${basedir}/target"/>
+    <property name="target.assembly.dir" value="${target.dir}/assembly"/>
+	<property name="target.classes.dir" value="${target.dir}/classes"/>
+	<property name="target.test-classes.dir" value="${target.dir}/test-classes"/>
+    <property name="target.javadoc.dir" value="${target.dir}/docs/api"/>
+
+    <!-- source files -->
+	<path id="project.sourcepath">
+		<pathelement location="${basedir}/common/codebase/src/main/java"/>
+		<pathelement location="${basedir}/common/migrator/src/main/java"/>
+		<pathelement location="${basedir}/local/model/src/main/java"/>
+		<pathelement location="${basedir}/local/migrator/src/main/java"/>
+		<pathelement location="${basedir}/local/thinkparity/src/main/java"/>
+	</path>
+
+    <!-- runtime vendor libs -->
+    <fileset id="project.runtimevendorlib" dir="${basedir}/vendor">
+        <include name="commons-codec/1.3/commons-codec.jar"/>
+        <include name="log4j/1.2.13/log4j.jar"/>
+		<include name="smack/2.2.1/smack.jar"/>
+		<include name="smackx/2.2.1/smackx.jar"/>
+		<include name="swing-layout/1.0/swing-layout.jar"/>
+		<include name="xpp3/1.1.3.4.O/xpp3.jar"/>
+		<include name="xstream/1.1.2/xstream.jar"/>
+    </fileset>
+
+    <!-- compile classpath -->
+	<path id="project.classpath">
+		<pathelement location="${target.dir}/classes/common/codebase"/>
+		<pathelement location="${target.dir}/classes/common/migrator"/>
+		<pathelement location="${target.dir}/classes/local/browser"/>
+		<pathelement location="${target.dir}/classes/local/model"/>
+		<pathelement location="${target.dir}/classes/local/thinkparity"/>
+
+		<pathelement location="${basedir}/vendor/log4j/1.2.13/log4j.jar"/>
+		<pathelement location="${basedir}/vendor/xpp3/1.1.3.4.O/xpp3.jar"/>
+		<pathelement location="${basedir}/vendor/xstream/1.1.2/xstream.jar"/>
+		<pathelement location="${basedir}/vendor/smack/2.2.1/smack.jar"/>
+		<pathelement location="${basedir}/vendor/smackx/2.2.1/smackx.jar"/>
+		<pathelement location="${basedir}/vendor/lucene/1.9.1/lucene.jar"/>
+		<pathelement location="${basedir}/vendor/swing-layout/1.0/swing-layout.jar"/>
+		<pathelement location="${basedir}/vendor/commons-codec/1.3/commons-codec.jar"/>
+		<pathelement location="${basedir}/vendor/jdic/0.9.1/jdic.jar"/>
+	</path>
+
+    <!-- test classpath (test compile and test run) -->
+    <path id="project.test-classpath">
+        <path refid="project.classpath"/>
+
+        <pathelement location="${target.test-classes.dir}/common/codebase"/>
+        <pathelement location="${target.test-classes.dir}/common/junitx"/>
+        <pathelement location="${target.test-classes.dir}/local/model"/>
+
+        <pathelement location="${basedir}/vendor/junit/3.8.1/junit.jar"/>
+        <pathelement location="${basedir}/vendor/hsqldb/1.8.0.2/hsqldb.jar"/>
+    </path>
+
+    <!-- release -->
+    <target name="assemble">
+        <!-- codebase -->
+        <jar destfile="${target.classes.dir}/common/codebase.jar"
+                duplicate="fail" update="false" whenempty="fail">
+            <fileset dir="${target.classes.dir}/common/codebase"/>
+        </jar>
+        <!-- migrator -->
+        <jar destfile="${target.classes.dir}/common/migrator.jar"
+                duplicate="fail" update="false" whenempty="fail">
+            <fileset dir="${target.classes.dir}/common/migrator"/>
+        </jar>
+        <!-- thinkparity -->
+        <jar destfile="${target.classes.dir}/local/thinkparity.jar"
+                duplicate="fail" update="false" whenempty="fail">
+            <manifest>
+                <attribute name="Main-Class" value="com.thinkparity.ThinkParity"/>
+            </manifest>
+            <fileset dir="${target.classes.dir}/local/thinkparity"/>
+        </jar>
+        <!-- model -->
+        <jar destfile="${target.classes.dir}/local/model.jar"
+                duplicate="fail" update="false" whenempty="fail">
+            <fileset dir="${target.classes.dir}/local/model"/>
+        </jar>
+        <!-- browser -->
+        <jar destfile="${target.classes.dir}/local/browser.jar"
+                duplicate="fail" update="false" whenempty="fail">
+            <fileset dir="${target.classes.dir}/local/browser"/>
+        </jar>
+
+        <mkdir dir="${target.assembly.dir}/${release.version}/core"/>
+        <mkdir dir="${target.assembly.dir}/${release.version}/lib"/>
+        <!-- launch4j -->
+        <property environment="env"/>
+        <property name="launch4j.install.dir" value="${env.ProgramFiles}\Launch4J"/>
+        <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask"
+                classpath="${launch4j.install.dir}/launch4j.jar:${launch4j.install.dir}/lib/xstream.jar"/>
+        <launch4j>
+            <config dontWrapJar="true" headerType="0"
+                    jarPath="thinkParity.jar"
+                    outfile="${target.assembly.dir}/thinkParity.exe"
+                    errTitle="thinkParity - Error" customProcName="true"
+                    stayAlive="false"
+                    icon="${target.classes.dir}/local/browser/images/ThinkParity32x32.ico">
+                    <jre minVersion="1.5.0" args="-Dparity.install=&quot;%EXEDIR%&quot; -Dparity.serverhost=${release.serverhost} -Dparity.serverport=${release.serverport}"/>
+            </config>
+        </launch4j>
+        <copy todir="${target.assembly.dir}">
+            <fileset file="${basedir}/LICENSE.txt"/>
+            <fileset file="${basedir}/README.txt"/>
+            <fileset file="${target.classes.dir}/local/thinkparity.jar"/>
+            <fileset file="${target.classes.dir}/local/browser/thinkParity.properties"/>
+            <fileset file="${target.classes.dir}/local/browser/lBrowser.nsi"/>
+        </copy>
+        <copy todir="${target.assembly.dir}/${release.version}">
+            <fileset file="${target.classes.dir}/local/browser/thinkParityImage.properties"/>
+        </copy>
+        <copy todir="${target.assembly.dir}/${release.version}/core">
+            <fileset dir="${target.classes.dir}">
+                <include name="common/codebase.jar"/>
+                <include name="common/migrator.jar"/>
+                <include name="local/browser.jar"/>
+                <include name="local/model.jar"/>
+            </fileset>
+            <mapper type="flatten"/>
+        </copy>
+        <copy todir="${target.assembly.dir}/${release.version}/lib">
+            <fileset dir="${basedir}/vendor">
+                <include name="**/*.jar"/>
+                <exclude name="**/*-sources.jar"/>
+                <exclude name="**/*-javadoc.jar"/>
+            </fileset>
+            <mapper type="flatten"/>
+        </copy>
+        <copy todir="${target.assembly.dir}/${release.version}/lib/win32">
+            <fileset dir="${basedir}/vendor">
+                <include name="**/*.dll"/>
+            </fileset>
+            <mapper type="flatten"/>
+        </copy>
+        <!-- nsis -->
+        <property name="nsis.install.dir" value="${env.ProgramFiles}\NSIS"/>
+        <exec executable="${nsis.install.dir}/makensis.exe" dir="${target.assembly.dir}">
+            <arg value="lBrowser.nsi"/>
+        </exec>
+    </target>
+
+    <!-- checkout -->
+    <target name="checkout">
+        <echo message="${cvs.cvsroot}"/>
+        <echo message="${cvs.branch}"/>
+        <echo message="${cvs.modules}"/>
+        <echo message="${cvs.modules.ide}"/>
+        <sleep seconds="3"/>
+        <!-- source trees -->
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="checkout" tag="${cvs.branch}" package="${cvs.modules}"
+            dest="${basedir}"/>
+        <!-- ide files -->
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="export -d &quot;${basedir}/ide&quot;" tag="${cvs.branch}" package="${cvs.modules.ide}"
+            dest="${basedir}"/>
+        <move todir="${basedir}">
+            <fileset dir="${basedir}/ide"/>
+        </move>
+    </target>
+
+    <!-- checkout ide -->
+    <target name="checkout.ide">
+        <echo message="${cvs.cvsroot}"/>
+        <echo message="${cvs.branch}"/>
+        <echo message="${cvs.modules.ide}"/>
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="export -d &quot;${basedir}/ide&quot;" tag="${cvs.branch}" package="${cvs.modules.ide}"
+            dest="${basedir}"/>
+        <move todir="${basedir}">
+            <fileset dir="${basedir}/ide"/>
+        </move>
+    </target>
+
+    <!-- delete output -->
+	<target name="clean">
+		<delete dir="${target.dir}"/>
+	</target>
+
+    <!-- compile -->
+	<target name="compile" depends="init,process-resources">
+        <!-- if the compile.debug is not set; use true as a default otherwise
+             use the value itself -->
+        <condition property="compile.innerDebug" value="${compile.debug}" else="true">
+            <isset property="compile.debug"/>
+        </condition>
+
+        <!-- common/codebase -->
+		<javac srcdir="common/codebase/src/main/java"
+                destdir="${target.classes.dir}/common/codebase" debug="${compile.innerDebug}">
+			<classpath refid="project.classpath"/>
+		</javac>
+        <!-- common/migrator -->
+        <javac srcdir="common/migrator/src/main/java"
+                destdir="${target.classes.dir}/common/migrator" debug="${compile.innerDebug}">
+			<classpath refid="project.classpath"/>
+        </javac>
+        <!-- local/model -->
+        <javac srcdir="local/model/src/main/java"
+                destdir="${target.classes.dir}/local/model" debug="${compile.innerDebug}">
+			<classpath refid="project.classpath"/>
+        </javac>
+        <!-- local/migrator -->
+        <javac srcdir="local/migrator/src/main/java"
+                destdir="${target.classes.dir}/local/migrator" debug="${compile.innerDebug}">
+			<classpath refid="project.classpath"/>
+        </javac>
+        <!-- local/thinkparity -->
+        <javac srcdir="local/thinkparity/src/main/java"
+                destdir="${target.classes.dir}/local/thinkparity" debug="${compile.innerDebug}">
+			<classpath refid="project.classpath"/>
+        </javac>
+	</target>
+
+    <!-- compile tests -->
+	<target name="test-compile" depends="compile,test-process-resources">
+        <!-- if the compile.debug is not set; use true as a default otherwise
+             use the value itself -->
+        <condition property="compile.innerDebug" value="${compile.debug}" else="true">
+            <isset property="compile.debug"/>
+        </condition>
+
+        <!-- common/junitx -->
+        <javac srcdir="common/junitx/src/main/java"
+                destdir="${target.test-classes.dir}/common/junitx" debug="${compile.innerDebug}">
+            <classpath refid="project.test-classpath"/>
+        </javac>
+        <!-- common/codebase -->
+        <javac srcdir="common/codebase/src/test/java"
+                destdir="${target.test-classes.dir}/common/codebase" debug="${compile.innerDebug}">
+            <classpath refid="project.test-classpath"/>
+        </javac>
+        <!-- model -->
+        <javac srcdir="local/model/src/test/java"
+                destdir="${target.test-classes.dir}/local/model" debug="${compile.innerDebug}">
+            <classpath refid="project.test-classpath"/>
+        </javac>
+	</target>
+
+    <!-- process test resources -->
+    <target name="test-process-resources">
+        <!-- common/junitx -->
+        <copy todir="${target.test-classes.dir}/common/junitx/">
+            <fileset dir="${basedir}/common/junitx/src/main/resources"/>
+        </copy>
+        <!-- local/model -->
+        <copy todir="${target.test-classes.dir}/local/model/">
+            <fileset dir="${basedir}/local/model/src/test/resources"/>
+        </copy>
+    </target>
+
+    <!-- print help -->
+    <target name="help">
+        <echo>
+Options:
+    -Dcompile.debug=true,false  Generate compiler debug info.
+                                Default:true
+Targets:
+    checkout                    Checkout all source.
+    checkout.ide                Checkout ide configuration files.
+    clean                       Delete output.
+    compile                     Compile source.
+    javadoc                     Generate javadoc (html) documentation.
+    process-resources           Process resources.
+    tag                         Tag the release.
+    update                      Update source with latest from CVS.
+Examples:
+    First Run:
+    ant checkout               Will grab all source from cvs; process all
+                                resources; compile all code.
+        </echo>
+    </target>
+
+    <!-- initialize output -->
+	<target name="init">
+        <mkdir dir="${target.classes.dir}/common/codebase"/>
+        <mkdir dir="${target.classes.dir}/common/migrator"/>
+        <mkdir dir="${target.classes.dir}/local/migrator"/>
+        <mkdir dir="${target.classes.dir}/local/model"/>
+
+        <mkdir dir="${target.test-classes.dir}/common/codebase"/>
+        <mkdir dir="${target.test-classes.dir}/common/migrator"/>
+        <mkdir dir="${target.test-classes.dir}/local/model"/>
+
+        <mkdir dir="${target.javadoc.dir}/common/codebase"/>
+        <mkdir dir="${target.javadoc.dir}/common/migrator"/>
+        <mkdir dir="${target.javadoc.dir}/local/browser"/>
+        <mkdir dir="${target.javadoc.dir}/local/model"/>
+        <mkdir dir="${target.javadoc.dir}/local/thinkparity"/>
+	</target>
+
+    <!-- document the source -->
+    <target name="javadoc">
+        <!-- codebase -->
+        <javadoc access="private" classpathref="project.classpath"
+                destdir="${target.javadoc.dir}/common/codebase"
+                doctitle="thinkParity Common Codebase"
+                packagenames="com.thinkparity.*"
+                sourcepath="${basedir}/common/codebase/src/main/java"/>
+        <!-- migrator -->
+        <javadoc access="private" classpathref="project.classpath"
+                destdir="${target.javadoc.dir}/common/migrator"
+                doctitle="thinkParity Common Migrator"
+                packagenames="com.thinkparity.*"
+                sourcepath="${basedir}/common/migrator/src/main/java"/>
+        <!-- thinkparity -->
+        <javadoc access="private" classpathref="project.classpath"
+                destdir="${target.javadoc.dir}/local/thinkparity"
+                doctitle="thinkParity Local ThinkParity"
+                packagenames="com.thinkparity.*"
+                sourcepath="${basedir}/local/thinkparity/src/main/java"/>
+        <!-- migrator -->
+        <javadoc access="private" classpathref="project.classpath"
+                destdir="${target.javadoc.dir}/local/migrator"
+                doctitle="thinkParity Local Migrator"
+                packagenames="com.thinkparity.*"
+                sourcepath="${basedir}/local/migrator/src/main/java"/>
+        <!-- model -->
+        <javadoc access="private" classpathref="project.classpath"
+                destdir="${target.javadoc.dir}/local/model"
+                doctitle="thinkParity Local Model"
+                packagenames="com.thinkparity.*"
+                sourcepath="${basedir}/local/model/src/main/java"/>
+    </target>
+
+    <!-- process resources -->
+    <target name="process-resources">
+        <!-- common/codebase -->
+        <copy todir="${target.classes.dir}/common/codebase">
+            <fileset dir="${basedir}/common/codebase/src/main/resources"/>
+        </copy>
+        <!-- local/migrator -->
+        <copy todir="${target.classes.dir}/local/migrator">
+            <fileset dir="${basedir}/local/migrator/src/main/resources"/>
+        </copy>
+        <!-- local/model -->
+        <copy todir="${target.classes.dir}/local/model">
+            <fileset dir="${basedir}/local/model/src/main/resources"/>
+        </copy>
+    </target>
+
+    <target name="tag">
+        <input addproperty="cvs.tag" message="Release tag (REL_vX_X[_RCX]:"/>
+        <echo message="${cvs.tag}"/>
+        <echo message="${cvs.cvsroot}"/>
+        <echo message="${cvs.tag}"/>
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="tag -c -F -R ${cvs.tag} .cvsignore build.filters build.xml LICENSE.txt README.txt ${cvs.modules}"/>
+    </target>
+
+     <!-- update -->
+    <target name="update">
+        <echo message="${cvs.cvsroot}"/>
+        <cvs cvsroot="${cvs.cvsroot}"
+            command="update -P" tag="${cvs.branch}" package="${cvs.modules}"/>
+    </target>
+</project>

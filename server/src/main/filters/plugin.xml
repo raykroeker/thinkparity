@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+    <class>com.thinkparity.desdemona.wildfire.WildfirePlugin</class>
+
+    <name>${pom.name}</name>
+    <description>Provides the core remote functionality for the thinkParity platform.</description>
+    <author></author>
+    <version>${pom.version}</version>
+    <date>11/25/2005</date>
+    <url>${pom.url}</url>
+    <minServerVersion>3.0.1</minServerVersion>
+
+</plugin>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="remote/migrator/src/main/java"/>	<classpathentry kind="src" path="remote/codebase/src/main/java"/>
+	<classpathentry kind="src" path="common/migrator/src/main/java"/>
+	<classpathentry kind="src" path="common/codebase/src/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry output="target/test-classes" kind="src" path="common/junitx/src/main/java"/>
+	<classpathentry output="target/test-classes" kind="src" path="remote/migrator/src/test/java"/>
+	<classpathentry output="target/test-classes" kind="src" path="common/codebase/src/test/java"/>
+	<classpathentry sourcepath="vendor/commons-codec/1.3/commons-codec-sources.jar" kind="lib" path="vendor/commons-codec/1.3/commons-codec.jar"/>
+	<classpathentry sourcepath="vendor/hsqldb/1.8.0.2/hsqldb-sources.jar" kind="lib" path="vendor/hsqldb/1.8.0.2/hsqldb.jar"/>
+	<classpathentry sourcepath="vendor/junit/3.8.1/junit-sources.jar" kind="lib" path="vendor/junit/3.8.1/junit.jar"/>
+	<classpathentry sourcepath="vendor/log4j/1.2.13/log4j-sources.jar" kind="lib" path="vendor/log4j/1.2.13/log4j.jar"/>
+	<classpathentry sourcepath="vendor/messenger/2.3.1/messenger-sources.jar" kind="lib" path="vendor/messenger/2.3.1/messenger.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

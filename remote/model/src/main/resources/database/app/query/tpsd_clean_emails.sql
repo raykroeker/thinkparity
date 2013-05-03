@@ -1,0 +1,4 @@
+delete from TPSD_EMAIL
+    where EMAIL_ID not in (select EMAIL_ID from TPSD_USER_EMAIL)
+    and EMAIL_ID not in (select EMAIL_ID from TPSD_CONTACT_INVITATION_INCOMING_EMAIL)
+    and EMAIL_ID not in (select EMAIL_ID from TPSD_CONTACT_INVITATION_OUTGOING_EMAIL);

@@ -1,0 +1,63 @@
+/*
+ * Generated On: ${environment.generatedOn}
+ */
+package ${proxy.packageName};
+
+import com.thinkparity.codebase.model.Context;
+import com.thinkparity.codebase.model.session.Environment;
+
+import com.thinkparity.ophelia.model.AbstractModel;
+import com.thinkparity.ophelia.model.workspace.Workspace;
+import com.thinkparity.ophelia.model.workspace.WorkspaceModel;
+
+/**
+ * <b>Title:</b>thinkParity ${proxy.name} Model<br>
+ * <b>Description:</b><br>
+ *
+ * @author ${environment.author}
+ * @version ${proxy.version}
+ */
+${proxy.classModifier}class ${proxy.className} extends AbstractModel<${proxyImpl.className}> {
+
+	/**
+	 * Create a thinkParity ${proxyInternal.name} interface.
+	 * 
+	 * @param context
+     *      A thinkParity model <code>Context</code>.
+     * @param environment
+     *      A thinkParity <code>Environment</code>.
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
+	 * @return A thinkParity ${proxyInternal.name} interface.
+	 */
+	public static ${proxyInternal.className} getInternalModel(final Context context,
+            final Environment environment, final Workspace workspace) {
+		return new ${proxyInternal.className}(context, environment, workspace);
+	}
+
+	/**
+	 * Create a thinkParity ${proxy.name} interface.
+	 * 
+     * @param environment
+     *      A thinkParity <code>Environment</code>.
+     * @param workspace
+     *      A thinkParity <code>Workspace</code>.
+	 * @return A thinkParity ${proxy.name} interface.
+	 */
+	public static ${proxy.className} getModel(final Environment environment,
+        final Workspace workspace) {
+		return new ${proxy.className}(environment, workspace);
+	}
+
+	/**
+	 * Create ${proxy.className}.
+	 *
+     * @param environment
+     *      A thinkParity <code>Environment</code>.
+	 * @param workspace
+	 *		The thinkParity <code>Workspace</code>.
+	 */
+	protected ${proxy.className}(final Environment environment, final Workspace workspace) {
+		super(new ${proxyImpl.className}(environment, workspace));
+	}
+}

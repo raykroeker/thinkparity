@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<project name="thinkParity" default="help" basedir=".">
+    <property name="build.sysclasspath" value="ignore"/>
+
+    <!-- build configuration -->
+    <tstamp>
+        <format property="build.id" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
+    </tstamp>
+
+    <!-- release configuration -->
+    <property name="release.name" value="${ant.project.name}"/>
+    <property name="release.version" value="1.0.0-RC18"/>
+
+    <!-- print help -->
+    <target name="help">
+        <echo>
+Options:
+    -Dnotify.to             Notification to list.   (comma separated)
+    -Dnotify.subject        Notification subject.
+    -Dnotify.message        Notification message.
+
+Targets:
+    notify
+
+Examples:
+        </echo>
+    </target>
+
+    <!-- notify -->
+    <target name="notify.release-reminder">
+        <tstamp>
+            <format property="release.timestamp" pattern="yyyy-MM-dd HH:mm:ss Z" timezone="PST"/>
+        </tstamp>
+        <mail subject="Pre-release reminder" messagefile="notify.release-reminder-message">
+            <from address="thinkparity.development@gmail.com" name="thinkParity R &amp; D"/>
+            <to address="raykroeker@gmail.com" name="Raymond Kroeker"/>
+            <to address="rob_masako@shaw.ca" name="Robert MacMartin"/>
+        </mail>
+    </target>
+</project>

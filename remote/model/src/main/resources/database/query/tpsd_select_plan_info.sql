@@ -1,0 +1,6 @@
+select PP.PLAN_ID,PP.PLAN_NAME,PI.*
+    from TPSD_PAYMENT_PLAN PP
+        inner join TPSD_PAYMENT_PLAN_PAYMENT_INFO PPPI on PPPI.PLAN_ID=PP.PLAN_ID
+        inner join TPSD_PAYMENT_INFO PI on PI.INFO_ID=PPPI.INFO_ID
+        inner join TPSD_USER O on O.USER_ID=PP.PLAN_OWNER
+order by PP.PLAN_ID desc;

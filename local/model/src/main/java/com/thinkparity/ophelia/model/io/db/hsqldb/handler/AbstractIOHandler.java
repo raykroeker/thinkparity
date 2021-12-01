@@ -15,7 +15,7 @@ import com.thinkparity.ophelia.model.io.db.hsqldb.SessionManager;
 import com.thinkparity.ophelia.model.io.md.MetaData;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public abstract class AbstractIOHandler {

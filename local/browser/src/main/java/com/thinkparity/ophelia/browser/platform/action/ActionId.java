@@ -21,7 +21,7 @@ package com.thinkparity.ophelia.browser.platform.action;
  * Class: AddDocument
  * </ol>
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1.2.26
  */
 public enum ActionId {

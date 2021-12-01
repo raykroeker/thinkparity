@@ -14,7 +14,7 @@ import com.thinkparity.ophelia.browser.platform.util.persistence.PersistenceFact
  * This class is responsible for maintaining the browser's state between
  * sessions.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class BrowserWindowState {

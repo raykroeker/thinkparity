@@ -23,7 +23,7 @@ import com.thinkparity.ophelia.OpheliaTestUser;
 /**
  * Test the document model open version api.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1.2.1
  */
 public class OpenVersionTest extends DocumentTestCase {

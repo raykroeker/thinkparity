@@ -6,7 +6,7 @@ package com.thinkparity.codebase.email;
 /**
  * A wrapper for the 2 string fields used to represent an e-mail.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1.2.2
  */
 public class EMail {

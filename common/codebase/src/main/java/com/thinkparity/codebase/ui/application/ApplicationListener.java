@@ -7,7 +7,7 @@ import com.thinkparity.codebase.event.EventListener;
 import com.thinkparity.codebase.ui.platform.Platform;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public interface ApplicationListener<T extends Platform> extends EventListener {

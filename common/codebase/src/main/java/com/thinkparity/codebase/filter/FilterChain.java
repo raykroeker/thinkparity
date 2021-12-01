@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * A filter chain is an ordered set of filters linked together.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class FilterChain<T> extends AbstractFilter<T> implements Iterable<Filter<T>> {

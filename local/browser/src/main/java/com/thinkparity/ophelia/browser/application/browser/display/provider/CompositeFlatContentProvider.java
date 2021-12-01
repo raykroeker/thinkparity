@@ -8,7 +8,7 @@ import com.thinkparity.ophelia.model.profile.ProfileModel;
 /**
  * Provides multiple flat lists.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public abstract class CompositeFlatContentProvider extends ContentProvider {

@@ -12,7 +12,7 @@ import javax.swing.JFrame;
  * Create a simple animation that will increase the size of the browser to
  * pre-set maximum; then stop.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class ShowJFrameAnimator extends AbstractJFrameAnimator {

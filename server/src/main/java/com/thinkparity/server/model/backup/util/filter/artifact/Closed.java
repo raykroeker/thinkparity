@@ -13,7 +13,7 @@ import com.thinkparity.ophelia.model.util.filter.AbstractFilter;
 /**
  * A parity filter that will catch only closed documents.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  * 
  * @see Artifact#getState()

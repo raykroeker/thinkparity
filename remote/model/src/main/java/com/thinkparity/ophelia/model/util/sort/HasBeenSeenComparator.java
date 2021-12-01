@@ -8,7 +8,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactFlag;
 
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class HasBeenSeenComparator extends AbstractArtifactComparator {

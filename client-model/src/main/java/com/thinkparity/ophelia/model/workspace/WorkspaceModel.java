@@ -49,7 +49,7 @@ import com.thinkparity.ophelia.model.workspace.monitor.InitializeStep;
  *    +-->index
  *    +-->logs
  * </pre>
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class WorkspaceModel {

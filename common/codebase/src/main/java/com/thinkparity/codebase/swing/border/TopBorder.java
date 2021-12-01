@@ -11,7 +11,7 @@ import javax.swing.border.AbstractBorder;
 /**
  * The default border for a display is a single pixel line at the top of the display.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class TopBorder extends AbstractBorder {

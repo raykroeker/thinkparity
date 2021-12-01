@@ -9,7 +9,7 @@ import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
  * The configuration io handler is a simple string configuration storage
  * strategy.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public interface ConfigurationIOHandler {

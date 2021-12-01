@@ -9,7 +9,7 @@ import com.thinkparity.ophelia.model.ModelTestCase;
 /**
  * Test the session model login api.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1.2.1
  */
 public class LoginTest extends ModelTestCase {

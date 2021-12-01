@@ -10,7 +10,7 @@ import java.util.UUID;
  * An artifact id is guaranteed unique across the parity system. This class is a
  * simple wrapper around a UUID.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class ArtifactId implements Serializable, Comparable<ArtifactId> {

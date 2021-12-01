@@ -9,7 +9,7 @@ import com.thinkparity.ophelia.model.InternalModelFactory;
  * An abstract auditor. This class is to be extended when implementing audit
  * capability for a concrete model.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class AbstractAuditor {

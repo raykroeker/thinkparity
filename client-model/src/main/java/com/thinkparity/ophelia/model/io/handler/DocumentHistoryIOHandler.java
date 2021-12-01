@@ -9,7 +9,7 @@ import java.util.List;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public interface DocumentHistoryIOHandler {

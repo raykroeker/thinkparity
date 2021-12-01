@@ -5,7 +5,7 @@ package com.thinkparity.ophelia.model.index;
 
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version $Revision$
  */
 public class IndexHit<T> {

@@ -6,7 +6,7 @@ package com.thinkparity.codebase.swing;
 import javax.swing.JOptionPane;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class JOptionPaneUtil {

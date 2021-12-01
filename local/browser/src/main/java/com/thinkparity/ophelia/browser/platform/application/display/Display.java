@@ -24,7 +24,7 @@ import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avata
 import com.thinkparity.ophelia.browser.platform.application.display.avatar.Avatar.ScrollPolicy;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public abstract class Display extends AbstractJPanel {

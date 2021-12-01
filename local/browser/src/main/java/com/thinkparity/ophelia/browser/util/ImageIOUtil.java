@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
  * 
  * TODO:  Move to com.thinkparity.codebase.javax.imageio
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class ImageIOUtil {

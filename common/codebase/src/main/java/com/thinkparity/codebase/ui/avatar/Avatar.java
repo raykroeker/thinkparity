@@ -8,7 +8,7 @@ import com.thinkparity.codebase.ui.platform.Platform;
 import com.thinkparity.codebase.ui.provider.Provider;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public interface Avatar<T extends Platform, U extends Application<T>, V extends Provider> {

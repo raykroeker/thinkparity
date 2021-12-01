@@ -4,6 +4,6 @@
 package com.thinkparity.codebase.config;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  */
 public interface ConfigKey {}

@@ -16,7 +16,7 @@ import com.thinkparity.codebase.DateUtil;
 import com.thinkparity.codebase.FileSystem;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  */
 public class TestSession {
 

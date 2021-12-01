@@ -21,7 +21,7 @@ import com.thinkparity.ophelia.browser.application.browser.display.provider.Comp
 /**
  * Provide a flat list of contacts from the session model.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class ContactProvider extends CompositeFlatSingleContentProvider {

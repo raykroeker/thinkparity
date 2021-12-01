@@ -21,7 +21,7 @@ import com.thinkparity.ophelia.browser.platform.Platform.Connection;
  * browser's tabbed lists. To add a disparate type to the main list; simply
  * implement this interface; and update the model for the appropriate tab.<br>
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1.2.1
  */
 public interface TabCell {

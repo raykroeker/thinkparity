@@ -13,7 +13,7 @@ import com.thinkparity.ophelia.OpheliaTestUser;
 /**
  * Test the document model get api.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1.2.2
  */
 public class GetTest extends DocumentTestCase {

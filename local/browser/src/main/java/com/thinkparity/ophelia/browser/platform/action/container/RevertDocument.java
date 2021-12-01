@@ -19,7 +19,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 /**
  * Rename is run when the user rename's an artifact.
  *
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version $Revision$
  */
 public class RevertDocument extends AbstractBrowserAction {

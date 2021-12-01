@@ -13,7 +13,7 @@ import com.thinkparity.codebase.ui.platform.Platform;
  * @see Application
  * @see ApplicationFactory#create(ApplicationId)
  * @see ApplicationId
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public abstract class ApplicationRegistry<T extends Platform> {

@@ -15,7 +15,7 @@ import javax.swing.border.AbstractBorder;
  * This border draws a single pixel line at the left; right and bottom edges of the
  * component.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class LeftBottomRightBorder extends AbstractBorder {

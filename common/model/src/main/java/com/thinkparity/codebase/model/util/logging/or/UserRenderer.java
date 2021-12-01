@@ -13,7 +13,7 @@ import org.apache.log4j.or.ObjectRenderer;
 /**
  * This class is used whenever a logger is required to output a User.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.0
  */
 public class UserRenderer implements ObjectRenderer {

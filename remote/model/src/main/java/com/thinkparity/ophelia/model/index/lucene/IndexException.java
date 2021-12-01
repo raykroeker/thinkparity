@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.apache.lucene.queryParser.ParseException;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class IndexException extends RuntimeException {

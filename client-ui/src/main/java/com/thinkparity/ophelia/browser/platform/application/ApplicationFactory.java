@@ -15,7 +15,7 @@ import com.thinkparity.ophelia.browser.platform.Platform;
 /**
  * The browser's application factory.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version $Revision$
  */
 public class ApplicationFactory {

@@ -17,7 +17,7 @@ import com.thinkparity.codebase.assertion.Assert;
 /**
  * Data is a wrapper around a set of mapped name\values.
  *
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version $Revision$
  */
 public class Data implements Cloneable {

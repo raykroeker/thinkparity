@@ -1,5 +1,5 @@
 ; thinkParity Modern User Interface NSIS Installer
-; raykroeker@gmail.com
+; raymond@raykroeker.com
 
   ; mui configuration
   !define MUI_ABORTWARNING

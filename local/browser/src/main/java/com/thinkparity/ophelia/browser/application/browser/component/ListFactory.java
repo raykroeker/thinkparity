@@ -8,7 +8,7 @@ import javax.swing.JList;
 /**
  * A swing list factory. Used to create all swing lists.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class ListFactory extends ComponentFactory {

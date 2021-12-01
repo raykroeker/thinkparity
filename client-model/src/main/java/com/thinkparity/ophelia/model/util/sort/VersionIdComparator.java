@@ -10,7 +10,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactVersion;
 
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class VersionIdComparator implements Comparator<ArtifactVersion> {

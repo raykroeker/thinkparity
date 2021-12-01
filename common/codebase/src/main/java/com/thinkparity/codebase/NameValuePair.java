@@ -6,7 +6,7 @@ package com.thinkparity.codebase;
 /**
  * <b>Title:</b>  NameValuePair
  * <br><b>Description:</b>  
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.0.0
  */
 public class NameValuePair extends Duality {

@@ -14,7 +14,7 @@ import javax.swing.border.AbstractBorder;
 /**
  * Uses a set of 4 images to draw a border.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class ImageBorder extends AbstractBorder {

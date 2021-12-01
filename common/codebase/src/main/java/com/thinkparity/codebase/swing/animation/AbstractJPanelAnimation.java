@@ -5,7 +5,7 @@ package com.thinkparity.codebase.swing.animation;
 
 /**
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public abstract class AbstractJPanelAnimation extends AbstractAnimator {

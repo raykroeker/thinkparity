@@ -11,7 +11,7 @@ import com.thinkparity.codebase.ResourceUtil;
  * <b>Description:</b> Provides a singleton implementation for obtaining the
  * configuration for an application.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 0.0.0
  */
 public final class ConfigFactory {

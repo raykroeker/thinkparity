@@ -24,7 +24,7 @@ import com.thinkparity.desdemona.util.DesdemonaProperties;
  * The queue model is used to persistantly store text for jabber ids. The text
  * is limitless; however large items will degrade the queue performance.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1.2.1
  */
 public class QueueModelImpl extends AbstractModelImpl implements QueueModel,

@@ -14,7 +14,7 @@ import com.thinkparity.ophelia.browser.application.system.SystemApplication;
 /**
  * A menu builder for the system application tray.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 class TrayMenuBuilder {

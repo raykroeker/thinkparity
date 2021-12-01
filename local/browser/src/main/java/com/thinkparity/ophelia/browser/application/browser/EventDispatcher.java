@@ -10,7 +10,7 @@ import com.thinkparity.ophelia.model.events.*;
 /**
  * The browser's event dispatcher.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 class EventDispatcher {

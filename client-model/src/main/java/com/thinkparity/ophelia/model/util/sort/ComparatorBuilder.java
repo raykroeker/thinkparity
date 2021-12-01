@@ -13,7 +13,7 @@ import com.thinkparity.codebase.model.artifact.PublishedToEMail;
 import com.thinkparity.ophelia.model.audit.HistoryItem;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class ComparatorBuilder {

@@ -9,7 +9,7 @@ import java.awt.event.ComponentEvent;
 import javax.swing.JFrame;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class HideJFrameAnimator extends AbstractJFrameAnimator {

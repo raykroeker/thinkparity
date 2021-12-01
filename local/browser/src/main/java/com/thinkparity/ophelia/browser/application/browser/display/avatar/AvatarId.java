@@ -16,7 +16,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.avatar;
  * Content:   What content does the avatar display? [status,title,content,error]
  * 
  * Note that either action or content are required and that section is only required for the platform.
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public enum AvatarId {

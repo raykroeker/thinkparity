@@ -16,7 +16,7 @@ import javax.swing.SwingConstants;
 import com.thinkparity.ophelia.browser.Constants.Colors;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class LabelFactory extends ComponentFactory {

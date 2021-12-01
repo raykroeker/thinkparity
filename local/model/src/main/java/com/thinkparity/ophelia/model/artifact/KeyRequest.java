@@ -6,7 +6,7 @@ package com.thinkparity.ophelia.model.artifact;
 import com.thinkparity.codebase.jabber.JabberId;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class KeyRequest {

@@ -22,7 +22,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
  * functionality such as factilities for manipulating files\folder for the
  * purposes of testing.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  */
 public abstract class TestCase extends junit.framework.TestCase {
 

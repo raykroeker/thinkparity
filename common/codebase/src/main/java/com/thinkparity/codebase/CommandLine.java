@@ -8,7 +8,7 @@ import java.util.Vector;
 /**
  * <b>Title:</b>  CommandLine
  * <br><b>Description:</b>  
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version x.x.x Build x
  */
 public class CommandLine {

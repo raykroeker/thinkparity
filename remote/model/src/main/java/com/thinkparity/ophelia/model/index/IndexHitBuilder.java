@@ -6,7 +6,7 @@ package com.thinkparity.ophelia.model.index;
 import org.apache.lucene.search.Hit;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public interface IndexHitBuilder<T> {

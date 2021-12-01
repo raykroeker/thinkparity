@@ -6,7 +6,7 @@ package com.thinkparity.codebase.model.note;
 /**
  * A parity note. Is a wrapper around a simple text string.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.3
  */
 public class Note {

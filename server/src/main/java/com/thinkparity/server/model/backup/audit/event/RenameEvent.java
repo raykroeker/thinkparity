@@ -9,7 +9,7 @@ import com.thinkparity.ophelia.model.audit.AuditEventType;
 /**
  * This event is recorded when a document is renamed.
  *
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version $Revision$
  */
 public class RenameEvent extends AuditEvent {

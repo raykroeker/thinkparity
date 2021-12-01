@@ -20,7 +20,7 @@ import java.util.Properties;
   * trivial.  The Class resolution takes the name of the class; for example
   * codebase.util.Config and appends .properties to it.  It then attempts to load the
   * resource codebase.util.config.properties as a properties file.
-  * @author raykroeker@gmail.com
+  * @author raymond@raykroeker.com
   * @version 1.0.0
   */
 public class Config extends Properties implements Serializable {
@@ -37,7 +37,7 @@ public class Config extends Properties implements Serializable {
 	 * Config file could not be found
 	 * Config file could not be loaded
 	 * Config file could not be stored
-	 * @author raykroeker@gmail.com
+	 * @author raymond@raykroeker.com
 	 * @version 1.0.0
 	 */
 	public static final class ConfigError extends Error {

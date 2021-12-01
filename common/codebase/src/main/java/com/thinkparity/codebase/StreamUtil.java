@@ -16,7 +16,7 @@ import com.thinkparity.codebase.nio.ChannelUtil;
 /**
  * Stream utility functions.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public abstract class StreamUtil {

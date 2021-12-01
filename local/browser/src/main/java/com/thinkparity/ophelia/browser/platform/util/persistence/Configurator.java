@@ -6,7 +6,7 @@ package com.thinkparity.ophelia.browser.platform.util.persistence;
 import java.util.Properties;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class Configurator {

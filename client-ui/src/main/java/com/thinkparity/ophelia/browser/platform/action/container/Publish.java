@@ -40,7 +40,7 @@ import com.thinkparity.ophelia.browser.platform.action.ThinkParitySwingWorker;
  * Publish a document. This will send a given document version to every member
  * of the team.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class Publish extends AbstractBrowserAction {

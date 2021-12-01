@@ -9,7 +9,7 @@ import com.thinkparity.codebase.model.artifact.Artifact;
 
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 class NameComparator extends AbstractArtifactComparator {

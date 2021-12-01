@@ -8,7 +8,7 @@ import com.thoughtworks.xstream.core.util.Base64Encoder;
 /**
  * Base64
  * Provides base64 encoding\decoding via the apache commons code libarary.
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class Base64 {

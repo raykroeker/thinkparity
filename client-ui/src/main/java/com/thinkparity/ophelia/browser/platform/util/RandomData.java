@@ -13,7 +13,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactType;
 
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class RandomData {

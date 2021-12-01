@@ -6,7 +6,7 @@ package com.thinkparity.codebase;
 /**
  * The jvm unique id is a guaranteed unique id per running instance of the JVM.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  * 
  * @see JVMUniqueId#nextId()

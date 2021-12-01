@@ -10,7 +10,7 @@ import com.thinkparity.codebase.config.Config;
  * <b>Description:</b>An abstraction of version information for a thinkParity
  * application.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.2.2.4
  */
 public abstract class Version {

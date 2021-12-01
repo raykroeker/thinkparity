@@ -18,7 +18,7 @@ import com.thinkparity.ophelia.browser.platform.action.Data;
 /**
  * RenameDocument is run when the user rename's an artifact.
  *
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version $Revision$
  */
 public class RenameDocument extends AbstractBrowserAction {

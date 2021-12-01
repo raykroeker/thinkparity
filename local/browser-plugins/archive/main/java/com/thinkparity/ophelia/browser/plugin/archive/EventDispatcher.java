@@ -15,7 +15,7 @@ import com.thinkparity.ophelia.model.events.SessionListener;
  * <b>Title:</b>thinkParity Archive Plugin Event Dispatcher<br>
  * <b>Description:</b>Handles local and remote events for the archive plugin.</br>
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 final class EventDispatcher {

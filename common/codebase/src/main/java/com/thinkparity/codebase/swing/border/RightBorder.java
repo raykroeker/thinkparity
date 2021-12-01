@@ -11,7 +11,7 @@ import javax.swing.border.AbstractBorder;
 /**
  * A border that draws a single solid line at the right edge of a component.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class RightBorder extends AbstractBorder {

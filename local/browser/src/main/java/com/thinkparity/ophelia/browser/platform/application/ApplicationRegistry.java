@@ -14,7 +14,7 @@ import java.util.Map;
  * @see Application
  * @see ApplicationFactory#create(ApplicationId)
  * @see ApplicationId
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class ApplicationRegistry {

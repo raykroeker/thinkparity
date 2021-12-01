@@ -10,7 +10,7 @@ import com.thinkparity.ophelia.model.audit.AuditEventType;
 /**
  * This event is recorded when an artifact version is sent.
  *
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class SendEvent extends AuditVersionEvent {

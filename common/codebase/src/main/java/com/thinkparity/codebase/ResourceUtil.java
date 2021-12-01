@@ -15,7 +15,7 @@ import java.util.Locale;
  * <b>Title:</b>  ResourceUtil
  * <br><b>Description:</b>  Provides helper methods for obtaining references
  * to resources.
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.0.0
  */
 public abstract class ResourceUtil {

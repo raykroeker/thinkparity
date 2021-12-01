@@ -9,7 +9,7 @@ import com.thinkparity.ophelia.OpheliaTestUser;
 
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version $Revision$
  */
 public class IsDraftModifiedTest extends DocumentTestCase {

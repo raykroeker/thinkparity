@@ -59,7 +59,7 @@ import com.thinkparity.stream.download.DownloadFile;
 /**
  * Implementation of the document model interface.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version $Revision$
  */
 public final class DocumentModelImpl extends

@@ -4,7 +4,7 @@
 package com.thinkparity.codebase.junitx;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  */
 public class JUnitX {
 

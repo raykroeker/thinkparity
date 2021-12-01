@@ -33,8 +33,7 @@ Examples:
         </tstamp>
         <mail subject="Pre-release reminder" messagefile="notify.release-reminder-message">
             <from address="thinkparity.development@gmail.com" name="thinkParity R &amp; D"/>
-            <to address="raykroeker@gmail.com" name="Raymond Kroeker"/>
-            <to address="rob_masako@shaw.ca" name="Robert MacMartin"/>
+            <to address="raymond@raykroeker.com" name="Raymond Kroeker"/>
         </mail>
     </target>
 </project>

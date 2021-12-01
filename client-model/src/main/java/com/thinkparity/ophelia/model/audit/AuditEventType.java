@@ -6,7 +6,7 @@ package com.thinkparity.ophelia.model.audit;
 import com.thinkparity.codebase.assertion.Assert;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public enum AuditEventType {

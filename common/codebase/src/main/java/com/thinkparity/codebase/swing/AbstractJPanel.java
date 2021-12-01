@@ -18,7 +18,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
  * An abstraction of a swing JPanel. Used by all thinkParity panels as a root
  * class.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version $Revision$
  */
 public class AbstractJPanel extends JPanel {

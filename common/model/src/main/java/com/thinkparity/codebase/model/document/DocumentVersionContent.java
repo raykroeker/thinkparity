@@ -10,7 +10,7 @@ package com.thinkparity.codebase.model.document;
  * of a document version. The content is separated to maintain a high level of
  * performance when reading lists of document versions.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class DocumentVersionContent {

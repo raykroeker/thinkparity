@@ -14,7 +14,7 @@ import com.thinkparity.ophelia.browser.platform.application.ApplicationStatus;
 /**
  * Restore the browser application.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class Restore extends AbstractAction {

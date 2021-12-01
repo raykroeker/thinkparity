@@ -13,7 +13,7 @@ import com.thinkparity.ophelia.browser.platform.plugin.extension.ActionExtension
  * An action registry. As actions are created via the factory they are stored in
  * the registry for future use.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  * @see ActionFactory#create(ActionId)
  * @see ActionFactory#createAction(ActionId, Browser)

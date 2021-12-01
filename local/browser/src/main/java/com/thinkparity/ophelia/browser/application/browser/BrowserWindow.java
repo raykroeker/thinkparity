@@ -32,7 +32,7 @@ import com.thinkparity.ophelia.browser.util.window.WindowUtil;
 import com.thinkparity.ophelia.browser.util.window.WindowUtilProvider;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class BrowserWindow extends AbstractJFrame {

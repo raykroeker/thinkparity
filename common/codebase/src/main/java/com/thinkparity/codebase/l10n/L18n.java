@@ -8,7 +8,7 @@ import java.util.ResourceBundle;
 /**
  * 
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public abstract class L18n {

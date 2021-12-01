@@ -7,7 +7,7 @@ package com.thinkparity.ophelia.model.message;
 import com.thinkparity.ophelia.model.ModelTestCase;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 abstract class SystemMessageTestCase extends ModelTestCase {

@@ -48,7 +48,7 @@ import com.thinkparity.ophelia.browser.platform.application.Application;
 import com.thinkparity.ophelia.browser.platform.application.ApplicationListener;
 
 /**
- * @author rob_masako@shaw.ca; raykroeker@gmail.com
+ * @author rob_masako@shaw.ca; raymond@raykroeker.com
  * @version 1.1.2.4
  */
 public final class ContainerTabModel extends TabPanelModel<Long> implements

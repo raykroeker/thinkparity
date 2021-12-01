@@ -8,7 +8,7 @@ import java.util.Locale;
 /**
  * LocaleManager
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.0
  */
 public class LocaleManager {

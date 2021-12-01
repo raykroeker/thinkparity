@@ -5,7 +5,7 @@ package com.thinkparity.ophelia.model.util.filter;
 
 /**
  * TODO Remove from model and reference codebase.
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public abstract class AbstractFilter<T> implements Filter<T> {

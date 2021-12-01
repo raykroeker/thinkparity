@@ -14,7 +14,7 @@ import com.thinkparity.codebase.SystemUtil.SystemProperty;
 /**
  * String utility functions.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.2
  */
 public abstract class StringUtil {
@@ -475,7 +475,7 @@ public abstract class StringUtil {
 	/**
 	 * Provides an enumeration of some common character sets.  The enumerated
 	 * types also contain references to the actual java charsets.
-	 * @author raykroeker@gmail.com
+	 * @author raymond@raykroeker.com
 	 * @version 1.0.0
 	 * @see java.nio.charset.Charset
 	 */
@@ -526,7 +526,7 @@ public abstract class StringUtil {
 	 * <b>Title:</b>  Separator
 	 * <br><b>Description:</b>  Separator is used as a place holder for various 
 	 * string constants commonly used in String manipulation.  
-	 * @author raykroeker@gmail.com
+	 * @author raymond@raykroeker.com
 	 * @version 1.0.1
 	 */
 	public static final class Separator extends Enum {

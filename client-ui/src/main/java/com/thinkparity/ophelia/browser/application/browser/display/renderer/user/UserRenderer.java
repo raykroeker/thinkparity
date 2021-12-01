@@ -13,7 +13,7 @@ import com.thinkparity.codebase.model.user.User;
 
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class UserRenderer extends DefaultListCellRenderer {

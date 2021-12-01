@@ -12,7 +12,7 @@ import com.thinkparity.ophelia.OpheliaTestUser;
 /**
  * Test the workspace model getWorkspace api.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1.2.1
  */
 public class GetWorkspaceTest extends ModelTestCase {

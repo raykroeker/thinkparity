@@ -16,7 +16,7 @@ import com.thinkparity.ophelia.model.events.DocumentListener;
  * <b>Description:</b>An abstraction of a document test case. Within the setup
  * for this abstraction a user's session is established.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 abstract class DocumentTestCase extends ModelTestCase {

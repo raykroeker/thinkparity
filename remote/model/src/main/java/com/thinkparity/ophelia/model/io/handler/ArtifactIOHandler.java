@@ -16,7 +16,7 @@ import com.thinkparity.codebase.model.user.User;
 import com.thinkparity.ophelia.model.io.db.hsqldb.HypersonicException;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public interface ArtifactIOHandler {

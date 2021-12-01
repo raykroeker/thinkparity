@@ -34,7 +34,7 @@ import java.util.Vector;
  * SysLog myLogHandle = new SysLog(SysLogLevel.Debug);
  * 
  * Updated to JDK 1.5
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.2
  */
 public abstract class Enum implements Serializable {

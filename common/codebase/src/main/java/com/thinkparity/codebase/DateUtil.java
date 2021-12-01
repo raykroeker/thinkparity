@@ -17,7 +17,7 @@ import java.util.Vector;
  * <br><b>Description:</b>  
  * 
  * Updated to JDK 5.0
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.2
  */
 public abstract class DateUtil {
@@ -490,7 +490,7 @@ public abstract class DateUtil {
 	 * '        escape for text         (Delimiter)
 	 * ''       single quote            (Literal)           '
 	 * </pre>
-	 * @author raykroeker@gmail.com
+	 * @author raymond@raykroeker.com
 	 * @version 1.0.0
 	 */
 	public static final class DateImage extends Enum {
@@ -626,7 +626,7 @@ public abstract class DateUtil {
 	/**
 	 * <b>Title:</b>  DayOfWeek
 	 * <br><b>Description:</b>  Provides an enum of the days of the week
-	 * @author raykroeker@gmail.com
+	 * @author raymond@raykroeker.com
 	 * @version 1.0.0
 	 */
 	public static final class DayOfWeek extends Enum {

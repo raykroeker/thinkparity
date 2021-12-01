@@ -25,7 +25,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 import com.thinkparity.ophelia.browser.util.ModelFactory;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class PersistenceFactory {

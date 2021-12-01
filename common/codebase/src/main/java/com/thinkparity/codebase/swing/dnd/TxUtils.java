@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 /**
  * Swing drag'n'drop transfer utilities.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class TxUtils {

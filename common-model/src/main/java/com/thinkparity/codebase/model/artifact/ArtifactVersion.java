@@ -18,7 +18,7 @@ import com.thinkparity.codebase.jabber.JabberId;
  * in its entirety; as well as the revision information including an id; a
  * timestamp and some custom meta data.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.2
  * @see Artifact
  */

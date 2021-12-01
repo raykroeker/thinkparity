@@ -18,7 +18,7 @@ import com.thinkparity.codebase.ui.provider.Provider;
  * @see Avatar
  * @see AvatarFactory#create(AvatarId)
  * @see AvatarId
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public abstract class AvatarRegistry<T extends Platform, U extends Application<T>> {

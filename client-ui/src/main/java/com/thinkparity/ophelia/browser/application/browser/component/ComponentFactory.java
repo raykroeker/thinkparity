@@ -22,7 +22,7 @@ import com.thinkparity.ophelia.browser.application.browser.BrowserConstants;
 import org.apache.log4j.Logger;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 abstract class ComponentFactory {

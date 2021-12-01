@@ -11,7 +11,7 @@ import java.awt.Insets;
 import javax.swing.border.EtchedBorder;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class CustomEtechedBorder extends EtchedBorder {

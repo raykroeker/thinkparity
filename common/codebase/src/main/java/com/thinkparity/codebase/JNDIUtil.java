@@ -10,7 +10,7 @@ import javax.naming.NamingException;
 /**
  * <b>Title:</b>  JNDIUtil
  * <br><b>Description:</b>  
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.0.0
  */
 public abstract class JNDIUtil {

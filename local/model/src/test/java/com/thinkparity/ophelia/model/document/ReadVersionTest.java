@@ -11,7 +11,7 @@ import com.thinkparity.ophelia.OpheliaTestUser;
 
 /**
  * Test the document model getVersion api.
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class ReadVersionTest extends DocumentTestCase {

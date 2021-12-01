@@ -5,7 +5,7 @@ package com.thinkparity.ophelia.browser.util.localization;
 
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public enum L18nResource implements com.thinkparity.codebase.l10n.L18nResource {

@@ -1,6 +1,6 @@
 ;NSIS Modern User Interface
 ;Parity Installation Script
-;raykroeker@gmail.com
+; raymond@raykroeker.com
 
 ;--------------------------------
 ;Include Modern UI

@@ -8,7 +8,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 class BrowserSessionImpl {

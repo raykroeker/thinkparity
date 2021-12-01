@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
  * 
  * TODO Add an abstract jframe within the ophelia UI component that will apply
  * the native skin.
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version $Revision$
  */
 public abstract class AbstractJFrame extends JFrame {

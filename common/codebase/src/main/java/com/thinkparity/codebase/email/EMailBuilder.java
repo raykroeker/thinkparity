@@ -7,7 +7,7 @@ package com.thinkparity.codebase.email;
  * A singleton builder object user to create EMail objects by parsing text.  The
  * basis for parsing is {@link http://tools.ietf.org/html/rfc2822 RFC2822}.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  * 
  * @see EMail

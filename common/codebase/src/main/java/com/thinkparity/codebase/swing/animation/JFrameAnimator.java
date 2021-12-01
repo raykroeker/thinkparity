@@ -4,7 +4,7 @@
 package com.thinkparity.codebase.swing.animation;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public interface JFrameAnimator extends Animator {}

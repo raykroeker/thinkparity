@@ -76,7 +76,7 @@ import com.thinkparity.ophelia.OpheliaTestUser;
 /**
  * ModelTestCase
  * Abstract root for all of the parity test cases.
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public abstract class ModelTestCase extends OpheliaTestCase {

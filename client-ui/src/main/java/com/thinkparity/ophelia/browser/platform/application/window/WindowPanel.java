@@ -20,7 +20,7 @@ import com.thinkparity.ophelia.browser.platform.window.Window;
  * display properties are controlled by both the {@link WindowTitle} and the
  * {@link Avatar}.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1.2.7
  */
 public class WindowPanel extends AbstractJPanel {

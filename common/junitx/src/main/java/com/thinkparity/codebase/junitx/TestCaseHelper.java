@@ -30,7 +30,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
 import com.thinkparity.codebase.nio.ChannelUtil;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  */
 public class TestCaseHelper {
 

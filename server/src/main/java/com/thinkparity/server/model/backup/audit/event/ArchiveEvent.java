@@ -9,7 +9,7 @@ import com.thinkparity.ophelia.model.audit.AuditEventType;
 /**
  * This event is recorded when an artifact is archived.
  *
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class ArchiveEvent extends AuditEvent {

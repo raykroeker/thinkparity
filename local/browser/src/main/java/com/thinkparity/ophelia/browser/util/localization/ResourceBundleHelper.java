@@ -15,7 +15,7 @@ import com.thinkparity.codebase.log4j.Log4JWrapper;
  * from a bundle within a set l18Context. This is useful when the eventual user
  * of a resource string is a ui class that maps key names to variable names.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.0
  */
 public class ResourceBundleHelper {

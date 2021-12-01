@@ -17,7 +17,7 @@ import com.thinkparity.codebase.StackUtil;
 import com.thinkparity.desdemona.util.crypto.CryptoProvider;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class HypersonicSessionManager {

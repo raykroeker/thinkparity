@@ -9,7 +9,7 @@ import com.thinkparity.ophelia.model.audit.AuditEventType;
 /**
  * An abstraction of an event with a version.
  *
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  * @see AuditEvent
  */

@@ -7,7 +7,7 @@ package com.thinkparity.codebase.model.artifact;
 import com.thinkparity.codebase.assertion.Assert;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version $Revision$
  */
 public enum ArtifactState {

@@ -6,7 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.display.provider;
 import com.thinkparity.ophelia.model.profile.ProfileModel;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public abstract class SingleContentProvider extends ContentProvider {

@@ -36,7 +36,7 @@ import com.thinkparity.service.ServiceFactory;
 import com.thinkparity.service.SessionService;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.0
  */
 public class OpheliaTestUser extends User {

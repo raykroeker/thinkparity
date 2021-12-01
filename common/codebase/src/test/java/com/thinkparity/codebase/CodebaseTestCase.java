@@ -8,7 +8,7 @@ import com.thinkparity.codebase.junitx.TestCase;
 /**
  * Codebase abstract test case.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.3.2.6
  */
 public abstract class CodebaseTestCase extends TestCase {

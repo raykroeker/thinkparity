@@ -14,7 +14,7 @@ import javax.swing.JComponent;
  * subsequent start\stop calls. This is so that during the animation no
  * mouse events can be captured by the underlying components.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class GlassPaneInterceptor extends JComponent implements

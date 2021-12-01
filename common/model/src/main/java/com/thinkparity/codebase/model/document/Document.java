@@ -15,7 +15,7 @@ import com.thinkparity.codebase.model.artifact.ArtifactType;
  * The document content is a wrapper around the document's bytes. The document
  * version contains a snapshot of the document at a single point in time.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.2.2.12
  * @see DocumentContent
  * @see DocumentVersion

@@ -14,7 +14,7 @@ import com.thinkparity.ophelia.browser.util.ImageIOUtil;
 /**
  * The status display contains a single status avatar.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class StatusDisplay extends Display {

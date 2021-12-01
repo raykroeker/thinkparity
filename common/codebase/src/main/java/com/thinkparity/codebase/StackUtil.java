@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Utility methods for accessing stack trace items.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version $Revision$
  */
 public class StackUtil {

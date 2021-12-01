@@ -14,7 +14,7 @@ import com.thinkparity.ophelia.model.audit.AuditEventType;
  * An abstraction of an audit event.  It contains an artifact id; the creator
  * the creation date; the audit id and the event type.
  *
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public abstract class AuditEvent {

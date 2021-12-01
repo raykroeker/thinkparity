@@ -41,7 +41,7 @@ import org.apache.log4j.Logger;
  * The history item builder is used to create history items based upon the audit
  * events for an artifact.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version $Revision$
  */
 public class HistoryItemBuilder {

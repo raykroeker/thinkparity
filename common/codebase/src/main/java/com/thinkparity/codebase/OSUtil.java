@@ -7,7 +7,7 @@ import com.thinkparity.codebase.assertion.Assert;
 
 /**
  * OSUtil
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.2
  */
 public class OSUtil {

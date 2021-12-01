@@ -5,7 +5,7 @@ package com.thinkparity.codebase;
 
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class Pair<T, U> {

@@ -41,7 +41,7 @@ import com.thinkparity.ophelia.model.workspace.Workspace;
 /**
  * Implementation of the document model interface.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version $Revision$
  */
 public final class DocumentModelImpl extends

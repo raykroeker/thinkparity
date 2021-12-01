@@ -16,7 +16,7 @@ import com.thinkparity.codebase.jabber.JabberIdBuilder;
  * every user in the system. It consists of a login, name; organization and
  * title which are shared with everyone (the login only by the software).<br>
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.2.2.14
  */
 public class User {

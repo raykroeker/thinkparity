@@ -66,7 +66,7 @@ import com.thinkparity.desdemona.model.user.InternalUserModel;
 import com.thinkparity.desdemona.util.DesdemonaProperties;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public abstract class AbstractModelImpl

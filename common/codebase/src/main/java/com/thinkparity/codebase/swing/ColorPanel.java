@@ -7,7 +7,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class ColorPanel extends AbstractJPanel {

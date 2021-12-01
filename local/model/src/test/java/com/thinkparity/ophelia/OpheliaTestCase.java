@@ -21,7 +21,7 @@ import com.thinkparity.codebase.model.session.Environment;
 import org.apache.log4j.PropertyConfigurator;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public abstract class OpheliaTestCase extends TestCase {

@@ -12,7 +12,7 @@ import com.thinkparity.ophelia.model.audit.HistoryItem;
  * A history item comparator that knows how to compare history item
  * ids.
  *
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class HistoryItemIdComparator implements Comparator<HistoryItem> {

@@ -10,7 +10,7 @@ import com.thinkparity.desdemona.model.session.Session;
 
 /**
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.0
  */
 public class ParityErrorTranslator {

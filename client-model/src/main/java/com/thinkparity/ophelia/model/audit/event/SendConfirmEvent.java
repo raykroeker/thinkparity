@@ -12,7 +12,7 @@ import com.thinkparity.ophelia.model.audit.AuditEventType;
  * An event triggered for UserX when UserX sends a document to UserY; and UserY
  * sends a confirmation back to UserX.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class SendConfirmEvent extends AuditVersionEvent {

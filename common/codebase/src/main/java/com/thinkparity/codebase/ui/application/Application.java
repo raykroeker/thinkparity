@@ -7,7 +7,7 @@ import com.thinkparity.codebase.ui.platform.Platform;
 import com.thinkparity.codebase.ui.platform.Saveable;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public interface Application<T extends Platform> extends Saveable {

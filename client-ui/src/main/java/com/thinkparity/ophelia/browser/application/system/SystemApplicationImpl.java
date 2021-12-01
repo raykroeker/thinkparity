@@ -17,7 +17,7 @@ import com.thinkparity.ophelia.browser.application.system.dialog.UpdateConfigura
 import com.thinkparity.ophelia.browser.application.system.tray.Tray;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 class SystemApplicationImpl extends Thread {

@@ -9,7 +9,7 @@ import java.io.OutputStream;
 /**
  * System utility functions.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.3.2.1
  */
 public final class SystemUtil {
@@ -73,7 +73,7 @@ public final class SystemUtil {
 	 * <b>Title:</b>  SystemProperty
 	 * <br><b>Description:</b>  Provides an enum of commonly retrieved system
 	 * properties
-	 * @author raykroeker@gmail.com
+	 * @author raymond@raykroeker.com
 	 * @version 1.0.0
 	 */
 	public static final class SystemProperty extends Enum {

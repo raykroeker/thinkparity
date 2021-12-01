@@ -7,7 +7,7 @@ package com.thinkparity.ophelia.model.events;
  * A document adapter implements the document listener without implementing
  * any of the events.
  *
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  */
 public class DocumentAdapter implements DocumentListener {
 

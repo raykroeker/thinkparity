@@ -13,7 +13,7 @@ import javax.swing.JFrame;
 import com.thinkparity.codebase.assertion.Assert;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public abstract class AbstractAnimator implements IAnimator {

@@ -6,7 +6,7 @@ package com.thinkparity.ophelia.browser.application.browser.component;
 import javax.swing.JScrollPane;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class ScrollPaneFactory extends ComponentFactory {

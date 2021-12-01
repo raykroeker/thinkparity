@@ -23,7 +23,7 @@ import com.thinkparity.service.adapter.CalendarXmlAdapter;
  * The parity object is uniquely identifiable; as well as "shareable" across the
  * xmpp network.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.5.2.11
  */
 public abstract class Artifact {

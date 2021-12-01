@@ -7,7 +7,7 @@ package com.thinkparity.codebase;
  * <b>Title:</b>  Duality
  * <br><b>Description:</b>  A duality is simply a set of objects which belong
  * together.
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.0.0
  */
 public abstract class Duality {

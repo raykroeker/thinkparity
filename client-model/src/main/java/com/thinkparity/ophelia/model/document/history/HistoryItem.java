@@ -13,7 +13,7 @@ import java.util.Calendar;
  * The history item also includes links to the document and potentially a
  * specific version of that document.
  * 
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class HistoryItem {

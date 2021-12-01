@@ -12,7 +12,7 @@ import com.thinkparity.codebase.assertion.Assert;
 import com.thinkparity.codebase.assertion.NotOfTypeAssertion;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public class AssertTypeTest extends CodebaseTestCase {

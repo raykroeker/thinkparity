@@ -8,7 +8,7 @@ import com.thinkparity.codebase.ui.application.ApplicationListener;
 import com.thinkparity.codebase.ui.platform.event.LifeCycleListener;
 
 /**
- * @author raykroeker@gmail.com
+ * @author raymond@raykroeker.com
  * @version 1.1
  */
 public interface Platform extends ApplicationListener<Platform> {
